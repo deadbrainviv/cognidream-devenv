@@ -2,7 +2,7 @@
 
 <div align="center">
 	<img
-		src="./src/vs/workbench/browser/parts/editor/media/cognidream_engine_SDP.png.png"
+		src="./src/vs/workbench/browser/parts/editor/media/cognidream_engine_SDP.png"
 	 	alt="CogniSynpase Welcomes You to CogniDream"
 		width="300"
 	 	height="300"
