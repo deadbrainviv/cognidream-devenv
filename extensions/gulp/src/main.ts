@@ -129,7 +129,7 @@ class FolderDetector {
 		return vscode.workspace.getConfiguration('gulp', this._workspaceFolder.uri).get<AutoDetect>('autoDetect') === 'on';
 	}
 
-	public start(): cognidream {
+	public start(): void {
 		const pattern = path.join(this._workspaceFolder.uri.fsPath, '{node_modules,gulpfile{.babel.js,.esm.js,.js,.mjs,.cjs,.ts}}');
 		this.fileWatcher = vscode.workspace.createFileSystemWatcher(pattern);
 		this.fileWatcher.onDidChange(() => this.promise = undefined);
@@ -260,7 +260,7 @@ class FolderDetector {
 		}
 	}
 
-	public dispose() {
+	public dispose(): void {
 		this.promise = undefined;
 		if (this.fileWatcher) {
 			this.fileWatcher.dispose();
@@ -276,7 +276,7 @@ class TaskDetector {
 	constructor() {
 	}
 
-	public start(): cognidream {
+	public start(): void {
 		const folders = vscode.workspace.workspaceFolders;
 		if (folders) {
 			this.updateWorkspaceFolders(folders, []);
@@ -285,7 +285,7 @@ class TaskDetector {
 		vscode.workspace.onDidChangeConfiguration(this.updateConfiguration, this);
 	}
 
-	public dispose(): cognidream {
+	public dispose(): void {
 		if (this.taskProvider) {
 			this.taskProvider.dispose();
 			this.taskProvider = undefined;
@@ -293,7 +293,7 @@ class TaskDetector {
 		this.detectors.clear();
 	}
 
-	private updateWorkspaceFolders(added: readonly vscode.WorkspaceFolder[], removed: readonly vscode.WorkspaceFolder[]): cognidream {
+	private updateWorkspaceFolders(added: readonly vscode.WorkspaceFolder[], removed: readonly vscode.WorkspaceFolder[]): void {
 		for (const remove of removed) {
 			const detector = this.detectors.get(remove.uri.toString());
 			if (detector) {
@@ -311,7 +311,7 @@ class TaskDetector {
 		this.updateProvider();
 	}
 
-	private updateConfiguration(): cognidream {
+	private updateConfiguration(): void {
 		for (const detector of this.detectors.values()) {
 			detector.dispose();
 			this.detectors.delete(detector.workspaceFolder.uri.toString());
@@ -331,7 +331,7 @@ class TaskDetector {
 		this.updateProvider();
 	}
 
-	private updateProvider(): cognidream {
+	private updateProvider(): void {
 		if (!this.taskProvider && this.detectors.size > 0) {
 			const thisCapture = this;
 			this.taskProvider = vscode.tasks.registerTaskProvider('gulp', {
@@ -396,11 +396,11 @@ class TaskDetector {
 }
 
 let detector: TaskDetector;
-export function activate(_context: vscode.ExtensionContext): cognidream {
+export function activate(_context: vscode.ExtensionContext): void {
 	detector = new TaskDetector();
 	detector.start();
 }
 
-export function deactivate(): cognidream {
+export function deactivate(): void {
 	detector.dispose();
 }
