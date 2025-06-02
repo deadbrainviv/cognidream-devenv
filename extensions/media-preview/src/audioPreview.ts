@@ -21,7 +21,7 @@ class AudioPreviewProvider implements vscode.CustomReadonlyEditorProvider {
 		return { uri, dispose: () => { } };
 	}
 
-	public async resolveCustomEditor(document: vscode.CustomDocument, webviewEditor: vscode.WebviewPanel): Promise<cognidream> {
+	public async resolveCustomEditor(document: vscode.CustomDocument, webviewEditor: vscode.WebviewPanel): Promise<void> {
 		new AudioPreview(this.extensionRoot, document.uri, webviewEditor, this.binarySizeStatusBarEntry);
 	}
 }

@@ -51,7 +51,7 @@ export interface RemoteSourceAction {
 	 * Codicon name
 	 */
 	readonly icon: string;
-	run(branch: string): cognidream;
+	run(branch: string): void;
 }
 
 export interface RemoteSource {
@@ -83,4 +83,8 @@ export interface RemoteSourceProvider {
 	getRemoteSourceActions?(url: string): ProviderResult<RemoteSourceAction[]>;
 	getRecentRemoteSources?(query?: string): ProviderResult<RecentRemoteSource[]>;
 	getRemoteSources(query?: string): ProviderResult<RemoteSource[]>;
+}
+
+export interface IGitBaseExtension {
+	dispose(): void;
 }

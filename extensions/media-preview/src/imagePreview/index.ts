@@ -32,7 +32,7 @@ export class PreviewManager implements vscode.CustomReadonlyEditorProvider {
 	public async resolveCustomEditor(
 		document: vscode.CustomDocument,
 		webviewEditor: vscode.WebviewPanel,
-	): Promise<cognidream> {
+	): Promise<void> {
 		const preview = new ImagePreview(this.extensionRoot, document.uri, webviewEditor, this.sizeStatusBarEntry, this.binarySizeStatusBarEntry, this.zoomStatusBarEntry);
 		this._previews.add(preview);
 		this.setActivePreview(preview);
@@ -50,7 +50,7 @@ export class PreviewManager implements vscode.CustomReadonlyEditorProvider {
 
 	public get activePreview() { return this._activePreview; }
 
-	private setActivePreview(value: ImagePreview | undefined): cognidream {
+	private setActivePreview(value: ImagePreview | undefined): void {
 		this._activePreview = value;
 	}
 }
@@ -115,7 +115,7 @@ class ImagePreview extends MediaPreview {
 		this.updateState();
 	}
 
-	public override dispose(): cognidream {
+	public override dispose(): void {
 		super.dispose();
 		this.sizeStatusBarEntry.hide(this);
 		this.zoomStatusBarEntry.hide(this);
@@ -155,7 +155,7 @@ class ImagePreview extends MediaPreview {
 			this.zoomStatusBarEntry.hide(this);
 		}
 	}
-	protected override async render(): Promise<cognidream> {
+	protected override async render(): Promise<void> {
 		await super.render();
 		this.webviewEditor.webview.postMessage({ type: 'setActive', value: this.webviewEditor.active });
 	}

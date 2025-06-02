@@ -1,3 +1,4 @@
+/// <reference path="./types.d.ts" />
 /*---------------------------------------------------------------------------------------------
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
@@ -36,11 +37,11 @@ declare module 'vscode' {
 	export interface ManagedMessagePassing {
 		onDidReceiveMessage: Event<Uint8Array>;
 		onDidClose: Event<Error | undefined>;
-		onDidEnd: Event<cognidream>;
+		onDidEnd: Event<void>;
 
-		send: (data: Uint8Array) => cognidream;
-		end: () => cognidream;
-		drain?: () => Thenable<cognidream>;
+		send: (data: Uint8Array) => void;
+		end: () => void;
+		drain?: () => Thenable<void>;
 	}
 
 	export class ManagedResolvedAuthority {
@@ -102,8 +103,8 @@ declare module 'vscode' {
 
 	export interface Tunnel extends TunnelDescription {
 		// Implementers of Tunnel should fire onDidDispose when dispose is called.
-		onDidDispose: Event<cognidream>;
-		dispose(): cognidream | Thenable<cognidream>;
+		onDidDispose: Event<void>;
+		dispose(): void | Thenable<void>;
 	}
 
 	/**
@@ -201,7 +202,7 @@ declare module 'vscode' {
 		 *
 		 * @param processId process ID to kill.
 		 */
-		kill(processId: number): Thenable<cognidream>;
+		kill(processId: number): Thenable<void>;
 
 		/**
 		 * Connects to the given TCP host/port on the remote.
@@ -214,7 +215,7 @@ declare module 'vscode' {
 		tcpConnect(
 			host: string,
 			port: number,
-		): Thenable<{ stream: WriteStream & ReadStream; done: Thenable<cognidream> }>;
+		): Thenable<{ stream: WriteStream & ReadStream; done: Thenable<void> }>;
 
 		/**
 		 * Access to the file system of the remote.
@@ -254,12 +255,12 @@ declare module 'vscode' {
 
 	export interface ReadStream {
 		readonly onDidReceiveMessage: Event<Uint8Array>;
-		readonly onEnd: Thenable<cognidream>;
+		readonly onEnd: Thenable<void>;
 	}
 
 	export interface WriteStream {
-		write(data: Uint8Array): cognidream;
-		end(): cognidream;
+		write(data: Uint8Array): void;
+		end(): void;
 	}
 
 	export interface ServeParams {
@@ -304,7 +305,7 @@ declare module 'vscode' {
 		 * @param path The path of the folder to create
 		 * @throws an exception when `path` is a file, or other i/o operations happen
 		 */
-		mkdirp(path: string): Thenable<cognidream>;
+		mkdirp(path: string): Thenable<void>;
 
 		/**
 		 * Recursively deletes the given path on the remote.
@@ -313,7 +314,7 @@ declare module 'vscode' {
 		 * @throws if an i/o error happens during removal. It does not throw if
 		 * the path already does not exist.
 		 */
-		rm(path: string): Thenable<cognidream>;
+		rm(path: string): Thenable<void>;
 
 		/**
 		 * Reads the given file from the remote.
@@ -332,7 +333,7 @@ declare module 'vscode' {
 		 * @returns a writable `stream` that accepts data, and a `done` promise that
 		 * will resolve after `stream.end()` is called once the write is complete.
 		 */
-		write(path: string): Thenable<{ stream: WriteStream; done: Thenable<cognidream> }>;
+		write(path: string): Thenable<{ stream: WriteStream; done: Thenable<void> }>;
 
 		/**
 		 * Connects to the given unix socket or named pipe on the remote.
@@ -342,7 +343,7 @@ declare module 'vscode' {
 		 * @returns a duplex stream, and a promise the resolves when both sides
 		 * have closed.
 		 */
-		connect(path: string): Thenable<{ stream: WriteStream & ReadStream; done: Thenable<cognidream> }>;
+		connect(path: string): Thenable<{ stream: WriteStream & ReadStream; done: Thenable<void> }>;
 
 		/**
 		 * Renames the file.
@@ -351,7 +352,7 @@ declare module 'vscode' {
 		 * @param toPath The new file path.
 		 * @throws if the original path doesn't exist, or the toPath can't be accessed
 		 */
-		rename(fromPath: string, toPath: string): Thenable<cognidream>;
+		rename(fromPath: string, toPath: string): Thenable<void>;
 
 		/**
 		 * Reads the contents of a directory.

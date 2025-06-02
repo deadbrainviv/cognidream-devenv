@@ -1,3 +1,4 @@
+/// <reference path="../../../../src/vscode-dts/types.d.ts" />
 /*---------------------------------------------------------------------------------------------
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
@@ -20,15 +21,15 @@ interface LanguageParticipantContribution {
 }
 
 export interface LanguageParticipants {
-	readonly onDidChange: Event<cognidream>;
+	readonly onDidChange: Event<void>;
 	readonly documentSelector: string[];
 	hasLanguage(languageId: string): boolean;
 	useAutoInsert(languageId: string): boolean;
-	dispose(): cognidream;
+	dispose(): void;
 }
 
 export function getLanguageParticipants(): LanguageParticipants {
-	const onDidChangeEmmiter = new EventEmitter<cognidream>();
+	const onDidChangeEmmiter = new EventEmitter<void>();
 	let languages = new Set<string>();
 	let autoInsert = new Set<string>();
 

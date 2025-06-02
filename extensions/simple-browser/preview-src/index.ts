@@ -89,7 +89,7 @@ onceDocumentLoaded(() => {
 
 	toggleFocusLockIndicatorEnabled(settings.focusLockIndicatorEnabled);
 
-	function navigateTo(rawUrl: string): cognidream {
+	function navigateTo(rawUrl: string): void {
 		try {
 			const url = new URL(rawUrl);
 

@@ -68,7 +68,7 @@ export interface TelemetryReporter {
 		[key: string]: string;
 	}, measurements?: {
 		[key: string]: number;
-	}): cognidream;
+	}): void;
 }
 
 export type LanguageClientConstructor = (name: string, description: string, clientOptions: LanguageClientOptions) => BaseLanguageClient;
@@ -80,12 +80,12 @@ export interface Runtime {
 	fileFs?: FileSystemProvider;
 	telemetry?: TelemetryReporter;
 	readonly timer: {
-		setTimeout(callback: (...args: any[]) => cognidream, ms: number, ...args: any[]): Disposable;
+		setTimeout(callback: (...args: any[]) => void, ms: number, ...args: any[]): Disposable;
 	};
 }
 
 export interface AsyncDisposable {
-	dispose(): Promise<cognidream>;
+	dispose(): Promise<void>;
 }
 
 export async function startClient(context: ExtensionContext, newLanguageClient: LanguageClientConstructor, runtime: Runtime): Promise<AsyncDisposable> {

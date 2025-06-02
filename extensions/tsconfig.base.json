@@ -37,5 +37,9 @@
 		"noUnusedLocals": true,
 		"noUnusedParameters": true,
 		"forceConsistentCasingInFileNames": true
-	}
+	},
+	"include": [
+		"../../src/typings/base-common.d.ts",
+		"../../src/vscode-dts/types.d.ts"
+	]
 }

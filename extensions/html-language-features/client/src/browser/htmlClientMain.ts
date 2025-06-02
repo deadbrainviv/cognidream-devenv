@@ -1,3 +1,4 @@
+/// <reference path="../../../../../src/vscode-dts/types.d.ts" />
 /*---------------------------------------------------------------------------------------------
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
@@ -22,7 +23,7 @@ export async function activate(context: ExtensionContext) {
 		};
 
 		const timer = {
-			setTimeout(callback: (...args: any[]) => cognidream, ms: number, ...args: any[]): Disposable {
+			setTimeout(callback: (...args: any[]) => void, ms: number, ...args: any[]): Disposable {
 				const handle = setTimeout(callback, ms, ...args);
 				return { dispose: () => clearTimeout(handle) };
 			}
@@ -35,7 +36,7 @@ export async function activate(context: ExtensionContext) {
 	}
 }
 
-export async function deactivate(): Promise<cognidream> {
+export async function deactivate(): Promise<void> {
 	if (client) {
 		await client.dispose();
 		client = undefined;

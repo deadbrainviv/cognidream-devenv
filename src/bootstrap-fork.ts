@@ -11,7 +11,7 @@ performance.mark('code/fork/start');
 
 //#region Helpers
 
-function pipeLoggingToParent(): cognidream {
+function pipeLoggingToParent(): void {
 	const MAX_STREAM_BUFFER_LENGTH = 1024 * 1024;
 	const MAX_LENGTH = 100000;
 
@@ -74,7 +74,7 @@ function pipeLoggingToParent(): cognidream {
 		}
 	}
 
-	function safeSend(arg: { type: string; severity: string; arguments: string }): cognidream {
+	function safeSend(arg: { type: string; severity: string; arguments: string }): void {
 		try {
 			if (process.send) {
 				process.send(arg);
@@ -92,7 +92,7 @@ function pipeLoggingToParent(): cognidream {
 			&& !(obj instanceof Date);
 	}
 
-	function safeSendConsoleMessage(severity: 'log' | 'warn' | 'error', args: string): cognidream {
+	function safeSendConsoleMessage(severity: 'log' | 'warn' | 'error', args: string): void {
 		safeSend({ type: '__$console', severity, arguments: args });
 	}
 
@@ -102,7 +102,7 @@ function pipeLoggingToParent(): cognidream {
 	 * The wrapped property is not defined with `writable: false` to acognidream
 	 * throwing errors, but rather a no-op setting. See https://github.com/microsoft/vscode-extension-telemetry/issues/88
 	 */
-	function wrapConsoleMethod(method: 'log' | 'info' | 'warn' | 'error', severity: 'log' | 'warn' | 'error'): cognidream {
+	function wrapConsoleMethod(method: 'log' | 'info' | 'warn' | 'error', severity: 'log' | 'warn' | 'error'): void {
 		Object.defineProperty(console, method, {
 			set: () => { },
 			get: () => function () { safeSendConsoleMessage(severity, safeToString(arguments)); },
@@ -115,7 +115,7 @@ function pipeLoggingToParent(): cognidream {
 	 * as to console.log with complete lines so that they're made available
 	 * to the debugger/CLI.
 	 */
-	function wrapStream(streamName: 'stdout' | 'stderr', severity: 'log' | 'warn' | 'error'): cognidream {
+	function wrapStream(streamName: 'stdout' | 'stderr', severity: 'log' | 'warn' | 'error'): void {
 		const stream = process[streamName];
 		const original = stream.write;
 
@@ -123,7 +123,7 @@ function pipeLoggingToParent(): cognidream {
 
 		Object.defineProperty(stream, 'write', {
 			set: () => { },
-			get: () => (chunk: string | Buffer | Uint8Array, encoding: BufferEncoding | undefined, callback: ((err?: Error | undefined) => cognidream) | undefined) => {
+			get: () => (chunk: string | Buffer | Uint8Array, encoding: BufferEncoding | undefined, callback: ((err?: Error | undefined) => void) | undefined) => {
 				buf += chunk.toString(encoding);
 				const eol = buf.length > MAX_STREAM_BUFFER_LENGTH ? buf.length : buf.lastIndexOf('\n');
 				if (eol !== -1) {
@@ -153,7 +153,7 @@ function pipeLoggingToParent(): cognidream {
 	wrapStream('stdout', 'log');
 }
 
-function handleExceptions(): cognidream {
+function handleExceptions(): void {
 
 	// Handle uncaught exceptions
 	process.on('uncaughtException', function (err) {
@@ -166,7 +166,7 @@ function handleExceptions(): cognidream {
 	});
 }
 
-function terminateWhenParentTerminates(): cognidream {
+function terminateWhenParentTerminates(): void {
 	const parentPid = Number(process.env['VSCODE_PARENT_PID']);
 
 	if (typeof parentPid === 'number' && !isNaN(parentPid)) {
@@ -180,7 +180,7 @@ function terminateWhenParentTerminates(): cognidream {
 	}
 }
 
-function configureCrashReporter(): cognidream {
+function configureCrashReporter(): void {
 	const crashReporterProcessType = process.env['VSCODE_CRASH_REPORTER_PROCESS_TYPE'];
 	if (crashReporterProcessType) {
 		try {

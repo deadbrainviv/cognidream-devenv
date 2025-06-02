@@ -9,6 +9,8 @@ import { HtmlRenderingHook, IDisposable, IRichRenderContext, JavaScriptRendering
 import { ttPolicy } from './htmlHelper';
 import { formatStackTrace } from './stackTraceHelper';
 
+export type IRichRenderContext = RendererContext<void> & { readonly settings: RenderOptions; readonly onDidChangeSettings: Event<RenderOptions> };
+
 function clearContainer(container: HTMLElement) {
 	while (container.firstChild) {
 		container.firstChild.remove();
@@ -104,7 +106,7 @@ function fixUpSvgElement(outputInfo: OutputItem, element: HTMLElement) {
 	}
 }
 
-async function renderHTML(outputInfo: OutputItem, container: HTMLElement, signal: AbortSignal, hooks: Iterable<HtmlRenderingHook>): Promise<cognidream> {
+async function renderHTML(outputInfo: OutputItem, container: HTMLElement, signal: AbortSignal, hooks: Iterable<HtmlRenderingHook>): Promise<void> {
 	clearContainer(container);
 	let element: HTMLElement = document.createElement('div');
 	const htmlContent = outputInfo.text();
@@ -123,7 +125,7 @@ async function renderHTML(outputInfo: OutputItem, container: HTMLElement, signal
 	domEval(element);
 }
 
-async function renderJavascript(outputInfo: OutputItem, container: HTMLElement, signal: AbortSignal, hooks: Iterable<JavaScriptRenderingHook>): Promise<cognidream> {
+async function renderJavascript(outputInfo: OutputItem, container: HTMLElement, signal: AbortSignal, hooks: Iterable<JavaScriptRenderingHook>): Promise<void> {
 	let scriptText = outputInfo.text();
 
 	for (const hook of hooks) {
@@ -148,7 +150,7 @@ interface Event<T> {
 	(listener: (e: T) => any, thisArgs?: any, disposables?: IDisposable[]): IDisposable;
 }
 
-function createDisposableStore(): { push(...disposables: IDisposable[]): cognidream; dispose(): cognidream } {
+function createDisposableStore(): { push(...disposables: IDisposable[]): void; dispose(): void } {
 	const localDisposables: IDisposable[] = [];
 	const disposable = {
 		push: (...disposables: IDisposable[]) => {
@@ -416,12 +418,12 @@ function renderText(outputInfo: OutputItem, outputElement: HTMLElement, ctx: IRi
 	return disposableStore;
 }
 
-export const activate: ActivationFunction<cognidream> = (ctx) => {
+export const activate: ActivationFunction<void> = (ctx) => {
 	const disposables = new Map<string, IDisposable>();
 	const htmlHooks = new Set<HtmlRenderingHook>();
 	const jsHooks = new Set<JavaScriptRenderingHook>();
 
-	const latestContext = ctx as (RendererContext<cognidream> & { readonly settings: RenderOptions; readonly onDidChangeSettings: Event<RenderOptions> });
+	const latestContext = ctx as (RendererContext<void> & { readonly settings: RenderOptions; readonly onDidChangeSettings: Event<RenderOptions> });
 
 	const style = document.createElement('style');
 	style.textContent = `

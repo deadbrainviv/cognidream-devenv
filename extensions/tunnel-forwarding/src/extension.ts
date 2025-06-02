@@ -1,3 +1,4 @@
+/// <reference path="../../../src/vscode-dts/types.d.ts" />
 /*---------------------------------------------------------------------------------------------
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
@@ -30,9 +31,9 @@ const cliPath = process.env.VSCODE_FORWARDING_IS_DEV
 	) + (process.platform === 'win32' ? '.exe' : '');
 
 class Tunnel implements vscode.Tunnel {
-	private readonly disposeEmitter = new vscode.EventEmitter<cognidream>();
+	private readonly disposeEmitter = new vscode.EventEmitter<void>();
 	public readonly onDidDispose = this.disposeEmitter.event;
-	public localAddress!: string;
+	public localAddress!: { port: number; host: string };
 
 	constructor(
 		public readonly remoteAddress: { port: number; host: string },
@@ -41,7 +42,11 @@ class Tunnel implements vscode.Tunnel {
 	) { }
 
 	public setPortFormat(formatString: string) {
-		this.localAddress = formatString.replace('{port}', String(this.remoteAddress.port));
+		const port = this.remoteAddress.port;
+		this.localAddress = {
+			port,
+			host: formatString.replace('{port}', String(port))
+		};
 	}
 
 	dispose() {
@@ -72,7 +77,11 @@ export async function activate(context: vscode.ExtensionContext) {
 
 	context.subscriptions.push(
 		vscode.commands.registerCommand('tunnel-forwarding.showLog', () => logger.show()),
-		vscode.commands.registerCommand('tunnel-forwarding.restart', () => provider.restart()),
+		vscode.commands.registerCommand('tunnel-forwarding.restart', () => {
+			return provider.restart().catch(err => {
+				vscode.window.showErrorMessage(vscode.l10n.t('Failed to restart port forwarding: {0}', err.message));
+			});
+		}),
 
 		provider.onDidStateChange(s => {
 			vscode.commands.executeCommand('setContext', 'tunnelForwardingIsRunning', s.state !== State.Inactive);
@@ -101,7 +110,7 @@ class Logger {
 
 	constructor(private readonly label: string) { }
 
-	public show(): cognidream {
+	public show(): void {
 		return this.outputChannel?.show();
 	}
 
@@ -143,13 +152,23 @@ class TunnelProvider implements vscode.TunnelProvider {
 	constructor(private readonly logger: Logger, private readonly context: vscode.ExtensionContext) { }
 
 	/** @inheritdoc */
-	public async provideTunnel(tunnelOptions: vscode.TunnelOptions): Promise<vscode.Tunnel | undefined> {
+	public provideTunnel(
+		tunnelOptions: vscode.TunnelOptions,
+		_tunnelCreationOptions: vscode.TunnelCreationOptions,
+		_token: vscode.CancellationToken
+	): vscode.ProviderResult<vscode.Tunnel> {
 		if (tunnelOptions.privacy === TunnelPrivacyId.Public) {
-			if (!(await this.consentPublicPort(tunnelOptions.remoteAddress.port))) {
-				return;
-			}
+			return this.consentPublicPort(tunnelOptions.remoteAddress.port).then(consented => {
+				if (!consented) {
+					return undefined;
+				}
+				return this.createTunnel(tunnelOptions);
+			});
 		}
+		return this.createTunnel(tunnelOptions);
+	}
 
+	private createTunnel(tunnelOptions: vscode.TunnelOptions): Promise<vscode.Tunnel | undefined> {
 		const tunnel = new Tunnel(
 			tunnelOptions.remoteAddress,
 			(tunnelOptions.privacy as TunnelPrivacyId) || TunnelPrivacyId.Private,
@@ -165,8 +184,21 @@ class TunnelProvider implements vscode.TunnelProvider {
 		switch (this.state.state) {
 			case State.Error:
 			case State.Inactive:
-				await this.setupPortForwardingProcess();
-			// fall through since state is now starting
+				return this.setupPortForwardingProcess().then(() => {
+					this.updateActivePortsIfRunning();
+					return new Promise<Tunnel>((resolve, reject) => {
+						const l = this.stateChange.event(state => {
+							if (state.state === State.Active) {
+								tunnel.setPortFormat(state.portFormat);
+								l.dispose();
+								resolve(tunnel);
+							} else if (state.state === State.Error) {
+								l.dispose();
+								reject(new Error(state.error));
+							}
+						});
+					});
+				});
 			case State.Starting:
 				this.updateActivePortsIfRunning();
 				return new Promise<Tunnel>((resolve, reject) => {
@@ -184,15 +216,16 @@ class TunnelProvider implements vscode.TunnelProvider {
 			case State.Active:
 				tunnel.setPortFormat(this.state.portFormat);
 				this.updateActivePortsIfRunning();
-				return tunnel;
+				return Promise.resolve(tunnel);
 		}
 	}
 
 	/** Re/starts the port forwarding system. */
-	public async restart() {
+	public restart(): Promise<void> {
 		this.killRunningProcess();
-		await this.setupPortForwardingProcess(); // will show progress
-		this.updateActivePortsIfRunning();
+		return this.setupPortForwardingProcess().then(() => {
+			this.updateActivePortsIfRunning();
+		});
 	}
 
 	private async consentPublicPort(portNumber: number) {
@@ -251,81 +284,83 @@ class TunnelProvider implements vscode.TunnelProvider {
 		}
 	}
 
-	private async setupPortForwardingProcess() {
-		const session = await vscode.authentication.getSession('github', ['user:email', 'read:org'], {
-			createIfNone: true,
-		});
+	private setupPortForwardingProcess(): Promise<void> {
+		return (async () => {
+			const session = await vscode.authentication.getSession('github', ['user:email', 'read:org'], {
+				createIfNone: true,
+			});
 
-		const args = [
-			'--verbose',
-			'tunnel',
-			'forward-internal',
-			'--provider',
-			'github',
-		];
+			const args = [
+				'--verbose',
+				'tunnel',
+				'forward-internal',
+				'--provider',
+				'github',
+			];
 
-		this.logger.log('info', '[forwarding] starting CLI');
-		const child = spawn(cliPath, args, { stdio: 'pipe', env: { ...process.env, NO_COLOR: '1', VSCODE_CLI_ACCESS_TOKEN: session.accessToken } });
-		this.state = { state: State.Starting, process: child };
+			this.logger.log('info', '[forwarding] starting CLI');
+			const child = spawn(cliPath, args, { stdio: 'pipe', env: { ...process.env, NO_COLOR: '1', VSCODE_CLI_ACCESS_TOKEN: session.accessToken } });
+			this.state = { state: State.Starting, process: child };
 
-		const progressP = new DeferredPromise<cognidream>();
-		vscode.window.withProgress(
-			{
-				location: vscode.ProgressLocation.Notification,
-				title: vscode.l10n.t({
-					comment: ['do not change link format [Show Log](command), only change the text "Show Log"'],
-					message: 'Starting port forwarding system ([Show Log]({0}))',
-					args: ['command:tunnel-forwarding.showLog']
-				}),
-			},
-			() => progressP.p,
-		);
+			const progressP = new DeferredPromise<void>();
+			vscode.window.withProgress(
+				{
+					location: vscode.ProgressLocation.Notification,
+					title: vscode.l10n.t({
+						comment: ['do not change link format [Show Log](command), only change the text "Show Log"'],
+						message: 'Starting port forwarding system ([Show Log]({0}))',
+						args: ['command:tunnel-forwarding.showLog']
+					}),
+				},
+				() => progressP.p,
+			);
 
-		let lastPortFormat: string | undefined;
-		child.on('exit', status => {
-			const msg = `[forwarding] exited with code ${status}`;
-			this.logger.log('info', msg);
-			progressP.complete(); // make sure to clear progress on unexpected exit
-			if (this.isInStateWithProcess(child)) {
-				this.state = { state: State.Error, error: msg };
-			}
-		});
-
-		child.on('error', err => {
-			this.logger.log('error', `[forwarding] ${err}`);
-			progressP.complete(); // make sure to clear progress on unexpected exit
-			if (this.isInStateWithProcess(child)) {
-				this.state = { state: State.Error, error: String(err) };
-			}
-		});
-
-		child.stdout
-			.pipe(splitNewLines())
-			.on('data', line => this.logger.log('info', `[forwarding] ${line}`))
-			.resume();
-
-		child.stderr
-			.pipe(splitNewLines())
-			.on('data', line => {
-				try {
-					const l: { port_format: string } = JSON.parse(line);
-					if (l.port_format && l.port_format !== lastPortFormat) {
-						this.state = {
-							state: State.Active,
-							portFormat: l.port_format, process: child,
-							cleanupTimeout: 'cleanupTimeout' in this.state ? this.state.cleanupTimeout : undefined,
-						};
-						progressP.complete();
-					}
-				} catch (e) {
-					this.logger.log('error', `[forwarding] ${line}`);
+			let lastPortFormat: string | undefined;
+			child.on('exit', status => {
+				const msg = `[forwarding] exited with code ${status}`;
+				this.logger.log('info', msg);
+				progressP.complete(); // make sure to clear progress on unexpected exit
+				if (this.isInStateWithProcess(child)) {
+					this.state = { state: State.Error, error: msg };
 				}
-			})
-			.resume();
+			});
 
-		await new Promise((resolve, reject) => {
-			child.on('spawn', resolve);
-			child.on('error', reject);
-		});
+			child.on('error', err => {
+				this.logger.log('error', `[forwarding] ${err}`);
+				progressP.complete(); // make sure to clear progress on unexpected exit
+				if (this.isInStateWithProcess(child)) {
+					this.state = { state: State.Error, error: String(err) };
+				}
+			});
+
+			child.stdout
+				.pipe(splitNewLines())
+				.on('data', line => this.logger.log('info', `[forwarding] ${line}`))
+				.resume();
+
+			child.stderr
+				.pipe(splitNewLines())
+				.on('data', line => {
+					try {
+						const l: { port_format: string } = JSON.parse(line);
+						if (l.port_format && l.port_format !== lastPortFormat) {
+							this.state = {
+								state: State.Active,
+								portFormat: l.port_format, process: child,
+								cleanupTimeout: 'cleanupTimeout' in this.state ? this.state.cleanupTimeout : undefined,
+							};
+							progressP.complete();
+						}
+					} catch (e) {
+						this.logger.log('error', `[forwarding] ${line}`);
+					}
+				})
+				.resume();
+
+			await new Promise((resolve, reject) => {
+				child.on('spawn', resolve);
+				child.on('error', reject);
+			});
+		})();
 	}
 }

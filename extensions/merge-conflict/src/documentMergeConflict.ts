@@ -45,7 +45,6 @@ export class DocumentMergeConflict implements interfaces.IDocumentMergeConflict 
 		this.telemetryReporter.sendTelemetryEvent('mergeMarkers.accept', { resolution: commitTypeToString(type) });
 
 		if (edit) {
-
 			this.applyEdit(type, editor.document, edit);
 			return Promise.resolve(true);
 		}
@@ -53,7 +52,7 @@ export class DocumentMergeConflict implements interfaces.IDocumentMergeConflict 
 		return editor.edit((edit) => this.applyEdit(type, editor.document, edit));
 	}
 
-	public applyEdit(type: interfaces.CommitType, document: vscode.TextDocument, edit: { replace(range: vscode.Range, newText: string): cognidream }): cognidream {
+	public applyEdit(type: interfaces.CommitType, document: vscode.TextDocument, edit: { replace(range: vscode.Range, newText: string): void }): void {
 		if (this.applied) {
 			return;
 		}
@@ -87,7 +86,7 @@ export class DocumentMergeConflict implements interfaces.IDocumentMergeConflict 
 		}
 	}
 
-	private replaceRangeWithContent(content: string, edit: { replace(range: vscode.Range, newText: string): cognidream }) {
+	private replaceRangeWithContent(content: string, edit: { replace(range: vscode.Range, newText: string): void }) {
 		if (this.isNewlineOnly(content)) {
 			edit.replace(this.range, '');
 			return;

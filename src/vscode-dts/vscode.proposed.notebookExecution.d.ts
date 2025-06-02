@@ -15,12 +15,12 @@ declare module 'vscode' {
 		/**
 		 * Signal that the execution has begun.
 		 */
-		start(): cognidream;
+		start(): void;
 
 		/**
 		 * Signal that execution has ended.
 		 */
-		end(): cognidream;
+		end(): void;
 	}
 
 	export interface NotebookController {

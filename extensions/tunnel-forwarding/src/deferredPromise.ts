@@ -1,9 +1,10 @@
+/// <reference path="../../../src/vscode-dts/types.d.ts" />
 /*---------------------------------------------------------------------------------------------
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-export type ValueCallback<T = unknown> = (value: T | Promise<T>) => cognidream;
+export type ValueCallback<T = unknown> = (value: T | Promise<T>) => void;
 
 const enum DeferredOutcome {
 	Resolved,
@@ -16,7 +17,7 @@ const enum DeferredOutcome {
 export class DeferredPromise<T> {
 
 	private completeCallback!: ValueCallback<T>;
-	private errorCallback!: (err: unknown) => cognidream;
+	private errorCallback!: (err: unknown) => void;
 	private outcome?: { outcome: DeferredOutcome.Rejected; value: any } | { outcome: DeferredOutcome.Resolved; value: T };
 
 	public get isRejected() {
@@ -45,7 +46,7 @@ export class DeferredPromise<T> {
 	}
 
 	public complete(value: T) {
-		return new Promise<cognidream>(resolve => {
+		return new Promise<void>(resolve => {
 			this.completeCallback(value);
 			this.outcome = { outcome: DeferredOutcome.Resolved, value };
 			resolve();
@@ -53,7 +54,7 @@ export class DeferredPromise<T> {
 	}
 
 	public error(err: unknown) {
-		return new Promise<cognidream>(resolve => {
+		return new Promise<void>(resolve => {
 			this.errorCallback(err);
 			this.outcome = { outcome: DeferredOutcome.Rejected, value: err };
 			resolve();

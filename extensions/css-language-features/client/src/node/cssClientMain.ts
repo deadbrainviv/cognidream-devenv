@@ -13,7 +13,7 @@ import { registerDropOrPasteResourceSupport } from '../dropOrPaste/dropOrPasteRe
 let client: BaseLanguageClient | undefined;
 
 // this method is called when vs code is activated
-export async function activate(context: ExtensionContext) {
+export async function activate(context: ExtensionContext): Promise<void> {
 	const clientMain = extensions.getExtension('vscode.css-language-features')?.packageJSON?.main || '';
 
 	const serverMain = `./server/${clientMain.indexOf('/dist/') !== -1 ? 'dist' : 'out'}/node/cssServerMain`;
@@ -41,7 +41,7 @@ export async function activate(context: ExtensionContext) {
 	context.subscriptions.push(registerDropOrPasteResourceSupport({ language: 'css', scheme: '*' }));
 }
 
-export async function deactivate(): Promise<cognidream> {
+export async function deactivate(): Promise<void> {
 	if (client) {
 		await client.stop();
 		client = undefined;

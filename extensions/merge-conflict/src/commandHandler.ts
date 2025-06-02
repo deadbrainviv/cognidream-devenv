@@ -40,7 +40,7 @@ export default class CommandHandler implements vscode.Disposable {
 		);
 	}
 
-	private registerTextEditorCommand(command: string, cb: (editor: vscode.TextEditor, ...args: any[]) => Promise<cognidream>, resourceCB?: (uris: vscode.Uri[]) => Promise<cognidream>) {
+	private registerTextEditorCommand(command: string, cb: (editor: vscode.TextEditor, ...args: any[]) => Promise<void>, resourceCB?: (uris: vscode.Uri[]) => Promise<void>) {
 		return vscode.commands.registerCommand(command, (...args) => {
 			if (resourceCB && args.length && args.every(arg => arg && arg.resourceUri)) {
 				return resourceCB.call(this, args.map(arg => arg.resourceUri));
@@ -50,35 +50,35 @@ export default class CommandHandler implements vscode.Disposable {
 		});
 	}
 
-	acceptCurrent(editor: vscode.TextEditor, ...args: any[]): Promise<cognidream> {
+	acceptCurrent(editor: vscode.TextEditor, ...args: any[]): Promise<void> {
 		return this.accept(interfaces.CommitType.Current, editor, ...args);
 	}
 
-	acceptIncoming(editor: vscode.TextEditor, ...args: any[]): Promise<cognidream> {
+	acceptIncoming(editor: vscode.TextEditor, ...args: any[]): Promise<void> {
 		return this.accept(interfaces.CommitType.Incoming, editor, ...args);
 	}
 
-	acceptBoth(editor: vscode.TextEditor, ...args: any[]): Promise<cognidream> {
+	acceptBoth(editor: vscode.TextEditor, ...args: any[]): Promise<void> {
 		return this.accept(interfaces.CommitType.Both, editor, ...args);
 	}
 
-	acceptAllCurrent(editor: vscode.TextEditor): Promise<cognidream> {
+	acceptAllCurrent(editor: vscode.TextEditor): Promise<void> {
 		return this.acceptAll(interfaces.CommitType.Current, editor);
 	}
 
-	acceptAllIncoming(editor: vscode.TextEditor): Promise<cognidream> {
+	acceptAllIncoming(editor: vscode.TextEditor): Promise<void> {
 		return this.acceptAll(interfaces.CommitType.Incoming, editor);
 	}
 
-	acceptAllCurrentResources(resources: vscode.Uri[]): Promise<cognidream> {
+	acceptAllCurrentResources(resources: vscode.Uri[]): Promise<void> {
 		return this.acceptAllResources(interfaces.CommitType.Current, resources);
 	}
 
-	acceptAllIncomingResources(resources: vscode.Uri[]): Promise<cognidream> {
+	acceptAllIncomingResources(resources: vscode.Uri[]): Promise<void> {
 		return this.acceptAllResources(interfaces.CommitType.Incoming, resources);
 	}
 
-	acceptAllBoth(editor: vscode.TextEditor): Promise<cognidream> {
+	acceptAllBoth(editor: vscode.TextEditor): Promise<void> {
 		return this.acceptAll(interfaces.CommitType.Both, editor);
 	}
 
@@ -147,15 +147,15 @@ export default class CommandHandler implements vscode.Disposable {
 		await vscode.commands.executeCommand('vscode.diff', leftUri, rightUri, title, opts);
 	}
 
-	navigateNext(editor: vscode.TextEditor): Promise<cognidream> {
+	navigateNext(editor: vscode.TextEditor): Promise<void> {
 		return this.navigate(editor, NavigationDirection.Forwards);
 	}
 
-	navigatePrevious(editor: vscode.TextEditor): Promise<cognidream> {
+	navigatePrevious(editor: vscode.TextEditor): Promise<void> {
 		return this.navigate(editor, NavigationDirection.Backwards);
 	}
 
-	async acceptSelection(editor: vscode.TextEditor): Promise<cognidream> {
+	async acceptSelection(editor: vscode.TextEditor): Promise<void> {
 		const conflict = await this.findConflictContainingSelection(editor);
 
 		if (!conflict) {
@@ -199,7 +199,7 @@ export default class CommandHandler implements vscode.Disposable {
 		this.disposables = [];
 	}
 
-	private async navigate(editor: vscode.TextEditor, direction: NavigationDirection): Promise<cognidream> {
+	private async navigate(editor: vscode.TextEditor, direction: NavigationDirection): Promise<void> {
 		const navigationResult = await this.findConflictForNavigation(editor, direction);
 
 		if (!navigationResult) {
@@ -225,7 +225,7 @@ export default class CommandHandler implements vscode.Disposable {
 		editor.revealRange(navigationResult.conflict.range, vscode.TextEditorRevealType.Default);
 	}
 
-	private async accept(type: interfaces.CommitType, editor: vscode.TextEditor, ...args: any[]): Promise<cognidream> {
+	private async accept(type: interfaces.CommitType, editor: vscode.TextEditor, ...args: any[]): Promise<void> {
 
 		let conflict: interfaces.IDocumentMergeConflict | null;
 
@@ -255,7 +255,7 @@ export default class CommandHandler implements vscode.Disposable {
 
 	}
 
-	private async acceptAll(type: interfaces.CommitType, editor: vscode.TextEditor): Promise<cognidream> {
+	private async acceptAll(type: interfaces.CommitType, editor: vscode.TextEditor): Promise<void> {
 		const conflicts = await this.tracker.getConflicts(editor.document);
 
 		if (!conflicts || conflicts.length === 0) {
@@ -272,7 +272,7 @@ export default class CommandHandler implements vscode.Disposable {
 		}));
 	}
 
-	private async acceptAllResources(type: interfaces.CommitType, resources: vscode.Uri[]): Promise<cognidream> {
+	private async acceptAllResources(type: interfaces.CommitType, resources: vscode.Uri[]): Promise<void> {
 		const documents = await Promise.all(resources.map(resource => vscode.workspace.openTextDocument(resource)));
 		const edit = new vscode.WorkspaceEdit();
 		for (const document of documents) {

@@ -7,15 +7,15 @@ export type JSONLanguageStatus = { schemas: string[] };
 
 import {
 	workspace, window, languages, commands, LogOutputChannel, ExtensionContext, extensions, Uri, ColorInformation,
-	Diagnostic, StatusBarAlignment, TextEditor, TextDocument, FormattingOptions, CancellationToken, FoldingRange,
+	Diagnostic, StatusBarAlignment, TextEditor, TextDocument, CancellationToken, FoldingRange,
 	ProviderResult, TextEdit, Range, Position, Disposable, CompletionItem, CompletionList, CompletionContext, Hover, MarkdownString, FoldingContext, DocumentSymbol, SymbolInformation, l10n,
-	RelativePattern
+	RelativePattern, Command
 } from 'vscode';
 import {
 	LanguageClientOptions, RequestType, NotificationType, FormattingOptions as LSPFormattingOptions, DocumentDiagnosticReportKind,
 	Diagnostic as LSPDiagnostic,
-	DidChangeConfigurationNotification, HandleDiagnosticsSignature, ResponseError, DocumentRangeFormattingParams,
-	DocumentRangeFormattingRequest, ProvideCompletionItemsSignature, ProvideHoverSignature, BaseLanguageClient, ProvideFoldingRangeSignature, ProvideDocumentSymbolsSignature, ProvideDocumentColorsSignature
+	DidChangeConfigurationNotification, HandleDiagnosticsSignature, ResponseError,
+	ProvideCompletionItemsSignature, ProvideHoverSignature, BaseLanguageClient, ProvideFoldingRangeSignature, ProvideDocumentSymbolsSignature, ProvideDocumentColorsSignature
 } from 'vscode-languageclient';
 
 
@@ -543,26 +543,16 @@ async function startClientWithParticipants(_context: ExtensionContext, languageP
 			rangeFormatting = undefined;
 		} else if (formatEnabled && !rangeFormatting) {
 			rangeFormatting = languages.registerDocumentRangeFormattingEditProvider(documentSelector, {
-				provideDocumentRangeFormattingEdits(document: TextDocument, range: Range, options: FormattingOptions, token: CancellationToken): ProviderResult<TextEdit[]> {
+				provideDocumentRangeFormattingEdits(document: TextDocument): ProviderResult<TextEdit[]> {
 					const filesConfig = workspace.getConfiguration('files', document);
-					const fileFormattingOptions = {
+					const options = {
+						tabSize: 4,
+						insertSpaces: true,
 						trimTrailingWhitespace: filesConfig.get<boolean>('trimTrailingWhitespace'),
 						trimFinalNewlines: filesConfig.get<boolean>('trimFinalNewlines'),
 						insertFinalNewline: filesConfig.get<boolean>('insertFinalNewline'),
 					};
-					const params: DocumentRangeFormattingParams = {
-						textDocument: client.code2ProtocolConverter.asTextDocumentIdentifier(document),
-						range: client.code2ProtocolConverter.asRange(range),
-						options: client.code2ProtocolConverter.asFormattingOptions(options, fileFormattingOptions)
-					};
-
-					return client.sendRequest(DocumentRangeFormattingRequest.type, params, token).then(
-						client.protocol2CodeConverter.asTextEdits,
-						(error) => {
-							client.handleFailedRequest(DocumentRangeFormattingRequest.type, undefined, error, []);
-							return Promise.resolve([]);
-						}
-					);
+					return getSortTextEdits(document, options.tabSize, options.insertSpaces);
 				}
 			});
 		}
@@ -576,7 +566,7 @@ async function startClientWithParticipants(_context: ExtensionContext, languageP
 			handleRetryResolveSchemaCommand();
 		} else {
 			schemaResolutionErrorStatusBarItem.tooltip = l10n.t('Downloading schemas is disabled. Click to configure.');
-			schemaResolutionErrorStatusBarItem.command = { command: 'workbench.action.openSettings', arguments: [SettingIds.enableSchemaDownload], title: '' };
+			schemaResolutionErrorStatusBarItem.command = { command: 'workbench.action.openSettings', arguments: [SettingIds.enableSchemaDownload], title: '' } as Command;
 		}
 	}
 
@@ -775,5 +765,3 @@ function updateMarkdownString(h: MarkdownString): MarkdownString {
 function isSchemaResolveError(d: Diagnostic) {
 	return d.code === /* SchemaResolveError */ 0x300;
 }
-
-

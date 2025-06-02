@@ -1,3 +1,4 @@
+/// <reference path="../../../../../src/vscode-dts/types.d.ts" />
 /*---------------------------------------------------------------------------------------------
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
@@ -47,7 +48,7 @@ export class JSONSchemaCache {
 		return undefined;
 	}
 
-	async putSchema(schemaUri: string, etag: string, schemaContent: string): Promise<cognidream> {
+	async putSchema(schemaUri: string, etag: string, schemaContent: string): Promise<void> {
 		try {
 			const fileName = getCacheFileName(schemaUri);
 			await fs.writeFile(path.join(this.schemaCacheLocation, fileName), schemaContent);
@@ -96,7 +97,7 @@ export class JSONSchemaCache {
 		}
 	}
 
-	private async deleteSchemaFile(schemaUri: string, cacheEntry: CacheEntry): Promise<cognidream> {
+	private async deleteSchemaFile(schemaUri: string, cacheEntry: CacheEntry): Promise<void> {
 		const cacheLocation = path.join(this.schemaCacheLocation, cacheEntry.fileName);
 		delete this.cacheInfo[schemaUri];
 		await this.updateMemento();

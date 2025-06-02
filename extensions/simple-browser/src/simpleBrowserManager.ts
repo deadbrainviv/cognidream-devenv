@@ -1,3 +1,4 @@
+/// <reference path="../../../src/vscode-dts/types.d.ts" />
 /*---------------------------------------------------------------------------------------------
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
@@ -19,7 +20,7 @@ export class SimpleBrowserManager {
 		this._activeView = undefined;
 	}
 
-	public show(inputUri: string | vscode.Uri, options?: ShowOptions): cognidream {
+	public show(inputUri: string | vscode.Uri, options?: ShowOptions): void {
 		const url = typeof inputUri === 'string' ? inputUri : inputUri.toString(true);
 		if (this._activeView) {
 			this._activeView.show(url, options);
@@ -31,7 +32,7 @@ export class SimpleBrowserManager {
 		}
 	}
 
-	public restore(panel: vscode.WebviewPanel, state: any): cognidream {
+	public restore(panel: vscode.WebviewPanel, state: any): void {
 		const url = state?.url ?? '';
 		const view = SimpleBrowserView.restore(this.extensionUri, url, panel);
 		this.registerWebviewListeners(view);

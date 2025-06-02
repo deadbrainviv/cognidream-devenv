@@ -11,7 +11,7 @@ export async function activate(context: vscode.ExtensionContext) {
 
 	const fileIndex = new class {
 
-		private _currentRun?: Thenable<cognidreamidream>;
+		private _currentRun?: Promise<void>;
 
 		private _disposables: vscode.Disposable[] = [];
 
@@ -26,7 +26,7 @@ export async function activate(context: vscode.ExtensionContext) {
 			this._refresh(false);
 		}
 
-		dispose(): cognidreamidream {
+		dispose(): void {
 			for (const disposable of this._disposables) {
 				disposable.dispose();
 			}
@@ -36,7 +36,7 @@ export async function activate(context: vscode.ExtensionContext) {
 
 		async all(token: vscode.CancellationToken) {
 
-			await Promise.race([this._currentRun, new Promise<cognidreamidream>(resolve => token.onCancellationRequested(resolve))]);
+			await Promise.race([this._currentRun, new Promise<void>(resolve => token.onCancellationRequested(resolve))]);
 
 			if (token.isCancellationRequested) {
 				return undefined;
@@ -45,16 +45,15 @@ export async function activate(context: vscode.ExtensionContext) {
 			return Array.from(this._index.values());
 		}
 
-		private _refresh(clear: boolean) {
+		private async _refresh(clear: boolean) {
 			// TODO@jrieken LATEST API! findFiles2New
-			this._currentRun = vscode.workspace.findFiles('src/vs/**/*.ts', '{**/node_modules/**,**/extensions/**}').then(all => {
-				if (clear) {
-					this._index.clear();
-				}
-				for (const item of all) {
-					this._index.set(item.toString(), item);
-				}
-			});
+			const all = await vscode.workspace.findFiles('src/vs/**/*.ts', '{**/node_modules/**,**/extensions/**}');
+			if (clear) {
+				this._index.clear();
+			}
+			for (const item of all) {
+				this._index.set(item.toString(), item);
+			}
 		}
 	};
 

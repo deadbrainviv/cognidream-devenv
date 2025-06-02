@@ -55,12 +55,12 @@ class RemoteSourceProviderQuickPick implements Disposable {
 	}
 
 	@debounce(300)
-	private onDidChangeValue(): cognidream {
+	private onDidChangeValue(): void {
 		this.query();
 	}
 
 	@throttle
-	private async query(): Promise<cognidream> {
+	private async query(): Promise<void> {
 		try {
 			if (this.isDisposed) {
 				return;

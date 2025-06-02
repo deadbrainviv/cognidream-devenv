@@ -1,3 +1,4 @@
+/// <reference path="./types.d.ts" />
 /*---------------------------------------------------------------------------------------------
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
@@ -35,7 +36,7 @@ declare module 'vscode' {
 		 *
 		 * @see {@link Extension.isFromDifferentExtensionHost}
 		 */
-		export const allAcrossExtensionHosts: readonly Extension<cognidream>[];
+		export const allAcrossExtensionHosts: readonly Extension<void>[];
 
 	}
 }

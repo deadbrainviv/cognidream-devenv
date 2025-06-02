@@ -1,0 +1,27 @@
+{
+  "compilerOptions": {
+    "target": "es2020",
+    "module": "commonjs",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "outDir": "./out",
+    "rootDir": ".",
+    "declaration": true,
+    "sourceMap": true,
+    "lib": ["es2020", "dom"],
+    "types": ["node"]
+  },
+  "include": [
+    "src/**/*",
+    "src/vscode-dts/types.d.ts",
+    "src/typings/base-common.d.ts",
+    "src/vscode-dts/vscode.d.ts",
+    "src/vscode-dts/vscode.proposed.*.d.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "out"
+  ]
+}

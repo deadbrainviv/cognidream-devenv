@@ -1,3 +1,4 @@
+/// <reference path="../../../src/vscode-dts/types.d.ts" />
 /*---------------------------------------------------------------------------------------------
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
@@ -33,7 +34,7 @@ export class SimpleBrowserView extends Disposable {
 
 	private readonly _webviewPanel: vscode.WebviewPanel;
 
-	private readonly _onDidDispose = this._register(new vscode.EventEmitter<cognidream>());
+	private readonly _onDidDispose = this._register(new vscode.EventEmitter<void>());
 	public readonly onDispose = this._onDidDispose.event;
 
 	public static create(

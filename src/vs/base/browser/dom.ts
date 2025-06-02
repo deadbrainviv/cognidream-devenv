@@ -41,7 +41,7 @@ export const {
     onDidRegisterWindow,
     onWillUnregisterWindow,
     onDidUnregisterWindow
-} = (function() {
+} = (function () {
     const windows = new Map<number, IRegisteredCodeWindow>();
 
     ensureCodeWindow(mainWindow, 1);
@@ -125,7 +125,7 @@ export const {
 
 //#endregion
 
-export function clearNode(node: HTMLElement): cognidream {
+export function clearNode(node: HTMLElement): void {
     while (node.firstChild) {
         node.firstChild.remove();
     }
@@ -133,12 +133,12 @@ export function clearNode(node: HTMLElement): cognidream {
 
 class DomListener implements IDisposable {
 
-    private _handler: (e: any) => cognidream;
+    private _handler: (e: any) => void;
     private _node: EventTarget;
     private readonly _type: string;
     private readonly _options: boolean | AddEventListenerOptions;
 
-    constructor(node: EventTarget, type: string, handler: (e: any) => cognidream, options?: boolean | AddEventListenerOptions) {
+    constructor(node: EventTarget, type: string, handler: (e: any) => void, options?: boolean | AddEventListenerOptions) {
         this._node = node;
         this._type = type;
         this._handler = handler;
@@ -146,7 +146,7 @@ class DomListener implements IDisposable {
         this._node.addEventListener(this._type, this._handler, this._options);
     }
 
-    dispose(): cognidream {
+    dispose(): void {
         if (!this._handler) {
             // Already disposed
             return;
@@ -160,35 +160,35 @@ class DomListener implements IDisposable {
     }
 }
 
-export function addDisposableListener<K extends keyof GlobalEventHandlersEventMap>(node: EventTarget, type: K, handler: (event: GlobalEventHandlersEventMap[K]) => cognidream, useCapture?: boolean): IDisposable;
-export function addDisposableListener(node: EventTarget, type: string, handler: (event: any) => cognidream, useCapture?: boolean): IDisposable;
-export function addDisposableListener(node: EventTarget, type: string, handler: (event: any) => cognidream, options: AddEventListenerOptions): IDisposable;
-export function addDisposableListener(node: EventTarget, type: string, handler: (event: any) => cognidream, useCaptureOrOptions?: boolean | AddEventListenerOptions): IDisposable {
+export function addDisposableListener<K extends keyof GlobalEventHandlersEventMap>(node: EventTarget, type: K, handler: (event: GlobalEventHandlersEventMap[K]) => void, useCapture?: boolean): IDisposable;
+export function addDisposableListener(node: EventTarget, type: string, handler: (event: any) => void, useCapture?: boolean): IDisposable;
+export function addDisposableListener(node: EventTarget, type: string, handler: (event: any) => void, options: AddEventListenerOptions): IDisposable;
+export function addDisposableListener(node: EventTarget, type: string, handler: (event: any) => void, useCaptureOrOptions?: boolean | AddEventListenerOptions): IDisposable {
     return new DomListener(node, type, handler, useCaptureOrOptions);
 }
 
 export interface IAddStandardDisposableListenerSignature {
-    (node: HTMLElement, type: 'click', handler: (event: IMouseEvent) => cognidream, useCapture?: boolean): IDisposable;
-    (node: HTMLElement, type: 'mousedown', handler: (event: IMouseEvent) => cognidream, useCapture?: boolean): IDisposable;
-    (node: HTMLElement, type: 'keydown', handler: (event: IKeyboardEvent) => cognidream, useCapture?: boolean): IDisposable;
-    (node: HTMLElement, type: 'keypress', handler: (event: IKeyboardEvent) => cognidream, useCapture?: boolean): IDisposable;
-    (node: HTMLElement, type: 'keyup', handler: (event: IKeyboardEvent) => cognidream, useCapture?: boolean): IDisposable;
-    (node: HTMLElement, type: 'pointerdown', handler: (event: PointerEvent) => cognidream, useCapture?: boolean): IDisposable;
-    (node: HTMLElement, type: 'pointermove', handler: (event: PointerEvent) => cognidream, useCapture?: boolean): IDisposable;
-    (node: HTMLElement, type: 'pointerup', handler: (event: PointerEvent) => cognidream, useCapture?: boolean): IDisposable;
-    (node: HTMLElement, type: string, handler: (event: any) => cognidream, useCapture?: boolean): IDisposable;
+    (node: HTMLElement, type: 'click', handler: (event: IMouseEvent) => void, useCapture?: boolean): IDisposable;
+    (node: HTMLElement, type: 'mousedown', handler: (event: IMouseEvent) => void, useCapture?: boolean): IDisposable;
+    (node: HTMLElement, type: 'keydown', handler: (event: IKeyboardEvent) => void, useCapture?: boolean): IDisposable;
+    (node: HTMLElement, type: 'keypress', handler: (event: IKeyboardEvent) => void, useCapture?: boolean): IDisposable;
+    (node: HTMLElement, type: 'keyup', handler: (event: IKeyboardEvent) => void, useCapture?: boolean): IDisposable;
+    (node: HTMLElement, type: 'pointerdown', handler: (event: PointerEvent) => void, useCapture?: boolean): IDisposable;
+    (node: HTMLElement, type: 'pointermove', handler: (event: PointerEvent) => void, useCapture?: boolean): IDisposable;
+    (node: HTMLElement, type: 'pointerup', handler: (event: PointerEvent) => void, useCapture?: boolean): IDisposable;
+    (node: HTMLElement, type: string, handler: (event: any) => void, useCapture?: boolean): IDisposable;
 }
-function _wrapAsStandardMouseEvent(targetWindow: Window, handler: (e: IMouseEvent) => cognidream): (e: MouseEvent) => cognidream {
-    return function(e: MouseEvent) {
+function _wrapAsStandardMouseEvent(targetWindow: Window, handler: (e: IMouseEvent) => void): (e: MouseEvent) => void {
+    return function (e: MouseEvent) {
         return handler(new StandardMouseEvent(targetWindow, e));
     };
 }
-function _wrapAsStandardKeyboardEvent(handler: (e: IKeyboardEvent) => cognidream): (e: KeyboardEvent) => cognidream {
-    return function(e: KeyboardEvent) {
+function _wrapAsStandardKeyboardEvent(handler: (e: IKeyboardEvent) => void): (e: KeyboardEvent) => void {
+    return function (e: KeyboardEvent) {
         return handler(new StandardKeyboardEvent(e));
     };
 }
-export const addStandardDisposableListener: IAddStandardDisposableListenerSignature = function addStandardDisposableListener(node: HTMLElement, type: string, handler: (event: any) => cognidream, useCapture?: boolean): IDisposable {
+export const addStandardDisposableListener: IAddStandardDisposableListenerSignature = function addStandardDisposableListener(node: HTMLElement, type: string, handler: (event: any) => void, useCapture?: boolean): IDisposable {
     let wrapHandler = handler;
 
     if (type === 'click' || type === 'mousedown' || type === 'contextmenu') {
@@ -200,26 +200,26 @@ export const addStandardDisposableListener: IAddStandardDisposableListenerSignat
     return addDisposableListener(node, type, wrapHandler, useCapture);
 };
 
-export const addStandardDisposableGenericMouseDownListener = function addStandardDisposableListener(node: HTMLElement, handler: (event: any) => cognidream, useCapture?: boolean): IDisposable {
+export const addStandardDisposableGenericMouseDownListener = function addStandardDisposableListener(node: HTMLElement, handler: (event: any) => void, useCapture?: boolean): IDisposable {
     const wrapHandler = _wrapAsStandardMouseEvent(getWindow(node), handler);
 
     return addDisposableGenericMouseDownListener(node, wrapHandler, useCapture);
 };
 
-export const addStandardDisposableGenericMouseUpListener = function addStandardDisposableListener(node: HTMLElement, handler: (event: any) => cognidream, useCapture?: boolean): IDisposable {
+export const addStandardDisposableGenericMouseUpListener = function addStandardDisposableListener(node: HTMLElement, handler: (event: any) => void, useCapture?: boolean): IDisposable {
     const wrapHandler = _wrapAsStandardMouseEvent(getWindow(node), handler);
 
     return addDisposableGenericMouseUpListener(node, wrapHandler, useCapture);
 };
-export function addDisposableGenericMouseDownListener(node: EventTarget, handler: (event: any) => cognidream, useCapture?: boolean): IDisposable {
+export function addDisposableGenericMouseDownListener(node: EventTarget, handler: (event: any) => void, useCapture?: boolean): IDisposable {
     return addDisposableListener(node, platform.isIOS && BrowserFeatures.pointerEvents ? EventType.POINTER_DOWN : EventType.MOUSE_DOWN, handler, useCapture);
 }
 
-export function addDisposableGenericMouseMoveListener(node: EventTarget, handler: (event: any) => cognidream, useCapture?: boolean): IDisposable {
+export function addDisposableGenericMouseMoveListener(node: EventTarget, handler: (event: any) => void, useCapture?: boolean): IDisposable {
     return addDisposableListener(node, platform.isIOS && BrowserFeatures.pointerEvents ? EventType.POINTER_MOVE : EventType.MOUSE_MOVE, handler, useCapture);
 }
 
-export function addDisposableGenericMouseUpListener(node: EventTarget, handler: (event: any) => cognidream, useCapture?: boolean): IDisposable {
+export function addDisposableGenericMouseUpListener(node: EventTarget, handler: (event: any) => void, useCapture?: boolean): IDisposable {
     return addDisposableListener(node, platform.isIOS && BrowserFeatures.pointerEvents ? EventType.POINTER_UP : EventType.MOUSE_UP, handler, useCapture);
 }
 
@@ -242,7 +242,7 @@ export function addDisposableGenericMouseUpListener(node: EventTarget, handler: 
  * [requestIdleCallback]: https://developer.mozilla.org/en-US/docs/Web/API/Window/requestIdleCallback
  * [setTimeout]: https://developer.mozilla.org/en-US/docs/Web/API/Window/setTimeout
  */
-export function runWhenWindowIdle(targetWindow: Window | typeof globalThis, callback: (idle: IdleDeadline) => cognidream, timeout?: number): IDisposable {
+export function runWhenWindowIdle(targetWindow: Window | typeof globalThis, callback: (idle: IdleDeadline) => void, timeout?: number): IDisposable {
     return _runWhenIdle(targetWindow, callback, timeout);
 }
 
@@ -262,16 +262,16 @@ export class WindowIdleValue<T> extends AbstractIdleValue<T> {
  * If currently in an animation frame, `runner` will be executed immediately.
  * @return token that can be used to cancel the scheduled runner (only if `runner` was not executed immediately).
  */
-export let runAtThisOrScheduleAtNextAnimationFrame: (targetWindow: Window, runner: () => cognidream, priority?: number) => IDisposable;
+export let runAtThisOrScheduleAtNextAnimationFrame: (targetWindow: Window, runner: () => void, priority?: number) => IDisposable;
 /**
  * Schedule a callback to be run at the next animation frame.
  * This allows multiple parties to register callbacks that should run at the next animation frame.
  * If currently in an animation frame, `runner` will be executed at the next animation frame.
  * @return token that can be used to cancel the scheduled runner.
  */
-export let scheduleAtNextAnimationFrame: (targetWindow: Window, runner: () => cognidream, priority?: number) => IDisposable;
+export let scheduleAtNextAnimationFrame: (targetWindow: Window, runner: () => void, priority?: number) => IDisposable;
 
-export function disposableWindowInterval(targetWindow: Window, handler: () => cognidream | boolean /* stop interval */ | Promise<unknown>, interval: number, iterations?: number): IDisposable {
+export function disposableWindowInterval(targetWindow: Window, handler: () => void | boolean /* stop interval */ | Promise<unknown>, interval: number, iterations?: number): IDisposable {
     let iteration = 0;
     const timer = targetWindow.setInterval(() => {
         iteration++;
@@ -298,28 +298,28 @@ export class WindowIntervalTimer extends IntervalTimer {
         this.defaultTarget = node && getWindow(node);
     }
 
-    override cancelAndSet(runner: () => cognidream, interval: number, targetWindow?: Window & typeof globalThis): cognidream {
+    override cancelAndSet(runner: () => void, interval: number, targetWindow?: Window & typeof globalThis): void {
         return super.cancelAndSet(runner, interval, targetWindow ?? this.defaultTarget);
     }
 }
 
 class AnimationFrameQueueItem implements IDisposable {
 
-    private _runner: () => cognidream;
+    private _runner: () => void;
     public priority: number;
     private _canceled: boolean;
 
-    constructor(runner: () => cognidream, priority: number = 0) {
+    constructor(runner: () => void, priority: number = 0) {
         this._runner = runner;
         this.priority = priority;
         this._canceled = false;
     }
 
-    dispose(): cognidream {
+    dispose(): void {
         this._canceled = true;
     }
 
-    execute(): cognidream {
+    execute(): void {
         if (this._canceled) {
             return;
         }
@@ -337,7 +337,7 @@ class AnimationFrameQueueItem implements IDisposable {
     }
 }
 
-(function() {
+(function () {
     /**
      * The runners scheduled at the next animation frame
      */
@@ -371,7 +371,7 @@ class AnimationFrameQueueItem implements IDisposable {
         inAnimationFrameRunner.set(targetWindowId, false);
     };
 
-    scheduleAtNextAnimationFrame = (targetWindow: Window, runner: () => cognidream, priority: number = 0) => {
+    scheduleAtNextAnimationFrame = (targetWindow: Window, runner: () => void, priority: number = 0) => {
         const targetWindowId = getWindowId(targetWindow);
         const item = new AnimationFrameQueueItem(runner, priority);
 
@@ -390,7 +390,7 @@ class AnimationFrameQueueItem implements IDisposable {
         return item;
     };
 
-    runAtThisOrScheduleAtNextAnimationFrame = (targetWindow: Window, runner: () => cognidream, priority?: number) => {
+    runAtThisOrScheduleAtNextAnimationFrame = (targetWindow: Window, runner: () => void, priority?: number) => {
         const targetWindowId = getWindowId(targetWindow);
         if (inAnimationFrameRunner.get(targetWindowId)) {
             const item = new AnimationFrameQueueItem(runner, priority);
@@ -407,11 +407,11 @@ class AnimationFrameQueueItem implements IDisposable {
     };
 })();
 
-export function measure(targetWindow: Window, callback: () => cognidream): IDisposable {
+export function measure(targetWindow: Window, callback: () => void): IDisposable {
     return scheduleAtNextAnimationFrame(targetWindow, callback, 10000 /* must be early */);
 }
 
-export function modify(targetWindow: Window, callback: () => cognidream): IDisposable {
+export function modify(targetWindow: Window, callback: () => void): IDisposable {
     return scheduleAtNextAnimationFrame(targetWindow, callback, -10000 /* must be late */);
 }
 
@@ -423,13 +423,13 @@ export interface IEventMerger<R, E> {
 }
 
 const MINIMUM_TIME_MS = 8;
-const DEFAULT_EVENT_MERGER: IEventMerger<Event, Event> = function(lastEvent: Event | null, currentEvent: Event) {
+const DEFAULT_EVENT_MERGER: IEventMerger<Event, Event> = function (lastEvent: Event | null, currentEvent: Event) {
     return currentEvent;
 };
 
 class TimeoutThrottledDomListener<R, E extends Event> extends Disposable {
 
-    constructor(node: any, type: string, handler: (event: R) => cognidream, eventMerger: IEventMerger<R, E> = <any>DEFAULT_EVENT_MERGER, minimumTimeMs: number = MINIMUM_TIME_MS) {
+    constructor(node: any, type: string, handler: (event: R) => void, eventMerger: IEventMerger<R, E> = <any>DEFAULT_EVENT_MERGER, minimumTimeMs: number = MINIMUM_TIME_MS) {
         super();
 
         let lastEvent: R | null = null;
@@ -457,7 +457,7 @@ class TimeoutThrottledDomListener<R, E extends Event> extends Disposable {
     }
 }
 
-export function addDisposableThrottledListener<R, E extends Event = Event>(node: any, type: string, handler: (event: R) => cognidream, eventMerger?: IEventMerger<R, E>, minimumTimeMs?: number): IDisposable {
+export function addDisposableThrottledListener<R, E extends Event = Event>(node: any, type: string, handler: (event: R) => void, eventMerger?: IEventMerger<R, E>, minimumTimeMs?: number): IDisposable {
     return new TimeoutThrottledDomListener<R, E>(node, type, handler, eventMerger, minimumTimeMs);
 }
 
@@ -652,7 +652,7 @@ export interface IDomNodePagePosition {
     height: number;
 }
 
-export function size(element: HTMLElement, width: number | null, height: number | null): cognidream {
+export function size(element: HTMLElement, width: number | null, height: number | null): void {
     if (typeof width === 'number') {
         element.style.width = `${width}px`;
     }
@@ -662,7 +662,7 @@ export function size(element: HTMLElement, width: number | null, height: number 
     }
 }
 
-export function position(element: HTMLElement, top: number, right?: number, bottom?: number, left?: number, position: string = 'absolute'): cognidream {
+export function position(element: HTMLElement, top: number, right?: number, bottom?: number, left?: number, position: string = 'absolute'): void {
     if (typeof top === 'number') {
         element.style.top = `${top}px`;
     }
@@ -779,7 +779,7 @@ const parentFlowToDataKey = 'parentFlowToElementId';
  * Set an explicit parent to use for nodes that are not part of the
  * regular dom structure.
  */
-export function setParentFlowTo(fromChildElement: HTMLElement, toParentElement: Element): cognidream {
+export function setParentFlowTo(fromChildElement: HTMLElement, toParentElement: Element): void {
     fromChildElement.dataset[parentFlowToDataKey] = toParentElement.id;
 }
 
@@ -1118,8 +1118,8 @@ export const EventType = {
 } as const;
 
 export interface EventLike {
-    preventDefault(): cognidream;
-    stopPropagation(): cognidream;
+    preventDefault(): void;
+    stopPropagation(): void;
 }
 
 export function isEventLike(obj: unknown): obj is EventLike {
@@ -1139,9 +1139,9 @@ export const EventHelper = {
 };
 
 export interface IFocusTracker extends Disposable {
-    readonly onDidFocus: event.Event<cognidream>;
-    readonly onDidBlur: event.Event<cognidream>;
-    refreshState(): cognidream;
+    readonly onDidFocus: event.Event<void>;
+    readonly onDidBlur: event.Event<void>;
+    refreshState(): void;
 }
 
 export function saveParentsScrollTop(node: Element): number[] {
@@ -1153,7 +1153,7 @@ export function saveParentsScrollTop(node: Element): number[] {
     return r;
 }
 
-export function restoreParentsScrollTop(node: Element, state: number[]): cognidream {
+export function restoreParentsScrollTop(node: Element, state: number[]): void {
     for (let i = 0; node && node.nodeType === node.ELEMENT_NODE; i++) {
         if (node.scrollTop !== state[i]) {
             node.scrollTop = state[i];
@@ -1164,13 +1164,13 @@ export function restoreParentsScrollTop(node: Element, state: number[]): cognidr
 
 class FocusTracker extends Disposable implements IFocusTracker {
 
-    private readonly _onDidFocus = this._register(new event.Emitter<cognidream>());
+    private readonly _onDidFocus = this._register(new event.Emitter<void>());
     readonly onDidFocus = this._onDidFocus.event;
 
-    private readonly _onDidBlur = this._register(new event.Emitter<cognidream>());
+    private readonly _onDidBlur = this._register(new event.Emitter<void>());
     readonly onDidBlur = this._onDidBlur.event;
 
-    private _refreshStateHandler: () => cognidream;
+    private _refreshStateHandler: () => void;
 
     private static hasFocusWithin(element: HTMLElement | Window): boolean {
         if (isHTMLElement(element)) {
@@ -1250,8 +1250,8 @@ export function after<T extends Node>(sibling: HTMLElement, child: T): T {
 }
 
 export function append<T extends Node>(parent: HTMLElement, child: T): T;
-export function append<T extends Node>(parent: HTMLElement, ...children: (T | string)[]): cognidream;
-export function append<T extends Node>(parent: HTMLElement, ...children: (T | string)[]): T | cognidream {
+export function append<T extends Node>(parent: HTMLElement, ...children: (T | string)[]): void;
+export function append<T extends Node>(parent: HTMLElement, ...children: (T | string)[]): T | void {
     parent.append(...children);
     if (children.length === 1 && typeof children[0] !== 'string') {
         return <T>children[0];
@@ -1266,7 +1266,7 @@ export function prepend<T extends Node>(parent: HTMLElement, child: T): T {
 /**
  * Removes all children from `parent` and appends `children`
  */
-export function reset(parent: HTMLElement, ...children: Array<Node | string>): cognidream {
+export function reset(parent: HTMLElement, ...children: Array<Node | string>): void {
     parent.innerText = '';
     append(parent, ...children);
 }
@@ -1351,7 +1351,7 @@ export function join(nodes: Node[], separator: Node | string): Node[] {
     return result;
 }
 
-export function setVisibility(visible: boolean, ...elements: HTMLElement[]): cognidream {
+export function setVisibility(visible: boolean, ...elements: HTMLElement[]): void {
     if (visible) {
         show(...elements);
     } else {
@@ -1359,14 +1359,14 @@ export function setVisibility(visible: boolean, ...elements: HTMLElement[]): cog
     }
 }
 
-export function show(...elements: HTMLElement[]): cognidream {
+export function show(...elements: HTMLElement[]): void {
     for (const element of elements) {
         element.style.display = '';
         element.removeAttribute('aria-hidden');
     }
 }
 
-export function hide(...elements: HTMLElement[]): cognidream {
+export function hide(...elements: HTMLElement[]): void {
     for (const element of elements) {
         element.style.display = 'none';
         element.setAttribute('aria-hidden', 'true');
@@ -1385,7 +1385,7 @@ function findParentWithAttribute(node: Node | null, attribute: string): HTMLElem
     return null;
 }
 
-export function removeTabIndexAndUpdateFocus(node: HTMLElement): cognidream {
+export function removeTabIndexAndUpdateFocus(node: HTMLElement): void {
     if (!node || !node.hasAttribute('tabIndex')) {
         return;
     }
@@ -1410,11 +1410,11 @@ export function finalHandler<T extends Event>(fn: (event: T) => unknown): (event
     };
 }
 
-export function domContentLoaded(targetWindow: Window): Promise<cognidream> {
-    return new Promise<cognidream>(resolve => {
+export function domContentLoaded(targetWindow: Window): Promise<void> {
+    return new Promise<void>(resolve => {
         const readyState = targetWindow.document.readyState;
         if (readyState === 'complete' || (targetWindow.document && targetWindow.document.body !== null)) {
-            resolve(undefined);
+            resolve();
         } else {
             const listener = () => {
                 targetWindow.window.removeEventListener('DOMContentLoaded', listener, false);
@@ -1450,7 +1450,7 @@ export function computeScreenAwareSize(window: Window, cssPx: number): number {
  * to change the location of the current page.
  * See https://mathiasbynens.github.io/rel-noopener/
  */
-export function windowOpenNoOpener(url: string): cognidream {
+export function windowOpenNoOpener(url: string): void {
     // By using 'noopener' in the `windowFeatures` argument, the newly created window will
     // not be able to use `window.opener` to reach back to the current page.
     // See https://stackoverflow.com/a/46958731
@@ -1472,7 +1472,7 @@ export function windowOpenNoOpener(url: string): cognidream {
  * In otherwords, you should almost always use {@link windowOpenNoOpener} instead of this function.
  */
 const popupWidth = 780, popupHeight = 640;
-export function windowOpenPopup(url: string): cognidream {
+export function windowOpenPopup(url: string): void {
     const left = Math.floor(mainWindow.screenLeft + mainWindow.innerWidth / 2 - popupWidth / 2);
     const top = Math.floor(mainWindow.screenTop + mainWindow.innerHeight / 2 - popupHeight / 2);
     mainWindow.open(
@@ -1510,7 +1510,7 @@ export function windowOpenWithSuccess(url: string, noOpener = true): boolean {
     return false;
 }
 
-export function animate(targetWindow: Window, fn: () => cognidream): IDisposable {
+export function animate(targetWindow: Window, fn: () => void): IDisposable {
     const step = () => {
         fn();
         stepDisposable = scheduleAtNextAnimationFrame(targetWindow, step);
@@ -1522,7 +1522,7 @@ export function animate(targetWindow: Window, fn: () => cognidream): IDisposable
 
 RemoteAuthorities.setPreferredWebSchema(/^https:/.test(mainWindow.location.href) ? 'https' : 'http');
 
-export function triggerDownload(dataOrUri: Uint8Array | URI, name: string): cognidream {
+export function triggerDownload(dataOrUri: Uint8Array | URI, name: string): void {
 
     // If the data is provided as Buffer, we create a
     // blob URL out of it to produce a valid link
@@ -1768,7 +1768,7 @@ const defaultDomPurifyConfig = Object.freeze<dompurify.Config & { RETURN_TRUSTED
 /**
  * Sanitizes the given `value` and reset the given `node` with it.
  */
-export function safeInnerHtml(node: HTMLElement, value: string, extraDomPurifyConfig?: dompurify.Config): cognidream {
+export function safeInnerHtml(node: HTMLElement, value: string, extraDomPurifyConfig?: dompurify.Config): void {
     const hook = hookDomPurifyHrefAndSrcSanitizer(defaultSafeProtocols);
     try {
         const html = dompurify.sanitize(value, { ...defaultDomPurifyConfig, ...extraDomPurifyConfig });
@@ -1835,7 +1835,7 @@ export class ModifierKeyEmitter extends event.Emitter<IModifierKeyStatus> {
         this._subscriptions.add(event.Event.runAndSubscribe(onDidRegisterWindow, ({ window, disposables }) => this.registerListeners(window, disposables), { window: mainWindow, disposables: this._subscriptions }));
     }
 
-    private registerListeners(window: Window, disposables: DisposableStore): cognidream {
+    private registerListeners(window: Window, disposables: DisposableStore): void {
         disposables.add(addDisposableListener(window, 'keydown', e => {
             if (e.defaultPrevented) {
                 return;
@@ -1935,12 +1935,12 @@ export class ModifierKeyEmitter extends event.Emitter<IModifierKeyStatus> {
     /**
      * Allows to explicitly reset the key status based on more knowledge (#109062)
      */
-    resetKeyStatus(): cognidream {
+    resetKeyStatus(): void {
         this.doResetKeyStatus();
         this.fire(this._keyStatus);
     }
 
-    private doResetKeyStatus(): cognidream {
+    private doResetKeyStatus(): void {
         this._keyStatus = {
             altKey: false,
             shiftKey: false,
@@ -1970,13 +1970,13 @@ export function getCookieValue(name: string): string | undefined {
 }
 
 export interface IDragAndDropObserverCallbacks {
-    readonly onDragEnter?: (e: DragEvent) => cognidream;
-    readonly onDragLeave?: (e: DragEvent) => cognidream;
-    readonly onDrop?: (e: DragEvent) => cognidream;
-    readonly onDragEnd?: (e: DragEvent) => cognidream;
-    readonly onDragStart?: (e: DragEvent) => cognidream;
-    readonly onDrag?: (e: DragEvent) => cognidream;
-    readonly onDragOver?: (e: DragEvent, dragDuration: number) => cognidream;
+    readonly onDragEnter?: (e: DragEvent) => void;
+    readonly onDragLeave?: (e: DragEvent) => void;
+    readonly onDrop?: (e: DragEvent) => void;
+    readonly onDragEnd?: (e: DragEvent) => void;
+    readonly onDragStart?: (e: DragEvent) => void;
+    readonly onDrag?: (e: DragEvent) => void;
+    readonly onDragOver?: (e: DragEvent, dragDuration: number) => void;
 }
 
 export class DragAndDropObserver extends Disposable {
@@ -1996,7 +1996,7 @@ export class DragAndDropObserver extends Disposable {
         this.registerListeners();
     }
 
-    private registerListeners(): cognidream {
+    private registerListeners(): void {
         if (this.callbacks.onDragStart) {
             this._register(addDisposableListener(this.element, EventType.DRAG_START, (e: DragEvent) => {
                 this.callbacks.onDragStart?.(e);
@@ -2051,7 +2051,7 @@ export class DragAndDropObserver extends Disposable {
 type HTMLElementAttributeKeys<T> = Partial<{ [K in keyof T]: T[K] extends Function ? never : T[K] extends object ? HTMLElementAttributeKeys<T[K]> : T[K] }>;
 type ElementAttributes<T> = HTMLElementAttributeKeys<T> & Record<string, any>;
 type RemoveHTMLElement<T> = T extends HTMLElement ? never : T;
-type UnionToIntersection<U> = (U extends any ? (k: U) => cognidream : never) extends ((k: infer I) => cognidream) ? I : never;
+type UnionToIntersection<U> = (U extends any ? (k: U) => void : never) extends ((k: infer I) => void) ? I : never;
 type ArrayToObj<T extends readonly any[]> = UnionToIntersection<RemoveHTMLElement<T[number]>>;
 type HHTMLElementTagNameMap = HTMLElementTagNameMap & { '': HTMLDivElement };
 
@@ -2301,7 +2301,7 @@ function camelCaseToHyphenCase(str: string) {
     return str.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase();
 }
 
-export function copyAttributes(from: Element, to: Element, filter?: string[]): cognidream {
+export function copyAttributes(from: Element, to: Element, filter?: string[]): void {
     for (const { name, value } of from.attributes) {
         if (!filter || filter.includes(name)) {
             to.setAttribute(name, value);
@@ -2309,7 +2309,7 @@ export function copyAttributes(from: Element, to: Element, filter?: string[]): c
     }
 }
 
-function copyAttribute(from: Element, to: Element, name: string): cognidream {
+function copyAttribute(from: Element, to: Element, name: string): void {
     const value = from.getAttribute(name);
     if (value) {
         to.setAttribute(name, value);

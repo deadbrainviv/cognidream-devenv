@@ -4,15 +4,15 @@
  *--------------------------------------------------------------------------------------------*/
 
 export interface IDisposable {
-	dispose(): cognidream;
+	dispose(): void;
 }
 
-export function toDisposable(dispose: () => cognidream): IDisposable {
+export function toDisposable(dispose: () => void): IDisposable {
 	return { dispose };
 }
 
-export function done<T>(promise: Promise<T>): Promise<cognidream> {
-	return promise.then<cognidream>(() => undefined);
+export function done<T>(promise: Promise<T>): Promise<void> {
+	return promise.then<void>(() => undefined);
 }
 
 export namespace Versions {

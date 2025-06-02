@@ -18,7 +18,7 @@ class ScanTask {
 		this.delayTask = new Delayer<interfaces.IDocumentMergeConflict[]>(delayTime);
 	}
 
-	public addOrigin(name: string): cognidream {
+	public addOrigin(name: string): void {
 		this.origins.add(name);
 	}
 

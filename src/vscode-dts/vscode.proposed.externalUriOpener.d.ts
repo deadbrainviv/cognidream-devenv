@@ -1,3 +1,4 @@
+/// <reference path="./types.d.ts" />
 /*---------------------------------------------------------------------------------------------
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
@@ -90,7 +91,7 @@ declare module 'vscode' {
 		 *
 		 * @return Thenable indicating that the opening has completed.
 		 */
-		openExternalUri(resolvedUri: Uri, ctx: OpenExternalUriContext, token: CancellationToken): Thenable<cognidream> | cognidream;
+		openExternalUri(resolvedUri: Uri, ctx: OpenExternalUriContext, token: CancellationToken): Thenable<void> | void;
 	}
 
 	/**

@@ -1,3 +1,4 @@
+/// <reference path="../../../../src/vscode-dts/types.d.ts" />
 /*---------------------------------------------------------------------------------------------
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
@@ -16,7 +17,7 @@ export function getCustomDataSource(runtime: Runtime, toDispose: Disposable[]) {
 	collectInWorkspaces(workspaceUris);
 	collectInExtensions(localExtensionUris, externalExtensionUris);
 
-	const onChange = new EventEmitter<cognidream>();
+	const onChange = new EventEmitter<void>();
 
 	toDispose.push(extensions.onDidChange(_ => {
 		const newLocalExtensionUris = new Set<string>();
@@ -124,7 +125,7 @@ function collectInWorkspaces(workspaceUris: Set<string>): Set<string> {
 	return dataPaths;
 }
 
-function collectInExtensions(localExtensionUris: Set<string>, externalUris: Set<string>): cognidream {
+function collectInExtensions(localExtensionUris: Set<string>, externalUris: Set<string>): void {
 	for (const extension of extensions.allAcrossExtensionHosts) {
 		const customData = extension.packageJSON?.contributes?.html?.customData;
 		if (Array.isArray(customData)) {
