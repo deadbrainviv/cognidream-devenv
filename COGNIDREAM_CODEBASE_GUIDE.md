@@ -6,14 +6,6 @@ Most of cognidream's code lives in the folder `src/vs/workbench/contrib/cognidre
 
 The purpose of this document is to explain how cognidream's codebase works. If you want build instructions instead, see [Contributing](https://github.com/cognidreameditor/cognidream/blob/main/HOW_TO_CONTRIBUTE.md).
 
-
-
-
-
-
-
-
-
 ## cognidream Codebase Guide
 
 ### VSCode Rundown
@@ -30,8 +22,6 @@ Here's a VSCode rundown if you're just getting started with cognidream. You can 
   2. Implement the code on `electron-main/` and set up a channel between main/browser - we're doing this for sendLLMMessage.
 
 
-
-
 ### Terminology
 
 Here's some terminology you might want to know about when working inside VSCode:
@@ -43,7 +33,6 @@ Here's some terminology you might want to know about when working inside VSCode:
 <p align="center" >
 <img src="https://github.com/user-attachments/assets/6521c228-dc96-4cf5-a673-6b9ca78b9b06" alt="Credit - https://code.visualstudio.com/docs/getstarted/userinterface" width="400px">
 </p>
-
 
 
 - VSCode is organized into "**Services**". A service is just a class that mounts a single time (in computer science theory this is called a "singleton"). You can register services with `registerSingleton` so that you can easily use them in any constructor with `@<Service>`. See _dummyContrib for an example we put together on how to register them. The registration is the same every time.
@@ -63,9 +52,7 @@ Sending LLM messages from the main process acognidreams CSP issues with local pr
 </div>
 
 
-
 **Notes:** `modelCapabilities` is an important file that must be updated when new models come out!
-
 
 ### Apply
 
@@ -73,11 +60,7 @@ cognidream has two types of Apply: **Fast Apply** (uses Search/Replace, see belo
 
 When you click Apply and Fast Apply is enabled, we prompt the LLM to output Search/Replace block(s) like this:
 ```
-<<<<<<< ORIGINAL
 // original code goes here
-=======
-// replaced code goes here
->>>>>>> UPDATED
 ```
 This is what allows cognidream to quickly apply code even on 1000-line files. It's the same as asking the LLM to press Ctrl+F and enter in a search/replace query.
 

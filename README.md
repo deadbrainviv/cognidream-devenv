@@ -17,7 +17,7 @@ This repo contains the full sourcecode for CogniDream Software Development Platf
 
 ## Contributing
 
-1. To get started working on CogniDream.
+1. To get started working on CogniDream please reachout to reachout@cognidream.com
 
 ## Reference
 
