@@ -1,37 +1,27 @@
-# Welcome to cognidream.
+# Welcome to CogniDream Software Developmnent Platform by CogniSynapse LLC & CogniSynapse Technologies Private Limited.
 
 <div align="center">
 	<img
 		src="./src/vs/workbench/browser/parts/editor/media/cognidream_engine_SDP.png"
-	 	alt="cognidream Welcome"
+	 	alt="CogniSynpase Welcomes You to CogniDream"
 		width="300"
 	 	height="300"
 	/>
 </div>
 
-cognidream is the open-source Cursor alternative.
+CogniSynapse presents, CogniDream.
 
-Use AI agents on your codebase, checkpoint and visualize changes, and bring any model or host locally. cognidream sends messages directly to providers without retaining your data.
+Use AI agents on your codebase, checkpoint and visualize changes, and bring any model and host locally.
 
-This repo contains the full sourcecode for cognidream. If you're new, welcome!
-
-- 🧭 [Website](https://cognidreameditor.com)
-
-- 👋 [Discord](https://discord.gg/RSNjgaugJs)
-
-- 🚙 [Project Board](https://github.com/orgs/cognidreameditor/projects/2)
-
+This repo contains the full sourcecode for CogniDream Software Development Platform.
 
 ## Contributing
 
-1. To get started working on cognidream, check out our Project Board! You can also see [HOW_TO_CONTRIBUTE](https://github.com/cognidreameditor/cognidream/blob/main/HOW_TO_CONTRIBUTE.md).
-
-2. Feel free to attend a casual weekly meeting in our Discord channel!
-
+1. To get started working on CogniDream.
 
 ## Reference
 
-cognidream is a fork of the [vscode](https://github.com/microsoft/vscode) repository. For a guide to the codebase, see [cognidream_CODEBASE_GUIDE](https://github.com/cognidreameditor/cognidream/blob/main/cognidream_CODEBASE_GUIDE.md).
+This is forked on top of Visual Studio Code as the development Environment and the libraries connects to CogniDream Engine as well as mSmartCompute via Ollama Integration as well as direct integration with mSmartCompute API Interface.
 
 ## Support
-You can always reach us in our Discord server or contact us via email: hello@cognidreameditor.com.
+You can always reach the developer (@d3adbra1nvv1v) - Deadbrainviv - vivek@cognisynapse.com
