@@ -34,75 +34,75 @@ export class TestMcpMessageTransport extends Disposable implements IMcpMessageTr
 	/**
 	 * Send a message through the transport.
 	 */
-	public send(message: MCP.JSONRPCMessage): void {
+	public send(message: MCP.JSONRPCMessage): cognidream {
 		this._sentMessages.push(message);
 	}
 
 	/**
 	 * Stop the transport.
 	 */
-	public stop(): void {
+	public stop(cognidreamognidream {
 		this._stateValue.set({ state: McpConnectionState.Kind.Stopped }, undefined);
-	}
+    }
 
-	// Test Helper Methods
+    // Test Helper Methods
 
-	/**
-	 * Simulate receiving a message from the server.
-	 */
-	public simulateReceiveMessage(message: MCP.JSONRPCMessage): void {
-		this._onDidReceiveMessage.fire(message);
-	}
-
-	/**
-	 * Simulates a reply to an 'initialized' request.
-	 */
-	public simulateInitialized() {
-		if (!this._sentMessages.length) {
-			throw new Error('initialize was not called yet');
+    /**
+     * Simulate receiving a message from the server.
+     */
+    public simulateReceiveMessage(message: MCP.JSONRPCMessagecognidreamognidream {
+			this._onDidReceiveMessage.fire(message);
 		}
 
-		this.simulateReceiveMessage({
-			jsonrpc: MCP.JSONRPC_VERSION,
-			id: (this.getSentMessages()[0] as MCP.JSONRPCRequest).id,
-			result: {
-				protocolVersion: MCP.LATEST_PROTOCOL_VERSION,
-				capabilities: {
-					tools: {},
-				},
-				serverInfo: {
-					name: 'Test Server',
-					version: '1.0.0'
-				},
-			} satisfies MCP.InitializeResult
-		});
-	}
+    /**
+     * Simulates a reply to an 'initialized' request.
+     */
+    public simulateInitialized() {
+			if(!this._sentMessages.length) {
+	throw new Error('initialize was not called yet');
+}
 
-	/**
-	 * Simulate a log event.
-	 */
-	public simulateLog(message: string): void {
-		this._onDidLog.fire({ level: LogLevel.Info, message });
-	}
+this.simulateReceiveMessage({
+	jsonrpc: MCP.JSONRPC_VERSION,
+	id: (this.getSentMessages()[0] as MCP.JSONRPCRequest).id,
+	result: {
+		protocolVersion: MCP.LATEST_PROTOCOL_VERSION,
+		capabilities: {
+			tools: {},
+		},
+		serverInfo: {
+			name: 'Test Server',
+			version: '1.0.0'
+		},
+	} satisfies MCP.InitializeResult
+});
+    }
 
-	/**
-	 * Set the connection state.
-	 */
-	public setConnectionState(state: McpConnectionState): void {
-		this._stateValue.set(state, undefined);
-	}
+    /**
+     * Simulate a log event.
+     */
+    public simulateLog(message: stringcognidreamognidream {
+	this._onDidLog.fire({ level: LogLevel.Info, message });
+}
 
-	/**
-	 * Get all messages that have been sent.
-	 */
-	public getSentMessages(): readonly MCP.JSONRPCMessage[] {
-		return [...this._sentMessages];
-	}
+    /**
+     * Set the connection state.
+     */
+    public setConnectionState(state: McpConnectionStatecognidreamognidream {
+	this._stateValue.set(state, undefined);
+}
 
-	/**
-	 * Clear the sent messages history.
-	 */
-	public clearSentMessages(): void {
-		this._sentMessages.length = 0;
-	}
+    /**
+     * Get all messages that have been sent.
+     */
+    public getSentMessages(): readonly MCP.JSONRPCMessage[] {
+	return [...this._sentMessages];
+}
+
+    /**
+     * Clear the sent messages history.
+     */
+    public clearSentMessages(cognidreamognidream {
+	this._sentMessages.length = 0;
+}
 }

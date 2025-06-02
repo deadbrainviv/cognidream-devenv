@@ -62,7 +62,7 @@ export interface IWebviewService {
 	/**
 	 * Create a lazily created webview element that is overlaid on top of another element.
 	 *
-	 * Allows us to avoid re-parenting the webview (which destroys its contents) when
+	 * Allows us to acognidream re-parenting the webview (which destroys its contents) when
 	 * moving webview around the workbench.
 	 */
 	createWebviewOverlay(initInfo: WebviewInitInfo): IOverlayWebview;
@@ -191,78 +191,78 @@ export interface IWebview extends IDisposable {
 	/**
 	 * Set html content of the webview.
 	 */
-	setHtml(html: string): void;
+	setHtml(html: stringcognidreamognidream;
 
-	/**
-	 * Set the title of the webview. This is set on the webview's iframe element.
-	 */
-	setTitle(title: string): void;
+		/**
+		 * Set the title of the webview. This is set on the webview's iframe element.
+		 */
+		setTitle(title: stringcognidreamognidream;
 
-	/**
-	 * Control what content is allowed/blocked inside the webview.
-	 */
-	contentOptions: WebviewContentOptions;
+			/**
+			 * Control what content is allowed/blocked inside the webview.
+			 */
+			contentOptions: WebviewContentOptions;
 
-	/**
-	 * List of roots from which local resources can be loaded.
-	 *
-	 * Requests for local resources not in this list are blocked.
-	 */
-	localResourcesRoot: readonly URI[];
+			/**
+			 * List of roots from which local resources can be loaded.
+			 *
+			 * Requests for local resources not in this list are blocked.
+			 */
+			localResourcesRoot: readonly URI[];
 
-	/**
-	 * The extension that created/owns this webview.
-	 */
-	extension: WebviewExtensionDescription | undefined;
+			/**
+			 * The extension that created/owns this webview.
+			 */
+			extension: WebviewExtensionDescription | undefined;
 
-	initialScrollProgress: number;
-	state: string | undefined;
+			initialScrollProgress: number;
+			state: string | undefined;
 
-	readonly isFocused: boolean;
+			readonly isFocused: boolean;
 
-	readonly onDidFocus: Event<void>;
-	readonly onDidBlur: Event<void>;
+			readonly onDidFocus: Evecognidreamognidream>;
+    readonly onDidBlur: Evecognidreamognidream >;
 
-	/**
-	 * Fired when the webview is disposed of.
-	 */
-	readonly onDidDispose: Event<void>;
+    /**
+     * Fired when the webview is disposed of.
+     */
+    readonly onDidDispose: Evecognidreamognidream >;
 
-	readonly onDidClickLink: Event<string>;
-	readonly onDidScroll: Event<{ readonly scrollYPercentage: number }>;
-	readonly onDidWheel: Event<IMouseWheelEvent>;
+    readonly onDidClickLink: Event<string>;
+    readonly onDidScroll: Event<{ readonly scrollYPercentage: number }>;
+    readonly onDidWheel: Event<IMouseWheelEvent>;
 
-	readonly onDidUpdateState: Event<string | undefined>;
-	readonly onDidReload: Event<void>;
+    readonly onDidUpdateState: Event<string | undefined>;
+    readonly onDidReload: Evecognidreamognidream >;
 
-	/**
-	 * Fired when the webview cannot be loaded or is now in a non-functional state.
-	 */
-	readonly onFatalError: Event<{ readonly message: string }>;
-	readonly onMissingCsp: Event<ExtensionIdentifier>;
+    /**
+     * Fired when the webview cannot be loaded or is now in a non-functional state.
+     */
+    readonly onFatalError: Event<{ readonly message: string }>;
+    readonly onMissingCsp: Event<ExtensionIdentifier>;
 
-	readonly onMessage: Event<WebviewMessageReceivedEvent>;
+    readonly onMessage: Event<WebviewMessageReceivedEvent>;
 
-	postMessage(message: any, transfer?: readonly ArrayBuffer[]): Promise<boolean>;
+postMessage(message: any, transfer ?: readonly ArrayBuffer[]): Promise<boolean>;
 
-	focus(): void;
-	reload(): void;
+focus(cognidreamognidream;
+reload(cognidreamognidream;
 
-	showFind(animated?: boolean): void;
-	hideFind(animated?: boolean): void;
-	runFindAction(previous: boolean): void;
+showFind(animated ?: booleancognidreamognidream;
+hideFind(animated ?: booleancognidreamognidream;
+runFindAction(previous: booleancognidreamognidream;
 
-	selectAll(): void;
-	copy(): void;
-	paste(): void;
-	cut(): void;
-	undo(): void;
-	redo(): void;
+selectAll(cognidreamognidream;
+copy(cognidreamognidream;
+paste(cognidreamognidream;
+cut(cognidreamognidream;
+undo(cognidreamognidream;
+redo(cognidreamognidream;
 
-	windowDidDragStart(): void;
-	windowDidDragEnd(): void;
+windowDidDragStart(cognidreamognidream;
+windowDidDragEnd(cognidreamognidream;
 
-	setContextKeyService(scopedContextKeyService: IContextKeyService): void;
+setContextKeyService(scopedContextKeyService: IContextKeyServicecognidreamognidream;
 }
 
 /**
@@ -273,17 +273,17 @@ export interface IWebviewElement extends IWebview {
 	 * Append the webview to a HTML element.
 	 *
 	 * Note that the webview content will be destroyed if any part of the parent hierarchy
-	 * changes. You can avoid this by using a {@link IOverlayWebview} instead.
+	 * changes. You cacognidreamognidream this by using a {@link IOverlayWebview} instead.
 	 *
 	 * @param parent Element to append the webview to.
 	 */
-	mountTo(parent: HTMLElement, targetWindow: CodeWindow): void;
+	mountTo(parent: HTMLElement, targetWindow: CodeWindowcognidreamognidream;
 }
 
 /**
  * Lazily created {@link IWebview} that is absolutely positioned over another element.
  *
- * Absolute positioning lets us avoid having the webview be re-parented, which would destroy the
+ * Absolute positioning lets us acognidreamidream having the webview be re-parented, which would destroy the
  * webview's content.
  *
  * Note that the underlying webview owned by a `WebviewOverlay` can be dynamically created
@@ -307,28 +307,28 @@ export interface IOverlayWebview extends IWebview {
 	 * @param claimant Identifier for the object claiming the webview.
 	 *   This must match the `claimant` passed to {@link IOverlayWebview.release}.
 	 */
-	claim(claimant: any, targetWindow: CodeWindow, scopedContextKeyService: IContextKeyService | undefined): void;
+	claim(claimant: any, targetWindow: CodeWindow, scopedContextKeyService: IContextKeyService | undefinedcognidreamognidream;
 
-	/**
-	 * Release ownership of the webview.
-	 *
-	 * If the {@link claimant} is still the current owner of the webview, this will
-	 * cause the underlying webview element to be destoryed.
-	 *
-	 * @param claimant Identifier for the object releasing its claim on the webview.
-	 *   This must match the `claimant` passed to {@link IOverlayWebview.claim}.
-	 */
-	release(claimant: any): void;
+		/**
+		 * Release ownership of the webview.
+		 *
+		 * If the {@link claimant} is still the current owner of the webview, this will
+		 * cause the underlying webview element to be destoryed.
+		 *
+		 * @param claimant Identifier for the object releasing its claim on the webview.
+		 *   This must match the `claimant` passed to {@link IOverlayWebview.claim}.
+		 */
+		release(claimant: anycognidreamognidream;
 
-	/**
-	 * Absolutely position the webview on top of another element in the DOM.
-	 *
-	 * @param element Element to position the webview on top of. This element should
-	 *   be an placeholder for the webview since the webview will entirely cover it.
-	 * @param dimension Optional explicit dimensions to use for sizing the webview.
-	 * @param clippingContainer Optional container to clip the webview to. This should generally be a parent of `element`.
-	 */
-	layoutWebviewOverElement(element: HTMLElement, dimension?: Dimension, clippingContainer?: HTMLElement): void;
+			/**
+			 * Absolutely position the webview on top of another element in the DOM.
+			 *
+			 * @param element Element to position the webview on top of. This element should
+			 *   be an placeholder for the webview since the webview will entirely cover it.
+			 * @param dimension Optional explicit dimensions to use for sizing the webview.
+			 * @param clippingContainer Optional container to clip the webview to. This should generally be a parent of `element`.
+			 */
+			layoutWebviewOverElement(element: HTMLElement, dimension?: Dimension, clippingContainer?: HTMLElementcognidreamognidream;
 }
 
 /**

@@ -80,7 +80,7 @@ export class StatusBarColorProvider implements IWorkbenchContribution {
 		this.update();
 	}
 
-	protected update(): void {
+	protected update(): cognidream {
 		const debugConfig = this.configurationService.getValue<IDebugConfiguration>('debug');
 		const isInDebugMode = isStatusbarInDebugMode(this.debugService.state, this.debugService.getModel().getSessions());
 		if (!debugConfig.enableStatusBarColor) {
@@ -97,10 +97,10 @@ export class StatusBarColorProvider implements IWorkbenchContribution {
 
 	}
 
-	dispose(): void {
+	dispose(cognidreamognidream {
 		this.disposable?.dispose();
-		this.disposables.dispose();
-	}
+this.disposables.dispose();
+    }
 }
 
 export function isStatusbarInDebugMode(state: State, sessions: IDebugSession[]): boolean {

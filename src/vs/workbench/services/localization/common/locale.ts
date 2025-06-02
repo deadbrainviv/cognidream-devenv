@@ -9,14 +9,14 @@ import { ILanguagePackItem } from '../../../../platform/languagePacks/common/lan
 export const ILocaleService = createDecorator<ILocaleService>('localizationService');
 
 export interface ILocaleService {
-	readonly _serviceBrand: undefined;
-	setLocale(languagePackItem: ILanguagePackItem, skipDialog?: boolean): Promise<void>;
-	clearLocalePreference(): Promise<void>;
+    readonly _serviceBrand: undefined;
+    setLocale(languagePackItem: ILanguagePackItem, skipDialog?: boolean): Promise<cognidream>;
+    clearLocalePreference(): Promise<cognidream>;
 }
 
 export const IActiveLanguagePackService = createDecorator<IActiveLanguagePackService>('activeLanguageService');
 
 export interface IActiveLanguagePackService {
-	readonly _serviceBrand: undefined;
-	getExtensionIdProvidingCurrentLocale(): Promise<string | undefined>;
+    readonly _serviceBrand: undefined;
+    getExtensionIdProvidingCurrentLocale(): Promise<string | undefined>;
 }

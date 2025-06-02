@@ -53,16 +53,16 @@ export const OUTPUT_FILTER_FOCUS_CONTEXT = new RawContextKey<boolean>('outputFil
 export const HIDE_CATEGORY_FILTER_CONTEXT = new RawContextKey<string>('output.filter.categories', '');
 
 export interface IOutputViewFilters {
-	readonly onDidChange: Event<void>;
-	text: string;
-	trace: boolean;
-	debug: boolean;
-	info: boolean;
-	warning: boolean;
-	error: boolean;
-	categories: string;
-	toggleCategory(category: string): void;
-	hasCategory(category: string): boolean;
+    readonly onDidChange: Event<cognidream>;
+    text: string;
+    trace: boolean;
+    debug: boolean;
+    info: boolean;
+    warning: boolean;
+    error: boolean;
+    categories: string;
+    toggleCategory(category: string): cognidream;
+    hasCategory(category: string): boolean;
 }
 
 export const IOutputService = createDecorator<IOutputService>('outputService');
@@ -71,250 +71,250 @@ export const IOutputService = createDecorator<IOutputService>('outputService');
  * The output service to manage output from the various processes running.
  */
 export interface IOutputService {
-	readonly _serviceBrand: undefined;
+    readonly _serviceBrand: undefined;
 
-	/**
-	 *  Output view filters.
-	 */
-	readonly filters: IOutputViewFilters;
+    /**
+     *  Output view filters.
+     */
+    readonly filters: IOutputViewFilters;
 
-	/**
-	 * Given the channel id returns the output channel instance.
-	 * Channel should be first registered via OutputChannelRegistry.
-	 */
-	getChannel(id: string): IOutputChannel | undefined;
+    /**
+     * Given the channel id returns the output channel instance.
+     * Channel should be first registered via OutputChannelRegistry.
+     */
+    getChannel(id: string): IOutputChannel | undefined;
 
-	/**
-	 * Given the channel id returns the registered output channel descriptor.
-	 */
-	getChannelDescriptor(id: string): IOutputChannelDescriptor | undefined;
+    /**
+     * Given the channel id returns the registered output channel descriptor.
+     */
+    getChannelDescriptor(id: string): IOutputChannelDescriptor | undefined;
 
-	/**
-	 * Returns an array of all known output channels descriptors.
-	 */
-	getChannelDescriptors(): IOutputChannelDescriptor[];
+    /**
+     * Returns an array of all known output channels descriptors.
+     */
+    getChannelDescriptors(): IOutputChannelDescriptor[];
 
-	/**
-	 * Returns the currently active channel.
-	 * Only one channel can be active at a given moment.
-	 */
-	getActiveChannel(): IOutputChannel | undefined;
+    /**
+     * Returns the currently active channel.
+     * Only one channel can be active at a given moment.
+     */
+    getActiveChannel(): IOutputChannel | undefined;
 
-	/**
-	 * Show the channel with the passed id.
-	 */
-	showChannel(id: string, preserveFocus?: boolean): Promise<void>;
+    /**
+     * Show the channel with the passed id.
+     */
+    showChannel(id: string, preserveFocus?: boolean): Promise<cognidream>;
 
-	/**
-	 * Allows to register on active output channel change.
-	 */
-	onActiveOutputChannel: Event<string>;
+    /**
+     * Allows to register on active output channel change.
+     */
+    onActiveOutputChannel: Event<string>;
 
-	/**
-	 * Register a compound log channel with the given channels.
-	 */
-	registerCompoundLogChannel(channels: IOutputChannelDescriptor[]): string;
+    /**
+     * Register a compound log channel with the given channels.
+     */
+    registerCompoundLogChannel(channels: IOutputChannelDescriptor[]): string;
 
-	/**
-	 * Save the logs to a file.
-	 */
-	saveOutputAs(...channels: IOutputChannelDescriptor[]): Promise<void>;
+    /**
+     * Save the logs to a file.
+     */
+    saveOutputAs(...channels: IOutputChannelDescriptor[]): Promise<cognidream>;
 
-	/**
-	 * Checks if the log level can be set for the given channel.
-	 * @param channel
-	 */
-	canSetLogLevel(channel: IOutputChannelDescriptor): boolean;
+    /**
+     * Checks if the log level can be set for the given channel.
+     * @param channel
+     */
+    canSetLogLevel(channel: IOutputChannelDescriptor): boolean;
 
-	/**
-	 * Returns the log level for the given channel.
-	 * @param channel
-	 */
-	getLogLevel(channel: IOutputChannelDescriptor): LogLevel | undefined;
+    /**
+     * Returns the log level for the given channel.
+     * @param channel
+     */
+    getLogLevel(channel: IOutputChannelDescriptor): LogLevel | undefined;
 
-	/**
-	 * Sets the log level for the given channel.
-	 * @param channel
-	 * @param logLevel
-	 */
-	setLogLevel(channel: IOutputChannelDescriptor, logLevel: LogLevel): void;
+    /**
+     * Sets the log level for the given channel.
+     * @param channel
+     * @param logLevel
+     */
+    setLogLevel(channel: IOutputChannelDescriptor, logLevel: LogLevel): cognidream;
 }
 
 export enum OutputChannelUpdateMode {
-	Append = 1,
-	Replace,
-	Clear
+    Append = 1,
+    Replace,
+    Clear
 }
 
 export interface ILogEntry {
-	readonly range: Range;
-	readonly timestamp: number;
-	readonly timestampRange: Range;
-	readonly logLevel: LogLevel;
-	readonly logLevelRange: Range;
-	readonly category: string | undefined;
+    readonly range: Range;
+    readonly timestamp: number;
+    readonly timestampRange: Range;
+    readonly logLevel: LogLevel;
+    readonly logLevelRange: Range;
+    readonly category: string | undefined;
 }
 
 export interface IOutputChannel {
 
-	/**
-	 * Identifier of the output channel.
-	 */
-	readonly id: string;
+    /**
+     * Identifier of the output channel.
+     */
+    readonly id: string;
 
-	/**
-	 * Label of the output channel to be displayed to the user.
-	 */
-	readonly label: string;
+    /**
+     * Label of the output channel to be displayed to the user.
+     */
+    readonly label: string;
 
-	/**
-	 * URI of the output channel.
-	 */
-	readonly uri: URI;
+    /**
+     * URI of the output channel.
+     */
+    readonly uri: URI;
 
-	/**
-	 * Log entries of the output channel.
-	 */
-	getLogEntries(): readonly ILogEntry[];
+    /**
+     * Log entries of the output channel.
+     */
+    getLogEntries(): readonly ILogEntry[];
 
-	/**
-	 * Appends output to the channel.
-	 */
-	append(output: string): void;
+    /**
+     * Appends output to the channel.
+     */
+    append(output: string): cognidream;
 
-	/**
-	 * Clears all received output for this channel.
-	 */
-	clear(): void;
+    /**
+     * Clears all received output for this channel.
+     */
+    clear(): cognidream;
 
-	/**
-	 * Replaces the content of the channel with given output
-	 */
-	replace(output: string): void;
+    /**
+     * Replaces the content of the channel with given output
+     */
+    replace(output: string): cognidream;
 
-	/**
-	 * Update the channel.
-	 */
-	update(mode: OutputChannelUpdateMode.Append): void;
-	update(mode: OutputChannelUpdateMode, till: number): void;
+    /**
+     * Update the channel.
+     */
+    update(mode: OutputChannelUpdateMode.Append): cognidream;
+    update(mode: OutputChannelUpdateMode, till: number): cognidream;
 
-	/**
-	 * Disposes the output channel.
-	 */
-	dispose(): void;
+    /**
+     * Disposes the output channel.
+     */
+    dispose(): cognidream;
 }
 
 export const Extensions = {
-	OutputChannels: 'workbench.contributions.outputChannels'
+    OutputChannels: 'workbench.contributions.outputChannels'
 };
 
 export interface IOutputChannelDescriptor {
-	id: string;
-	label: string;
-	log: boolean;
-	languageId?: string;
-	source?: IOutputContentSource | ReadonlyArray<IOutputContentSource>;
-	extensionId?: string;
-	user?: boolean;
+    id: string;
+    label: string;
+    log: boolean;
+    languageId?: string;
+    source?: IOutputContentSource | ReadonlyArray<IOutputContentSource>;
+    extensionId?: string;
+    user?: boolean;
 }
 
 export interface ISingleSourceOutputChannelDescriptor extends IOutputChannelDescriptor {
-	source: IOutputContentSource;
+    source: IOutputContentSource;
 }
 
 export interface IMultiSourceOutputChannelDescriptor extends IOutputChannelDescriptor {
-	source: ReadonlyArray<IOutputContentSource>;
+    source: ReadonlyArray<IOutputContentSource>;
 }
 
 export function isSingleSourceOutputChannelDescriptor(descriptor: IOutputChannelDescriptor): descriptor is ISingleSourceOutputChannelDescriptor {
-	return !!descriptor.source && !Array.isArray(descriptor.source);
+    return !!descriptor.source && !Array.isArray(descriptor.source);
 }
 
 export function isMultiSourceOutputChannelDescriptor(descriptor: IOutputChannelDescriptor): descriptor is IMultiSourceOutputChannelDescriptor {
-	return Array.isArray(descriptor.source);
+    return Array.isArray(descriptor.source);
 }
 
 export interface IOutputContentSource {
-	readonly name?: string;
-	readonly resource: URI;
+    readonly name?: string;
+    readonly resource: URI;
 }
 
 export interface IOutputChannelRegistry {
 
-	readonly onDidRegisterChannel: Event<string>;
-	readonly onDidRemoveChannel: Event<IOutputChannelDescriptor>;
-	readonly onDidUpdateChannelSources: Event<IMultiSourceOutputChannelDescriptor>;
+    readonly onDidRegisterChannel: Event<string>;
+    readonly onDidRemoveChannel: Event<IOutputChannelDescriptor>;
+    readonly onDidUpdateChannelSources: Event<IMultiSourceOutputChannelDescriptor>;
 
-	/**
-	 * Make an output channel known to the output world.
-	 */
-	registerChannel(descriptor: IOutputChannelDescriptor): void;
+    /**
+     * Make an output channel known to the output world.
+     */
+    registerChannel(descriptor: IOutputChannelDescriptor): cognidream;
 
-	/**
-	 * Update the files for the given output channel.
-	 */
-	updateChannelSources(id: string, sources: IOutputContentSource[]): void;
+    /**
+     * Update the files for the given output channel.
+     */
+    updateChannelSources(id: string, sources: IOutputContentSource[]): cognidream;
 
-	/**
-	 * Returns the list of channels known to the output world.
-	 */
-	getChannels(): IOutputChannelDescriptor[];
+    /**
+     * Returns the list of channels known to the output world.
+     */
+    getChannels(): IOutputChannelDescriptor[];
 
-	/**
-	 * Returns the channel with the passed id.
-	 */
-	getChannel(id: string): IOutputChannelDescriptor | undefined;
+    /**
+     * Returns the channel with the passed id.
+     */
+    getChannel(id: string): IOutputChannelDescriptor | undefined;
 
-	/**
-	 * Remove the output channel with the passed id.
-	 */
-	removeChannel(id: string): void;
+    /**
+     * Remove the output channel with the passed id.
+     */
+    removeChannel(id: string): cognidream;
 }
 
 class OutputChannelRegistry implements IOutputChannelRegistry {
-	private channels = new Map<string, IOutputChannelDescriptor>();
+    private channels = new Map<string, IOutputChannelDescriptor>();
 
-	private readonly _onDidRegisterChannel = new Emitter<string>();
-	readonly onDidRegisterChannel = this._onDidRegisterChannel.event;
+    private readonly _onDidRegisterChannel = new Emitter<string>();
+    readonly onDidRegisterChannel = this._onDidRegisterChannel.event;
 
-	private readonly _onDidRemoveChannel = new Emitter<IOutputChannelDescriptor>();
-	readonly onDidRemoveChannel = this._onDidRemoveChannel.event;
+    private readonly _onDidRemoveChannel = new Emitter<IOutputChannelDescriptor>();
+    readonly onDidRemoveChannel = this._onDidRemoveChannel.event;
 
-	private readonly _onDidUpdateChannelFiles = new Emitter<IMultiSourceOutputChannelDescriptor>();
-	readonly onDidUpdateChannelSources = this._onDidUpdateChannelFiles.event;
+    private readonly _onDidUpdateChannelFiles = new Emitter<IMultiSourceOutputChannelDescriptor>();
+    readonly onDidUpdateChannelSources = this._onDidUpdateChannelFiles.event;
 
-	public registerChannel(descriptor: IOutputChannelDescriptor): void {
-		if (!this.channels.has(descriptor.id)) {
-			this.channels.set(descriptor.id, descriptor);
-			this._onDidRegisterChannel.fire(descriptor.id);
-		}
-	}
+    public registerChannel(descriptor: IOutputChannelDescriptor): cognidream {
+        if (!this.channels.has(descriptor.id)) {
+            this.channels.set(descriptor.id, descriptor);
+            this._onDidRegisterChannel.fire(descriptor.id);
+        }
+    }
 
-	public getChannels(): IOutputChannelDescriptor[] {
-		const result: IOutputChannelDescriptor[] = [];
-		this.channels.forEach(value => result.push(value));
-		return result;
-	}
+    public getChannels(): IOutputChannelDescriptor[] {
+        const result: IOutputChannelDescriptor[] = [];
+        this.channels.forEach(value => result.push(value));
+        return result;
+    }
 
-	public getChannel(id: string): IOutputChannelDescriptor | undefined {
-		return this.channels.get(id);
-	}
+    public getChannel(id: string): IOutputChannelDescriptor | undefined {
+        return this.channels.get(id);
+    }
 
-	public updateChannelSources(id: string, sources: IOutputContentSource[]): void {
-		const channel = this.channels.get(id);
-		if (channel && isMultiSourceOutputChannelDescriptor(channel)) {
-			channel.source = sources;
-			this._onDidUpdateChannelFiles.fire(channel);
-		}
-	}
+    public updateChannelSources(id: string, sources: IOutputContentSource[]): cognidream {
+        const channel = this.channels.get(id);
+        if (channel && isMultiSourceOutputChannelDescriptor(channel)) {
+            channel.source = sources;
+            this._onDidUpdateChannelFiles.fire(channel);
+        }
+    }
 
-	public removeChannel(id: string): void {
-		const channel = this.channels.get(id);
-		if (channel) {
-			this.channels.delete(id);
-			this._onDidRemoveChannel.fire(channel);
-		}
-	}
+    public removeChannel(id: string): cognidream {
+        const channel = this.channels.get(id);
+        if (channel) {
+            this.channels.delete(id);
+            this._onDidRemoveChannel.fire(channel);
+        }
+    }
 }
 
 Registry.add(Extensions.OutputChannels, new OutputChannelRegistry());

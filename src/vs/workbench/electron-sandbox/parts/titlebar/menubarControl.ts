@@ -58,7 +58,7 @@ export class NativeMenubarControl extends MenubarControl {
 		this.registerListeners();
 	}
 
-	protected override setupMainMenu(): void {
+	protected override setupMainMenu(): cognidream {
 		super.setupMainMenu();
 
 		for (const topLevelMenuName of Object.keys(this.topLevelTitles)) {
@@ -69,141 +69,141 @@ export class NativeMenubarControl extends MenubarControl {
 		}
 	}
 
-	protected doUpdateMenubar(): void {
+	protected doUpdateMenubar(cognidreamognidream {
 		// Since the native menubar is shared between windows (main process)
 		// only allow the focused window to update the menubar
 		if (!this.hostService.hasFocus) {
-			return;
-		}
+	return;
+}
 
-		// Send menus to main process to be rendered by Electron
-		const menubarData = { menus: {}, keybindings: {} };
-		if (this.getMenubarMenus(menubarData)) {
-			this.menubarService.updateMenubar(this.nativeHostService.windowId, menubarData);
-		}
+// Send menus to main process to be rendered by Electron
+const menubarData = { menus: {}, keybindings: {} };
+if (this.getMenubarMenus(menubarData)) {
+	this.menubarService.updateMenubar(this.nativeHostService.windowId, menubarData);
+}
+    }
+
+    private getMenubarMenus(menubarData: IMenubarData): boolean {
+	if (!menubarData) {
+		return false;
 	}
 
-	private getMenubarMenus(menubarData: IMenubarData): boolean {
-		if (!menubarData) {
-			return false;
-		}
-
-		menubarData.keybindings = this.getAdditionalKeybindings();
-		for (const topLevelMenuName of Object.keys(this.topLevelTitles)) {
-			const menu = this.menus[topLevelMenuName];
-			if (menu) {
-				const menubarMenu: IMenubarMenu = { items: [] };
-				const menuActions = getFlatContextMenuActions(menu.getActions({ shouldForwardArgs: true }));
-				this.populateMenuItems(menuActions, menubarMenu, menubarData.keybindings);
-				if (menubarMenu.items.length === 0) {
-					return false; // Menus are incomplete
-				}
-				menubarData.menus[topLevelMenuName] = menubarMenu;
+	menubarData.keybindings = this.getAdditionalKeybindings();
+	for (const topLevelMenuName of Object.keys(this.topLevelTitles)) {
+		const menu = this.menus[topLevelMenuName];
+		if (menu) {
+			const menubarMenu: IMenubarMenu = { items: [] };
+			const menuActions = getFlatContextMenuActions(menu.getActions({ shouldForwardArgs: true }));
+			this.populateMenuItems(menuActions, menubarMenu, menubarData.keybindings);
+			if (menubarMenu.items.length === 0) {
+				return false; // Menus are incomplete
 			}
+			menubarData.menus[topLevelMenuName] = menubarMenu;
 		}
-
-		return true;
 	}
 
-	private populateMenuItems(menuActions: readonly IAction[], menuToPopulate: IMenubarMenu, keybindings: { [id: string]: IMenubarKeybinding | undefined }) {
-		for (const menuItem of menuActions) {
-			if (menuItem instanceof Separator) {
-				menuToPopulate.items.push({ id: 'vscode.menubar.separator' });
-			} else if (menuItem instanceof MenuItemAction || menuItem instanceof SubmenuItemAction) {
+	return true;
+}
 
-				// use mnemonicTitle whenever possible
-				const title = typeof menuItem.item.title === 'string'
-					? menuItem.item.title
-					: menuItem.item.title.mnemonicTitle ?? menuItem.item.title.value;
+    private populateMenuItems(menuActions: readonly IAction[], menuToPopulate: IMenubarMenu, keybindings: { [id: string]: IMenubarKeybinding | undefined }) {
+	for (const menuItem of menuActions) {
+		if (menuItem instanceof Separator) {
+			menuToPopulate.items.push({ id: 'vscode.menubar.separator' });
+		} else if (menuItem instanceof MenuItemAction || menuItem instanceof SubmenuItemAction) {
 
-				if (menuItem instanceof SubmenuItemAction) {
-					const submenu = { items: [] };
+			// use mnemonicTitle whenever possible
+			const title = typeof menuItem.item.title === 'string'
+				? menuItem.item.title
+				: menuItem.item.title.mnemonicTitle ?? menuItem.item.title.value;
 
-					this.populateMenuItems(menuItem.actions, submenu, keybindings);
+			if (menuItem instanceof SubmenuItemAction) {
+				const submenu = { items: [] };
 
-					if (submenu.items.length > 0) {
-						const menubarSubmenuItem: IMenubarMenuItemSubmenu = {
-							id: menuItem.id,
-							label: title,
-							submenu
-						};
+				this.populateMenuItems(menuItem.actions, submenu, keybindings);
 
-						menuToPopulate.items.push(menubarSubmenuItem);
-					}
-				} else {
-					if (menuItem.id === OpenRecentAction.ID) {
-						const actions = this.getOpenRecentActions().map(this.transformOpenRecentAction);
-						menuToPopulate.items.push(...actions);
-					}
-
-					const menubarMenuItem: IMenubarMenuItemAction = {
+				if (submenu.items.length > 0) {
+					const menubarSubmenuItem: IMenubarMenuItemSubmenu = {
 						id: menuItem.id,
-						label: title
+						label: title,
+						submenu
 					};
 
-					if (isICommandActionToggleInfo(menuItem.item.toggled)) {
-						menubarMenuItem.label = menuItem.item.toggled.mnemonicTitle ?? menuItem.item.toggled.title ?? title;
-					}
-
-					if (menuItem.checked) {
-						menubarMenuItem.checked = true;
-					}
-
-					if (!menuItem.enabled) {
-						menubarMenuItem.enabled = false;
-					}
-
-					keybindings[menuItem.id] = this.getMenubarKeybinding(menuItem.id);
-					menuToPopulate.items.push(menubarMenuItem);
+					menuToPopulate.items.push(menubarSubmenuItem);
 				}
+			} else {
+				if (menuItem.id === OpenRecentAction.ID) {
+					const actions = this.getOpenRecentActions().map(this.transformOpenRecentAction);
+					menuToPopulate.items.push(...actions);
+				}
+
+				const menubarMenuItem: IMenubarMenuItemAction = {
+					id: menuItem.id,
+					label: title
+				};
+
+				if (isICommandActionToggleInfo(menuItem.item.toggled)) {
+					menubarMenuItem.label = menuItem.item.toggled.mnemonicTitle ?? menuItem.item.toggled.title ?? title;
+				}
+
+				if (menuItem.checked) {
+					menubarMenuItem.checked = true;
+				}
+
+				if (!menuItem.enabled) {
+					menubarMenuItem.enabled = false;
+				}
+
+				keybindings[menuItem.id] = this.getMenubarKeybinding(menuItem.id);
+				menuToPopulate.items.push(menubarMenuItem);
 			}
 		}
 	}
+}
 
-	private transformOpenRecentAction(action: Separator | IOpenRecentAction): MenubarMenuItem {
-		if (action instanceof Separator) {
-			return { id: 'vscode.menubar.separator' };
-		}
-
-		return {
-			id: action.id,
-			uri: action.uri,
-			remoteAuthority: action.remoteAuthority,
-			enabled: action.enabled,
-			label: action.label
-		};
+    private transformOpenRecentAction(action: Separator | IOpenRecentAction): MenubarMenuItem {
+	if (action instanceof Separator) {
+		return { id: 'vscode.menubar.separator' };
 	}
 
-	private getAdditionalKeybindings(): { [id: string]: IMenubarKeybinding } {
-		const keybindings: { [id: string]: IMenubarKeybinding } = {};
-		if (isMacintosh) {
-			const keybinding = this.getMenubarKeybinding('workbench.action.quit');
-			if (keybinding) {
-				keybindings['workbench.action.quit'] = keybinding;
-			}
-		}
+	return {
+		id: action.id,
+		uri: action.uri,
+		remoteAuthority: action.remoteAuthority,
+		enabled: action.enabled,
+		label: action.label
+	};
+}
 
-		return keybindings;
+    private getAdditionalKeybindings(): { [id: string]: IMenubarKeybinding } {
+	const keybindings: { [id: string]: IMenubarKeybinding } = {};
+	if (isMacintosh) {
+		const keybinding = this.getMenubarKeybinding('workbench.action.quit');
+		if (keybinding) {
+			keybindings['workbench.action.quit'] = keybinding;
+		}
 	}
 
-	private getMenubarKeybinding(id: string): IMenubarKeybinding | undefined {
-		const binding = this.keybindingService.lookupKeybinding(id);
-		if (!binding) {
-			return undefined;
-		}
+	return keybindings;
+}
 
-		// first try to resolve a native accelerator
-		const electronAccelerator = binding.getElectronAccelerator();
-		if (electronAccelerator) {
-			return { label: electronAccelerator, userSettingsLabel: binding.getUserSettingsLabel() ?? undefined };
-		}
-
-		// we need this fallback to support keybindings that cannot show in electron menus (e.g. chords)
-		const acceleratorLabel = binding.getLabel();
-		if (acceleratorLabel) {
-			return { label: acceleratorLabel, isNative: false, userSettingsLabel: binding.getUserSettingsLabel() ?? undefined };
-		}
-
+    private getMenubarKeybinding(id: string): IMenubarKeybinding | undefined {
+	const binding = this.keybindingService.lookupKeybinding(id);
+	if (!binding) {
 		return undefined;
 	}
+
+	// first try to resolve a native accelerator
+	const electronAccelerator = binding.getElectronAccelerator();
+	if (electronAccelerator) {
+		return { label: electronAccelerator, userSettingsLabel: binding.getUserSettingsLabel() ?? undefined };
+	}
+
+	// we need this fallback to support keybindings that cannot show in electron menus (e.g. chords)
+	const acceleratorLabel = binding.getLabel();
+	if (acceleratorLabel) {
+		return { label: acceleratorLabel, isNative: false, userSettingsLabel: binding.getUserSettingsLabel() ?? undefined };
+	}
+
+	return undefined;
+}
 }

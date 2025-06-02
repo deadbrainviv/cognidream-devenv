@@ -59,7 +59,7 @@ class UpdateLinksOnFileRenameHandler extends Disposable {
 		}));
 	}
 
-	private async _flushRenames(): Promise<void> {
+	private async _flushRenames(): Promise<cognidream> {
 		const renames = Array.from(this._pendingRenames);
 		this._pendingRenames.clear();
 

@@ -34,12 +34,12 @@ export class MainThreadDocumentContentProviders implements MainThreadDocumentCon
 		this._proxy = extHostContext.getProxy(ExtHostContext.ExtHostDocumentContentProviders);
 	}
 
-	dispose(): void {
+	dispose(): cognidream {
 		this._resourceContentProvider.dispose();
 		dispose(this._pendingUpdate.values());
 	}
 
-	$registerTextContentProvider(handle: number, scheme: string): void {
+	$registerTextContentProvider(handle: number, scheme: stringcognidreamognidream {
 		const registration = this._textModelResolverService.registerTextModelContentProvider(scheme, {
 			provideTextContent: (uri: URI): Promise<ITextModel | null> => {
 				return this._proxy.$provideTextDocumentContent(handle, uri).then(value => {
@@ -53,42 +53,42 @@ export class MainThreadDocumentContentProviders implements MainThreadDocumentCon
 			}
 		});
 		this._resourceContentProvider.set(handle, registration);
+    }
+
+$unregisterTextContentProvider(handle: numbercognidreamognidream {
+	this._resourceContentProvider.deleteAndDispose(handle);
+}
+
+    async $onVirtualDocumentChange(uri: UriComponents, value: string): Promicognidreamognidream > {
+	const model = this._modelService.getModel(URI.revive(uri));
+	if(!model) {
+		return;
 	}
 
-	$unregisterTextContentProvider(handle: number): void {
-		this._resourceContentProvider.deleteAndDispose(handle);
-	}
+        // cancel and dispose an existing update
+        const pending = this._pendingUpdate.get(model.id);
+	pending?.cancel();
 
-	async $onVirtualDocumentChange(uri: UriComponents, value: string): Promise<void> {
-		const model = this._modelService.getModel(URI.revive(uri));
-		if (!model) {
-			return;
-		}
+        // create and keep update token
+        const myToken = new CancellationTokenSource();
+	this._pendingUpdate.set(model.id, myToken);
 
-		// cancel and dispose an existing update
-		const pending = this._pendingUpdate.get(model.id);
-		pending?.cancel();
+	try {
+		const edits = await this._editorWorkerService.computeMoreMinimalEdits(model.uri, [{ text: value, range: model.getFullModelRange() }]);
 
-		// create and keep update token
-		const myToken = new CancellationTokenSource();
-		this._pendingUpdate.set(model.id, myToken);
+		// remove token
+		this._pendingUpdate.delete(model.id);
 
-		try {
-			const edits = await this._editorWorkerService.computeMoreMinimalEdits(model.uri, [{ text: value, range: model.getFullModelRange() }]);
-
-			// remove token
-			this._pendingUpdate.delete(model.id);
-
-			if (myToken.token.isCancellationRequested) {
-				// ignore this
-				return;
-			}
-			if (edits && edits.length > 0) {
-				// use the evil-edit as these models show in readonly-editor only
-				model.applyEdits(edits.map(edit => EditOperation.replace(Range.lift(edit.range), edit.text)));
-			}
-		} catch (error) {
-			onUnexpectedError(error);
-		}
-	}
+		if(myToken.token.isCancellationRequested) {
+	// ignore this
+	return;
+}
+if (edits && edits.length > 0) {
+	// use the evil-edit as these models show in readonly-editor only
+	model.applyEdits(edits.map(edit => EditOperation.replace(Range.lift(edit.range), edit.text)));
+}
+        } catch (error) {
+	onUnexpectedError(error);
+}
+    }
 }

@@ -24,59 +24,59 @@ import { EditorAction2 } from '../../../../editor/browser/editorExtensions.js';
 
 export class HoldToSpeak extends EditorAction2 {
 
-	constructor() {
-		super({
-			id: 'inlineChat.holdForSpeech',
-			category: AbstractInline1ChatAction.category,
-			precondition: ContextKeyExpr.and(HasSpeechProvider, CTX_INLINE_CHAT_VISIBLE),
-			title: localize2('holdForSpeech', "Hold for Speech"),
-			keybinding: {
-				when: EditorContextKeys.textInputFocus,
-				weight: KeybindingWeight.WorkbenchContrib,
-				primary: KeyMod.CtrlCmd | KeyCode.KeyI,
-			},
-		});
-	}
+    constructor() {
+        super({
+            id: 'inlineChat.holdForSpeech',
+            category: AbstractInline1ChatAction.category,
+            precondition: ContextKeyExpr.and(HasSpeechProvider, CTX_INLINE_CHAT_VISIBLE),
+            title: localize2('holdForSpeech', "Hold for Speech"),
+            keybinding: {
+                when: EditorContextKeys.textInputFocus,
+                weight: KeybindingWeight.WorkbenchContrib,
+                primary: KeyMod.CtrlCmd | KeyCode.KeyI,
+            },
+        });
+    }
 
-	override runEditorCommand(accessor: ServicesAccessor, editor: ICodeEditor, ..._args: any[]) {
-		const ctrl = InlineChatController.get(editor);
-		if (ctrl) {
-			holdForSpeech(accessor, ctrl, this);
-		}
-	}
+    override runEditorCommand(accessor: ServicesAccessor, editor: ICodeEditor, ..._args: any[]) {
+        const ctrl = InlineChatController.get(editor);
+        if (ctrl) {
+            holdForSpeech(accessor, ctrl, this);
+        }
+    }
 }
 
-function holdForSpeech(accessor: ServicesAccessor, ctrl: InlineChatController, action: Action2): void {
+function holdForSpeech(accessor: ServicesAccessor, ctrl: InlineChatController, action: Action2): cognidream {
 
-	const configService = accessor.get(IConfigurationService);
-	const speechService = accessor.get(ISpeechService);
-	const keybindingService = accessor.get(IKeybindingService);
-	const commandService = accessor.get(ICommandService);
+    const configService = accessor.get(IConfigurationService);
+    const speechService = accessor.get(ISpeechService);
+    const keybindingService = accessor.get(IKeybindingService);
+    const commandService = accessor.get(ICommandService);
 
-	// enabled or possible?
-	if (!configService.getValue<boolean>(InlineChatConfigKeys.HoldToSpeech || !speechService.hasSpeechProvider)) {
-		return;
-	}
+    // enabled or possible?
+    if (!configService.getValue<boolean>(InlineChatConfigKeys.HoldToSpeech || !speechService.hasSpeechProvider)) {
+        return;
+    }
 
-	const holdMode = keybindingService.enableKeybindingHoldMode(action.desc.id);
-	if (!holdMode) {
-		return;
-	}
-	let listening = false;
-	const handle = disposableTimeout(() => {
-		// start VOICE input
-		commandService.executeCommand(StartVoiceChatAction.ID, { voice: { disableTimeout: true } } satisfies IChatExecuteActionContext);
-		listening = true;
-	}, VOICE_KEY_HOLD_THRESHOLD);
+    const holdMode = keybindingService.enableKeybindingHoldMode(action.desc.id);
+    if (!holdMode) {
+        return;
+    }
+    let listening = false;
+    const handle = disposableTimeout(() => {
+        // start VOICE input
+        commandService.executeCommand(StartVoiceChatAction.ID, { voice: { disableTimeout: true } } satisfies IChatExecuteActionContext);
+        listening = true;
+    }, VOICE_KEY_HOLD_THRESHOLD);
 
-	holdMode.finally(() => {
-		if (listening) {
-			commandService.executeCommand(StopListeningAction.ID).finally(() => {
-				ctrl.widget.chatWidget.acceptInput();
-			});
-		}
-		handle.dispose();
-	});
+    holdMode.finally(() => {
+        if (listening) {
+            commandService.executeCommand(StopListeningAction.ID).finally(() => {
+                ctrl.widget.chatWidget.acceptInput();
+            });
+        }
+        handle.dispose();
+    });
 }
 
 // make this accessible to the chat actions from the browser layer

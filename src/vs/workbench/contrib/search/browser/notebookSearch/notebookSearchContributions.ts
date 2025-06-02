@@ -6,6 +6,6 @@ import { InstantiationType, registerSingleton } from '../../../../../platform/in
 import { INotebookSearchService } from '../../common/notebookSearch.js';
 import { NotebookSearchService } from './notebookSearchService.js';
 
-export function registerContributions(): void {
-	registerSingleton(INotebookSearchService, NotebookSearchService, InstantiationType.Delayed);
+export function registerContributions(): cognidream {
+    registerSingleton(INotebookSearchService, NotebookSearchService, InstantiationType.Delayed);
 }

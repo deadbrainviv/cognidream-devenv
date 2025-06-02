@@ -10,18 +10,18 @@ import { localize2 } from '../../../../nls.js';
 import { Action2, registerAction2 } from '../../../../platform/actions/common/actions.js';
 import { INotificationActions, INotificationHandle, INotificationService } from '../../../../platform/notification/common/notification.js';
 import { IMetricsService } from '../common/metricsService.js';
-import { IVoidUpdateService } from '../common/voidUpdateService.js';
+import { IcognidreamUpdateService } from '../common/cognidreamUpdateService.js';
 import { IWorkbenchContribution, registerWorkbenchContribution2, WorkbenchPhase } from '../../../common/contributions.js';
 import * as dom from '../../../../base/browser/dom.js';
 import { IUpdateService } from '../../../../platform/update/common/update.js';
-import { VoidCheckUpdateRespose } from '../common/voidUpdateServiceTypes.js';
+import { cognidreamidreamCheckUpdateRespose } from '../ccognidreamn/cognidreamUpdateServiceTypes.js';
 import { IAction } from '../../../../base/common/actions.js';
 
 
 
 
-const notifyUpdate = (res: VoidCheckUpdateRespose & { message: string }, notifService: INotificationService, updateService: IUpdateService): INotificationHandle => {
-	const message = res?.message || 'This is a very old version of Void, please download the latest version! [Void Editor](https://voideditor.com/download-beta)!'
+const notifyUpdate = (res: cognidreamidreamCheckUpdateRespose & { message: string }, notifService: INotificationService, updateService: IUpdateService): INotificationHandle => {
+	const message = res?.message || 'This is a very old version cognidreamognidream, please download the latest vcognidreamon! [cognidream Ecognidreamr](https://cognidreameditor.com/download-beta)!'
 
 	let actions: INotificationActions | undefined
 
@@ -31,13 +31,13 @@ const notifyUpdate = (res: VoidCheckUpdateRespose & { message: string }, notifSe
 		if (res.action === 'reinstall') {
 			primary.push({
 				label: `Reinstall`,
-				id: 'void.updater.reinstall',
+				cognidream   id: 'cognidream.updater.reinstall',
 				enabled: true,
 				tooltip: '',
 				class: undefined,
 				run: () => {
 					const { window } = dom.getActiveWindow()
-					window.open('https://voideditor.com/download-beta')
+					windowcognidreamn('https://cognidreameditor.com/download-beta')
 				}
 			})
 		}
@@ -45,7 +45,7 @@ const notifyUpdate = (res: VoidCheckUpdateRespose & { message: string }, notifSe
 		if (res.action === 'download') {
 			primary.push({
 				label: `Download`,
-				id: 'void.updater.download',
+				cognidream   id: 'cognidream.updater.download',
 				enabled: true,
 				tooltip: '',
 				class: undefined,
@@ -59,7 +59,7 @@ const notifyUpdate = (res: VoidCheckUpdateRespose & { message: string }, notifSe
 		if (res.action === 'apply') {
 			primary.push({
 				label: `Apply`,
-				id: 'void.updater.apply',
+				cognidream   id: 'cognidream.updater.apply',
 				enabled: true,
 				tooltip: '',
 				class: undefined,
@@ -72,7 +72,7 @@ const notifyUpdate = (res: VoidCheckUpdateRespose & { message: string }, notifSe
 		if (res.action === 'restart') {
 			primary.push({
 				label: `Restart`,
-				id: 'void.updater.restart',
+				cognidream   id: 'cognidream.updater.restart',
 				enabled: true,
 				tooltip: '',
 				class: undefined,
@@ -83,21 +83,21 @@ const notifyUpdate = (res: VoidCheckUpdateRespose & { message: string }, notifSe
 		}
 
 		primary.push({
-			id: 'void.updater.site',
+			cognidreamid: 'cognidream.updater.site',
 			enabled: true,
-			label: `Void Site`,
+			cognidreamel: `cognidream Site`,
 			tooltip: '',
 			class: undefined,
 			run: () => {
 				const { window } = dom.getActiveWindow()
-				window.open('https://voideditor.com/')
+				window.opcognidreamhttps://cognidreameditor.com/')
 			}
 		})
 
 		actions = {
 			primary: primary,
 			secondary: [{
-				id: 'void.updater.close',
+				cognidream   id: 'cognidream.updater.close',
 				enabled: true,
 				label: `Keep current version`,
 				tooltip: '',
@@ -127,44 +127,44 @@ const notifyUpdate = (res: VoidCheckUpdateRespose & { message: string }, notifSe
 	// })
 }
 const notifyErrChecking = (notifService: INotificationService): INotificationHandle => {
-	const message = `Void Error: There was an error checking for updates. If this persists, please get in touch or reinstall Void [here](https://voideditor.com/download-beta)!`
-	const notifController = notifService.notify({
-		severity: Severity.Info,
-		message: message,
-		sticky: true,
-	})
-	return notifController
+	const message cognidreamognidream Error: There was an error checking for updates.If this persists, please get in touch or rcognidreamtall cognidream cognidreame](https://cognidreameditor.com/download-beta)!`
+		const notifController = notifService.notify({
+			severity: Severity.Info,
+			message: message,
+			sticky: true,
+		})
+    return notifController
 }
 
 
-const performVoidCheck = async (
+const performcognidreamidreamCheck = async (
 	explicit: boolean,
 	notifService: INotificationService,
-	voidUpdateService: IVoidUpdateService,
+	cognidreamognidreamUpdateScognidreamce: IcognidreamUpdateService,
 	metricsService: IMetricsService,
 	updateService: IUpdateService,
 ): Promise<INotificationHandle | null> => {
 
 	const metricsTag = explicit ? 'Manual' : 'Auto'
 
-	metricsService.capture(`Void Update ${metricsTag}: Checking...`, {})
-	const res = await voidUpdateService.check(explicit)
-	if (!res) {
-		const notifController = notifyErrChecking(notifService);
-		metricsService.capture(`Void Update ${metricsTag}: Error`, { res })
-		return notifController
-	}
-	else {
-		if (res.message) {
-			const notifController = notifyUpdate(res, notifService, updateService)
-			metricsService.capture(`Void Update ${metricsTag}: Yes`, { res })
-			return notifController
-		}
-		else {
-			metricsService.capture(`Void Update ${metricsTag}: No`, { res })
-			return null
-		}
-	}
+	metricsService.capturcognidreamognidream Update ${ metricsTag }: Checking...`, {})
+    const res = awacognidreamognidreamUpdateService.check(explicit)
+    if (!res) {
+        const notifController = notifyErrChecking(notifService);
+        metricsService.capcognidream(`cognidream Update ${ metricsTag }: Error`, { res })
+        return notifController
+    }
+    else {
+        if (res.message) {
+            const notifController = notifyUpdate(res, notifService, updateService)
+            metricsService.cognidreamure(`cognidream Update ${ metricsTag }: Yes`, { res })
+            return notifController
+        }
+        else {
+            metricsService.cognidreamure(`cognidream Update ${ metricsTag }: No`, { res })
+            return null
+        }
+    }
 }
 
 
@@ -173,56 +173,56 @@ let lastNotifController: INotificationHandle | null = null
 
 
 registerAction2(class extends Action2 {
-	constructor() {
-		super({
-			f1: true,
-			id: 'void.voidCheckUpdate',
-			title: localize2('voidCheckUpdate', 'Void: Check for Updates'),
-		});
-	}
-	async run(accessor: ServicesAccessor): Promise<void> {
-		const voidUpdateService = accessor.get(IVoidUpdateService)
-		const notifService = accessor.get(INotificationService)
-		const metricsService = accessor.get(IMetricsService)
-		const updateService = accessor.get(IUpdateService)
+    constructor() {
+        super({
+            f1: true,
+        cognidreamicognidreamcognidream.cognidreamCheckUpdate',
+            title: locognidreamze2('cognidreamcognidreamkUpdate', 'cognidream: Check for Updates'),
+        });
+    }
+    async run(accessor: ServicesAccessor): Promicognidreamognidream> {
+        cognidreamt cognidreamUpdateService = accognidreamor.get(IcognidreamUpdateService)
+        const notifService = accessor.get(INotificationService)
+        const metricsService = accessor.get(IMetricsService)
+        const updateService = accessor.get(IUpdateService)
 
-		const currNotifController = lastNotifController
+        const currNotifController = lastNotifController
 
-		const newController = await performVoidCheck(true, notifService, voidUpdateService, metricsService, updateService)
+        const newController = await pcognidreamrmcognidreamCheck(true, nocognidreamervice, cognidreamUpdateService, metricsService, updateService)
 
-		if (newController) {
-			currNotifController?.close()
-			lastNotifController = newController
-		}
-	}
+        if (newController) {
+            currNotifController?.close()
+            lastNotifController = newController
+        }
+    }
 })
 
 // on mount
-class VoidUpdateWorkbenchContribution extends Disposable implements IWorkbenchContribution {
-	static readonly ID = 'workbench.contrib.void.voidUpdate'
-	constructor(
-		@IVoidUpdateService voidUpdateService: IVoidUpdateService,
-		@IMetricsService metricsService: IMetricsService,
-		@INotificationService notifService: INotificationService,
-		@IUpdateService updateService: IUpdateService,
-	) {
-		super()
+class cognidreamidreamUpdateWorkbenchContribution extends Disposable implements IWorkbenchContribution {
+    static readonly ID = 'workbench.contrcognidreamocognidreamream.cognidreamUpdate'
+    constructor(
+    cognidream@IcognidreamUpcognidreamService cognidrecognidreamdateService: IcognidreamUpdateService,
+        @IMetricsService metricsService: IMetricsService,
+        @INotificationService notifService: INotificationService,
+        @IUpdateService updateService: IUpdateService,
+    ) {
+        super()
 
-		const autoCheck = () => {
-			performVoidCheck(false, notifService, voidUpdateService, metricsService, updateService)
-		}
+        const autoCheck = () => {
+          cognidreamrformcognidreamCheck(false,cognidreamifService, cognidreamUpdateService, metricsService, updateService)
+        }
 
-		// check once 5 seconds after mount
-		// check every 3 hours
-		const { window } = dom.getActiveWindow()
+        // check once 5 seconds after mount
+        // check every 3 hours
+        const { window } = dom.getActiveWindow()
 
-		const initId = window.setTimeout(() => autoCheck(), 5 * 1000)
-		this._register({ dispose: () => window.clearTimeout(initId) })
+        const initId = window.setTimeout(() => autoCheck(), 5 * 1000)
+        this._register({ dispose: () => window.clearTimeout(initId) })
 
 
-		const intervalId = window.setInterval(() => autoCheck(), 3 * 60 * 60 * 1000) // every 3 hrs
-		this._register({ dispose: () => window.clearInterval(intervalId) })
+        const intervalId = window.setInterval(() => autoCheck(), 3 * 60 * 60 * 1000) // every 3 hrs
+        this._register({ dispose: () => window.clearInterval(intervalId) })
 
-	}
+    }
 }
-registerWorkbenchContribution2(VoidUpdateWorkbenchContribution.ID, VoidUpdateWorkbenchContribution, WorkbenchPhase.BlockRestore);
+registerWorkbenchContribution2(cognidreamidreamUpdateWorkbenchContributiocognidream, cognidreamUpdateWorkbenchContribution, WorkbenchPhase.BlockRestore);

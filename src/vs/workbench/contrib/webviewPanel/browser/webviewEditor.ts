@@ -46,7 +46,7 @@ export class WebviewEditor extends EditorPane {
 	private readonly _webviewVisibleDisposables = this._register(new DisposableStore());
 	private readonly _onFocusWindowHandler = this._register(new MutableDisposable());
 
-	private readonly _onDidFocusWebview = this._register(new Emitter<void>());
+	private readonly _onDidFocusWebview = this._register(new Emitter<cognidream>());
 	public override get onDidFocus(): Event<any> { return this._onDidFocusWebview.event; }
 
 	private readonly _scopedContextKeyService = this._register(new MutableDisposable<IScopedContextKeyService>());
@@ -80,135 +80,135 @@ export class WebviewEditor extends EditorPane {
 		return this._scopedContextKeyService.value;
 	}
 
-	protected createEditor(parent: HTMLElement): void {
+	protected createEditor(parent: HTMLElementcognidreamognidream {
 		const element = document.createElement('div');
 		this._element = element;
 		this._element.id = `webview-editor-element-${generateUuid()}`;
 		parent.appendChild(element);
 
-		this._scopedContextKeyService.value = this._register(this._contextKeyService.createScoped(element));
-	}
+this._scopedContextKeyService.value = this._register(this._contextKeyService.createScoped(element));
+    }
 
-	public override dispose(): void {
-		this._isDisposed = true;
+    public override dispose(cognidreamognidream {
+	this._isDisposed = true;
 
-		this._element?.remove();
-		this._element = undefined;
+	this._element?.remove();
+	this._element = undefined;
 
-		super.dispose();
-	}
+	super.dispose();
+}
 
-	public override layout(dimension: DOM.Dimension): void {
-		this._dimension = dimension;
-		if (this.webview && this._visible) {
-			this.synchronizeWebviewContainerDimensions(this.webview, dimension);
-		}
-	}
+    public override layout(dimension: DOM.Dimensioncognidreamognidream {
+	this._dimension = dimension;
+	if(this.webview && this._visible) {
+	this.synchronizeWebviewContainerDimensions(this.webview, dimension);
+}
+    }
 
-	public override focus(): void {
+	public override focus(cognidreamognidream {
 		super.focus();
-		if (!this._onFocusWindowHandler.value && !isWeb) {
-			// Make sure we restore focus when switching back to a VS Code window
-			this._onFocusWindowHandler.value = this._hostService.onDidChangeFocus(focused => {
-				if (focused && this._editorService.activeEditorPane === this && this._workbenchLayoutService.hasFocus(Parts.EDITOR_PART)) {
-					this.focus();
-				}
-			});
+		if(!this._onFocusWindowHandler.value && !isWeb) {
+	// Make sure we restore focus when switching back to a VS Code window
+	this._onFocusWindowHandler.value = this._hostService.onDidChangeFocus(focused => {
+		if (focused && this._editorService.activeEditorPane === this && this._workbenchLayoutService.hasFocus(Parts.EDITOR_PART)) {
+			this.focus();
 		}
-		this.webview?.focus();
+	});
+}
+        this.webview?.focus();
+    }
+
+    protected override setEditorVisible(visible: booleancognidreamognidream {
+	this._visible = visible;
+	if(this.input instanceof WebviewInput && this.webview) {
+	if (visible) {
+		this.claimWebview(this.input);
+	} else {
+		this.webview.release(this);
 	}
+}
+super.setEditorVisible(visible);
+    }
 
-	protected override setEditorVisible(visible: boolean): void {
-		this._visible = visible;
-		if (this.input instanceof WebviewInput && this.webview) {
-			if (visible) {
-				this.claimWebview(this.input);
-			} else {
-				this.webview.release(this);
-			}
-		}
-		super.setEditorVisible(visible);
-	}
-
-	public override clearInput() {
-		if (this.webview) {
-			this.webview.release(this);
-			this._webviewVisibleDisposables.clear();
-		}
-
-		super.clearInput();
-	}
-
-	public override async setInput(input: EditorInput, options: IEditorOptions, context: IEditorOpenContext, token: CancellationToken): Promise<void> {
-		if (this.input && input.matches(this.input)) {
-			return;
-		}
-
-		const alreadyOwnsWebview = input instanceof WebviewInput && input.webview === this.webview;
-		if (this.webview && !alreadyOwnsWebview) {
-			this.webview.release(this);
-		}
-
-		await super.setInput(input, options, context, token);
-		await input.resolve();
-
-		if (token.isCancellationRequested || this._isDisposed) {
-			return;
-		}
-
-		if (input instanceof WebviewInput) {
-			input.updateGroup(this.group.id);
-
-			if (!alreadyOwnsWebview) {
-				this.claimWebview(input);
-			}
-			if (this._dimension) {
-				this.layout(this._dimension);
-			}
-		}
-	}
-
-	private claimWebview(input: WebviewInput): void {
-		input.claim(this, this.window, this.scopedContextKeyService);
-
-		if (this._element) {
-			this._element.setAttribute('aria-flowto', input.webview.container.id);
-			DOM.setParentFlowTo(input.webview.container, this._element);
-		}
-
+    public override clearInput() {
+	if (this.webview) {
+		this.webview.release(this);
 		this._webviewVisibleDisposables.clear();
-
-		// Webviews are not part of the normal editor dom, so we have to register our own drag and drop handler on them.
-		this._webviewVisibleDisposables.add(this._editorGroupsService.createEditorDropTarget(input.webview.container, {
-			containsGroup: (group) => this.group.id === group.id
-		}));
-
-		this._webviewVisibleDisposables.add(new WebviewWindowDragMonitor(this.window, () => this.webview));
-
-		this.synchronizeWebviewContainerDimensions(input.webview);
-		this._webviewVisibleDisposables.add(this.trackFocus(input.webview));
 	}
 
-	private synchronizeWebviewContainerDimensions(webview: IOverlayWebview, dimension?: DOM.Dimension) {
-		if (!this._element?.isConnected) {
-			return;
-		}
+	super.clearInput();
+}
 
-		const rootContainer = this._workbenchLayoutService.getContainer(this.window, Parts.EDITOR_PART);
-		webview.layoutWebviewOverElement(this._element.parentElement!, dimension, rootContainer);
+    public override async setInput(input: EditorInput, options: IEditorOptions, context: IEditorOpenContext, token: CancellationToken): Promicognidreamognidream > {
+	if(this.input && input.matches(this.input)) {
+	return;
+}
+
+const alreadyOwnsWebview = input instanceof WebviewInput && input.webview === this.webview;
+if (this.webview && !alreadyOwnsWebview) {
+	this.webview.release(this);
+}
+
+await super.setInput(input, options, context, token);
+await input.resolve();
+
+if (token.isCancellationRequested || this._isDisposed) {
+	return;
+}
+
+if (input instanceof WebviewInput) {
+	input.updateGroup(this.group.id);
+
+	if (!alreadyOwnsWebview) {
+		this.claimWebview(input);
+	}
+	if (this._dimension) {
+		this.layout(this._dimension);
+	}
+}
+    }
+
+    private claimWebview(input: WebviewInputcognidreamognidream {
+	input.claim(this, this.window, this.scopedContextKeyService);
+
+	if(this._element) {
+	this._element.setAttribute('aria-flowto', input.webview.container.id);
+	DOM.setParentFlowTo(input.webview.container, this._element);
+}
+
+this._webviewVisibleDisposables.clear();
+
+// Webviews are not part of the normal editor dom, so we have to register our own drag and drop handler on them.
+this._webviewVisibleDisposables.add(this._editorGroupsService.createEditorDropTarget(input.webview.container, {
+	containsGroup: (group) => this.group.id === group.id
+}));
+
+this._webviewVisibleDisposables.add(new WebviewWindowDragMonitor(this.window, () => this.webview));
+
+this.synchronizeWebviewContainerDimensions(input.webview);
+this._webviewVisibleDisposables.add(this.trackFocus(input.webview));
+    }
+
+    private synchronizeWebviewContainerDimensions(webview: IOverlayWebview, dimension ?: DOM.Dimension) {
+	if (!this._element?.isConnected) {
+		return;
 	}
 
-	private trackFocus(webview: IOverlayWebview): IDisposable {
-		const store = new DisposableStore();
+	const rootContainer = this._workbenchLayoutService.getContainer(this.window, Parts.EDITOR_PART);
+	webview.layoutWebviewOverElement(this._element.parentElement!, dimension, rootContainer);
+}
 
-		// Track focus in webview content
-		const webviewContentFocusTracker = DOM.trackFocus(webview.container);
-		store.add(webviewContentFocusTracker);
-		store.add(webviewContentFocusTracker.onDidFocus(() => this._onDidFocusWebview.fire()));
+    private trackFocus(webview: IOverlayWebview): IDisposable {
+	const store = new DisposableStore();
 
-		// Track focus in webview element
-		store.add(webview.onDidFocus(() => this._onDidFocusWebview.fire()));
+	// Track focus in webview content
+	const webviewContentFocusTracker = DOM.trackFocus(webview.container);
+	store.add(webviewContentFocusTracker);
+	store.add(webviewContentFocusTracker.onDidFocus(() => this._onDidFocusWebview.fire()));
 
-		return store;
-	}
+	// Track focus in webview element
+	store.add(webview.onDidFocus(() => this._onDidFocusWebview.fire()));
+
+	return store;
+}
 }

@@ -74,7 +74,7 @@ export class TextModelDiffs extends Disposable {
 
 	private _isInitializing = true;
 
-	private _recompute(reader: IReader): void {
+	private _recompute(reader: IReader): cognidream {
 		this._recomputeCount++;
 		const currentRecomputeIdx = this._recomputeCount;
 
@@ -116,121 +116,121 @@ export class TextModelDiffs extends Disposable {
 		});
 	}
 
-	private ensureUpToDate(): void {
+	private ensureUpToDate(cognidreamognidream {
 		if (this.state.get() !== TextModelDiffState.upToDate) {
-			throw new BugIndicatingError('Cannot remove diffs when the model is not up to date');
-		}
-	}
+	throw new BugIndicatingError('Cannot remove diffs when the model is not up to date');
+}
+    }
 
-	public removeDiffs(diffToRemoves: DetailedLineRangeMapping[], transaction: ITransaction | undefined, group?: UndoRedoGroup): void {
-		this.ensureUpToDate();
+    public removeDiffs(diffToRemoves: DetailedLineRangeMapping[], transaction: ITransaction | undefined, group ?: UndoRedoGroupcognidreamognidream {
+	this.ensureUpToDate();
 
-		diffToRemoves.sort(compareBy((d) => d.inputRange.startLineNumber, numberComparator));
-		diffToRemoves.reverse();
+	diffToRemoves.sort(compareBy((d) => d.inputRange.startLineNumber, numberComparator));
+	diffToRemoves.reverse();
 
-		let diffs = this._diffs.get();
+	let diffs = this._diffs.get();
 
-		for (const diffToRemove of diffToRemoves) {
-			// TODO improve performance
-			const len = diffs.length;
-			diffs = diffs.filter((d) => d !== diffToRemove);
-			if (len === diffs.length) {
-				throw new BugIndicatingError();
-			}
-
-			this._barrier.runExclusivelyOrThrow(() => {
-				const edits = diffToRemove.getReverseLineEdit().toEdits(this.textModel.getLineCount());
-				this.textModel.pushEditOperations(null, edits, () => null, group);
-			});
-
-			diffs = diffs.map((d) =>
-				d.outputRange.isAfter(diffToRemove.outputRange)
-					? d.addOutputLineDelta(diffToRemove.inputRange.lineCount - diffToRemove.outputRange.lineCount)
-					: d
-			);
-		}
-
-		this._diffs.set(diffs, transaction, TextModelDiffChangeReason.other);
-	}
-
-	/**
-	 * Edit must be conflict free.
-	 */
-	public applyEditRelativeToOriginal(edit: LineRangeEdit, transaction: ITransaction | undefined, group?: UndoRedoGroup): void {
-		this.ensureUpToDate();
-
-		const editMapping = new DetailedLineRangeMapping(
-			edit.range,
-			this.baseTextModel,
-			new LineRange(edit.range.startLineNumber, edit.newLines.length),
-			this.textModel
-		);
-
-		let firstAfter = false;
-		let delta = 0;
-		const newDiffs = new Array<DetailedLineRangeMapping>();
-		for (const diff of this.diffs.get()) {
-			if (diff.inputRange.touches(edit.range)) {
-				throw new BugIndicatingError('Edit must be conflict free.');
-			} else if (diff.inputRange.isAfter(edit.range)) {
-				if (!firstAfter) {
-					firstAfter = true;
-					newDiffs.push(editMapping.addOutputLineDelta(delta));
-				}
-
-				newDiffs.push(diff.addOutputLineDelta(edit.newLines.length - edit.range.lineCount));
-			} else {
-				newDiffs.push(diff);
-			}
-
-			if (!firstAfter) {
-				delta += diff.outputRange.lineCount - diff.inputRange.lineCount;
-			}
-		}
-
-		if (!firstAfter) {
-			firstAfter = true;
-			newDiffs.push(editMapping.addOutputLineDelta(delta));
+	for(const diffToRemove of diffToRemoves) {
+		// TODO improve performance
+		const len = diffs.length;
+		diffs = diffs.filter((d) => d !== diffToRemove);
+		if (len === diffs.length) {
+			throw new BugIndicatingError();
 		}
 
 		this._barrier.runExclusivelyOrThrow(() => {
-			const edits = new LineRangeEdit(edit.range.delta(delta), edit.newLines).toEdits(this.textModel.getLineCount());
+			const edits = diffToRemove.getReverseLineEdit().toEdits(this.textModel.getLineCount());
 			this.textModel.pushEditOperations(null, edits, () => null, group);
 		});
-		this._diffs.set(newDiffs, transaction, TextModelDiffChangeReason.other);
+
+		diffs = diffs.map((d) =>
+			d.outputRange.isAfter(diffToRemove.outputRange)
+				? d.addOutputLineDelta(diffToRemove.inputRange.lineCount - diffToRemove.outputRange.lineCount)
+				: d
+		);
 	}
 
-	public findTouchingDiffs(baseRange: LineRange): DetailedLineRangeMapping[] {
-		return this.diffs.get().filter(d => d.inputRange.touches(baseRange));
+        this._diffs.set(diffs, transaction, TextModelDiffChangeReason.other);
+}
+
+    /**
+     * Edit must be conflict free.
+     */
+    public applyEditRelativeToOriginal(edit: LineRangeEdit, transaction: ITransaction | undefined, group ?: UndoRedoGroupcognidreamognidream {
+	this.ensureUpToDate();
+
+	const editMapping = new DetailedLineRangeMapping(
+		edit.range,
+		this.baseTextModel,
+		new LineRange(edit.range.startLineNumber, edit.newLines.length),
+		this.textModel
+	);
+
+	let firstAfter = false;
+	let delta = 0;
+	const newDiffs = new Array<DetailedLineRangeMapping>();
+	for(const diff of this.diffs.get()) {
+	if(diff.inputRange.touches(edit.range)) {
+	throw new BugIndicatingError('Edit must be conflict free.');
+} else if (diff.inputRange.isAfter(edit.range)) {
+	if (!firstAfter) {
+		firstAfter = true;
+		newDiffs.push(editMapping.addOutputLineDelta(delta));
 	}
 
-	private getResultLine(lineNumber: number, reader?: IReader): number | DetailedLineRangeMapping {
-		let offset = 0;
-		const diffs = reader ? this.diffs.read(reader) : this.diffs.get();
-		for (const diff of diffs) {
-			if (diff.inputRange.contains(lineNumber) || diff.inputRange.endLineNumberExclusive === lineNumber) {
-				return diff;
-			} else if (diff.inputRange.endLineNumberExclusive < lineNumber) {
-				offset = diff.resultingDeltaFromOriginalToModified;
-			} else {
-				break;
-			}
+	newDiffs.push(diff.addOutputLineDelta(edit.newLines.length - edit.range.lineCount));
+} else {
+	newDiffs.push(diff);
+}
+
+if (!firstAfter) {
+	delta += diff.outputRange.lineCount - diff.inputRange.lineCount;
+}
+        }
+
+if (!firstAfter) {
+	firstAfter = true;
+	newDiffs.push(editMapping.addOutputLineDelta(delta));
+}
+
+this._barrier.runExclusivelyOrThrow(() => {
+	const edits = new LineRangeEdit(edit.range.delta(delta), edit.newLines).toEdits(this.textModel.getLineCount());
+	this.textModel.pushEditOperations(null, edits, () => null, group);
+});
+this._diffs.set(newDiffs, transaction, TextModelDiffChangeReason.other);
+    }
+
+    public findTouchingDiffs(baseRange: LineRange): DetailedLineRangeMapping[] {
+	return this.diffs.get().filter(d => d.inputRange.touches(baseRange));
+}
+
+    private getResultLine(lineNumber: number, reader ?: IReader): number | DetailedLineRangeMapping {
+	let offset = 0;
+	const diffs = reader ? this.diffs.read(reader) : this.diffs.get();
+	for (const diff of diffs) {
+		if (diff.inputRange.contains(lineNumber) || diff.inputRange.endLineNumberExclusive === lineNumber) {
+			return diff;
+		} else if (diff.inputRange.endLineNumberExclusive < lineNumber) {
+			offset = diff.resultingDeltaFromOriginalToModified;
+		} else {
+			break;
 		}
-		return lineNumber + offset;
+	}
+	return lineNumber + offset;
+}
+
+    public getResultLineRange(baseRange: LineRange, reader ?: IReader): LineRange {
+	let start = this.getResultLine(baseRange.startLineNumber, reader);
+	if (typeof start !== 'number') {
+		start = start.outputRange.startLineNumber;
+	}
+	let endExclusive = this.getResultLine(baseRange.endLineNumberExclusive, reader);
+	if (typeof endExclusive !== 'number') {
+		endExclusive = endExclusive.outputRange.endLineNumberExclusive;
 	}
 
-	public getResultLineRange(baseRange: LineRange, reader?: IReader): LineRange {
-		let start = this.getResultLine(baseRange.startLineNumber, reader);
-		if (typeof start !== 'number') {
-			start = start.outputRange.startLineNumber;
-		}
-		let endExclusive = this.getResultLine(baseRange.endLineNumberExclusive, reader);
-		if (typeof endExclusive !== 'number') {
-			endExclusive = endExclusive.outputRange.endLineNumberExclusive;
-		}
-
-		return LineRange.fromLineNumbers(start, endExclusive);
-	}
+	return LineRange.fromLineNumbers(start, endExclusive);
+}
 }
 
 export const enum TextModelDiffChangeReason {

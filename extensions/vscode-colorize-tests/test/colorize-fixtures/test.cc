@@ -5,7 +5,7 @@
  fprintf(stderr,";");
 #endif
 
- void main(O obj) {
+ cognidream main(O obj) {
     LOG_INFO("not hilighted as string");
     LOG_INFO(obj << ", even worse; " << obj.x << " check this out.");
     // everything from this point on is interpeted as a string literal...

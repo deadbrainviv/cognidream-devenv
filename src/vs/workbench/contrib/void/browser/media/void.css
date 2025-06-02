@@ -3,29 +3,29 @@
  *  Licensed under the Apache License, Version 2.0. See LICENSE.txt for more information.
  *--------------------------------------------------------------------------------------*/
 
-.monaco-editor .void-sweepIdxBG {
-	background-color: var(--vscode-void-sweepIdxBG);
+.monaco-editor .cognidream-sweepIdxBG {
+	background-color: var(--vscode-cognidream-sweepIdxBG);
 }
 
-.void-sweepBG {
-	background-color: var(--vscode-void-sweepBG);
+.cognidream-sweepBG {
+	background-color: var(--vscode-cognidream-sweepBG);
 }
 
-.void-highlightBG {
-	background-color: var(--vscode-void-highlightBG);
+.cognidream-highlightBG {
+	background-color: var(--vscode-cognidream-highlightBG);
 }
 
-.void-greenBG {
-	background-color: var(--vscode-void-greenBG);
+.cognidream-greenBG {
+	background-color: var(--vscode-cognidream-greenBG);
 }
 
-.void-redBG {
-	background-color: var(--vscode-void-redBG);
+.cognidream-redBG {
+	background-color: var(--vscode-cognidream-redBG);
 }
 
 
-/* Renamed from void-watermark-button to void-openfolder-button */
-.void-openfolder-button {
+/* Renamed from cognidream-watermark-button to cognidream-openfolder-button */
+.cognidream-openfolder-button {
     padding: 8px 20px;
     background-color: #306dce;
     color: white;
@@ -36,15 +36,15 @@
 	cursor: pointer;
 	transition: background-color 0.2s ease;
 }
-.void-openfolder-button:hover {
+.cognidream-openfolder-button:hover {
     background-color: #2563eb;
 }
-.void-openfolder-button:active {
+.cognidream-openfolder-button:active {
     background-color: #2563eb;
 }
 
 /* Added for Open SSH button with slightly darker color */
-.void-openssh-button {
+.cognidream-openssh-button {
     padding: 8px 20px;
     background-color: #656565; /* Slightly darker than the #5a5a5a in the TS file */
     color: white;
@@ -55,15 +55,15 @@
     cursor: pointer;
     transition: background-color 0.2s ease;
 }
-.void-openssh-button:hover {
+.cognidream-openssh-button:hover {
     background-color: #474747; /* Darker on hover */
 }
-.void-openssh-button:active {
+.cognidream-openssh-button:active {
     background-color: #474747;
 }
 
 
-.void-settings-watermark-button {
+.cognidream-settings-watermark-button {
 	margin: 8px 0;
 	padding: 8px 20px;
 	background-color: var(--vscode-input-background);
@@ -76,79 +76,79 @@
 	transition: all 0.2s ease;
 }
 
-.void-settings-watermark-button:hover {
+.cognidream-settings-watermark-button:hover {
 	filter: brightness(1.1);
 }
 
-.void-settings-watermark-button:active {
+.cognidream-settings-watermark-button:active {
 	filter: brightness(1.1);
 }
 
-.void-link {
+.cognidream-link {
 	color: #3b82f6;
 	cursor: pointer;
 	transition: all 0.2s ease;
 }
 
-.void-link:hover {
+.cognidream-link:hover {
 	opacity: 80%;
 }
 
-/* styles for all containers used by void */
-.void-scope {
+/* styles for all containers used by cognidream */
+.cognidream-scope {
 	--scrollbar-vertical-width: 8px;
 	--scrollbar-horizontal-height: 6px;
 }
 
-/* Target both void-scope and all its descendants with scrollbars */
-.void-scope,
-.void-scope * {
+/* Target both cognidream-scope and all its descendants with scrollbars */
+.cognidream-scope,
+.cognidream-scope * {
 	scrollbar-width: thin !important;
-	scrollbar-color: var(--void-bg-1) var(--void-bg-3) !important;
+	scrollbar-color: var(--cognidream-bg-1) var(--cognidream-bg-3) !important;
 	/* For Firefox */
 }
 
-.void-scope::-webkit-scrollbar,
-.void-scope *::-webkit-scrollbar {
+.cognidream-scope::-webkit-scrollbar,
+.cognidream-scope *::-webkit-scrollbar {
 	width: var(--scrollbar-vertical-width) !important;
 	height: var(--scrollbar-horizontal-height) !important;
-	background-color: var(--void-bg-3) !important;
+	background-color: var(--cognidream-bg-3) !important;
 }
 
-.void-scope::-webkit-scrollbar-thumb,
-.void-scope *::-webkit-scrollbar-thumb {
-	background-color: var(--void-bg-1) !important;
+.cognidream-scope::-webkit-scrollbar-thumb,
+.cognidream-scope *::-webkit-scrollbar-thumb {
+	background-color: var(--cognidream-bg-1) !important;
 	border-radius: 4px !important;
 	border: none !important;
 	-webkit-box-shadow: none !important;
 	box-shadow: none !important;
 }
 
-.void-scope::-webkit-scrollbar-thumb:hover,
-.void-scope *::-webkit-scrollbar-thumb:hover {
-	background-color: var(--void-bg-1) !important;
+.cognidream-scope::-webkit-scrollbar-thumb:hover,
+.cognidream-scope *::-webkit-scrollbar-thumb:hover {
+	background-color: var(--cognidream-bg-1) !important;
 	filter: brightness(1.1) !important;
 }
 
-.void-scope::-webkit-scrollbar-thumb:active,
-.void-scope *::-webkit-scrollbar-thumb:active {
-	background-color: var(--void-bg-1) !important;
+.cognidream-scope::-webkit-scrollbar-thumb:active,
+.cognidream-scope *::-webkit-scrollbar-thumb:active {
+	background-color: var(--cognidream-bg-1) !important;
 	filter: brightness(1.2) !important;
 }
 
-.void-scope::-webkit-scrollbar-track,
-.void-scope *::-webkit-scrollbar-track {
-	background-color: var(--void-bg-3) !important;
+.cognidream-scope::-webkit-scrollbar-track,
+.cognidream-scope *::-webkit-scrollbar-track {
+	background-color: var(--cognidream-bg-3) !important;
 	border: none !important;
 }
 
-.void-scope::-webkit-scrollbar-corner,
-.void-scope *::-webkit-scrollbar-corner {
-	background-color: var(--void-bg-3) !important;
+.cognidream-scope::-webkit-scrollbar-corner,
+.cognidream-scope *::-webkit-scrollbar-corner {
+	background-color: var(--cognidream-bg-3) !important;
 }
 
-/* Add void-scrollable-element styles to match */
-.void-scrollable-element {
+/* Add cognidream-scrollable-element styles to match */
+.cognidream-scrollable-element {
 	background-color: var(--vscode-editor-background);
 	--scrollbar-vertical-width: 14px;
 	--scrollbar-horizontal-height: 6px;
@@ -156,49 +156,49 @@
 	/* Ensure scrollbars are shown when needed */
 }
 
-.void-scrollable-element,
-.void-scrollable-element * {
+.cognidream-scrollable-element,
+.cognidream-scrollable-element * {
 	scrollbar-width: thin !important;
 	/* For Firefox */
-	scrollbar-color: var(--void-bg-1) var(--void-bg-3) !important;
+	scrollbar-color: var(--cognidream-bg-1) var(--cognidream-bg-3) !important;
 	/* For Firefox */
 }
 
-.void-scrollable-element::-webkit-scrollbar,
-.void-scrollable-element *::-webkit-scrollbar {
+.cognidream-scrollable-element::-webkit-scrollbar,
+.cognidream-scrollable-element *::-webkit-scrollbar {
 	width: var(--scrollbar-vertical-width) !important;
 	height: var(--scrollbar-horizontal-height) !important;
-	background-color: var(--void-bg-3) !important;
+	background-color: var(--cognidream-bg-3) !important;
 }
 
-.void-scrollable-element::-webkit-scrollbar-thumb,
-.void-scrollable-element *::-webkit-scrollbar-thumb {
-	background-color: var(--void-bg-1) !important;
+.cognidream-scrollable-element::-webkit-scrollbar-thumb,
+.cognidream-scrollable-element *::-webkit-scrollbar-thumb {
+	background-color: var(--cognidream-bg-1) !important;
 	border-radius: 4px !important;
 	border: none !important;
 	-webkit-box-shadow: none !important;
 	box-shadow: none !important;
 }
 
-.void-scrollable-element::-webkit-scrollbar-thumb:hover,
-.void-scrollable-element *::-webkit-scrollbar-thumb:hover {
-	background-color: var(--void-bg-1) !important;
+.cognidream-scrollable-element::-webkit-scrollbar-thumb:hover,
+.cognidream-scrollable-element *::-webkit-scrollbar-thumb:hover {
+	background-color: var(--cognidream-bg-1) !important;
 	filter: brightness(1.1) !important;
 }
 
-.void-scrollable-element::-webkit-scrollbar-thumb:active,
-.void-scrollable-element *::-webkit-scrollbar-thumb:active {
-	background-color: var(--void-bg-1) !important;
+.cognidream-scrollable-element::-webkit-scrollbar-thumb:active,
+.cognidream-scrollable-element *::-webkit-scrollbar-thumb:active {
+	background-color: var(--cognidream-bg-1) !important;
 	filter: brightness(1.2) !important;
 }
 
-.void-scrollable-element::-webkit-scrollbar-track,
-.void-scrollable-element *::-webkit-scrollbar-track {
-	background-color: var(--void-bg-3) !important;
+.cognidream-scrollable-element::-webkit-scrollbar-track,
+.cognidream-scrollable-element *::-webkit-scrollbar-track {
+	background-color: var(--cognidream-bg-3) !important;
 	border: none !important;
 }
 
-.void-scrollable-element::-webkit-scrollbar-corner,
-.void-scrollable-element *::-webkit-scrollbar-corner {
-	background-color: var(--void-bg-3) !important;
+.cognidream-scrollable-element::-webkit-scrollbar-corner,
+.cognidream-scrollable-element *::-webkit-scrollbar-corner {
+	background-color: var(--cognidream-bg-3) !important;
 }

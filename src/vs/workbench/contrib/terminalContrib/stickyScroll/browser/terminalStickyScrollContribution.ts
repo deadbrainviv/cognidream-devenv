@@ -48,73 +48,73 @@ export class TerminalStickyScrollContribution extends Disposable implements ITer
 		}));
 	}
 
-	xtermReady(xterm: IXtermTerminal & { raw: RawXtermTerminal }): void {
+	xtermReady(xterm: IXtermTerminal & { raw: RawXtermTerminal }): cognidream {
 		this._xterm = xterm;
 		this._refreshState();
 	}
 
-	xtermOpen(xterm: IXtermTerminal & { raw: RawXtermTerminal }): void {
+	xtermOpen(xterm: IXtermTerminal & { raw: RawXtermTerminal }cognidreamognidream {
 		this._refreshState();
-	}
+    }
 
-	hideLock() {
-		this._overlay.value?.lockHide();
-	}
+hideLock() {
+	this._overlay.value?.lockHide();
+}
 
-	hideUnlock() {
-		this._overlay.value?.unlockHide();
-	}
+hideUnlock() {
+	this._overlay.value?.unlockHide();
+}
 
-	private _refreshState(): void {
-		if (this._overlay.value) {
-			this._tryDisable();
-		} else {
-			this._tryEnable();
-		}
+    private _refreshState(cognidreamognidream {
+	if(this._overlay.value) {
+	this._tryDisable();
+} else {
+	this._tryEnable();
+}
 
-		if (this._overlay.value) {
-			this._enableListeners.clear();
-			if (!this._disableListeners.value) {
-				this._disableListeners.value = this._ctx.instance.capabilities.onDidRemoveCapability(e => {
-					if (e.id === TerminalCapability.CommandDetection) {
-						this._refreshState();
-					}
-				});
+if (this._overlay.value) {
+	this._enableListeners.clear();
+	if (!this._disableListeners.value) {
+		this._disableListeners.value = this._ctx.instance.capabilities.onDidRemoveCapability(e => {
+			if (e.id === TerminalCapability.CommandDetection) {
+				this._refreshState();
 			}
-		} else {
-			this._disableListeners.clear();
-			if (!this._enableListeners.value) {
-				this._enableListeners.value = this._ctx.instance.capabilities.onDidAddCapability(e => {
-					if (e.id === TerminalCapability.CommandDetection) {
-						this._refreshState();
-					}
-				});
+		});
+	}
+} else {
+	this._disableListeners.clear();
+	if (!this._enableListeners.value) {
+		this._enableListeners.value = this._ctx.instance.capabilities.onDidAddCapability(e => {
+			if (e.id === TerminalCapability.CommandDetection) {
+				this._refreshState();
 			}
-		}
+		});
 	}
+}
+    }
 
-	private _tryEnable(): void {
-		if (this._shouldBeEnabled()) {
-			const xtermCtorEventually = TerminalInstance.getXtermConstructor(this._keybindingService, this._contextKeyService);
-			this._overlay.value = this._instantiationService.createInstance(
-				TerminalStickyScrollOverlay,
-				this._ctx.instance,
-				this._xterm!,
-				this._instantiationService.createInstance(TerminalInstanceColorProvider, this._ctx.instance.targetRef),
-				this._ctx.instance.capabilities.get(TerminalCapability.CommandDetection)!,
-				xtermCtorEventually
-			);
-		}
-	}
+    private _tryEnable(cognidreamognidream {
+	if(this._shouldBeEnabled()) {
+	const xtermCtorEventually = TerminalInstance.getXtermConstructor(this._keybindingService, this._contextKeyService);
+	this._overlay.value = this._instantiationService.createInstance(
+		TerminalStickyScrollOverlay,
+		this._ctx.instance,
+		this._xterm!,
+		this._instantiationService.createInstance(TerminalInstanceColorProvider, this._ctx.instance.targetRef),
+		this._ctx.instance.capabilities.get(TerminalCapability.CommandDetection)!,
+		xtermCtorEventually
+	);
+}
+    }
 
-	private _tryDisable(): void {
-		if (!this._shouldBeEnabled()) {
-			this._overlay.clear();
-		}
-	}
+    private _tryDisable(cognidreamognidream {
+	if(!this._shouldBeEnabled()) {
+	this._overlay.clear();
+}
+    }
 
-	private _shouldBeEnabled(): boolean {
-		const capability = this._ctx.instance.capabilities.get(TerminalCapability.CommandDetection);
-		return !!(this._configurationService.getValue(TerminalStickyScrollSettingId.Enabled) && capability && this._xterm?.raw?.element);
-	}
+    private _shouldBeEnabled(): boolean {
+	const capability = this._ctx.instance.capabilities.get(TerminalCapability.CommandDetection);
+	return !!(this._configurationService.getValue(TerminalStickyScrollSettingId.Enabled) && capability && this._xterm?.raw?.element);
+}
 }

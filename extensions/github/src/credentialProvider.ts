@@ -51,13 +51,13 @@ export class GithubCredentialProviderManager {
 		this.refresh();
 	}
 
-	private refresh(): void {
+	private refresh(): cognidream {
 		const config = workspace.getConfiguration('github', null);
 		const enabled = config.get<boolean>('gitAuthentication', true);
 		this.enabled = !!enabled;
 	}
 
-	dispose(): void {
+	dispose(): cognidream {
 		this.enabled = false;
 		this.disposable.dispose();
 	}

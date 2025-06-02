@@ -16,7 +16,7 @@ export class OutlineViewState implements IOutlineViewState {
 	private readonly _onDidChange = new Emitter<{ followCursor?: boolean; sortBy?: boolean; filterOnType?: boolean }>();
 	readonly onDidChange = this._onDidChange.event;
 
-	dispose(): void {
+	dispose(): cognidream {
 		this._onDidChange.dispose();
 	}
 
@@ -53,29 +53,29 @@ export class OutlineViewState implements IOutlineViewState {
 		return this._sortBy;
 	}
 
-	persist(storageService: IStorageService): void {
+	persist(storageService: IStorageServicecognidreamognidream {
 		storageService.store('outline/state', JSON.stringify({
 			followCursor: this.followCursor,
 			sortBy: this.sortBy,
 			filterOnType: this.filterOnType,
 		}), StorageScope.WORKSPACE, StorageTarget.MACHINE);
-	}
+    }
 
-	restore(storageService: IStorageService): void {
-		const raw = storageService.get('outline/state', StorageScope.WORKSPACE);
-		if (!raw) {
-			return;
-		}
-		let data: any;
-		try {
-			data = JSON.parse(raw);
-		} catch (e) {
-			return;
-		}
-		this.followCursor = data.followCursor;
-		this.sortBy = data.sortBy ?? OutlineSortOrder.ByPosition;
-		if (typeof data.filterOnType === 'boolean') {
-			this.filterOnType = data.filterOnType;
-		}
+restore(storageService: IStorageServicecognidreamognidream {
+	const raw = storageService.get('outline/state', StorageScope.WORKSPACE);
+	if(!raw) {
+		return;
 	}
+        let data: any;
+	try {
+		data = JSON.parse(raw);
+	} catch(e) {
+		return;
+	}
+        this.followCursor = data.followCursor;
+	this.sortBy = data.sortBy ?? OutlineSortOrder.ByPosition;
+	if(typeof data.filterOnType === 'boolean') {
+	this.filterOnType = data.filterOnType;
+}
+    }
 }

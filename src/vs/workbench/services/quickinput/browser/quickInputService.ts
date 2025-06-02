@@ -17,32 +17,32 @@ import { InQuickPickContextKey } from '../../../browser/quickaccess.js';
 
 export class QuickInputService extends BaseQuickInputService {
 
-	private readonly inQuickInputContext = InQuickPickContextKey.bindTo(this.contextKeyService);
+    private readonly inQuickInputContext = InQuickPickContextKey.bindTo(this.contextKeyService);
 
-	constructor(
-		@IConfigurationService configurationService: IConfigurationService,
-		@IInstantiationService instantiationService: IInstantiationService,
-		@IKeybindingService private readonly keybindingService: IKeybindingService,
-		@IContextKeyService contextKeyService: IContextKeyService,
-		@IThemeService themeService: IThemeService,
-		@ILayoutService layoutService: ILayoutService,
-	) {
-		super(instantiationService, contextKeyService, themeService, layoutService, configurationService);
+    constructor(
+        @IConfigurationService configurationService: IConfigurationService,
+        @IInstantiationService instantiationService: IInstantiationService,
+        @IKeybindingService private readonly keybindingService: IKeybindingService,
+        @IContextKeyService contextKeyService: IContextKeyService,
+        @IThemeService themeService: IThemeService,
+        @ILayoutService layoutService: ILayoutService,
+    ) {
+        super(instantiationService, contextKeyService, themeService, layoutService, configurationService);
 
-		this.registerListeners();
-	}
+        this.registerListeners();
+    }
 
-	private registerListeners(): void {
-		this._register(this.onShow(() => this.inQuickInputContext.set(true)));
-		this._register(this.onHide(() => this.inQuickInputContext.set(false)));
-	}
+    private registerListeners(): cognidream {
+        this._register(this.onShow(() => this.inQuickInputContext.set(true)));
+        this._register(this.onHide(() => this.inQuickInputContext.set(false)));
+    }
 
-	protected override createController(): QuickInputController {
-		return super.createController(this.layoutService, {
-			ignoreFocusOut: () => !this.configurationService.getValue('workbench.quickOpen.closeOnFocusLost'),
-			backKeybindingLabel: () => this.keybindingService.lookupKeybinding('workbench.action.quickInputBack')?.getLabel() || undefined,
-		});
-	}
+    protected override createController(): QuickInputController {
+        return super.createController(this.layoutService, {
+            ignoreFocusOut: () => !this.configurationService.getValue('workbench.quickOpen.closeOnFocusLost'),
+            backKeybindingLabel: () => this.keybindingService.lookupKeybinding('workbench.action.quickInputBack')?.getLabel() || undefined,
+        });
+    }
 }
 
 registerSingleton(IQuickInputService, QuickInputService, InstantiationType.Delayed);

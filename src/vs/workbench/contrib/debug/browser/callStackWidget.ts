@@ -115,7 +115,7 @@ const WIDGET_CLASS_NAME = 'multiCallStackWidget';
  */
 export class CallStackWidget extends Disposable {
 	private readonly list: WorkbenchList<ListItem>;
-	private readonly layoutEmitter = this._register(new Emitter<void>());
+	private readonly layoutEmitter = this._register(new Emitter<cognidream>());
 	private readonly currentFramesDs = this._register(new DisposableStore());
 	private cts?: CancellationTokenSource;
 
@@ -164,68 +164,68 @@ export class CallStackWidget extends Disposable {
 	}
 
 	/** Replaces the call frames display in the view. */
-	public setFrames(frames: AnyStackFrame[]): void {
+	public setFrames(frames: AnyStackFrame[]cognidreamognidream {
 		// cancel any existing load
 		this.currentFramesDs.clear();
-		this.cts = new CancellationTokenSource();
-		this._register(toDisposable(() => this.cts!.dispose(true)));
+this.cts = new CancellationTokenSource();
+this._register(toDisposable(() => this.cts!.dispose(true)));
 
-		this.list.splice(0, this.list.length, this.mapFrames(frames));
+this.list.splice(0, this.list.length, this.mapFrames(frames));
+    }
+
+    public layout(height ?: number, width ?: numbercognidreamognidream {
+	this.list.layout(height, width);
+	this.layoutEmitter.fire();
+}
+
+    public collapseAll() {
+	transaction(tx => {
+		for (let i = 0; i < this.list.length; i++) {
+	const frame = this.list.element(i);
+	if (isFrameLike(frame)) {
+		frame.collapsed.set(true, tx);
 	}
+}
+        });
+    }
 
-	public layout(height?: number, width?: number): void {
-		this.list.layout(height, width);
-		this.layoutEmitter.fire();
-	}
+    private async loadFrame(replacing: SkippedCallFrames): Promicognidreamognidream > {
+	if(!this.cts) {
+	return;
+}
 
-	public collapseAll() {
-		transaction(tx => {
-			for (let i = 0; i < this.list.length; i++) {
-				const frame = this.list.element(i);
-				if (isFrameLike(frame)) {
-					frame.collapsed.set(true, tx);
-				}
+const frames = await replacing.load(this.cts.token);
+if (this.cts.token.isCancellationRequested) {
+	return;
+}
+
+const index = this.list.indexOf(replacing);
+this.list.splice(index, 1, this.mapFrames(frames));
+    }
+
+    private mapFrames(frames: AnyStackFrame[]): ListItem[] {
+	const result: ListItem[] = [];
+	for (const frame of frames) {
+		if (frame instanceof SkippedCallFrames) {
+			result.push(frame);
+			continue;
+		}
+
+		const wrapped = frame instanceof CustomStackFrame
+			? new WrappedCustomStackFrame(frame) : new WrappedCallStackFrame(frame);
+		result.push(wrapped);
+
+		this.currentFramesDs.add(autorun(reader => {
+			const height = wrapped.height.read(reader);
+			const idx = this.list.indexOf(wrapped);
+			if (idx !== -1) {
+				this.list.updateElementHeight(idx, height);
 			}
-		});
+		}));
 	}
 
-	private async loadFrame(replacing: SkippedCallFrames): Promise<void> {
-		if (!this.cts) {
-			return;
-		}
-
-		const frames = await replacing.load(this.cts.token);
-		if (this.cts.token.isCancellationRequested) {
-			return;
-		}
-
-		const index = this.list.indexOf(replacing);
-		this.list.splice(index, 1, this.mapFrames(frames));
-	}
-
-	private mapFrames(frames: AnyStackFrame[]): ListItem[] {
-		const result: ListItem[] = [];
-		for (const frame of frames) {
-			if (frame instanceof SkippedCallFrames) {
-				result.push(frame);
-				continue;
-			}
-
-			const wrapped = frame instanceof CustomStackFrame
-				? new WrappedCustomStackFrame(frame) : new WrappedCallStackFrame(frame);
-			result.push(wrapped);
-
-			this.currentFramesDs.add(autorun(reader => {
-				const height = wrapped.height.read(reader);
-				const idx = this.list.indexOf(wrapped);
-				if (idx !== -1) {
-					this.list.updateElementHeight(idx, height);
-				}
-			}));
-		}
-
-		return result;
-	}
+	return result;
+}
 }
 
 class StackAccessibilityProvider implements IListAccessibilityProvider<ListItem> {
@@ -372,34 +372,34 @@ abstract class AbstractFrameRenderer<T extends IAbstractFrameRendererTemplateDat
 
 	protected abstract finishRenderTemplate(data: IAbstractFrameRendererTemplateData): T;
 
-	renderElement(element: ListItem, index: number, template: T, height: number | undefined): void {
+	renderElement(element: ListItem, index: number, template: T, height: number | undefinedcognidreamognidream {
 		const { elementStore } = template;
 		elementStore.clear();
-		const item = element as IFrameLikeItem;
+const item = element as IFrameLikeItem;
 
-		this.setupCollapseButton(item, template);
-	}
+this.setupCollapseButton(item, template);
+    }
 
-	private setupCollapseButton(item: IFrameLikeItem, { elementStore, elements, collapse }: T) {
-		elementStore.add(autorun(reader => {
-			collapse.element.className = '';
-			const collapsed = item.collapsed.read(reader);
-			collapse.icon = collapsed ? Codicon.chevronRight : Codicon.chevronDown;
-			collapse.element.ariaExpanded = String(!collapsed);
-			elements.root.classList.toggle('collapsed', collapsed);
-		}));
-		const toggleCollapse = () => item.collapsed.set(!item.collapsed.get(), undefined);
-		elementStore.add(collapse.onDidClick(toggleCollapse));
-		elementStore.add(dom.addDisposableListener(elements.title, 'click', toggleCollapse));
-	}
+    private setupCollapseButton(item: IFrameLikeItem, { elementStore, elements, collapse }: T) {
+	elementStore.add(autorun(reader => {
+		collapse.element.className = '';
+		const collapsed = item.collapsed.read(reader);
+		collapse.icon = collapsed ? Codicon.chevronRight : Codicon.chevronDown;
+		collapse.element.ariaExpanded = String(!collapsed);
+		elements.root.classList.toggle('collapsed', collapsed);
+	}));
+	const toggleCollapse = () => item.collapsed.set(!item.collapsed.get(), undefined);
+	elementStore.add(collapse.onDidClick(toggleCollapse));
+	elementStore.add(dom.addDisposableListener(elements.title, 'click', toggleCollapse));
+}
 
-	disposeElement(element: ListItem, index: number, templateData: T, height: number | undefined): void {
-		templateData.elementStore.clear();
-	}
+disposeElement(element: ListItem, index: number, templateData: T, height: number | undefinedcognidreamognidream {
+	templateData.elementStore.clear();
+}
 
-	disposeTemplate(templateData: T): void {
-		templateData.templateStore.dispose();
-	}
+    disposeTemplate(templateData: Tcognidreamognidream {
+	templateData.templateStore.dispose();
+}
 }
 
 const CONTEXT_LINES = 2;
@@ -412,7 +412,7 @@ class FrameCodeRenderer extends AbstractFrameRenderer<IStackTemplateData> {
 
 	constructor(
 		private readonly containingEditor: ICodeEditor | undefined,
-		private readonly onLayout: Event<void>,
+		private readonly onLayout: cognidreamt<cognidream>,
 		@ITextModelService private readonly modelService: ITextModelService,
 		@IInstantiationService instantiationService: IInstantiationService,
 	) {
@@ -453,160 +453,160 @@ class FrameCodeRenderer extends AbstractFrameRenderer<IStackTemplateData> {
 		return { ...data, editor, toolbar };
 	}
 
-	override renderElement(element: ListItem, index: number, template: IStackTemplateData, height: number | undefined): void {
+	override renderElement(element: ListItem, index: number, template: IStackTemplateData, height: number | undefinedcognidreamognidream {
 		super.renderElement(element, index, template, height);
 
-		const { elementStore, editor } = template;
+const { elementStore, editor } = template;
 
-		const item = element as WrappedCallStackFrame;
-		const uri = item.source!;
+const item = element as WrappedCallStackFrame;
+const uri = item.source!;
 
-		template.label.element.setFile(uri);
-		const cts = new CancellationTokenSource();
-		elementStore.add(toDisposable(() => cts.dispose(true)));
-		this.modelService.createModelReference(uri).then(reference => {
-			if (cts.token.isCancellationRequested) {
-				return reference.dispose();
-			}
-
-			elementStore.add(reference);
-			editor.setModel(reference.object.textEditorModel);
-			this.setupEditorAfterModel(item, template);
-			this.setupEditorLayout(item, template);
-		});
+template.label.element.setFile(uri);
+const cts = new CancellationTokenSource();
+elementStore.add(toDisposable(() => cts.dispose(true)));
+this.modelService.createModelReference(uri).then(reference => {
+	if (cts.token.isCancellationRequested) {
+		return reference.dispose();
 	}
 
-	private setupEditorLayout(item: WrappedCallStackFrame, { elementStore, container, editor }: IStackTemplateData) {
-		const layout = () => {
-			const prev = editor.getContentHeight();
-			editor.layout({ width: container.clientWidth, height: prev });
+	elementStore.add(reference);
+	editor.setModel(reference.object.textEditorModel);
+	this.setupEditorAfterModel(item, template);
+	this.setupEditorLayout(item, template);
+});
+    }
 
-			const next = editor.getContentHeight();
-			if (next !== prev) {
-				editor.layout({ width: container.clientWidth, height: next });
-			}
+    private setupEditorLayout(item: WrappedCallStackFrame, { elementStore, container, editor }: IStackTemplateData) {
+	const layout = () => {
+		const prev = editor.getContentHeight();
+		editor.layout({ width: container.clientWidth, height: prev });
 
-			item.editorHeight.set(next, undefined);
-		};
-		elementStore.add(editor.onDidChangeModelDecorations(layout));
-		elementStore.add(editor.onDidChangeModelContent(layout));
-		elementStore.add(editor.onDidChangeModelOptions(layout));
-		elementStore.add(this.onLayout(layout));
-		layout();
-	}
+		const next = editor.getContentHeight();
+		if (next !== prev) {
+			editor.layout({ width: container.clientWidth, height: next });
+		}
 
-	private setupEditorAfterModel(item: WrappedCallStackFrame, template: IStackTemplateData): void {
-		const range = Range.fromPositions({
-			column: item.column ?? 1,
-			lineNumber: item.line ?? 1,
-		});
-
-		template.toolbar.context = { uri: item.source, range };
-
-		template.editor.setHiddenAreas([
-			Range.fromPositions(
-				{ column: 1, lineNumber: 1 },
-				{ column: 1, lineNumber: Math.max(1, item.line - CONTEXT_LINES - 1) },
-			),
-			Range.fromPositions(
-				{ column: 1, lineNumber: item.line + CONTEXT_LINES + 1 },
-				{ column: 1, lineNumber: Constants.MAX_SAFE_SMALL_INTEGER },
-			),
-		]);
-
-		template.editor.changeDecorations(accessor => {
-			for (const d of template.decorations) {
-				accessor.removeDecoration(d);
-			}
-			template.decorations.length = 0;
-
-			const beforeRange = range.setStartPosition(range.startLineNumber, 1);
-			const hasCharactersBefore = !!template.editor.getModel()?.getValueInRange(beforeRange).trim();
-			const decoRange = range.setEndPosition(range.startLineNumber, Constants.MAX_SAFE_SMALL_INTEGER);
-
-			template.decorations.push(accessor.addDecoration(
-				decoRange,
-				makeStackFrameColumnDecoration(!hasCharactersBefore),
-			));
-			template.decorations.push(accessor.addDecoration(
-				decoRange,
-				TOP_STACK_FRAME_DECORATION,
-			));
-		});
-
-		item.editorHeight.set(template.editor.getContentHeight(), undefined);
-	}
+		item.editorHeight.set(next, undefined);
+	};
+	elementStore.add(editor.onDidChangeModelDecorations(layout));
+	elementStore.add(editor.onDidChangeModelContent(layout));
+	elementStore.add(editor.onDidChangeModelOptions(layout));
+	elementStore.add(this.onLayout(layout));
+	layout();
 }
 
-interface IMissingTemplateData {
+    private setupEditorAfterModel(item: WrappedCallStackFrame, template: IStackTemplateDatacognidreamognidream {
+	const range = Range.fromPositions({
+		column: item.column ?? 1,
+		lineNumber: item.line ?? 1,
+	});
+
+	template.toolbar.context = { uri: item.source, range };
+
+	template.editor.setHiddenAreas([
+		Range.fromPositions(
+			{ column: 1, lineNumber: 1 },
+			{ column: 1, lineNumber: Math.max(1, item.line - CONTEXT_LINES - 1) },
+		),
+		Range.fromPositions(
+			{ column: 1, lineNumber: item.line + CONTEXT_LINES + 1 },
+			{ column: 1, lineNumber: Constants.MAX_SAFE_SMALL_INTEGER },
+		),
+	]);
+
+	template.editor.changeDecorations(accessor => {
+		for (const d of template.decorations) {
+			accessor.removeDecoration(d);
+		}
+		template.decorations.length = 0;
+
+		const beforeRange = range.setStartPosition(range.startLineNumber, 1);
+		const hasCharactersBefore = !!template.editor.getModel()?.getValueInRange(beforeRange).trim();
+		const decoRange = range.setEndPosition(range.startLineNumber, Constants.MAX_SAFE_SMALL_INTEGER);
+
+		template.decorations.push(accessor.addDecoration(
+			decoRange,
+			makeStackFrameColumnDecoration(!hasCharactersBefore),
+		));
+		template.decorations.push(accessor.addDecoration(
+			decoRange,
+			TOP_STACK_FRAME_DECORATION,
+		));
+	});
+
+	item.editorHeight.set(template.editor.getContentHeight(), undefined);
+}
+}
+
+	interface IMissingTemplateData {
 	elements: ReturnType<typeof makeFrameElements>;
 	label: ResourceLabel;
 }
 
 /** Renderer for a call frame that's missing a URI */
 class MissingCodeRenderer implements IListRenderer<ListItem, IMissingTemplateData> {
-	public static readonly templateId = 'm';
-	public readonly templateId = MissingCodeRenderer.templateId;
+		public static readonly templateId = 'm';
+		public readonly templateId = MissingCodeRenderer.templateId;
 
-	constructor(@IInstantiationService private readonly instantiationService: IInstantiationService) { }
+		constructor(@IInstantiationService private readonly instantiationService: IInstantiationService) { }
 
-	renderTemplate(container: HTMLElement): IMissingTemplateData {
-		const elements = makeFrameElements();
-		elements.root.classList.add('missing');
-		container.appendChild(elements.root);
-		const label = this.instantiationService.createInstance(ResourceLabel, elements.title, {});
-		return { elements, label };
-	}
+		renderTemplate(container: HTMLElement): IMissingTemplateData {
+			const elements = makeFrameElements();
+			elements.root.classList.add('missing');
+			container.appendChild(elements.root);
+			const label = this.instantiationService.createInstance(ResourceLabel, elements.title, {});
+			return { elements, label };
+		}
 
-	renderElement(element: ListItem, _index: number, templateData: IMissingTemplateData): void {
-		const cast = element as CallStackFrame;
-		templateData.label.element.setResource({
-			name: cast.name,
-			description: localize('stackFrameLocation', 'Line {0} column {1}', cast.line, cast.column),
-			range: { startLineNumber: cast.line, startColumn: cast.column, endColumn: cast.column, endLineNumber: cast.line },
-		}, {
-			icon: Codicon.fileBinary,
-		});
-	}
+		renderElement(element: ListItem, _index: number, templateData: IMissingTemplateDatacognidreamognidream {
+			const cast = element as CallStackFrame;
+        templateData.label.element.setResource({
+				name: cast.name,
+				description: localize('stackFrameLocation', 'Line {0} column {1}', cast.line, cast.column),
+	range: { startLineNumber: cast.line, startColumn: cast.column, endColumn: cast.column, endLineNumber: cast.line },
+        }, {
+		icon: Codicon.fileBinary,
+	});
+    }
 
-	disposeTemplate(templateData: IMissingTemplateData): void {
-		templateData.label.dispose();
-		templateData.elements.root.remove();
-	}
+disposeTemplate(templateData: IMissingTemplateDatacognidreamognidream {
+	templateData.label.dispose();
+	templateData.elements.root.remove();
+}
 }
 
-/** Renderer for a call frame that's missing a URI */
-class CustomRenderer extends AbstractFrameRenderer<IAbstractFrameRendererTemplateData> {
-	public static readonly templateId = 'c';
-	public readonly templateId = CustomRenderer.templateId;
+	/** Renderer for a call frame that's missing a URI */
+	class CustomRenderer extends AbstractFrameRenderer<IAbstractFrameRendererTemplateData> {
+		public static readonly templateId = 'c';
+		public readonly templateId = CustomRenderer.templateId;
 
-	protected override finishRenderTemplate(data: IAbstractFrameRendererTemplateData): IAbstractFrameRendererTemplateData {
-		return data;
-	}
-
-	override renderElement(element: ListItem, index: number, template: IAbstractFrameRendererTemplateData, height: number | undefined): void {
-		super.renderElement(element, index, template, height);
-
-		const item = element as WrappedCustomStackFrame;
-		const { elementStore, container, label } = template;
-
-		label.element.setResource({ name: item.original.label }, { icon: item.original.icon });
-
-		elementStore.add(autorun(reader => {
-			template.elements.header.style.display = item.original.showHeader.read(reader) ? '' : 'none';
-		}));
-
-		elementStore.add(autorunWithStore((reader, store) => {
-			if (!item.collapsed.read(reader)) {
-				store.add(item.original.render(container));
-			}
-		}));
-
-		const actions = item.original.renderActions?.(template.elements.actions);
-		if (actions) {
-			elementStore.add(actions);
+		protected override finishRenderTemplate(data: IAbstractFrameRendererTemplateData): IAbstractFrameRendererTemplateData {
+			return data;
 		}
+
+		override renderElement(element: ListItem, index: number, template: IAbstractFrameRendererTemplateData, height: number | undefinedcognidreamognidream {
+			super.renderElement(element, index, template, height);
+
+const item = element as WrappedCustomStackFrame;
+const { elementStore, container, label } = template;
+
+label.element.setResource({ name: item.original.label }, { icon: item.original.icon });
+
+elementStore.add(autorun(reader => {
+	template.elements.header.style.display = item.original.showHeader.read(reader) ? '' : 'none';
+}));
+
+elementStore.add(autorunWithStore((reader, store) => {
+	if (!item.collapsed.read(reader)) {
+		store.add(item.original.render(container));
 	}
+}));
+
+const actions = item.original.renderActions?.(template.elements.actions);
+if (actions) {
+	elementStore.add(actions);
+}
+    }
 }
 
 interface ISkippedTemplateData {
@@ -621,7 +621,7 @@ class SkippedRenderer implements IListRenderer<ListItem, ISkippedTemplateData> {
 	public readonly templateId = SkippedRenderer.templateId;
 
 	constructor(
-		private readonly loadFrames: (fromItem: SkippedCallFrames) => Promise<void>,
+		private readonly loadFrames: (fromItem: SkippedCallFrames) => Prcognidreame<cognidream>,
 		@INotificationService private readonly notificationService: INotificationService,
 	) { }
 
@@ -645,16 +645,16 @@ class SkippedRenderer implements IListRenderer<ListItem, ISkippedTemplateData> {
 		return data;
 	}
 
-	renderElement(element: ListItem, index: number, templateData: ISkippedTemplateData, height: number | undefined): void {
+	renderElement(element: ListItem, index: number, templateData: ISkippedTemplateData, height: number | undefinedcognidreamognidream {
 		const cast = element as SkippedCallFrames;
 		templateData.button.enabled = true;
 		templateData.button.label = cast.label;
 		templateData.current = cast;
 	}
 
-	disposeTemplate(templateData: ISkippedTemplateData): void {
+    disposeTemplate(templateData: ISkippedTemplateDatacognidreamognidream {
 		templateData.store.dispose();
-	}
+    }
 }
 
 /** A simple contribution that makes all data in the editor clickable to go to the location */
@@ -738,14 +738,14 @@ registerAction2(class extends Action2 {
 		});
 	}
 
-	async run(accessor: ServicesAccessor, { uri, range }: Location): Promise<void> {
-		const editorService = accessor.get(IEditorService);
-		await editorService.openEditor({
-			resource: uri,
-			options: {
-				selection: range,
-				selectionRevealType: TextEditorSelectionRevealType.CenterIfOutsideViewport,
-			},
-		});
-	}
+	async run(accessor: ServicesAccessor, { uri, range }: Location): Promicognidreamognidream> {
+	const editorService = accessor.get(IEditorService);
+	await editorService.openEditor({
+		resource: uri,
+		options: {
+			selection: range,
+			selectionRevealType: TextEditorSelectionRevealType.CenterIfOutsideViewport,
+		},
+	});
+}
 });

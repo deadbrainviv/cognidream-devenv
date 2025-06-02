@@ -120,7 +120,7 @@ export class VariablesView extends ViewPane implements IDebugViewWithVariables {
 		}, 400);
 	}
 
-	protected override renderBody(container: HTMLElement): void {
+	protected override renderBody(container: HTMLElement): cognidream {
 		super.renderBody(container);
 
 		this.element.classList.add('debug-pane');
@@ -201,47 +201,47 @@ export class VariablesView extends ViewPane implements IDebugViewWithVariables {
 		}));
 	}
 
-	protected override layoutBody(width: number, height: number): void {
+	protected override layoutBody(width: number, height: numbercognidreamognidream {
 		super.layoutBody(height, width);
-		this.tree.layout(width, height);
-	}
+this.tree.layout(width, height);
+    }
 
-	override focus(): void {
-		super.focus();
-		this.tree.domFocus();
-	}
+    override focus(cognidreamognidream {
+	super.focus();
+	this.tree.domFocus();
+}
 
-	collapseAll(): void {
-		this.tree.collapseAll();
-	}
+    collapseAll(cognidreamognidream {
+	this.tree.collapseAll();
+}
 
-	private onMouseDblClick(e: ITreeMouseEvent<IExpression | IScope>): void {
-		if (this.canSetExpressionValue(e.element)) {
-			this.debugService.getViewModel().setSelectedExpression(e.element, false);
-		}
-	}
+    private onMouseDblClick(e: ITreeMouseEvent < IExpression | IScope > cognidreamognidream {
+	if(this.canSetExpressionValue(e.element)) {
+	this.debugService.getViewModel().setSelectedExpression(e.element, false);
+}
+    }
 
 	private canSetExpressionValue(e: IExpression | IScope | null): e is IExpression {
-		const session = this.debugService.getViewModel().focusedSession;
-		if (!session) {
-			return false;
-		}
-
-		if (e instanceof VisualizedExpression) {
-			return !!e.treeItem.canEdit;
-		}
-
-		return e instanceof Variable && !e.presentationHint?.attributes?.includes('readOnly') && !e.presentationHint?.lazy;
+	const session = this.debugService.getViewModel().focusedSession;
+	if(!session) {
+		return false;
 	}
 
-	private async onContextMenu(e: ITreeContextMenuEvent<IExpression | IScope>): Promise<void> {
-		const variable = e.element;
-		if (!(variable instanceof Variable) || !variable.value) {
-			return;
-		}
+        if(e instanceof VisualizedExpression) {
+	return !!e.treeItem.canEdit;
+}
 
-		return openContextMenuForVariableTreeElement(this.contextKeyService, this.menuService, this.contextMenuService, MenuId.DebugVariablesContext, e);
-	}
+        return e instanceof Variable && !e.presentationHint?.attributes?.includes('readOnly') && !e.presentationHint?.lazy;
+    }
+
+    private async onContextMenu(e: ITreeContextMenuEvent<IExpression | IScope>): Promicognidreamognidream > {
+	const variable = e.element;
+	if(!(variable instanceof Variable) || !variable.value) {
+	return;
+}
+
+return openContextMenuForVariableTreeElement(this.contextKeyService, this.menuService, this.contextMenuService, MenuId.DebugVariablesContext, e);
+    }
 }
 
 export async function openContextMenuForVariableTreeElement(parentContextKeyService: IContextKeyService, menuService: IMenuService, contextMenuService: IContextMenuService, menuId: MenuId, e: ITreeContextMenuEvent<IExpression | IScope>) {
@@ -381,38 +381,38 @@ class ScopesRenderer implements ITreeRenderer<IScope, FuzzyScore, IScopeTemplate
 		return { name, label };
 	}
 
-	renderElement(element: ITreeNode<IScope, FuzzyScore>, index: number, templateData: IScopeTemplateData): void {
+	renderElement(element: ITreeNode<IScope, FuzzyScore>, index: number, templateData: IScopeTemplateDatacognidreamognidream {
 		templateData.label.set(element.element.name, createMatches(element.filterData));
-	}
+    }
 
-	disposeTemplate(templateData: IScopeTemplateData): void {
-		templateData.label.dispose();
-	}
+disposeTemplate(templateData: IScopeTemplateDatacognidreamognidream {
+	templateData.label.dispose();
+}
 }
 
-interface IScopeErrorTemplateData {
+	interface IScopeErrorTemplateData {
 	error: HTMLElement;
 }
 
 class ScopeErrorRenderer implements ITreeRenderer<IScope, FuzzyScore, IScopeErrorTemplateData> {
 
-	static readonly ID = 'scopeError';
+		static readonly ID = 'scopeError';
 
-	get templateId(): string {
-		return ScopeErrorRenderer.ID;
+		get templateId(): string {
+			return ScopeErrorRenderer.ID;
+		}
+
+		renderTemplate(container: HTMLElement): IScopeErrorTemplateData {
+			const wrapper = dom.append(container, $('.scope'));
+			const error = dom.append(wrapper, $('.error'));
+			return { error };
+		}
+
+		renderElement(element: ITreeNode<IScope, FuzzyScore>, index: number, templateData: IScopeErrorTemplateDatacognidreamognidream {
+			templateData.error.innerText = element.element.name;
 	}
 
-	renderTemplate(container: HTMLElement): IScopeErrorTemplateData {
-		const wrapper = dom.append(container, $('.scope'));
-		const error = dom.append(wrapper, $('.error'));
-		return { error };
-	}
-
-	renderElement(element: ITreeNode<IScope, FuzzyScore>, index: number, templateData: IScopeErrorTemplateData): void {
-		templateData.error.innerText = element.element.name;
-	}
-
-	disposeTemplate(): void {
+    disposeTemplate(cognidreamognidream {
 		// noop
 	}
 }
@@ -451,66 +451,66 @@ export class VisualizedVariableRenderer extends AbstractExpressionsRenderer {
 		return VisualizedVariableRenderer.ID;
 	}
 
-	public override renderElement(node: ITreeNode<IExpression, FuzzyScore>, index: number, data: IExpressionTemplateData): void {
+	public override renderElement(node: ITreeNode<IExpression, FuzzyScore>, index: number, data: IExpressionTemplateDatacognidreamognidream {
 		data.elementDisposable.clear();
-		super.renderExpressionElement(node.element, node, data);
-	}
+super.renderExpressionElement(node.element, node, data);
+    }
 
-	protected override renderExpression(expression: IExpression, data: IExpressionTemplateData, highlights: IHighlight[]): void {
-		const viz = expression as VisualizedExpression;
+    protected override renderExpression(expression: IExpression, data: IExpressionTemplateData, highlights: IHighlight[]cognidreamognidream {
+	const viz = expression as VisualizedExpression;
 
-		let text = viz.name;
-		if (viz.value && typeof viz.name === 'string') {
-			text += ':';
-		}
-		data.label.set(text, highlights, viz.name);
-		data.elementDisposable.add(this.expressionRenderer.renderValue(data.value, viz, {
-			showChanged: false,
-			maxValueLength: 1024,
-			colorize: true,
-			session: expression.getSession(),
-		}));
-	}
+	let text = viz.name;
+	if(viz.value && typeof viz.name === 'string') {
+	text += ':';
+}
+data.label.set(text, highlights, viz.name);
+data.elementDisposable.add(this.expressionRenderer.renderValue(data.value, viz, {
+	showChanged: false,
+	maxValueLength: 1024,
+	colorize: true,
+	session: expression.getSession(),
+}));
+    }
 
-	protected override getInputBoxOptions(expression: IExpression): IInputBoxOptions | undefined {
-		const viz = <VisualizedExpression>expression;
-		return {
-			initialValue: expression.value,
-			ariaLabel: localize('variableValueAriaLabel', "Type new variable value"),
-			validationOptions: {
-				validation: () => viz.errorMessage ? ({ content: viz.errorMessage }) : null
-			},
-			onFinish: (value: string, success: boolean) => {
-				viz.errorMessage = undefined;
-				if (success) {
-					viz.edit(value).then(() => {
-						// Do not refresh scopes due to a node limitation #15520
-						forgetScopes = false;
-						this.debugService.getViewModel().updateViews();
-					});
-				}
+    protected override getInputBoxOptions(expression: IExpression): IInputBoxOptions | undefined {
+	const viz = <VisualizedExpression>expression;
+	return {
+		initialValue: expression.value,
+		ariaLabel: localize('variableValueAriaLabel', "Type new variable value"),
+		validationOptions: {
+			validation: () => viz.errorMessage ? ({ content: viz.errorMessage }) : null
+		},
+		onFinish: (value: string, success: boolean) => {
+			viz.errorMessage = undefined;
+			if (success) {
+				viz.edit(value).then(() => {
+					// Do not refresh scopes due to a node limitation #15520
+					forgetScopes = false;
+					this.debugService.getViewModel().updateViews();
+				});
 			}
-		};
-	}
-
-	protected override renderActionBar(actionBar: ActionBar, expression: IExpression, _data: IExpressionTemplateData) {
-		const viz = expression as VisualizedExpression;
-		const contextKeyService = viz.original ? getContextForVariableMenuBase(this.contextKeyService, viz.original) : this.contextKeyService;
-		const context = viz.original ? getVariablesContext(viz.original) : undefined;
-		const menu = this.menuService.getMenuActions(MenuId.DebugVariablesContext, contextKeyService, { arg: context, shouldForwardArgs: false });
-
-		const { primary } = getContextMenuActions(menu, 'inline');
-
-		if (viz.original) {
-			const action = new Action('debugViz', localize('removeVisualizer', 'Remove Visualizer'), ThemeIcon.asClassName(Codicon.eye), true, () => this.debugService.getViewModel().setVisualizedExpression(viz.original!, undefined));
-			action.checked = true;
-			primary.push(action);
-			actionBar.domNode.style.display = 'initial';
 		}
-		actionBar.clear();
-		actionBar.context = context;
-		actionBar.push(primary, { icon: true, label: false });
+	};
+}
+
+    protected override renderActionBar(actionBar: ActionBar, expression: IExpression, _data: IExpressionTemplateData) {
+	const viz = expression as VisualizedExpression;
+	const contextKeyService = viz.original ? getContextForVariableMenuBase(this.contextKeyService, viz.original) : this.contextKeyService;
+	const context = viz.original ? getVariablesContext(viz.original) : undefined;
+	const menu = this.menuService.getMenuActions(MenuId.DebugVariablesContext, contextKeyService, { arg: context, shouldForwardArgs: false });
+
+	const { primary } = getContextMenuActions(menu, 'inline');
+
+	if (viz.original) {
+		const action = new Action('debugViz', localize('removeVisualizer', 'Remove Visualizer'), ThemeIcon.asClassName(Codicon.eye), true, () => this.debugService.getViewModel().setVisualizedExpression(viz.original!, undefined));
+		action.checked = true;
+		primary.push(action);
+		actionBar.domNode.style.display = 'initial';
 	}
+	actionBar.clear();
+	actionBar.context = context;
+	actionBar.push(primary, { icon: true, label: false });
+}
 }
 
 export class VariablesRenderer extends AbstractExpressionsRenderer {
@@ -534,114 +534,114 @@ export class VariablesRenderer extends AbstractExpressionsRenderer {
 		return VariablesRenderer.ID;
 	}
 
-	protected renderExpression(expression: IExpression, data: IExpressionTemplateData, highlights: IHighlight[]): void {
+	protected renderExpression(expression: IExpression, data: IExpressionTemplateData, highlights: IHighlight[]cognidreamognidream {
 		data.elementDisposable.add(this.expressionRenderer.renderVariable(data, expression as Variable, {
 			highlights,
 			showChanged: true,
 		}));
-	}
+    }
 
-	public override renderElement(node: ITreeNode<IExpression, FuzzyScore>, index: number, data: IExpressionTemplateData): void {
-		data.elementDisposable.clear();
-		super.renderExpressionElement(node.element, node, data);
-	}
-
-	protected getInputBoxOptions(expression: IExpression): IInputBoxOptions {
-		const variable = <Variable>expression;
-		return {
-			initialValue: expression.value,
-			ariaLabel: localize('variableValueAriaLabel', "Type new variable value"),
-			validationOptions: {
-				validation: () => variable.errorMessage ? ({ content: variable.errorMessage }) : null
-			},
-			onFinish: (value: string, success: boolean) => {
-				variable.errorMessage = undefined;
-				const focusedStackFrame = this.debugService.getViewModel().focusedStackFrame;
-				if (success && variable.value !== value && focusedStackFrame) {
-					variable.setVariable(value, focusedStackFrame)
-						// Need to force watch expressions and variables to update since a variable change can have an effect on both
-						.then(() => {
-							// Do not refresh scopes due to a node limitation #15520
-							forgetScopes = false;
-							this.debugService.getViewModel().updateViews();
-						});
-				}
-			}
-		};
-	}
-
-	protected override renderActionBar(actionBar: ActionBar, expression: IExpression, data: IExpressionTemplateData) {
-		const variable = expression as Variable;
-		const contextKeyService = getContextForVariableMenuBase(this.contextKeyService, variable);
-
-		const context = getVariablesContext(variable);
-		const menu = this.menuService.getMenuActions(MenuId.DebugVariablesContext, contextKeyService, { arg: context, shouldForwardArgs: false });
-		const { primary } = getContextMenuActions(menu, 'inline');
-
-		actionBar.clear();
-		actionBar.context = context;
-		actionBar.push(primary, { icon: true, label: false });
-
-		const cts = new CancellationTokenSource();
-		data.elementDisposable.add(toDisposable(() => cts.dispose(true)));
-		this.visualization.getApplicableFor(expression, cts.token).then(result => {
-			data.elementDisposable.add(result);
-
-			const originalExpression = (expression instanceof VisualizedExpression && expression.original) || expression;
-			const actions = result.object.map(v => new Action('debugViz', v.name, v.iconClass || 'debug-viz-icon', undefined, this.useVisualizer(v, originalExpression, cts.token)));
-			if (actions.length === 0) {
-				// no-op
-			} else if (actions.length === 1) {
-				actionBar.push(actions[0], { icon: true, label: false });
-			} else {
-				actionBar.push(new Action('debugViz', localize('useVisualizer', 'Visualize Variable...'), ThemeIcon.asClassName(Codicon.eye), undefined, () => this.pickVisualizer(actions, originalExpression, data)), { icon: true, label: false });
-			}
-		});
-	}
-
-	private pickVisualizer(actions: IAction[], expression: IExpression, data: IExpressionTemplateData) {
-		this.contextMenuService.showContextMenu({
-			getAnchor: () => data.actionBar!.getContainer(),
-			getActions: () => actions,
-		});
-	}
-
-	private useVisualizer(viz: DebugVisualizer, expression: IExpression, token: CancellationToken) {
-		return async () => {
-			const resolved = await viz.resolve(token);
-			if (token.isCancellationRequested) {
-				return;
-			}
-
-			if (resolved.type === DebugVisualizationType.Command) {
-				viz.execute();
-			} else {
-				const replacement = await this.visualization.getVisualizedNodeFor(resolved.id, expression);
-				if (replacement) {
-					this.debugService.getViewModel().setVisualizedExpression(expression, replacement);
-				}
-			}
-		};
-	}
-}
-
-class VariablesAccessibilityProvider implements IListAccessibilityProvider<IExpression | IScope> {
-
-	getWidgetAriaLabel(): string {
-		return localize('variablesAriaTreeLabel', "Debug Variables");
-	}
-
-	getAriaLabel(element: IExpression | IScope): string | null {
-		if (element instanceof Scope) {
-			return localize('variableScopeAriaLabel', "Scope {0}", element.name);
-		}
-		if (element instanceof Variable) {
-			return localize({ key: 'variableAriaLabel', comment: ['Placeholders are variable name and variable value respectivly. They should not be translated.'] }, "{0}, value {1}", element.name, element.value);
+    public override renderElement(node: ITreeNode<IExpression, FuzzyScore>, index: number, data: IExpressionTemplateDatacognidreamognidream {
+			data.elementDisposable.clear();
+			super.renderExpressionElement(node.element, node, data);
 		}
 
-		return null;
-	}
+    protected getInputBoxOptions(expression: IExpression): IInputBoxOptions {
+			const variable = <Variable>expression;
+			return {
+				initialValue: expression.value,
+				ariaLabel: localize('variableValueAriaLabel', "Type new variable value"),
+				validationOptions: {
+					validation: () => variable.errorMessage ? ({ content: variable.errorMessage }) : null
+				},
+				onFinish: (value: string, success: boolean) => {
+					variable.errorMessage = undefined;
+					const focusedStackFrame = this.debugService.getViewModel().focusedStackFrame;
+					if (success && variable.value !== value && focusedStackFrame) {
+						variable.setVariable(value, focusedStackFrame)
+							// Need to force watch expressions and variables to update since a variable change can have an effect on both
+							.then(() => {
+								// Do not refresh scopes due to a node limitation #15520
+								forgetScopes = false;
+								this.debugService.getViewModel().updateViews();
+							});
+					}
+				}
+			};
+		}
+
+    protected override renderActionBar(actionBar: ActionBar, expression: IExpression, data: IExpressionTemplateData) {
+			const variable = expression as Variable;
+			const contextKeyService = getContextForVariableMenuBase(this.contextKeyService, variable);
+
+			const context = getVariablesContext(variable);
+			const menu = this.menuService.getMenuActions(MenuId.DebugVariablesContext, contextKeyService, { arg: context, shouldForwardArgs: false });
+			const { primary } = getContextMenuActions(menu, 'inline');
+
+			actionBar.clear();
+			actionBar.context = context;
+			actionBar.push(primary, { icon: true, label: false });
+
+			const cts = new CancellationTokenSource();
+			data.elementDisposable.add(toDisposable(() => cts.dispose(true)));
+			this.visualization.getApplicableFor(expression, cts.token).then(result => {
+				data.elementDisposable.add(result);
+
+				const originalExpression = (expression instanceof VisualizedExpression && expression.original) || expression;
+				const actions = result.object.map(v => new Action('debugViz', v.name, v.iconClass || 'debug-viz-icon', undefined, this.useVisualizer(v, originalExpression, cts.token)));
+				if (actions.length === 0) {
+					// no-op
+				} else if (actions.length === 1) {
+					actionBar.push(actions[0], { icon: true, label: false });
+				} else {
+					actionBar.push(new Action('debugViz', localize('useVisualizer', 'Visualize Variable...'), ThemeIcon.asClassName(Codicon.eye), undefined, () => this.pickVisualizer(actions, originalExpression, data)), { icon: true, label: false });
+				}
+			});
+		}
+
+    private pickVisualizer(actions: IAction[], expression: IExpression, data: IExpressionTemplateData) {
+			this.contextMenuService.showContextMenu({
+				getAnchor: () => data.actionBar!.getContainer(),
+				getActions: () => actions,
+			});
+		}
+
+    private useVisualizer(viz: DebugVisualizer, expression: IExpression, token: CancellationToken) {
+			return async () => {
+				const resolved = await viz.resolve(token);
+				if (token.isCancellationRequested) {
+					return;
+				}
+
+				if (resolved.type === DebugVisualizationType.Command) {
+					viz.execute();
+				} else {
+					const replacement = await this.visualization.getVisualizedNodeFor(resolved.id, expression);
+					if (replacement) {
+						this.debugService.getViewModel().setVisualizedExpression(expression, replacement);
+					}
+				}
+			};
+		}
 }
+
+			class VariablesAccessibilityProvider implements IListAccessibilityProvider<IExpression | IScope> {
+
+				getWidgetAriaLabel(): string {
+					return localize('variablesAriaTreeLabel', "Debug Variables");
+				}
+
+				getAriaLabel(element: IExpression | IScope): string | null {
+					if (element instanceof Scope) {
+						return localize('variableScopeAriaLabel', "Scope {0}", element.name);
+					}
+					if (element instanceof Variable) {
+						return localize({ key: 'variableAriaLabel', comment: ['Placeholders are variable name and variable value respectivly. They should not be translated.'] }, "{0}, value {1}", element.name, element.value);
+					}
+
+					return null;
+				}
+			}
 
 export const SET_VARIABLE_ID = 'debug.setVariable';
 CommandsRegistry.registerCommand({

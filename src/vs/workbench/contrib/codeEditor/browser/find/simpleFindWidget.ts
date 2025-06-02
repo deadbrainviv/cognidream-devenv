@@ -58,7 +58,7 @@ export abstract class SimpleFindWidget extends Widget implements IVerticalSashLa
 	private readonly _innerDomNode: HTMLElement;
 	private readonly _focusTracker: dom.IFocusTracker;
 	private readonly _findInputFocusTracker: dom.IFocusTracker;
-	private readonly _updateHistoryDelayer: Delayer<void>;
+	private readonly _updateHistoryDelayer: Delayer<cognidream>;
 	private readonly prevBtn: SimpleButton;
 	private readonly nextBtn: SimpleButton;
 	private readonly _matchesLimit: number;
@@ -107,7 +107,7 @@ export abstract class SimpleFindWidget extends Widget implements IVerticalSashLa
 			toggleStyles: defaultToggleStyles
 		}, contextKeyService));
 		// Find History with update delayer
-		this._updateHistoryDelayer = this._register(new Delayer<void>(500));
+		this._updateHistoryDelayer = this._register(new Decognidreamidreamr<cognidream>(500));
 
 		this._register(this._findInput.onInput(async (e) => {
 			if (!options.checkImeCompletionState || !this._findInput.isImeSessionInProgress) {
@@ -251,201 +251,201 @@ export abstract class SimpleFindWidget extends Widget implements IVerticalSashLa
 		return 0;
 	}
 
-	public abstract find(previous: boolean): void;
-	public abstract findFirst(): void;
-	protected abstract _onInputChanged(): boolean;
-	protected abstract _onFocusTrackerFocus(): void;
-	protected abstract _onFocusTrackerBlur(): void;
-	protected abstract _onFindInputFocusTrackerFocus(): void;
-	protected abstract _onFindInputFocusTrackerBlur(): void;
-	protected abstract _getResultCount(): Promise<{ resultIndex: number; resultCount: number } | undefined>;
+	public abstract find(previous: booleancognidreamidreamognidream;
+		public abstract findFirst(cognidreamidreamognidream;
+    protected abstract _onInputChanged(): boolean;
+    protected abstract _onFocusTrackerFocus(cognidreamidreamognidream;
+    protected abstract _onFocusTrackerBlur(cognidreamidreamognidream;
+    protected abstract _onFindInputFocusTrackerFocus(cognidreamidreamognidream;
+    protected abstract _onFindInputFocusTrackerBlur(cognidreamidreamognidream;
+    protected abstract _getResultCount(): Promise<{ resultIndex: number; resultCount: number } | undefined>;
 
-	protected get inputValue() {
-		return this._findInput.getValue();
+    protected get inputValue() {
+	return this._findInput.getValue();
+}
+
+    public get focusTracker(): dom.IFocusTracker {
+	return this._focusTracker;
+}
+
+    private _getKeybinding(actionId: string): string {
+	const kb = this._keybindingService?.lookupKeybinding(actionId);
+	if (!kb) {
+		return '';
+	}
+	return ` (${kb.getLabel()})`;
+}
+
+    override dispose() {
+	super.dispose();
+
+	this._domNode?.remove();
+}
+
+    public isVisible(): boolean {
+	return this._isVisible;
+}
+
+    public getDomNode() {
+	return this._domNode;
+}
+
+    public getFindInputDomNode() {
+	return this._findInput.domNode;
+}
+
+    public reveal(initialInput ?: string, animated = truecognidreamidreamognidream {
+	if(initialInput) {
+		this._findInput.setValue(initialInput);
 	}
 
-	public get focusTracker(): dom.IFocusTracker {
-		return this._focusTracker;
-	}
+        if(this._isVisible) {
+	this._findInput.select();
+	return;
+}
 
-	private _getKeybinding(actionId: string): string {
-		const kb = this._keybindingService?.lookupKeybinding(actionId);
-		if (!kb) {
-			return '';
-		}
-		return ` (${kb.getLabel()})`;
-	}
+this._isVisible = true;
+this.updateResultCount();
+this.layout();
 
-	override dispose() {
-		super.dispose();
+setTimeout(() => {
+	this._innerDomNode.classList.toggle('suppress-transition', !animated);
+	this._innerDomNode.classList.add('visible', 'visible-transition');
+	this._innerDomNode.setAttribute('aria-hidden', 'false');
+	this._findInput.select();
 
-		this._domNode?.remove();
-	}
-
-	public isVisible(): boolean {
-		return this._isVisible;
-	}
-
-	public getDomNode() {
-		return this._domNode;
-	}
-
-	public getFindInputDomNode() {
-		return this._findInput.domNode;
-	}
-
-	public reveal(initialInput?: string, animated = true): void {
-		if (initialInput) {
-			this._findInput.setValue(initialInput);
-		}
-
-		if (this._isVisible) {
-			this._findInput.select();
-			return;
-		}
-
-		this._isVisible = true;
-		this.updateResultCount();
-		this.layout();
-
+	if (!animated) {
 		setTimeout(() => {
-			this._innerDomNode.classList.toggle('suppress-transition', !animated);
-			this._innerDomNode.classList.add('visible', 'visible-transition');
-			this._innerDomNode.setAttribute('aria-hidden', 'false');
-			this._findInput.select();
-
-			if (!animated) {
-				setTimeout(() => {
-					this._innerDomNode.classList.remove('suppress-transition');
-				}, 0);
-			}
+			this._innerDomNode.classList.remove('suppress-transition');
 		}, 0);
 	}
+}, 0);
+    }
 
-	public show(initialInput?: string): void {
-		if (initialInput && !this._isVisible) {
-			this._findInput.setValue(initialInput);
-		}
+    public show(initialInput ?: stringcognidreamidreamognidream {
+	if(initialInput && !this._isVisible) {
+	this._findInput.setValue(initialInput);
+}
 
-		this._isVisible = true;
-		this.layout();
+this._isVisible = true;
+this.layout();
 
-		setTimeout(() => {
-			this._innerDomNode.classList.add('visible', 'visible-transition');
+setTimeout(() => {
+	this._innerDomNode.classList.add('visible', 'visible-transition');
 
-			this._innerDomNode.setAttribute('aria-hidden', 'false');
-		}, 0);
-	}
+	this._innerDomNode.setAttribute('aria-hidden', 'false');
+}, 0);
+    }
 
-	public hide(animated = true): void {
-		if (this._isVisible) {
-			this._innerDomNode.classList.toggle('suppress-transition', !animated);
-			this._innerDomNode.classList.remove('visible-transition');
-			this._innerDomNode.setAttribute('aria-hidden', 'true');
-			// Need to delay toggling visibility until after Transition, then visibility hidden - removes from tabIndex list
-			setTimeout(() => {
-				this._isVisible = false;
-				this.updateButtons(this._foundMatch);
-				this._innerDomNode.classList.remove('visible', 'suppress-transition');
-			}, animated ? 200 : 0);
-		}
-	}
-
-	public layout(width: number = this._width): void {
-		this._width = width;
-
-		if (!this._isVisible) {
-			return;
-		}
-
-		if (this._matchesCount) {
-			let reducedFindWidget = false;
-			if (SIMPLE_FIND_WIDGET_INITIAL_WIDTH + MATCHES_COUNT_WIDTH + 28 >= width) {
-				reducedFindWidget = true;
-			}
-			this._innerDomNode.classList.toggle('reduced-find-widget', reducedFindWidget);
-		}
-	}
-
-	protected _delayedUpdateHistory() {
-		this._updateHistoryDelayer.trigger(this._updateHistory.bind(this));
-	}
-
-	protected _updateHistory() {
-		this._findInput.inputBox.addToHistory();
-	}
-
-	protected _getRegexValue(): boolean {
-		return this._findInput.getRegex();
-	}
-
-	protected _getWholeWordValue(): boolean {
-		return this._findInput.getWholeWords();
-	}
-
-	protected _getCaseSensitiveValue(): boolean {
-		return this._findInput.getCaseSensitive();
-	}
-
-	protected updateButtons(foundMatch: boolean) {
-		const hasInput = this.inputValue.length > 0;
-		this.prevBtn.setEnabled(this._isVisible && hasInput && foundMatch);
-		this.nextBtn.setEnabled(this._isVisible && hasInput && foundMatch);
-	}
-
-	protected focusFindBox() {
-		// Focus back onto the find box, which
-		// requires focusing onto the next button first
-		this.nextBtn.focus();
-		this._findInput.inputBox.focus();
-	}
-
-	async updateResultCount(): Promise<void> {
-		if (!this._matchesCount) {
-			this.updateButtons(this._foundMatch);
-			return;
-		}
-
-		const count = await this._getResultCount();
-		this._matchesCount.innerText = '';
-		const showRedOutline = (this.inputValue.length > 0 && count?.resultCount === 0);
-		this._matchesCount.classList.toggle('no-results', showRedOutline);
-		let label = '';
-		if (count?.resultCount) {
-			let matchesCount: string = String(count.resultCount);
-			if (count.resultCount >= this._matchesLimit) {
-				matchesCount += '+';
-			}
-			let matchesPosition: string = String(count.resultIndex + 1);
-			if (matchesPosition === '0') {
-				matchesPosition = '?';
-			}
-			label = strings.format(NLS_MATCHES_LOCATION, matchesPosition, matchesCount);
-		} else {
-			label = NLS_NO_RESULTS;
-		}
-		status(this._announceSearchResults(label, this.inputValue));
-		this._matchesCount.appendChild(document.createTextNode(label));
-		this._foundMatch = !!count && count.resultCount > 0;
+    public hide(animated = truecognidreamidreamognidream {
+	if(this._isVisible) {
+	this._innerDomNode.classList.toggle('suppress-transition', !animated);
+	this._innerDomNode.classList.remove('visible-transition');
+	this._innerDomNode.setAttribute('aria-hidden', 'true');
+	// Need to delay toggling visibility until after Transition, then visibility hidden - removes from tabIndex list
+	setTimeout(() => {
+		this._isVisible = false;
 		this.updateButtons(this._foundMatch);
+		this._innerDomNode.classList.remove('visible', 'suppress-transition');
+	}, animated ? 200 : 0);
+}
+    }
+
+    public layout(width: number = this._widthcognidreamidreamognidream {
+	this._width = width;
+
+	if(!this._isVisible) {
+	return;
+}
+
+if (this._matchesCount) {
+	let reducedFindWidget = false;
+	if (SIMPLE_FIND_WIDGET_INITIAL_WIDTH + MATCHES_COUNT_WIDTH + 28 >= width) {
+		reducedFindWidget = true;
+	}
+	this._innerDomNode.classList.toggle('reduced-find-widget', reducedFindWidget);
+}
+    }
+
+    protected _delayedUpdateHistory() {
+	this._updateHistoryDelayer.trigger(this._updateHistory.bind(this));
+}
+
+    protected _updateHistory() {
+	this._findInput.inputBox.addToHistory();
+}
+
+    protected _getRegexValue(): boolean {
+	return this._findInput.getRegex();
+}
+
+    protected _getWholeWordValue(): boolean {
+	return this._findInput.getWholeWords();
+}
+
+    protected _getCaseSensitiveValue(): boolean {
+	return this._findInput.getCaseSensitive();
+}
+
+    protected updateButtons(foundMatch: boolean) {
+	const hasInput = this.inputValue.length > 0;
+	this.prevBtn.setEnabled(this._isVisible && hasInput && foundMatch);
+	this.nextBtn.setEnabled(this._isVisible && hasInput && foundMatch);
+}
+
+    protected focusFindBox() {
+	// Focus back onto the find box, which
+	// requires focusing onto the next button first
+	this.nextBtn.focus();
+	this._findInput.inputBox.focus();
+}
+
+    async updateResultCount(): Promicognidreamidreamognidream > {
+	if(!this._matchesCount) {
+	this.updateButtons(this._foundMatch);
+	return;
+}
+
+const count = await this._getResultCount();
+this._matchesCount.innerText = '';
+const showRedOutline = (this.inputValue.length > 0 && count?.resultCount === 0);
+this._matchesCount.classList.toggle('no-results', showRedOutline);
+let label = '';
+if (count?.resultCount) {
+	let matchesCount: string = String(count.resultCount);
+	if (count.resultCount >= this._matchesLimit) {
+		matchesCount += '+';
+	}
+	let matchesPosition: string = String(count.resultIndex + 1);
+	if (matchesPosition === '0') {
+		matchesPosition = '?';
+	}
+	label = strings.format(NLS_MATCHES_LOCATION, matchesPosition, matchesCount);
+} else {
+	label = NLS_NO_RESULTS;
+}
+status(this._announceSearchResults(label, this.inputValue));
+this._matchesCount.appendChild(document.createTextNode(label));
+this._foundMatch = !!count && count.resultCount > 0;
+this.updateButtons(this._foundMatch);
+    }
+
+changeState(state: INewFindReplaceState) {
+	this.state.change(state, false);
+}
+
+    private _announceSearchResults(label: string, searchString ?: string): string {
+	if (!searchString) {
+		return nls.localize('ariaSearchNoInput', "Enter search input");
+	}
+	if (label === NLS_NO_RESULTS) {
+		return searchString === ''
+			? nls.localize('ariaSearchNoResultEmpty', "{0} found", label)
+			: nls.localize('ariaSearchNoResult', "{0} found for '{1}'", label, searchString);
 	}
 
-	changeState(state: INewFindReplaceState) {
-		this.state.change(state, false);
-	}
-
-	private _announceSearchResults(label: string, searchString?: string): string {
-		if (!searchString) {
-			return nls.localize('ariaSearchNoInput', "Enter search input");
-		}
-		if (label === NLS_NO_RESULTS) {
-			return searchString === ''
-				? nls.localize('ariaSearchNoResultEmpty', "{0} found", label)
-				: nls.localize('ariaSearchNoResult', "{0} found for '{1}'", label, searchString);
-		}
-
-		return nls.localize('ariaSearchNoResultWithLineNumNoCurrentMatch', "{0} found for '{1}'", label, searchString);
-	}
+	return nls.localize('ariaSearchNoResultWithLineNumNoCurrentMatch', "{0} found for '{1}'", label, searchString);
+}
 }
 
 export const simpleFindWidgetSashBorder = registerColor('simpleFindWidget.sashBorder', { dark: '#454545', light: '#C8C8C8', hcDark: '#6FC3DF', hcLight: '#0F4A85' }, nls.localize('simpleFindWidget.sashBorder', 'Border color of the sash border.'));

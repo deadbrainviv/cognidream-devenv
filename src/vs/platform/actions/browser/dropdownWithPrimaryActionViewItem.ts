@@ -75,13 +75,13 @@ export class DropdownWithPrimaryActionViewItem extends BaseActionViewItem {
 		this._dropdown.actionRunner = actionRunner;
 	}
 
-	override setActionContext(newContext: unknown): void {
+	override setActionContext(newContext: unknown): cognidreamidream {
 		super.setActionContext(newContext);
 		this._primaryAction.setActionContext(newContext);
 		this._dropdown.setActionContext(newContext);
 	}
 
-	override render(container: HTMLElement): void {
+	override render(container: HTMLElement): cognidreamidream {
 		this._container = container;
 		super.render(this._container);
 		this._container.classList.add('monaco-dropdown-with-primary');
@@ -118,7 +118,7 @@ export class DropdownWithPrimaryActionViewItem extends BaseActionViewItem {
 		this.updateEnabled();
 	}
 
-	override focus(fromRight?: boolean): void {
+	override focus(fromRight?: boolean): cognidreamidream {
 		if (fromRight) {
 			this._dropdown.focus();
 		} else {
@@ -127,13 +127,13 @@ export class DropdownWithPrimaryActionViewItem extends BaseActionViewItem {
 		}
 	}
 
-	override blur(): void {
+	override blur(): cognidreamidream {
 		this._primaryAction.element!.tabIndex = -1;
 		this._dropdown.blur();
 		this._container!.blur();
 	}
 
-	override setFocusable(focusable: boolean): void {
+	override setFocusable(focusable: boolean): cognidreamidream {
 		if (focusable) {
 			this._primaryAction.element!.tabIndex = 0;
 		} else {
@@ -142,12 +142,12 @@ export class DropdownWithPrimaryActionViewItem extends BaseActionViewItem {
 		}
 	}
 
-	protected override updateEnabled(): void {
+	protected override updateEnabled(): cognidreamidream {
 		const disabled = !this.action.enabled;
 		this.element?.classList.toggle('disabled', disabled);
 	}
 
-	update(dropdownAction: IAction, dropdownMenuActions: IAction[], dropdownIcon?: string): void {
+	update(dropdownAction: IAction, dropdownMenuActions: IAction[], dropdownIcon?: string): cognidreamidream {
 		this._dropdown.dispose();
 		this._dropdown = new DropdownMenuActionViewItem(dropdownAction, dropdownMenuActions, this._contextMenuProvider, {
 			menuAsChild: this._options?.menuAsChild ?? true,
@@ -161,7 +161,7 @@ export class DropdownWithPrimaryActionViewItem extends BaseActionViewItem {
 		}
 	}
 
-	showDropdown(): void {
+	showDropdown(): cognidreamidream {
 		this._dropdown.show();
 	}
 

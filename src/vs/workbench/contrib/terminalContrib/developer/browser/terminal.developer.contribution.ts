@@ -127,7 +127,7 @@ registerTerminalAction({
 		]);
 
 		// Record session
-		return new Promise<void>(resolve => {
+		return new Promise<cognidream>(resolve => {
 			const events: unknown[] = [];
 			const endRecording = () => {
 				const session = JSON.stringify(events, null, 2);
@@ -244,121 +244,121 @@ class DevModeContribution extends Disposable implements ITerminalContribution {
 		}));
 	}
 
-	xtermReady(xterm: IXtermTerminal & { raw: Terminal }): void {
+	xtermReady(xterm: IXtermTerminal & { raw: Terminal }cognidreamognidream {
 		this._xterm = xterm;
 		this._updateDevMode();
-	}
+    }
 
-	private _updateDevMode() {
-		const devMode: boolean = this._isEnabled();
-		this._xterm?.raw.element?.classList.toggle('dev-mode', devMode);
+    private _updateDevMode() {
+	const devMode: boolean = this._isEnabled();
+	this._xterm?.raw.element?.classList.toggle('dev-mode', devMode);
 
-		const commandDetection = this._ctx.instance.capabilities.get(TerminalCapability.CommandDetection);
-		if (devMode) {
-			if (commandDetection) {
-				if (this._state === DevModeContributionState.On) {
-					return;
-				}
-				this._state = DevModeContributionState.On;
-				const commandDecorations = new DisposableMap<ITerminalCommand, IDisposable>();
-				const otherDisposables = new DisposableStore();
-				this._activeDevModeDisposables.value = combinedDisposable(
-					commandDecorations,
-					otherDisposables,
-					// Prompt input
-					this._ctx.instance.onDidBlur(() => this._updateDevMode()),
-					this._ctx.instance.onDidFocus(() => this._updateDevMode()),
-					commandDetection.promptInputModel.onDidChangeInput(() => this._updateDevMode()),
-					// Sequence markers
-					commandDetection.onCommandFinished(command => {
-						const colorClass = `color-${this._currentColor}`;
-						const decorations: IDisposable[] = [];
-						commandDecorations.set(command, combinedDisposable(...decorations));
-						if (command.promptStartMarker) {
-							const d = this._ctx.instance.xterm!.raw?.registerDecoration({
-								marker: command.promptStartMarker
-							});
-							if (d) {
-								decorations.push(d);
-								otherDisposables.add(d.onRender(e => {
-									e.textContent = 'A';
-									e.classList.add('xterm-sequence-decoration', 'top', 'left', colorClass);
-								}));
-							}
-						}
-						if (command.marker) {
-							const d = this._ctx.instance.xterm!.raw?.registerDecoration({
-								marker: command.marker,
-								x: command.startX
-							});
-							if (d) {
-								decorations.push(d);
-								otherDisposables.add(d.onRender(e => {
-									e.textContent = 'B';
-									e.classList.add('xterm-sequence-decoration', 'top', 'right', colorClass);
-								}));
-							}
-						}
-						if (command.executedMarker) {
-							const d = this._ctx.instance.xterm!.raw?.registerDecoration({
-								marker: command.executedMarker,
-								x: command.executedX
-							});
-							if (d) {
-								decorations.push(d);
-								otherDisposables.add(d.onRender(e => {
-									e.textContent = 'C';
-									e.classList.add('xterm-sequence-decoration', 'bottom', 'left', colorClass);
-								}));
-							}
-						}
-						if (command.endMarker) {
-							const d = this._ctx.instance.xterm!.raw?.registerDecoration({
-								marker: command.endMarker
-							});
-							if (d) {
-								decorations.push(d);
-								otherDisposables.add(d.onRender(e => {
-									e.textContent = 'D';
-									e.classList.add('xterm-sequence-decoration', 'bottom', 'right', colorClass);
-								}));
-							}
-						}
-						this._currentColor = (this._currentColor + 1) % 2;
-					}),
-					commandDetection.onCommandInvalidated(commands => {
-						for (const c of commands) {
-							const decorations = commandDecorations.get(c);
-							if (decorations) {
-								dispose(decorations);
-							}
-							commandDecorations.deleteAndDispose(c);
-						}
-					})
-				);
-			} else {
-				if (this._state === DevModeContributionState.WaitingForCapability) {
-					return;
-				}
-				this._state = DevModeContributionState.WaitingForCapability;
-				this._activeDevModeDisposables.value = this._ctx.instance.capabilities.onDidAddCapabilityType(e => {
-					if (e === TerminalCapability.CommandDetection) {
-						this._updateDevMode();
-					}
-				});
-			}
-		} else {
-			if (this._state === DevModeContributionState.Off) {
+	const commandDetection = this._ctx.instance.capabilities.get(TerminalCapability.CommandDetection);
+	if (devMode) {
+		if (commandDetection) {
+			if (this._state === DevModeContributionState.On) {
 				return;
 			}
-			this._state = DevModeContributionState.Off;
-			this._activeDevModeDisposables.clear();
+			this._state = DevModeContributionState.On;
+			const commandDecorations = new DisposableMap<ITerminalCommand, IDisposable>();
+			const otherDisposables = new DisposableStore();
+			this._activeDevModeDisposables.value = combinedDisposable(
+				commandDecorations,
+				otherDisposables,
+				// Prompt input
+				this._ctx.instance.onDidBlur(() => this._updateDevMode()),
+				this._ctx.instance.onDidFocus(() => this._updateDevMode()),
+				commandDetection.promptInputModel.onDidChangeInput(() => this._updateDevMode()),
+				// Sequence markers
+				commandDetection.onCommandFinished(command => {
+					const colorClass = `color-${this._currentColor}`;
+					const decorations: IDisposable[] = [];
+					commandDecorations.set(command, combinedDisposable(...decorations));
+					if (command.promptStartMarker) {
+						const d = this._ctx.instance.xterm!.raw?.registerDecoration({
+							marker: command.promptStartMarker
+						});
+						if (d) {
+							decorations.push(d);
+							otherDisposables.add(d.onRender(e => {
+								e.textContent = 'A';
+								e.classList.add('xterm-sequence-decoration', 'top', 'left', colorClass);
+							}));
+						}
+					}
+					if (command.marker) {
+						const d = this._ctx.instance.xterm!.raw?.registerDecoration({
+							marker: command.marker,
+							x: command.startX
+						});
+						if (d) {
+							decorations.push(d);
+							otherDisposables.add(d.onRender(e => {
+								e.textContent = 'B';
+								e.classList.add('xterm-sequence-decoration', 'top', 'right', colorClass);
+							}));
+						}
+					}
+					if (command.executedMarker) {
+						const d = this._ctx.instance.xterm!.raw?.registerDecoration({
+							marker: command.executedMarker,
+							x: command.executedX
+						});
+						if (d) {
+							decorations.push(d);
+							otherDisposables.add(d.onRender(e => {
+								e.textContent = 'C';
+								e.classList.add('xterm-sequence-decoration', 'bottom', 'left', colorClass);
+							}));
+						}
+					}
+					if (command.endMarker) {
+						const d = this._ctx.instance.xterm!.raw?.registerDecoration({
+							marker: command.endMarker
+						});
+						if (d) {
+							decorations.push(d);
+							otherDisposables.add(d.onRender(e => {
+								e.textContent = 'D';
+								e.classList.add('xterm-sequence-decoration', 'bottom', 'right', colorClass);
+							}));
+						}
+					}
+					this._currentColor = (this._currentColor + 1) % 2;
+				}),
+				commandDetection.onCommandInvalidated(commands => {
+					for (const c of commands) {
+						const decorations = commandDecorations.get(c);
+						if (decorations) {
+							dispose(decorations);
+						}
+						commandDecorations.deleteAndDispose(c);
+					}
+				})
+			);
+		} else {
+			if (this._state === DevModeContributionState.WaitingForCapability) {
+				return;
+			}
+			this._state = DevModeContributionState.WaitingForCapability;
+			this._activeDevModeDisposables.value = this._ctx.instance.capabilities.onDidAddCapabilityType(e => {
+				if (e === TerminalCapability.CommandDetection) {
+					this._updateDevMode();
+				}
+			});
 		}
+	} else {
+		if (this._state === DevModeContributionState.Off) {
+			return;
+		}
+		this._state = DevModeContributionState.Off;
+		this._activeDevModeDisposables.clear();
 	}
+}
 
-	private _isEnabled(): boolean {
-		return this._configurationService.getValue(TerminalSettingId.DevMode) || false;
-	}
+    private _isEnabled(): boolean {
+	return this._configurationService.getValue(TerminalSettingId.DevMode) || false;
+}
 }
 
 registerTerminalContribution(DevModeContribution.ID, DevModeContribution);

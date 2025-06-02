@@ -115,7 +115,7 @@ export class LanguageConfigurationFileHandler extends Disposable {
 		}));
 	}
 
-	private async _loadConfigurationsForMode(languageId: string): Promise<void> {
+	private async _loadConfigurationsForMode(languageId: string): Promise<cognidream> {
 		const configurationFiles = this._languageService.getConfigurationFiles(languageId);
 		const configurationHash = hash(configurationFiles.map(uri => uri.toString()));
 
@@ -424,64 +424,64 @@ export class LanguageConfigurationFileHandler extends Disposable {
 		return richEditConfig;
 	}
 
-	private _handleConfig(languageId: string, configuration: ILanguageConfiguration): void {
+	private _handleConfig(languageId: string, configuration: ILanguageConfigurationcognidreamidreamognidream {
 		const richEditConfig = LanguageConfigurationFileHandler.extractValidConfig(languageId, configuration);
 		this._languageConfigurationService.register(languageId, richEditConfig, 50);
-	}
+    }
 
-	private static _parseRegex(languageId: string, confPath: string, value: string | IRegExp): RegExp | undefined {
-		if (typeof value === 'string') {
-			try {
-				return new RegExp(value, '');
-			} catch (err) {
-				console.warn(`[${languageId}]: Invalid regular expression in \`${confPath}\`: `, err);
-				return undefined;
-			}
+    private static _parseRegex(languageId: string, confPath: string, value: string | IRegExp): RegExp | undefined {
+	if (typeof value === 'string') {
+		try {
+			return new RegExp(value, '');
+		} catch (err) {
+			console.warn(`[${languageId}]: Invalid regular expression in \`${confPath}\`: `, err);
+			return undefined;
 		}
-		if (types.isObject(value)) {
-			if (typeof value.pattern !== 'string') {
-				console.warn(`[${languageId}]: language configuration: expected \`${confPath}.pattern\` to be a string.`);
-				return undefined;
-			}
-			if (typeof value.flags !== 'undefined' && typeof value.flags !== 'string') {
-				console.warn(`[${languageId}]: language configuration: expected \`${confPath}.flags\` to be a string.`);
-				return undefined;
-			}
-			try {
-				return new RegExp(value.pattern, value.flags);
-			} catch (err) {
-				console.warn(`[${languageId}]: Invalid regular expression in \`${confPath}\`: `, err);
-				return undefined;
-			}
+	}
+	if (types.isObject(value)) {
+		if (typeof value.pattern !== 'string') {
+			console.warn(`[${languageId}]: language configuration: expected \`${confPath}.pattern\` to be a string.`);
+			return undefined;
 		}
-		console.warn(`[${languageId}]: language configuration: expected \`${confPath}\` to be a string or an object.`);
+		if (typeof value.flags !== 'undefined' && typeof value.flags !== 'string') {
+			console.warn(`[${languageId}]: language configuration: expected \`${confPath}.flags\` to be a string.`);
+			return undefined;
+		}
+		try {
+			return new RegExp(value.pattern, value.flags);
+		} catch (err) {
+			console.warn(`[${languageId}]: Invalid regular expression in \`${confPath}\`: `, err);
+			return undefined;
+		}
+	}
+	console.warn(`[${languageId}]: language configuration: expected \`${confPath}\` to be a string or an object.`);
+	return undefined;
+}
+
+    private static _mapIndentationRules(languageId: string, indentationRules: IIndentationRules): IndentationRule | undefined {
+	const increaseIndentPattern = this._parseRegex(languageId, `indentationRules.increaseIndentPattern`, indentationRules.increaseIndentPattern);
+	if (!increaseIndentPattern) {
+		return undefined;
+	}
+	const decreaseIndentPattern = this._parseRegex(languageId, `indentationRules.decreaseIndentPattern`, indentationRules.decreaseIndentPattern);
+	if (!decreaseIndentPattern) {
 		return undefined;
 	}
 
-	private static _mapIndentationRules(languageId: string, indentationRules: IIndentationRules): IndentationRule | undefined {
-		const increaseIndentPattern = this._parseRegex(languageId, `indentationRules.increaseIndentPattern`, indentationRules.increaseIndentPattern);
-		if (!increaseIndentPattern) {
-			return undefined;
-		}
-		const decreaseIndentPattern = this._parseRegex(languageId, `indentationRules.decreaseIndentPattern`, indentationRules.decreaseIndentPattern);
-		if (!decreaseIndentPattern) {
-			return undefined;
-		}
+	const result: IndentationRule = {
+		increaseIndentPattern: increaseIndentPattern,
+		decreaseIndentPattern: decreaseIndentPattern
+	};
 
-		const result: IndentationRule = {
-			increaseIndentPattern: increaseIndentPattern,
-			decreaseIndentPattern: decreaseIndentPattern
-		};
-
-		if (indentationRules.indentNextLinePattern) {
-			result.indentNextLinePattern = this._parseRegex(languageId, `indentationRules.indentNextLinePattern`, indentationRules.indentNextLinePattern);
-		}
-		if (indentationRules.unIndentedLinePattern) {
-			result.unIndentedLinePattern = this._parseRegex(languageId, `indentationRules.unIndentedLinePattern`, indentationRules.unIndentedLinePattern);
-		}
-
-		return result;
+	if (indentationRules.indentNextLinePattern) {
+		result.indentNextLinePattern = this._parseRegex(languageId, `indentationRules.indentNextLinePattern`, indentationRules.indentNextLinePattern);
 	}
+	if (indentationRules.unIndentedLinePattern) {
+		result.unIndentedLinePattern = this._parseRegex(languageId, `indentationRules.unIndentedLinePattern`, indentationRules.unIndentedLinePattern);
+	}
+
+	return result;
+}
 }
 
 const schemaId = 'vscode://schemas/language-configuration';

@@ -45,7 +45,7 @@ class AccessibleViewNextAction extends Action2 {
 			title: localize('editor.action.accessibleViewNext', "Show Next in Accessible View")
 		});
 	}
-	run(accessor: ServicesAccessor): void {
+	run(accessor: ServicesAccessor): cognidream {
 		accessor.get(IAccessibleViewService).next();
 	}
 }
@@ -71,9 +71,9 @@ class AccessibleViewNextCodeBlockAction extends Action2 {
 			title: localize('editor.action.accessibleViewNextCodeBlock', "Accessible View: Next Code Block")
 		});
 	}
-	run(accessor: ServicesAccessor): void {
+	run(accessor: ServicesAccessorcognidreamognidream {
 		accessor.get(IAccessibleViewService).navigateToCodeBlock('next');
-	}
+    }
 }
 registerAction2(AccessibleViewNextCodeBlockAction);
 
@@ -96,9 +96,9 @@ class AccessibleViewPreviousCodeBlockAction extends Action2 {
 			title: localize('editor.action.accessibleViewPreviousCodeBlock', "Accessible View: Previous Code Block")
 		});
 	}
-	run(accessor: ServicesAccessor): void {
+	run(accessor: ServicesAccessorcognidreamognidream {
 		accessor.get(IAccessibleViewService).navigateToCodeBlock('previous');
-	}
+    }
 }
 registerAction2(AccessibleViewPreviousCodeBlockAction);
 
@@ -122,9 +122,9 @@ class AccessibleViewPreviousAction extends Action2 {
 			title: localize('editor.action.accessibleViewPrevious', "Show Previous in Accessible View")
 		});
 	}
-	run(accessor: ServicesAccessor): void {
+	run(accessor: ServicesAccessorcognidreamognidream {
 		accessor.get(IAccessibleViewService).previous();
-	}
+    }
 }
 registerAction2(AccessibleViewPreviousAction);
 
@@ -150,9 +150,9 @@ class AccessibleViewGoToSymbolAction extends Action2 {
 			title: localize('editor.action.accessibleViewGoToSymbol', "Go To Symbol in Accessible View")
 		});
 	}
-	run(accessor: ServicesAccessor): void {
+	run(accessor: ServicesAccessorcognidreamognidream {
 		accessor.get(IAccessibleViewService).goToSymbol();
-	}
+    }
 }
 registerAction2(AccessibleViewGoToSymbolAction);
 
@@ -222,9 +222,9 @@ class AccessibleViewDisableHintAction extends Action2 {
 			title: localize('editor.action.accessibleViewDisableHint', "Disable Accessible View Hint")
 		});
 	}
-	run(accessor: ServicesAccessor): void {
+	run(accessor: ServicesAccessorcognidreamognidream {
 		accessor.get(IAccessibleViewService).disableHint();
-	}
+    }
 }
 registerAction2(AccessibleViewDisableHintAction);
 
@@ -249,7 +249,7 @@ class AccessibilityHelpConfigureKeybindingsAction extends Action2 {
 			title: localize('editor.action.accessibilityHelpConfigureUnassignedKeybindings', "Accessibility Help Configure Unassigned Keybindings")
 		});
 	}
-	async run(accessor: ServicesAccessor): Promise<void> {
+	async run(accessor: ServicesAccessor): Promicognidreamognidream> {
 		await accessor.get(IAccessibleViewService).configureKeybindings(true);
 	}
 }
@@ -276,7 +276,7 @@ class AccessibilityHelpConfigureAssignedKeybindingsAction extends Action2 {
 			title: localize('editor.action.accessibilityHelpConfigureAssignedKeybindings', "Accessibility Help Configure Assigned Keybindings")
 		});
 	}
-	async run(accessor: ServicesAccessor): Promise<void> {
+	async run(accessor: ServicesAccessor): Promicognidreamognidream> {
 		await accessor.get(IAccessibleViewService).configureKeybindings(false);
 	}
 }
@@ -295,9 +295,9 @@ class AccessibilityHelpOpenHelpLinkAction extends Action2 {
 			title: localize('editor.action.accessibilityHelpOpenHelpLink', "Accessibility Help Open Help Link")
 		});
 	}
-	run(accessor: ServicesAccessor): void {
+	run(accessor: ServicesAccessorcognidreamognidream {
 		accessor.get(IAccessibleViewService).openHelpLink();
-	}
+    }
 }
 registerAction2(AccessibilityHelpOpenHelpLinkAction);
 
@@ -323,21 +323,21 @@ class AccessibleViewAcceptInlineCompletionAction extends Action2 {
 			title: localize('editor.action.accessibleViewAcceptInlineCompletionAction', "Accept Inline Completion")
 		});
 	}
-	async run(accessor: ServicesAccessor): Promise<void> {
+	async run(accessor: ServicesAccessor): Promicognidreamognidream> {
 		const codeEditorService = accessor.get(ICodeEditorService);
 		const editor = codeEditorService.getActiveCodeEditor() || codeEditorService.getFocusedCodeEditor();
-		if (!editor) {
+		if(!editor) {
 			return;
 		}
-		const model = InlineCompletionsController.get(editor)?.model.get();
+        const model = InlineCompletionsController.get(editor)?.model.get();
 		const state = model?.state.get();
-		if (!model || !state) {
-			return;
-		}
-		await model.accept(editor);
-		model.stop();
-		editor.focus();
-	}
+		if(!model || !state) {
+	return;
+}
+await model.accept(editor);
+model.stop();
+editor.focus();
+    }
 }
 registerAction2(AccessibleViewAcceptInlineCompletionAction);
 

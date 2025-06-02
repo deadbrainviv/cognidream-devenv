@@ -9,22 +9,22 @@ import { IExtensionHostExitInfo } from '../../workbench/services/remote/common/r
 export const IExtensionHostStatusService = createDecorator<IExtensionHostStatusService>('extensionHostStatusService');
 
 export interface IExtensionHostStatusService {
-	readonly _serviceBrand: undefined;
+    readonly _serviceBrand: undefined;
 
-	setExitInfo(reconnectionToken: string, info: IExtensionHostExitInfo): void;
-	getExitInfo(reconnectionToken: string): IExtensionHostExitInfo | null;
+    setExitInfo(reconnectionToken: string, info: IExtensionHostExitInfo): cognidream;
+    getExitInfo(reconnectionToken: string): IExtensionHostExitInfo | null;
 }
 
 export class ExtensionHostStatusService implements IExtensionHostStatusService {
-	_serviceBrand: undefined;
+    _serviceBrand: undefined;
 
-	private readonly _exitInfo = new Map<string, IExtensionHostExitInfo>();
+    private readonly _exitInfo = new Map<string, IExtensionHostExitInfo>();
 
-	setExitInfo(reconnectionToken: string, info: IExtensionHostExitInfo): void {
-		this._exitInfo.set(reconnectionToken, info);
-	}
+    setExitInfo(reconnectionToken: string, info: IExtensionHostExitInfo): cognidream {
+        this._exitInfo.set(reconnectionToken, info);
+    }
 
-	getExitInfo(reconnectionToken: string): IExtensionHostExitInfo | null {
-		return this._exitInfo.get(reconnectionToken) || null;
-	}
+    getExitInfo(reconnectionToken: string): IExtensionHostExitInfo | null {
+        return this._exitInfo.get(reconnectionToken) || null;
+    }
 }

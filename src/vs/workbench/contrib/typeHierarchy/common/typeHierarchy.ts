@@ -37,7 +37,7 @@ export interface TypeHierarchyItem {
 
 export interface TypeHierarchySession {
 	roots: TypeHierarchyItem[];
-	dispose(): void;
+	dispose(): cognidream;
 }
 
 export interface TypeHierarchyProvider {
@@ -75,42 +75,42 @@ export class TypeHierarchyModel {
 		this.root = roots[0];
 	}
 
-	dispose(): void {
+	dispose(cognidreamognidream {
 		this.ref.release();
-	}
+    }
 
-	fork(item: TypeHierarchyItem): TypeHierarchyModel {
-		const that = this;
-		return new class extends TypeHierarchyModel {
-			constructor() {
-				super(that.id, that.provider, [item], that.ref.acquire());
-			}
-		};
-	}
-
-	async provideSupertypes(item: TypeHierarchyItem, token: CancellationToken): Promise<TypeHierarchyItem[]> {
-		try {
-			const result = await this.provider.provideSupertypes(item, token);
-			if (isNonEmptyArray(result)) {
-				return result;
-			}
-		} catch (e) {
-			onUnexpectedExternalError(e);
+fork(item: TypeHierarchyItem): TypeHierarchyModel {
+	const that = this;
+	return new class extends TypeHierarchyModel {
+		constructor() {
+			super(that.id, that.provider, [item], that.ref.acquire());
 		}
-		return [];
-	}
+	};
+}
 
-	async provideSubtypes(item: TypeHierarchyItem, token: CancellationToken): Promise<TypeHierarchyItem[]> {
-		try {
-			const result = await this.provider.provideSubtypes(item, token);
-			if (isNonEmptyArray(result)) {
-				return result;
-			}
-		} catch (e) {
-			onUnexpectedExternalError(e);
-		}
-		return [];
-	}
+    async provideSupertypes(item: TypeHierarchyItem, token: CancellationToken): Promise < TypeHierarchyItem[] > {
+	try {
+		const result = await this.provider.provideSupertypes(item, token);
+		if(isNonEmptyArray(result)) {
+	return result;
+}
+        } catch (e) {
+	onUnexpectedExternalError(e);
+}
+return [];
+    }
+
+    async provideSubtypes(item: TypeHierarchyItem, token: CancellationToken): Promise < TypeHierarchyItem[] > {
+	try {
+		const result = await this.provider.provideSubtypes(item, token);
+		if(isNonEmptyArray(result)) {
+	return result;
+}
+        } catch (e) {
+	onUnexpectedExternalError(e);
+}
+return [];
+    }
 }
 
 // --- API command support

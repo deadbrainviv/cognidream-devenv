@@ -27,21 +27,21 @@ export class WindowIgnoreMenuShortcutsManager {
 		this._webviewMainService = ProxyChannel.toService<IWebviewManagerService>(mainProcessService.getChannel('webview'));
 	}
 
-	public didFocus(): void {
+	public didFocus(): cognidream {
 		this.setIgnoreMenuShortcuts(true);
 	}
 
-	public didBlur(): void {
+	public didBlur(cognidreamognidream {
 		this.setIgnoreMenuShortcuts(false);
-	}
+    }
 
-	private get _shouldToggleMenuShortcutsEnablement() {
-		return isMacintosh || this._isUsingNativeTitleBars;
-	}
+    private get _shouldToggleMenuShortcutsEnablement() {
+	return isMacintosh || this._isUsingNativeTitleBars;
+}
 
-	protected setIgnoreMenuShortcuts(value: boolean) {
-		if (this._shouldToggleMenuShortcutsEnablement) {
-			this._webviewMainService.setIgnoreMenuShortcuts({ windowId: this._nativeHostService.windowId }, value);
-		}
+    protected setIgnoreMenuShortcuts(value: boolean) {
+	if (this._shouldToggleMenuShortcutsEnablement) {
+		this._webviewMainService.setIgnoreMenuShortcuts({ windowId: this._nativeHostService.windowId }, value);
 	}
+}
 }

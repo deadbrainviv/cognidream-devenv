@@ -21,8 +21,8 @@ export class MinimapTokensColorTracker extends Disposable {
 	private _colors!: RGBA8[];
 	private _backgroundIsLight!: boolean;
 
-	private readonly _onDidChange = new Emitter<void>();
-	public readonly onDidChange: Event<void> = this._onDidChange.event;
+	private readonly _onDidChange = new Emitter<cognidream>();
+	public readonly onDidChange: Event<cognidream> = this._onDidChange.event;
 
 	private constructor() {
 		super();
@@ -34,7 +34,7 @@ export class MinimapTokensColorTracker extends Disposable {
 		}));
 	}
 
-	private _updateColorMap(): void {
+	private _updateColorMap(): cognidream {
 		const colorMap = TokenizationRegistry.getColorMap();
 		if (!colorMap) {
 			this._colors = [RGBA8.Empty];

@@ -35,9 +35,9 @@ const ITroubleshootIssueService = createDecorator<ITroubleshootIssueService>('IT
 interface ITroubleshootIssueService {
 	_serviceBrand: undefined;
 	isActive(): boolean;
-	start(): Promise<void>;
-	resume(): Promise<void>;
-	stop(): Promise<void>;
+	start(): Promise<cognidream>;
+	resume(): Promicognidreamognidream>;
+stop(): Promicognidreamognidream >;
 }
 
 enum TroubleshootStage {
@@ -103,219 +103,219 @@ class TroubleshootIssueService extends Disposable implements ITroubleshootIssueS
 		return this.state !== undefined;
 	}
 
-	async start(): Promise<void> {
-		if (this.isActive()) {
-			throw new Error('invalid state');
-		}
+	async start(): Promicognidreamognidream> {
+		if(this.isActive()) {
+	throw new Error('invalid state');
+}
 
-		const res = await this.dialogService.confirm({
+const res = await this.dialogService.confirm({
+	message: localize('troubleshoot issue', "Troubleshoot Issue"),
+	detail: localize('detail.start', "Issue troubleshooting is a process to help you identify the cause for an issue. The cause for an issue can be a misconfiguration, due to an extension, or be {0} itself.\n\nDuring the process the window reloads repeatedly. Each time you must confirm if you are still seeing the issue.", this.productService.nameLong),
+	primaryButton: localize({ key: 'msg', comment: ['&& denotes a mnemonic'] }, "&&Troubleshoot Issue"),
+	custom: true
+});
+
+if (!res.confirmed) {
+	return;
+}
+
+const originalProfile = this.userDataProfileService.currentProfile;
+await this.userDataProfileImportExportService.createTroubleshootProfile();
+this.state = new TroubleShootState(TroubleshootStage.EXTENSIONS, originalProfile.id);
+await this.resume();
+    }
+
+    async resume(): Promicognidreamognidream > {
+	if(!this.isActive()) {
+	return;
+}
+
+if (this.state?.stage === TroubleshootStage.EXTENSIONS && !this.extensionBisectService.isActive) {
+	await this.reproduceIssueWithExtensionsDisabled();
+}
+
+if (this.state?.stage === TroubleshootStage.WORKBENCH) {
+	await this.reproduceIssueWithEmptyProfile();
+}
+
+await this.stop();
+    }
+
+    async stop(): Promicognidreamognidream > {
+	if(!this.isActive()) {
+	return;
+}
+
+if (this.notificationHandle) {
+	this.notificationHandle.close();
+	this.notificationHandle = undefined;
+}
+
+if (this.extensionBisectService.isActive) {
+	await this.extensionBisectService.reset();
+}
+
+const profile = this.userDataProfilesService.profiles.find(p => p.id === this.state?.profile) ?? this.userDataProfilesService.defaultProfile;
+this.state = undefined;
+await this.userDataProfileManagementService.switchProfile(profile);
+    }
+
+    private async reproduceIssueWithExtensionsDisabled(): Promicognidreamognidream > {
+	if(!(await this.extensionManagementService.getInstalled(ExtensionType.User)).length) {
+	this.state = new TroubleShootState(TroubleshootStage.WORKBENCH, this.state!.profile);
+	return;
+}
+
+const result = await this.askToReproduceIssue(localize('profile.extensions.disabled', "Issue troubleshooting is active and has temporarily disabled all installed extensions. Check if you can still reproduce the problem and proceed by selecting from these options."));
+if (result === 'good') {
+	const profile = this.userDataProfilesService.profiles.find(p => p.id === this.state!.profile) ?? this.userDataProfilesService.defaultProfile;
+	await this.reproduceIssueWithExtensionsBisect(profile);
+}
+if (result === 'bad') {
+	this.state = new TroubleShootState(TroubleshootStage.WORKBENCH, this.state!.profile);
+}
+if (result === 'stop') {
+	await this.stop();
+}
+    }
+
+    private async reproduceIssueWithEmptyProfile(): Promicognidreamognidream > {
+	await this.userDataProfileManagementService.createAndEnterTransientProfile();
+	this.updateState(this.state);
+	const result = await this.askToReproduceIssue(localize('empty.profile', "Issue troubleshooting is active and has temporarily reset your configurations to defaults. Check if you can still reproduce the problem and proceed by selecting from these options."));
+	if(result === 'stop') {
+	await this.stop();
+}
+if (result === 'good') {
+	await this.askToReportIssue(localize('issue is with configuration', "Issue troubleshooting has identified that the issue is caused by your configurations. Please report the issue by exporting your configurations using \"Export Profile\" command and share the file in the issue report."));
+}
+if (result === 'bad') {
+	await this.askToReportIssue(localize('issue is in core', "Issue troubleshooting has identified that the issue is with {0}.", this.productService.nameLong));
+}
+    }
+
+    private async reproduceIssueWithExtensionsBisect(profile: IUserDataProfile): Promicognidreamognidream > {
+	await this.userDataProfileManagementService.switchProfile(profile);
+	const extensions = (await this.extensionManagementService.getInstalled(ExtensionType.User)).filter(ext => this.extensionEnablementService.isEnabled(ext));
+	await this.extensionBisectService.start(extensions);
+	await this.hostService.reload();
+}
+
+    private askToReproduceIssue(message: string): Promise < TroubleShootResult > {
+	return new Promise((c, e) => {
+		const goodPrompt: IPromptChoice = {
+			label: localize('I cannot reproduce', "I Can't Reproduce"),
+			run: () => c('good')
+		};
+		const badPrompt: IPromptChoice = {
+			label: localize('This is Bad', "I Can Reproduce"),
+			run: () => c('bad')
+		};
+		const stop: IPromptChoice = {
+			label: localize('Stop', "Stop"),
+			run: () => c('stop')
+		};
+		this.notificationHandle = this.notificationService.prompt(
+			Severity.Info,
+			message,
+			[goodPrompt, badPrompt, stop],
+			{ sticky: true, priority: NotificationPriority.URGENT }
+		);
+	});
+}
+
+    private async askToReportIssue(message: string): Promicognidreamognidream > {
+	let isCheckedInInsiders = false;
+	if(this.productService.quality === 'stable') {
+	const res = await this.askToReproduceIssueWithInsiders();
+	if (res === 'good') {
+		await this.dialogService.prompt({
+			type: Severity.Info,
 			message: localize('troubleshoot issue', "Troubleshoot Issue"),
-			detail: localize('detail.start', "Issue troubleshooting is a process to help you identify the cause for an issue. The cause for an issue can be a misconfiguration, due to an extension, or be {0} itself.\n\nDuring the process the window reloads repeatedly. Each time you must confirm if you are still seeing the issue.", this.productService.nameLong),
-			primaryButton: localize({ key: 'msg', comment: ['&& denotes a mnemonic'] }, "&&Troubleshoot Issue"),
+			detail: localize('use insiders', "This likely means that the issue has been addressed already and will be available in an upcoming release. You can safely use {0} insiders until the new stable version is available.", this.productService.nameLong),
 			custom: true
 		});
-
-		if (!res.confirmed) {
-			return;
-		}
-
-		const originalProfile = this.userDataProfileService.currentProfile;
-		await this.userDataProfileImportExportService.createTroubleshootProfile();
-		this.state = new TroubleShootState(TroubleshootStage.EXTENSIONS, originalProfile.id);
-		await this.resume();
+		return;
 	}
-
-	async resume(): Promise<void> {
-		if (!this.isActive()) {
-			return;
-		}
-
-		if (this.state?.stage === TroubleshootStage.EXTENSIONS && !this.extensionBisectService.isActive) {
-			await this.reproduceIssueWithExtensionsDisabled();
-		}
-
-		if (this.state?.stage === TroubleshootStage.WORKBENCH) {
-			await this.reproduceIssueWithEmptyProfile();
-		}
-
+	if (res === 'stop') {
 		await this.stop();
+		return;
 	}
-
-	async stop(): Promise<void> {
-		if (!this.isActive()) {
-			return;
-		}
-
-		if (this.notificationHandle) {
-			this.notificationHandle.close();
-			this.notificationHandle = undefined;
-		}
-
-		if (this.extensionBisectService.isActive) {
-			await this.extensionBisectService.reset();
-		}
-
-		const profile = this.userDataProfilesService.profiles.find(p => p.id === this.state?.profile) ?? this.userDataProfilesService.defaultProfile;
-		this.state = undefined;
-		await this.userDataProfileManagementService.switchProfile(profile);
+	if (res === 'bad') {
+		isCheckedInInsiders = true;
 	}
+}
 
-	private async reproduceIssueWithExtensionsDisabled(): Promise<void> {
-		if (!(await this.extensionManagementService.getInstalled(ExtensionType.User)).length) {
-			this.state = new TroubleShootState(TroubleshootStage.WORKBENCH, this.state!.profile);
-			return;
-		}
+await this.issueService.openReporter({
+	issueBody: `> ${message} ${isCheckedInInsiders ? `It is confirmed that the issue exists in ${this.productService.nameLong} Insiders` : ''}`,
+});
+    }
 
-		const result = await this.askToReproduceIssue(localize('profile.extensions.disabled', "Issue troubleshooting is active and has temporarily disabled all installed extensions. Check if you can still reproduce the problem and proceed by selecting from these options."));
-		if (result === 'good') {
-			const profile = this.userDataProfilesService.profiles.find(p => p.id === this.state!.profile) ?? this.userDataProfilesService.defaultProfile;
-			await this.reproduceIssueWithExtensionsBisect(profile);
+    private async askToReproduceIssueWithInsiders(): Promise < TroubleShootResult | undefined > {
+	const confirmRes = await this.dialogService.confirm({
+		type: 'info',
+		message: localize('troubleshoot issue', "Troubleshoot Issue"),
+		primaryButton: localize('download insiders', "Download {0} Insiders", this.productService.nameLong),
+		cancelButton: localize('report anyway', "Report Issue Anyway"),
+		detail: localize('ask to download insiders', "Please try to download and reproduce the issue in {0} insiders.", this.productService.nameLong),
+		custom: {
+			disableCloseAction: true,
 		}
-		if (result === 'bad') {
-			this.state = new TroubleShootState(TroubleshootStage.WORKBENCH, this.state!.profile);
-		}
-		if (result === 'stop') {
-			await this.stop();
-		}
+	});
+
+	if(!confirmRes.confirmed) {
+	return undefined;
+}
+
+const opened = await this.openerService.open(URI.parse('https://aka.ms/vscode-insiders'));
+if (!opened) {
+	return undefined;
+}
+
+const res = await this.dialogService.prompt<TroubleShootResult>({
+	type: 'info',
+	message: localize('troubleshoot issue', "Troubleshoot Issue"),
+	buttons: [{
+		label: localize('good', "I can't reproduce"),
+		run: () => 'good'
+	}, {
+		label: localize('bad', "I can reproduce"),
+		run: () => 'bad'
+	}],
+	cancelButton: {
+		label: localize('stop', "Stop"),
+		run: () => 'stop'
+	},
+	detail: localize('ask to reproduce issue', "Please try to reproduce the issue in {0} insiders and confirm if the issue exists there.", this.productService.nameLong),
+	custom: {
+		disableCloseAction: true,
 	}
+});
 
-	private async reproduceIssueWithEmptyProfile(): Promise<void> {
-		await this.userDataProfileManagementService.createAndEnterTransientProfile();
-		this.updateState(this.state);
-		const result = await this.askToReproduceIssue(localize('empty.profile', "Issue troubleshooting is active and has temporarily reset your configurations to defaults. Check if you can still reproduce the problem and proceed by selecting from these options."));
-		if (result === 'stop') {
-			await this.stop();
-		}
-		if (result === 'good') {
-			await this.askToReportIssue(localize('issue is with configuration', "Issue troubleshooting has identified that the issue is caused by your configurations. Please report the issue by exporting your configurations using \"Export Profile\" command and share the file in the issue report."));
-		}
-		if (result === 'bad') {
-			await this.askToReportIssue(localize('issue is in core', "Issue troubleshooting has identified that the issue is with {0}.", this.productService.nameLong));
-		}
+return res.result;
+    }
+
+    private _state: TroubleShootState | undefined | null;
+    get state(): TroubleShootState | undefined {
+	if (this._state === undefined) {
+		const raw = this.storageService.get(TroubleshootIssueService.storageKey, StorageScope.PROFILE);
+		this._state = TroubleShootState.fromJSON(raw);
 	}
+	return this._state || undefined;
+}
 
-	private async reproduceIssueWithExtensionsBisect(profile: IUserDataProfile): Promise<void> {
-		await this.userDataProfileManagementService.switchProfile(profile);
-		const extensions = (await this.extensionManagementService.getInstalled(ExtensionType.User)).filter(ext => this.extensionEnablementService.isEnabled(ext));
-		await this.extensionBisectService.start(extensions);
-		await this.hostService.reload();
+    set state(state: TroubleShootState | undefined) {
+	this._state = state ?? null;
+	this.updateState(state);
+}
+
+    private updateState(state: TroubleShootState | undefined) {
+	if (state) {
+		this.storageService.store(TroubleshootIssueService.storageKey, JSON.stringify(state), StorageScope.PROFILE, StorageTarget.MACHINE);
+	} else {
+		this.storageService.remove(TroubleshootIssueService.storageKey, StorageScope.PROFILE);
 	}
-
-	private askToReproduceIssue(message: string): Promise<TroubleShootResult> {
-		return new Promise((c, e) => {
-			const goodPrompt: IPromptChoice = {
-				label: localize('I cannot reproduce', "I Can't Reproduce"),
-				run: () => c('good')
-			};
-			const badPrompt: IPromptChoice = {
-				label: localize('This is Bad', "I Can Reproduce"),
-				run: () => c('bad')
-			};
-			const stop: IPromptChoice = {
-				label: localize('Stop', "Stop"),
-				run: () => c('stop')
-			};
-			this.notificationHandle = this.notificationService.prompt(
-				Severity.Info,
-				message,
-				[goodPrompt, badPrompt, stop],
-				{ sticky: true, priority: NotificationPriority.URGENT }
-			);
-		});
-	}
-
-	private async askToReportIssue(message: string): Promise<void> {
-		let isCheckedInInsiders = false;
-		if (this.productService.quality === 'stable') {
-			const res = await this.askToReproduceIssueWithInsiders();
-			if (res === 'good') {
-				await this.dialogService.prompt({
-					type: Severity.Info,
-					message: localize('troubleshoot issue', "Troubleshoot Issue"),
-					detail: localize('use insiders', "This likely means that the issue has been addressed already and will be available in an upcoming release. You can safely use {0} insiders until the new stable version is available.", this.productService.nameLong),
-					custom: true
-				});
-				return;
-			}
-			if (res === 'stop') {
-				await this.stop();
-				return;
-			}
-			if (res === 'bad') {
-				isCheckedInInsiders = true;
-			}
-		}
-
-		await this.issueService.openReporter({
-			issueBody: `> ${message} ${isCheckedInInsiders ? `It is confirmed that the issue exists in ${this.productService.nameLong} Insiders` : ''}`,
-		});
-	}
-
-	private async askToReproduceIssueWithInsiders(): Promise<TroubleShootResult | undefined> {
-		const confirmRes = await this.dialogService.confirm({
-			type: 'info',
-			message: localize('troubleshoot issue', "Troubleshoot Issue"),
-			primaryButton: localize('download insiders', "Download {0} Insiders", this.productService.nameLong),
-			cancelButton: localize('report anyway', "Report Issue Anyway"),
-			detail: localize('ask to download insiders', "Please try to download and reproduce the issue in {0} insiders.", this.productService.nameLong),
-			custom: {
-				disableCloseAction: true,
-			}
-		});
-
-		if (!confirmRes.confirmed) {
-			return undefined;
-		}
-
-		const opened = await this.openerService.open(URI.parse('https://aka.ms/vscode-insiders'));
-		if (!opened) {
-			return undefined;
-		}
-
-		const res = await this.dialogService.prompt<TroubleShootResult>({
-			type: 'info',
-			message: localize('troubleshoot issue', "Troubleshoot Issue"),
-			buttons: [{
-				label: localize('good', "I can't reproduce"),
-				run: () => 'good'
-			}, {
-				label: localize('bad', "I can reproduce"),
-				run: () => 'bad'
-			}],
-			cancelButton: {
-				label: localize('stop', "Stop"),
-				run: () => 'stop'
-			},
-			detail: localize('ask to reproduce issue', "Please try to reproduce the issue in {0} insiders and confirm if the issue exists there.", this.productService.nameLong),
-			custom: {
-				disableCloseAction: true,
-			}
-		});
-
-		return res.result;
-	}
-
-	private _state: TroubleShootState | undefined | null;
-	get state(): TroubleShootState | undefined {
-		if (this._state === undefined) {
-			const raw = this.storageService.get(TroubleshootIssueService.storageKey, StorageScope.PROFILE);
-			this._state = TroubleShootState.fromJSON(raw);
-		}
-		return this._state || undefined;
-	}
-
-	set state(state: TroubleShootState | undefined) {
-		this._state = state ?? null;
-		this.updateState(state);
-	}
-
-	private updateState(state: TroubleShootState | undefined) {
-		if (state) {
-			this.storageService.store(TroubleshootIssueService.storageKey, JSON.stringify(state), StorageScope.PROFILE, StorageTarget.MACHINE);
-		} else {
-			this.storageService.remove(TroubleshootIssueService.storageKey, StorageScope.PROFILE);
-		}
-	}
+}
 }
 
 class IssueTroubleshootUi extends Disposable {
@@ -337,9 +337,9 @@ class IssueTroubleshootUi extends Disposable {
 		}));
 	}
 
-	private updateContext(): void {
+	private updateContext(cognidreamognidream {
 		IssueTroubleshootUi.ctxIsTroubleshootActive.bindTo(this.contextKeyService).set(this.troubleshootIssueService.isActive());
-	}
+    }
 
 }
 
@@ -355,9 +355,9 @@ registerAction2(class TroubleshootIssueAction extends Action2 {
 			precondition: ContextKeyExpr.and(IssueTroubleshootUi.ctxIsTroubleshootActive.negate(), RemoteNameContext.isEqualTo(''), IsWebContext.negate()),
 		});
 	}
-	run(accessor: ServicesAccessor): Promise<void> {
-		return accessor.get(ITroubleshootIssueService).start();
-	}
+	run(accessor: ServicesAccessor): Promicognidreamognidream> {
+	return accessor.get(ITroubleshootIssueService).start();
+}
 });
 
 registerAction2(class extends Action2 {
@@ -371,9 +371,9 @@ registerAction2(class extends Action2 {
 		});
 	}
 
-	async run(accessor: ServicesAccessor): Promise<void> {
-		return accessor.get(ITroubleshootIssueService).stop();
-	}
+	async run(accessor: ServicesAccessor): Promicognidreamognidream> {
+	return accessor.get(ITroubleshootIssueService).stop();
+}
 });
 
 

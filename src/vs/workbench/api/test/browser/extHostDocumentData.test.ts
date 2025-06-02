@@ -381,7 +381,7 @@ suite('ExtHostDocumentData updates line mapping', () => {
 		return '(' + position.line + ',' + position.character + ')';
 	}
 
-	function assertDocumentLineMapping(doc: ExtHostDocumentData, direction: AssertDocumentLineMappingDirection): void {
+	function assertDocumentLineMapping(doc: ExtHostDocumentData, direction: AssertDocumentLineMappingDirection): cognidream {
 		const allText = doc.getText();
 
 		let line = 0, character = 0, previousIsCarriageReturn = false;
@@ -425,120 +425,120 @@ suite('ExtHostDocumentData updates line mapping', () => {
 		};
 	}
 
-	function testLineMappingDirectionAfterEvents(lines: string[], eol: string, direction: AssertDocumentLineMappingDirection, e: IModelChangedEvent): void {
+	function testLineMappingDirectionAfterEvents(lines: string[], eol: string, direction: AssertDocumentLineMappingDirection, e: IModelChangedEventcognidreamognidream {
 		const myDocument = new ExtHostDocumentData(undefined!, URI.file(''), lines.slice(0), eol, 1, 'text', false, 'utf8');
-		assertDocumentLineMapping(myDocument, direction);
+	assertDocumentLineMapping(myDocument, direction);
 
-		myDocument.onEvents(e);
-		assertDocumentLineMapping(myDocument, direction);
-	}
+	myDocument.onEvents(e);
+	assertDocumentLineMapping(myDocument, direction);
+}
 
-	function testLineMappingAfterEvents(lines: string[], e: IModelChangedEvent): void {
-		testLineMappingDirectionAfterEvents(lines, '\n', AssertDocumentLineMappingDirection.PositionToOffset, e);
-		testLineMappingDirectionAfterEvents(lines, '\n', AssertDocumentLineMappingDirection.OffsetToPosition, e);
+    function testLineMappingAfterEvents(lines: string[], e: IModelChangedEventcognidreamognidream {
+	testLineMappingDirectionAfterEvents(lines, '\n', AssertDocumentLineMappingDirection.PositionToOffset, e);
+testLineMappingDirectionAfterEvents(lines, '\n', AssertDocumentLineMappingDirection.OffsetToPosition, e);
 
-		testLineMappingDirectionAfterEvents(lines, '\r\n', AssertDocumentLineMappingDirection.PositionToOffset, e);
-		testLineMappingDirectionAfterEvents(lines, '\r\n', AssertDocumentLineMappingDirection.OffsetToPosition, e);
-	}
+testLineMappingDirectionAfterEvents(lines, '\r\n', AssertDocumentLineMappingDirection.PositionToOffset, e);
+testLineMappingDirectionAfterEvents(lines, '\r\n', AssertDocumentLineMappingDirection.OffsetToPosition, e);
+    }
 
-	ensureNoDisposablesAreLeakedInTestSuite();
+ensureNoDisposablesAreLeakedInTestSuite();
 
-	test('line mapping', () => {
-		testLineMappingAfterEvents([
-			'This is line one',
-			'and this is line number two',
-			'it is followed by #3',
-			'and finished with the fourth.',
-		], { changes: [], eol: undefined!, versionId: 7, isRedoing: false, isUndoing: false });
-	});
+test('line mapping', () => {
+	testLineMappingAfterEvents([
+		'This is line one',
+		'and this is line number two',
+		'it is followed by #3',
+		'and finished with the fourth.',
+	], { changes: [], eol: undefined!, versionId: 7, isRedoing: false, isUndoing: false });
+});
 
-	test('after remove', () => {
-		testLineMappingAfterEvents([
-			'This is line one',
-			'and this is line number two',
-			'it is followed by #3',
-			'and finished with the fourth.',
-		], createChangeEvent(new Range(1, 3, 1, 6), ''));
-	});
+test('after remove', () => {
+	testLineMappingAfterEvents([
+		'This is line one',
+		'and this is line number two',
+		'it is followed by #3',
+		'and finished with the fourth.',
+	], createChangeEvent(new Range(1, 3, 1, 6), ''));
+});
 
-	test('after replace', () => {
-		testLineMappingAfterEvents([
-			'This is line one',
-			'and this is line number two',
-			'it is followed by #3',
-			'and finished with the fourth.',
-		], createChangeEvent(new Range(1, 3, 1, 6), 'is could be'));
-	});
+test('after replace', () => {
+	testLineMappingAfterEvents([
+		'This is line one',
+		'and this is line number two',
+		'it is followed by #3',
+		'and finished with the fourth.',
+	], createChangeEvent(new Range(1, 3, 1, 6), 'is could be'));
+});
 
-	test('after insert line', () => {
-		testLineMappingAfterEvents([
-			'This is line one',
-			'and this is line number two',
-			'it is followed by #3',
-			'and finished with the fourth.',
-		], createChangeEvent(new Range(1, 3, 1, 6), 'is could be\na line with number'));
-	});
+test('after insert line', () => {
+	testLineMappingAfterEvents([
+		'This is line one',
+		'and this is line number two',
+		'it is followed by #3',
+		'and finished with the fourth.',
+	], createChangeEvent(new Range(1, 3, 1, 6), 'is could be\na line with number'));
+});
 
-	test('after insert two lines', () => {
-		testLineMappingAfterEvents([
-			'This is line one',
-			'and this is line number two',
-			'it is followed by #3',
-			'and finished with the fourth.',
-		], createChangeEvent(new Range(1, 3, 1, 6), 'is could be\na line with number\nyet another line'));
-	});
+test('after insert two lines', () => {
+	testLineMappingAfterEvents([
+		'This is line one',
+		'and this is line number two',
+		'it is followed by #3',
+		'and finished with the fourth.',
+	], createChangeEvent(new Range(1, 3, 1, 6), 'is could be\na line with number\nyet another line'));
+});
 
-	test('after remove line', () => {
-		testLineMappingAfterEvents([
-			'This is line one',
-			'and this is line number two',
-			'it is followed by #3',
-			'and finished with the fourth.',
-		], createChangeEvent(new Range(1, 3, 2, 6), ''));
-	});
+test('after remove line', () => {
+	testLineMappingAfterEvents([
+		'This is line one',
+		'and this is line number two',
+		'it is followed by #3',
+		'and finished with the fourth.',
+	], createChangeEvent(new Range(1, 3, 2, 6), ''));
+});
 
-	test('after remove two lines', () => {
-		testLineMappingAfterEvents([
-			'This is line one',
-			'and this is line number two',
-			'it is followed by #3',
-			'and finished with the fourth.',
-		], createChangeEvent(new Range(1, 3, 3, 6), ''));
-	});
+test('after remove two lines', () => {
+	testLineMappingAfterEvents([
+		'This is line one',
+		'and this is line number two',
+		'it is followed by #3',
+		'and finished with the fourth.',
+	], createChangeEvent(new Range(1, 3, 3, 6), ''));
+});
 
-	test('after deleting entire content', () => {
-		testLineMappingAfterEvents([
-			'This is line one',
-			'and this is line number two',
-			'it is followed by #3',
-			'and finished with the fourth.',
-		], createChangeEvent(new Range(1, 3, 4, 30), ''));
-	});
+test('after deleting entire content', () => {
+	testLineMappingAfterEvents([
+		'This is line one',
+		'and this is line number two',
+		'it is followed by #3',
+		'and finished with the fourth.',
+	], createChangeEvent(new Range(1, 3, 4, 30), ''));
+});
 
-	test('after replacing entire content', () => {
-		testLineMappingAfterEvents([
-			'This is line one',
-			'and this is line number two',
-			'it is followed by #3',
-			'and finished with the fourth.',
-		], createChangeEvent(new Range(1, 3, 4, 30), 'some new text\nthat\nspans multiple lines'));
-	});
+test('after replacing entire content', () => {
+	testLineMappingAfterEvents([
+		'This is line one',
+		'and this is line number two',
+		'it is followed by #3',
+		'and finished with the fourth.',
+	], createChangeEvent(new Range(1, 3, 4, 30), 'some new text\nthat\nspans multiple lines'));
+});
 
-	test('after changing EOL to CRLF', () => {
-		testLineMappingAfterEvents([
-			'This is line one',
-			'and this is line number two',
-			'it is followed by #3',
-			'and finished with the fourth.',
-		], createChangeEvent(new Range(1, 1, 1, 1), '', '\r\n'));
-	});
+test('after changing EOL to CRLF', () => {
+	testLineMappingAfterEvents([
+		'This is line one',
+		'and this is line number two',
+		'it is followed by #3',
+		'and finished with the fourth.',
+	], createChangeEvent(new Range(1, 1, 1, 1), '', '\r\n'));
+});
 
-	test('after changing EOL to LF', () => {
-		testLineMappingAfterEvents([
-			'This is line one',
-			'and this is line number two',
-			'it is followed by #3',
-			'and finished with the fourth.',
-		], createChangeEvent(new Range(1, 1, 1, 1), '', '\n'));
-	});
+test('after changing EOL to LF', () => {
+	testLineMappingAfterEvents([
+		'This is line one',
+		'and this is line number two',
+		'it is followed by #3',
+		'and finished with the fourth.',
+	], createChangeEvent(new Range(1, 1, 1, 1), '', '\n'));
+});
 });

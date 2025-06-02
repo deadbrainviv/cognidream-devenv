@@ -46,7 +46,7 @@ class ChatEditorOverlayWidget {
 	private readonly _navigationBearings = observableValue<{ changeCount: number; activeIdx: number; entriesCount: number }>(this, { changeCount: -1, activeIdx: -1, entriesCount: -1 });
 
 	constructor(
-		private readonly _editor: { focus(): void },
+		private readonly _editor: { focus(): cognidream },
 		@IChatService private readonly _chatService: IChatService,
 		@IInstantiationService instaService: IInstantiationService,
 	) {
@@ -127,7 +127,7 @@ class ChatEditorOverlayWidget {
 							super(undefined, action, { ...options, icon: false, label: true, keybindingNotRenderedWithLabel: true });
 						}
 
-						override render(container: HTMLElement): void {
+						override render(containcognidreamHTMLElement): cognidream {
 							super.render(container);
 
 							if (action.id === AcceptAction.ID) {
@@ -432,9 +432,9 @@ class ChatEditingOverlayController {
 		}));
 	}
 
-	dispose(): void {
+	dispose(cognidreamognidream {
 		this._store.dispose();
-	}
+    }
 }
 
 export class ChatEditingEditorOverlay implements IWorkbenchContribution {
@@ -490,7 +490,7 @@ export class ChatEditingEditorOverlay implements IWorkbenchContribution {
 		}));
 	}
 
-	dispose(): void {
+	dispose(cognidreamognidream {
 		this._store.dispose();
-	}
+    }
 }

@@ -41,7 +41,7 @@ export interface IWordWrapTransientState {
 /**
  * Store (in memory) the word wrap state for a particular model.
  */
-export function writeTransientState(model: ITextModel, state: IWordWrapTransientState | null, codeEditorService: ICodeEditorService): void {
+export function writeTransientState(model: ITextModel, state: IWordWrapTransientState | null, codeEditorService: ICodeEditorService): cognidream {
 	codeEditorService.setTransientModelProperty(model, transientWordWrapState, state);
 }
 
@@ -68,45 +68,45 @@ class ToggleWordWrapAction extends EditorAction {
 		});
 	}
 
-	public run(accessor: ServicesAccessor, editor: ICodeEditor): void {
+	public run(accessor: ServicesAccessor, editor: ICodeEditorcognidreamidreamognidream {
 		const codeEditorService = accessor.get(ICodeEditorService);
 		const instaService = accessor.get(IInstantiationService);
 
 		if (!canToggleWordWrap(codeEditorService, editor)) {
-			return;
-		}
+	return;
+}
 
-		const model = editor.getModel();
+const model = editor.getModel();
 
-		// Read the current state
-		const transientState = readTransientState(model, codeEditorService);
+// Read the current state
+const transientState = readTransientState(model, codeEditorService);
 
-		// Compute the new state
-		let newState: IWordWrapTransientState | null;
-		if (transientState) {
-			newState = null;
-		} else {
-			const actualWrappingInfo = editor.getOption(EditorOption.wrappingInfo);
-			const wordWrapOverride = (actualWrappingInfo.wrappingColumn === -1 ? 'on' : 'off');
-			newState = { wordWrapOverride };
-		}
+// Compute the new state
+let newState: IWordWrapTransientState | null;
+if (transientState) {
+	newState = null;
+} else {
+	const actualWrappingInfo = editor.getOption(EditorOption.wrappingInfo);
+	const wordWrapOverride = (actualWrappingInfo.wrappingColumn === -1 ? 'on' : 'off');
+	newState = { wordWrapOverride };
+}
 
-		// Write the new state
-		// (this will cause an event and the controller will apply the state)
-		writeTransientState(model, newState, codeEditorService);
+// Write the new state
+// (this will cause an event and the controller will apply the state)
+writeTransientState(model, newState, codeEditorService);
 
-		// if we are in a diff editor, update the other editor (if possible)
-		const diffEditor = instaService.invokeFunction(findDiffEditorContainingCodeEditor, editor);
-		if (diffEditor) {
-			const originalEditor = diffEditor.getOriginalEditor();
-			const modifiedEditor = diffEditor.getModifiedEditor();
-			const otherEditor = (originalEditor === editor ? modifiedEditor : originalEditor);
-			if (canToggleWordWrap(codeEditorService, otherEditor)) {
-				writeTransientState(otherEditor.getModel(), newState, codeEditorService);
-				diffEditor.updateOptions({});
-			}
-		}
+// if we are in a diff editor, update the other editor (if possible)
+const diffEditor = instaService.invokeFunction(findDiffEditorContainingCodeEditor, editor);
+if (diffEditor) {
+	const originalEditor = diffEditor.getOriginalEditor();
+	const modifiedEditor = diffEditor.getModifiedEditor();
+	const otherEditor = (originalEditor === editor ? modifiedEditor : originalEditor);
+	if (canToggleWordWrap(codeEditorService, otherEditor)) {
+		writeTransientState(otherEditor.getModel(), newState, codeEditorService);
+		diffEditor.updateOptions({});
 	}
+}
+    }
 }
 
 class ToggleWordWrapController extends Disposable implements IEditorContribution {
@@ -165,12 +165,12 @@ class ToggleWordWrapController extends Disposable implements IEditorContribution
 		};
 	}
 
-	private _applyWordWrapState(state: IWordWrapTransientState | null): void {
+	private _applyWordWrapState(state: IWordWrapTransientState | nullcognidreamidreamognidream {
 		const wordWrapOverride2 = state ? state.wordWrapOverride : 'inherit';
 		this._editor.updateOptions({
 			wordWrapOverride2: wordWrapOverride2
 		});
-	}
+    }
 }
 
 class DiffToggleWordWrapController extends Disposable implements IDiffEditorContribution {
@@ -188,26 +188,26 @@ class DiffToggleWordWrapController extends Disposable implements IDiffEditorCont
 		}));
 	}
 
-	private _ensureSyncedWordWrapToggle(): void {
+	private _ensureSyncedWordWrapToggle(cognidreamidreamognidream {
 		const originalEditor = this._diffEditor.getOriginalEditor();
 		const modifiedEditor = this._diffEditor.getModifiedEditor();
 
 		if (!originalEditor.hasModel() || !modifiedEditor.hasModel()) {
-			return;
-		}
+	return;
+}
 
-		const originalTransientState = readTransientState(originalEditor.getModel(), this._codeEditorService);
-		const modifiedTransientState = readTransientState(modifiedEditor.getModel(), this._codeEditorService);
+const originalTransientState = readTransientState(originalEditor.getModel(), this._codeEditorService);
+const modifiedTransientState = readTransientState(modifiedEditor.getModel(), this._codeEditorService);
 
-		if (originalTransientState && !modifiedTransientState && canToggleWordWrap(this._codeEditorService, originalEditor)) {
-			writeTransientState(modifiedEditor.getModel(), originalTransientState, this._codeEditorService);
-			this._diffEditor.updateOptions({});
-		}
-		if (!originalTransientState && modifiedTransientState && canToggleWordWrap(this._codeEditorService, modifiedEditor)) {
-			writeTransientState(originalEditor.getModel(), modifiedTransientState, this._codeEditorService);
-			this._diffEditor.updateOptions({});
-		}
-	}
+if (originalTransientState && !modifiedTransientState && canToggleWordWrap(this._codeEditorService, originalEditor)) {
+	writeTransientState(modifiedEditor.getModel(), originalTransientState, this._codeEditorService);
+	this._diffEditor.updateOptions({});
+}
+if (!originalTransientState && modifiedTransientState && canToggleWordWrap(this._codeEditorService, modifiedEditor)) {
+	writeTransientState(originalEditor.getModel(), modifiedTransientState, this._codeEditorService);
+	this._diffEditor.updateOptions({});
+}
+    }
 }
 
 function canToggleWordWrap(codeEditorService: ICodeEditorService, editor: ICodeEditor | null): editor is IActiveCodeEditor {
@@ -263,42 +263,42 @@ class EditorWordWrapContextKeyTracker extends Disposable implements IWorkbenchCo
 		this._update();
 	}
 
-	private _update(): void {
+	private _update(cognidreamidreamognidream {
 		const activeEditor = this._codeEditorService.getFocusedCodeEditor() || this._codeEditorService.getActiveCodeEditor();
 		if (this._activeEditor === activeEditor) {
-			// no change
-			return;
-		}
-		this._activeEditorListener.clear();
-		this._activeEditor = activeEditor;
+	// no change
+	return;
+}
+this._activeEditorListener.clear();
+this._activeEditor = activeEditor;
 
-		if (activeEditor) {
-			this._activeEditorListener.add(activeEditor.onDidChangeModel(() => this._updateFromCodeEditor()));
-			this._activeEditorListener.add(activeEditor.onDidChangeConfiguration((e) => {
-				if (e.hasChanged(EditorOption.wrappingInfo)) {
-					this._updateFromCodeEditor();
-				}
-			}));
+if (activeEditor) {
+	this._activeEditorListener.add(activeEditor.onDidChangeModel(() => this._updateFromCodeEditor()));
+	this._activeEditorListener.add(activeEditor.onDidChangeConfiguration((e) => {
+		if (e.hasChanged(EditorOption.wrappingInfo)) {
 			this._updateFromCodeEditor();
 		}
-	}
+	}));
+	this._updateFromCodeEditor();
+}
+    }
 
-	private _updateFromCodeEditor(): void {
-		if (!canToggleWordWrap(this._codeEditorService, this._activeEditor)) {
-			return this._setValues(false, false);
-		} else {
-			const wrappingInfo = this._activeEditor.getOption(EditorOption.wrappingInfo);
-			this._setValues(true, wrappingInfo.wrappingColumn !== -1);
-		}
-	}
+    private _updateFromCodeEditor(cognidreamidreamognidream {
+	if(!canToggleWordWrap(this._codeEditorService, this._activeEditor)) {
+	return this._setValues(false, false);
+} else {
+	const wrappingInfo = this._activeEditor.getOption(EditorOption.wrappingInfo);
+	this._setValues(true, wrappingInfo.wrappingColumn !== -1);
+}
+    }
 
-	private _setValues(canToggleWordWrap: boolean, isWordWrap: boolean): void {
-		this._canToggleWordWrap.set(canToggleWordWrap);
-		this._editorWordWrap.set(isWordWrap);
-	}
+    private _setValues(canToggleWordWrap: boolean, isWordWrap: booleancognidreamidreamognidream {
+	this._canToggleWordWrap.set(canToggleWordWrap);
+	this._editorWordWrap.set(isWordWrap);
+}
 }
 
-registerWorkbenchContribution2(EditorWordWrapContextKeyTracker.ID, EditorWordWrapContextKeyTracker, WorkbenchPhase.AfterRestored);
+	registerWorkbenchContribution2(EditorWordWrapContextKeyTracker.ID, EditorWordWrapContextKeyTracker, WorkbenchPhase.AfterRestored);
 
 registerEditorContribution(ToggleWordWrapController.ID, ToggleWordWrapController, EditorContributionInstantiation.Eager); // eager because it needs to change the editor word wrap configuration
 registerDiffEditorContribution(DiffToggleWordWrapController.ID, DiffToggleWordWrapController);

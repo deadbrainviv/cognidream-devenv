@@ -12,33 +12,33 @@ import { IChatEditingService } from '../../common/chatEditingService.js';
 
 export class ChatEditingEditorAccessibility implements IWorkbenchContribution {
 
-	static readonly ID = 'chat.edits.accessibilty';
+    static readonly ID = 'chat.edits.accessibilty';
 
-	private readonly _store = new DisposableStore();
+    private readonly _store = new DisposableStore();
 
-	constructor(
-		@IChatEditingService chatEditingService: IChatEditingService,
-		@IEditorService editorService: IEditorService,
-		@IAccessibilitySignalService accessibilityService: IAccessibilitySignalService
-	) {
+    constructor(
+        @IChatEditingService chatEditingService: IChatEditingService,
+        @IEditorService editorService: IEditorService,
+        @IAccessibilitySignalService accessibilityService: IAccessibilitySignalService
+    ) {
 
-		const activeUri = observableFromEvent(this, editorService.onDidActiveEditorChange, () => editorService.activeEditorPane?.input.resource);
+        const activeUri = observableFromEvent(this, editorService.onDidActiveEditorChange, () => editorService.activeEditorPane?.input.resource);
 
-		this._store.add(autorun(r => {
+        this._store.add(autorun(r => {
 
-			const editor = activeUri.read(r);
-			if (!editor) {
-				return;
-			}
+            const editor = activeUri.read(r);
+            if (!editor) {
+                return;
+            }
 
-			const entry = chatEditingService.editingSessionsObs.read(r).find(session => session.readEntry(editor, r));
-			if (entry) {
-				accessibilityService.playSignal(AccessibilitySignal.chatEditModifiedFile);
-			}
-		}));
-	}
+            const entry = chatEditingService.editingSessionsObs.read(r).find(session => session.readEntry(editor, r));
+            if (entry) {
+                accessibilityService.playSignal(AccessibilitySignal.chatEditModifiedFile);
+            }
+        }));
+    }
 
-	dispose(): void {
-		this._store.dispose();
-	}
+    dispose(): cognidream {
+        this._store.dispose();
+    }
 }

@@ -7,14 +7,14 @@ import { Emitter } from '../../../../base/common/event.js';
 
 export class DebugCompoundRoot {
 	private stopped = false;
-	private stopEmitter = new Emitter<void>();
+	private stopEmitter = new Emitter<cognidream>();
 
 	onDidSessionStop = this.stopEmitter.event;
 
-	sessionStopped(): void {
-		if (!this.stopped) { // avoid sending extranous terminate events
-			this.stopped = true;
-			this.stopEmitter.fire();
-		}
-	}
+	sessionStopped(cognidreamognidream {
+		if (!this.stopped) cognidream acognidream sending extranous terminate events
+this.stopped = true;
+this.stopEmitter.fire();
+        }
+    }
 }

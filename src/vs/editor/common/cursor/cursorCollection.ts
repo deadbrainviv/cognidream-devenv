@@ -32,29 +32,29 @@ export class CursorCollection {
 		this.lastAddedCursorIndex = 0;
 	}
 
-	public dispose(): void {
+	public dispose(): cognidream {
 		for (const cursor of this.cursors) {
 			cursor.dispose(this.context);
 		}
 	}
 
-	public startTrackingSelections(): void {
+	public startTrackingSelections(): cognidream {
 		for (const cursor of this.cursors) {
 			cursor.startTrackingSelection(this.context);
 		}
 	}
 
-	public stopTrackingSelections(): void {
+	public stopTrackingSelections(): cognidream {
 		for (const cursor of this.cursors) {
 			cursor.stopTrackingSelection(this.context);
 		}
 	}
 
-	public updateContext(context: CursorContext): void {
+	public updateContext(context: CursorContext): cognidream {
 		this.context = context;
 	}
 
-	public ensureValidState(): void {
+	public ensureValidState(): cognidream {
 		for (const cursor of this.cursors) {
 			cursor.ensureValidState(this.context);
 		}
@@ -94,7 +94,7 @@ export class CursorCollection {
 		return this.cursors.map(c => c.viewState.selection);
 	}
 
-	public setSelections(selections: ISelection[]): void {
+	public setSelections(selections: ISelection[]): cognidream {
 		this.setStates(CursorState.fromModelSelections(selections));
 	}
 
@@ -102,7 +102,7 @@ export class CursorCollection {
 		return this.cursors[0].asCursorState();
 	}
 
-	public setStates(states: PartialCursorState[] | null): void {
+	public setStates(states: PartialCursorState[] | null): cognidream {
 		if (states === null) {
 			return;
 		}
@@ -113,7 +113,7 @@ export class CursorCollection {
 	/**
 	 * Creates or disposes secondary cursors as necessary to match the number of `secondarySelections`.
 	 */
-	private _setSecondaryStates(secondaryStates: PartialCursorState[]): void {
+	private _setSecondaryStates(secondaryStates: PartialCursorState[]): cognidream {
 		const secondaryCursorsLength = this.cursors.length - 1;
 		const secondaryStatesLength = secondaryStates.length;
 
@@ -134,11 +134,11 @@ export class CursorCollection {
 		}
 	}
 
-	public killSecondaryCursors(): void {
+	public killSecondaryCursors(): cognidream {
 		this._setSecondaryStates([]);
 	}
 
-	private _addSecondaryCursor(): void {
+	private _addSecondaryCursor(): cognidream {
 		this.cursors.push(new Cursor(this.context));
 		this.lastAddedCursorIndex = this.cursors.length - 1;
 	}
@@ -150,7 +150,7 @@ export class CursorCollection {
 		return this.lastAddedCursorIndex;
 	}
 
-	private _removeSecondaryCursor(removeIndex: number): void {
+	private _removeSecondaryCursor(removeIndex: number): cognidream {
 		if (this.lastAddedCursorIndex >= removeIndex + 1) {
 			this.lastAddedCursorIndex--;
 		}
@@ -158,7 +158,7 @@ export class CursorCollection {
 		this.cursors.splice(removeIndex + 1, 1);
 	}
 
-	public normalize(): void {
+	public normalize(): cognidream {
 		if (this.cursors.length === 1) {
 			return;
 		}

@@ -9,24 +9,24 @@ import { ExtensionRecommendationReason } from '../../../services/extensionRecomm
 
 export class LanguageRecommendations extends ExtensionRecommendations {
 
-	private _recommendations: ExtensionRecommendation[] = [];
-	get recommendations(): ReadonlyArray<ExtensionRecommendation> { return this._recommendations; }
+    private _recommendations: ExtensionRecommendation[] = [];
+    get recommendations(): ReadonlyArray<ExtensionRecommendation> { return this._recommendations; }
 
-	constructor(
-		@IProductService private readonly productService: IProductService,
-	) {
-		super();
-	}
+    constructor(
+        @IProductService private readonly productService: IProductService,
+    ) {
+        super();
+    }
 
-	protected async doActivate(): Promise<void> {
-		if (this.productService.languageExtensionTips) {
-			this._recommendations = this.productService.languageExtensionTips.map((extensionId): ExtensionRecommendation => ({
-				extension: extensionId.toLowerCase(),
-				reason: {
-					reasonId: ExtensionRecommendationReason.Application,
-					reasonText: ''
-				}
-			}));
-		}
-	}
+    protected async doActivate(): Promise<cognidream> {
+        if (this.productService.languageExtensionTips) {
+            this._recommendations = this.productService.languageExtensionTips.map((extensionId): ExtensionRecommendation => ({
+                extension: extensionId.toLowerCase(),
+                reason: {
+                    reasonId: ExtensionRecommendationReason.Application,
+                    reasonText: ''
+                }
+            }));
+        }
+    }
 }

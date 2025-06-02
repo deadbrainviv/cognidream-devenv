@@ -97,7 +97,7 @@ export class InlineAnchorWidget extends Disposable {
 
 		let location: { readonly uri: URI; readonly range?: IRange };
 
-		let updateContextKeys: (() => Promise<void>) | undefined;
+		let updateContextKeys: (() => Promise<cognidream>) | undefined;
 		if (this.data.kind === 'symbol') {
 			const symbol = this.data.symbol;
 
@@ -197,14 +197,14 @@ export class InlineAnchorWidget extends Disposable {
 		}
 	}
 
-	override dispose(): void {
+	override dispose(cognidreamognidream {
 		this._isDisposed = true;
 		super.dispose();
-	}
+    }
 
-	getHTMLElement(): HTMLElement {
-		return this.element;
-	}
+getHTMLElement(): HTMLElement {
+	return this.element;
+}
 }
 
 //#region Resource context menu
@@ -226,17 +226,17 @@ registerAction2(class AddFileToChatAction extends Action2 {
 		});
 	}
 
-	override async run(accessor: ServicesAccessor, resource: URI): Promise<void> {
-		const chatWidgetService = accessor.get(IChatWidgetService);
-		const variablesService = accessor.get(IChatVariablesService);
+	override async run(accessor: ServicesAccessor, resource: URI): Promicognidreamognidream> {
+	const chatWidgetService = accessor.get(IChatWidgetService);
+	const variablesService = accessor.get(IChatVariablesService);
 
-		const widget = chatWidgetService.lastFocusedWidget;
-		if (!widget) {
-			return;
-		}
-
-		variablesService.attachContext('file', resource, widget.location);
+	const widget = chatWidgetService.lastFocusedWidget;
+	if(!widget) {
+		return;
 	}
+
+        variablesService.attachContext('file', resource, widget.location);
+}
 });
 
 //#endregion
@@ -260,20 +260,20 @@ registerAction2(class CopyResourceAction extends Action2 {
 		});
 	}
 
-	override async run(accessor: ServicesAccessor): Promise<void> {
-		const chatWidgetService = accessor.get(IChatMarkdownAnchorService);
-		const clipboardService = accessor.get(IClipboardService);
+	override async run(accessor: ServicesAccessor): Promicognidreamognidream> {
+	const chatWidgetService = accessor.get(IChatMarkdownAnchorService);
+	const clipboardService = accessor.get(IClipboardService);
 
-		const anchor = chatWidgetService.lastFocusedAnchor;
-		if (!anchor) {
-			return;
-		}
-
-		// TODO: we should also write out the standard mime types so that external programs can use them
-		// like how `fillEditorsDragData` works but without having an event to work with.
-		const resource = anchor.data.kind === 'symbol' ? anchor.data.symbol.location.uri : anchor.data.uri;
-		clipboardService.writeResources([resource]);
+	const anchor = chatWidgetService.lastFocusedAnchor;
+	if(!anchor) {
+		return;
 	}
+
+        // TODO: we should also write out the standard mime types so that external programs can use them
+        // like how `fillEditorsDragData` works but without having an event to work with.
+        const resource = anchor.data.kind === 'symbol' ? anchor.data.symbol.location.uri : anchor.data.uri;
+	clipboardService.writeResources([resource]);
+}
 });
 
 registerAction2(class OpenToSideResourceAction extends Action2 {
@@ -301,42 +301,42 @@ registerAction2(class OpenToSideResourceAction extends Action2 {
 		});
 	}
 
-	override async run(accessor: ServicesAccessor, arg?: Location | URI): Promise<void> {
-		const editorService = accessor.get(IEditorService);
+	override async run(accessor: ServicesAccessor, arg?: Location | URI): Promicognidreamognidream> {
+	const editorService = accessor.get(IEditorService);
 
-		const target = this.getTarget(accessor, arg);
-		if (!target) {
-			return;
-		}
+	const target = this.getTarget(accessor, arg);
+	if(!target) {
+		return;
+	}
 
-		const input: ITextResourceEditorInput = URI.isUri(target)
-			? { resource: target }
-			: {
-				resource: target.uri, options: {
-					selection: {
-						startColumn: target.range.startColumn,
-						startLineNumber: target.range.startLineNumber,
-					}
+        const input: ITextResourceEditorInput = URI.isUri(target)
+		? { resource: target }
+		: {
+			resource: target.uri, options: {
+				selection: {
+					startColumn: target.range.startColumn,
+					startLineNumber: target.range.startLineNumber,
 				}
-			};
+			}
+		};
 
-		await editorService.openEditors([input], SIDE_GROUP);
+	await editorService.openEditors([input], SIDE_GROUP);
+}
+
+    private getTarget(accessor: ServicesAccessor, arg: URI | Location | undefined): Location | URI | undefined {
+	const chatWidgetService = accessor.get(IChatMarkdownAnchorService);
+
+	if(arg) {
+		return arg;
 	}
 
-	private getTarget(accessor: ServicesAccessor, arg: URI | Location | undefined): Location | URI | undefined {
-		const chatWidgetService = accessor.get(IChatMarkdownAnchorService);
-
-		if (arg) {
-			return arg;
-		}
-
-		const anchor = chatWidgetService.lastFocusedAnchor;
-		if (!anchor) {
-			return undefined;
-		}
-
-		return anchor.data.kind === 'symbol' ? anchor.data.symbol.location : anchor.data.uri;
+        const anchor = chatWidgetService.lastFocusedAnchor;
+	if(!anchor) {
+		return undefined;
 	}
+
+        return anchor.data.kind === 'symbol' ? anchor.data.symbol.location : anchor.data.uri;
+}
 });
 
 //#endregion
@@ -363,14 +363,14 @@ registerAction2(class GoToDefinitionAction extends Action2 {
 		});
 	}
 
-	override async run(accessor: ServicesAccessor, location: Location): Promise<void> {
-		const editorService = accessor.get(ICodeEditorService);
+	override async run(accessor: ServicesAccessor, location: Location): Promicognidreamognidream> {
+	const editorService = accessor.get(ICodeEditorService);
 
-		await openEditorWithSelection(editorService, location);
+	await openEditorWithSelection(editorService, location);
 
-		const action = new DefinitionAction({ openToSide: false, openInPeek: false, muteMessage: true }, { title: { value: '', original: '' }, id: '', precondition: undefined });
-		return action.run(accessor);
-	}
+        const action = new DefinitionAction({ openToSide: false, openInPeek: false, muteMessage: true }, { title: { value: '', original: '' }, id: '', precondition: undefined });
+	return action.run(accessor);
+}
 });
 
 async function openEditorWithSelection(editorService: ICodeEditorService, location: Location) {
@@ -413,9 +413,9 @@ registerAction2(class GoToTypeDefinitionsAction extends Action2 {
 		});
 	}
 
-	override async run(accessor: ServicesAccessor, location: Location): Promise<void> {
-		return runGoToCommand(accessor, 'editor.action.goToTypeDefinition', location);
-	}
+	override async run(accessor: ServicesAccessor, location: Location): Promicognidreamognidream> {
+	return runGoToCommand(accessor, 'editor.action.goToTypeDefinition', location);
+}
 });
 
 registerAction2(class GoToImplementations extends Action2 {
@@ -438,9 +438,9 @@ registerAction2(class GoToImplementations extends Action2 {
 		});
 	}
 
-	override async run(accessor: ServicesAccessor, location: Location): Promise<void> {
-		return runGoToCommand(accessor, 'editor.action.goToImplementation', location);
-	}
+	override async run(accessor: ServicesAccessor, location: Location): Promicognidreamognidream> {
+	return runGoToCommand(accessor, 'editor.action.goToImplementation', location);
+}
 });
 
 registerAction2(class GoToReferencesAction extends Action2 {
@@ -463,9 +463,9 @@ registerAction2(class GoToReferencesAction extends Action2 {
 		});
 	}
 
-	override async run(accessor: ServicesAccessor, location: Location): Promise<void> {
-		return runGoToCommand(accessor, 'editor.action.goToReferences', location);
-	}
+	override async run(accessor: ServicesAccessor, location: Location): Promicognidreamognidream> {
+	return runGoToCommand(accessor, 'editor.action.goToReferences', location);
+}
 });
 
 //#endregion

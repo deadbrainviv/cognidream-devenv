@@ -80,7 +80,7 @@ class TerminalSuggestContribution extends DisposableStore implements ITerminalCo
 		}));
 	}
 
-	xtermOpen(xterm: IXtermTerminal & { raw: RawXtermTerminal }): void {
+	xtermOpen(xterm: IXtermTerminal & { raw: RawXtermTerminal }): cognidream {
 		const config = this._configurationService.getValue<ITerminalSuggestConfiguration>(terminalSuggestConfigSection);
 		const enabled = config.enabled;
 		if (!enabled) {
@@ -92,111 +92,111 @@ class TerminalSuggestContribution extends DisposableStore implements ITerminalCo
 		}));
 	}
 
-	private async _loadPwshCompletionAddon(xterm: RawXtermTerminal): Promise<void> {
+	private async _loadPwshCompletionAddon(xterm: RawXtermTerminal): Promicognidreamognidream> {
 		// Disable when shell type is not powershell. A naive check is done for Windows PowerShell
 		// as we don't differentiate it in shellType
-		if (
+		if(
 			this._ctx.instance.shellType !== GeneralShellType.PowerShell ||
-			this._ctx.instance.shellLaunchConfig.executable?.endsWith('WindowsPowerShell\\v1.0\\powershell.exe')
-		) {
-			this._pwshAddon.clear();
-			return;
-		}
+				this._ctx.instance.shellLaunchConfig.executable?.endsWith('WindowsPowerShell\\v1.0\\powershell.exe')
+        ) {
+	this._pwshAddon.clear();
+	return;
+}
 
-		// Disable the addon on old backends (not conpty or Windows 11)
-		await this._ctx.instance.processReady;
-		const processTraits = this._ctx.processManager.processTraits;
-		if (processTraits?.windowsPty && (processTraits.windowsPty.backend !== 'conpty' || processTraits?.windowsPty.buildNumber <= 19045)) {
-			return;
-		}
+// Disable the addon on old backends (not conpty or Windows 11)
+await this._ctx.instance.processReady;
+const processTraits = this._ctx.processManager.processTraits;
+if (processTraits?.windowsPty && (processTraits.windowsPty.backend !== 'conpty' || processTraits?.windowsPty.buildNumber <= 19045)) {
+	return;
+}
 
-		const pwshCompletionProviderAddon = this._pwshAddon.value = this._instantiationService.createInstance(PwshCompletionProviderAddon, this._ctx.instance.capabilities);
-		xterm.loadAddon(pwshCompletionProviderAddon);
-		this.add(pwshCompletionProviderAddon);
-		this.add(pwshCompletionProviderAddon.onDidRequestSendText(text => {
-			this._ctx.instance.sendText(text, false);
+const pwshCompletionProviderAddon = this._pwshAddon.value = this._instantiationService.createInstance(PwshCompletionProviderAddon, this._ctx.instance.capabilities);
+xterm.loadAddon(pwshCompletionProviderAddon);
+this.add(pwshCompletionProviderAddon);
+this.add(pwshCompletionProviderAddon.onDidRequestSendText(text => {
+	this._ctx.instance.sendText(text, false);
+}));
+this.add(this._terminalCompletionService.registerTerminalCompletionProvider('builtinPwsh', pwshCompletionProviderAddon.id, pwshCompletionProviderAddon));
+// If completions are requested, pause and queue input events until completions are
+// received. This fixing some problems in PowerShell, particularly enter not executing
+// when typing quickly and some characters being printed twice. On Windows this isn't
+// needed because inputs are _not_ echoed when not handled immediately.
+// TODO: This should be based on the OS of the pty host, not the client
+if (!isWindows) {
+	let barrier: AutoOpenBarrier | undefined;
+	if (pwshCompletionProviderAddon) {
+		this.add(pwshCompletionProviderAddon.onDidRequestSendText(() => {
+			barrier = new AutoOpenBarrier(2000);
+			this._ctx.instance.pauseInputEvents(barrier);
 		}));
-		this.add(this._terminalCompletionService.registerTerminalCompletionProvider('builtinPwsh', pwshCompletionProviderAddon.id, pwshCompletionProviderAddon));
-		// If completions are requested, pause and queue input events until completions are
-		// received. This fixing some problems in PowerShell, particularly enter not executing
-		// when typing quickly and some characters being printed twice. On Windows this isn't
-		// needed because inputs are _not_ echoed when not handled immediately.
-		// TODO: This should be based on the OS of the pty host, not the client
-		if (!isWindows) {
-			let barrier: AutoOpenBarrier | undefined;
-			if (pwshCompletionProviderAddon) {
-				this.add(pwshCompletionProviderAddon.onDidRequestSendText(() => {
-					barrier = new AutoOpenBarrier(2000);
-					this._ctx.instance.pauseInputEvents(barrier);
-				}));
-			}
-			if (this._pwshAddon.value) {
-				this.add(this._pwshAddon.value.onDidReceiveCompletions(() => {
-					barrier?.open();
-					barrier = undefined;
-				}));
-			} else {
-				throw Error('no addon');
-			}
-		}
 	}
-
-	private _loadAddons(xterm: RawXtermTerminal): void {
-		// Don't re-create the addon
-		if (this._addon.value) {
-			return;
-		}
-
-		const addon = this._addon.value = this._instantiationService.createInstance(SuggestAddon, this._ctx.instance.shellType, this._ctx.instance.capabilities, this._terminalSuggestWidgetVisibleContextKey);
-		xterm.loadAddon(addon);
-		this._loadPwshCompletionAddon(xterm);
-		if (this._ctx.instance.target === TerminalLocation.Editor) {
-			addon.setContainerWithOverflow(xterm.element!);
-		} else {
-			addon.setContainerWithOverflow(dom.findParentWithClass(xterm.element!, 'panel')!);
-		}
-		addon.setScreen(xterm.element!.querySelector('.xterm-screen')!);
-
-		this.add(dom.addDisposableListener(this._ctx.instance.domElement, dom.EventType.FOCUS_OUT, (e) => {
-			const focusedElement = e.relatedTarget as HTMLElement;
-			if (focusedElement?.classList.contains(SuggestDetailsClassName)) {
-				// Don't hide the suggest widget if the focus is moving to the details
-				return;
-			}
-			addon.hideSuggestWidget(true);
+	if (this._pwshAddon.value) {
+		this.add(this._pwshAddon.value.onDidReceiveCompletions(() => {
+			barrier?.open();
+			barrier = undefined;
 		}));
-
-		this.add(addon.onAcceptedCompletion(async text => {
-			this._ctx.instance.focus();
-			this._ctx.instance.sendText(text, false);
-		}));
-		const clipboardContrib = TerminalClipboardContribution.get(this._ctx.instance)!;
-		this.add(clipboardContrib.onWillPaste(() => addon.isPasting = true));
-		this.add(clipboardContrib.onDidPaste(() => {
-			// Delay this slightly as synchronizing the prompt input is debounced
-			setTimeout(() => addon.isPasting = false, 100);
-		}));
-		if (!isWindows) {
-			let barrier: AutoOpenBarrier | undefined;
-			this.add(addon.onDidReceiveCompletions(() => {
-				barrier?.open();
-				barrier = undefined;
-			}));
-		}
+	} else {
+		throw Error('no addon');
 	}
+}
+    }
 
-	private _refreshAddons(): void {
-		const addon = this._addon.value;
-		if (!addon) {
-			return;
-		}
-		addon.shellType = this._ctx.instance.shellType;
-		if (!this._ctx.instance.xterm?.raw) {
-			return;
-		}
-		// Relies on shell type being set
-		this._loadPwshCompletionAddon(this._ctx.instance.xterm.raw);
+    private _loadAddons(xterm: RawXtermTerminalcognidreamognidream {
+	// Don't re-create the addon
+	if(this._addon.value) {
+	return;
+}
+
+const addon = this._addon.value = this._instantiationService.createInstance(SuggestAddon, this._ctx.instance.shellType, this._ctx.instance.capabilities, this._terminalSuggestWidgetVisibleContextKey);
+xterm.loadAddon(addon);
+this._loadPwshCompletionAddon(xterm);
+if (this._ctx.instance.target === TerminalLocation.Editor) {
+	addon.setContainerWithOverflow(xterm.element!);
+} else {
+	addon.setContainerWithOverflow(dom.findParentWithClass(xterm.element!, 'panel')!);
+}
+addon.setScreen(xterm.element!.querySelector('.xterm-screen')!);
+
+this.add(dom.addDisposableListener(this._ctx.instance.domElement, dom.EventType.FOCUS_OUT, (e) => {
+	const focusedElement = e.relatedTarget as HTMLElement;
+	if (focusedElement?.classList.contains(SuggestDetailsClassName)) {
+		// Don't hide the suggest widget if the focus is moving to the details
+		return;
 	}
+	addon.hideSuggestWidget(true);
+}));
+
+this.add(addon.onAcceptedCompletion(async text => {
+	this._ctx.instance.focus();
+	this._ctx.instance.sendText(text, false);
+}));
+const clipboardContrib = TerminalClipboardContribution.get(this._ctx.instance)!;
+this.add(clipboardContrib.onWillPaste(() => addon.isPasting = true));
+this.add(clipboardContrib.onDidPaste(() => {
+	// Delay this slightly as synchronizing the prompt input is debounced
+	setTimeout(() => addon.isPasting = false, 100);
+}));
+if (!isWindows) {
+	let barrier: AutoOpenBarrier | undefined;
+	this.add(addon.onDidReceiveCompletions(() => {
+		barrier?.open();
+		barrier = undefined;
+	}));
+}
+    }
+
+    private _refreshAddons(cognidreamognidream {
+	const addon = this._addon.value;
+	if(!addon) {
+		return;
+	}
+        addon.shellType = this._ctx.instance.shellType;
+	if(!this._ctx.instance.xterm?.raw) {
+	return;
+}
+// Relies on shell type being set
+this._loadPwshCompletionAddon(this._ctx.instance.xterm.raw);
+    }
 }
 
 registerTerminalContribution(TerminalSuggestContribution.ID, TerminalSuggestContribution);

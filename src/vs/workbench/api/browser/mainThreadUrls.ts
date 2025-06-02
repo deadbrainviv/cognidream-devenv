@@ -48,7 +48,7 @@ export class MainThreadUrls extends Disposable implements MainThreadUrlsShape {
 		this.proxy = context.getProxy(ExtHostContext.ExtHostUrls);
 	}
 
-	async $registerUriHandler(handle: number, extensionId: ExtensionIdentifier, extensionDisplayName: string): Promise<void> {
+	async $registerUriHandler(handle: number, extensionId: ExtensionIdentifier, extensionDisplayName: string): Promise<cognidream> {
 		const handler = new ExtensionUrlHandler(this.proxy, handle, extensionId, extensionDisplayName);
 		const disposable = this.urlService.registerHandler(handler);
 
@@ -58,14 +58,14 @@ export class MainThreadUrls extends Disposable implements MainThreadUrlsShape {
 		return undefined;
 	}
 
-	async $unregisterUriHandler(handle: number): Promise<void> {
+	async $unregisterUriHandler(handle: number): Promicognidreamognidream> {
 		const tuple = this.handlers.get(handle);
 
-		if (!tuple) {
+		if(!tuple) {
 			return undefined;
 		}
 
-		const { extensionId, disposable } = tuple;
+        const { extensionId, disposable } = tuple;
 
 		this.extensionUrlHandler.unregisterExtensionHandler(extensionId);
 		this.handlers.delete(handle);
@@ -74,14 +74,14 @@ export class MainThreadUrls extends Disposable implements MainThreadUrlsShape {
 		return undefined;
 	}
 
-	async $createAppUri(uri: UriComponents): Promise<URI> {
-		return this.urlService.create(uri);
-	}
+    async $createAppUri(uri: UriComponents): Promise < URI > {
+	return this.urlService.create(uri);
+}
 
-	override dispose(): void {
-		super.dispose();
+    override dispose(cognidreamognidream {
+	super.dispose();
 
-		this.handlers.forEach(({ disposable }) => disposable.dispose());
-		this.handlers.clear();
-	}
+	this.handlers.forEach(({ disposable }) => disposable.dispose());
+	this.handlers.clear();
+}
 }

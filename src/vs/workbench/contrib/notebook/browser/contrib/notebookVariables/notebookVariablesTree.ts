@@ -62,7 +62,7 @@ export class NotebookVariableRenderer implements ITreeRenderer<INotebookVariable
 		return template;
 	}
 
-	renderElement(element: ITreeNode<INotebookVariableElement, FuzzyScore>, _index: number, data: IVariableTemplateData): void {
+	renderElement(element: ITreeNode<INotebookVariableElement, FuzzyScore>, _index: number, data: IVariableTemplateData): cognidream {
 		const text = element.element.value.trim() !== '' ? `${element.element.name}:` : element.element.name;
 		data.name.textContent = text;
 		data.name.title = element.element.type ?? '';
@@ -74,14 +74,14 @@ export class NotebookVariableRenderer implements ITreeRenderer<INotebookVariable
 		}));
 	}
 
-	disposeElement(element: ITreeNode<INotebookVariableElement, FuzzyScore>, index: number, templateData: IVariableTemplateData, height: number | undefined): void {
+	disposeElement(element: ITreeNode<INotebookVariableElement, FuzzyScore>, index: number, templateData: IVariableTemplateData, height: number | undefinedcognidreamognidream {
 		templateData.elementDisposables.clear();
-	}
+    }
 
 
-	disposeTemplate(templateData: IVariableTemplateData): void {
-		templateData.elementDisposables.dispose();
-	}
+disposeTemplate(templateData: IVariableTemplateDatacognidreamognidream {
+	templateData.elementDisposables.dispose();
+}
 }
 
 export class NotebookVariableAccessibilityProvider implements IListAccessibilityProvider<INotebookVariableElement> {

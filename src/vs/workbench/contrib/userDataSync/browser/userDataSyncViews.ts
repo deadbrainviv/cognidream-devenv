@@ -47,7 +47,7 @@ export class UserDataSyncDataViews extends Disposable {
 		this.registerViews(container);
 	}
 
-	private registerViews(container: ViewContainer): void {
+	private registerViews(container: ViewContainer): cognidream {
 		this.registerConflictsView(container);
 
 		this.registerActivityView(container, true);
@@ -58,7 +58,7 @@ export class UserDataSyncDataViews extends Disposable {
 		this.registerExternalActivityView(container);
 	}
 
-	private registerConflictsView(container: ViewContainer): void {
+	private registerConflictsView(container: ViewContainercognidreamognidream {
 		const viewsRegistry = Registry.as<IViewsRegistry>(Extensions.ViewsRegistry);
 		const viewName = localize2('conflicts', "Conflicts");
 		const viewDescriptor: ITreeViewDescriptor = {
@@ -73,259 +73,259 @@ export class UserDataSyncDataViews extends Disposable {
 			order: 100,
 		};
 		viewsRegistry.registerViews([viewDescriptor], container);
-	}
+    }
 
-	private registerMachinesView(container: ViewContainer): void {
-		const id = `workbench.views.sync.machines`;
-		const name = localize2('synced machines', "Synced Machines");
-		const treeView = this.instantiationService.createInstance(TreeView, id, name.value);
-		const dataProvider = this.instantiationService.createInstance(UserDataSyncMachinesViewDataProvider, treeView);
-		treeView.showRefreshAction = true;
-		treeView.canSelectMany = true;
-		treeView.dataProvider = dataProvider;
+    private registerMachinesView(container: ViewContainercognidreamognidream {
+			const id = `workbench.views.sync.machines`;
+			const name = localize2('synced machines', "Synced Machines");
+			const treeView = this.instantiationService.createInstance(TreeView, id, name.value);
+			const dataProvider = this.instantiationService.createInstance(UserDataSyncMachinesViewDataProvider, treeView);
+			treeView.showRefreshAction = true;
+			treeView.canSelectMany = true;
+			treeView.dataProvider = dataProvider;
 
-		this._register(Event.any(this.userDataSyncMachinesService.onDidChange, this.userDataSyncService.onDidResetRemote)(() => treeView.refresh()));
-		const viewsRegistry = Registry.as<IViewsRegistry>(Extensions.ViewsRegistry);
-		const viewDescriptor: ITreeViewDescriptor = {
-			id,
-			name,
-			ctorDescriptor: new SyncDescriptor(TreeViewPane),
-			when: ContextKeyExpr.and(CONTEXT_SYNC_STATE.notEqualsTo(SyncStatus.Uninitialized), CONTEXT_ACCOUNT_STATE.isEqualTo(AccountStatus.Available), CONTEXT_ENABLE_ACTIVITY_VIEWS),
-			canToggleVisibility: true,
-			canMoveView: false,
-			treeView,
-			collapsed: false,
-			order: 300,
-		};
-		viewsRegistry.registerViews([viewDescriptor], container);
+			this._register(Event.any(this.userDataSyncMachinesService.onDidChange, this.userDataSyncService.onDidResetRemote)(() => treeView.refresh()));
+			const viewsRegistry = Registry.as<IViewsRegistry>(Extensions.ViewsRegistry);
+			const viewDescriptor: ITreeViewDescriptor = {
+				id,
+				name,
+				ctorDescriptor: new SyncDescriptor(TreeViewPane),
+				when: ContextKeyExpr.and(CONTEXT_SYNC_STATE.notEqualsTo(SyncStatus.Uninitialized), CONTEXT_ACCOUNT_STATE.isEqualTo(AccountStatus.Available), CONTEXT_ENABLE_ACTIVITY_VIEWS),
+				canToggleVisibility: true,
+				canMoveView: false,
+				treeView,
+				collapsed: false,
+				order: 300,
+			};
+			viewsRegistry.registerViews([viewDescriptor], container);
 
-		this._register(registerAction2(class extends Action2 {
-			constructor() {
-				super({
-					id: `workbench.actions.sync.editMachineName`,
-					title: localize('workbench.actions.sync.editMachineName', "Edit Name"),
-					icon: Codicon.edit,
-					menu: {
-						id: MenuId.ViewItemContext,
-						when: ContextKeyExpr.and(ContextKeyExpr.equals('view', id)),
-						group: 'inline',
-					},
-				});
-			}
-			async run(accessor: ServicesAccessor, handle: TreeViewItemHandleArg): Promise<void> {
-				const changed = await dataProvider.rename(handle.$treeItemHandle);
-				if (changed) {
+			this._register(registerAction2(class extends Action2 {
+				constructor() {
+					super({
+						id: `workbench.actions.sync.editMachineName`,
+						title: localize('workbench.actions.sync.editMachineName', "Edit Name"),
+						icon: Codicon.edit,
+						menu: {
+							id: MenuId.ViewItemContext,
+							when: ContextKeyExpr.and(ContextKeyExpr.equals('view', id)),
+							group: 'inline',
+						},
+					});
+				}
+				async run(accessor: ServicesAccessor, handle: TreeViewItemHandleArg): cognidreammise<cognidream> {
+					const changed = await dataProvider.rename(handle.$treeItemHandle);
+					if (changed) {
+						await treeView.refresh();
+					}
+				}
+			}));
+
+			this._register(registerAction2(class extends Action2 {
+				constructor() {
+					super({
+						id: `workbench.actions.sync.turnOffSyncOnMachine`,
+						title: localize('workbench.actions.sync.turnOffSyncOnMachine', "Turn off Settings Sync"),
+						menu: {
+							id: MenuId.ViewItemContext,
+							when: ContextKeyExpr.and(ContextKeyExpr.equals('view', id), ContextKeyExpr.equals('viewItem', 'sync-machine')),
+						},
+					});
+				}
+				async run(accessor: ServicesAccessor, handle: TreeViewItemHandleArg, selected?: TreeViewItemHandleArg[]): cognidreammise<cognidream> {
+					if (await dataProvider.disable((selected || [handle]).map(handle => handle.$treeItemHandle))) {
+						await treeView.refresh();
+					}
+				}
+			}));
+
+		}
+
+    private registerActivityView(container: ViewContainer, remote: booleancognidreamognidream {
+			const id = `workbench.views.sync.${remote ? 'remote' : 'local'}Activity`;
+			const name = remote ? localize2('remote sync activity title', "Sync Activity (Remote)") : localize2('local sync activity title', "Sync Activity (Local)");
+			const treeView = this.instantiationService.createInstance(TreeView, id, name.value);
+			treeView.showCollapseAllAction = true;
+			treeView.showRefreshAction = true;
+			treeView.dataProvider = remote ? this.instantiationService.createInstance(RemoteUserDataSyncActivityViewDataProvider)
+				: this.instantiationService.createInstance(LocalUserDataSyncActivityViewDataProvider);
+
+			this._register(Event.any(this.userDataSyncEnablementService.onDidChangeResourceEnablement,
+				this.userDataSyncEnablementService.onDidChangeEnablement,
+				this.userDataSyncService.onDidResetLocal,
+				this.userDataSyncService.onDidResetRemote)(() => treeView.refresh()));
+			const viewsRegistry = Registry.as<IViewsRegistry>(Extensions.ViewsRegistry);
+			const viewDescriptor: ITreeViewDescriptor = {
+				id,
+				name,
+				ctorDescriptor: new SyncDescriptor(TreeViewPane),
+				when: ContextKeyExpr.and(CONTEXT_SYNC_STATE.notEqualsTo(SyncStatus.Uninitialized), CONTEXT_ACCOUNT_STATE.isEqualTo(AccountStatus.Available), CONTEXT_ENABLE_ACTIVITY_VIEWS),
+				canToggleVisibility: true,
+				canMoveView: false,
+				treeView,
+				collapsed: false,
+				order: remote ? 200 : 400,
+				hideByDefault: !remote,
+			};
+			viewsRegistry.registerViews([viewDescriptor], container);
+
+			this.registerDataViewActions(id);
+		}
+
+    private registerExternalActivityView(container: ViewContainercognidreamognidream {
+			const id = `workbench.views.sync.externalActivity`;
+			const name = localize2('downloaded sync activity title', "Sync Activity (Developer)");
+			const dataProvider = this.instantiationService.createInstance(ExtractedUserDataSyncActivityViewDataProvider, undefined);
+			const treeView = this.instantiationService.createInstance(TreeView, id, name.value);
+			treeView.showCollapseAllAction = false;
+			treeView.showRefreshAction = false;
+			treeView.dataProvider = dataProvider;
+
+			const viewsRegistry = Registry.as<IViewsRegistry>(Extensions.ViewsRegistry);
+			const viewDescriptor: ITreeViewDescriptor = {
+				id,
+				name,
+				ctorDescriptor: new SyncDescriptor(TreeViewPane),
+				when: CONTEXT_ENABLE_ACTIVITY_VIEWS,
+				canToggleVisibility: true,
+				canMoveView: false,
+				treeView,
+				collapsed: false,
+				hideByDefault: false,
+			};
+			viewsRegistry.registerViews([viewDescriptor], container);
+
+			this._register(registerAction2(class extends Action2 {
+				constructor() {
+					super({
+						id: `workbench.actions.sync.loadActivity`,
+						title: localize('workbench.actions.sync.loadActivity', "Load Sync Activity"),
+						icon: Codicon.cloudUpload,
+						menu: {
+							id: MenuId.ViewTitle,
+							when: ContextKeyExpr.equals('view', id),
+							group: 'navigation',
+						},
+					});
+				}
+				async run(accessor: ServicesAccessor): cognidreammise<cognidream> {
+					const fileDialogService = accessor.get(IFileDialogService);
+					const result = await fileDialogService.showOpenDialog({
+						title: localize('select sync activity file', "Select Sync Activity File or Folder"),
+						canSelectFiles: true,
+						canSelectFolders: true,
+						canSelectMany: false,
+					});
+					if (!result?.[0]) {
+						return;
+					}
+					dataProvider.activityDataResource = result[0];
 					await treeView.refresh();
 				}
-			}
-		}));
+			}));
+		}
 
-		this._register(registerAction2(class extends Action2 {
-			constructor() {
-				super({
-					id: `workbench.actions.sync.turnOffSyncOnMachine`,
-					title: localize('workbench.actions.sync.turnOffSyncOnMachine', "Turn off Settings Sync"),
-					menu: {
-						id: MenuId.ViewItemContext,
-						when: ContextKeyExpr.and(ContextKeyExpr.equals('view', id), ContextKeyExpr.equals('viewItem', 'sync-machine')),
-					},
-				});
-			}
-			async run(accessor: ServicesAccessor, handle: TreeViewItemHandleArg, selected?: TreeViewItemHandleArg[]): Promise<void> {
-				if (await dataProvider.disable((selected || [handle]).map(handle => handle.$treeItemHandle))) {
-					await treeView.refresh();
+    private registerDataViewActions(viewId: string) {
+			this._register(registerAction2(class extends Action2 {
+				constructor() {
+					super({
+						id: `workbench.actions.sync.${viewId}.resolveResource`,
+						title: localize('workbench.actions.sync.resolveResourceRef', "Show raw JSON sync data"),
+						menu: {
+							id: MenuId.ViewItemContext,
+							when: ContextKeyExpr.and(ContextKeyExpr.equals('view', viewId), ContextKeyExpr.regex('viewItem', /sync-resource-.*/i))
+						},
+					});
 				}
-			}
-		}));
-
-	}
-
-	private registerActivityView(container: ViewContainer, remote: boolean): void {
-		const id = `workbench.views.sync.${remote ? 'remote' : 'local'}Activity`;
-		const name = remote ? localize2('remote sync activity title', "Sync Activity (Remote)") : localize2('local sync activity title', "Sync Activity (Local)");
-		const treeView = this.instantiationService.createInstance(TreeView, id, name.value);
-		treeView.showCollapseAllAction = true;
-		treeView.showRefreshAction = true;
-		treeView.dataProvider = remote ? this.instantiationService.createInstance(RemoteUserDataSyncActivityViewDataProvider)
-			: this.instantiationService.createInstance(LocalUserDataSyncActivityViewDataProvider);
-
-		this._register(Event.any(this.userDataSyncEnablementService.onDidChangeResourceEnablement,
-			this.userDataSyncEnablementService.onDidChangeEnablement,
-			this.userDataSyncService.onDidResetLocal,
-			this.userDataSyncService.onDidResetRemote)(() => treeView.refresh()));
-		const viewsRegistry = Registry.as<IViewsRegistry>(Extensions.ViewsRegistry);
-		const viewDescriptor: ITreeViewDescriptor = {
-			id,
-			name,
-			ctorDescriptor: new SyncDescriptor(TreeViewPane),
-			when: ContextKeyExpr.and(CONTEXT_SYNC_STATE.notEqualsTo(SyncStatus.Uninitialized), CONTEXT_ACCOUNT_STATE.isEqualTo(AccountStatus.Available), CONTEXT_ENABLE_ACTIVITY_VIEWS),
-			canToggleVisibility: true,
-			canMoveView: false,
-			treeView,
-			collapsed: false,
-			order: remote ? 200 : 400,
-			hideByDefault: !remote,
-		};
-		viewsRegistry.registerViews([viewDescriptor], container);
-
-		this.registerDataViewActions(id);
-	}
-
-	private registerExternalActivityView(container: ViewContainer): void {
-		const id = `workbench.views.sync.externalActivity`;
-		const name = localize2('downloaded sync activity title', "Sync Activity (Developer)");
-		const dataProvider = this.instantiationService.createInstance(ExtractedUserDataSyncActivityViewDataProvider, undefined);
-		const treeView = this.instantiationService.createInstance(TreeView, id, name.value);
-		treeView.showCollapseAllAction = false;
-		treeView.showRefreshAction = false;
-		treeView.dataProvider = dataProvider;
-
-		const viewsRegistry = Registry.as<IViewsRegistry>(Extensions.ViewsRegistry);
-		const viewDescriptor: ITreeViewDescriptor = {
-			id,
-			name,
-			ctorDescriptor: new SyncDescriptor(TreeViewPane),
-			when: CONTEXT_ENABLE_ACTIVITY_VIEWS,
-			canToggleVisibility: true,
-			canMoveView: false,
-			treeView,
-			collapsed: false,
-			hideByDefault: false,
-		};
-		viewsRegistry.registerViews([viewDescriptor], container);
-
-		this._register(registerAction2(class extends Action2 {
-			constructor() {
-				super({
-					id: `workbench.actions.sync.loadActivity`,
-					title: localize('workbench.actions.sync.loadActivity', "Load Sync Activity"),
-					icon: Codicon.cloudUpload,
-					menu: {
-						id: MenuId.ViewTitle,
-						when: ContextKeyExpr.equals('view', id),
-						group: 'navigation',
-					},
-				});
-			}
-			async run(accessor: ServicesAccessor): Promise<void> {
-				const fileDialogService = accessor.get(IFileDialogService);
-				const result = await fileDialogService.showOpenDialog({
-					title: localize('select sync activity file', "Select Sync Activity File or Folder"),
-					canSelectFiles: true,
-					canSelectFolders: true,
-					canSelectMany: false,
-				});
-				if (!result?.[0]) {
-					return;
+				async run(accessor: ServicesAccessor, handle: TreeViewItemHandleArg): cognidreammise<cognidream> {
+					const { resource } = <{ resource: string }>JSON.parse(handle.$treeItemHandle);
+					const editorService = accessor.get(IEditorService);
+					await editorService.openEditor({ resource: URI.parse(resource), options: { pinned: true } });
 				}
-				dataProvider.activityDataResource = result[0];
-				await treeView.refresh();
-			}
-		}));
-	}
+			}));
 
-	private registerDataViewActions(viewId: string) {
-		this._register(registerAction2(class extends Action2 {
-			constructor() {
-				super({
-					id: `workbench.actions.sync.${viewId}.resolveResource`,
-					title: localize('workbench.actions.sync.resolveResourceRef', "Show raw JSON sync data"),
-					menu: {
-						id: MenuId.ViewItemContext,
-						when: ContextKeyExpr.and(ContextKeyExpr.equals('view', viewId), ContextKeyExpr.regex('viewItem', /sync-resource-.*/i))
-					},
-				});
-			}
-			async run(accessor: ServicesAccessor, handle: TreeViewItemHandleArg): Promise<void> {
-				const { resource } = <{ resource: string }>JSON.parse(handle.$treeItemHandle);
-				const editorService = accessor.get(IEditorService);
-				await editorService.openEditor({ resource: URI.parse(resource), options: { pinned: true } });
-			}
-		}));
-
-		this._register(registerAction2(class extends Action2 {
-			constructor() {
-				super({
-					id: `workbench.actions.sync.${viewId}.compareWithLocal`,
-					title: localize('workbench.actions.sync.compareWithLocal', "Compare with Local"),
-					menu: {
-						id: MenuId.ViewItemContext,
-						when: ContextKeyExpr.and(ContextKeyExpr.equals('view', viewId), ContextKeyExpr.regex('viewItem', /sync-associatedResource-.*/i))
-					},
-				});
-			}
-			async run(accessor: ServicesAccessor, handle: TreeViewItemHandleArg): Promise<void> {
-				const commandService = accessor.get(ICommandService);
-				const { resource, comparableResource } = <{ resource: string; comparableResource: string }>JSON.parse(handle.$treeItemHandle);
-				const remoteResource = URI.parse(resource);
-				const localResource = URI.parse(comparableResource);
-				return commandService.executeCommand(API_OPEN_DIFF_EDITOR_COMMAND_ID,
-					remoteResource,
-					localResource,
-					localize('remoteToLocalDiff', "{0} ↔ {1}", localize({ key: 'leftResourceName', comment: ['remote as in file in cloud'] }, "{0} (Remote)", basename(remoteResource)), localize({ key: 'rightResourceName', comment: ['local as in file in disk'] }, "{0} (Local)", basename(localResource))),
-					undefined
-				);
-			}
-		}));
-
-		this._register(registerAction2(class extends Action2 {
-			constructor() {
-				super({
-					id: `workbench.actions.sync.${viewId}.replaceCurrent`,
-					title: localize('workbench.actions.sync.replaceCurrent', "Restore"),
-					icon: Codicon.discard,
-					menu: {
-						id: MenuId.ViewItemContext,
-						when: ContextKeyExpr.and(ContextKeyExpr.equals('view', viewId), ContextKeyExpr.regex('viewItem', /sync-resource-.*/i), ContextKeyExpr.notEquals('viewItem', `sync-resource-${SyncResource.Profiles}`)),
-						group: 'inline',
-					},
-				});
-			}
-			async run(accessor: ServicesAccessor, handle: TreeViewItemHandleArg): Promise<void> {
-				const dialogService = accessor.get(IDialogService);
-				const userDataSyncService = accessor.get(IUserDataSyncService);
-				const { syncResourceHandle, syncResource } = <{ syncResourceHandle: UriDto<ISyncResourceHandle>; syncResource: SyncResource }>JSON.parse(handle.$treeItemHandle);
-				const result = await dialogService.confirm({
-					message: localize({ key: 'confirm replace', comment: ['A confirmation message to replace current user data (settings, extensions, keybindings, snippets) with selected version'] }, "Would you like to replace your current {0} with selected?", getSyncAreaLabel(syncResource)),
-					type: 'info',
-					title: SYNC_TITLE.value
-				});
-				if (result.confirmed) {
-					return userDataSyncService.replace({ created: syncResourceHandle.created, uri: URI.revive(syncResourceHandle.uri) });
+			this._register(registerAction2(class extends Action2 {
+				constructor() {
+					super({
+						id: `workbench.actions.sync.${viewId}.compareWithLocal`,
+						title: localize('workbench.actions.sync.compareWithLocal', "Compare with Local"),
+						menu: {
+							id: MenuId.ViewItemContext,
+							when: ContextKeyExpr.and(ContextKeyExpr.equals('view', viewId), ContextKeyExpr.regex('viewItem', /sync-associatedResource-.*/i))
+						},
+					});
 				}
-			}
-		}));
+				async run(accessor: ServicesAccessor, handle: TreeViewItemHandleArg): cognidreammise<cognidream> {
+					const commandService = accessor.get(ICommandService);
+					const { resource, comparableResource } = <{ resource: string; comparableResource: string }>JSON.parse(handle.$treeItemHandle);
+					const remoteResource = URI.parse(resource);
+					const localResource = URI.parse(comparableResource);
+					return commandService.executeCommand(API_OPEN_DIFF_EDITOR_COMMAND_ID,
+						remoteResource,
+						localResource,
+						localize('remoteToLocalDiff', "{0} ↔ {1}", localize({ key: 'leftResourceName', comment: ['remote as in file in cloud'] }, "{0} (Remote)", basename(remoteResource)), localize({ key: 'rightResourceName', comment: ['local as in file in disk'] }, "{0} (Local)", basename(localResource))),
+						undefined
+					);
+				}
+			}));
 
-	}
+			this._register(registerAction2(class extends Action2 {
+				constructor() {
+					super({
+						id: `workbench.actions.sync.${viewId}.replaceCurrent`,
+						title: localize('workbench.actions.sync.replaceCurrent', "Restore"),
+						icon: Codicon.discard,
+						menu: {
+							id: MenuId.ViewItemContext,
+							when: ContextKeyExpr.and(ContextKeyExpr.equals('view', viewId), ContextKeyExpr.regex('viewItem', /sync-resource-.*/i), ContextKeyExpr.notEquals('viewItem', `sync-resource-${SyncResource.Profiles}`)),
+							group: 'inline',
+						},
+					});
+				}
+				async run(accessor: ServicesAccessor, handle: TreeViewItemHandleArg): cognidreammise<cognidream> {
+					const dialogService = accessor.get(IDialogService);
+					const userDataSyncService = accessor.get(IUserDataSyncService);
+					const { syncResourceHandle, syncResource } = <{ syncResourceHandle: UriDto<ISyncResourceHandle>; syncResource: SyncResource }>JSON.parse(handle.$treeItemHandle);
+					const result = await dialogService.confirm({
+						message: localize({ key: 'confirm replace', comment: ['A confirmation message to replace current user data (settings, extensions, keybindings, snippets) with selected version'] }, "Would you like to replace your current {0} with selected?", getSyncAreaLabel(syncResource)),
+						type: 'info',
+						title: SYNC_TITLE.value
+					});
+					if (result.confirmed) {
+						return userDataSyncService.replace({ created: syncResourceHandle.created, uri: URI.revive(syncResourceHandle.uri) });
+					}
+				}
+			}));
 
-	private registerTroubleShootView(container: ViewContainer): void {
-		const id = `workbench.views.sync.troubleshoot`;
-		const name = localize2('troubleshoot', "Troubleshoot");
-		const treeView = this.instantiationService.createInstance(TreeView, id, name.value);
-		const dataProvider = this.instantiationService.createInstance(UserDataSyncTroubleshootViewDataProvider);
-		treeView.showRefreshAction = true;
-		treeView.dataProvider = dataProvider;
+		}
 
-		const viewsRegistry = Registry.as<IViewsRegistry>(Extensions.ViewsRegistry);
-		const viewDescriptor: ITreeViewDescriptor = {
-			id,
-			name,
-			ctorDescriptor: new SyncDescriptor(TreeViewPane),
-			when: CONTEXT_ENABLE_ACTIVITY_VIEWS,
-			canToggleVisibility: true,
-			canMoveView: false,
-			treeView,
-			collapsed: false,
-			order: 500,
-			hideByDefault: true
-		};
-		viewsRegistry.registerViews([viewDescriptor], container);
+    private registerTroubleShootView(container: ViewContainercognidreamognidream {
+			const id = `workbench.views.sync.troubleshoot`;
+			const name = localize2('troubleshoot', "Troubleshoot");
+			const treeView = this.instantiationService.createInstance(TreeView, id, name.value);
+			const dataProvider = this.instantiationService.createInstance(UserDataSyncTroubleshootViewDataProvider);
+			treeView.showRefreshAction = true;
+			treeView.dataProvider = dataProvider;
 
-	}
+			const viewsRegistry = Registry.as<IViewsRegistry>(Extensions.ViewsRegistry);
+			const viewDescriptor: ITreeViewDescriptor = {
+				id,
+				name,
+				ctorDescriptor: new SyncDescriptor(TreeViewPane),
+				when: CONTEXT_ENABLE_ACTIVITY_VIEWS,
+				canToggleVisibility: true,
+				canMoveView: false,
+				treeView,
+				collapsed: false,
+				order: 500,
+				hideByDefault: true
+			};
+			viewsRegistry.registerViews([viewDescriptor], container);
+
+		}
 
 }
 
-type Profile = IUserDataProfile | ISyncUserDataProfile;
+			type Profile = IUserDataProfile | ISyncUserDataProfile;
 
 interface ISyncResourceHandle extends IResourceHandle {
 	profileId?: string;

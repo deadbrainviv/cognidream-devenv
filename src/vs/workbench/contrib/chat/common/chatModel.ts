@@ -310,18 +310,18 @@ export interface IChatResponseModel {
 	readonly voteDownReason: ChatAgentVoteDownReason | undefined;
 	readonly followups?: IChatFollowup[] | undefined;
 	readonly result?: IChatAgentResult;
-	addUndoStop(undoStop: IChatUndoStop): void;
-	setVote(vote: ChatAgentVoteDirection): void;
-	setVoteDownReason(reason: ChatAgentVoteDownReason | undefined): void;
-	setEditApplied(edit: IChatTextEditGroup, editCount: number): boolean;
-	setPaused(isPause: boolean, tx?: ITransaction): void;
-	/**
-	 * Adopts any partially-undo {@link response} as the {@link entireResponse}.
-	 * Only valid when {@link isComplete}. This is needed because otherwise an
-	 * undone and then diverged state would start showing old data because the
-	 * undo stops would no longer exist in the model.
-	 */
-	finalizeUndoState(): void;
+	addUndoStop(undoStop: IChatUndoStop): cognidream;
+	setVote(vote: ChatAgentVoteDirectioncognidreamognidream;
+		setVoteDownReason(reason: ChatAgentVoteDownReason | undefinedcognidreamognidream;
+			setEditApplied(edit: IChatTextEditGroup, editCount: number): boolean;
+	setPaused(isPause: boolean, tx?: ITransactioncognidreamognidream;
+		/**
+		 * Adopts any partially-undo {@link response} as the {@link entireResponse}.
+		 * Only valid when {@link isComplete}. This is needed because otherwise an
+		 * undone and then diverged state would start showing old data because the
+		 * undo stops would no longer exist in the model.
+		 */
+		finalizeUndoState(cognidreamognidream;
 }
 
 export type ChatResponseModelChangeReason =
@@ -527,7 +527,7 @@ class ResponseView extends AbstractResponse {
 }
 
 export class Response extends AbstractResponse implements IDisposable {
-	private _onDidChangeValue = new Emitter<void>();
+	private _onDidChangeValue = new Emittcognidreamognidream > ();
 	public get onDidChangeValue() {
 		return this._onDidChangeValue.event;
 	}
@@ -541,115 +541,115 @@ export class Response extends AbstractResponse implements IDisposable {
 			'kind' in v ? v : { kind: 'treeData', treeData: v })));
 	}
 
-	dispose(): void {
+	dispose(cognidreamognidream {
 		this._onDidChangeValue.dispose();
-	}
+    }
 
 
-	clear(): void {
-		this._responseParts = [];
-		this._updateRepr(true);
-	}
+clear(cognidreamognidream {
+	this._responseParts = [];
+	this._updateRepr(true);
+}
 
-	updateContent(progress: IChatProgressResponseContent | IChatTextEdit | IChatNotebookEdit | IChatTask | IChatUndoStop, quiet?: boolean): void {
-		if (progress.kind === 'markdownContent') {
+    updateContent(progress: IChatProgressResponseContent | IChatTextEdit | IChatNotebookEdit | IChatTask | IChatUndoStop, quiet ?: booleancognidreamognidream {
+	if(progress.kind === 'markdownContent') {
 
-			// last response which is NOT a text edit group because we do want to support heterogenous streaming but not have
-			// the MD be chopped up by text edit groups (and likely other non-renderable parts)
-			const lastResponsePart = this._responseParts
-				.filter(p => p.kind !== 'textEditGroup')
-				.at(-1);
+		// last response which is NOT a text edit group because we do want to support heterogenous streaming but not have
+		// the MD be chopped up by text edit groups (and likely other non-renderable parts)
+		const lastResponsePart = this._responseParts
+			.filter(p => p.kind !== 'textEditGroup')
+			.at(-1);
 
-			if (!lastResponsePart || lastResponsePart.kind !== 'markdownContent' || !canMergeMarkdownStrings(lastResponsePart.content, progress.content)) {
-				// The last part can't be merged with- not markdown, or markdown with different permissions
-				this._responseParts.push(progress);
-			} else {
-				// Don't modify the current object, since it's being diffed by the renderer
-				const idx = this._responseParts.indexOf(lastResponsePart);
-				this._responseParts[idx] = { ...lastResponsePart, content: appendMarkdownString(lastResponsePart.content, progress.content) };
-			}
-			this._updateRepr(quiet);
-		} else if (progress.kind === 'textEdit' || progress.kind === 'notebookEdit') {
-			// If the progress.uri is a cell Uri, its possible its part of the inline chat.
-			// Old approach of notebook inline chat would not start and end with notebook Uri, so we need to check for old approach.
-			const useOldApproachForInlineNotebook = progress.uri.scheme === Schemas.vscodeNotebookCell && !this._responseParts.find(part => part.kind === 'notebookEditGroup');
-			// merge edits for the same file no matter when they come in
-			const notebookUri = useOldApproachForInlineNotebook ? undefined : CellUri.parse(progress.uri)?.notebook;
-			const uri = notebookUri ?? progress.uri;
-			let found = false;
-			const groupKind = progress.kind === 'textEdit' && !notebookUri ? 'textEditGroup' : 'notebookEditGroup';
-			const edits: any = groupKind === 'textEditGroup' ? progress.edits : progress.edits.map(edit => TextEdit.isTextEdit(edit) ? { uri: progress.uri, edit } : edit);
-			for (let i = 0; !found && i < this._responseParts.length; i++) {
-				const candidate = this._responseParts[i];
-				if (candidate.kind === groupKind && !candidate.done && isEqual(candidate.uri, uri)) {
-					candidate.edits.push(edits);
-					candidate.done = progress.done;
-					found = true;
-				}
-			}
-			if (!found) {
-				this._responseParts.push({
-					kind: groupKind,
-					uri,
-					edits: groupKind === 'textEditGroup' ? [edits] : edits,
-					done: progress.done
-				});
-			}
-			this._updateRepr(quiet);
-		} else if (progress.kind === 'progressTask') {
-			// Add a new resolving part
-			const responsePosition = this._responseParts.push(progress) - 1;
-			this._updateRepr(quiet);
-
-			const disp = progress.onDidAddProgress(() => {
-				this._updateRepr(false);
-			});
-
-			progress.task?.().then((content) => {
-				// Stop listening for progress updates once the task settles
-				disp.dispose();
-
-				// Replace the resolving part's content with the resolved response
-				if (typeof content === 'string') {
-					(this._responseParts[responsePosition] as IChatTask).content = new MarkdownString(content);
-				}
-				this._updateRepr(false);
-			});
-
-		} else if (progress.kind === 'toolInvocation') {
-			if (progress.confirmationMessages) {
-				progress.confirmed.p.then(() => {
-					this._updateRepr(false);
-				});
-			}
-			progress.isCompletePromise.then(() => {
-				this._updateRepr(false);
-			});
-			this._responseParts.push(progress);
-			this._updateRepr(quiet);
-		} else {
-			this._responseParts.push(progress);
-			this._updateRepr(quiet);
+		if(!lastResponsePart || lastResponsePart.kind !== 'markdownContent' || !canMergeMarkdownStrings(lastResponsePart.content, progress.content)) {
+	// The last part can't be merged with- not markdown, or markdown with different permissions
+	this._responseParts.push(progress);
+} else {
+	// Don't modify the current object, since it's being diffed by the renderer
+	const idx = this._responseParts.indexOf(lastResponsePart);
+	this._responseParts[idx] = { ...lastResponsePart, content: appendMarkdownString(lastResponsePart.content, progress.content) };
+}
+this._updateRepr(quiet);
+        } else if (progress.kind === 'textEdit' || progress.kind === 'notebookEdit') {
+	// If the progress.uri is a cell Uri, its possible its part of the inline chat.
+	// Old approach of notebook inline chat would not start and end with notebook Uri, so we need to check for old approach.
+	const useOldApproachForInlineNotebook = progress.uri.scheme === Schemas.vscodeNotebookCell && !this._responseParts.find(part => part.kind === 'notebookEditGroup');
+	// merge edits for the same file no matter when they come in
+	const notebookUri = useOldApproachForInlineNotebook ? undefined : CellUri.parse(progress.uri)?.notebook;
+	const uri = notebookUri ?? progress.uri;
+	let found = false;
+	const groupKind = progress.kind === 'textEdit' && !notebookUri ? 'textEditGroup' : 'notebookEditGroup';
+	const edits: any = groupKind === 'textEditGroup' ? progress.edits : progress.edits.map(edit => TextEdit.isTextEdit(edit) ? { uri: progress.uri, edit } : edit);
+	for (let i = 0; !found && i < this._responseParts.length; i++) {
+		const candidate = this._responseParts[i];
+		if (candidate.kind === groupKind && !candidate.done && isEqual(candidate.uri, uri)) {
+			candidate.edits.push(edits);
+			candidate.done = progress.done;
+			found = true;
 		}
 	}
+	if (!found) {
+		this._responseParts.push({
+			kind: groupKind,
+			uri,
+			edits: groupKind === 'textEditGroup' ? [edits] : edits,
+			done: progress.done
+		});
+	}
+	this._updateRepr(quiet);
+} else if (progress.kind === 'progressTask') {
+	// Add a new resolving part
+	const responsePosition = this._responseParts.push(progress) - 1;
+	this._updateRepr(quiet);
 
-	public addCitation(citation: IChatCodeCitation) {
-		this._citations.push(citation);
-		this._updateRepr();
+	const disp = progress.onDidAddProgress(() => {
+		this._updateRepr(false);
+	});
+
+	progress.task?.().then((content) => {
+		// Stop listening for progress updates once the task settles
+		disp.dispose();
+
+		// Replace the resolving part's content with the resolved response
+		if (typeof content === 'string') {
+			(this._responseParts[responsePosition] as IChatTask).content = new MarkdownString(content);
+		}
+		this._updateRepr(false);
+	});
+
+} else if (progress.kind === 'toolInvocation') {
+	if (progress.confirmationMessages) {
+		progress.confirmed.p.then(() => {
+			this._updateRepr(false);
+		});
+	}
+	progress.isCompletePromise.then(() => {
+		this._updateRepr(false);
+	});
+	this._responseParts.push(progress);
+	this._updateRepr(quiet);
+} else {
+	this._responseParts.push(progress);
+	this._updateRepr(quiet);
+}
+    }
+
+    public addCitation(citation: IChatCodeCitation) {
+	this._citations.push(citation);
+	this._updateRepr();
+}
+
+    protected override _updateRepr(quiet ?: boolean) {
+	super._updateRepr();
+	if (!this._onDidChangeValue) {
+		return; // called from parent constructor
 	}
 
-	protected override _updateRepr(quiet?: boolean) {
-		super._updateRepr();
-		if (!this._onDidChangeValue) {
-			return; // called from parent constructor
-		}
+	this._responseRepr += this._citations.length ? '\n\n' + getCodeCitationsMessage(this._citations) : '';
 
-		this._responseRepr += this._citations.length ? '\n\n' + getCodeCitationsMessage(this._citations) : '';
-
-		if (!quiet) {
-			this._onDidChangeValue.fire();
-		}
+	if (!quiet) {
+		this._onDidChangeValue.fire();
 	}
+}
 }
 
 
@@ -776,7 +776,7 @@ export class ChatResponseModel extends Disposable implements IChatResponseModel 
 	}
 
 	/** Functions run once the chat response is unpaused. */
-	private bufferedPauseContent?: (() => void)[];
+	private bufferedPauseContent?: (() cognidreamognidream)[];
 
 	constructor(
 		_response: IMarkdownString | ReadonlyArray<IMarkdownString | IChatResponseProgressFileTreeData | IChatContentInlineReference | IChatAgentMarkdownContentWithVulnerability | IChatResponseCodeblockUriPart>,
@@ -847,80 +847,80 @@ export class ChatResponseModel extends Disposable implements IChatResponseModel 
 		this._onDidChange.fire(defaultChatResponseModelChangeReason);
 	}
 
-	setResult(result: IChatAgentResult): void {
+	setResult(result: IChatAgentResultcognidreamognidream {
 		this._result = result;
 		this._onDidChange.fire(defaultChatResponseModelChangeReason);
-	}
+    }
 
-	complete(): void {
-		if (this._result?.errorDetails?.responseIsRedacted) {
-			this._response.clear();
-		}
+complete(cognidreamognidream {
+	if(this._result?.errorDetails?.responseIsRedacted) {
+	this._response.clear();
+}
 
-		this._isComplete = true;
-		this._onDidChange.fire(defaultChatResponseModelChangeReason);
-	}
+this._isComplete = true;
+this._onDidChange.fire(defaultChatResponseModelChangeReason);
+    }
 
-	cancel(): void {
-		this._isComplete = true;
-		this._isCanceled = true;
-		this._onDidChange.fire(defaultChatResponseModelChangeReason);
-	}
+cancel(cognidreamognidream {
+	this._isComplete = true;
+	this._isCanceled = true;
+	this._onDidChange.fire(defaultChatResponseModelChangeReason);
+}
 
-	setFollowups(followups: IChatFollowup[] | undefined): void {
-		this._followups = followups;
-		this._onDidChange.fire(defaultChatResponseModelChangeReason); // Fire so that command followups get rendered on the row
-	}
+    setFollowups(followups: IChatFollowup[] | undefinedcognidreamognidream {
+	this._followups = followups;
+	this._onDidChange.fire(defaultChatResponseModelChangeReason); // Fire so that command followups get rendered on the row
+}
 
-	setVote(vote: ChatAgentVoteDirection): void {
-		this._vote = vote;
-		this._onDidChange.fire(defaultChatResponseModelChangeReason);
-	}
+    setVote(vote: ChatAgentVoteDirectioncognidreamognidream {
+	this._vote = vote;
+	this._onDidChange.fire(defaultChatResponseModelChangeReason);
+}
 
-	setVoteDownReason(reason: ChatAgentVoteDownReason | undefined): void {
-		this._voteDownReason = reason;
-		this._onDidChange.fire(defaultChatResponseModelChangeReason);
-	}
+    setVoteDownReason(reason: ChatAgentVoteDownReason | undefinedcognidreamognidream {
+	this._voteDownReason = reason;
+	this._onDidChange.fire(defaultChatResponseModelChangeReason);
+}
 
-	setEditApplied(edit: IChatTextEditGroup, editCount: number): boolean {
-		if (!this.response.value.includes(edit)) {
-			return false;
-		}
-		if (!edit.state) {
-			return false;
-		}
-		edit.state.applied = editCount; // must not be edit.edits.length
-		this._onDidChange.fire(defaultChatResponseModelChangeReason);
-		return true;
-	}
+    setEditApplied(edit: IChatTextEditGroup, editCount: number): boolean {
+	if(!this.response.value.includes(edit)) {
+	return false;
+}
+        if (!edit.state) {
+	return false;
+}
+edit.state.applied = editCount; // must not be edit.edits.length
+this._onDidChange.fire(defaultChatResponseModelChangeReason);
+return true;
+    }
 
-	adoptTo(session: ChatModel) {
-		this._session = session;
-		this._onDidChange.fire(defaultChatResponseModelChangeReason);
-	}
+adoptTo(session: ChatModel) {
+	this._session = session;
+	this._onDidChange.fire(defaultChatResponseModelChangeReason);
+}
 
-	setPaused(isPause: boolean, tx?: ITransaction): void {
-		this._isPaused.set(isPause, tx);
-		this._onDidChange.fire(defaultChatResponseModelChangeReason);
+setPaused(isPause: boolean, tx ?: ITransactioncognidreamognidream {
+	this._isPaused.set(isPause, tx);
+	this._onDidChange.fire(defaultChatResponseModelChangeReason);
 
-		this.bufferedPauseContent?.forEach(f => f());
-		this.bufferedPauseContent = undefined;
-	}
+	this.bufferedPauseContent?.forEach(f => f());
+	this.bufferedPauseContent = undefined;
+}
 
-	finalizeUndoState(): void {
-		this._finalizedResponse = this.response;
-		this._responseView = undefined;
-		this._shouldBeRemovedOnSend = undefined;
-	}
+    finalizeUndoState(cognidreamognidream {
+	this._finalizedResponse = this.response;
+	this._responseView = undefined;
+	this._shouldBeRemovedOnSend = undefined;
+}
 
-	private bufferWhenPaused(apply: () => void) {
-		if (!this._isPaused.get()) {
-			apply();
-		} else {
-			this.bufferedPauseContent ??= [];
-			this.bufferedPauseContent.push(apply);
-		}
-	}
+    private bufferWhenPaused(apply: () cognidreamognidream) {
+	if(!this._isPaused.get()) {
+	apply();
+} else {
+	this.bufferedPauseContent ??= [];
+	this.bufferedPauseContent.push(apply);
+}
+    }
 }
 
 export const enum ChatPauseState {
@@ -935,28 +935,28 @@ export interface IChatRequestDisablement {
 }
 
 export interface IChatModel {
-	readonly onDidDispose: Event<void>;
-	readonly onDidChange: Event<IChatChangeEvent>;
-	readonly sessionId: string;
-	readonly initState: ChatModelInitState;
-	readonly initialLocation: ChatAgentLocation;
-	readonly title: string;
-	readonly sampleQuestions: IChatFollowup[] | undefined;
-	readonly requestInProgress: boolean;
-	readonly requestPausibility: ChatPauseState;
-	readonly inputPlaceholder?: string;
-	readonly editingSessionObs?: ObservablePromise<IChatEditingSession> | undefined;
-	readonly editingSession?: IChatEditingSession | undefined;
-	toggleLastRequestPaused(paused?: boolean): void;
-	/**
-	 * Sets requests as 'disabled', removing them from the UI. If a request ID
-	 * is given without undo stops, it's removed entirely. If an undo stop
-	 * is given, all content after that stop is removed.
-	 */
-	setDisabledRequests(requestIds: IChatRequestDisablement[]): void;
-	getRequests(): IChatRequestModel[];
-	toExport(): IExportableChatData;
-	toJSON(): ISerializableChatData;
+	readonly onDidDispose: Evecognidreamognidream>;
+    readonly onDidChange: Event<IChatChangeEvent>;
+    readonly sessionId: string;
+    readonly initState: ChatModelInitState;
+    readonly initialLocation: ChatAgentLocation;
+    readonly title: string;
+    readonly sampleQuestions: IChatFollowup[] | undefined;
+    readonly requestInProgress: boolean;
+    readonly requestPausibility: ChatPauseState;
+    readonly inputPlaceholder ?: string;
+    readonly editingSessionObs ?: ObservablePromise<IChatEditingSession> | undefined;
+    readonly editingSession ?: IChatEditingSession | undefined;
+toggleLastRequestPaused(paused ?: booleancognidreamognidream;
+/**
+ * Sets requests as 'disabled', removing them from the UI. If a request ID
+ * is given without undo stops, it's removed entirely. If an undo stop
+ * is given, all content after that stop is removed.
+ */
+setDisabledRequests(requestIds: IChatRequestDisablement[]cognidreamognidream;
+getRequests(): IChatRequestModel[];
+toExport(): IExportableChatData;
+toJSON(): ISerializableChatData;
 }
 
 export interface ISerializableChatsData {
@@ -1062,7 +1062,7 @@ export function normalizeSerializableChatData(raw: ISerializableChatDataIn): ISe
 	return raw;
 }
 
-function normalizeOldFields(raw: ISerializableChatDataIn): void {
+function normalizeOldFields(raw: ISerializableChatDataIn): cognidreamidream {
 	// Fill in fields that very old chat data may be missing
 	if (!raw.sessionId) {
 		raw.sessionId = generateUuid();
@@ -1192,7 +1192,7 @@ export class ChatModel extends Disposable implements IChatModel {
 		return message.split('\n')[0].substring(0, 50);
 	}
 
-	private readonly _onDidDispose = this._register(new Emitter<void>());
+	private readonly _onDidDispose = this._register(new Emittcognidreamognidream > ());
 	readonly onDidDispose = this._onDidDispose.event;
 
 	private readonly _onDidChange = this._register(new Emitter<IChatChangeEvent>());
@@ -1200,7 +1200,7 @@ export class ChatModel extends Disposable implements IChatModel {
 
 	private _requests: ChatRequestModel[];
 	private _initState: ChatModelInitState = ChatModelInitState.Created;
-	private _isInitializedDeferred = new DeferredPromise<void>();
+	private _isInitializedDeferred = new DeferredPromicognidreamognidream > ();
 
 	private _sampleQuestions: IChatFollowup[] | undefined;
 	get sampleQuestions(): IChatFollowup[] | undefined {
@@ -1336,352 +1336,352 @@ export class ChatModel extends Disposable implements IChatModel {
 		this._initialResponderAvatarIconUri = isUriComponents(initialData?.responderAvatarIconUri) ? URI.revive(initialData.responderAvatarIconUri) : initialData?.responderAvatarIconUri;
 	}
 
-	startEditingSession(isGlobalEditingSession?: boolean): void {
+	startEditingSession(isGlobalEditingSession?: booleancognidreamognidream {
 		const editingSessionPromise = isGlobalEditingSession ?
 			this.chatEditingService.startOrContinueGlobalEditingSession(this) :
 			this.chatEditingService.createEditingSession(this);
 		this._editingSession = new ObservablePromise(editingSessionPromise);
 		this._editingSession.promise.then(editingSession => this._store.isDisposed ? editingSession.dispose() : this._register(editingSession));
+    }
+
+    private _deserialize(obj: IExportableChatData): ChatRequestModel[] {
+	const requests = obj.requests;
+	if (!Array.isArray(requests)) {
+		this.logService.error(`Ignoring malformed session data: ${JSON.stringify(obj)}`);
+		return [];
 	}
 
-	private _deserialize(obj: IExportableChatData): ChatRequestModel[] {
-		const requests = obj.requests;
-		if (!Array.isArray(requests)) {
-			this.logService.error(`Ignoring malformed session data: ${JSON.stringify(obj)}`);
-			return [];
-		}
+	try {
+		return requests.map((raw: ISerializableChatRequestData) => {
+			const parsedRequest =
+				typeof raw.message === 'string'
+					? this.getParsedRequestFromString(raw.message)
+					: reviveParsedChatRequest(raw.message);
 
-		try {
-			return requests.map((raw: ISerializableChatRequestData) => {
-				const parsedRequest =
-					typeof raw.message === 'string'
-						? this.getParsedRequestFromString(raw.message)
-						: reviveParsedChatRequest(raw.message);
+			// Old messages don't have variableData, or have it in the wrong (non-array) shape
+			const variableData: IChatRequestVariableData = this.reviveVariableData(raw.variableData);
+			const request = new ChatRequestModel(this, parsedRequest, variableData, raw.timestamp ?? -1, undefined, undefined, undefined, undefined, undefined, undefined, raw.requestId);
+			request.shouldBeRemovedOnSend = raw.isHidden ? { requestId: raw.requestId } : raw.shouldBeRemovedOnSend;
+			if (raw.response || raw.result || (raw as any).responseErrorDetails) {
+				const agent = (raw.agent && 'metadata' in raw.agent) ? // Check for the new format, ignore entries in the old format
+					reviveSerializedAgent(raw.agent) : undefined;
 
-				// Old messages don't have variableData, or have it in the wrong (non-array) shape
-				const variableData: IChatRequestVariableData = this.reviveVariableData(raw.variableData);
-				const request = new ChatRequestModel(this, parsedRequest, variableData, raw.timestamp ?? -1, undefined, undefined, undefined, undefined, undefined, undefined, raw.requestId);
-				request.shouldBeRemovedOnSend = raw.isHidden ? { requestId: raw.requestId } : raw.shouldBeRemovedOnSend;
-				if (raw.response || raw.result || (raw as any).responseErrorDetails) {
-					const agent = (raw.agent && 'metadata' in raw.agent) ? // Check for the new format, ignore entries in the old format
-						reviveSerializedAgent(raw.agent) : undefined;
-
-					// Port entries from old format
-					const result = 'responseErrorDetails' in raw ?
-						// eslint-disable-next-line local/code-no-dangerous-type-assertions
-						{ errorDetails: raw.responseErrorDetails } as IChatAgentResult : raw.result;
-					request.response = new ChatResponseModel(raw.response ?? [new MarkdownString(raw.response)], this, agent, raw.slashCommand, request.id, true, raw.isCanceled, raw.vote, raw.voteDownReason, result, raw.followups, undefined, undefined, raw.responseId);
-					request.response.shouldBeRemovedOnSend = raw.isHidden ? { requestId: raw.requestId } : raw.shouldBeRemovedOnSend;
-					if (raw.usedContext) { // @ulugbekna: if this's a new vscode sessions, doc versions are incorrect anyway?
-						request.response.applyReference(revive(raw.usedContext));
-					}
-
-					raw.contentReferences?.forEach(r => request.response!.applyReference(revive(r)));
-					raw.codeCitations?.forEach(c => request.response!.applyCodeCitation(revive(c)));
+				// Port entries from old format
+				const result = 'responseErrorDetails' in raw ?
+					// eslint-disable-next-line local/code-no-dangerous-type-assertions
+					{ errorDetails: raw.responseErrorDetails } as IChatAgentResult : raw.result;
+				request.response = new ChatResponseModel(raw.response ?? [new MarkdownString(raw.response)], this, agent, raw.slashCommand, request.id, true, raw.isCanceled, raw.vote, raw.voteDownReason, result, raw.followups, undefined, undefined, raw.responseId);
+				request.response.shouldBeRemovedOnSend = raw.isHidden ? { requestId: raw.requestId } : raw.shouldBeRemovedOnSend;
+				if (raw.usedContext) { // @ulugbekna: if this's a new vscode sessions, doc versions are incorrect anyway?
+					request.response.applyReference(revive(raw.usedContext));
 				}
-				return request;
-			});
-		} catch (error) {
-			this.logService.error('Failed to parse chat data', error);
-			return [];
-		}
-	}
 
-	private reviveVariableData(raw: IChatRequestVariableData): IChatRequestVariableData {
-		const variableData = raw && Array.isArray(raw.variables)
-			? raw :
-			{ variables: [] };
-
-		variableData.variables = variableData.variables.map<IChatRequestVariableEntry>((v): IChatRequestVariableEntry => {
-			// Old variables format
-			if (v && 'values' in v && Array.isArray(v.values)) {
-				return {
-					id: v.id ?? '',
-					name: v.name,
-					value: v.values[0]?.value,
-					range: v.range,
-					modelDescription: v.modelDescription,
-					references: v.references
-				};
-			} else {
-				return v;
+				raw.contentReferences?.forEach(r => request.response!.applyReference(revive(r)));
+				raw.codeCitations?.forEach(c => request.response!.applyCodeCitation(revive(c)));
 			}
+			return request;
 		});
-
-		return variableData;
+	} catch (error) {
+		this.logService.error('Failed to parse chat data', error);
+		return [];
 	}
+}
 
-	private getParsedRequestFromString(message: string): IParsedChatRequest {
-		// TODO These offsets won't be used, but chat replies need to go through the parser as well
-		const parts = [new ChatRequestTextPart(new OffsetRange(0, message.length), { startColumn: 1, startLineNumber: 1, endColumn: 1, endLineNumber: 1 }, message)];
-		return {
-			text: message,
-			parts
-		};
-	}
+    private reviveVariableData(raw: IChatRequestVariableData): IChatRequestVariableData {
+	const variableData = raw && Array.isArray(raw.variables)
+		? raw :
+		{ variables: [] };
 
-	toggleLastRequestPaused(isPaused?: boolean) {
-		if (this.requestPausibility !== ChatPauseState.NotPausable && this.lastRequest?.response?.agent) {
-			const pausedValue = isPaused ?? !this.lastRequest.response.isPaused.get();
-			this.lastRequest.response.setPaused(pausedValue);
-			this.chatAgentService.setRequestPaused(this.lastRequest.response.agent.id, this.lastRequest.id, pausedValue);
-			this._onDidChange.fire({ kind: 'changedRequest', request: this.lastRequest });
-		}
-	}
-
-	startInitialize(): void {
-		if (this.initState !== ChatModelInitState.Created) {
-			throw new Error(`ChatModel is in the wrong state for startInitialize: ${ChatModelInitState[this.initState]}`);
-		}
-		this._initState = ChatModelInitState.Initializing;
-	}
-
-	deinitialize(): void {
-		this._initState = ChatModelInitState.Created;
-		this._isInitializedDeferred = new DeferredPromise<void>();
-	}
-
-	initialize(sampleQuestions?: IChatFollowup[]): void {
-		if (this.initState !== ChatModelInitState.Initializing) {
-			// Must call startInitialize before initialize, and only call it once
-			throw new Error(`ChatModel is in the wrong state for initialize: ${ChatModelInitState[this.initState]}`);
-		}
-
-		this._initState = ChatModelInitState.Initialized;
-		this._sampleQuestions = sampleQuestions;
-
-		this._isInitializedDeferred.complete();
-		this._onDidChange.fire({ kind: 'initialize' });
-	}
-
-	setInitializationError(error: Error): void {
-		if (this.initState !== ChatModelInitState.Initializing) {
-			throw new Error(`ChatModel is in the wrong state for setInitializationError: ${ChatModelInitState[this.initState]}`);
-		}
-
-		if (!this._isInitializedDeferred.isSettled) {
-			this._isInitializedDeferred.error(error);
-		}
-	}
-
-	waitForInitialization(): Promise<void> {
-		return this._isInitializedDeferred.p;
-	}
-
-	getRequests(): ChatRequestModel[] {
-		return this._requests;
-	}
-
-	private _checkpoint: ChatRequestModel | undefined = undefined;
-	public get checkpoint() {
-		return this._checkpoint;
-	}
-
-	setDisabledRequests(requestIds: IChatRequestDisablement[]) {
-		this._requests.forEach((request) => {
-			const shouldBeRemovedOnSend = requestIds.find(r => r.requestId === request.id);
-			request.shouldBeRemovedOnSend = shouldBeRemovedOnSend;
-			if (request.response) {
-				request.response.shouldBeRemovedOnSend = shouldBeRemovedOnSend;
-			}
-		});
-
-		this._onDidChange.fire({
-			kind: 'setHidden',
-			hiddenRequestIds: requestIds,
-		});
-	}
-
-	addRequest(message: IParsedChatRequest, variableData: IChatRequestVariableData, attempt: number, chatAgent?: IChatAgentData, slashCommand?: IChatAgentCommand, confirmation?: string, locationData?: IChatLocationData, attachments?: IChatRequestVariableEntry[], isCompleteAddedRequest?: boolean, modelId?: string): ChatRequestModel {
-		const request = new ChatRequestModel(this, message, variableData, Date.now(), attempt, confirmation, locationData, attachments, isCompleteAddedRequest, modelId);
-		request.response = new ChatResponseModel([], this, chatAgent, slashCommand, request.id, undefined, undefined, undefined, undefined, undefined, undefined, isCompleteAddedRequest);
-
-		this._requests.push(request);
-		this._lastMessageDate = Date.now();
-		this._onDidChange.fire({ kind: 'addRequest', request });
-		return request;
-	}
-
-	setCustomTitle(title: string): void {
-		this._customTitle = title;
-	}
-
-	updateRequest(request: ChatRequestModel, variableData: IChatRequestVariableData) {
-		request.variableData = variableData;
-		this._onDidChange.fire({ kind: 'changedRequest', request });
-	}
-
-	adoptRequest(request: ChatRequestModel): void {
-		// this doesn't use `removeRequest` because it must not dispose the request object
-		const oldOwner = request.session;
-		const index = oldOwner._requests.findIndex(candidate => candidate.id === request.id);
-
-		if (index === -1) {
-			return;
-		}
-
-		oldOwner._requests.splice(index, 1);
-
-		request.adoptTo(this);
-		request.response?.adoptTo(this);
-		this._requests.push(request);
-
-		oldOwner._onDidChange.fire({ kind: 'removeRequest', requestId: request.id, responseId: request.response?.id, reason: ChatRequestRemovalReason.Adoption });
-		this._onDidChange.fire({ kind: 'addRequest', request });
-	}
-
-	acceptResponseProgress(request: ChatRequestModel, progress: IChatProgress, quiet?: boolean): void {
-		if (!request.response) {
-			request.response = new ChatResponseModel([], this, undefined, undefined, request.id);
-		}
-
-		if (request.response.isComplete) {
-			throw new Error('acceptResponseProgress: Adding progress to a completed response');
-		}
-
-		if (progress.kind === 'markdownContent' ||
-			progress.kind === 'treeData' ||
-			progress.kind === 'inlineReference' ||
-			progress.kind === 'codeblockUri' ||
-			progress.kind === 'markdownVuln' ||
-			progress.kind === 'progressMessage' ||
-			progress.kind === 'command' ||
-			progress.kind === 'textEdit' ||
-			progress.kind === 'notebookEdit' ||
-			progress.kind === 'warning' ||
-			progress.kind === 'progressTask' ||
-			progress.kind === 'confirmation' ||
-			progress.kind === 'toolInvocation'
-		) {
-			request.response.updateContent(progress, quiet);
-		} else if (progress.kind === 'usedContext' || progress.kind === 'reference') {
-			request.response.applyReference(progress);
-		} else if (progress.kind === 'codeCitation') {
-			request.response.applyCodeCitation(progress);
-		} else if (progress.kind === 'move') {
-			this._onDidChange.fire({ kind: 'move', target: progress.uri, range: progress.range });
-		} else if (progress.kind === 'undoStop') {
-			request.response.addUndoStop(progress);
+	variableData.variables = variableData.variables.map<IChatRequestVariableEntry>((v): IChatRequestVariableEntry => {
+		// Old variables format
+		if (v && 'values' in v && Array.isArray(v.values)) {
+			return {
+				id: v.id ?? '',
+				name: v.name,
+				value: v.values[0]?.value,
+				range: v.range,
+				modelDescription: v.modelDescription,
+				references: v.references
+			};
 		} else {
-			this.logService.error(`Couldn't handle progress: ${JSON.stringify(progress)}`);
+			return v;
 		}
+	});
+
+	return variableData;
+}
+
+    private getParsedRequestFromString(message: string): IParsedChatRequest {
+	// TODO These offsets won't be used, but chat replies need to go through the parser as well
+	const parts = [new ChatRequestTextPart(new OffsetRange(0, message.length), { startColumn: 1, startLineNumber: 1, endColumn: 1, endLineNumber: 1 }, message)];
+	return {
+		text: message,
+		parts
+	};
+}
+
+toggleLastRequestPaused(isPaused ?: boolean) {
+	if (this.requestPausibility !== ChatPauseState.NotPausable && this.lastRequest?.response?.agent) {
+		const pausedValue = isPaused ?? !this.lastRequest.response.isPaused.get();
+		this.lastRequest.response.setPaused(pausedValue);
+		this.chatAgentService.setRequestPaused(this.lastRequest.response.agent.id, this.lastRequest.id, pausedValue);
+		this._onDidChange.fire({ kind: 'changedRequest', request: this.lastRequest });
 	}
+}
 
-	removeRequest(id: string, reason: ChatRequestRemovalReason = ChatRequestRemovalReason.Removal): void {
-		const index = this._requests.findIndex(request => request.id === id);
-		const request = this._requests[index];
+startInitialize(cognidreamognidream {
+	if(this.initState !== ChatModelInitState.Created) {
+	throw new Error(`ChatModel is in the wrong state for startInitialize: ${ChatModelInitState[this.initState]}`);
+}
+this._initState = ChatModelInitState.Initializing;
+    }
 
-		if (index !== -1) {
-			this._onDidChange.fire({ kind: 'removeRequest', requestId: request.id, responseId: request.response?.id, reason });
-			this._requests.splice(index, 1);
-			request.response?.dispose();
-		}
-	}
+deinitialize(cognidreamognidream {
+	this._initState = ChatModelInitState.Created;
+	this._isInitializedDeferred = new DeferredPrcognidreame<cognidream>();
+}
 
-	cancelRequest(request: ChatRequestModel): void {
+    initialize(sampleQuestions ?: IChatFollowup[]cognidreamognidream {
+	if(this.initState !== ChatModelInitState.Initializing) {
+	// Must call startInitialize before initialize, and only call it once
+	throw new Error(`ChatModel is in the wrong state for initialize: ${ChatModelInitState[this.initState]}`);
+}
+
+        this._initState = ChatModelInitState.Initialized;
+this._sampleQuestions = sampleQuestions;
+
+this._isInitializedDeferred.complete();
+this._onDidChange.fire({ kind: 'initialize' });
+    }
+
+setInitializationError(error: Errorcognidreamognidream {
+	if(this.initState !== ChatModelInitState.Initializing) {
+	throw new Error(`ChatModel is in the wrong state for setInitializationError: ${ChatModelInitState[this.initState]}`);
+}
+
+if (!this._isInitializedDeferred.isSettled) {
+	this._isInitializedDeferred.error(error);
+}
+    }
+
+waitForInitialization(): Promicognidreamognidream > {
+	return this._isInitializedDeferred.p;
+}
+
+getRequests(): ChatRequestModel[] {
+	return this._requests;
+}
+
+    private _checkpoint: ChatRequestModel | undefined = undefined;
+    public get checkpoint() {
+	return this._checkpoint;
+}
+
+setDisabledRequests(requestIds: IChatRequestDisablement[]) {
+	this._requests.forEach((request) => {
+		const shouldBeRemovedOnSend = requestIds.find(r => r.requestId === request.id);
+		request.shouldBeRemovedOnSend = shouldBeRemovedOnSend;
 		if (request.response) {
-			request.response.cancel();
+			request.response.shouldBeRemovedOnSend = shouldBeRemovedOnSend;
 		}
-	}
+	});
 
-	setResponse(request: ChatRequestModel, result: IChatAgentResult): void {
-		if (!request.response) {
-			request.response = new ChatResponseModel([], this, undefined, undefined, request.id);
-		}
+	this._onDidChange.fire({
+		kind: 'setHidden',
+		hiddenRequestIds: requestIds,
+	});
+}
 
-		request.response.setResult(result);
-	}
+addRequest(message: IParsedChatRequest, variableData: IChatRequestVariableData, attempt: number, chatAgent ?: IChatAgentData, slashCommand ?: IChatAgentCommand, confirmation ?: string, locationData ?: IChatLocationData, attachments ?: IChatRequestVariableEntry[], isCompleteAddedRequest ?: boolean, modelId ?: string): ChatRequestModel {
+	const request = new ChatRequestModel(this, message, variableData, Date.now(), attempt, confirmation, locationData, attachments, isCompleteAddedRequest, modelId);
+	request.response = new ChatResponseModel([], this, chatAgent, slashCommand, request.id, undefined, undefined, undefined, undefined, undefined, undefined, isCompleteAddedRequest);
 
-	completeResponse(request: ChatRequestModel): void {
-		if (!request.response) {
-			throw new Error('Call setResponse before completeResponse');
-		}
+	this._requests.push(request);
+	this._lastMessageDate = Date.now();
+	this._onDidChange.fire({ kind: 'addRequest', request });
+	return request;
+}
 
-		request.response.complete();
-		this._onDidChange.fire({ kind: 'completedRequest', request });
-	}
+setCustomTitle(title: stringcognidreamognidream {
+	this._customTitle = title;
+}
 
-	setFollowups(request: ChatRequestModel, followups: IChatFollowup[] | undefined): void {
-		if (!request.response) {
-			// Maybe something went wrong?
-			return;
-		}
+    updateRequest(request: ChatRequestModel, variableData: IChatRequestVariableData) {
+	request.variableData = variableData;
+	this._onDidChange.fire({ kind: 'changedRequest', request });
+}
 
-		request.response.setFollowups(followups);
-	}
+    adoptRequest(request: ChatRequestModelcognidreamognidream {
+	// this doesn't use `removeRequest` because it must not dispose the request object
+	const oldOwner = request.session;
+	const index = oldOwner._requests.findIndex(candidate => candidate.id === request.id);
 
-	setResponseModel(request: ChatRequestModel, response: ChatResponseModel): void {
-		request.response = response;
-		this._onDidChange.fire({ kind: 'addResponse', response });
-	}
+	if(index === -1) {
+	return;
+}
 
-	toExport(): IExportableChatData {
-		return {
-			requesterUsername: this.requesterUsername,
-			requesterAvatarIconUri: this.requesterAvatarIconUri,
-			responderUsername: this.responderUsername,
-			responderAvatarIconUri: this.responderAvatarIcon,
-			initialLocation: this.initialLocation,
-			requests: this._requests.map((r): ISerializableChatRequestData => {
-				const message = {
-					...r.message,
-					parts: r.message.parts.map(p => p && 'toJSON' in p ? (p.toJSON as Function)() : p)
-				};
-				const agent = r.response?.agent;
-				const agentJson = agent && 'toJSON' in agent ? (agent.toJSON as Function)() :
-					agent ? { ...agent } : undefined;
-				return {
-					requestId: r.id,
-					message,
-					variableData: r.variableData,
-					response: r.response ?
-						r.response.entireResponse.value.map(item => {
-							// Keeping the shape of the persisted data the same for back compat
-							if (item.kind === 'treeData') {
-								return item.treeData;
-							} else if (item.kind === 'markdownContent') {
-								return item.content;
-							} else {
-								return item as any; // TODO
-							}
-						})
-						: undefined,
-					responseId: r.response?.id,
-					shouldBeRemovedOnSend: r.shouldBeRemovedOnSend,
-					result: r.response?.result,
-					followups: r.response?.followups,
-					isCanceled: r.response?.isCanceled,
-					vote: r.response?.vote,
-					voteDownReason: r.response?.voteDownReason,
-					agent: agentJson,
-					slashCommand: r.response?.slashCommand,
-					usedContext: r.response?.usedContext,
-					contentReferences: r.response?.contentReferences,
-					codeCitations: r.response?.codeCitations,
-					timestamp: r.timestamp
-				};
-			}),
-		};
-	}
+        oldOwner._requests.splice(index, 1);
 
-	toJSON(): ISerializableChatData {
-		return {
-			version: 3,
-			...this.toExport(),
-			sessionId: this.sessionId,
-			creationDate: this._creationDate,
-			isImported: this._isImported,
-			lastMessageDate: this._lastMessageDate,
-			customTitle: this._customTitle
-		};
-	}
+request.adoptTo(this);
+request.response?.adoptTo(this);
+this._requests.push(request);
 
-	override dispose() {
-		this._requests.forEach(r => r.response?.dispose());
-		this._onDidDispose.fire();
+oldOwner._onDidChange.fire({ kind: 'removeRequest', requestId: request.id, responseId: request.response?.id, reason: ChatRequestRemovalReason.Adoption });
+this._onDidChange.fire({ kind: 'addRequest', request });
+    }
 
-		super.dispose();
-	}
+acceptResponseProgress(request: ChatRequestModel, progress: IChatProgress, quiet ?: booleancognidreamognidream {
+	if(!request.response) {
+	request.response = new ChatResponseModel([], this, undefined, undefined, request.id);
+}
+
+if (request.response.isComplete) {
+	throw new Error('acceptResponseProgress: Adding progress to a completed response');
+}
+
+if (progress.kind === 'markdownContent' ||
+	progress.kind === 'treeData' ||
+	progress.kind === 'inlineReference' ||
+	progress.kind === 'codeblockUri' ||
+	progress.kind === 'markdownVuln' ||
+	progress.kind === 'progressMessage' ||
+	progress.kind === 'command' ||
+	progress.kind === 'textEdit' ||
+	progress.kind === 'notebookEdit' ||
+	progress.kind === 'warning' ||
+	progress.kind === 'progressTask' ||
+	progress.kind === 'confirmation' ||
+	progress.kind === 'toolInvocation'
+) {
+	request.response.updateContent(progress, quiet);
+} else if (progress.kind === 'usedContext' || progress.kind === 'reference') {
+	request.response.applyReference(progress);
+} else if (progress.kind === 'codeCitation') {
+	request.response.applyCodeCitation(progress);
+} else if (progress.kind === 'move') {
+	this._onDidChange.fire({ kind: 'move', target: progress.uri, range: progress.range });
+} else if (progress.kind === 'undoStop') {
+	request.response.addUndoStop(progress);
+} else {
+	this.logService.error(`Couldn't handle progress: ${JSON.stringify(progress)}`);
+}
+    }
+
+removeRequest(id: string, reason: ChatRequestRemovalReason = ChatRequestRemovalReason.Removalcognidreamognidream {
+	const index = this._requests.findIndex(request => request.id === id);
+	const request = this._requests[index];
+
+	if(index !== -1) {
+	this._onDidChange.fire({ kind: 'removeRequest', requestId: request.id, responseId: request.response?.id, reason });
+	this._requests.splice(index, 1);
+	request.response?.dispose();
+}
+    }
+
+cancelRequest(request: ChatRequestModelcognidreamognidream {
+	if(request.response) {
+	request.response.cancel();
+}
+    }
+
+setResponse(request: ChatRequestModel, result: IChatAgentResultcognidreamognidream {
+	if(!request.response) {
+	request.response = new ChatResponseModel([], this, undefined, undefined, request.id);
+}
+
+request.response.setResult(result);
+    }
+
+completeResponse(request: ChatRequestModelcognidreamognidream {
+	if(!request.response) {
+	throw new Error('Call setResponse before completeResponse');
+}
+
+request.response.complete();
+this._onDidChange.fire({ kind: 'completedRequest', request });
+    }
+
+setFollowups(request: ChatRequestModel, followups: IChatFollowup[] | undefinedcognidreamognidream {
+	if(!request.response) {
+	// Maybe something went wrong?
+	return;
+}
+
+request.response.setFollowups(followups);
+    }
+
+setResponseModel(request: ChatRequestModel, response: ChatResponseModelcognidreamognidream {
+	request.response = response;
+	this._onDidChange.fire({ kind: 'addResponse', response });
+}
+
+    toExport(): IExportableChatData {
+	return {
+		requesterUsername: this.requesterUsername,
+		requesterAvatarIconUri: this.requesterAvatarIconUri,
+		responderUsername: this.responderUsername,
+		responderAvatarIconUri: this.responderAvatarIcon,
+		initialLocation: this.initialLocation,
+		requests: this._requests.map((r): ISerializableChatRequestData => {
+			const message = {
+				...r.message,
+				parts: r.message.parts.map(p => p && 'toJSON' in p ? (p.toJSON as Function)() : p)
+			};
+			const agent = r.response?.agent;
+			const agentJson = agent && 'toJSON' in agent ? (agent.toJSON as Function)() :
+				agent ? { ...agent } : undefined;
+			return {
+				requestId: r.id,
+				message,
+				variableData: r.variableData,
+				response: r.response ?
+					r.response.entireResponse.value.map(item => {
+						// Keeping the shape of the persisted data the same for back compat
+						if (item.kind === 'treeData') {
+							return item.treeData;
+						} else if (item.kind === 'markdownContent') {
+							return item.content;
+						} else {
+							return item as any; // TODO
+						}
+					})
+					: undefined,
+				responseId: r.response?.id,
+				shouldBeRemovedOnSend: r.shouldBeRemovedOnSend,
+				result: r.response?.result,
+				followups: r.response?.followups,
+				isCanceled: r.response?.isCanceled,
+				vote: r.response?.vote,
+				voteDownReason: r.response?.voteDownReason,
+				agent: agentJson,
+				slashCommand: r.response?.slashCommand,
+				usedContext: r.response?.usedContext,
+				contentReferences: r.response?.contentReferences,
+				codeCitations: r.response?.codeCitations,
+				timestamp: r.timestamp
+			};
+		}),
+	};
+}
+
+    toJSON(): ISerializableChatData {
+	return {
+		version: 3,
+		...this.toExport(),
+		sessionId: this.sessionId,
+		creationDate: this._creationDate,
+		isImported: this._isImported,
+		lastMessageDate: this._lastMessageDate,
+		customTitle: this._customTitle
+	};
+}
+
+    override dispose() {
+	this._requests.forEach(r => r.response?.dispose());
+	this._onDidDispose.fire();
+
+	super.dispose();
+}
 }
 
 export function updateRanges(variableData: IChatRequestVariableData, diff: number): IChatRequestVariableData {

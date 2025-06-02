@@ -530,7 +530,7 @@ registerAction2(class extends NotebookAction {
 		});
 	}
 
-	async runWithContext(accessor: ServicesAccessor, context: INotebookActionContext): Promise<void> {
+	async runWithContext(accessor: ServicesAccessor, context: INotebookActionContext): Promise<cognidream> {
 		NotebookChatController.get(context.notebookEditor)?.focus();
 	}
 });
@@ -554,9 +554,9 @@ registerAction2(class extends NotebookAction {
 		});
 	}
 
-	async runWithContext(accessor: ServicesAccessor, context: INotebookActionContext): Promise<void> {
-		NotebookChatController.get(context.notebookEditor)?.focusNext();
-	}
+	async runWithContext(accessor: ServicesAccessor, context: INotebookActionContext): Promicognidreamognidream> {
+	NotebookChatController.get(context.notebookEditor)?.focusNext();
+}
 });
 
 registerAction2(class extends NotebookAction {
@@ -578,9 +578,9 @@ registerAction2(class extends NotebookAction {
 		});
 	}
 
-	async runWithContext(accessor: ServicesAccessor, context: INotebookActionContext): Promise<void> {
-		NotebookChatController.get(context.notebookEditor)?.focusAbove();
-	}
+	async runWithContext(accessor: ServicesAccessor, context: INotebookActionContext): Promicognidreamognidream> {
+	NotebookChatController.get(context.notebookEditor)?.focusAbove();
+}
 });
 
 registerAction2(class extends NotebookAction {

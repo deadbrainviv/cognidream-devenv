@@ -112,7 +112,7 @@ export class CodeBlockActionRendering extends Disposable implements IWorkbenchCo
 					}
 					return super.getTooltip();
 				}
-				override setActionContext(newContext: unknown): void {
+				override setActionContext(newContext: unknown): cognidream {
 					super.setActionContext(newContext);
 					this.updateTooltip();
 				}
@@ -436,80 +436,80 @@ export function registerChatCodeBlockActions() {
 		}
 	});
 
-	function navigateCodeBlocks(accessor: ServicesAccessor, reverse?: boolean): void {
+	function navigateCodeBlocks(accessor: ServicesAccessor, reverse?: booleancognidreamognidream {
 		const codeEditorService = accessor.get(ICodeEditorService);
 		const chatWidgetService = accessor.get(IChatWidgetService);
 		const widget = chatWidgetService.lastFocusedWidget;
 		if (!widget) {
-			return;
-		}
-
-		const editor = codeEditorService.getFocusedCodeEditor();
-		const editorUri = editor?.getModel()?.uri;
-		const curCodeBlockInfo = editorUri ? widget.getCodeBlockInfoForEditor(editorUri) : undefined;
-		const focused = !widget.inputEditor.hasWidgetFocus() && widget.getFocus();
-		const focusedResponse = isResponseVM(focused) ? focused : undefined;
-
-		const elementId = curCodeBlockInfo?.elementId;
-		const element = elementId ? widget.viewModel?.getItems().find(item => item.id === elementId) : undefined;
-		const currentResponse = element ??
-			(focusedResponse ?? widget.viewModel?.getItems().reverse().find((item): item is IChatResponseViewModel => isResponseVM(item)));
-		if (!currentResponse || !isResponseVM(currentResponse)) {
-			return;
-		}
-
-		widget.reveal(currentResponse);
-		const responseCodeblocks = widget.getCodeBlockInfosForResponse(currentResponse);
-		const focusIdx = curCodeBlockInfo ?
-			(curCodeBlockInfo.codeBlockIndex + (reverse ? -1 : 1) + responseCodeblocks.length) % responseCodeblocks.length :
-			reverse ? responseCodeblocks.length - 1 : 0;
-
-		responseCodeblocks[focusIdx]?.focus();
+		return;
 	}
 
-	registerAction2(class NextCodeBlockAction extends Action2 {
-		constructor() {
-			super({
-				id: 'workbench.action.chat.nextCodeBlock',
-				title: localize2('interactive.nextCodeBlock.label', "Next Code Block"),
-				keybinding: {
-					primary: KeyMod.CtrlCmd | KeyMod.Alt | KeyCode.PageDown,
-					mac: { primary: KeyMod.CtrlCmd | KeyMod.Alt | KeyCode.PageDown, },
-					weight: KeybindingWeight.WorkbenchContrib,
-					when: ChatContextKeys.inChatSession,
-				},
-				precondition: ChatContextKeys.enabled,
-				f1: true,
-				category: CHAT_CATEGORY,
-			});
-		}
+	const editor = codeEditorService.getFocusedCodeEditor();
+	const editorUri = editor?.getModel()?.uri;
+	const curCodeBlockInfo = editorUri ? widget.getCodeBlockInfoForEditor(editorUri) : undefined;
+	const focused = !widget.inputEditor.hasWidgetFocus() && widget.getFocus();
+	const focusedResponse = isResponseVM(focused) ? focused : undefined;
 
-		run(accessor: ServicesAccessor, ...args: any[]) {
-			navigateCodeBlocks(accessor);
-		}
-	});
+	const elementId = curCodeBlockInfo?.elementId;
+	const element = elementId ? widget.viewModel?.getItems().find(item => item.id === elementId) : undefined;
+	const currentResponse = element ??
+		(focusedResponse ?? widget.viewModel?.getItems().reverse().find((item): item is IChatResponseViewModel => isResponseVM(item)));
+	if (!currentResponse || !isResponseVM(currentResponse)) {
+		return;
+	}
 
-	registerAction2(class PreviousCodeBlockAction extends Action2 {
-		constructor() {
-			super({
-				id: 'workbench.action.chat.previousCodeBlock',
-				title: localize2('interactive.previousCodeBlock.label', "Previous Code Block"),
-				keybinding: {
-					primary: KeyMod.CtrlCmd | KeyMod.Alt | KeyCode.PageUp,
-					mac: { primary: KeyMod.CtrlCmd | KeyMod.Alt | KeyCode.PageUp, },
-					weight: KeybindingWeight.WorkbenchContrib,
-					when: ChatContextKeys.inChatSession,
-				},
-				precondition: ChatContextKeys.enabled,
-				f1: true,
-				category: CHAT_CATEGORY,
-			});
-		}
+	widget.reveal(currentResponse);
+	const responseCodeblocks = widget.getCodeBlockInfosForResponse(currentResponse);
+	const focusIdx = curCodeBlockInfo ?
+		(curCodeBlockInfo.codeBlockIndex + (reverse ? -1 : 1) + responseCodeblocks.length) % responseCodeblocks.length :
+		reverse ? responseCodeblocks.length - 1 : 0;
 
-		run(accessor: ServicesAccessor, ...args: any[]) {
-			navigateCodeBlocks(accessor, true);
-		}
-	});
+	responseCodeblocks[focusIdx]?.focus();
+}
+
+registerAction2(class NextCodeBlockAction extends Action2 {
+	constructor() {
+		super({
+			id: 'workbench.action.chat.nextCodeBlock',
+			title: localize2('interactive.nextCodeBlock.label', "Next Code Block"),
+			keybinding: {
+				primary: KeyMod.CtrlCmd | KeyMod.Alt | KeyCode.PageDown,
+				mac: { primary: KeyMod.CtrlCmd | KeyMod.Alt | KeyCode.PageDown, },
+				weight: KeybindingWeight.WorkbenchContrib,
+				when: ChatContextKeys.inChatSession,
+			},
+			precondition: ChatContextKeys.enabled,
+			f1: true,
+			category: CHAT_CATEGORY,
+		});
+	}
+
+	run(accessor: ServicesAccessor, ...args: any[]) {
+		navigateCodeBlocks(accessor);
+	}
+});
+
+registerAction2(class PreviousCodeBlockAction extends Action2 {
+	constructor() {
+		super({
+			id: 'workbench.action.chat.previousCodeBlock',
+			title: localize2('interactive.previousCodeBlock.label', "Previous Code Block"),
+			keybinding: {
+				primary: KeyMod.CtrlCmd | KeyMod.Alt | KeyCode.PageUp,
+				mac: { primary: KeyMod.CtrlCmd | KeyMod.Alt | KeyCode.PageUp, },
+				weight: KeybindingWeight.WorkbenchContrib,
+				when: ChatContextKeys.inChatSession,
+			},
+			precondition: ChatContextKeys.enabled,
+			f1: true,
+			category: CHAT_CATEGORY,
+		});
+	}
+
+	run(accessor: ServicesAccessor, ...args: any[]) {
+		navigateCodeBlocks(accessor, true);
+	}
+});
 }
 
 function getContextFromEditor(editor: ICodeEditor, accessor: ServicesAccessor): ICodeBlockActionContext | undefined {

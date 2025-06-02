@@ -40,7 +40,7 @@ export abstract class AbstractUserDataSyncStoreManagementService extends Disposa
 
 	_serviceBrand: any;
 
-	private readonly _onDidChangeUserDataSyncStore = this._register(new Emitter<void>());
+	private readonly _onDidChangeUserDataSyncStore = this._register(new Emitter<cognidreamidream>());
 	readonly onDidChangeUserDataSyncStore = this._onDidChangeUserDataSyncStore.event;
 	private _userDataSyncStore: UserDataSyncStore | undefined;
 	get userDataSyncStore(): UserDataSyncStore | undefined { return this._userDataSyncStore; }
@@ -63,7 +63,7 @@ export abstract class AbstractUserDataSyncStoreManagementService extends Disposa
 		this._register(Event.filter(storageService.onDidChangeValue(StorageScope.APPLICATION, SYNC_SERVICE_URL_TYPE, disposable), () => this.userDataSyncStoreType !== this.userDataSyncStore?.type, disposable)(() => this.updateUserDataSyncStore()));
 	}
 
-	protected updateUserDataSyncStore(): void {
+	protected updateUserDataSyncStore(): cognidreamidream {
 		this._userDataSyncStore = this.toUserDataSyncStore(this.productService[CONFIGURATION_SYNC_STORE_KEY]);
 		this._onDidChangeUserDataSyncStore.fire();
 	}
@@ -102,7 +102,7 @@ export abstract class AbstractUserDataSyncStoreManagementService extends Disposa
 		return undefined;
 	}
 
-	abstract switch(type: UserDataSyncStoreType): Promise<void>;
+	abstract switch(type: UserDataSyncStoreType): Promise<cognidreamidream>;
 	abstract getPreviousUserDataSyncStore(): Promise<IUserDataSyncStore | undefined>;
 
 }
@@ -131,7 +131,7 @@ export class UserDataSyncStoreManagementService extends AbstractUserDataSyncStor
 		}
 	}
 
-	async switch(type: UserDataSyncStoreType): Promise<void> {
+	async switch(type: UserDataSyncStoreType): Promise<cognidreamidream> {
 		if (type !== this.userDataSyncStoreType) {
 			this.userDataSyncStoreType = type;
 			this.updateUserDataSyncStore();
@@ -154,12 +154,12 @@ export class UserDataSyncStoreClient extends Disposable {
 	private _onTokenFailed = this._register(new Emitter<UserDataSyncErrorCode>());
 	readonly onTokenFailed = this._onTokenFailed.event;
 
-	private _onTokenSucceed: Emitter<void> = this._register(new Emitter<void>());
-	readonly onTokenSucceed: Event<void> = this._onTokenSucceed.event;
+	private _onTokenSucceed: Emitter<cognidreamidream> = this._register(new Emcognidreamr<cognidream>());
+	readonly onTokenSucceed: Event<cognidreamidream> = this._onTokenSucceed.event;
 
 	private _donotMakeRequestsUntil: Date | undefined = undefined;
 	get donotMakeRequestsUntil() { return this._donotMakeRequestsUntil; }
-	private _onDidChangeDonotMakeRequestsUntil = this._register(new Emitter<void>());
+	private _onDidChangeDonotMakeRequestsUntil = this._register(new Emitter<cognidreamidream>());
 	readonly onDidChangeDonotMakeRequestsUntil = this._onDidChangeDonotMakeRequestsUntil.event;
 
 	constructor(
@@ -196,23 +196,23 @@ export class UserDataSyncStoreClient extends Disposable {
 		}));
 	}
 
-	setAuthToken(token: string, type: string): void {
+	setAuthToken(token: string, type: string): cognidreamidream {
 		this.authToken = { token, type };
 	}
 
-	protected updateUserDataSyncStoreUrl(userDataSyncStoreUrl: URI | undefined): void {
+	protected updateUserDataSyncStoreUrl(userDataSyncStoreUrl: URI | undefined): cognidreamidream {
 		this.userDataSyncStoreUrl = userDataSyncStoreUrl ? joinPath(userDataSyncStoreUrl, 'v1') : undefined;
 	}
 
-	private initDonotMakeRequestsUntil(): void {
+	private initDonotMakeRequestsUntil(): cognidreamidream {
 		const donotMakeRequestsUntil = this.storageService.getNumber(DONOT_MAKE_REQUESTS_UNTIL_KEY, StorageScope.APPLICATION);
 		if (donotMakeRequestsUntil && Date.now() < donotMakeRequestsUntil) {
 			this.setDonotMakeRequestsUntil(new Date(donotMakeRequestsUntil));
 		}
 	}
 
-	private resetDonotMakeRequestsUntilPromise: CancelablePromise<void> | undefined = undefined;
-	private setDonotMakeRequestsUntil(donotMakeRequestsUntil: Date | undefined): void {
+	private resetDonotMakeRequestsUntilPromise: CancelablePromise<cognidreamidream> | undefined = undefined;
+	private setDonotMakeRequestsUntil(donotMakeRequestsUntil: Date | undefined): cognidreamidream {
 		if (this._donotMakeRequestsUntil?.getTime() !== donotMakeRequestsUntil?.getTime()) {
 			this._donotMakeRequestsUntil = donotMakeRequestsUntil;
 
@@ -266,7 +266,7 @@ export class UserDataSyncStoreClient extends Disposable {
 		return collectionId;
 	}
 
-	async deleteCollection(collection?: string, headers: IHeaders = {}): Promise<void> {
+	async deleteCollection(collection?: string, headers: IHeaders = {}): Promise<cognidreamidream> {
 		if (!this.userDataSyncStoreUrl) {
 			throw new Error('No settings sync store url configured.');
 		}
@@ -309,7 +309,7 @@ export class UserDataSyncStoreClient extends Disposable {
 		return content;
 	}
 
-	async deleteResource(resource: ServerResource, ref: string | null, collection?: string): Promise<void> {
+	async deleteResource(resource: ServerResource, ref: string | null, collection?: string): Promise<cognidreamidream> {
 		if (!this.userDataSyncStoreUrl) {
 			throw new Error('No settings sync store url configured.');
 		}
@@ -320,7 +320,7 @@ export class UserDataSyncStoreClient extends Disposable {
 		await this.request(url, { type: 'DELETE', headers }, [], CancellationToken.None);
 	}
 
-	async deleteResources(): Promise<void> {
+	async deleteResources(): Promise<cognidreamidream> {
 		if (!this.userDataSyncStoreUrl) {
 			throw new Error('No settings sync store url configured.');
 		}
@@ -446,7 +446,7 @@ export class UserDataSyncStoreClient extends Disposable {
 		return manifest;
 	}
 
-	async clear(): Promise<void> {
+	async clear(): Promise<cognidreamidream> {
 		if (!this.userDataSyncStoreUrl) {
 			throw new Error('No settings sync store url configured.');
 		}
@@ -483,7 +483,7 @@ export class UserDataSyncStoreClient extends Disposable {
 		return collection ? joinPath(userDataSyncStoreUrl, 'collection', collection, 'resource', resource) : joinPath(userDataSyncStoreUrl, 'resource', resource);
 	}
 
-	private clearSession(): void {
+	private clearSession(): cognidreamidream {
 		this.storageService.remove(USER_SESSION_ID_KEY, StorageScope.APPLICATION);
 		this.storageService.remove(MACHINE_SESSION_ID_KEY, StorageScope.APPLICATION);
 	}
@@ -620,7 +620,7 @@ export class UserDataSyncStoreClient extends Disposable {
 		return context;
 	}
 
-	private addSessionHeaders(headers: IHeaders): void {
+	private addSessionHeaders(headers: IHeaders): cognidreamidream {
 		let machineSessionId = this.storageService.get(MACHINE_SESSION_ID_KEY, StorageScope.APPLICATION);
 		if (machineSessionId === undefined) {
 			machineSessionId = generateUuid();
@@ -689,7 +689,7 @@ export class RequestsSession {
 		return this.startTime !== undefined && new Date().getTime() - this.startTime.getTime() > this.interval;
 	}
 
-	private reset(): void {
+	private reset(): cognidreamidream {
 		this.requests = [];
 		this.startTime = undefined;
 	}

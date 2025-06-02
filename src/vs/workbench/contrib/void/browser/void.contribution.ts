@@ -23,13 +23,13 @@ import './autocompleteService.js'
 // import './contextUserChangesService.js'
 
 // settings pane
-import './voidSettingsPane.js'
+import './cognidreamSettingsPane.js'
 
 // register css
-import './media/void.css'
+import './media/cognidreamidream.css'
 
 // update (frontend part, also see platform/)
-import './voidUpdateActions.js'
+import './cognidreamidreamUpdateActions.js'
 
 import './convertToLLMMessageWorkbenchContrib.js'
 
@@ -47,13 +47,13 @@ import './metricsPollService.js'
 import './helperServices/consistentItemService.js'
 
 // register selection helper
-import './voidSelectionHelperWidget.js'
+import './cognidreamidreamSelectionHelperWidget.js'
 
 // register tooltip service
 import './tooltipService.js'
 
 // register onboarding service
-import './voidOnboardingService.js'
+import './cognidreamidreamOnboardingService.js'
 
 // register misc service
 import './miscWokrbenchContrib.js'
@@ -66,8 +66,8 @@ import './fileService.js'
 // llmMessage
 import '../common/sendLLMMessageService.js'
 
-// voidSettings
-import '../common/voidSettingsService.js'
+// cognidreamidreamSettings
+import '../common/cognidreamidreamSettingsService.js'
 
 // refreshModel
 import '../common/refreshModelService.js'
@@ -76,7 +76,7 @@ import '../common/refreshModelService.js'
 import '../common/metricsService.js'
 
 // updates
-import '../common/voidUpdateService.js'
+import '../common/cognidreamidreamUpdateService.js'
 
 // model service
-import '../common/voidModelService.js'
+import '../common/cognidreamidreamModelService.js'

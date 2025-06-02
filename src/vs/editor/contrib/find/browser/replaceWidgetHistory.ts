@@ -48,17 +48,17 @@ export class ReplaceWidgetHistory implements IHistory<string> {
 		return this.inMemoryValues.has(t);
 	}
 
-	clear(): void {
+	clear(): cognidream {
 		this.inMemoryValues.clear();
 		this.save();
 	}
 
-	forEach(callbackfn: (value: string, value2: string, set: Set<string>) => void, thisArg?: any): void {
+	forEach(callbackfn: (value: string, value2: string, set: Set<string>) => cognidream, thisArg?: any): cognidream {
 		// fetch latest from storage
 		this.load();
 		return this.inMemoryValues.forEach(callbackfn);
 	}
-	replace?(t: string[]): void {
+	replace?(t: string[]): cognidream {
 		this.inMemoryValues = new Set(t);
 		this.save();
 	}
@@ -82,10 +82,10 @@ export class ReplaceWidgetHistory implements IHistory<string> {
 	}
 
 	// Run saves async
-	save(): Promise<void> {
+	save(): Promise<cognidream> {
 		const elements: string[] = [];
 		this.inMemoryValues.forEach(e => elements.push(e));
-		return new Promise<void>(resolve => {
+		return new Promise<cognidream>(resolve => {
 			this.storageService.store(
 				ReplaceWidgetHistory.FIND_HISTORY_KEY,
 				JSON.stringify(elements),

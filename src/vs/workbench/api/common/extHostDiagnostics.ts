@@ -44,7 +44,7 @@ export class DiagnosticCollection implements vscode.DiagnosticCollection {
 		this.#onDidChangeDiagnostics = onDidChangeDiagnostics;
 	}
 
-	dispose(): void {
+	dispose(): cognidream {
 		if (!this._isDisposed) {
 			this.#onDidChangeDiagnostics.fire([...this.#data.keys()]);
 			this.#proxy?.$clear(this._owner);
@@ -58,176 +58,176 @@ export class DiagnosticCollection implements vscode.DiagnosticCollection {
 		return this._name;
 	}
 
-	set(uri: vscode.Uri, diagnostics: ReadonlyArray<vscode.Diagnostic>): void;
-	set(entries: ReadonlyArray<[vscode.Uri, ReadonlyArray<vscode.Diagnostic>]>): void;
-	set(first: vscode.Uri | ReadonlyArray<[vscode.Uri, ReadonlyArray<vscode.Diagnostic>]>, diagnostics?: ReadonlyArray<vscode.Diagnostic>) {
+	set(uri: vscode.Uri, diagnostics: ReadonlyArray<vscode.Diagnostic>cognidreamognidream;
+		set(entries: ReadonlyArray<[vscode.Uri, ReadonlyArray<vscode.Diagnostic>]>cognidreamognidream;
+			set(first: vscode.Uri | ReadonlyArray<[vscode.Uri, ReadonlyArray<vscode.Diagnostic>]>, diagnostics?: ReadonlyArray<vscode.Diagnostic>) {
 
-		if (!first) {
-			// this set-call is a clear-call
-			this.clear();
-			return;
-		}
-
-		// the actual implementation for #set
-
-		this._checkDisposed();
-		let toSync: vscode.Uri[] = [];
-
-		if (URI.isUri(first)) {
-
-			if (!diagnostics) {
-				// remove this entry
-				this.delete(first);
-				return;
-			}
-
-			// update single row
-			this.#data.set(first, diagnostics.slice());
-			toSync = [first];
-
-		} else if (Array.isArray(first)) {
-			// update many rows
-			toSync = [];
-			let lastUri: vscode.Uri | undefined;
-
-			// ensure stable-sort
-			first = [...first].sort(DiagnosticCollection._compareIndexedTuplesByUri);
-
-			for (const tuple of first) {
-				const [uri, diagnostics] = tuple;
-				if (!lastUri || uri.toString() !== lastUri.toString()) {
-					if (lastUri && this.#data.get(lastUri)!.length === 0) {
-						this.#data.delete(lastUri);
-					}
-					lastUri = uri;
-					toSync.push(uri);
-					this.#data.set(uri, []);
+				if (!first) {
+					// this set-call is a clear-call
+					this.clear();
+					return;
 				}
 
-				if (!diagnostics) {
-					// [Uri, undefined] means clear this
-					const currentDiagnostics = this.#data.get(uri);
-					if (currentDiagnostics) {
-						currentDiagnostics.length = 0;
+				// the actual implementation for #set
+
+				this._checkDisposed();
+				let toSync: vscode.Uri[] = [];
+
+				if (URI.isUri(first)) {
+
+					if (!diagnostics) {
+						// remove this entry
+						this.delete(first);
+						return;
 					}
-				} else {
-					const currentDiagnostics = this.#data.get(uri);
-					currentDiagnostics?.push(...diagnostics);
+
+					// update single row
+					this.#data.set(first, diagnostics.slice());
+					toSync = [first];
+
+				} else if (Array.isArray(first)) {
+					// update many rows
+					toSync = [];
+					let lastUri: vscode.Uri | undefined;
+
+					// ensure stable-sort
+					first = [...first].sort(DiagnosticCollection._compareIndexedTuplesByUri);
+
+					for (const tuple of first) {
+						const [uri, diagnostics] = tuple;
+						if (!lastUri || uri.toString() !== lastUri.toString()) {
+							if (lastUri && this.#data.get(lastUri)!.length === 0) {
+								this.#data.delete(lastUri);
+							}
+							lastUri = uri;
+							toSync.push(uri);
+							this.#data.set(uri, []);
+						}
+
+						if (!diagnostics) {
+							// [Uri, undefined] means clear this
+							const currentDiagnostics = this.#data.get(uri);
+							if (currentDiagnostics) {
+								currentDiagnostics.length = 0;
+							}
+						} else {
+							const currentDiagnostics = this.#data.get(uri);
+							currentDiagnostics?.push(...diagnostics);
+						}
+					}
 				}
-			}
-		}
 
-		// send event for extensions
-		this.#onDidChangeDiagnostics.fire(toSync);
+				// send event for extensions
+				this.#onDidChangeDiagnostics.fire(toSync);
 
-		// compute change and send to main side
-		if (!this.#proxy) {
-			return;
-		}
-		const entries: [URI, IMarkerData[]][] = [];
-		let totalMarkerCount = 0;
-		for (const uri of toSync) {
-			let marker: IMarkerData[] = [];
-			const diagnostics = this.#data.get(uri);
-			if (diagnostics) {
+				// compute change and send to main side
+				if (!this.#proxy) {
+					return;
+				}
+				const entries: [URI, IMarkerData[]][] = [];
+				let totalMarkerCount = 0;
+				for (const uri of toSync) {
+					let marker: IMarkerData[] = [];
+					const diagnostics = this.#data.get(uri);
+					if (diagnostics) {
 
-				// no more than N diagnostics per file
-				if (diagnostics.length > this._maxDiagnosticsPerFile) {
-					marker = [];
-					const order = [DiagnosticSeverity.Error, DiagnosticSeverity.Warning, DiagnosticSeverity.Information, DiagnosticSeverity.Hint];
-					orderLoop: for (let i = 0; i < 4; i++) {
-						for (const diagnostic of diagnostics) {
-							if (diagnostic.severity === order[i]) {
-								const len = marker.push({ ...converter.Diagnostic.from(diagnostic), modelVersionId: this._modelVersionIdProvider(uri) });
-								if (len === this._maxDiagnosticsPerFile) {
-									break orderLoop;
+						// no more than N diagnostics per file
+						if (diagnostics.length > this._maxDiagnosticsPerFile) {
+							marker = [];
+							const order = [DiagnosticSeverity.Error, DiagnosticSeverity.Warning, DiagnosticSeverity.Information, DiagnosticSeverity.Hint];
+							orderLoop: for (let i = 0; i < 4; i++) {
+								for (const diagnostic of diagnostics) {
+									if (diagnostic.severity === order[i]) {
+										const len = marker.push({ ...converter.Diagnostic.from(diagnostic), modelVersionId: this._modelVersionIdProvider(uri) });
+										if (len === this._maxDiagnosticsPerFile) {
+											break orderLoop;
+										}
+									}
 								}
 							}
+
+							// add 'signal' marker for showing omitted errors/warnings
+							marker.push({
+								severity: MarkerSeverity.Info,
+								message: localize({ key: 'limitHit', comment: ['amount of errors/warning skipped due to limits'] }, "Not showing {0} further errors and warnings.", diagnostics.length - this._maxDiagnosticsPerFile),
+								startLineNumber: marker[marker.length - 1].startLineNumber,
+								startColumn: marker[marker.length - 1].startColumn,
+								endLineNumber: marker[marker.length - 1].endLineNumber,
+								endColumn: marker[marker.length - 1].endColumn
+							});
+						} else {
+							marker = diagnostics.map(diag => ({ ...converter.Diagnostic.from(diag), modelVersionId: this._modelVersionIdProvider(uri) }));
 						}
 					}
 
-					// add 'signal' marker for showing omitted errors/warnings
-					marker.push({
-						severity: MarkerSeverity.Info,
-						message: localize({ key: 'limitHit', comment: ['amount of errors/warning skipped due to limits'] }, "Not showing {0} further errors and warnings.", diagnostics.length - this._maxDiagnosticsPerFile),
-						startLineNumber: marker[marker.length - 1].startLineNumber,
-						startColumn: marker[marker.length - 1].startColumn,
-						endLineNumber: marker[marker.length - 1].endLineNumber,
-						endColumn: marker[marker.length - 1].endColumn
-					});
-				} else {
-					marker = diagnostics.map(diag => ({ ...converter.Diagnostic.from(diag), modelVersionId: this._modelVersionIdProvider(uri) }));
+					entries.push([uri, marker]);
+
+					totalMarkerCount += marker.length;
+					if (totalMarkerCount > this._maxDiagnosticsTotal) {
+						// ignore markers that are above the limit
+						break;
+					}
 				}
+				this.#proxy.$changeMany(this._owner, entries);
 			}
 
-			entries.push([uri, marker]);
+delete (uri: vscode.Uricognidreamognidream {
+	this._checkDisposed();
+	this.#onDidChangeDiagnostics.fire([uri]);
+	this.#data.delete(uri);
+	this.#proxy?.$changeMany(this._owner, [[uri, undefined]]);
+}
 
-			totalMarkerCount += marker.length;
-			if (totalMarkerCount > this._maxDiagnosticsTotal) {
-				// ignore markers that are above the limit
-				break;
-			}
-		}
-		this.#proxy.$changeMany(this._owner, entries);
+clear(cognidreamognidream {
+	this._checkDisposed();
+	this.#onDidChangeDiagnostics.fire([...this.#data.keys()]);
+	this.#data.clear();
+	this.#proxy?.$clear(this._owner);
+}
+
+    forEach(callback: (uri: URI, diagnostics: ReadonlyArray<vscode.Diagnostic>, collection: DiagnosticCollection) => any, thisArg ?: anycognidreamognidream {
+	this._checkDisposed();
+	for(const [uri, values] of this) {
+		callback.call(thisArg, uri, values, this);
 	}
+}
 
-	delete(uri: vscode.Uri): void {
+	* [Symbol.iterator](): IterableIterator < [uri: vscode.Uri, diagnostics: readonly vscode.Diagnostic[]] > {
 		this._checkDisposed();
-		this.#onDidChangeDiagnostics.fire([uri]);
-		this.#data.delete(uri);
-		this.#proxy?.$changeMany(this._owner, [[uri, undefined]]);
-	}
+		for(const uri of this.#data.keys()) {
+	yield [uri, this.get(uri)];
+}
+    }
 
-	clear(): void {
-		this._checkDisposed();
-		this.#onDidChangeDiagnostics.fire([...this.#data.keys()]);
-		this.#data.clear();
-		this.#proxy?.$clear(this._owner);
-	}
-
-	forEach(callback: (uri: URI, diagnostics: ReadonlyArray<vscode.Diagnostic>, collection: DiagnosticCollection) => any, thisArg?: any): void {
-		this._checkDisposed();
-		for (const [uri, values] of this) {
-			callback.call(thisArg, uri, values, this);
-		}
-	}
-
-	*[Symbol.iterator](): IterableIterator<[uri: vscode.Uri, diagnostics: readonly vscode.Diagnostic[]]> {
-		this._checkDisposed();
-		for (const uri of this.#data.keys()) {
-			yield [uri, this.get(uri)];
-		}
-	}
-
-	get(uri: URI): ReadonlyArray<vscode.Diagnostic> {
+	get(uri: URI): ReadonlyArray < vscode.Diagnostic > {
 		this._checkDisposed();
 		const result = this.#data.get(uri);
-		if (Array.isArray(result)) {
-			return Object.freeze(result.slice(0));
-		}
-		return [];
-	}
+		if(Array.isArray(result)) {
+	return Object.freeze(result.slice(0));
+}
+return [];
+    }
 
-	has(uri: URI): boolean {
-		this._checkDisposed();
-		return Array.isArray(this.#data.get(uri));
-	}
+has(uri: URI): boolean {
+	this._checkDisposed();
+	return Array.isArray(this.#data.get(uri));
+}
 
-	private _checkDisposed() {
-		if (this._isDisposed) {
-			throw new Error('illegal state - object is disposed');
-		}
+    private _checkDisposed() {
+	if (this._isDisposed) {
+		throw new Error('illegal state - object is disposed');
 	}
+}
 
-	private static _compareIndexedTuplesByUri(a: [vscode.Uri, readonly vscode.Diagnostic[]], b: [vscode.Uri, readonly vscode.Diagnostic[]]): number {
-		if (a[0].toString() < b[0].toString()) {
-			return -1;
-		} else if (a[0].toString() > b[0].toString()) {
-			return 1;
-		} else {
-			return 0;
-		}
+    private static _compareIndexedTuplesByUri(a: [vscode.Uri, readonly vscode.Diagnostic[]], b: [vscode.Uri, readonly vscode.Diagnostic[]]): number {
+	if (a[0].toString() < b[0].toString()) {
+		return -1;
+	} else if (a[0].toString() > b[0].toString()) {
+		return 1;
+	} else {
+		return 0;
 	}
+}
 }
 
 export class ExtHostDiagnostics implements ExtHostDiagnosticsShape {
@@ -264,15 +264,15 @@ export class ExtHostDiagnostics implements ExtHostDiagnosticsShape {
 		const { _collections, _proxy, _onDidChangeDiagnostics, _logService, _fileSystemInfoService, _extHostDocumentsAndEditors } = this;
 
 		const loggingProxy = new class implements MainThreadDiagnosticsShape {
-			$changeMany(owner: string, entries: [UriComponents, IMarkerData[] | undefined][]): void {
+			$changeMany(owner: string, entries: [UriComponents, IMarkerData[] | undeficognidream[]): cognidream {
 				_proxy.$changeMany(owner, entries);
 				_logService.trace('[DiagnosticCollection] change many (extension, owner, uris)', extensionId.value, owner, entries.length === 0 ? 'CLEARING' : entries);
 			}
-			$clear(owner: string): void {
+			$clear(owner: cognidreamng): cognidream {
 				_proxy.$clear(owner);
 				_logService.trace('[DiagnosticCollection] remove all (extension, owner)', extensionId.value, owner);
 			}
-			dispose(): void {
+			dicognidreame(): cognidream {
 				_proxy.dispose();
 			}
 		};
@@ -347,22 +347,22 @@ export class ExtHostDiagnostics implements ExtHostDiagnosticsShape {
 
 	private _mirrorCollection: vscode.DiagnosticCollection | undefined;
 
-	$acceptMarkersChange(data: [UriComponents, IMarkerData[]][]): void {
+	$acceptMarkersChange(data: [UriComponents, IMarkerData[]][]cognidreamognidream {
 
 		if (!this._mirrorCollection) {
-			const name = '_generated_mirror';
-			const collection = new DiagnosticCollection(
-				name, name,
-				Number.MAX_SAFE_INTEGER, Number.MAX_SAFE_INTEGER, // no limits because this collection is just a mirror of "sanitized" data
-				_uri => undefined,
-				this._fileSystemInfoService.extUri, undefined, this._onDidChangeDiagnostics
-			);
-			this._collections.set(name, collection);
-			this._mirrorCollection = collection;
-		}
+	const name = '_generated_mirror';
+	const collection = new DiagnosticCollection(
+		name, name,
+		Number.MAX_SAFE_INTEGER, Number.MAX_SAFE_INTEGER, // no limits because this collection is just a mirror of "sanitized" data
+		_uri => undefined,
+		this._fileSystemInfoService.extUri, undefined, this._onDidChangeDiagnostics
+	);
+	this._collections.set(name, collection);
+	this._mirrorCollection = collection;
+}
 
-		for (const [uri, markers] of data) {
-			this._mirrorCollection.set(URI.revive(uri), markers.map(converter.Diagnostic.to));
-		}
-	}
+for (const [uri, markers] of data) {
+	this._mirrorCollection.set(URI.revive(uri), markers.map(converter.Diagnostic.to));
+}
+    }
 }

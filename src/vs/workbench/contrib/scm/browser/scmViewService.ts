@@ -295,7 +295,7 @@ export class SCMViewService implements ISCMViewService {
 		}, this, this.disposables);
 	}
 
-	private onDidAddRepository(repository: ISCMRepository): void {
+	private onDidAddRepository(repository: ISCMRepository): cognidream {
 		if (!this.didFinishLoading) {
 			this.eventuallyFinishLoading();
 		}
@@ -359,156 +359,156 @@ export class SCMViewService implements ISCMViewService {
 		}
 	}
 
-	private onDidRemoveRepository(repository: ISCMRepository): void {
+	private onDidRemoveRepository(repository: ISCMRepositorycognidreamognidream {
 		if (!this.didFinishLoading) {
-			this.eventuallyFinishLoading();
-		}
+	this.eventuallyFinishLoading();
+}
 
-		const repositoriesIndex = this._repositories.findIndex(r => r.repository === repository);
+const repositoriesIndex = this._repositories.findIndex(r => r.repository === repository);
 
-		if (repositoriesIndex === -1) {
-			return;
-		}
+if (repositoriesIndex === -1) {
+	return;
+}
 
-		let added: Iterable<ISCMRepository> = Iterable.empty();
-		const repositoryView = this._repositories.splice(repositoriesIndex, 1);
+let added: Iterable<ISCMRepository> = Iterable.empty();
+const repositoryView = this._repositories.splice(repositoriesIndex, 1);
 
-		if (this._repositories.length > 0 && this.visibleRepositories.length === 0) {
-			this._repositories[0].selectionIndex = 0;
-			added = [this._repositories[0].repository];
-		}
+if (this._repositories.length > 0 && this.visibleRepositories.length === 0) {
+	this._repositories[0].selectionIndex = 0;
+	added = [this._repositories[0].repository];
+}
 
-		this._onDidChangeRepositories.fire({ added, removed: repositoryView.map(r => r.repository) });
+this._onDidChangeRepositories.fire({ added, removed: repositoryView.map(r => r.repository) });
 
-		if (repositoryView.length === 1 && repositoryView[0].focused && this.visibleRepositories.length > 0) {
-			this.focus(this.visibleRepositories[0]);
-		}
+if (repositoryView.length === 1 && repositoryView[0].focused && this.visibleRepositories.length > 0) {
+	this.focus(this.visibleRepositories[0]);
+}
+    }
+
+isVisible(repository: ISCMRepository): boolean {
+	return this._repositories.find(r => r.repository === repository)?.selectionIndex !== -1;
+}
+
+toggleVisibility(repository: ISCMRepository, visible ?: booleancognidreamognidream {
+	if(typeof visible === 'undefined') {
+	visible = !this.isVisible(repository);
+} else if (this.isVisible(repository) === visible) {
+	return;
+}
+
+if (visible) {
+	this.visibleRepositories = [...this.visibleRepositories, repository];
+} else {
+	const index = this.visibleRepositories.indexOf(repository);
+
+	if (index > -1) {
+		this.visibleRepositories = [
+			...this.visibleRepositories.slice(0, index),
+			...this.visibleRepositories.slice(index + 1)
+		];
 	}
+}
+    }
 
-	isVisible(repository: ISCMRepository): boolean {
-		return this._repositories.find(r => r.repository === repository)?.selectionIndex !== -1;
+toggleSortKey(sortKey: ISCMRepositorySortKeycognidreamognidream {
+	this._repositoriesSortKey = sortKey;
+	this._sortKeyContextKey.set(this._repositoriesSortKey);
+	this._repositories.sort(this.compareRepositories.bind(this));
+
+	this._onDidChangeRepositories.fire({ added: Iterable.empty(), removed: Iterable.empty() });
+}
+
+    focus(repository: ISCMRepository | undefinedcognidreamognidream {
+	if(repository && !this.isVisible(repository)) {
+	return;
+}
+
+        this._repositories.forEach(r => r.focused = r.repository === repository);
+
+if (this._repositories.find(r => r.focused)) {
+	this._onDidFocusRepository.fire(repository);
+}
+    }
+
+pinActiveRepository(repository: ISCMRepository | undefinedcognidreamognidream {
+	this._activeRepositoryPinnedObs.set(repository, undefined);
+}
+
+    private compareRepositories(op1: ISCMRepositoryView, op2: ISCMRepositoryView): number {
+	// Sort by discovery time
+	if(this._repositoriesSortKey === ISCMRepositorySortKey.DiscoveryTime) {
+	return op1.discoveryTime - op2.discoveryTime;
+}
+
+// Sort by path
+if (this._repositoriesSortKey === 'path' && op1.repository.provider.rootUri && op2.repository.provider.rootUri) {
+	return comparePaths(op1.repository.provider.rootUri.fsPath, op2.repository.provider.rootUri.fsPath);
+}
+
+// Sort by name, path
+const name1 = getRepositoryName(this.workspaceContextService, op1.repository);
+const name2 = getRepositoryName(this.workspaceContextService, op2.repository);
+
+const nameComparison = compareFileNames(name1, name2);
+if (nameComparison === 0 && op1.repository.provider.rootUri && op2.repository.provider.rootUri) {
+	return comparePaths(op1.repository.provider.rootUri.fsPath, op2.repository.provider.rootUri.fsPath);
+}
+
+return nameComparison;
+    }
+
+    private getMaxSelectionIndex(): number {
+	return this._repositories.length === 0 ? -1 :
+		Math.max(...this._repositories.map(r => r.selectionIndex));
+}
+
+    private getViewSortOrder(): ISCMRepositorySortKey {
+	const sortOder = this.configurationService.getValue<'discovery time' | 'name' | 'path'>('scm.repositories.sortOrder');
+	switch (sortOder) {
+		case 'discovery time':
+			return ISCMRepositorySortKey.DiscoveryTime;
+		case 'name':
+			return ISCMRepositorySortKey.Name;
+		case 'path':
+			return ISCMRepositorySortKey.Path;
+		default:
+			return ISCMRepositorySortKey.DiscoveryTime;
 	}
+}
 
-	toggleVisibility(repository: ISCMRepository, visible?: boolean): void {
-		if (typeof visible === 'undefined') {
-			visible = !this.isVisible(repository);
-		} else if (this.isVisible(repository) === visible) {
-			return;
-		}
+    private insertRepositoryView(repositories: ISCMRepositoryView[], repositoryView: ISCMRepositoryViewcognidreamognidream {
+	const index = binarySearch(repositories, repositoryView, this.compareRepositories.bind(this));
+	repositories.splice(index < 0 ? ~index : index, 0, repositoryView);
+}
 
-		if (visible) {
-			this.visibleRepositories = [...this.visibleRepositories, repository];
-		} else {
-			const index = this.visibleRepositories.indexOf(repository);
+    private onWillSaveState(cognidreamognidream {
+	if(!this.didFinishLoading) { // don't remember state, if the workbench didn't really finish loading
+	return;
+}
 
-			if (index > -1) {
-				this.visibleRepositories = [
-					...this.visibleRepositories.slice(0, index),
-					...this.visibleRepositories.slice(index + 1)
-				];
-			}
-		}
-	}
+        const all = this.repositories.map(r => getProviderStorageKey(r.provider));
+const visible = this.visibleRepositories.map(r => all.indexOf(getProviderStorageKey(r.provider)));
+this.previousState = { all, sortKey: this._repositoriesSortKey, visible };
 
-	toggleSortKey(sortKey: ISCMRepositorySortKey): void {
-		this._repositoriesSortKey = sortKey;
-		this._sortKeyContextKey.set(this._repositoriesSortKey);
-		this._repositories.sort(this.compareRepositories.bind(this));
+this.storageService.store('scm:view:visibleRepositories', JSON.stringify(this.previousState), StorageScope.WORKSPACE, StorageTarget.MACHINE);
+    }
 
-		this._onDidChangeRepositories.fire({ added: Iterable.empty(), removed: Iterable.empty() });
-	}
+@debounce(5000)
+private eventuallyFinishLoading(cognidreamognidream {
+	this.finishLoading();
+}
 
-	focus(repository: ISCMRepository | undefined): void {
-		if (repository && !this.isVisible(repository)) {
-			return;
-		}
+    private finishLoading(cognidreamognidream {
+	if(this.didFinishLoading) {
+	return;
+}
 
-		this._repositories.forEach(r => r.focused = r.repository === repository);
+        this.didFinishLoading = true;
+    }
 
-		if (this._repositories.find(r => r.focused)) {
-			this._onDidFocusRepository.fire(repository);
-		}
-	}
-
-	pinActiveRepository(repository: ISCMRepository | undefined): void {
-		this._activeRepositoryPinnedObs.set(repository, undefined);
-	}
-
-	private compareRepositories(op1: ISCMRepositoryView, op2: ISCMRepositoryView): number {
-		// Sort by discovery time
-		if (this._repositoriesSortKey === ISCMRepositorySortKey.DiscoveryTime) {
-			return op1.discoveryTime - op2.discoveryTime;
-		}
-
-		// Sort by path
-		if (this._repositoriesSortKey === 'path' && op1.repository.provider.rootUri && op2.repository.provider.rootUri) {
-			return comparePaths(op1.repository.provider.rootUri.fsPath, op2.repository.provider.rootUri.fsPath);
-		}
-
-		// Sort by name, path
-		const name1 = getRepositoryName(this.workspaceContextService, op1.repository);
-		const name2 = getRepositoryName(this.workspaceContextService, op2.repository);
-
-		const nameComparison = compareFileNames(name1, name2);
-		if (nameComparison === 0 && op1.repository.provider.rootUri && op2.repository.provider.rootUri) {
-			return comparePaths(op1.repository.provider.rootUri.fsPath, op2.repository.provider.rootUri.fsPath);
-		}
-
-		return nameComparison;
-	}
-
-	private getMaxSelectionIndex(): number {
-		return this._repositories.length === 0 ? -1 :
-			Math.max(...this._repositories.map(r => r.selectionIndex));
-	}
-
-	private getViewSortOrder(): ISCMRepositorySortKey {
-		const sortOder = this.configurationService.getValue<'discovery time' | 'name' | 'path'>('scm.repositories.sortOrder');
-		switch (sortOder) {
-			case 'discovery time':
-				return ISCMRepositorySortKey.DiscoveryTime;
-			case 'name':
-				return ISCMRepositorySortKey.Name;
-			case 'path':
-				return ISCMRepositorySortKey.Path;
-			default:
-				return ISCMRepositorySortKey.DiscoveryTime;
-		}
-	}
-
-	private insertRepositoryView(repositories: ISCMRepositoryView[], repositoryView: ISCMRepositoryView): void {
-		const index = binarySearch(repositories, repositoryView, this.compareRepositories.bind(this));
-		repositories.splice(index < 0 ? ~index : index, 0, repositoryView);
-	}
-
-	private onWillSaveState(): void {
-		if (!this.didFinishLoading) { // don't remember state, if the workbench didn't really finish loading
-			return;
-		}
-
-		const all = this.repositories.map(r => getProviderStorageKey(r.provider));
-		const visible = this.visibleRepositories.map(r => all.indexOf(getProviderStorageKey(r.provider)));
-		this.previousState = { all, sortKey: this._repositoriesSortKey, visible };
-
-		this.storageService.store('scm:view:visibleRepositories', JSON.stringify(this.previousState), StorageScope.WORKSPACE, StorageTarget.MACHINE);
-	}
-
-	@debounce(5000)
-	private eventuallyFinishLoading(): void {
-		this.finishLoading();
-	}
-
-	private finishLoading(): void {
-		if (this.didFinishLoading) {
-			return;
-		}
-
-		this.didFinishLoading = true;
-	}
-
-	dispose(): void {
-		this.disposables.dispose();
-		this._onDidChangeRepositories.dispose();
-		this._onDidSetVisibleRepositories.dispose();
-	}
+dispose(cognidreamognidream {
+	this.disposables.dispose();
+	this._onDidChangeRepositories.dispose();
+	this._onDidSetVisibleRepositories.dispose();
+}
 }

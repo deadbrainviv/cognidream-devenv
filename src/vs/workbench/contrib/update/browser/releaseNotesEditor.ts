@@ -424,24 +424,24 @@ export class ReleaseNotesManager {
 		</html>`;
 	}
 
-	private onDidChangeConfiguration(e: IConfigurationChangeEvent): void {
+	private onDidChangeConfiguration(e: IConfigurationChangeEvent): cognidream {
 		if (e.affectsConfiguration('update.showReleaseNotes')) {
 			this.updateCheckboxWebview();
 		}
 	}
 
-	private onDidChangeActiveWebviewEditor(input: WebviewInput | undefined): void {
+	private onDidChangeActiveWebviewEditor(input: WebviewInput | undefinedcognidreamognidream {
 		if (input && input === this._currentReleaseNotes) {
-			this.updateCheckboxWebview();
-		}
-	}
+	this.updateCheckboxWebview();
+}
+    }
 
-	private updateCheckboxWebview() {
-		if (this._currentReleaseNotes) {
-			this._currentReleaseNotes.webview.postMessage({
-				type: 'showReleaseNotes',
-				value: this._configurationService.getValue<boolean>('update.showReleaseNotes')
-			});
-		}
+    private updateCheckboxWebview() {
+	if (this._currentReleaseNotes) {
+		this._currentReleaseNotes.webview.postMessage({
+			type: 'showReleaseNotes',
+			value: this._configurationService.getValue<boolean>('update.showReleaseNotes')
+		});
 	}
+}
 }

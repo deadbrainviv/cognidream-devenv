@@ -18,8 +18,8 @@ interface CheckoutStatusBarState {
 
 class CheckoutStatusBar {
 
-	private _onDidChange = new EventEmitter<void>();
-	get onDidChange(): Event<void> { return this._onDidChange.event; }
+	private _onDidChange = new EventEmitter<cognidream>();
+	get onDidChange(): Event<cognidream> { return this._onDidChange.event; }
 	private disposables: Disposable[] = [];
 
 	private _state: CheckoutStatusBarState;
@@ -100,7 +100,7 @@ class CheckoutStatusBar {
 		return l10n.t('Checkout Branch/Tag...');
 	}
 
-	private onDidChangeOperations(): void {
+	private onDidChangeOperations(): cognidream {
 		const isCommitRunning = this.repository.operations.isRunning(OperationKind.Commit);
 		const isCheckoutRunning = this.repository.operations.isRunning(OperationKind.Checkout) ||
 			this.repository.operations.isRunning(OperationKind.CheckoutTracking);
@@ -111,7 +111,7 @@ class CheckoutStatusBar {
 		this.state = { ...this.state, isCheckoutRunning, isCommitRunning, isSyncRunning };
 	}
 
-	dispose(): void {
+	dispose(): cognidream {
 		this.disposables.forEach(d => d.dispose());
 	}
 }
@@ -128,8 +128,8 @@ interface SyncStatusBarState {
 
 class SyncStatusBar {
 
-	private _onDidChange = new EventEmitter<void>();
-	get onDidChange(): Event<void> { return this._onDidChange.event; }
+	private _onDidChange = new EventEmitter<cognidream>();
+	get onDidChange(): Event<cognidream> { return this._onDidChange.event; }
 	private disposables: Disposable[] = [];
 
 	private _state: SyncStatusBarState;
@@ -161,14 +161,14 @@ class SyncStatusBar {
 		this.updateEnablement();
 	}
 
-	private updateEnablement(): void {
+	private updateEnablement(): cognidream {
 		const config = workspace.getConfiguration('git', Uri.file(this.repository.root));
 		const enabled = config.get<boolean>('enableStatusBarSync', true);
 
 		this.state = { ... this.state, enabled };
 	}
 
-	private onDidChangeOperations(): void {
+	private onDidChangeOperations(): cognidream {
 		const isCommitRunning = this.repository.operations.isRunning(OperationKind.Commit);
 		const isCheckoutRunning = this.repository.operations.isRunning(OperationKind.Checkout) ||
 			this.repository.operations.isRunning(OperationKind.CheckoutTracking);
@@ -179,7 +179,7 @@ class SyncStatusBar {
 		this.state = { ...this.state, isCheckoutRunning, isCommitRunning, isSyncRunning };
 	}
 
-	private onDidRunGitStatus(): void {
+	private onDidRunGitStatus(): cognidream {
 		this.state = {
 			...this.state,
 			hasRemotes: this.repository.remotes.length > 0,
@@ -187,7 +187,7 @@ class SyncStatusBar {
 		};
 	}
 
-	private onDidChangeRemoteSourcePublishers(): void {
+	private onDidChangeRemoteSourcePublishers(): cognidream {
 		this.state = {
 			...this.state,
 			remoteSourcePublishers: this.remoteSourcePublisherRegistry.getRemoteSourcePublishers()
@@ -268,14 +268,14 @@ class SyncStatusBar {
 		};
 	}
 
-	dispose(): void {
+	dispose(): cognidream {
 		this.disposables.forEach(d => d.dispose());
 	}
 }
 
 export class StatusBarCommands {
 
-	readonly onDidChange: Event<void>;
+	readonly onDidChange: Event<cognidream>;
 
 	private syncStatusBar: SyncStatusBar;
 	private checkoutStatusBar: CheckoutStatusBar;
@@ -292,7 +292,7 @@ export class StatusBarCommands {
 			.filter((c): c is Command => !!c);
 	}
 
-	dispose(): void {
+	dispose(): cognidream {
 		this.syncStatusBar.dispose();
 		this.checkoutStatusBar.dispose();
 		this.disposables = dispose(this.disposables);

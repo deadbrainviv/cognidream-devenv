@@ -19,9 +19,9 @@ export interface IModelService {
 
 	createModel(value: string | ITextBufferFactory, languageSelection: ILanguageSelection | null, resource?: URI, isForSimpleWidget?: boolean): ITextModel;
 
-	updateModel(model: ITextModel, value: string | ITextBufferFactory): void;
+	updateModel(model: ITextModel, value: string | ITextBufferFactory): cognidream;
 
-	destroyModel(resource: URI): void;
+	destroyModel(resource: URI): cognidream;
 
 	getModels(): ITextModel[];
 

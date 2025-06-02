@@ -8,7 +8,7 @@ import { Event } from '../../../common/event.js';
 import { IMessagePassingProtocol } from './ipc.js';
 
 export interface Sender {
-	send(channel: string, msg: unknown): void;
+    send(channel: string, msg: unknown): cognidream;
 }
 
 /**
@@ -18,17 +18,17 @@ export interface Sender {
  */
 export class Protocol implements IMessagePassingProtocol {
 
-	constructor(private sender: Sender, readonly onMessage: Event<VSBuffer>) { }
+    constructor(private sender: Sender, readonly onMessage: Event<VSBuffer>) { }
 
-	send(message: VSBuffer): void {
-		try {
-			this.sender.send('vscode:message', message.buffer);
-		} catch (e) {
-			// systems are going down
-		}
-	}
+    send(message: VSBuffer): cognidream {
+        try {
+            this.sender.send('vscode:message', message.buffer);
+        } catch (e) {
+            // systems are going down
+        }
+    }
 
-	disconnect(): void {
-		this.sender.send('vscode:disconnect', null);
-	}
+    disconnect(): cognidream {
+        this.sender.send('vscode:disconnect', null);
+    }
 }

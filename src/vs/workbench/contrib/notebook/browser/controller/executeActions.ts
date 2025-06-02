@@ -60,7 +60,7 @@ export const executeSectionCondition = ContextKeyExpr.and(
 	NOTEBOOK_CELL_TYPE.isEqualTo('markup'),
 );
 
-function renderAllMarkdownCells(context: INotebookActionContext): void {
+function renderAllMarkdownCells(context: INotebookActionContext): cognidream {
 	for (let i = 0; i < context.notebookEditor.getLength(); i++) {
 		const cell = context.notebookEditor.cellAt(i);
 
@@ -70,7 +70,7 @@ function renderAllMarkdownCells(context: INotebookActionContext): void {
 	}
 }
 
-async function runCell(editorGroupsService: IEditorGroupsService, context: INotebookActionContext): Promise<void> {
+async function runCell(editorGroupsService: IEditorGroupsService, context: INotebookActionContext): Promise<cognidreamidream> {
 	const group = editorGroupsService.activeGroup;
 
 	if (group) {
@@ -117,9 +117,9 @@ registerAction2(class RenderAllMarkdownCellsAction extends NotebookAction {
 		});
 	}
 
-	async runWithContext(accessor: ServicesAccessor, context: INotebookActionContext): Promise<void> {
-		renderAllMarkdownCells(context);
-	}
+	async runWithContext(accessor: ServicesAccessor, context: INotebookActionContext): Promicognidreamognidream> {
+	renderAllMarkdownCells(context);
+}
 });
 
 registerAction2(class ExecuteNotebookAction extends NotebookAction {
@@ -169,21 +169,21 @@ registerAction2(class ExecuteNotebookAction extends NotebookAction {
 		return getContextFromUri(accessor, context) ?? getContextFromActiveEditor(accessor.get(IEditorService));
 	}
 
-	async runWithContext(accessor: ServicesAccessor, context: INotebookActionContext): Promise<void> {
-		renderAllMarkdownCells(context);
+	async runWithContext(accessor: ServicesAccessor, context: INotebookActionContext): Promicognidreamognidream> {
+	renderAllMarkdownCells(context);
 
-		const editorService = accessor.get(IEditorService);
-		const editor = editorService.getEditors(EditorsOrder.MOST_RECENTLY_ACTIVE).find(
-			editor => editor.editor instanceof NotebookEditorInput && editor.editor.viewType === context.notebookEditor.textModel.viewType && editor.editor.resource.toString() === context.notebookEditor.textModel.uri.toString());
-		const editorGroupService = accessor.get(IEditorGroupsService);
+        const editorService = accessor.get(IEditorService);
+	const editor = editorService.getEditors(EditorsOrder.MOST_RECENTLY_ACTIVE).find(
+		editor => editor.editor instanceof NotebookEditorInput && editor.editor.viewType === context.notebookEditor.textModel.viewType && editor.editor.resource.toString() === context.notebookEditor.textModel.uri.toString());
+	const editorGroupService = accessor.get(IEditorGroupsService);
 
-		if (editor) {
-			const group = editorGroupService.getGroup(editor.groupId);
-			group?.pinEditor(editor.editor);
-		}
-
-		return context.notebookEditor.executeNotebookCells();
+	if(editor) {
+		const group = editorGroupService.getGroup(editor.groupId);
+		group?.pinEditor(editor.editor);
 	}
+
+        return context.notebookEditor.executeNotebookCells();
+}
 });
 
 registerAction2(class ExecuteCell extends NotebookMultiCellAction {
@@ -217,30 +217,30 @@ registerAction2(class ExecuteCell extends NotebookMultiCellAction {
 		return parseMultiCellExecutionArgs(accessor, ...args);
 	}
 
-	async runWithContext(accessor: ServicesAccessor, context: INotebookCommandContext | INotebookCellToolbarActionContext): Promise<void> {
-		const editorGroupsService = accessor.get(IEditorGroupsService);
+	async runWithContext(accessor: ServicesAccessor, context: INotebookCommandContext | INotebookCellToolbarActionContext): Promicognidreamognidream> {
+	const editorGroupsService = accessor.get(IEditorGroupsService);
 
-		if (context.ui) {
-			await context.notebookEditor.focusNotebookCell(context.cell, 'container', { skipReveal: true });
+	if(context.ui) {
+	await context.notebookEditor.focusNotebookCell(context.cell, 'container', { skipReveal: true });
+}
+
+const chatController = NotebookChatController.get(context.notebookEditor);
+const editingCell = chatController?.getEditingCell();
+if (chatController?.hasFocus() && editingCell) {
+	const group = editorGroupsService.activeGroup;
+
+	if (group) {
+		if (group.activeEditor) {
+			group.pinEditor(group.activeEditor);
 		}
-
-		const chatController = NotebookChatController.get(context.notebookEditor);
-		const editingCell = chatController?.getEditingCell();
-		if (chatController?.hasFocus() && editingCell) {
-			const group = editorGroupsService.activeGroup;
-
-			if (group) {
-				if (group.activeEditor) {
-					group.pinEditor(group.activeEditor);
-				}
-			}
-
-			await context.notebookEditor.executeNotebookCells([editingCell]);
-			return;
-		}
-
-		await runCell(editorGroupsService, context);
 	}
+
+	await context.notebookEditor.executeNotebookCells([editingCell]);
+	return;
+}
+
+await runCell(editorGroupsService, context);
+    }
 });
 
 registerAction2(class ExecuteAboveCells extends NotebookMultiCellAction {
@@ -273,21 +273,21 @@ registerAction2(class ExecuteAboveCells extends NotebookMultiCellAction {
 		return parseMultiCellExecutionArgs(accessor, ...args);
 	}
 
-	async runWithContext(accessor: ServicesAccessor, context: INotebookCommandContext | INotebookCellToolbarActionContext): Promise<void> {
-		let endCellIdx: number | undefined = undefined;
-		if (context.ui) {
-			endCellIdx = context.notebookEditor.getCellIndex(context.cell);
-			await context.notebookEditor.focusNotebookCell(context.cell, 'container', { skipReveal: true });
-		} else {
-			endCellIdx = Math.min(...context.selectedCells.map(cell => context.notebookEditor.getCellIndex(cell)));
-		}
+	async runWithContext(accessor: ServicesAccessor, context: INotebookCommandContext | INotebookCellToolbarActionContext): Promicognidreamognidream> {
+	let endCellIdx: number | undefined = undefined;
+	if(context.ui) {
+	endCellIdx = context.notebookEditor.getCellIndex(context.cell);
+	await context.notebookEditor.focusNotebookCell(context.cell, 'container', { skipReveal: true });
+} else {
+	endCellIdx = Math.min(...context.selectedCells.map(cell => context.notebookEditor.getCellIndex(cell)));
+}
 
-		if (typeof endCellIdx === 'number') {
-			const range = { start: 0, end: endCellIdx };
-			const cells = context.notebookEditor.getCellsInRange(range);
-			context.notebookEditor.executeNotebookCells(cells);
-		}
-	}
+if (typeof endCellIdx === 'number') {
+	const range = { start: 0, end: endCellIdx };
+	const cells = context.notebookEditor.getCellsInRange(range);
+	context.notebookEditor.executeNotebookCells(cells);
+}
+    }
 });
 
 registerAction2(class ExecuteCellAndBelow extends NotebookMultiCellAction {
@@ -320,21 +320,21 @@ registerAction2(class ExecuteCellAndBelow extends NotebookMultiCellAction {
 		return parseMultiCellExecutionArgs(accessor, ...args);
 	}
 
-	async runWithContext(accessor: ServicesAccessor, context: INotebookCommandContext | INotebookCellToolbarActionContext): Promise<void> {
-		let startCellIdx: number | undefined = undefined;
-		if (context.ui) {
-			startCellIdx = context.notebookEditor.getCellIndex(context.cell);
-			await context.notebookEditor.focusNotebookCell(context.cell, 'container', { skipReveal: true });
-		} else {
-			startCellIdx = Math.min(...context.selectedCells.map(cell => context.notebookEditor.getCellIndex(cell)));
-		}
+	async runWithContext(accessor: ServicesAccessor, context: INotebookCommandContext | INotebookCellToolbarActionContext): Promicognidreamognidream> {
+	let startCellIdx: number | undefined = undefined;
+	if(context.ui) {
+	startCellIdx = context.notebookEditor.getCellIndex(context.cell);
+	await context.notebookEditor.focusNotebookCell(context.cell, 'container', { skipReveal: true });
+} else {
+	startCellIdx = Math.min(...context.selectedCells.map(cell => context.notebookEditor.getCellIndex(cell)));
+}
 
-		if (typeof startCellIdx === 'number') {
-			const range = { start: startCellIdx, end: context.notebookEditor.getLength() };
-			const cells = context.notebookEditor.getCellsInRange(range);
-			context.notebookEditor.executeNotebookCells(cells);
-		}
-	}
+if (typeof startCellIdx === 'number') {
+	const range = { start: startCellIdx, end: context.notebookEditor.getLength() };
+	const cells = context.notebookEditor.getCellsInRange(range);
+	context.notebookEditor.executeNotebookCells(cells);
+}
+    }
 });
 
 registerAction2(class ExecuteCellFocusContainer extends NotebookMultiCellAction {
@@ -355,21 +355,21 @@ registerAction2(class ExecuteCellFocusContainer extends NotebookMultiCellAction 
 		return parseMultiCellExecutionArgs(accessor, ...args);
 	}
 
-	async runWithContext(accessor: ServicesAccessor, context: INotebookCommandContext | INotebookCellToolbarActionContext): Promise<void> {
-		const editorGroupsService = accessor.get(IEditorGroupsService);
+	async runWithContext(accessor: ServicesAccessor, context: INotebookCommandContext | INotebookCellToolbarActionContext): Promicognidreamognidream> {
+	const editorGroupsService = accessor.get(IEditorGroupsService);
 
-		if (context.ui) {
-			await context.notebookEditor.focusNotebookCell(context.cell, 'container', { skipReveal: true });
-		} else {
-			const firstCell = context.selectedCells[0];
+	if(context.ui) {
+	await context.notebookEditor.focusNotebookCell(context.cell, 'container', { skipReveal: true });
+} else {
+	const firstCell = context.selectedCells[0];
 
-			if (firstCell) {
-				await context.notebookEditor.focusNotebookCell(firstCell, 'container', { skipReveal: true });
-			}
-		}
-
-		await runCell(editorGroupsService, context);
+	if (firstCell) {
+		await context.notebookEditor.focusNotebookCell(firstCell, 'container', { skipReveal: true });
 	}
+}
+
+await runCell(editorGroupsService, context);
+    }
 });
 
 const cellCancelCondition = ContextKeyExpr.or(
@@ -432,14 +432,14 @@ registerAction2(class CancelExecuteCell extends NotebookMultiCellAction {
 		return parseMultiCellExecutionArgs(accessor, ...args);
 	}
 
-	async runWithContext(accessor: ServicesAccessor, context: INotebookCommandContext | INotebookCellToolbarActionContext): Promise<void> {
-		if (context.ui) {
-			await context.notebookEditor.focusNotebookCell(context.cell, 'container', { skipReveal: true });
-			return context.notebookEditor.cancelNotebookCells(Iterable.single(context.cell));
-		} else {
-			return context.notebookEditor.cancelNotebookCells(context.selectedCells);
-		}
-	}
+	async runWithContext(accessor: ServicesAccessor, context: INotebookCommandContext | INotebookCellToolbarActionContext): Promicognidreamognidream> {
+	if(context.ui) {
+	await context.notebookEditor.focusNotebookCell(context.cell, 'container', { skipReveal: true });
+	return context.notebookEditor.cancelNotebookCells(Iterable.single(context.cell));
+} else {
+	return context.notebookEditor.cancelNotebookCells(context.selectedCells);
+}
+    }
 });
 
 registerAction2(class ExecuteCellSelectBelow extends NotebookCellAction {
@@ -459,53 +459,53 @@ registerAction2(class ExecuteCellSelectBelow extends NotebookCellAction {
 		});
 	}
 
-	async runWithContext(accessor: ServicesAccessor, context: INotebookCellActionContext): Promise<void> {
-		const editorGroupsService = accessor.get(IEditorGroupsService);
-		const idx = context.notebookEditor.getCellIndex(context.cell);
-		if (typeof idx !== 'number') {
-			return;
-		}
-		const languageService = accessor.get(ILanguageService);
+	async runWithContext(accessor: ServicesAccessor, context: INotebookCellActionContext): Promicognidreamognidream> {
+	const editorGroupsService = accessor.get(IEditorGroupsService);
+	const idx = context.notebookEditor.getCellIndex(context.cell);
+	if(typeof idx !== 'number') {
+	return;
+}
+const languageService = accessor.get(ILanguageService);
 
-		const config = accessor.get(IConfigurationService);
-		const scrollBehavior = config.getValue(NotebookSetting.scrollToRevealCell);
-		let focusOptions: IFocusNotebookCellOptions;
-		if (scrollBehavior === 'none') {
-			focusOptions = { skipReveal: true };
-		} else {
-			focusOptions = {
-				revealBehavior: scrollBehavior === 'fullCell' ? ScrollToRevealBehavior.fullCell : ScrollToRevealBehavior.firstLine
-			};
-		}
+const config = accessor.get(IConfigurationService);
+const scrollBehavior = config.getValue(NotebookSetting.scrollToRevealCell);
+let focusOptions: IFocusNotebookCellOptions;
+if (scrollBehavior === 'none') {
+	focusOptions = { skipReveal: true };
+} else {
+	focusOptions = {
+		revealBehavior: scrollBehavior === 'fullCell' ? ScrollToRevealBehavior.fullCell : ScrollToRevealBehavior.firstLine
+	};
+}
 
-		if (context.cell.cellKind === CellKind.Markup) {
-			const nextCell = context.notebookEditor.cellAt(idx + 1);
-			context.cell.updateEditState(CellEditState.Preview, EXECUTE_CELL_SELECT_BELOW);
-			if (nextCell) {
-				await context.notebookEditor.focusNotebookCell(nextCell, 'container', focusOptions);
-			} else {
-				const newCell = insertCell(languageService, context.notebookEditor, idx, CellKind.Markup, 'below');
+if (context.cell.cellKind === CellKind.Markup) {
+	const nextCell = context.notebookEditor.cellAt(idx + 1);
+	context.cell.updateEditState(CellEditState.Preview, EXECUTE_CELL_SELECT_BELOW);
+	if (nextCell) {
+		await context.notebookEditor.focusNotebookCell(nextCell, 'container', focusOptions);
+	} else {
+		const newCell = insertCell(languageService, context.notebookEditor, idx, CellKind.Markup, 'below');
 
-				if (newCell) {
-					await context.notebookEditor.focusNotebookCell(newCell, 'editor', focusOptions);
-				}
-			}
-			return;
-		} else {
-			const nextCell = context.notebookEditor.cellAt(idx + 1);
-			if (nextCell) {
-				await context.notebookEditor.focusNotebookCell(nextCell, 'container', focusOptions);
-			} else {
-				const newCell = insertCell(languageService, context.notebookEditor, idx, CellKind.Code, 'below');
-
-				if (newCell) {
-					await context.notebookEditor.focusNotebookCell(newCell, 'editor', focusOptions);
-				}
-			}
-
-			return runCell(editorGroupsService, context);
+		if (newCell) {
+			await context.notebookEditor.focusNotebookCell(newCell, 'editor', focusOptions);
 		}
 	}
+	return;
+} else {
+	const nextCell = context.notebookEditor.cellAt(idx + 1);
+	if (nextCell) {
+		await context.notebookEditor.focusNotebookCell(nextCell, 'container', focusOptions);
+	} else {
+		const newCell = insertCell(languageService, context.notebookEditor, idx, CellKind.Code, 'below');
+
+		if (newCell) {
+			await context.notebookEditor.focusNotebookCell(newCell, 'editor', focusOptions);
+		}
+	}
+
+	return runCell(editorGroupsService, context);
+}
+    }
 });
 
 registerAction2(class ExecuteCellInsertBelow extends NotebookCellAction {
@@ -522,23 +522,23 @@ registerAction2(class ExecuteCellInsertBelow extends NotebookCellAction {
 		});
 	}
 
-	async runWithContext(accessor: ServicesAccessor, context: INotebookCellActionContext): Promise<void> {
-		const editorGroupsService = accessor.get(IEditorGroupsService);
-		const idx = context.notebookEditor.getCellIndex(context.cell);
-		const languageService = accessor.get(ILanguageService);
-		const newFocusMode = context.cell.focusMode === CellFocusMode.Editor ? 'editor' : 'container';
+	async runWithContext(accessor: ServicesAccessor, context: INotebookCellActionContext): Promicognidreamognidream> {
+	const editorGroupsService = accessor.get(IEditorGroupsService);
+	const idx = context.notebookEditor.getCellIndex(context.cell);
+	const languageService = accessor.get(ILanguageService);
+	const newFocusMode = context.cell.focusMode === CellFocusMode.Editor ? 'editor' : 'container';
 
-		const newCell = insertCell(languageService, context.notebookEditor, idx, context.cell.cellKind, 'below');
-		if (newCell) {
-			await context.notebookEditor.focusNotebookCell(newCell, newFocusMode);
-		}
-
-		if (context.cell.cellKind === CellKind.Markup) {
-			context.cell.updateEditState(CellEditState.Preview, EXECUTE_CELL_INSERT_BELOW);
-		} else {
-			runCell(editorGroupsService, context);
-		}
+	const newCell = insertCell(languageService, context.notebookEditor, idx, context.cell.cellKind, 'below');
+	if(newCell) {
+		await context.notebookEditor.focusNotebookCell(newCell, newFocusMode);
 	}
+
+        if(context.cell.cellKind === CellKind.Markup) {
+	context.cell.updateEditState(CellEditState.Preview, EXECUTE_CELL_INSERT_BELOW);
+} else {
+	runCell(editorGroupsService, context);
+}
+    }
 });
 
 class CancelNotebook extends NotebookAction {
@@ -546,7 +546,7 @@ class CancelNotebook extends NotebookAction {
 		return getContextFromUri(accessor, context) ?? getContextFromActiveEditor(accessor.get(IEditorService));
 	}
 
-	async runWithContext(accessor: ServicesAccessor, context: INotebookActionContext): Promise<void> {
+	async runWithContext(accessor: ServicesAccessor, context: INotebookActionContext): Promicognidreamognidream> {
 		return context.notebookEditor.cancelNotebookCells();
 	}
 }
@@ -677,36 +677,36 @@ registerAction2(class RevealRunningCellAction extends NotebookAction {
 		});
 	}
 
-	async runWithContext(accessor: ServicesAccessor, context: INotebookActionContext): Promise<void> {
-		const notebookExecutionStateService = accessor.get(INotebookExecutionStateService);
-		const notebook = context.notebookEditor.textModel.uri;
-		const executingCells = notebookExecutionStateService.getCellExecutionsForNotebook(notebook);
-		if (executingCells[0]) {
-			const topStackFrameCell = this.findCellAtTopFrame(accessor, notebook);
-			const focusHandle = topStackFrameCell ?? executingCells[0].cellHandle;
-			const cell = context.notebookEditor.getCellByHandle(focusHandle);
-			if (cell) {
-				context.notebookEditor.focusNotebookCell(cell, 'container');
-			}
-		}
+	async runWithContext(accessor: ServicesAccessor, context: INotebookActionContext): Promicognidreamognidream> {
+	const notebookExecutionStateService = accessor.get(INotebookExecutionStateService);
+	const notebook = context.notebookEditor.textModel.uri;
+	const executingCells = notebookExecutionStateService.getCellExecutionsForNotebook(notebook);
+	if(executingCells[0]) {
+	const topStackFrameCell = this.findCellAtTopFrame(accessor, notebook);
+	const focusHandle = topStackFrameCell ?? executingCells[0].cellHandle;
+	const cell = context.notebookEditor.getCellByHandle(focusHandle);
+	if (cell) {
+		context.notebookEditor.focusNotebookCell(cell, 'container');
 	}
+}
+    }
 
-	private findCellAtTopFrame(accessor: ServicesAccessor, notebook: URI): number | undefined {
-		const debugService = accessor.get(IDebugService);
-		for (const session of debugService.getModel().getSessions()) {
-			for (const thread of session.getAllThreads()) {
-				const sf = thread.getTopStackFrame();
-				if (sf) {
-					const parsed = CellUri.parse(sf.source.uri);
-					if (parsed && parsed.notebook.toString() === notebook.toString()) {
-						return parsed.handle;
-					}
+    private findCellAtTopFrame(accessor: ServicesAccessor, notebook: URI): number | undefined {
+	const debugService = accessor.get(IDebugService);
+	for (const session of debugService.getModel().getSessions()) {
+		for (const thread of session.getAllThreads()) {
+			const sf = thread.getTopStackFrame();
+			if (sf) {
+				const parsed = CellUri.parse(sf.source.uri);
+				if (parsed && parsed.notebook.toString() === notebook.toString()) {
+					return parsed.handle;
 				}
 			}
 		}
-
-		return undefined;
 	}
+
+	return undefined;
+}
 });
 
 registerAction2(class RevealLastFailedCellAction extends NotebookAction {
@@ -745,15 +745,15 @@ registerAction2(class RevealLastFailedCellAction extends NotebookAction {
 		});
 	}
 
-	async runWithContext(accessor: ServicesAccessor, context: INotebookActionContext): Promise<void> {
-		const notebookExecutionStateService = accessor.get(INotebookExecutionStateService);
-		const notebook = context.notebookEditor.textModel.uri;
-		const lastFailedCellHandle = notebookExecutionStateService.getLastFailedCellForNotebook(notebook);
-		if (lastFailedCellHandle !== undefined) {
-			const lastFailedCell = context.notebookEditor.getCellByHandle(lastFailedCellHandle);
-			if (lastFailedCell) {
-				context.notebookEditor.focusNotebookCell(lastFailedCell, 'container');
-			}
-		}
+	async runWithContext(accessor: ServicesAccessor, context: INotebookActionContext): Promicognidreamognidream> {
+	const notebookExecutionStateService = accessor.get(INotebookExecutionStateService);
+	const notebook = context.notebookEditor.textModel.uri;
+	const lastFailedCellHandle = notebookExecutionStateService.getLastFailedCellForNotebook(notebook);
+	if(lastFailedCellHandle !== undefined) {
+	const lastFailedCell = context.notebookEditor.getCellByHandle(lastFailedCellHandle);
+	if (lastFailedCell) {
+		context.notebookEditor.focusNotebookCell(lastFailedCell, 'container');
 	}
+}
+    }
 });

@@ -25,18 +25,18 @@ export class MainThreadConsole implements MainThreadConsoleShape {
 		this._isExtensionDevTestFromCli = devOpts.isExtensionDevTestFromCli;
 	}
 
-	dispose(): void {
+	dispose(): cognidream {
 		//
 	}
 
-	$logExtensionHostMessage(entry: IRemoteConsoleLog): void {
+	$logExtensionHostMessage(entry: IRemoteConsoleLogcognidreamognidream {
 		if (this._isExtensionDevTestFromCli) {
-			// If running tests from cli, log to the log service everything
-			logRemoteEntry(this._logService, entry);
-		} else {
-			// Log to the log service only errors and log everything to local console
-			logRemoteEntryIfError(this._logService, entry, 'Extension Host');
-			log(entry, 'Extension Host');
-		}
-	}
+	// If running tests from cli, log to the log service everything
+	logRemoteEntry(this._logService, entry);
+} else {
+	// Log to the log service only errors and log everything to local console
+	logRemoteEntryIfError(this._logService, entry, 'Extension Host');
+	log(entry, 'Extension Host');
+}
+    }
 }

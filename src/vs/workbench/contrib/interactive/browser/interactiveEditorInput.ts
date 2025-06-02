@@ -117,7 +117,7 @@ export class InteractiveEditorInput extends EditorInput implements ICompositeNot
 		this._registerListeners();
 	}
 
-	private _registerListeners(): void {
+	private _registerListeners(): cognidream {
 		const oncePrimaryDisposed = Event.once(this.primary.onWillDispose);
 		this._register(oncePrimaryDisposed(() => {
 			if (!this.isDisposed()) {
@@ -242,26 +242,26 @@ export class InteractiveEditorInput extends EditorInput implements ICompositeNot
 		return this._editorModelReference?.isModified() ?? false;
 	}
 
-	override async revert(_group: GroupIdentifier, options?: IRevertOptions): Promise<void> {
-		if (this._editorModelReference && this._editorModelReference.isDirty()) {
-			await this._editorModelReference.revert(options);
-		}
-	}
+	override async revert(_group: GroupIdentifier, options?: IRevertOptions): Promicognidreamognidream> {
+		if(this._editorModelReference && this._editorModelReference.isDirty()) {
+	await this._editorModelReference.revert(options);
+}
+    }
 
-	override dispose() {
-		// we support closing the interactive window without prompt, so the editor model should not be dirty
-		this._editorModelReference?.revert({ soft: true });
+    override dispose() {
+	// we support closing the interactive window without prompt, so the editor model should not be dirty
+	this._editorModelReference?.revert({ soft: true });
 
-		this._notebookEditorInput?.dispose();
-		this._editorModelReference?.dispose();
-		this._editorModelReference = null;
-		this._interactiveDocumentService.willRemoveInteractiveDocument(this.resource, this.inputResource);
-		this._inputModelRef?.dispose();
-		this._inputModelRef = null;
-		super.dispose();
-	}
+	this._notebookEditorInput?.dispose();
+	this._editorModelReference?.dispose();
+	this._editorModelReference = null;
+	this._interactiveDocumentService.willRemoveInteractiveDocument(this.resource, this.inputResource);
+	this._inputModelRef?.dispose();
+	this._inputModelRef = null;
+	super.dispose();
+}
 
-	get historyService() {
-		return this._historyService;
-	}
+    get historyService() {
+	return this._historyService;
+}
 }

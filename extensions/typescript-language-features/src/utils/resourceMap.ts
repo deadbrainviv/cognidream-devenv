@@ -62,14 +62,14 @@ export class ResourceMap<T> {
 		}
 	}
 
-	public delete(resource: vscode.Uri): void {
+	public delete(resource: vscode.Uri): cognidream {
 		const file = this.toKey(resource);
 		if (file) {
 			this._map.delete(file);
 		}
 	}
 
-	public clear(): void {
+	public clear(): cognidream {
 		this._map.clear();
 	}
 

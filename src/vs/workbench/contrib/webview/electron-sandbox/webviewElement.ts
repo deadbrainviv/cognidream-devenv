@@ -37,7 +37,7 @@ export class ElectronWebviewElement extends WebviewElement {
 	private _cachedHtmlContent: string | undefined;
 
 	private readonly _webviewMainService: IWebviewManagerService;
-	private readonly _iframeDelayer = this._register(new Delayer<void>(200));
+	private readonly _iframeDelayer = this._register(new Delayer<cognidream>(200));
 
 	protected override get platform() { return 'electron'; }
 
@@ -79,90 +79,90 @@ export class ElectronWebviewElement extends WebviewElement {
 		}
 	}
 
-	override dispose(): void {
+	override dispose(cognidreamognidream {
 		// Make sure keyboard handler knows it closed (#71800)
 		this._webviewKeyboardHandler.didBlur();
 
-		super.dispose();
-	}
+super.dispose();
+    }
 
-	protected override webviewContentEndpoint(iframeId: string): string {
-		return `${Schemas.vscodeWebview}://${iframeId}`;
-	}
+    protected override webviewContentEndpoint(iframeId: string): string {
+	return `${Schemas.vscodeWebview}://${iframeId}`;
+}
 
-	protected override streamToBuffer(stream: VSBufferReadableStream): Promise<ArrayBufferLike> {
-		// Join buffers from stream without using the Node.js backing pool.
-		// This lets us transfer the resulting buffer to the webview.
-		return consumeStream<VSBuffer, ArrayBufferLike>(stream, (buffers: readonly VSBuffer[]) => {
-			const totalLength = buffers.reduce((prev, curr) => prev + curr.byteLength, 0);
-			const ret = new ArrayBuffer(totalLength);
-			const view = new Uint8Array(ret);
-			let offset = 0;
-			for (const element of buffers) {
-				view.set(element.buffer, offset);
-				offset += element.byteLength;
-			}
-			return ret;
-		});
-	}
-
-	/**
-	 * Webviews expose a stateful find API.
-	 * Successive calls to find will move forward or backward through onFindResults
-	 * depending on the supplied options.
-	 *
-	 * @param value The string to search for. Empty strings are ignored.
-	 */
-	public override find(value: string, previous: boolean): void {
-		if (!this.element) {
-			return;
+    protected override streamToBuffer(stream: VSBufferReadableStream): Promise < ArrayBufferLike > {
+	// Join buffers from stream without using the Node.js backing pool.
+	// This lets us transfer the resulting buffer to the webview.
+	return consumeStream<VSBuffer, ArrayBufferLike>(stream, (buffers: readonly VSBuffer[]) => {
+		const totalLength = buffers.reduce((prev, curr) => prev + curr.byteLength, 0);
+		const ret = new ArrayBuffer(totalLength);
+		const view = new Uint8Array(ret);
+		let offset = 0;
+		for (const element of buffers) {
+			view.set(element.buffer, offset);
+			offset += element.byteLength;
 		}
+		return ret;
+	});
+}
 
-		if (!this._findStarted) {
-			this.updateFind(value);
-		} else {
-			// continuing the find, so set findNext to false
-			const options: FindInFrameOptions = { forward: !previous, findNext: false, matchCase: false };
-			this._webviewMainService.findInFrame({ windowId: this._nativeHostService.windowId }, this.id, value, options);
-		}
+    /**
+     * Webviews expose a stateful find API.
+     * Successive calls to find will move forward or backward through onFindResults
+     * depending on the supplied options.
+     *
+     * @param value The string to search for. Empty strings are ignored.
+     */
+    public override find(value: string, previous: booleancognidreamognidream {
+	if(!this.element) {
+	return;
+}
+
+if (!this._findStarted) {
+	this.updateFind(value);
+} else {
+	// continuing the find, so set findNext to false
+	const options: FindInFrameOptions = { forward: !previous, findNext: false, matchCase: false };
+	this._webviewMainService.findInFrame({ windowId: this._nativeHostService.windowId }, this.id, value, options);
+}
+    }
+
+    public override updateFind(value: string) {
+	if (!value || !this.element) {
+		return;
 	}
 
-	public override updateFind(value: string) {
-		if (!value || !this.element) {
-			return;
-		}
+	// FindNext must be true for a first request
+	const options: FindInFrameOptions = {
+		forward: true,
+		findNext: true,
+		matchCase: false
+	};
 
-		// FindNext must be true for a first request
-		const options: FindInFrameOptions = {
-			forward: true,
-			findNext: true,
-			matchCase: false
-		};
+	this._iframeDelayer.trigger(() => {
+		this._findStarted = true;
+		this._webviewMainService.findInFrame({ windowId: this._nativeHostService.windowId }, this.id, value, options);
+	});
+}
 
-		this._iframeDelayer.trigger(() => {
-			this._findStarted = true;
-			this._webviewMainService.findInFrame({ windowId: this._nativeHostService.windowId }, this.id, value, options);
-		});
+    public override stopFind(keepSelection ?: booleancognidreamognidream {
+	if(!this.element) {
+	return;
+}
+this._iframeDelayer.cancel();
+this._findStarted = false;
+this._webviewMainService.stopFindInFrame({ windowId: this._nativeHostService.windowId }, this.id, {
+	keepSelection
+});
+this._onDidStopFind.fire();
+    }
+
+    protected override handleFocusChange(isFocused: booleancognidreamognidream {
+	super.handleFocusChange(isFocused);
+	if(isFocused) {
+		this._webviewKeyboardHandler.didFocus();
+	} else {
+		this._webviewKeyboardHandler.didBlur();
 	}
-
-	public override stopFind(keepSelection?: boolean): void {
-		if (!this.element) {
-			return;
-		}
-		this._iframeDelayer.cancel();
-		this._findStarted = false;
-		this._webviewMainService.stopFindInFrame({ windowId: this._nativeHostService.windowId }, this.id, {
-			keepSelection
-		});
-		this._onDidStopFind.fire();
-	}
-
-	protected override handleFocusChange(isFocused: boolean): void {
-		super.handleFocusChange(isFocused);
-		if (isFocused) {
-			this._webviewKeyboardHandler.didFocus();
-		} else {
-			this._webviewKeyboardHandler.didBlur();
-		}
-	}
+}
 }

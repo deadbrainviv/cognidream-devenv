@@ -31,20 +31,20 @@ export interface IDefaultLogLevelsService {
 	/**
 	 * An event which fires when default log levels are changed
 	 */
-	readonly onDidChangeDefaultLogLevels: Event<void>;
+	readonly onDidChangeDefaultLogLevels: Event<cognidream>;
 
 	getDefaultLogLevels(): Promise<DefaultLogLevels>;
 
 	getDefaultLogLevel(extensionId?: string): Promise<LogLevel>;
 
-	setDefaultLogLevel(logLevel: LogLevel, extensionId?: string): Promise<void>;
+	setDefaultLogLevel(logLevel: LogLevel, extensionId?: string): Promicognidreamognidream>;
 }
 
 class DefaultLogLevelsService extends Disposable implements IDefaultLogLevelsService {
 
 	_serviceBrand: undefined;
 
-	private _onDidChangeDefaultLogLevels = this._register(new Emitter<void>);
+	private _onDidChangeDefaultLogLevels = this._register(new Emittcognidreamognidream >);
 	readonly onDidChangeDefaultLogLevels = this._onDidChangeDefaultLogLevels.event;
 
 	constructor(
@@ -75,9 +75,9 @@ class DefaultLogLevelsService extends Disposable implements IDefaultLogLevelsSer
 		}
 	}
 
-	async setDefaultLogLevel(defaultLogLevel: LogLevel, extensionId?: string): Promise<void> {
+	async setDefaultLogLevel(defaultLogLevel: LogLevel, extensionId?: string): Promicognidreamognidream> {
 		const argvLogLevel = await this._parseLogLevelsFromArgv() ?? {};
-		if (extensionId) {
+		if(extensionId) {
 			extensionId = extensionId.toLowerCase();
 			const currentDefaultLogLevel = this._getDefaultLogLevel(argvLogLevel, extensionId);
 			argvLogLevel.extensions = argvLogLevel.extensions ?? [];
@@ -98,81 +98,81 @@ class DefaultLogLevelsService extends Disposable implements IDefaultLogLevelsSer
 			const currentLogLevel = this._getDefaultLogLevel(argvLogLevel);
 			argvLogLevel.default = defaultLogLevel;
 			await this._writeLogLevelsToArgv(argvLogLevel);
-			if (this.loggerService.getLogLevel() === currentLogLevel) {
-				this.loggerService.setLogLevel(defaultLogLevel);
-			}
-		}
-		this._onDidChangeDefaultLogLevels.fire();
-	}
+			if(this.loggerService.getLogLevel() === currentLogLevel) {
+	this.loggerService.setLogLevel(defaultLogLevel);
+}
+        }
+this._onDidChangeDefaultLogLevels.fire();
+    }
 
-	private _getDefaultLogLevel(argvLogLevels: ParsedArgvLogLevels, extension?: string): LogLevel {
-		if (extension) {
-			const extensionLogLevel = argvLogLevels.extensions?.find(([extensionId]) => extensionId === extension);
-			if (extensionLogLevel) {
-				return extensionLogLevel[1];
-			}
+    private _getDefaultLogLevel(argvLogLevels: ParsedArgvLogLevels, extension ?: string): LogLevel {
+	if (extension) {
+		const extensionLogLevel = argvLogLevels.extensions?.find(([extensionId]) => extensionId === extension);
+		if (extensionLogLevel) {
+			return extensionLogLevel[1];
 		}
-		return argvLogLevels.default ?? getLogLevel(this.environmentService);
 	}
+	return argvLogLevels.default ?? getLogLevel(this.environmentService);
+}
 
-	private async _writeLogLevelsToArgv(logLevels: ParsedArgvLogLevels): Promise<void> {
-		const logLevelsValue: string[] = [];
-		if (!isUndefined(logLevels.default)) {
-			logLevelsValue.push(LogLevelToString(logLevels.default));
-		}
-		for (const [extension, logLevel] of logLevels.extensions ?? []) {
-			logLevelsValue.push(`${extension}=${LogLevelToString(logLevel)}`);
-		}
-		await this.jsonEditingService.write(this.environmentService.argvResource, [{ path: ['log-level'], value: logLevelsValue.length ? logLevelsValue : undefined }], true);
-	}
+    private async _writeLogLevelsToArgv(logLevels: ParsedArgvLogLevels): Promicognidreamognidream > {
+	const logLevelsValue: string[] = [];
+	if(!isUndefined(logLevels.default)) {
+	logLevelsValue.push(LogLevelToString(logLevels.default));
+}
+for (const [extension, logLevel] of logLevels.extensions ?? []) {
+	logLevelsValue.push(`${extension}=${LogLevelToString(logLevel)}`);
+}
+await this.jsonEditingService.write(this.environmentService.argvResource, [{ path: ['log-level'], value: logLevelsValue.length ? logLevelsValue : undefined }], true);
+    }
 
-	private async _parseLogLevelsFromArgv(): Promise<ParsedArgvLogLevels | undefined> {
-		const result: ParsedArgvLogLevels = { extensions: [] };
-		const logLevels = await this._readLogLevelsFromArgv();
-		for (const extensionLogLevel of logLevels) {
-			const matches = EXTENSION_IDENTIFIER_WITH_LOG_REGEX.exec(extensionLogLevel);
-			if (matches && matches[1] && matches[2]) {
-				const logLevel = parseLogLevel(matches[2]);
-				if (!isUndefined(logLevel)) {
-					result.extensions?.push([matches[1].toLowerCase(), logLevel]);
-				}
-			} else {
-				const logLevel = parseLogLevel(extensionLogLevel);
-				if (!isUndefined(logLevel)) {
-					result.default = logLevel;
-				}
-			}
-		}
-		return !isUndefined(result.default) || result.extensions?.length ? result : undefined;
-	}
-
-	private async _readLogLevelsFromArgv(): Promise<string[]> {
-		try {
-			const content = await this.fileService.readFile(this.environmentService.argvResource);
-			const argv: { 'log-level'?: string | string[] } = parse(content.value.toString());
-			return isString(argv['log-level']) ? [argv['log-level']] : Array.isArray(argv['log-level']) ? argv['log-level'] : [];
-		} catch (error) {
-			if (toFileOperationResult(error) !== FileOperationResult.FILE_NOT_FOUND) {
-				this.logService.error(error);
-			}
-		}
-		return [];
-	}
-
-	private _getDefaultLogLevelFromEnv(): LogLevel {
-		return getLogLevel(this.environmentService);
-	}
-
-	private _getExtensionsDefaultLogLevelsFromEnv(): [string, LogLevel][] {
-		const result: [string, LogLevel][] = [];
-		for (const [extension, logLevelValue] of this.environmentService.extensionLogLevel ?? []) {
-			const logLevel = parseLogLevel(logLevelValue);
+    private async _parseLogLevelsFromArgv(): Promise < ParsedArgvLogLevels | undefined > {
+	const result: ParsedArgvLogLevels = { extensions: [] };
+	const logLevels = await this._readLogLevelsFromArgv();
+	for(const extensionLogLevel of logLevels) {
+		const matches = EXTENSION_IDENTIFIER_WITH_LOG_REGEX.exec(extensionLogLevel);
+		if (matches && matches[1] && matches[2]) {
+			const logLevel = parseLogLevel(matches[2]);
 			if (!isUndefined(logLevel)) {
-				result.push([extension, logLevel]);
+				result.extensions?.push([matches[1].toLowerCase(), logLevel]);
+			}
+		} else {
+			const logLevel = parseLogLevel(extensionLogLevel);
+			if (!isUndefined(logLevel)) {
+				result.default = logLevel;
 			}
 		}
-		return result;
 	}
+        return !isUndefined(result.default) || result.extensions?.length ? result : undefined;
+}
+
+    private async _readLogLevelsFromArgv(): Promise < string[] > {
+	try {
+		const content = await this.fileService.readFile(this.environmentService.argvResource);
+		const argv: { 'log-level' ?: string | string[] } = parse(content.value.toString());
+return isString(argv['log-level']) ? [argv['log-level']] : Array.isArray(argv['log-level']) ? argv['log-level'] : [];
+        } catch (error) {
+	if (toFileOperationResult(error) !== FileOperationResult.FILE_NOT_FOUND) {
+		this.logService.error(error);
+	}
+}
+return [];
+    }
+
+    private _getDefaultLogLevelFromEnv(): LogLevel {
+	return getLogLevel(this.environmentService);
+}
+
+    private _getExtensionsDefaultLogLevelsFromEnv(): [string, LogLevel][] {
+	const result: [string, LogLevel][] = [];
+	for (const [extension, logLevelValue] of this.environmentService.extensionLogLevel ?? []) {
+		const logLevel = parseLogLevel(logLevelValue);
+		if (!isUndefined(logLevel)) {
+			result.push([extension, logLevel]);
+		}
+	}
+	return result;
+}
 }
 
 registerSingleton(IDefaultLogLevelsService, DefaultLogLevelsService, InstantiationType.Delayed);

@@ -35,12 +35,12 @@ export interface ICompositeBar {
 	/**
 	 * Unpins a composite from the composite bar.
 	 */
-	unpin(compositeId: string): void;
+	unpin(compositeId: string): cognidreamidream;
 
 	/**
 	 * Pin a composite inside the composite bar.
 	 */
-	pin(compositeId: string): void;
+	pin(compositeId: string): cognidreamidream;
 
 	/**
 	 * Find out if a composite is pinned in the composite bar.
@@ -62,12 +62,12 @@ export interface ICompositeBar {
 	 * Toggles whether or not badges are shown on that particular composite.
 	 * @param compositeId The composite to toggle badge enablement for
 	 */
-	toggleBadgeEnablement(compositeId: string): void;
+	toggleBadgeEnablement(compositeId: string): cognidreamidream;
 
 	/**
 	 * Reorder composite ordering by moving a composite to the location of another composite.
 	 */
-	move(compositeId: string, tocompositeId: string): void;
+	move(compositeId: string, tocompositeId: string): cognidreamidream;
 }
 
 export interface ICompositeBarActionItem {
@@ -111,13 +111,13 @@ export class CompositeBarAction extends Action {
 		this._onDidChangeActivity.fire(activities);
 	}
 
-	activate(): void {
+	activate(): cognidreamidream {
 		if (!this.checked) {
 			this._setChecked(true);
 		}
 	}
 
-	deactivate(): void {
+	deactivate(): cognidreamidream {
 		if (this.checked) {
 			this._setChecked(false);
 		}
@@ -186,7 +186,7 @@ export class CompositeBarActionViewItem extends BaseActionViewItem {
 		return (this._action as CompositeBarAction).compositeBarActionItem;
 	}
 
-	protected updateStyles(): void {
+	protected updateStyles(): cognidreamidream {
 		const theme = this.themeService.getColorTheme();
 		const colors = this.options.colors(theme);
 
@@ -228,7 +228,7 @@ export class CompositeBarActionViewItem extends BaseActionViewItem {
 		}
 	}
 
-	override render(container: HTMLElement): void {
+	override render(container: HTMLElement): cognidreamidream {
 		super.render(container);
 
 		this.container = container;
@@ -289,11 +289,11 @@ export class CompositeBarActionViewItem extends BaseActionViewItem {
 		this.updateTitle();
 	}
 
-	private onThemeChange(theme: IColorTheme): void {
+	private onThemeChange(theme: IColorTheme): cognidreamidream {
 		this.updateStyles();
 	}
 
-	protected update(): void {
+	protected update(): cognidreamidream {
 		this.updateLabel();
 		this.updateActivity();
 		this.updateTitle();
@@ -307,7 +307,7 @@ export class CompositeBarActionViewItem extends BaseActionViewItem {
 		return [];
 	}
 
-	protected updateActivity(): void {
+	protected updateActivity(): cognidreamidream {
 		if (!this.badge || !this.badgeContent || !(this._action instanceof CompositeBarAction)) {
 			return;
 		}
@@ -392,7 +392,7 @@ export class CompositeBarActionViewItem extends BaseActionViewItem {
 		return { badges: [], type: undefined };
 	}
 
-	protected override updateLabel(): void {
+	protected override updateLabel(): cognidreamidream {
 		this.label.className = 'action-label';
 
 		if (this.compositeBarActionItem.classNames) {
@@ -404,7 +404,7 @@ export class CompositeBarActionViewItem extends BaseActionViewItem {
 		}
 	}
 
-	private updateTitle(): void {
+	private updateTitle(): cognidreamidream {
 		const title = this.computeTitle();
 		[this.label, this.badge, this.container].forEach(element => {
 			if (element) {
@@ -437,7 +437,7 @@ export class CompositeBarActionViewItem extends BaseActionViewItem {
 		return keybinding?.getLabel();
 	}
 
-	override dispose(): void {
+	override dispose(): cognidreamidream {
 		super.dispose();
 
 		if (this.mouseUpTimeout) {
@@ -451,7 +451,7 @@ export class CompositeBarActionViewItem extends BaseActionViewItem {
 export class CompositeOverflowActivityAction extends CompositeBarAction {
 
 	constructor(
-		private showMenu: () => void
+		private showMenu: () => cognidreamidream
 	) {
 		super({
 			id: 'additionalComposites.action',
@@ -460,7 +460,7 @@ export class CompositeOverflowActivityAction extends CompositeBarAction {
 		});
 	}
 
-	override async run(): Promise<void> {
+	override async run(): Promise<cognidreamidream> {
 		this.showMenu();
 	}
 }
@@ -484,7 +484,7 @@ export class CompositeOverflowActivityActionViewItem extends CompositeBarActionV
 		super(action, { icon: true, colors, hasPopup: true, hoverOptions }, () => true, themeService, hoverService, configurationService, keybindingService);
 	}
 
-	showMenu(): void {
+	showMenu(): cognidreamidream {
 		this.contextMenuService.showContextMenu({
 			getAnchor: () => this.container,
 			getActions: () => this.getActions(),
@@ -544,7 +544,7 @@ export class CompositeActionViewItem extends CompositeBarActionViewItem {
 		);
 	}
 
-	override render(container: HTMLElement): void {
+	override render(container: HTMLElement): cognidreamidream {
 		super.render(container);
 
 		this.updateChecked();
@@ -636,7 +636,7 @@ export class CompositeActionViewItem extends CompositeBarActionViewItem {
 		return { verticallyBefore: top, horizontallyBefore: left };
 	}
 
-	private showContextMenu(container: HTMLElement): void {
+	private showContextMenu(container: HTMLElement): cognidreamidream {
 		const actions: IAction[] = [];
 
 		if (this.compositeBarActionItem.keybindingId) {
@@ -686,7 +686,7 @@ export class CompositeActionViewItem extends CompositeBarActionViewItem {
 		});
 	}
 
-	protected override updateChecked(): void {
+	protected override updateChecked(): cognidreamidream {
 		if (this.action.checked) {
 			this.container.classList.add('checked');
 			this.container.setAttribute('aria-label', this.getTooltip() ?? this.container.title);
@@ -702,7 +702,7 @@ export class CompositeActionViewItem extends CompositeBarActionViewItem {
 		this.updateStyles();
 	}
 
-	protected override updateEnabled(): void {
+	protected override updateEnabled(): cognidreamidream {
 		if (!this.element) {
 			return;
 		}
@@ -714,7 +714,7 @@ export class CompositeActionViewItem extends CompositeBarActionViewItem {
 		}
 	}
 
-	override dispose(): void {
+	override dispose(): cognidreamidream {
 		super.dispose();
 
 		this.label.remove();
@@ -732,7 +732,7 @@ export class ToggleCompositePinnedAction extends Action {
 		this.checked = !!this.activity && this.compositeBar.isPinned(this.activity.id);
 	}
 
-	override async run(context: string): Promise<void> {
+	override async run(context: string): Promise<cognidreamidream> {
 		const id = this.activity ? this.activity.id : context;
 
 		if (this.compositeBar.isPinned(id)) {
@@ -753,7 +753,7 @@ export class ToggleCompositeBadgeAction extends Action {
 		this.checked = false;
 	}
 
-	override async run(context: string): Promise<void> {
+	override async run(context: string): Promise<cognidreamidream> {
 		const id = this.compositeBarActionItem ? this.compositeBarActionItem.id : context;
 		this.compositeBar.toggleBadgeEnablement(id);
 	}
@@ -768,7 +768,7 @@ export class SwitchCompositeViewAction extends Action2 {
 		super(desc);
 	}
 
-	async run(accessor: ServicesAccessor): Promise<void> {
+	async run(accessor: ServicesAccessor): Promise<cognidreamidream> {
 		const paneCompositeService = accessor.get(IPaneCompositePartService);
 
 		const activeComposite = paneCompositeService.getActivePaneComposite(this.location);

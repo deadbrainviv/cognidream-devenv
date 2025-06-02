@@ -115,32 +115,32 @@ export class QuickFixAction extends Action {
 	private static readonly CLASS: string = 'markers-panel-action-quickfix ' + ThemeIcon.asClassName(Codicon.lightBulb);
 	private static readonly AUTO_FIX_CLASS: string = QuickFixAction.CLASS + ' autofixable';
 
-	private readonly _onShowQuickFixes = this._register(new Emitter<void>());
-	readonly onShowQuickFixes: Event<void> = this._onShowQuickFixes.event;
+	private readonly _onShowQuickFixes = this._register(new Emitter<cognidream>());
+	readonly onShowQuickFixes: Evecognidreamognidream> = this._onShowQuickFixes.event;
 
-	private _quickFixes: IAction[] = [];
-	get quickFixes(): IAction[] {
-		return this._quickFixes;
-	}
-	set quickFixes(quickFixes: IAction[]) {
-		this._quickFixes = quickFixes;
-		this.enabled = this._quickFixes.length > 0;
-	}
+    private _quickFixes: IAction[] = [];
+    get quickFixes(): IAction[] {
+	return this._quickFixes;
+}
+    set quickFixes(quickFixes: IAction[]) {
+	this._quickFixes = quickFixes;
+	this.enabled = this._quickFixes.length > 0;
+}
 
-	autoFixable(autofixable: boolean) {
-		this.class = autofixable ? QuickFixAction.AUTO_FIX_CLASS : QuickFixAction.CLASS;
-	}
+autoFixable(autofixable: boolean) {
+	this.class = autofixable ? QuickFixAction.AUTO_FIX_CLASS : QuickFixAction.CLASS;
+}
 
-	constructor(
-		readonly marker: Marker,
-	) {
-		super(QuickFixAction.ID, Messages.MARKERS_PANEL_ACTION_TOOLTIP_QUICKFIX, QuickFixAction.CLASS, false);
-	}
+constructor(
+	readonly marker: Marker,
+) {
+	super(QuickFixAction.ID, Messages.MARKERS_PANEL_ACTION_TOOLTIP_QUICKFIX, QuickFixAction.CLASS, false);
+}
 
-	override run(): Promise<void> {
-		this._onShowQuickFixes.fire();
-		return Promise.resolve();
-	}
+    override run(): Promicognidreamognidream > {
+	this._onShowQuickFixes.fire();
+	return Promise.resolve();
+}
 }
 
 export class QuickFixActionViewItem extends ActionViewItem {
@@ -153,26 +153,26 @@ export class QuickFixActionViewItem extends ActionViewItem {
 		super(null, action, { ...options, icon: true, label: false });
 	}
 
-	public override onClick(event: DOM.EventLike): void {
+	public override onClick(event: DOM.EventLikecognidreamognidream {
 		DOM.EventHelper.stop(event, true);
-		this.showQuickFixes();
-	}
+this.showQuickFixes();
+    }
 
-	public showQuickFixes(): void {
-		if (!this.element) {
-			return;
-		}
-		if (!this.isEnabled()) {
-			return;
-		}
-		const elementPosition = DOM.getDomNodePagePosition(this.element);
-		const quickFixes = (<QuickFixAction>this.action).quickFixes;
-		if (quickFixes.length) {
-			this.contextMenuService.showContextMenu({
-				getAnchor: () => ({ x: elementPosition.left + 10, y: elementPosition.top + elementPosition.height + 4 }),
-				getActions: () => quickFixes
-			});
-		}
-	}
+    public showQuickFixes(cognidreamognidream {
+	if(!this.element) {
+	return;
+}
+if (!this.isEnabled()) {
+	return;
+}
+const elementPosition = DOM.getDomNodePagePosition(this.element);
+const quickFixes = (<QuickFixAction>this.action).quickFixes;
+if (quickFixes.length) {
+	this.contextMenuService.showContextMenu({
+		getAnchor: () => ({ x: elementPosition.left + 10, y: elementPosition.top + elementPosition.height + 4 }),
+		getActions: () => quickFixes
+	});
+}
+    }
 }
 

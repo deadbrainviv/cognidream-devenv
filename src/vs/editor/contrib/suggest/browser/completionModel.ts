@@ -114,13 +114,13 @@ export class CompletionModel {
 		return this._stats!;
 	}
 
-	private _ensureCachedState(): void {
+	private _ensureCachedState(): cognidream {
 		if (this._refilterKind !== Refilter.Nothing) {
 			this._createCachedState();
 		}
 	}
 
-	private _createCachedState(): void {
+	private _createCachedState(): cognidream {
 
 		this._itemsByProvider = new Map();
 

@@ -48,7 +48,7 @@ class UXState {
 		this._activePanel = _paneCompositeService.getActivePaneComposite(ViewContainerLocation.Panel)?.getId();
 	}
 
-	async restore(panels: boolean, editors: boolean): Promise<void> {
+	async restore(panels: boolean, editors: boolean): Promise<cognidream> {
 
 		// (1) restore previous panel
 		if (panels) {
@@ -183,11 +183,11 @@ registerAction2(class ApplyAction extends Action2 {
 		});
 	}
 
-	async run(accessor: ServicesAccessor): Promise<void> {
-		const viewsService = accessor.get(IViewsService);
-		const view = await getBulkEditPane(viewsService);
-		view?.accept();
-	}
+	async run(accessor: ServicesAccessor): Promicognidreamognidream> {
+	const viewsService = accessor.get(IViewsService);
+	const view = await getBulkEditPane(viewsService);
+	view?.accept();
+}
 });
 
 // CMD: discard
@@ -207,11 +207,11 @@ registerAction2(class DiscardAction extends Action2 {
 		});
 	}
 
-	async run(accessor: ServicesAccessor): Promise<void> {
-		const viewsService = accessor.get(IViewsService);
-		const view = await getBulkEditPane(viewsService);
-		view?.discard();
-	}
+	async run(accessor: ServicesAccessor): Promicognidreamognidream> {
+	const viewsService = accessor.get(IViewsService);
+	const view = await getBulkEditPane(viewsService);
+	view?.discard();
+}
 });
 
 
@@ -236,11 +236,11 @@ registerAction2(class ToggleAction extends Action2 {
 		});
 	}
 
-	async run(accessor: ServicesAccessor): Promise<void> {
-		const viewsService = accessor.get(IViewsService);
-		const view = await getBulkEditPane(viewsService);
-		view?.toggleChecked();
-	}
+	async run(accessor: ServicesAccessor): Promicognidreamognidream> {
+	const viewsService = accessor.get(IViewsService);
+	const view = await getBulkEditPane(viewsService);
+	view?.toggleChecked();
+}
 });
 
 
@@ -263,11 +263,11 @@ registerAction2(class GroupByFile extends Action2 {
 		});
 	}
 
-	async run(accessor: ServicesAccessor): Promise<void> {
-		const viewsService = accessor.get(IViewsService);
-		const view = await getBulkEditPane(viewsService);
-		view?.groupByFile();
-	}
+	async run(accessor: ServicesAccessor): Promicognidreamognidream> {
+	const viewsService = accessor.get(IViewsService);
+	const view = await getBulkEditPane(viewsService);
+	view?.groupByFile();
+}
 });
 
 registerAction2(class GroupByType extends Action2 {
@@ -288,11 +288,11 @@ registerAction2(class GroupByType extends Action2 {
 		});
 	}
 
-	async run(accessor: ServicesAccessor): Promise<void> {
-		const viewsService = accessor.get(IViewsService);
-		const view = await getBulkEditPane(viewsService);
-		view?.groupByType();
-	}
+	async run(accessor: ServicesAccessor): Promicognidreamognidream> {
+	const viewsService = accessor.get(IViewsService);
+	const view = await getBulkEditPane(viewsService);
+	view?.groupByType();
+}
 });
 
 registerAction2(class ToggleGrouping extends Action2 {
@@ -312,11 +312,11 @@ registerAction2(class ToggleGrouping extends Action2 {
 		});
 	}
 
-	async run(accessor: ServicesAccessor): Promise<void> {
-		const viewsService = accessor.get(IViewsService);
-		const view = await getBulkEditPane(viewsService);
-		view?.toggleGrouping();
-	}
+	async run(accessor: ServicesAccessor): Promicognidreamognidream> {
+	const viewsService = accessor.get(IViewsService);
+	const view = await getBulkEditPane(viewsService);
+	view?.toggleGrouping();
+}
 });
 
 registerWorkbenchContribution2(

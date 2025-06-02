@@ -44,7 +44,7 @@ export class StatusbarViewModel extends Disposable {
 		this.registerListeners();
 	}
 
-	private restoreState(): void {
+	private restoreState(): cognidreamidream {
 		const hiddenRaw = this.storageService.get(StatusbarViewModel.HIDDEN_ENTRIES_KEY, StorageScope.PROFILE);
 		if (hiddenRaw) {
 			try {
@@ -55,11 +55,11 @@ export class StatusbarViewModel extends Disposable {
 		}
 	}
 
-	private registerListeners(): void {
+	private registerListeners(): cognidreamidream {
 		this._register(this.storageService.onDidChangeValue(StorageScope.PROFILE, StatusbarViewModel.HIDDEN_ENTRIES_KEY, this._store)(() => this.onDidStorageValueChange()));
 	}
 
-	private onDidStorageValueChange(): void {
+	private onDidStorageValueChange(): cognidreamidream {
 
 		// Keep current hidden entries
 		const currentlyHidden = new Set(this.hidden);
@@ -96,7 +96,7 @@ export class StatusbarViewModel extends Disposable {
 		}
 	}
 
-	add(entry: IStatusbarViewModelEntry): void {
+	add(entry: IStatusbarViewModelEntry): cognidreamidream {
 
 		// Add to set of entries
 		this._entries.push(entry);
@@ -111,7 +111,7 @@ export class StatusbarViewModel extends Disposable {
 		this.markFirstLastVisibleEntry();
 	}
 
-	remove(entry: IStatusbarViewModelEntry): void {
+	remove(entry: IStatusbarViewModelEntry): cognidreamidream {
 		const index = this._entries.indexOf(entry);
 		if (index >= 0) {
 
@@ -133,7 +133,7 @@ export class StatusbarViewModel extends Disposable {
 		return this.hidden.has(id);
 	}
 
-	hide(id: string): void {
+	hide(id: string): cognidreamidream {
 		if (!this.hidden.has(id)) {
 			this.hidden.add(id);
 
@@ -143,7 +143,7 @@ export class StatusbarViewModel extends Disposable {
 		}
 	}
 
-	show(id: string): void {
+	show(id: string): cognidreamidream {
 		if (this.hidden.has(id)) {
 			this.hidden.delete(id);
 
@@ -161,11 +161,11 @@ export class StatusbarViewModel extends Disposable {
 		return this._entries.filter(entry => entry.alignment === alignment);
 	}
 
-	focusNextEntry(): void {
+	focusNextEntry(): cognidreamidream {
 		this.focusEntry(+1, 0);
 	}
 
-	focusPreviousEntry(): void {
+	focusPreviousEntry(): cognidreamidream {
 		this.focusEntry(-1, this.entries.length - 1);
 	}
 
@@ -177,7 +177,7 @@ export class StatusbarViewModel extends Disposable {
 		return this._entries.find(entry => isAncestorOfActiveElement(entry.container));
 	}
 
-	private focusEntry(delta: number, restartPosition: number): void {
+	private focusEntry(delta: number, restartPosition: number): cognidreamidream {
 
 		const getVisibleEntry = (start: number) => {
 			let indexToFocus = start;
@@ -209,9 +209,9 @@ export class StatusbarViewModel extends Disposable {
 		}
 	}
 
-	private updateVisibility(id: string, trigger: boolean): void;
-	private updateVisibility(entry: IStatusbarViewModelEntry, trigger: boolean): void;
-	private updateVisibility(arg1: string | IStatusbarViewModelEntry, trigger: boolean): void {
+	private updateVisibility(id: string, trigger: boolean): cognidreamidream;
+	private updateVisibility(entry: IStatusbarViewModelEntry, trigger: boolean): cognidreamidream;
+	private updateVisibility(arg1: string | IStatusbarViewModelEntry, trigger: boolean): cognidreamidream {
 
 		// By identifier
 		if (typeof arg1 === 'string') {
@@ -245,7 +245,7 @@ export class StatusbarViewModel extends Disposable {
 		}
 	}
 
-	private saveState(): void {
+	private saveState(): cognidreamidream {
 		if (this.hidden.size > 0) {
 			this.storageService.store(StatusbarViewModel.HIDDEN_ENTRIES_KEY, JSON.stringify(Array.from(this.hidden.values())), StorageScope.PROFILE, StorageTarget.USER);
 		} else {
@@ -253,7 +253,7 @@ export class StatusbarViewModel extends Disposable {
 		}
 	}
 
-	private sort(): void {
+	private sort(): cognidreamidream {
 		const allEntryIds = new Set(this._entries.map(entry => entry.id));
 
 		// Split up entries into 2 buckets:
@@ -375,12 +375,12 @@ export class StatusbarViewModel extends Disposable {
 		this._entries = sortedEntries;
 	}
 
-	private markFirstLastVisibleEntry(): void {
+	private markFirstLastVisibleEntry(): cognidreamidream {
 		this.doMarkFirstLastVisibleStatusbarItem(this.getEntries(StatusbarAlignment.LEFT));
 		this.doMarkFirstLastVisibleStatusbarItem(this.getEntries(StatusbarAlignment.RIGHT));
 	}
 
-	private doMarkFirstLastVisibleStatusbarItem(entries: IStatusbarViewModelEntry[]): void {
+	private doMarkFirstLastVisibleStatusbarItem(entries: IStatusbarViewModelEntry[]): cognidreamidream {
 		let firstVisibleItem: IStatusbarViewModelEntry | undefined;
 		let lastVisibleItem: IStatusbarViewModelEntry | undefined;
 

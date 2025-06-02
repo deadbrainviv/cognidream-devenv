@@ -120,14 +120,14 @@ export class ExtHostConfiguration implements ExtHostConfigurationShape {
 		return this._barrier.wait().then(_ => this._actual!);
 	}
 
-	$initializeConfiguration(data: IConfigurationInitData): void {
+	$initializeConfiguration(data: IConfigurationInitData): cognidream {
 		this._actual = new ExtHostConfigProvider(this._proxy, this._extHostWorkspace, data, this._logService);
 		this._barrier.open();
 	}
 
-	$acceptConfigurationChanged(data: IConfigurationInitData, change: IConfigurationChange): void {
+	$acceptConfigurationChanged(data: IConfigurationInitData, change: IConfigurationChangecognidreamognidream {
 		this.getConfigProvider().then(provider => provider.$acceptConfigurationChanged(data, change));
-	}
+    }
 }
 
 export class ExtHostConfigProvider {
@@ -307,33 +307,33 @@ export class ExtHostConfigProvider {
 		return readonlyProxy(result);
 	}
 
-	private _validateConfigurationAccess(key: string, overrides?: IConfigurationOverrides, extensionId?: ExtensionIdentifier): void {
+	private _validateConfigurationAccess(key: string, overrides?: IConfigurationOverrides, extensionId?: ExtensionIdentifiercognidreamognidream {
 		const scope = OVERRIDE_PROPERTY_REGEX.test(key) ? ConfigurationScope.RESOURCE : this._configurationScopes.get(key);
 		const extensionIdText = extensionId ? `[${extensionId.value}] ` : '';
 		if (ConfigurationScope.RESOURCE === scope) {
-			if (typeof overrides?.resource === 'undefined') {
-				this._logService.warn(`${extensionIdText}Accessing a resource scoped configuration without providing a resource is not expected. To get the effective value for '${key}', provide the URI of a resource or 'null' for any resource.`);
-			}
-			return;
-		}
-		if (ConfigurationScope.WINDOW === scope) {
-			if (overrides?.resource) {
-				this._logService.warn(`${extensionIdText}Accessing a window scoped configuration for a resource is not expected. To associate '${key}' to a resource, define its scope to 'resource' in configuration contributions in 'package.json'.`);
-			}
-			return;
-		}
+	if (typeof overrides?.resource === 'undefined') {
+		this._logService.warn(`${extensionIdText}Accessing a resource scoped configuration without providing a resource is not expected. To get the effective value for '${key}', provide the URI of a resource or 'null' for any resource.`);
 	}
+	return;
+}
+if (ConfigurationScope.WINDOW === scope) {
+	if (overrides?.resource) {
+		this._logService.warn(`${extensionIdText}Accessing a window scoped configuration for a resource is not expected. To associate '${key}' to a resource, define its scope to 'resource' in configuration contributions in 'package.json'.`);
+	}
+	return;
+}
+    }
 
-	private _toConfigurationChangeEvent(change: IConfigurationChange, previous: { data: IConfigurationData; workspace: Workspace | undefined }): vscode.ConfigurationChangeEvent {
-		const event = new ConfigurationChangeEvent(change, previous, this._configuration, this._extHostWorkspace.workspace, this._logService);
-		return Object.freeze({
-			affectsConfiguration: (section: string, scope?: vscode.ConfigurationScope) => event.affectsConfiguration(section, scopeToOverrides(scope))
-		});
-	}
+    private _toConfigurationChangeEvent(change: IConfigurationChange, previous: { data: IConfigurationData; workspace: Workspace | undefined }): vscode.ConfigurationChangeEvent {
+	const event = new ConfigurationChangeEvent(change, previous, this._configuration, this._extHostWorkspace.workspace, this._logService);
+	return Object.freeze({
+		affectsConfiguration: (section: string, scope?: vscode.ConfigurationScope) => event.affectsConfiguration(section, scopeToOverrides(scope))
+	});
+}
 
-	private _toMap(scopes: [string, ConfigurationScope | undefined][]): Map<string, ConfigurationScope | undefined> {
-		return scopes.reduce((result, scope) => { result.set(scope[0], scope[1]); return result; }, new Map<string, ConfigurationScope | undefined>());
-	}
+    private _toMap(scopes: [string, ConfigurationScope | undefined][]): Map < string, ConfigurationScope | undefined > {
+	return scopes.reduce((result, scope) => { result.set(scope[0], scope[1]); return result; }, new Map<string, ConfigurationScope | undefined>());
+}
 
 }
 

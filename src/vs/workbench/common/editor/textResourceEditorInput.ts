@@ -73,7 +73,7 @@ export abstract class AbstractTextResourceEditorInput extends AbstractResourceEd
 		return { resource: target };
 	}
 
-	override async revert(group: GroupIdentifier, options?: IRevertOptions): Promise<void> {
+	override async revert(group: GroupIdentifier, options?: IRevertOptions): Promise<cognidream> {
 		await this.textFileService.revert(this.resource, options);
 	}
 }
@@ -119,101 +119,101 @@ export class TextResourceEditorInput extends AbstractTextResourceEditorInput imp
 		return this.name || super.getName();
 	}
 
-	setName(name: string): void {
+	setName(name: stringcognidreamognidream {
 		if (this.name !== name) {
-			this.name = name;
+	this.name = name;
 
-			this._onDidChangeLabel.fire();
-		}
+	this._onDidChangeLabel.fire();
+}
+    }
+
+    override getDescription(): string | undefined {
+	return this.description;
+}
+
+setDescription(description: stringcognidreamognidream {
+	if(this.description !== description) {
+	this.description = description;
+
+	this._onDidChangeLabel.fire();
+}
+    }
+
+setLanguageId(languageId: string, source ?: stringcognidreamognidream {
+	this.setPreferredLanguageId(languageId);
+
+	this.cachedModel?.setLanguageId(languageId, source);
+}
+
+    setPreferredLanguageId(languageId: stringcognidreamognidream {
+	this.preferredLanguageId = languageId;
+}
+
+    setPreferredContents(contents: stringcognidreamognidream {
+	this.preferredContents = contents;
+}
+
+    override async resolve(): Promise < ITextEditorModel > {
+
+	// Unset preferred contents and language after resolving
+	// once to prevent these properties to stick. We still
+	// want the user to change the language in the editor
+	// and want to show updated contents (if any) in future
+	// `resolve` calls.
+	const preferredContents = this.preferredContents;
+	const preferredLanguageId = this.preferredLanguageId;
+	this.preferredContents = undefined;
+	this.preferredLanguageId = undefined;
+
+	if(!this.modelReference) {
+	this.modelReference = this.textModelService.createModelReference(this.resource);
+}
+
+        const ref = await this.modelReference;
+
+// Ensure the resolved model is of expected type
+const model = ref.object;
+if (!(model instanceof TextResourceEditorModel)) {
+	ref.dispose();
+	this.modelReference = undefined;
+
+	throw new Error(`Unexpected model for TextResourceEditorInput: ${this.resource}`);
+}
+
+this.cachedModel = model;
+
+// Set contents and language if preferred
+if (typeof preferredContents === 'string' || typeof preferredLanguageId === 'string') {
+	model.updateTextEditorModel(typeof preferredContents === 'string' ? createTextBufferFactory(preferredContents) : undefined, preferredLanguageId);
+}
+
+return model;
+    }
+
+    override matches(otherInput: EditorInput | IUntypedEditorInput): boolean {
+	if (this === otherInput) {
+		return true;
 	}
 
-	override getDescription(): string | undefined {
-		return this.description;
+	if (otherInput instanceof TextResourceEditorInput) {
+		return isEqual(otherInput.resource, this.resource);
 	}
 
-	setDescription(description: string): void {
-		if (this.description !== description) {
-			this.description = description;
-
-			this._onDidChangeLabel.fire();
-		}
+	if (isResourceEditorInput(otherInput)) {
+		return super.matches(otherInput);
 	}
 
-	setLanguageId(languageId: string, source?: string): void {
-		this.setPreferredLanguageId(languageId);
+	return false;
+}
 
-		this.cachedModel?.setLanguageId(languageId, source);
-	}
+    override dispose(cognidreamognidream {
+	if(this.modelReference) {
+	this.modelReference.then(ref => ref.dispose());
+	this.modelReference = undefined;
+}
 
-	setPreferredLanguageId(languageId: string): void {
-		this.preferredLanguageId = languageId;
-	}
+this.cachedModel = undefined;
 
-	setPreferredContents(contents: string): void {
-		this.preferredContents = contents;
-	}
-
-	override async resolve(): Promise<ITextEditorModel> {
-
-		// Unset preferred contents and language after resolving
-		// once to prevent these properties to stick. We still
-		// want the user to change the language in the editor
-		// and want to show updated contents (if any) in future
-		// `resolve` calls.
-		const preferredContents = this.preferredContents;
-		const preferredLanguageId = this.preferredLanguageId;
-		this.preferredContents = undefined;
-		this.preferredLanguageId = undefined;
-
-		if (!this.modelReference) {
-			this.modelReference = this.textModelService.createModelReference(this.resource);
-		}
-
-		const ref = await this.modelReference;
-
-		// Ensure the resolved model is of expected type
-		const model = ref.object;
-		if (!(model instanceof TextResourceEditorModel)) {
-			ref.dispose();
-			this.modelReference = undefined;
-
-			throw new Error(`Unexpected model for TextResourceEditorInput: ${this.resource}`);
-		}
-
-		this.cachedModel = model;
-
-		// Set contents and language if preferred
-		if (typeof preferredContents === 'string' || typeof preferredLanguageId === 'string') {
-			model.updateTextEditorModel(typeof preferredContents === 'string' ? createTextBufferFactory(preferredContents) : undefined, preferredLanguageId);
-		}
-
-		return model;
-	}
-
-	override matches(otherInput: EditorInput | IUntypedEditorInput): boolean {
-		if (this === otherInput) {
-			return true;
-		}
-
-		if (otherInput instanceof TextResourceEditorInput) {
-			return isEqual(otherInput.resource, this.resource);
-		}
-
-		if (isResourceEditorInput(otherInput)) {
-			return super.matches(otherInput);
-		}
-
-		return false;
-	}
-
-	override dispose(): void {
-		if (this.modelReference) {
-			this.modelReference.then(ref => ref.dispose());
-			this.modelReference = undefined;
-		}
-
-		this.cachedModel = undefined;
-
-		super.dispose();
-	}
+super.dispose();
+    }
 }

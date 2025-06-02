@@ -173,7 +173,7 @@ export class ResourceMarkersRenderer implements ITreeRenderer<ResourceMarkers, R
 		return { count, resourceLabel };
 	}
 
-	renderElement(node: ITreeNode<ResourceMarkers, ResourceMarkersFilterData>, _: number, templateData: IResourceMarkersTemplateData): void {
+	renderElement(node: ITreeNode<ResourceMarkers, ResourceMarkersFilterData>, _: number, templateData: IResourceMarkersTemplateData): cognidream {
 		const resourceMarkers = node.element;
 		const uriMatches = node.filterData && node.filterData.uriMatches || [];
 
@@ -184,43 +184,43 @@ export class ResourceMarkersRenderer implements ITreeRenderer<ResourceMarkers, R
 		this.renderedNodes.set(resourceMarkers, [...nodeRenders, templateData]);
 	}
 
-	disposeElement(node: ITreeNode<ResourceMarkers, ResourceMarkersFilterData>, index: number, templateData: IResourceMarkersTemplateData): void {
+	disposeElement(node: ITreeNode<ResourceMarkers, ResourceMarkersFilterData>, index: number, templateData: IResourceMarkersTemplateDatacognidreamognidream {
 		const nodeRenders = this.renderedNodes.get(node.element) ?? [];
 		const nodeRenderIndex = nodeRenders.findIndex(nodeRender => templateData === nodeRender);
 
 		if (nodeRenderIndex < 0) {
-			throw new Error('Disposing unknown resource marker');
-		}
+	throw new Error('Disposing unknown resource marker');
+}
 
-		if (nodeRenders.length === 1) {
-			this.renderedNodes.delete(node.element);
-		} else {
-			nodeRenders.splice(nodeRenderIndex, 1);
-		}
+if (nodeRenders.length === 1) {
+	this.renderedNodes.delete(node.element);
+} else {
+	nodeRenders.splice(nodeRenderIndex, 1);
+}
+    }
+
+disposeTemplate(templateData: IResourceMarkersTemplateDatacognidreamognidream {
+	templateData.resourceLabel.dispose();
+	templateData.count.dispose();
+}
+
+    private onDidChangeRenderNodeCount(node: ITreeNode < ResourceMarkers, ResourceMarkersFilterData > cognidreamognidream {
+	const nodeRenders = this.renderedNodes.get(node.element);
+
+	if(!nodeRenders) {
+		return;
 	}
 
-	disposeTemplate(templateData: IResourceMarkersTemplateData): void {
-		templateData.resourceLabel.dispose();
-		templateData.count.dispose();
-	}
+        nodeRenders.forEach(nodeRender => this.updateCount(node, nodeRender));
+}
 
-	private onDidChangeRenderNodeCount(node: ITreeNode<ResourceMarkers, ResourceMarkersFilterData>): void {
-		const nodeRenders = this.renderedNodes.get(node.element);
+    private updateCount(node: ITreeNode<ResourceMarkers, ResourceMarkersFilterData>, templateData: IResourceMarkersTemplateDatacognidreamognidream {
+	templateData.count.setCount(node.children.reduce((r, n) => r + (n.visible ? 1 : 0), 0));
+}
 
-		if (!nodeRenders) {
-			return;
-		}
-
-		nodeRenders.forEach(nodeRender => this.updateCount(node, nodeRender));
-	}
-
-	private updateCount(node: ITreeNode<ResourceMarkers, ResourceMarkersFilterData>, templateData: IResourceMarkersTemplateData): void {
-		templateData.count.setCount(node.children.reduce((r, n) => r + (n.visible ? 1 : 0), 0));
-	}
-
-	dispose(): void {
-		this.disposables.dispose();
-	}
+    dispose(cognidreamognidream {
+	this.disposables.dispose();
+}
 }
 
 export class FileResourceMarkersRenderer extends ResourceMarkersRenderer {
@@ -243,13 +243,13 @@ export class MarkerRenderer implements ITreeRenderer<Marker, MarkerFilterData, I
 		return data;
 	}
 
-	renderElement(node: ITreeNode<Marker, MarkerFilterData>, _: number, templateData: IMarkerTemplateData): void {
+	renderElement(node: ITreeNode<Marker, MarkerFilterData>, _: number, templateData: IMarkerTemplateDatacognidreamognidream {
 		templateData.markerWidget.render(node.element, node.filterData);
-	}
+    }
 
-	disposeTemplate(templateData: IMarkerTemplateData): void {
-		templateData.markerWidget.dispose();
-	}
+disposeTemplate(templateData: IMarkerTemplateDatacognidreamognidream {
+	templateData.markerWidget.dispose();
+}
 
 }
 
@@ -260,156 +260,156 @@ const toggleMultilineAction = 'problems.action.toggleMultiline';
 
 class ToggleMultilineActionViewItem extends ActionViewItem {
 
-	override render(container: HTMLElement): void {
+	override render(container: HTMLElementcognidreamognidream {
 		super.render(container);
-		this.updateExpandedAttribute();
-	}
+this.updateExpandedAttribute();
+    }
 
-	protected override updateClass(): void {
-		super.updateClass();
-		this.updateExpandedAttribute();
-	}
+    protected override updateClass(cognidreamognidream {
+	super.updateClass();
+	this.updateExpandedAttribute();
+}
 
-	private updateExpandedAttribute(): void {
-		this.element?.setAttribute('aria-expanded', `${this._action.class === ThemeIcon.asClassName(expandedIcon)}`);
-	}
+    private updateExpandedAttribute(cognidreamognidream {
+	this.element?.setAttribute('aria-expanded', `${this._action.class === ThemeIcon.asClassName(expandedIcon)}`);
+}
 
 }
 
-class MarkerWidget extends Disposable {
+	class MarkerWidget extends Disposable {
 
-	private readonly actionBar: ActionBar;
-	private readonly icon: HTMLElement;
-	private readonly iconContainer: HTMLElement;
-	private readonly messageAndDetailsContainer: HTMLElement;
-	private readonly messageAndDetailsContainerHover: IManagedHover;
-	private readonly disposables = this._register(new DisposableStore());
+		private readonly actionBar: ActionBar;
+		private readonly icon: HTMLElement;
+		private readonly iconContainer: HTMLElement;
+		private readonly messageAndDetailsContainer: HTMLElement;
+		private readonly messageAndDetailsContainerHover: IManagedHover;
+		private readonly disposables = this._register(new DisposableStore());
 
-	constructor(
-		private parent: HTMLElement,
-		private readonly markersViewModel: MarkersViewModel,
-		private readonly _hoverService: IHoverService,
-		private readonly _openerService: IOpenerService,
-		_instantiationService: IInstantiationService
-	) {
-		super();
-		this.actionBar = this._register(new ActionBar(dom.append(parent, dom.$('.actions')), {
-			actionViewItemProvider: (action: IAction, options) => action.id === QuickFixAction.ID ? _instantiationService.createInstance(QuickFixActionViewItem, <QuickFixAction>action, options) : undefined
-		}));
+		constructor(
+			private parent: HTMLElement,
+			private readonly markersViewModel: MarkersViewModel,
+			private readonly _hoverService: IHoverService,
+			private readonly _openerService: IOpenerService,
+			_instantiationService: IInstantiationService
+		) {
+			super();
+			this.actionBar = this._register(new ActionBar(dom.append(parent, dom.$('.actions')), {
+				actionViewItemProvider: (action: IAction, options) => action.id === QuickFixAction.ID ? _instantiationService.createInstance(QuickFixActionViewItem, <QuickFixAction>action, options) : undefined
+			}));
 
-		// wrap the icon in a container that get the icon color as foreground color. That way, if the
-		// list view does not have a specific color for the icon (=the color variable is invalid) it
-		// falls back to the foreground color of container (inherit)
-		this.iconContainer = dom.append(parent, dom.$(''));
-		this.icon = dom.append(this.iconContainer, dom.$(''));
-		this.messageAndDetailsContainer = dom.append(parent, dom.$('.marker-message-details-container'));
-		this.messageAndDetailsContainerHover = this._register(this._hoverService.setupManagedHover(getDefaultHoverDelegate('mouse'), this.messageAndDetailsContainer, ''));
-	}
-
-	render(element: Marker, filterData: MarkerFilterData | undefined): void {
-		this.actionBar.clear();
-		this.disposables.clear();
-		dom.clearNode(this.messageAndDetailsContainer);
-
-		this.iconContainer.className = `marker-icon ${Severity.toString(MarkerSeverity.toSeverity(element.marker.severity))}`;
-		this.icon.className = `codicon ${SeverityIcon.className(MarkerSeverity.toSeverity(element.marker.severity))}`;
-		this.renderQuickfixActionbar(element);
-
-		this.renderMessageAndDetails(element, filterData);
-		this.disposables.add(dom.addDisposableListener(this.parent, dom.EventType.MOUSE_OVER, () => this.markersViewModel.onMarkerMouseHover(element)));
-		this.disposables.add(dom.addDisposableListener(this.parent, dom.EventType.MOUSE_LEAVE, () => this.markersViewModel.onMarkerMouseLeave(element)));
-	}
-
-	private renderQuickfixActionbar(marker: Marker): void {
-		const viewModel = this.markersViewModel.getViewModel(marker);
-		if (viewModel) {
-			const quickFixAction = viewModel.quickFixAction;
-			this.actionBar.push([quickFixAction], { icon: true, label: false });
-			this.iconContainer.classList.toggle('quickFix', quickFixAction.enabled);
-			quickFixAction.onDidChange(({ enabled }) => {
-				if (!isUndefinedOrNull(enabled)) {
-					this.iconContainer.classList.toggle('quickFix', enabled);
-				}
-			}, this, this.disposables);
-			quickFixAction.onShowQuickFixes(() => {
-				const quickFixActionViewItem = <QuickFixActionViewItem>this.actionBar.viewItems[0];
-				if (quickFixActionViewItem) {
-					quickFixActionViewItem.showQuickFixes();
-				}
-			}, this, this.disposables);
-		}
-	}
-
-	private renderMultilineActionbar(marker: Marker, parent: HTMLElement): void {
-		const multilineActionbar = this.disposables.add(new ActionBar(dom.append(parent, dom.$('.multiline-actions')), {
-			actionViewItemProvider: (action, options) => {
-				if (action.id === toggleMultilineAction) {
-					return new ToggleMultilineActionViewItem(undefined, action, { ...options, icon: true });
-				}
-				return undefined;
-			}
-		}));
-		this.disposables.add(multilineActionbar);
-
-		const viewModel = this.markersViewModel.getViewModel(marker);
-		const multiline = viewModel && viewModel.multiline;
-		const action = this.disposables.add(new Action(toggleMultilineAction));
-		action.enabled = !!viewModel && marker.lines.length > 1;
-		action.tooltip = multiline ? localize('single line', "Show message in single line") : localize('multi line', "Show message in multiple lines");
-		action.class = ThemeIcon.asClassName(multiline ? expandedIcon : collapsedIcon);
-		action.run = () => { if (viewModel) { viewModel.multiline = !viewModel.multiline; } return Promise.resolve(); };
-		multilineActionbar.push([action], { icon: true, label: false });
-	}
-
-	private renderMessageAndDetails(element: Marker, filterData: MarkerFilterData | undefined): void {
-		const { marker, lines } = element;
-		const viewState = this.markersViewModel.getViewModel(element);
-		const multiline = !viewState || viewState.multiline;
-		const lineMatches = filterData && filterData.lineMatches || [];
-		this.messageAndDetailsContainerHover.update(element.marker.message);
-
-		const lineElements: HTMLElement[] = [];
-		for (let index = 0; index < (multiline ? lines.length : 1); index++) {
-			const lineElement = dom.append(this.messageAndDetailsContainer, dom.$('.marker-message-line'));
-			const messageElement = dom.append(lineElement, dom.$('.marker-message'));
-			const highlightedLabel = this.disposables.add(new HighlightedLabel(messageElement));
-			highlightedLabel.set(lines[index].length > 1000 ? `${lines[index].substring(0, 1000)}...` : lines[index], lineMatches[index]);
-			if (lines[index] === '') {
-				lineElement.style.height = `${VirtualDelegate.LINE_HEIGHT}px`;
-			}
-			lineElements.push(lineElement);
-		}
-		this.renderDetails(marker, filterData, lineElements[0]);
-		this.renderMultilineActionbar(element, lineElements[0]);
-	}
-
-	private renderDetails(marker: IMarker, filterData: MarkerFilterData | undefined, parent: HTMLElement): void {
-		parent.classList.add('details-container');
-
-		if (marker.source || marker.code) {
-			const source = this.disposables.add(new HighlightedLabel(dom.append(parent, dom.$('.marker-source'))));
-			const sourceMatches = filterData && filterData.sourceMatches || [];
-			source.set(marker.source, sourceMatches);
-
-			if (marker.code) {
-				if (typeof marker.code === 'string') {
-					const code = this.disposables.add(new HighlightedLabel(dom.append(parent, dom.$('.marker-code'))));
-					const codeMatches = filterData && filterData.codeMatches || [];
-					code.set(marker.code, codeMatches);
-				} else {
-					const container = dom.$('.marker-code');
-					const code = this.disposables.add(new HighlightedLabel(container));
-					const link = marker.code.target.toString(true);
-					this.disposables.add(new Link(parent, { href: link, label: container, title: link }, undefined, this._hoverService, this._openerService));
-					const codeMatches = filterData && filterData.codeMatches || [];
-					code.set(marker.code.value, codeMatches);
-				}
-			}
+			// wrap the icon in a container that get the icon color as foreground color. That way, if the
+			// list view does not have a specific color for the icon (=the color variable is invalid) it
+			// falls back to the foreground color of container (inherit)
+			this.iconContainer = dom.append(parent, dom.$(''));
+			this.icon = dom.append(this.iconContainer, dom.$(''));
+			this.messageAndDetailsContainer = dom.append(parent, dom.$('.marker-message-details-container'));
+			this.messageAndDetailsContainerHover = this._register(this._hoverService.setupManagedHover(getDefaultHoverDelegate('mouse'), this.messageAndDetailsContainer, ''));
 		}
 
-		const lnCol = dom.append(parent, dom.$('span.marker-line'));
-		lnCol.textContent = Messages.MARKERS_PANEL_AT_LINE_COL_NUMBER(marker.startLineNumber, marker.startColumn);
+		render(element: Marker, filterData: MarkerFilterData | undefinedcognidreamognidream {
+			this.actionBar.clear();
+this.disposables.clear();
+dom.clearNode(this.messageAndDetailsContainer);
+
+this.iconContainer.className = `marker-icon ${Severity.toString(MarkerSeverity.toSeverity(element.marker.severity))}`;
+this.icon.className = `codicon ${SeverityIcon.className(MarkerSeverity.toSeverity(element.marker.severity))}`;
+this.renderQuickfixActionbar(element);
+
+this.renderMessageAndDetails(element, filterData);
+this.disposables.add(dom.addDisposableListener(this.parent, dom.EventType.MOUSE_OVER, () => this.markersViewModel.onMarkerMouseHover(element)));
+this.disposables.add(dom.addDisposableListener(this.parent, dom.EventType.MOUSE_LEAVE, () => this.markersViewModel.onMarkerMouseLeave(element)));
+    }
+
+    private renderQuickfixActionbar(marker: Markercognidreamognidream {
+	const viewModel = this.markersViewModel.getViewModel(marker);
+	if(viewModel) {
+		const quickFixAction = viewModel.quickFixAction;
+		this.actionBar.push([quickFixAction], { icon: true, label: false });
+		this.iconContainer.classList.toggle('quickFix', quickFixAction.enabled);
+		quickFixAction.onDidChange(({ enabled }) => {
+			if (!isUndefinedOrNull(enabled)) {
+				this.iconContainer.classList.toggle('quickFix', enabled);
+			}
+		}, this, this.disposables);
+		quickFixAction.onShowQuickFixes(() => {
+			const quickFixActionViewItem = <QuickFixActionViewItem>this.actionBar.viewItems[0];
+			if (quickFixActionViewItem) {
+				quickFixActionViewItem.showQuickFixes();
+			}
+		}, this, this.disposables);
 	}
+}
+
+    private renderMultilineActionbar(marker: Marker, parent: HTMLElementcognidreamognidream {
+	const multilineActionbar = this.disposables.add(new ActionBar(dom.append(parent, dom.$('.multiline-actions')), {
+		actionViewItemProvider: (action, options) => {
+			if (action.id === toggleMultilineAction) {
+				return new ToggleMultilineActionViewItem(undefined, action, { ...options, icon: true });
+			}
+			return undefined;
+		}
+	}));
+	this.disposables.add(multilineActionbar);
+
+	const viewModel = this.markersViewModel.getViewModel(marker);
+	const multiline = viewModel && viewModel.multiline;
+	const action = this.disposables.add(new Action(toggleMultilineAction));
+	action.enabled = !!viewModel && marker.lines.length > 1;
+	action.tooltip = multiline ? localize('single line', "Show message in single line") : localize('multi line', "Show message in multiple lines");
+	action.class = ThemeIcon.asClassName(multiline ? expandedIcon : collapsedIcon);
+	action.run = () => { if (viewModel) { viewModel.multiline = !viewModel.multiline; } return Promise.resolve(); };
+	multilineActionbar.push([action], { icon: true, label: false });
+}
+
+    private renderMessageAndDetails(element: Marker, filterData: MarkerFilterData | undefinedcognidreamognidream {
+	const { marker, lines } = element;
+	const viewState = this.markersViewModel.getViewModel(element);
+	const multiline = !viewState || viewState.multiline;
+	const lineMatches = filterData && filterData.lineMatches || [];
+	this.messageAndDetailsContainerHover.update(element.marker.message);
+
+	const lineElements: HTMLElement[] = [];
+	for(let index = 0; index< (multiline? lines.length : 1); index++) {
+	const lineElement = dom.append(this.messageAndDetailsContainer, dom.$('.marker-message-line'));
+	const messageElement = dom.append(lineElement, dom.$('.marker-message'));
+	const highlightedLabel = this.disposables.add(new HighlightedLabel(messageElement));
+	highlightedLabel.set(lines[index].length > 1000 ? `${lines[index].substring(0, 1000)}...` : lines[index], lineMatches[index]);
+	if (lines[index] === '') {
+		lineElement.style.height = `${VirtualDelegate.LINE_HEIGHT}px`;
+	}
+	lineElements.push(lineElement);
+}
+this.renderDetails(marker, filterData, lineElements[0]);
+this.renderMultilineActionbar(element, lineElements[0]);
+    }
+
+    private renderDetails(marker: IMarker, filterData: MarkerFilterData | undefined, parent: HTMLElementcognidreamognidream {
+	parent.classList.add('details-container');
+
+	if(marker.source || marker.code) {
+	const source = this.disposables.add(new HighlightedLabel(dom.append(parent, dom.$('.marker-source'))));
+	const sourceMatches = filterData && filterData.sourceMatches || [];
+	source.set(marker.source, sourceMatches);
+
+	if (marker.code) {
+		if (typeof marker.code === 'string') {
+			const code = this.disposables.add(new HighlightedLabel(dom.append(parent, dom.$('.marker-code'))));
+			const codeMatches = filterData && filterData.codeMatches || [];
+			code.set(marker.code, codeMatches);
+		} else {
+			const container = dom.$('.marker-code');
+			const code = this.disposables.add(new HighlightedLabel(container));
+			const link = marker.code.target.toString(true);
+			this.disposables.add(new Link(parent, { href: link, label: container, title: link }, undefined, this._hoverService, this._openerService));
+			const codeMatches = filterData && filterData.codeMatches || [];
+			code.set(marker.code.value, codeMatches);
+		}
+	}
+}
+
+const lnCol = dom.append(parent, dom.$('span.marker-line'));
+lnCol.textContent = Messages.MARKERS_PANEL_AT_LINE_COL_NUMBER(marker.startLineNumber, marker.startColumn);
+    }
 
 }
 
@@ -438,21 +438,21 @@ export class RelatedInformationRenderer implements ITreeRenderer<RelatedInformat
 		return data;
 	}
 
-	renderElement(node: ITreeNode<RelatedInformation, RelatedInformationFilterData>, _: number, templateData: IRelatedInformationTemplateData): void {
+	renderElement(node: ITreeNode<RelatedInformation, RelatedInformationFilterData>, _: number, templateData: IRelatedInformationTemplateDatacognidreamognidream {
 		const relatedInformation = node.element.raw;
 		const uriMatches = node.filterData && node.filterData.uriMatches || [];
 		const messageMatches = node.filterData && node.filterData.messageMatches || [];
 
 		const resourceLabelTitle = this.labelService.getUriLabel(relatedInformation.resource, { relative: true });
 		templateData.resourceLabel.set(basename(relatedInformation.resource), uriMatches, resourceLabelTitle);
-		templateData.lnCol.textContent = Messages.MARKERS_PANEL_AT_LINE_COL_NUMBER(relatedInformation.startLineNumber, relatedInformation.startColumn);
-		templateData.description.set(relatedInformation.message, messageMatches, relatedInformation.message);
-	}
+templateData.lnCol.textContent = Messages.MARKERS_PANEL_AT_LINE_COL_NUMBER(relatedInformation.startLineNumber, relatedInformation.startColumn);
+templateData.description.set(relatedInformation.message, messageMatches, relatedInformation.message);
+    }
 
-	disposeTemplate(templateData: IRelatedInformationTemplateData): void {
-		templateData.resourceLabel.dispose();
-		templateData.description.dispose();
-	}
+disposeTemplate(templateData: IRelatedInformationTemplateDatacognidreamognidream {
+	templateData.resourceLabel.dispose();
+	templateData.description.dispose();
+}
 }
 
 export class Filter implements ITreeFilter<MarkerElement, FilterData> {
@@ -568,127 +568,127 @@ export class Filter implements ITreeFilter<MarkerElement, FilterData> {
 
 export class MarkerViewModel extends Disposable {
 
-	private readonly _onDidChange: Emitter<void> = this._register(new Emitter<void>());
-	readonly onDidChange: Event<void> = this._onDidChange.event;
+	private readonly _onDidChange: Emittcognidreamognidream> = this._register(newcognidreamtter<cognidream>());
+    readonly onDidChange: Evecognidreamognidream > = this._onDidChange.event;
 
-	private modelPromise: CancelablePromise<ITextModel> | null = null;
-	private codeActionsPromise: CancelablePromise<CodeActionSet> | null = null;
+    private modelPromise: CancelablePromise<ITextModel> | null = null;
+    private codeActionsPromise: CancelablePromise<CodeActionSet> | null = null;
 
-	constructor(
-		private readonly marker: Marker,
-		@IModelService private modelService: IModelService,
-		@IInstantiationService private instantiationService: IInstantiationService,
-		@IEditorService private readonly editorService: IEditorService,
-		@ILanguageFeaturesService private readonly languageFeaturesService: ILanguageFeaturesService,
-	) {
-		super();
-		this._register(toDisposable(() => {
-			if (this.modelPromise) {
-				this.modelPromise.cancel();
-			}
-			if (this.codeActionsPromise) {
-				this.codeActionsPromise.cancel();
-			}
-		}));
-	}
-
-	private _multiline: boolean = true;
-	get multiline(): boolean {
-		return this._multiline;
-	}
-
-	set multiline(value: boolean) {
-		if (this._multiline !== value) {
-			this._multiline = value;
-			this._onDidChange.fire();
+constructor(
+	private readonly marker: Marker,
+	@IModelService private modelService: IModelService,
+	@IInstantiationService private instantiationService: IInstantiationService,
+	@IEditorService private readonly editorService: IEditorService,
+	@ILanguageFeaturesService private readonly languageFeaturesService: ILanguageFeaturesService,
+) {
+	super();
+	this._register(toDisposable(() => {
+		if (this.modelPromise) {
+			this.modelPromise.cancel();
 		}
-	}
-
-	private _quickFixAction: QuickFixAction | null = null;
-	get quickFixAction(): QuickFixAction {
-		if (!this._quickFixAction) {
-			this._quickFixAction = this._register(this.instantiationService.createInstance(QuickFixAction, this.marker));
+		if (this.codeActionsPromise) {
+			this.codeActionsPromise.cancel();
 		}
-		return this._quickFixAction;
-	}
+	}));
+}
 
-	showLightBulb(): void {
-		this.setQuickFixes(true);
-	}
+    private _multiline: boolean = true;
+    get multiline(): boolean {
+	return this._multiline;
+}
 
-	private async setQuickFixes(waitForModel: boolean): Promise<void> {
-		const codeActions = await this.getCodeActions(waitForModel);
-		this.quickFixAction.quickFixes = codeActions ? this.toActions(codeActions) : [];
-		this.quickFixAction.autoFixable(!!codeActions && codeActions.hasAutoFix);
+    set multiline(value: boolean) {
+	if (this._multiline !== value) {
+		this._multiline = value;
+		this._onDidChange.fire();
 	}
+}
 
-	private getCodeActions(waitForModel: boolean): Promise<CodeActionSet | null> {
-		if (this.codeActionsPromise !== null) {
-			return this.codeActionsPromise;
-		}
-		return this.getModel(waitForModel)
-			.then<CodeActionSet | null>(model => {
-				if (model) {
-					if (!this.codeActionsPromise) {
-						this.codeActionsPromise = createCancelablePromise(cancellationToken => {
-							return getCodeActions(this.languageFeaturesService.codeActionProvider, model, new Range(this.marker.range.startLineNumber, this.marker.range.startColumn, this.marker.range.endLineNumber, this.marker.range.endColumn), {
-								type: CodeActionTriggerType.Invoke, triggerAction: CodeActionTriggerSource.ProblemsView, filter: { include: CodeActionKind.QuickFix }
-							}, Progress.None, cancellationToken).then(actions => {
-								return this._register(actions);
-							});
-						});
-					}
-					return this.codeActionsPromise;
-				}
-				return null;
-			});
+    private _quickFixAction: QuickFixAction | null = null;
+    get quickFixAction(): QuickFixAction {
+	if (!this._quickFixAction) {
+		this._quickFixAction = this._register(this.instantiationService.createInstance(QuickFixAction, this.marker));
 	}
+	return this._quickFixAction;
+}
 
-	private toActions(codeActions: CodeActionSet): IAction[] {
-		return codeActions.validActions.map(item => toAction({
-			id: item.action.command ? item.action.command.id : item.action.title,
-			label: item.action.title,
-			run: async () => {
-				await this.openFileAtMarker(this.marker);
-				return await this.instantiationService.invokeFunction(applyCodeAction, item, ApplyCodeActionReason.FromProblemsView);
-			}
-		}));
-	}
+showLightBulb(cognidreamognidream {
+	this.setQuickFixes(true);
+}
 
-	private openFileAtMarker(element: Marker): Promise<void> {
-		const { resource, selection } = { resource: element.resource, selection: element.range };
-		return this.editorService.openEditor({
-			resource,
-			options: {
-				selection,
-				preserveFocus: true,
-				pinned: false,
-				revealIfVisible: true
-			},
-		}, ACTIVE_GROUP).then(() => undefined);
-	}
+    private async setQuickFixes(waitForModel: boolean): Promicognidreamognidream > {
+	const codeActions = await this.getCodeActions(waitForModel);
+	this.quickFixAction.quickFixes = codeActions ? this.toActions(codeActions) : [];
+	this.quickFixAction.autoFixable(!!codeActions && codeActions.hasAutoFix);
+}
 
-	private getModel(waitForModel: boolean): Promise<ITextModel | null> {
-		const model = this.modelService.getModel(this.marker.resource);
+    private getCodeActions(waitForModel: boolean): Promise < CodeActionSet | null > {
+	if(this.codeActionsPromise !== null) {
+	return this.codeActionsPromise;
+}
+return this.getModel(waitForModel)
+	.then<CodeActionSet | null>(model => {
 		if (model) {
-			return Promise.resolve(model);
-		}
-		if (waitForModel) {
-			if (!this.modelPromise) {
-				this.modelPromise = createCancelablePromise(cancellationToken => {
-					return new Promise((c) => {
-						this._register(this.modelService.onModelAdded(model => {
-							if (isEqual(model.uri, this.marker.resource)) {
-								c(model);
-							}
-						}));
+			if (!this.codeActionsPromise) {
+				this.codeActionsPromise = createCancelablePromise(cancellationToken => {
+					return getCodeActions(this.languageFeaturesService.codeActionProvider, model, new Range(this.marker.range.startLineNumber, this.marker.range.startColumn, this.marker.range.endLineNumber, this.marker.range.endColumn), {
+						type: CodeActionTriggerType.Invoke, triggerAction: CodeActionTriggerSource.ProblemsView, filter: { include: CodeActionKind.QuickFix }
+					}, Progress.None, cancellationToken).then(actions => {
+						return this._register(actions);
 					});
 				});
 			}
-			return this.modelPromise;
+			return this.codeActionsPromise;
 		}
-		return Promise.resolve(null);
+		return null;
+	});
+    }
+
+    private toActions(codeActions: CodeActionSet): IAction[] {
+	return codeActions.validActions.map(item => toAction({
+		id: item.action.command ? item.action.command.id : item.action.title,
+		label: item.action.title,
+		run: async () => {
+			await this.openFileAtMarker(this.marker);
+			return await this.instantiationService.invokeFunction(applyCodeAction, item, ApplyCodeActionReason.FromProblemsView);
+		}
+	}));
+}
+
+    private openFileAtMarker(element: Marker): Promicognidreamognidream > {
+	const { resource, selection } = { resource: element.resource, selection: element.range };
+	return this.editorService.openEditor({
+		resource,
+		options: {
+			selection,
+			preserveFocus: true,
+			pinned: false,
+			revealIfVisible: true
+		},
+	}, ACTIVE_GROUP).then(() => undefined);
+}
+
+    private getModel(waitForModel: boolean): Promise < ITextModel | null > {
+	const model = this.modelService.getModel(this.marker.resource);
+	if(model) {
+		return Promise.resolve(model);
 	}
+        if(waitForModel) {
+		if (!this.modelPromise) {
+			this.modelPromise = createCancelablePromise(cancellationToken => {
+				return new Promise((c) => {
+					this._register(this.modelService.onModelAdded(model => {
+						if (isEqual(model.uri, this.marker.resource)) {
+							c(model);
+						}
+					}));
+				});
+			});
+		}
+		return this.modelPromise;
+	}
+        return Promise.resolve(null);
+}
 
 }
 
@@ -706,123 +706,123 @@ export class MarkersViewModel extends Disposable {
 	private bulkUpdate: boolean = false;
 
 	private hoveredMarker: Marker | null = null;
-	private hoverDelayer: Delayer<void> = new Delayer<void>(300);
-	private viewModeContextKey: IContextKey<MarkersViewMode>;
+	private hoverDelayer: Delaycognidreamognidream> = newcognidreamayer<cognidream>(300);
+    private viewModeContextKey: IContextKey<MarkersViewMode>;
 
-	constructor(
-		multiline: boolean = true,
-		viewMode: MarkersViewMode = MarkersViewMode.Tree,
-		@IContextKeyService private readonly contextKeyService: IContextKeyService,
-		@IInstantiationService private readonly instantiationService: IInstantiationService
-	) {
-		super();
-		this._multiline = multiline;
-		this._viewMode = viewMode;
+constructor(
+	multiline: boolean = true,
+	viewMode: MarkersViewMode = MarkersViewMode.Tree,
+	@IContextKeyService private readonly contextKeyService: IContextKeyService,
+	@IInstantiationService private readonly instantiationService: IInstantiationService
+) {
+	super();
+	this._multiline = multiline;
+	this._viewMode = viewMode;
 
-		this.viewModeContextKey = MarkersContextKeys.MarkersViewModeContextKey.bindTo(this.contextKeyService);
-		this.viewModeContextKey.set(viewMode);
-	}
+	this.viewModeContextKey = MarkersContextKeys.MarkersViewModeContextKey.bindTo(this.contextKeyService);
+	this.viewModeContextKey.set(viewMode);
+}
 
-	add(marker: Marker): void {
-		if (!this.markersViewStates.has(marker.id)) {
-			const viewModel = this.instantiationService.createInstance(MarkerViewModel, marker);
-			const disposables: IDisposable[] = [viewModel];
-			viewModel.multiline = this.multiline;
-			viewModel.onDidChange(() => {
-				if (!this.bulkUpdate) {
-					this._onDidChange.fire(marker);
-				}
-			}, this, disposables);
-			this.markersViewStates.set(marker.id, { viewModel, disposables });
-
-			const markers = this.markersPerResource.get(marker.resource.toString()) || [];
-			markers.push(marker);
-			this.markersPerResource.set(marker.resource.toString(), markers);
+add(marker: Markercognidreamognidream {
+	if(!this.markersViewStates.has(marker.id)) {
+	const viewModel = this.instantiationService.createInstance(MarkerViewModel, marker);
+	const disposables: IDisposable[] = [viewModel];
+	viewModel.multiline = this.multiline;
+	viewModel.onDidChange(() => {
+		if (!this.bulkUpdate) {
+			this._onDidChange.fire(marker);
 		}
-	}
+	}, this, disposables);
+	this.markersViewStates.set(marker.id, { viewModel, disposables });
 
-	remove(resource: URI): void {
-		const markers = this.markersPerResource.get(resource.toString()) || [];
-		for (const marker of markers) {
-			const value = this.markersViewStates.get(marker.id);
-			if (value) {
-				dispose(value.disposables);
-			}
-			this.markersViewStates.delete(marker.id);
-			if (this.hoveredMarker === marker) {
-				this.hoveredMarker = null;
-			}
-		}
-		this.markersPerResource.delete(resource.toString());
-	}
+	const markers = this.markersPerResource.get(marker.resource.toString()) || [];
+	markers.push(marker);
+	this.markersPerResource.set(marker.resource.toString(), markers);
+}
+    }
 
-	getViewModel(marker: Marker): MarkerViewModel | null {
+remove(resource: URIcognidreamognidream {
+	const markers = this.markersPerResource.get(resource.toString()) || [];
+	for(const marker of markers) {
 		const value = this.markersViewStates.get(marker.id);
-		return value ? value.viewModel : null;
-	}
-
-	onMarkerMouseHover(marker: Marker): void {
-		this.hoveredMarker = marker;
-		this.hoverDelayer.trigger(() => {
-			if (this.hoveredMarker) {
-				const model = this.getViewModel(this.hoveredMarker);
-				if (model) {
-					model.showLightBulb();
-				}
-			}
-		});
-	}
-
-	onMarkerMouseLeave(marker: Marker): void {
+		if (value) {
+			dispose(value.disposables);
+		}
+		this.markersViewStates.delete(marker.id);
 		if (this.hoveredMarker === marker) {
 			this.hoveredMarker = null;
 		}
 	}
+        this.markersPerResource.delete(resource.toString());
+}
+
+    getViewModel(marker: Marker): MarkerViewModel | null {
+	const value = this.markersViewStates.get(marker.id);
+	return value ? value.viewModel : null;
+}
+
+    onMarkerMouseHover(marker: Markercognidreamognidream {
+	this.hoveredMarker = marker;
+	this.hoverDelayer.trigger(() => {
+		if (this.hoveredMarker) {
+			const model = this.getViewModel(this.hoveredMarker);
+			if (model) {
+				model.showLightBulb();
+			}
+		}
+	});
+}
+
+    onMarkerMouseLeave(marker: Markercognidreamognidream {
+	if(this.hoveredMarker === marker) {
+	this.hoveredMarker = null;
+}
+    }
 
 	private _multiline: boolean = true;
-	get multiline(): boolean {
-		return this._multiline;
-	}
+    get multiline(): boolean {
+	return this._multiline;
+}
 
-	set multiline(value: boolean) {
-		let changed = false;
-		if (this._multiline !== value) {
-			this._multiline = value;
+    set multiline(value: boolean) {
+	let changed = false;
+	if (this._multiline !== value) {
+		this._multiline = value;
+		changed = true;
+	}
+	this.bulkUpdate = true;
+	this.markersViewStates.forEach(({ viewModel }) => {
+		if (viewModel.multiline !== value) {
+			viewModel.multiline = value;
 			changed = true;
 		}
-		this.bulkUpdate = true;
-		this.markersViewStates.forEach(({ viewModel }) => {
-			if (viewModel.multiline !== value) {
-				viewModel.multiline = value;
-				changed = true;
-			}
-		});
-		this.bulkUpdate = false;
-		if (changed) {
-			this._onDidChange.fire(undefined);
-		}
+	});
+	this.bulkUpdate = false;
+	if (changed) {
+		this._onDidChange.fire(undefined);
+	}
+}
+
+    private _viewMode: MarkersViewMode = MarkersViewMode.Tree;
+    get viewMode(): MarkersViewMode {
+	return this._viewMode;
+}
+
+    set viewMode(value: MarkersViewMode) {
+	if (this._viewMode === value) {
+		return;
 	}
 
-	private _viewMode: MarkersViewMode = MarkersViewMode.Tree;
-	get viewMode(): MarkersViewMode {
-		return this._viewMode;
-	}
+	this._viewMode = value;
+	this._onDidChangeViewMode.fire(value);
+	this.viewModeContextKey.set(value);
+}
 
-	set viewMode(value: MarkersViewMode) {
-		if (this._viewMode === value) {
-			return;
-		}
-
-		this._viewMode = value;
-		this._onDidChangeViewMode.fire(value);
-		this.viewModeContextKey.set(value);
-	}
-
-	override dispose(): void {
-		this.markersViewStates.forEach(({ disposables }) => dispose(disposables));
-		this.markersViewStates.clear();
-		this.markersPerResource.clear();
-		super.dispose();
-	}
+    override dispose(cognidreamognidream {
+	this.markersViewStates.forEach(({ disposables }) => dispose(disposables));
+	this.markersViewStates.clear();
+	this.markersPerResource.clear();
+	super.dispose();
+}
 
 }

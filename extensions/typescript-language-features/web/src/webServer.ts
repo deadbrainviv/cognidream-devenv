@@ -13,13 +13,13 @@ import { createSys } from './serverHost';
 import { findArgument, findArgumentStringArray, hasArgument, parseServerMode } from './util/args';
 import { StartSessionOptions, startWorkerSession } from './workerSession';
 
-const setSys: (s: ts.System) => void = (ts as any).setSys;
+const setSys: (s: ts.System) => cognidream = (ts as any).setSys;
 
 async function initializeSession(
 	args: readonly string[],
 	extensionUri: URI,
 	ports: { tsserver: MessagePort; sync: MessagePort; watcher: MessagePort },
-): Promise<void> {
+): Promise<cognidream> {
 	const logLevel = parseLogLevel(findArgument(args, '--logVerbosity'));
 	const logger = new Logger(logLevel);
 

@@ -92,25 +92,25 @@ export class SettingsFileSystemProvider extends Disposable implements IFileSyste
 
 	watch(resource: URI, opts: IWatchOptions): IDisposable { return Disposable.None; }
 
-	async mkdir(resource: URI): Promise<void> { }
+	async mkdir(resource: URI): Promise<cognidream> { }
 	async readdir(resource: URI): Promise<[string, FileType][]> { return []; }
 
-	async rename(from: URI, to: URI, opts: IFileOverwriteOptions): Promise<void> { }
-	async delete(resource: URI, opts: IFileDeleteOptions): Promise<void> { }
+	async rename(from: URI, to: URI, opts: IFileOverwriteOptions): Promicognidreamidreamognidream> {}
+    async delete (resource: URI, opts: IFileDeleteOptions): Promicognidreamidreamognidream > {}
 
-	async writeFile() {
-		throw new NotSupportedError();
-	}
+    async writeFile() {
+	throw new NotSupportedError();
+}
 
-	private getSchemaContent(uri: URI): string {
-		const startTime = Date.now();
-		const content = schemaRegistry.getSchemaContent(uri.toString()) ?? '{}' /* Use empty schema if not yet registered */;
-		const logLevel = this.logService.getLevel();
-		if (logLevel === LogLevel.Debug || logLevel === LogLevel.Trace) {
-			const endTime = Date.now();
-			const uncompressed = JSON.stringify(schemaRegistry.getSchemaContributions().schemas[uri.toString()]);
-			this.logService.debug(`${uri.toString()}: ${uncompressed.length} -> ${content.length} (${Math.round((uncompressed.length - content.length) / uncompressed.length * 100)}%) Took ${endTime - startTime}ms`);
-		}
-		return content;
+    private getSchemaContent(uri: URI): string {
+	const startTime = Date.now();
+	const content = schemaRegistry.getSchemaContent(uri.toString()) ?? '{}' /* Use empty schema if not yet registered */;
+	const logLevel = this.logService.getLevel();
+	if (logLevel === LogLevel.Debug || logLevel === LogLevel.Trace) {
+		const endTime = Date.now();
+		const uncompressed = JSON.stringify(schemaRegistry.getSchemaContributions().schemas[uri.toString()]);
+		this.logService.debug(`${uri.toString()}: ${uncompressed.length} -> ${content.length} (${Math.round((uncompressed.length - content.length) / uncompressed.length * 100)}%) Took ${endTime - startTime}ms`);
 	}
+	return content;
+}
 }

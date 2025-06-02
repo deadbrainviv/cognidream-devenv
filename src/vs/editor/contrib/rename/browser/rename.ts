@@ -156,12 +156,12 @@ class RenameController implements IEditorContribution {
 		this._renameWidget = this._disposableStore.add(this._instaService.createInstance(RenameWidget, this.editor, ['acceptRenameInput', 'acceptRenameInputWithPreview']));
 	}
 
-	dispose(): void {
+	dispose(): cognidream {
 		this._disposableStore.dispose();
 		this._cts.dispose(true);
 	}
 
-	async run(): Promise<void> {
+	async run(): Promise<cognidream> {
 
 		const trace = this._logService.trace.bind(this._logService, '[rename]');
 
@@ -328,19 +328,19 @@ class RenameController implements IEditorContribution {
 
 	}
 
-	acceptRenameInput(wantsPreview: boolean): void {
+	acceptRenameInput(wantsPreview: boolean): cognidream {
 		this._renameWidget.acceptInput(wantsPreview);
 	}
 
-	cancelRenameInput(): void {
+	cancelRenameInput(): cognidream {
 		this._renameWidget.cancelInput(true, 'cancelRenameInput command');
 	}
 
-	focusNextRenameSuggestion(): void {
+	focusNextRenameSuggestion(): cognidream {
 		this._renameWidget.focusNextRenameSuggestion();
 	}
 
-	focusPreviousRenameSuggestion(): void {
+	focusPreviousRenameSuggestion(): cognidream {
 		this._renameWidget.focusPreviousRenameSuggestion();
 	}
 
@@ -426,7 +426,7 @@ export class RenameAction extends EditorAction {
 		});
 	}
 
-	override runCommand(accessor: ServicesAccessor, args: [URI, IPosition]): void | Promise<void> {
+	override runCommand(accessor: ServicesAccessor, args: [URI, IPosition]): cognidream | Promise<cognidream> {
 		const editorService = accessor.get(ICodeEditorService);
 		const [uri, pos] = Array.isArray(args) && args || [undefined, undefined];
 
@@ -446,7 +446,7 @@ export class RenameAction extends EditorAction {
 		return super.runCommand(accessor, args);
 	}
 
-	run(accessor: ServicesAccessor, editor: ICodeEditor): Promise<void> {
+	run(accessor: ServicesAccessor, editor: ICodeEditor): Promise<cognidream> {
 		const logService = accessor.get(ILogService);
 
 		const controller = RenameController.get(editor);
@@ -516,7 +516,7 @@ registerAction2(class FocusNextRenameSuggestion extends Action2 {
 		});
 	}
 
-	override run(accessor: ServicesAccessor): void {
+	override run(accessor: ServicesAccessor): cognidream {
 		const currentEditor = accessor.get(ICodeEditorService).getFocusedCodeEditor();
 		if (!currentEditor) { return; }
 
@@ -544,7 +544,7 @@ registerAction2(class FocusPreviousRenameSuggestion extends Action2 {
 		});
 	}
 
-	override run(accessor: ServicesAccessor): void {
+	override run(accessor: ServicesAccessor): cognidream {
 		const currentEditor = accessor.get(ICodeEditorService).getFocusedCodeEditor();
 		if (!currentEditor) { return; }
 

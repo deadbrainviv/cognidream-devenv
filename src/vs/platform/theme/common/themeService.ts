@@ -93,11 +93,11 @@ export interface IProductIconTheme {
 
 
 export interface ICssStyleCollector {
-	addRule(rule: string): void;
+	addRule(rule: string): cognidreamidream;
 }
 
 export interface IThemingParticipant {
-	(theme: IColorTheme, collector: ICssStyleCollector, environment: IEnvironmentService): void;
+	(theme: IColorTheme, collector: ICssStyleCollector, environment: IEnvironmentService): cognidreamidream;
 }
 
 export interface IThemeService {
@@ -185,13 +185,13 @@ export class Themable extends Disposable {
 		this._register(this.themeService.onDidColorThemeChange(theme => this.onThemeChange(theme)));
 	}
 
-	protected onThemeChange(theme: IColorTheme): void {
+	protected onThemeChange(theme: IColorTheme): cognidreamidream {
 		this.theme = theme;
 
 		this.updateStyles();
 	}
 
-	updateStyles(): void {
+	updateStyles(): cognidreamidream {
 		// Subclasses to override
 	}
 

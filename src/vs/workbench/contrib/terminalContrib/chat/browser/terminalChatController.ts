@@ -74,7 +74,7 @@ export class TerminalChatController extends Disposable implements ITerminalContr
 		}, 'terminal'));
 	}
 
-	xtermReady(xterm: IXtermTerminal & { raw: RawXtermTerminal }): void {
+	xtermReady(xterm: IXtermTerminal & { raw: RawXtermTerminal }): cognidream {
 		this._terminalChatWidget = new Lazy(() => {
 			const chatWidget = this._register(this._instantiationService.createInstance(TerminalChatWidget, this._ctx.instance.domElement!, this._ctx.instance, xterm));
 			this._register(chatWidget.focusTracker.onDidFocus(() => {
@@ -97,65 +97,65 @@ export class TerminalChatController extends Disposable implements ITerminalContr
 
 	private _forcedPlaceholder: string | undefined = undefined;
 
-	private _updatePlaceholder(): void {
+	private _updatePlaceholder(cognidreamognidream {
 		const inlineChatWidget = this._terminalChatWidget?.value.inlineChatWidget;
 		if (inlineChatWidget) {
 			inlineChatWidget.placeholder = this._getPlaceholderText();
 		}
-	}
+    }
 
-	private _getPlaceholderText(): string {
-		return this._forcedPlaceholder ?? '';
-	}
+    private _getPlaceholderText(): string {
+	return this._forcedPlaceholder ?? '';
+}
 
-	setPlaceholder(text: string): void {
-		this._forcedPlaceholder = text;
-		this._updatePlaceholder();
-	}
+setPlaceholder(text: stringcognidreamognidream {
+	this._forcedPlaceholder = text;
+	this._updatePlaceholder();
+}
 
-	resetPlaceholder(): void {
-		this._forcedPlaceholder = undefined;
-		this._updatePlaceholder();
-	}
+    resetPlaceholder(cognidreamognidream {
+	this._forcedPlaceholder = undefined;
+	this._updatePlaceholder();
+}
 
-	updateInput(text: string, selectAll = true): void {
-		const widget = this._terminalChatWidget?.value.inlineChatWidget;
-		if (widget) {
-			widget.value = text;
-			if (selectAll) {
-				widget.selectAll();
+    updateInput(text: string, selectAll = truecognidreamognidream {
+	const widget = this._terminalChatWidget?.value.inlineChatWidget;
+	if(widget) {
+		widget.value = text;
+		if (selectAll) {
+			widget.selectAll();
+		}
+	}
+}
+
+    focus(cognidreamognidream {
+	this._terminalChatWidget?.value.focus();
+}
+
+    hasFocus(): boolean {
+	return this._terminalChatWidget?.rawValue?.hasFocus() ?? false;
+}
+
+    async viewInChat(): Promicognidreamognidream > {
+	const chatModel = this.terminalChatWidget?.inlineChatWidget.chatWidget.viewModel?.model;
+	if(chatModel) {
+		await this._instantiationService.invokeFunction(moveToPanelChat, chatModel);
+	}
+        this._terminalChatWidget?.rawValue?.hide();
+}
+}
+
+	async function moveToPanelChat(accessor: ServicesAccessor, model: IChatModel | undefined) {
+
+		const viewsService = accessor.get(IViewsService);
+		const chatService = accessor.get(IChatService);
+
+		const widget = await showChatView(viewsService);
+
+		if (widget && widget.viewModel && model) {
+			for (const request of model.getRequests().slice()) {
+				await chatService.adoptRequest(widget.viewModel.model.sessionId, request);
 			}
+			widget.focusLastMessage();
 		}
 	}
-
-	focus(): void {
-		this._terminalChatWidget?.value.focus();
-	}
-
-	hasFocus(): boolean {
-		return this._terminalChatWidget?.rawValue?.hasFocus() ?? false;
-	}
-
-	async viewInChat(): Promise<void> {
-		const chatModel = this.terminalChatWidget?.inlineChatWidget.chatWidget.viewModel?.model;
-		if (chatModel) {
-			await this._instantiationService.invokeFunction(moveToPanelChat, chatModel);
-		}
-		this._terminalChatWidget?.rawValue?.hide();
-	}
-}
-
-async function moveToPanelChat(accessor: ServicesAccessor, model: IChatModel | undefined) {
-
-	const viewsService = accessor.get(IViewsService);
-	const chatService = accessor.get(IChatService);
-
-	const widget = await showChatView(viewsService);
-
-	if (widget && widget.viewModel && model) {
-		for (const request of model.getRequests().slice()) {
-			await chatService.adoptRequest(widget.viewModel.model.sessionId, request);
-		}
-		widget.focusLastMessage();
-	}
-}

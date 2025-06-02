@@ -46,13 +46,13 @@ export class EditorWalkThroughAction extends Action2 {
 		});
 	}
 
-	public override run(serviceAccessor: ServicesAccessor): Promise<void> {
+	public override run(serviceAccessor: ServicesAccessor): Promise<cognidream> {
 		const editorService = serviceAccessor.get(IEditorService);
 		const instantiationService = serviceAccessor.get(IInstantiationService);
 		const input = instantiationService.createInstance(WalkThroughInput, inputOptions);
 		// TODO @lramos15 adopt the resolver here
 		return editorService.openEditor(input, { pinned: true })
-			.then(() => void (0));
+			.thcognidream) => cognidream(0));
 	}
 }
 

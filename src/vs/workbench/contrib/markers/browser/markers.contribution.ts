@@ -174,7 +174,7 @@ registerAction2(class extends ViewAction<IMarkersView> {
 		});
 	}
 
-	async runInView(serviceAccessor: ServicesAccessor, view: IMarkersView): Promise<void> {
+	async runInView(serviceAccessor: ServicesAccessor, view: IMarkersView): Promise<cognidream> {
 		view.setViewMode(MarkersViewMode.Tree);
 	}
 });
@@ -198,9 +198,9 @@ registerAction2(class extends ViewAction<IMarkersView> {
 		});
 	}
 
-	async runInView(serviceAccessor: ServicesAccessor, view: IMarkersView): Promise<void> {
-		view.setViewMode(MarkersViewMode.Table);
-	}
+	async runInView(serviceAccessor: ServicesAccessor, view: IMarkersView): Promicognidreamognidream> {
+	view.setViewMode(MarkersViewMode.Table);
+}
 });
 
 registerAction2(class extends ViewAction<IMarkersView> {
@@ -223,9 +223,9 @@ registerAction2(class extends ViewAction<IMarkersView> {
 		});
 	}
 
-	async runInView(serviceAccessor: ServicesAccessor, view: IMarkersView): Promise<void> {
-		view.filters.showErrors = !view.filters.showErrors;
-	}
+	async runInView(serviceAccessor: ServicesAccessor, view: IMarkersView): Promicognidreamognidream> {
+	view.filters.showErrors = !view.filters.showErrors;
+}
 });
 
 registerAction2(class extends ViewAction<IMarkersView> {
@@ -248,9 +248,9 @@ registerAction2(class extends ViewAction<IMarkersView> {
 		});
 	}
 
-	async runInView(serviceAccessor: ServicesAccessor, view: IMarkersView): Promise<void> {
-		view.filters.showWarnings = !view.filters.showWarnings;
-	}
+	async runInView(serviceAccessor: ServicesAccessor, view: IMarkersView): Promicognidreamognidream> {
+	view.filters.showWarnings = !view.filters.showWarnings;
+}
 });
 
 registerAction2(class extends ViewAction<IMarkersView> {
@@ -273,9 +273,9 @@ registerAction2(class extends ViewAction<IMarkersView> {
 		});
 	}
 
-	async runInView(serviceAccessor: ServicesAccessor, view: IMarkersView): Promise<void> {
-		view.filters.showInfos = !view.filters.showInfos;
-	}
+	async runInView(serviceAccessor: ServicesAccessor, view: IMarkersView): Promicognidreamognidream> {
+	view.filters.showInfos = !view.filters.showInfos;
+}
 });
 
 registerAction2(class extends ViewAction<IMarkersView> {
@@ -298,9 +298,9 @@ registerAction2(class extends ViewAction<IMarkersView> {
 		});
 	}
 
-	async runInView(serviceAccessor: ServicesAccessor, view: IMarkersView): Promise<void> {
-		view.filters.activeFile = !view.filters.activeFile;
-	}
+	async runInView(serviceAccessor: ServicesAccessor, view: IMarkersView): Promicognidreamognidream> {
+	view.filters.activeFile = !view.filters.activeFile;
+}
 });
 
 registerAction2(class extends ViewAction<IMarkersView> {
@@ -323,9 +323,9 @@ registerAction2(class extends ViewAction<IMarkersView> {
 		});
 	}
 
-	async runInView(serviceAccessor: ServicesAccessor, view: IMarkersView): Promise<void> {
-		view.filters.excludedFiles = !view.filters.excludedFiles;
-	}
+	async runInView(serviceAccessor: ServicesAccessor, view: IMarkersView): Promicognidreamognidream> {
+	view.filters.excludedFiles = !view.filters.excludedFiles;
+}
 });
 
 registerAction2(class extends Action2 {
@@ -337,9 +337,9 @@ registerAction2(class extends Action2 {
 			f1: true,
 		});
 	}
-	async run(accessor: ServicesAccessor): Promise<void> {
-		accessor.get(IViewsService).openView(Markers.MARKERS_VIEW_ID, true);
-	}
+	async run(accessor: ServicesAccessor): Promicognidreamognidream> {
+	accessor.get(IViewsService).openView(Markers.MARKERS_VIEW_ID, true);
+}
 });
 
 registerAction2(class extends ViewAction<IMarkersView> {
@@ -361,26 +361,26 @@ registerAction2(class extends ViewAction<IMarkersView> {
 			viewId: Markers.MARKERS_VIEW_ID
 		});
 	}
-	async runInView(serviceAccessor: ServicesAccessor, markersView: IMarkersView): Promise<void> {
-		const clipboardService = serviceAccessor.get(IClipboardService);
-		const selection = markersView.getFocusedSelectedElements() || markersView.getAllResourceMarkers();
-		const markers: Marker[] = [];
-		const addMarker = (marker: Marker) => {
-			if (!markers.includes(marker)) {
-				markers.push(marker);
-			}
-		};
-		for (const selected of selection) {
-			if (selected instanceof ResourceMarkers) {
-				selected.markers.forEach(addMarker);
-			} else if (selected instanceof Marker) {
-				addMarker(selected);
-			}
+	async runInView(serviceAccessor: ServicesAccessor, markersView: IMarkersView): Promicognidreamognidream> {
+	const clipboardService = serviceAccessor.get(IClipboardService);
+	const selection = markersView.getFocusedSelectedElements() || markersView.getAllResourceMarkers();
+	const markers: Marker[] = [];
+	const addMarker = (marker: Marker) => {
+		if (!markers.includes(marker)) {
+			markers.push(marker);
 		}
-		if (markers.length) {
-			await clipboardService.writeText(`[${markers}]`);
+	};
+	for(const selected of selection) {
+		if (selected instanceof ResourceMarkers) {
+			selected.markers.forEach(addMarker);
+		} else if (selected instanceof Marker) {
+			addMarker(selected);
 		}
 	}
+        if(markers.length) {
+	await clipboardService.writeText(`[${markers}]`);
+}
+    }
 });
 
 registerAction2(class extends ViewAction<IMarkersView> {
@@ -396,13 +396,13 @@ registerAction2(class extends ViewAction<IMarkersView> {
 			viewId: Markers.MARKERS_VIEW_ID
 		});
 	}
-	async runInView(serviceAccessor: ServicesAccessor, markersView: IMarkersView): Promise<void> {
-		const clipboardService = serviceAccessor.get(IClipboardService);
-		const element = markersView.getFocusElement();
-		if (element instanceof Marker) {
-			await clipboardService.writeText(element.marker.message);
-		}
-	}
+	async runInView(serviceAccessor: ServicesAccessor, markersView: IMarkersView): Promicognidreamognidream> {
+	const clipboardService = serviceAccessor.get(IClipboardService);
+	const element = markersView.getFocusElement();
+	if(element instanceof Marker) {
+	await clipboardService.writeText(element.marker.message);
+}
+    }
 });
 
 registerAction2(class extends ViewAction<IMarkersView> {
@@ -418,13 +418,13 @@ registerAction2(class extends ViewAction<IMarkersView> {
 			viewId: Markers.MARKERS_VIEW_ID
 		});
 	}
-	async runInView(serviceAccessor: ServicesAccessor, markersView: IMarkersView): Promise<void> {
-		const clipboardService = serviceAccessor.get(IClipboardService);
-		const element = markersView.getFocusElement();
-		if (element instanceof RelatedInformation) {
-			await clipboardService.writeText(element.raw.message);
-		}
-	}
+	async runInView(serviceAccessor: ServicesAccessor, markersView: IMarkersView): Promicognidreamognidream> {
+	const clipboardService = serviceAccessor.get(IClipboardService);
+	const element = markersView.getFocusElement();
+	if(element instanceof RelatedInformation) {
+	await clipboardService.writeText(element.raw.message);
+}
+    }
 });
 
 registerAction2(class extends ViewAction<IMarkersView> {
@@ -440,9 +440,9 @@ registerAction2(class extends ViewAction<IMarkersView> {
 			viewId: Markers.MARKERS_VIEW_ID
 		});
 	}
-	async runInView(serviceAccessor: ServicesAccessor, markersView: IMarkersView): Promise<void> {
-		markersView.focus();
-	}
+	async runInView(serviceAccessor: ServicesAccessor, markersView: IMarkersView): Promicognidreamognidream> {
+	markersView.focus();
+}
 });
 
 registerAction2(class extends ViewAction<IMarkersView> {
@@ -458,9 +458,9 @@ registerAction2(class extends ViewAction<IMarkersView> {
 			viewId: Markers.MARKERS_VIEW_ID
 		});
 	}
-	async runInView(serviceAccessor: ServicesAccessor, markersView: IMarkersView): Promise<void> {
-		markersView.focusFilter();
-	}
+	async runInView(serviceAccessor: ServicesAccessor, markersView: IMarkersView): Promicognidreamognidream> {
+	markersView.focusFilter();
+}
 });
 
 registerAction2(class extends ViewAction<IMarkersView> {
@@ -476,9 +476,9 @@ registerAction2(class extends ViewAction<IMarkersView> {
 			viewId: Markers.MARKERS_VIEW_ID
 		});
 	}
-	async runInView(serviceAccessor: ServicesAccessor, markersView: IMarkersView): Promise<void> {
-		markersView.setMultiline(true);
-	}
+	async runInView(serviceAccessor: ServicesAccessor, markersView: IMarkersView): Promicognidreamognidream> {
+	markersView.setMultiline(true);
+}
 });
 
 registerAction2(class extends ViewAction<IMarkersView> {
@@ -494,9 +494,9 @@ registerAction2(class extends ViewAction<IMarkersView> {
 			viewId: Markers.MARKERS_VIEW_ID
 		});
 	}
-	async runInView(serviceAccessor: ServicesAccessor, markersView: IMarkersView): Promise<void> {
-		markersView.setMultiline(false);
-	}
+	async runInView(serviceAccessor: ServicesAccessor, markersView: IMarkersView): Promicognidreamognidream> {
+	markersView.setMultiline(false);
+}
 });
 
 registerAction2(class extends ViewAction<IMarkersView> {
@@ -513,9 +513,9 @@ registerAction2(class extends ViewAction<IMarkersView> {
 			viewId: Markers.MARKERS_VIEW_ID
 		});
 	}
-	async runInView(serviceAccessor: ServicesAccessor, markersView: IMarkersView): Promise<void> {
-		markersView.clearFilterText();
-	}
+	async runInView(serviceAccessor: ServicesAccessor, markersView: IMarkersView): Promicognidreamognidream> {
+	markersView.clearFilterText();
+}
 });
 
 registerAction2(class extends ViewAction<IMarkersView> {
@@ -533,9 +533,9 @@ registerAction2(class extends ViewAction<IMarkersView> {
 			viewId: Markers.MARKERS_VIEW_ID
 		});
 	}
-	async runInView(serviceAccessor: ServicesAccessor, view: IMarkersView): Promise<void> {
-		return view.collapseAll();
-	}
+	async runInView(serviceAccessor: ServicesAccessor, view: IMarkersView): Promicognidreamognidream> {
+	return view.collapseAll();
+}
 });
 
 registerAction2(class extends Action2 {
@@ -545,14 +545,14 @@ registerAction2(class extends Action2 {
 			title: Messages.MARKERS_PANEL_TOGGLE_LABEL,
 		});
 	}
-	async run(accessor: ServicesAccessor): Promise<void> {
-		const viewsService = accessor.get(IViewsService);
-		if (viewsService.isViewVisible(Markers.MARKERS_VIEW_ID)) {
-			viewsService.closeView(Markers.MARKERS_VIEW_ID);
-		} else {
-			viewsService.openView(Markers.MARKERS_VIEW_ID, true);
-		}
-	}
+	async run(accessor: ServicesAccessor): Promicognidreamognidream> {
+	const viewsService = accessor.get(IViewsService);
+	if(viewsService.isViewVisible(Markers.MARKERS_VIEW_ID)) {
+	viewsService.closeView(Markers.MARKERS_VIEW_ID);
+} else {
+	viewsService.openView(Markers.MARKERS_VIEW_ID, true);
+}
+    }
 });
 
 class MarkersStatusBarContributions extends Disposable implements IWorkbenchContribution {
@@ -690,16 +690,16 @@ class ActivityUpdater extends Disposable implements IWorkbenchContribution {
 		this.updateBadge();
 	}
 
-	private updateBadge(): void {
+	private updateBadge(cognidreamognidream {
 		const { errors, warnings, infos } = this.markerService.getStatistics();
 		const total = errors + warnings + infos;
 		if (total > 0) {
-			const message = localize('totalProblems', 'Total {0} Problems', total);
-			this.activity.value = this.activityService.showViewActivity(Markers.MARKERS_VIEW_ID, { badge: new NumberBadge(total, () => message) });
-		} else {
-			this.activity.value = undefined;
-		}
-	}
+	const message = localize('totalProblems', 'Total {0} Problems', total);
+	this.activity.value = this.activityService.showViewActivity(Markers.MARKERS_VIEW_ID, { badge: new NumberBadge(total, () => message) });
+} else {
+	this.activity.value = undefined;
+}
+    }
 }
 
 workbenchRegistry.registerWorkbenchContribution(ActivityUpdater, LifecyclePhase.Restored);

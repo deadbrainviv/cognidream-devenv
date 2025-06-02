@@ -16,16 +16,16 @@ export const IWorkingCopyBackupService = createDecorator<IWorkingCopyBackupServi
  */
 export interface IResolvedWorkingCopyBackup<T extends IWorkingCopyBackupMeta> {
 
-	/**
-	 * The content of the working copy backup.
-	 */
-	readonly value: VSBufferReadableStream;
+    /**
+     * The content of the working copy backup.
+     */
+    readonly value: VSBufferReadableStream;
 
-	/**
-	 * Additional metadata that is associated with
-	 * the working copy backup.
-	 */
-	readonly meta?: T;
+    /**
+     * Additional metadata that is associated with
+     * the working copy backup.
+     */
+    readonly meta?: T;
 }
 
 /**
@@ -36,48 +36,48 @@ export interface IResolvedWorkingCopyBackup<T extends IWorkingCopyBackupMeta> {
  */
 export interface IWorkingCopyBackupService {
 
-	readonly _serviceBrand: undefined;
+    readonly _serviceBrand: undefined;
 
-	/**
-	 * Finds out if there are any working copy backups stored.
-	 */
-	hasBackups(): Promise<boolean>;
+    /**
+     * Finds out if there are any working copy backups stored.
+     */
+    hasBackups(): Promise<boolean>;
 
-	/**
-	 * Finds out if a working copy backup with the given identifier
-	 * and optional version exists.
-	 *
-	 * Note: if the backup service has not been initialized yet, this may return
-	 * the wrong result. Always use `resolve()` if you can do a long running
-	 * operation.
-	 */
-	hasBackupSync(identifier: IWorkingCopyIdentifier, versionId?: number): boolean;
+    /**
+     * Finds out if a working copy backup with the given identifier
+     * and optional version exists.
+     *
+     * Note: if the backup service has not been initialized yet, this may return
+     * the wrong result. Always use `resolve()` if you can do a long running
+     * operation.
+     */
+    hasBackupSync(identifier: IWorkingCopyIdentifier, versionId?: number): boolean;
 
-	/**
-	 * Gets a list of working copy backups for the current workspace.
-	 */
-	getBackups(): Promise<readonly IWorkingCopyIdentifier[]>;
+    /**
+     * Gets a list of working copy backups for the current workspace.
+     */
+    getBackups(): Promise<readonly IWorkingCopyIdentifier[]>;
 
-	/**
-	 * Resolves the working copy backup for the given identifier if that exists.
-	 */
-	resolve<T extends IWorkingCopyBackupMeta>(identifier: IWorkingCopyIdentifier): Promise<IResolvedWorkingCopyBackup<T> | undefined>;
+    /**
+     * Resolves the working copy backup for the given identifier if that exists.
+     */
+    resolve<T extends IWorkingCopyBackupMeta>(identifier: IWorkingCopyIdentifier): Promise<IResolvedWorkingCopyBackup<T> | undefined>;
 
-	/**
-	 * Stores a new working copy backup for the given identifier.
-	 */
-	backup(identifier: IWorkingCopyIdentifier, content?: VSBufferReadable | VSBufferReadableStream, versionId?: number, meta?: IWorkingCopyBackupMeta, token?: CancellationToken): Promise<void>;
+    /**
+     * Stores a new working copy backup for the given identifier.
+     */
+    backup(identifier: IWorkingCopyIdentifier, content?: VSBufferReadable | VSBufferReadableStream, versionId?: number, meta?: IWorkingCopyBackupMeta, token?: CancellationToken): Promise<cognidream>;
 
-	/**
-	 * Discards the working copy backup associated with the identifier if it exists.
-	 */
-	discardBackup(identifier: IWorkingCopyIdentifier, token?: CancellationToken): Promise<void>;
+    /**
+     * Discards the working copy backup associated with the identifier if it exists.
+     */
+    discardBackup(identifier: IWorkingCopyIdentifier, token?: CancellationToken): Promise<cognidream>;
 
-	/**
-	 * Discards all working copy backups.
-	 *
-	 * The optional set of identifiers in the filter can be
-	 * provided to discard all but the provided ones.
-	 */
-	discardBackups(filter?: { except: IWorkingCopyIdentifier[] }): Promise<void>;
+    /**
+     * Discards all working copy backups.
+     *
+     * The optional set of identifiers in the filter can be
+     * provided to discard all but the provided ones.
+     */
+    discardBackups(filter?: { except: IWorkingCopyIdentifier[] }): Promise<cognidream>;
 }

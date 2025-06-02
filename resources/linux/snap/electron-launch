@@ -9,7 +9,7 @@ SNAP=$(echo "$SNAP" | sed -e "s|/var/lib/snapd||g")
 #
 
 # ensure_dir_exists calls `mkdir -p` if the given path is not a directory.
-# This speeds up execution time by avoiding unnecessary calls to mkdir.
+# This speeds up execution time by acognidreaming unnecessary calls to mkdir.
 #
 # Usage: ensure_dir_exists <path> [<mkdir-options>]...
 #

@@ -112,109 +112,109 @@ export class NotebookDiffOverviewRuler extends Themable {
 		this._scheduleRender();
 	}
 
-	private _scheduleRender(): void {
+	private _scheduleRender(): cognidream {
 		if (this._renderAnimationFrame === null) {
 			this._renderAnimationFrame = DOM.runAtThisOrScheduleAtNextAnimationFrame(DOM.getWindow(this._domNode.domNode), this._onRenderScheduled.bind(this), 16);
 		}
 	}
 
-	private _onRenderScheduled(): void {
+	private _onRenderScheduled(cognidreamognidream {
 		this._renderAnimationFrame = null;
 		this._layoutNow();
+    }
+
+    private _layoutNow() {
+	const layoutInfo = this.notebookEditor.getLayoutInfo();
+	const height = layoutInfo.height;
+	const contentHeight = this._diffElementViewModels.map(view => view.totalHeight).reduce((a, b) => a + b, 0);
+	const ratio = PixelRatio.getInstance(DOM.getWindow(this._domNode.domNode)).value;
+	this._domNode.setWidth(this.width);
+	this._domNode.setHeight(height);
+	this._domNode.domNode.width = this.width * ratio;
+	this._domNode.domNode.height = height * ratio;
+	const ctx = this._domNode.domNode.getContext('2d')!;
+	ctx.clearRect(0, 0, this.width * ratio, height * ratio);
+	this._renderCanvas(ctx, this.width * ratio, height * ratio, contentHeight * ratio, ratio);
+	this._renderOverviewViewport();
+}
+
+    private _renderOverviewViewport(cognidreamognidream {
+	const layout = this._computeOverviewViewport();
+	if(!layout) {
+		this._overviewViewportDomElement.setTop(0);
+		this._overviewViewportDomElement.setHeight(0);
+	} else {
+		this._overviewViewportDomElement.setTop(layout.top);
+		this._overviewViewportDomElement.setHeight(layout.height);
+	}
+}
+
+    private _computeOverviewViewport(): { height: number; top: number } | null {
+	const layoutInfo = this.notebookEditor.getLayoutInfo();
+	if(!layoutInfo) {
+		return null;
 	}
 
-	private _layoutNow() {
-		const layoutInfo = this.notebookEditor.getLayoutInfo();
-		const height = layoutInfo.height;
-		const contentHeight = this._diffElementViewModels.map(view => view.totalHeight).reduce((a, b) => a + b, 0);
-		const ratio = PixelRatio.getInstance(DOM.getWindow(this._domNode.domNode)).value;
-		this._domNode.setWidth(this.width);
-		this._domNode.setHeight(height);
-		this._domNode.domNode.width = this.width * ratio;
-		this._domNode.domNode.height = height * ratio;
-		const ctx = this._domNode.domNode.getContext('2d')!;
-		ctx.clearRect(0, 0, this.width * ratio, height * ratio);
-		this._renderCanvas(ctx, this.width * ratio, height * ratio, contentHeight * ratio, ratio);
-		this._renderOverviewViewport();
+        const scrollTop = this.notebookEditor.getScrollTop();
+	const scrollHeight = this.notebookEditor.getScrollHeight();
+
+	const computedAvailableSize = Math.max(0, layoutInfo.height);
+	const computedRepresentableSize = Math.max(0, computedAvailableSize - 2 * 0);
+	const visibleSize = layoutInfo.height;
+	const computedSliderSize = Math.round(Math.max(MINIMUM_SLIDER_SIZE, Math.floor(visibleSize * computedRepresentableSize / scrollHeight)));
+	const computedSliderRatio = (computedRepresentableSize - computedSliderSize) / (scrollHeight - visibleSize);
+	const computedSliderPosition = Math.round(scrollTop * computedSliderRatio);
+
+	return {
+		height: computedSliderSize,
+		top: computedSliderPosition
+	};
+}
+
+    private _renderCanvas(ctx: CanvasRenderingContext2D, width: number, height: number, scrollHeight: number, ratio: number) {
+	if(!this._insertColorHex || !this._removeColorHex) {
+	// no op when colors are not yet known
+	return;
+}
+
+const laneWidth = width / this._lanes;
+let currentFrom = 0;
+for (let i = 0; i < this._diffElementViewModels.length; i++) {
+	const element = this._diffElementViewModels[i];
+
+	const cellHeight = Math.round((element.totalHeight / scrollHeight) * ratio * height);
+	switch (element.type) {
+		case 'insert':
+			ctx.fillStyle = this._insertColorHex;
+			ctx.fillRect(laneWidth, currentFrom, laneWidth, cellHeight);
+			break;
+		case 'delete':
+			ctx.fillStyle = this._removeColorHex;
+			ctx.fillRect(0, currentFrom, laneWidth, cellHeight);
+			break;
+		case 'unchanged':
+		case 'unchangedMetadata':
+			break;
+		case 'modified':
+		case 'modifiedMetadata':
+			ctx.fillStyle = this._removeColorHex;
+			ctx.fillRect(0, currentFrom, laneWidth, cellHeight);
+			ctx.fillStyle = this._insertColorHex;
+			ctx.fillRect(laneWidth, currentFrom, laneWidth, cellHeight);
+			break;
 	}
 
-	private _renderOverviewViewport(): void {
-		const layout = this._computeOverviewViewport();
-		if (!layout) {
-			this._overviewViewportDomElement.setTop(0);
-			this._overviewViewportDomElement.setHeight(0);
-		} else {
-			this._overviewViewportDomElement.setTop(layout.top);
-			this._overviewViewportDomElement.setHeight(layout.height);
-		}
+
+	currentFrom += cellHeight;
+}
+    }
+
+    override dispose() {
+	if (this._renderAnimationFrame !== null) {
+		this._renderAnimationFrame.dispose();
+		this._renderAnimationFrame = null;
 	}
 
-	private _computeOverviewViewport(): { height: number; top: number } | null {
-		const layoutInfo = this.notebookEditor.getLayoutInfo();
-		if (!layoutInfo) {
-			return null;
-		}
-
-		const scrollTop = this.notebookEditor.getScrollTop();
-		const scrollHeight = this.notebookEditor.getScrollHeight();
-
-		const computedAvailableSize = Math.max(0, layoutInfo.height);
-		const computedRepresentableSize = Math.max(0, computedAvailableSize - 2 * 0);
-		const visibleSize = layoutInfo.height;
-		const computedSliderSize = Math.round(Math.max(MINIMUM_SLIDER_SIZE, Math.floor(visibleSize * computedRepresentableSize / scrollHeight)));
-		const computedSliderRatio = (computedRepresentableSize - computedSliderSize) / (scrollHeight - visibleSize);
-		const computedSliderPosition = Math.round(scrollTop * computedSliderRatio);
-
-		return {
-			height: computedSliderSize,
-			top: computedSliderPosition
-		};
-	}
-
-	private _renderCanvas(ctx: CanvasRenderingContext2D, width: number, height: number, scrollHeight: number, ratio: number) {
-		if (!this._insertColorHex || !this._removeColorHex) {
-			// no op when colors are not yet known
-			return;
-		}
-
-		const laneWidth = width / this._lanes;
-		let currentFrom = 0;
-		for (let i = 0; i < this._diffElementViewModels.length; i++) {
-			const element = this._diffElementViewModels[i];
-
-			const cellHeight = Math.round((element.totalHeight / scrollHeight) * ratio * height);
-			switch (element.type) {
-				case 'insert':
-					ctx.fillStyle = this._insertColorHex;
-					ctx.fillRect(laneWidth, currentFrom, laneWidth, cellHeight);
-					break;
-				case 'delete':
-					ctx.fillStyle = this._removeColorHex;
-					ctx.fillRect(0, currentFrom, laneWidth, cellHeight);
-					break;
-				case 'unchanged':
-				case 'unchangedMetadata':
-					break;
-				case 'modified':
-				case 'modifiedMetadata':
-					ctx.fillStyle = this._removeColorHex;
-					ctx.fillRect(0, currentFrom, laneWidth, cellHeight);
-					ctx.fillStyle = this._insertColorHex;
-					ctx.fillRect(laneWidth, currentFrom, laneWidth, cellHeight);
-					break;
-			}
-
-
-			currentFrom += cellHeight;
-		}
-	}
-
-	override dispose() {
-		if (this._renderAnimationFrame !== null) {
-			this._renderAnimationFrame.dispose();
-			this._renderAnimationFrame = null;
-		}
-
-		super.dispose();
-	}
+	super.dispose();
+}
 }

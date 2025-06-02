@@ -154,7 +154,7 @@ export class ExplorerService implements IExplorerService {
 		};
 	}
 
-	registerView(contextProvider: IExplorerView): void {
+	registerView(contextProvider: IExplorerView): cognidream {
 		this.view = contextProvider;
 	}
 
@@ -181,351 +181,351 @@ export class ExplorerService implements IExplorerService {
 		return [...items];
 	}
 
-	async applyBulkEdit(edit: ResourceFileEdit[], options: { undoLabel: string; progressLabel: string; confirmBeforeUndo?: boolean; progressLocation?: ProgressLocation.Explorer | ProgressLocation.Window }): Promise<void> {
+	async applyBulkEdit(edit: ResourceFileEdit[], options: { undoLabel: string; progressLabel: string; confirmBeforeUndo?: boolean; progressLocation?: ProgressLocation.Explorer | ProgressLocation.Window }): Promicognidreamognidream> {
 		const cancellationTokenSource = new CancellationTokenSource();
 		const location = options.progressLocation ?? ProgressLocation.Window;
 		let progressOptions;
-		if (location === ProgressLocation.Window) {
-			progressOptions = {
-				location: location,
-				title: options.progressLabel,
-				cancellable: edit.length > 1,
-			} satisfies IProgressOptions;
-		} else {
-			progressOptions = {
-				location: location,
-				title: options.progressLabel,
-				cancellable: edit.length > 1,
-				delay: 500,
-			} satisfies IProgressCompositeOptions;
-		}
-		const promise = this.progressService.withProgress(progressOptions, async progress => {
-			await this.bulkEditService.apply(edit, {
-				undoRedoSource: UNDO_REDO_SOURCE,
-				label: options.undoLabel,
-				code: 'undoredo.explorerOperation',
-				progress,
-				token: cancellationTokenSource.token,
-				confirmBeforeUndo: options.confirmBeforeUndo
-			});
-		}, () => cancellationTokenSource.cancel());
-		await this.progressService.withProgress({ location: ProgressLocation.Explorer, delay: 500 }, () => promise);
-		cancellationTokenSource.dispose();
+		if(location === ProgressLocation.Window) {
+	progressOptions = {
+		location: location,
+		title: options.progressLabel,
+		cancellable: edit.length > 1,
+	} satisfies IProgressOptions;
+} else {
+	progressOptions = {
+		location: location,
+		title: options.progressLabel,
+		cancellable: edit.length > 1,
+		delay: 500,
+	} satisfies IProgressCompositeOptions;
+}
+const promise = this.progressService.withProgress(progressOptions, async progress => {
+	await this.bulkEditService.apply(edit, {
+		undoRedoSource: UNDO_REDO_SOURCE,
+		label: options.undoLabel,
+		code: 'undoredo.explorerOperation',
+		progress,
+		token: cancellationTokenSource.token,
+		confirmBeforeUndo: options.confirmBeforeUndo
+	});
+}, () => cancellationTokenSource.cancel());
+await this.progressService.withProgress({ location: ProgressLocation.Explorer, delay: 500 }, () => promise);
+cancellationTokenSource.dispose();
+    }
+
+hasViewFocus(): boolean {
+	return !!this.view && this.view.hasFocus();
+}
+
+// IExplorerService methods
+
+findClosest(resource: URI): ExplorerItem | null {
+	return this.model.findClosest(resource);
+}
+
+findClosestRoot(resource: URI): ExplorerItem | null {
+	const parentRoots = this.model.roots.filter(r => this.uriIdentityService.extUri.isEqualOrParent(resource, r.resource))
+		.sort((first, second) => second.resource.path.length - first.resource.path.length);
+	return parentRoots.length ? parentRoots[0] : null;
+}
+
+    async setEditable(stat: ExplorerItem, data: IEditableData | null): Promicognidreamognidream > {
+	if(!this.view) {
+	return;
+}
+
+if (!data) {
+	this.editable = undefined;
+} else {
+	this.editable = { stat, data };
+}
+const isEditing = this.isEditable(stat);
+try {
+	await this.view.setEditable(stat, isEditing);
+} catch {
+	return;
+}
+
+
+if (!this.editable && this.fileChangeEvents.length && !this.onFileChangesScheduler.isScheduled()) {
+	this.onFileChangesScheduler.schedule();
+}
+    }
+
+    async setToCopy(items: ExplorerItem[], cut: boolean): Promicognidreamognidream > {
+	const previouslyCutItems = this.cutItems;
+	this.cutItems = cut ? items : undefined;
+	await this.clipboardService.writeResources(items.map(s => s.resource));
+
+	this.view?.itemsCopied(items, cut, previouslyCutItems);
+}
+
+isCut(item: ExplorerItem): boolean {
+	return !!this.cutItems && this.cutItems.some(i => this.uriIdentityService.extUri.isEqual(i.resource, item.resource));
+}
+
+getEditable(): { stat: ExplorerItem; data: IEditableData } | undefined {
+	return this.editable;
+}
+
+getEditableData(stat: ExplorerItem): IEditableData | undefined {
+	return this.editable && this.editable.stat === stat ? this.editable.data : undefined;
+}
+
+isEditable(stat: ExplorerItem | undefined): boolean {
+	return !!this.editable && (this.editable.stat === stat || !stat);
+}
+
+    async select(resource: URI, reveal ?: boolean | string): Promicognidreamognidream > {
+	if(!this.view) {
+	return;
+}
+
+// If file or parent matches exclude patterns, do not reveal unless reveal argument is 'force'
+const ignoreRevealExcludes = reveal === 'force';
+
+const fileStat = this.findClosest(resource);
+if (fileStat) {
+	if (!this.shouldAutoRevealItem(fileStat, ignoreRevealExcludes)) {
+		return;
 	}
+	await this.view.selectResource(fileStat.resource, reveal);
+	return Promise.resolve(undefined);
+}
 
-	hasViewFocus(): boolean {
-		return !!this.view && this.view.hasFocus();
+// Stat needs to be resolved first and then revealed
+const options: IResolveFileOptions = { resolveTo: [resource], resolveMetadata: this.config.sortOrder === SortOrder.Modified };
+const root = this.findClosestRoot(resource);
+if (!root) {
+	return undefined;
+}
+
+try {
+	const stat = await this.fileService.resolve(root.resource, options);
+
+	// Convert to model
+	const modelStat = ExplorerItem.create(this.fileService, this.configurationService, this.filesConfigurationService, stat, undefined, options.resolveTo);
+	// Update Input with disk Stat
+	ExplorerItem.mergeLocalWithDisk(modelStat, root);
+	const item = root.find(resource);
+	await this.view.refresh(true, root);
+
+	// Once item is resolved, check again if folder should be expanded
+	if (item && !this.shouldAutoRevealItem(item, ignoreRevealExcludes)) {
+		return;
 	}
+	await this.view.selectResource(item ? item.resource : undefined, reveal);
+} catch (error) {
+	root.error = error;
+	await this.view.refresh(false, root);
+}
+    }
 
-	// IExplorerService methods
+    async refresh(reveal = true): Promicognidreamognidream > {
+	// Do not refresh the tree when it is showing temporary nodes (phantom elements)
+	if(this.view?.hasPhantomElements()) {
+	return;
+}
 
-	findClosest(resource: URI): ExplorerItem | null {
-		return this.model.findClosest(resource);
+this.model.roots.forEach(r => r.forgetChildren());
+if (this.view) {
+	await this.view.refresh(true);
+	const resource = this.editorService.activeEditor?.resource;
+	const autoReveal = this.configurationService.getValue<IFilesConfiguration>().explorer.autoReveal;
+
+	if (reveal && resource && autoReveal) {
+		// We did a top level refresh, reveal the active file #67118
+		this.select(resource, autoReveal);
 	}
+}
+    }
 
-	findClosestRoot(resource: URI): ExplorerItem | null {
-		const parentRoots = this.model.roots.filter(r => this.uriIdentityService.extUri.isEqualOrParent(resource, r.resource))
-			.sort((first, second) => second.resource.path.length - first.resource.path.length);
-		return parentRoots.length ? parentRoots[0] : null;
-	}
+    // File events
 
-	async setEditable(stat: ExplorerItem, data: IEditableData | null): Promise<void> {
-		if (!this.view) {
-			return;
-		}
+    private async onDidRunOperation(e: FileOperationEvent): Promicognidreamognidream > {
+	// When nesting, changes to one file in a folder may impact the rendered structure
+	// of all the folder's immediate children, thus a recursive refresh is needed.
+	// Ideally the tree would be able to recusively refresh just one level but that does not yet exist.
+	const shouldDeepRefresh = this.config.fileNesting.enabled;
 
-		if (!data) {
-			this.editable = undefined;
-		} else {
-			this.editable = { stat, data };
-		}
-		const isEditing = this.isEditable(stat);
-		try {
-			await this.view.setEditable(stat, isEditing);
-		} catch {
-			return;
-		}
+	// Add
+	if(e.isOperation(FileOperation.CREATE) || e.isOperation(FileOperation.COPY)) {
+	const addedElement = e.target;
+	const parentResource = dirname(addedElement.resource)!;
+	const parents = this.model.findAll(parentResource);
 
+	if (parents.length) {
 
-		if (!this.editable && this.fileChangeEvents.length && !this.onFileChangesScheduler.isScheduled()) {
-			this.onFileChangesScheduler.schedule();
-		}
-	}
-
-	async setToCopy(items: ExplorerItem[], cut: boolean): Promise<void> {
-		const previouslyCutItems = this.cutItems;
-		this.cutItems = cut ? items : undefined;
-		await this.clipboardService.writeResources(items.map(s => s.resource));
-
-		this.view?.itemsCopied(items, cut, previouslyCutItems);
-	}
-
-	isCut(item: ExplorerItem): boolean {
-		return !!this.cutItems && this.cutItems.some(i => this.uriIdentityService.extUri.isEqual(i.resource, item.resource));
-	}
-
-	getEditable(): { stat: ExplorerItem; data: IEditableData } | undefined {
-		return this.editable;
-	}
-
-	getEditableData(stat: ExplorerItem): IEditableData | undefined {
-		return this.editable && this.editable.stat === stat ? this.editable.data : undefined;
-	}
-
-	isEditable(stat: ExplorerItem | undefined): boolean {
-		return !!this.editable && (this.editable.stat === stat || !stat);
-	}
-
-	async select(resource: URI, reveal?: boolean | string): Promise<void> {
-		if (!this.view) {
-			return;
-		}
-
-		// If file or parent matches exclude patterns, do not reveal unless reveal argument is 'force'
-		const ignoreRevealExcludes = reveal === 'force';
-
-		const fileStat = this.findClosest(resource);
-		if (fileStat) {
-			if (!this.shouldAutoRevealItem(fileStat, ignoreRevealExcludes)) {
-				return;
-			}
-			await this.view.selectResource(fileStat.resource, reveal);
-			return Promise.resolve(undefined);
-		}
-
-		// Stat needs to be resolved first and then revealed
-		const options: IResolveFileOptions = { resolveTo: [resource], resolveMetadata: this.config.sortOrder === SortOrder.Modified };
-		const root = this.findClosestRoot(resource);
-		if (!root) {
-			return undefined;
-		}
-
-		try {
-			const stat = await this.fileService.resolve(root.resource, options);
-
-			// Convert to model
-			const modelStat = ExplorerItem.create(this.fileService, this.configurationService, this.filesConfigurationService, stat, undefined, options.resolveTo);
-			// Update Input with disk Stat
-			ExplorerItem.mergeLocalWithDisk(modelStat, root);
-			const item = root.find(resource);
-			await this.view.refresh(true, root);
-
-			// Once item is resolved, check again if folder should be expanded
-			if (item && !this.shouldAutoRevealItem(item, ignoreRevealExcludes)) {
-				return;
-			}
-			await this.view.selectResource(item ? item.resource : undefined, reveal);
-		} catch (error) {
-			root.error = error;
-			await this.view.refresh(false, root);
-		}
-	}
-
-	async refresh(reveal = true): Promise<void> {
-		// Do not refresh the tree when it is showing temporary nodes (phantom elements)
-		if (this.view?.hasPhantomElements()) {
-			return;
-		}
-
-		this.model.roots.forEach(r => r.forgetChildren());
-		if (this.view) {
-			await this.view.refresh(true);
-			const resource = this.editorService.activeEditor?.resource;
-			const autoReveal = this.configurationService.getValue<IFilesConfiguration>().explorer.autoReveal;
-
-			if (reveal && resource && autoReveal) {
-				// We did a top level refresh, reveal the active file #67118
-				this.select(resource, autoReveal);
-			}
-		}
-	}
-
-	// File events
-
-	private async onDidRunOperation(e: FileOperationEvent): Promise<void> {
-		// When nesting, changes to one file in a folder may impact the rendered structure
-		// of all the folder's immediate children, thus a recursive refresh is needed.
-		// Ideally the tree would be able to recusively refresh just one level but that does not yet exist.
-		const shouldDeepRefresh = this.config.fileNesting.enabled;
-
-		// Add
-		if (e.isOperation(FileOperation.CREATE) || e.isOperation(FileOperation.COPY)) {
-			const addedElement = e.target;
-			const parentResource = dirname(addedElement.resource)!;
-			const parents = this.model.findAll(parentResource);
-
-			if (parents.length) {
-
-				// Add the new file to its parent (Model)
-				await Promise.all(parents.map(async p => {
-					// We have to check if the parent is resolved #29177
-					const resolveMetadata = this.config.sortOrder === `modified`;
-					if (!p.isDirectoryResolved) {
-						const stat = await this.fileService.resolve(p.resource, { resolveMetadata });
-						if (stat) {
-							const modelStat = ExplorerItem.create(this.fileService, this.configurationService, this.filesConfigurationService, stat, p.parent);
-							ExplorerItem.mergeLocalWithDisk(modelStat, p);
-						}
-					}
-
-					const childElement = ExplorerItem.create(this.fileService, this.configurationService, this.filesConfigurationService, addedElement, p.parent);
-					// Make sure to remove any previous version of the file if any
-					p.removeChild(childElement);
-					p.addChild(childElement);
-					// Refresh the Parent (View)
-					await this.view?.refresh(shouldDeepRefresh, p);
-				}));
-			}
-		}
-
-		// Move (including Rename)
-		else if (e.isOperation(FileOperation.MOVE)) {
-			const oldResource = e.resource;
-			const newElement = e.target;
-			const oldParentResource = dirname(oldResource);
-			const newParentResource = dirname(newElement.resource);
-			const modelElements = this.model.findAll(oldResource);
-			const sameParentMove = modelElements.every(e => !e.nestedParent) && this.uriIdentityService.extUri.isEqual(oldParentResource, newParentResource);
-
-			// Handle Rename
-			if (sameParentMove) {
-				await Promise.all(modelElements.map(async modelElement => {
-					// Rename File (Model)
-					modelElement.rename(newElement);
-					await this.view?.refresh(shouldDeepRefresh, modelElement.parent);
-				}));
-			}
-
-			// Handle Move
-			else {
-				const newParents = this.model.findAll(newParentResource);
-				if (newParents.length && modelElements.length) {
-					// Move in Model
-					await Promise.all(modelElements.map(async (modelElement, index) => {
-						const oldParent = modelElement.parent;
-						const oldNestedParent = modelElement.nestedParent;
-						modelElement.move(newParents[index]);
-						if (oldNestedParent) {
-							await this.view?.refresh(false, oldNestedParent);
-						}
-						await this.view?.refresh(false, oldParent);
-						await this.view?.refresh(shouldDeepRefresh, newParents[index]);
-					}));
+		// Add the new file to its parent (Model)
+		await Promise.all(parents.map(async p => {
+			// We have to check if the parent is resolved #29177
+			const resolveMetadata = this.config.sortOrder === `modified`;
+			if (!p.isDirectoryResolved) {
+				const stat = await this.fileService.resolve(p.resource, { resolveMetadata });
+				if (stat) {
+					const modelStat = ExplorerItem.create(this.fileService, this.configurationService, this.filesConfigurationService, stat, p.parent);
+					ExplorerItem.mergeLocalWithDisk(modelStat, p);
 				}
 			}
-		}
 
-		// Delete
-		else if (e.isOperation(FileOperation.DELETE)) {
-			const modelElements = this.model.findAll(e.resource);
-			await Promise.all(modelElements.map(async modelElement => {
-				if (modelElement.parent) {
-					// Remove Element from Parent (Model)
-					const parent = modelElement.parent;
-					parent.removeChild(modelElement);
-					this.view?.focusNext();
+			const childElement = ExplorerItem.create(this.fileService, this.configurationService, this.filesConfigurationService, addedElement, p.parent);
+			// Make sure to remove any previous version of the file if any
+			p.removeChild(childElement);
+			p.addChild(childElement);
+			// Refresh the Parent (View)
+			await this.view?.refresh(shouldDeepRefresh, p);
+		}));
+	}
+}
 
-					const oldNestedParent = modelElement.nestedParent;
-					if (oldNestedParent) {
-						oldNestedParent.removeChild(modelElement);
-						await this.view?.refresh(false, oldNestedParent);
-					}
-					// Refresh Parent (View)
-					await this.view?.refresh(shouldDeepRefresh, parent);
+        // Move (including Rename)
+        else if (e.isOperation(FileOperation.MOVE)) {
+	const oldResource = e.resource;
+	const newElement = e.target;
+	const oldParentResource = dirname(oldResource);
+	const newParentResource = dirname(newElement.resource);
+	const modelElements = this.model.findAll(oldResource);
+	const sameParentMove = modelElements.every(e => !e.nestedParent) && this.uriIdentityService.extUri.isEqual(oldParentResource, newParentResource);
 
-					if (this.view?.getFocus().length === 0) {
-						this.view?.focusLast();
-					}
+	// Handle Rename
+	if (sameParentMove) {
+		await Promise.all(modelElements.map(async modelElement => {
+			// Rename File (Model)
+			modelElement.rename(newElement);
+			await this.view?.refresh(shouldDeepRefresh, modelElement.parent);
+		}));
+	}
+
+	// Handle Move
+	else {
+		const newParents = this.model.findAll(newParentResource);
+		if (newParents.length && modelElements.length) {
+			// Move in Model
+			await Promise.all(modelElements.map(async (modelElement, index) => {
+				const oldParent = modelElement.parent;
+				const oldNestedParent = modelElement.nestedParent;
+				modelElement.move(newParents[index]);
+				if (oldNestedParent) {
+					await this.view?.refresh(false, oldNestedParent);
 				}
+				await this.view?.refresh(false, oldParent);
+				await this.view?.refresh(shouldDeepRefresh, newParents[index]);
 			}));
 		}
 	}
-
-	// Check if an item matches a explorer.autoRevealExclude pattern
-	private shouldAutoRevealItem(item: ExplorerItem | undefined, ignore: boolean): boolean {
-		if (item === undefined || ignore) {
-			return true;
-		}
-		if (this.revealExcludeMatcher.matches(item.resource, name => !!(item.parent && item.parent.getChild(name)))) {
-			return false;
-		}
-		const root = item.root;
-		let currentItem = item.parent;
-		while (currentItem !== root) {
-			if (currentItem === undefined) {
-				return true;
-			}
-			if (this.revealExcludeMatcher.matches(currentItem.resource)) {
-				return false;
-			}
-			currentItem = currentItem.parent;
-		}
-		return true;
-	}
-
-	private async onConfigurationUpdated(event: IConfigurationChangeEvent): Promise<void> {
-		if (!event.affectsConfiguration('explorer')) {
-			return;
-		}
-
-		let shouldRefresh = false;
-
-		if (event.affectsConfiguration('explorer.fileNesting')) {
-			shouldRefresh = true;
-		}
-
-		const configuration = this.configurationService.getValue<IFilesConfiguration>();
-
-		const configSortOrder = configuration?.explorer?.sortOrder || SortOrder.Default;
-		if (this.config.sortOrder !== configSortOrder) {
-			shouldRefresh = this.config.sortOrder !== undefined;
-		}
-
-		const configLexicographicOptions = configuration?.explorer?.sortOrderLexicographicOptions || LexicographicOptions.Default;
-		if (this.config.sortOrderLexicographicOptions !== configLexicographicOptions) {
-			shouldRefresh = shouldRefresh || this.config.sortOrderLexicographicOptions !== undefined;
-		}
-		const sortOrderReverse = configuration?.explorer?.sortOrderReverse || false;
-
-		if (this.config.sortOrderReverse !== sortOrderReverse) {
-			shouldRefresh = shouldRefresh || this.config.sortOrderReverse !== undefined;
-		}
-
-		this.config = configuration.explorer;
-
-		if (shouldRefresh) {
-			await this.refresh();
-		}
-	}
-
-	dispose(): void {
-		this.disposables.dispose();
-	}
 }
 
-function doesFileEventAffect(item: ExplorerItem, view: IExplorerView, events: FileChangesEvent[], types: FileChangeType[]): boolean {
-	for (const [_name, child] of item.children) {
-		if (view.isItemVisible(child)) {
-			if (events.some(e => e.contains(child.resource, ...types))) {
-				return true;
+// Delete
+else if (e.isOperation(FileOperation.DELETE)) {
+	const modelElements = this.model.findAll(e.resource);
+	await Promise.all(modelElements.map(async modelElement => {
+		if (modelElement.parent) {
+			// Remove Element from Parent (Model)
+			const parent = modelElement.parent;
+			parent.removeChild(modelElement);
+			this.view?.focusNext();
+
+			const oldNestedParent = modelElement.nestedParent;
+			if (oldNestedParent) {
+				oldNestedParent.removeChild(modelElement);
+				await this.view?.refresh(false, oldNestedParent);
 			}
-			if (child.isDirectory && child.isDirectoryResolved) {
-				if (doesFileEventAffect(child, view, events, types)) {
+			// Refresh Parent (View)
+			await this.view?.refresh(shouldDeepRefresh, parent);
+
+			if (this.view?.getFocus().length === 0) {
+				this.view?.focusLast();
+			}
+		}
+	}));
+}
+    }
+
+    // Check if an item matches a explorer.autoRevealExclude pattern
+    private shouldAutoRevealItem(item: ExplorerItem | undefined, ignore: boolean): boolean {
+	if (item === undefined || ignore) {
+		return true;
+	}
+	if (this.revealExcludeMatcher.matches(item.resource, name => !!(item.parent && item.parent.getChild(name)))) {
+		return false;
+	}
+	const root = item.root;
+	let currentItem = item.parent;
+	while (currentItem !== root) {
+		if (currentItem === undefined) {
+			return true;
+		}
+		if (this.revealExcludeMatcher.matches(currentItem.resource)) {
+			return false;
+		}
+		currentItem = currentItem.parent;
+	}
+	return true;
+}
+
+    private async onConfigurationUpdated(event: IConfigurationChangeEvent): Promicognidreamognidream > {
+	if(!event.affectsConfiguration('explorer')) {
+	return;
+}
+
+let shouldRefresh = false;
+
+if (event.affectsConfiguration('explorer.fileNesting')) {
+	shouldRefresh = true;
+}
+
+const configuration = this.configurationService.getValue<IFilesConfiguration>();
+
+const configSortOrder = configuration?.explorer?.sortOrder || SortOrder.Default;
+if (this.config.sortOrder !== configSortOrder) {
+	shouldRefresh = this.config.sortOrder !== undefined;
+}
+
+const configLexicographicOptions = configuration?.explorer?.sortOrderLexicographicOptions || LexicographicOptions.Default;
+if (this.config.sortOrderLexicographicOptions !== configLexicographicOptions) {
+	shouldRefresh = shouldRefresh || this.config.sortOrderLexicographicOptions !== undefined;
+}
+const sortOrderReverse = configuration?.explorer?.sortOrderReverse || false;
+
+if (this.config.sortOrderReverse !== sortOrderReverse) {
+	shouldRefresh = shouldRefresh || this.config.sortOrderReverse !== undefined;
+}
+
+this.config = configuration.explorer;
+
+if (shouldRefresh) {
+	await this.refresh();
+}
+    }
+
+dispose(cognidreamognidream {
+	this.disposables.dispose();
+}
+}
+
+	function doesFileEventAffect(item: ExplorerItem, view: IExplorerView, events: FileChangesEvent[], types: FileChangeType[]): boolean {
+		for (const [_name, child] of item.children) {
+			if (view.isItemVisible(child)) {
+				if (events.some(e => e.contains(child.resource, ...types))) {
 					return true;
+				}
+				if (child.isDirectory && child.isDirectoryResolved) {
+					if (doesFileEventAffect(child, view, events, types)) {
+						return true;
+					}
 				}
 			}
 		}
-	}
 
-	return false;
-}
+		return false;
+	}
 
 function getRevealExcludes(configuration: IFilesConfiguration): IExpression {
-	const revealExcludes = configuration && configuration.explorer && configuration.explorer.autoRevealExclude;
+		const revealExcludes = configuration && configuration.explorer && configuration.explorer.autoRevealExclude;
 
-	if (!revealExcludes) {
-		return {};
+		if (!revealExcludes) {
+			return {};
+		}
+
+		return revealExcludes;
 	}
-
-	return revealExcludes;
-}

@@ -5,9 +5,9 @@
 
 export interface IKeyboard {
 	getLayoutMap(): Promise<Object>;
-	lock(keyCodes?: string[]): Promise<void>;
-	unlock(): void;
-	addEventListener?(type: string, listener: () => void): void;
+	lock(keyCodes?: string[]): Promise<cognidream>;
+	unlock(cognidreamognidream;
+		addEventListener?(type: string, listener: () cognidreamogncognidreamam): cognidream;
 
 }
 export type INavigatorWithKeyboard = Navigator & {

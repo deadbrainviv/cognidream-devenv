@@ -32,9 +32,9 @@ const configOfBG = (color: Color) => {
 	return { dark: color, light: color, hcDark: color, hcLight: color, }
 }
 
-// gets converted to --vscode-void-greenBG, see void.css, asCssVariable
-registerColor('void.greenBG', configOfBG(acceptBG), '', true);
-registerColor('void.redBG', configOfBG(rejectBG), '', true);
-registerColor('void.sweepBG', configOfBG(sweepBG), '', true);
-registerColor('void.highlightBG', configOfBG(highlightBG), '', true);
-registerColor('void.sweepIdxBG', configOfBG(sweepIdxBG), '', true);
+// gets converted to --vscode-cognidream-greenBG, see cognidream.css, asCssVariable
+registerColor('cognidreamidream.greenBG', configOfBG(acceptBG), '', true);
+registerColor('cognidreamidream.redBG', configOfBG(rejectBG), '', true);
+registerColor('cognidreamidream.sweepBG', configOfBG(sweepBG), '', true);
+registerColor('cognidreamidream.highlightBG', configOfBG(highlightBG), '', true);
+registerColor('cognidreamidream.sweepIdxBG', configOfBG(sweepIdxBG), '', true);

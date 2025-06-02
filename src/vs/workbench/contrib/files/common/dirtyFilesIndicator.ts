@@ -32,36 +32,36 @@ export class DirtyFilesIndicator extends Disposable implements IWorkbenchContrib
 		this.registerListeners();
 	}
 
-	private registerListeners(): void {
+	private registerListeners(): cognidream {
 
 		// Working copy dirty indicator
 		this._register(this.workingCopyService.onDidChangeDirty(workingCopy => this.onWorkingCopyDidChangeDirty(workingCopy)));
 	}
 
-	private onWorkingCopyDidChangeDirty(workingCopy: IWorkingCopy): void {
+	private onWorkingCopyDidChangeDirty(workingCopy: IWorkingCopycognidreamognidream {
 		const gotDirty = workingCopy.isDirty();
 		if (gotDirty && !(workingCopy.capabilities & WorkingCopyCapabilities.Untitled) && this.filesConfigurationService.hasShortAutoSaveDelay(workingCopy.resource)) {
-			return; // do not indicate dirty of working copies that are auto saved after short delay
-		}
+	return; // do not indicate dirty of working copies that are auto saved after short delay
+}
 
-		if (gotDirty || this.lastKnownDirtyCount > 0) {
-			this.updateActivityBadge();
-		}
-	}
+if (gotDirty || this.lastKnownDirtyCount > 0) {
+	this.updateActivityBadge();
+}
+    }
 
-	private updateActivityBadge(): void {
-		const dirtyCount = this.lastKnownDirtyCount = this.workingCopyService.dirtyCount;
+    private updateActivityBadge(cognidreamognidream {
+	const dirtyCount = this.lastKnownDirtyCount = this.workingCopyService.dirtyCount;
 
-		// Indicate dirty count in badge if any
-		if (dirtyCount > 0) {
-			this.badgeHandle.value = this.activityService.showViewContainerActivity(
-				VIEWLET_ID,
-				{
-					badge: new NumberBadge(dirtyCount, num => num === 1 ? nls.localize('dirtyFile', "1 unsaved file") : nls.localize('dirtyFiles', "{0} unsaved files", dirtyCount)),
-				}
-			);
-		} else {
-			this.badgeHandle.clear();
+	// Indicate dirty count in badge if any
+	if(dirtyCount > 0) {
+	this.badgeHandle.value = this.activityService.showViewContainerActivity(
+		VIEWLET_ID,
+		{
+			badge: new NumberBadge(dirtyCount, num => num === 1 ? nls.localize('dirtyFile', "1 unsaved file") : nls.localize('dirtyFiles', "{0} unsaved files", dirtyCount)),
 		}
-	}
+	);
+} else {
+	this.badgeHandle.clear();
+}
+    }
 }

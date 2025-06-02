@@ -225,7 +225,7 @@ export class InlineChatSessionServiceImpl implements IInlineChatSessionService {
 		return session;
 	}
 
-	moveSession(session: Session, target: ICodeEditor): void {
+	moveSession(session: Session, target: ICodeEditor): cognidream {
 		const newKey = this._key(target, session.targetUri);
 		const existing = this._sessions.get(newKey);
 		if (existing) {
@@ -253,151 +253,151 @@ export class InlineChatSessionServiceImpl implements IInlineChatSessionService {
 		}
 	}
 
-	releaseSession(session: Session): void {
+	releaseSession(session: Sessioncognidreamognidream {
 		this._releaseSession(session, false);
+    }
+
+    private _releaseSession(session: Session, byServer: booleancognidreamognidream {
+
+			let tuple: [string, SessionData] | undefined;
+
+			// cleanup
+			for(const candidate of this._sessions) {
+	if (candidate[1].session === session) {
+		// if (value.session === session) {
+		tuple = candidate;
+		break;
+	}
+}
+
+if (!tuple) {
+	// double remove
+	return;
+}
+
+this._telemetryService.publicLog2<TelemetryData, TelemetryDataClassification>('interactiveEditor/session', session.asTelemetryData());
+
+const [key, value] = tuple;
+this._sessions.delete(key);
+this._logService.trace(`[IE] did RELEASED session for ${value.editor.getId()}, ${session.agent.extensionId}`);
+
+this._onDidEndSession.fire({ editor: value.editor, session, endedByExternalCause: byServer });
+value.store.dispose();
+    }
+
+stashSession(session: Session, editor: ICodeEditor, undoCancelEdits: IValidEditOperation[]): StashedSession {
+	const result = this._instaService.createInstance(StashedSession, editor, session, undoCancelEdits);
+	this._onDidStashSession.fire({ editor, session });
+	this._logService.trace(`[IE] did STASH session for ${editor.getId()}, ${session.agent.extensionId}`);
+	return result;
+}
+
+getCodeEditor(session: Session): ICodeEditor {
+	for (const [, data] of this._sessions) {
+		if (data.session === session) {
+			return data.editor;
+		}
+	}
+	throw new Error('session not found');
+}
+
+getSession(editor: ICodeEditor, uri: URI): Session | undefined {
+	const key = this._key(editor, uri);
+	return this._sessions.get(key)?.session;
+}
+
+    private _key(editor: ICodeEditor, uri: URI): string {
+	const item = this._keyComputers.get(uri.scheme);
+	return item
+		? item.getComparisonKey(editor, uri)
+		: `${editor.getId()}@${uri.toString()}`;
+
+}
+
+registerSessionKeyComputer(scheme: string, value: ISessionKeyComputer): IDisposable {
+	this._keyComputers.set(scheme, value);
+	return toDisposable(() => this._keyComputers.delete(scheme));
+}
+
+    // ---- NEW
+
+    private readonly _sessions2 = new ResourceMap<IInlineChatSession2>();
+
+    private readonly _onDidChangeSessions = this._store.add(new Emitter<this>());
+    readonly onDidChangeSessions: Event<this> = this._onDidChangeSessions.event;
+
+
+    async createSession2(editor: ICodeEditor, uri: URI, token: CancellationToken): Promise < IInlineChatSession2 > {
+
+	assertType(editor.hasModel());
+
+	if(this._sessions2.has(uri)) {
+	throw new Error('Session already exists');
+}
+
+this._onWillStartSession.fire(editor as IActiveCodeEditor);
+
+const chatModel = this._chatService.startSession(ChatAgentLocation.EditingSession, token, false);
+
+const editingSession = await chatModel.editingSessionObs?.promise!;
+const widget = this._chatWidgetService.getWidgetBySessionId(chatModel.sessionId);
+await widget?.attachmentModel.addFile(uri);
+
+const store = new DisposableStore();
+store.add(toDisposable(() => {
+	this._chatService.cancelCurrentRequestForSession(chatModel.sessionId);
+	editingSession.reject();
+	this._sessions2.delete(uri);
+	this._onDidChangeSessions.fire(this);
+}));
+store.add(chatModel);
+
+store.add(autorun(r => {
+
+	const entries = editingSession.entries.read(r);
+	if (entries.length === 0) {
+		return;
 	}
 
-	private _releaseSession(session: Session, byServer: boolean): void {
+	const allSettled = entries.every(entry => {
+		const state = entry.state.read(r);
+		return (state === WorkingSetEntryState.Accepted || state === WorkingSetEntryState.Rejected)
+			&& !entry.isCurrentlyBeingModifiedBy.read(r);
+	});
 
-		let tuple: [string, SessionData] | undefined;
+	if (allSettled && !chatModel.requestInProgress) {
+		// self terminate
+		store.dispose();
+	}
+}));
 
-		// cleanup
-		for (const candidate of this._sessions) {
-			if (candidate[1].session === session) {
-				// if (value.session === session) {
-				tuple = candidate;
+const result: IInlineChatSession2 = {
+	uri,
+	initialPosition: editor.getPosition().delta(-1),
+	chatModel,
+	editingSession,
+	dispose: store.dispose.bind(store)
+};
+this._sessions2.set(uri, result);
+this._onDidChangeSessions.fire(this);
+return result;
+    }
+
+getSession2(uri: URI): IInlineChatSession2 | undefined {
+	let result = this._sessions2.get(uri);
+	if (!result) {
+		// no direct session, try to find an editing session which has a file entry for the uri
+		for (const [_, candidate] of this._sessions2) {
+			const entry = candidate.editingSession.getEntry(uri);
+			if (entry) {
+				result = candidate;
 				break;
 			}
 		}
-
-		if (!tuple) {
-			// double remove
-			return;
-		}
-
-		this._telemetryService.publicLog2<TelemetryData, TelemetryDataClassification>('interactiveEditor/session', session.asTelemetryData());
-
-		const [key, value] = tuple;
-		this._sessions.delete(key);
-		this._logService.trace(`[IE] did RELEASED session for ${value.editor.getId()}, ${session.agent.extensionId}`);
-
-		this._onDidEndSession.fire({ editor: value.editor, session, endedByExternalCause: byServer });
-		value.store.dispose();
 	}
 
-	stashSession(session: Session, editor: ICodeEditor, undoCancelEdits: IValidEditOperation[]): StashedSession {
-		const result = this._instaService.createInstance(StashedSession, editor, session, undoCancelEdits);
-		this._onDidStashSession.fire({ editor, session });
-		this._logService.trace(`[IE] did STASH session for ${editor.getId()}, ${session.agent.extensionId}`);
-		return result;
-	}
-
-	getCodeEditor(session: Session): ICodeEditor {
-		for (const [, data] of this._sessions) {
-			if (data.session === session) {
-				return data.editor;
-			}
-		}
-		throw new Error('session not found');
-	}
-
-	getSession(editor: ICodeEditor, uri: URI): Session | undefined {
-		const key = this._key(editor, uri);
-		return this._sessions.get(key)?.session;
-	}
-
-	private _key(editor: ICodeEditor, uri: URI): string {
-		const item = this._keyComputers.get(uri.scheme);
-		return item
-			? item.getComparisonKey(editor, uri)
-			: `${editor.getId()}@${uri.toString()}`;
-
-	}
-
-	registerSessionKeyComputer(scheme: string, value: ISessionKeyComputer): IDisposable {
-		this._keyComputers.set(scheme, value);
-		return toDisposable(() => this._keyComputers.delete(scheme));
-	}
-
-	// ---- NEW
-
-	private readonly _sessions2 = new ResourceMap<IInlineChatSession2>();
-
-	private readonly _onDidChangeSessions = this._store.add(new Emitter<this>());
-	readonly onDidChangeSessions: Event<this> = this._onDidChangeSessions.event;
-
-
-	async createSession2(editor: ICodeEditor, uri: URI, token: CancellationToken): Promise<IInlineChatSession2> {
-
-		assertType(editor.hasModel());
-
-		if (this._sessions2.has(uri)) {
-			throw new Error('Session already exists');
-		}
-
-		this._onWillStartSession.fire(editor as IActiveCodeEditor);
-
-		const chatModel = this._chatService.startSession(ChatAgentLocation.EditingSession, token, false);
-
-		const editingSession = await chatModel.editingSessionObs?.promise!;
-		const widget = this._chatWidgetService.getWidgetBySessionId(chatModel.sessionId);
-		await widget?.attachmentModel.addFile(uri);
-
-		const store = new DisposableStore();
-		store.add(toDisposable(() => {
-			this._chatService.cancelCurrentRequestForSession(chatModel.sessionId);
-			editingSession.reject();
-			this._sessions2.delete(uri);
-			this._onDidChangeSessions.fire(this);
-		}));
-		store.add(chatModel);
-
-		store.add(autorun(r => {
-
-			const entries = editingSession.entries.read(r);
-			if (entries.length === 0) {
-				return;
-			}
-
-			const allSettled = entries.every(entry => {
-				const state = entry.state.read(r);
-				return (state === WorkingSetEntryState.Accepted || state === WorkingSetEntryState.Rejected)
-					&& !entry.isCurrentlyBeingModifiedBy.read(r);
-			});
-
-			if (allSettled && !chatModel.requestInProgress) {
-				// self terminate
-				store.dispose();
-			}
-		}));
-
-		const result: IInlineChatSession2 = {
-			uri,
-			initialPosition: editor.getPosition().delta(-1),
-			chatModel,
-			editingSession,
-			dispose: store.dispose.bind(store)
-		};
-		this._sessions2.set(uri, result);
-		this._onDidChangeSessions.fire(this);
-		return result;
-	}
-
-	getSession2(uri: URI): IInlineChatSession2 | undefined {
-		let result = this._sessions2.get(uri);
-		if (!result) {
-			// no direct session, try to find an editing session which has a file entry for the uri
-			for (const [_, candidate] of this._sessions2) {
-				const entry = candidate.editingSession.getEntry(uri);
-				if (entry) {
-					result = candidate;
-					break;
-				}
-			}
-		}
-
-		return result;
-	}
+	return result;
+}
 }
 
 export class InlineChatEnabler {

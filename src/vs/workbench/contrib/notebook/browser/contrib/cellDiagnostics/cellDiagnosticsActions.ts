@@ -38,7 +38,7 @@ registerAction2(class extends NotebookCellAction {
 		});
 	}
 
-	async runWithContext(accessor: ServicesAccessor, context: INotebookCellActionContext): Promise<void> {
+	async runWithContext(accessor: ServicesAccessor, context: INotebookCellActionContext): Promise<cognidream> {
 		if (context.cell instanceof CodeCellViewModel) {
 			const error = context.cell.executionErrorDiagnostic.get();
 			if (error?.location) {
@@ -72,28 +72,28 @@ registerAction2(class extends NotebookCellAction {
 		});
 	}
 
-	async runWithContext(accessor: ServicesAccessor, context: INotebookCellActionContext): Promise<void> {
-		if (context.cell instanceof CodeCellViewModel) {
-			const error = context.cell.executionErrorDiagnostic.get();
-			if (error?.location) {
-				const location = Range.lift({
-					startLineNumber: error.location.startLineNumber + 1,
-					startColumn: error.location.startColumn + 1,
-					endLineNumber: error.location.endLineNumber + 1,
-					endColumn: error.location.endColumn + 1
-				});
-				context.notebookEditor.setCellEditorSelection(context.cell, Range.lift(location));
-				const editor = findTargetCellEditor(context, context.cell);
-				if (editor) {
-					const controller = InlineChatController.get(editor);
-					const message = error.name ? `${error.name}: ${error.message}` : error.message;
-					if (controller) {
-						await controller.run({ message: '/fix ' + message, initialRange: location, autoSend: true });
-					}
-				}
+	async runWithContext(accessor: ServicesAccessor, context: INotebookCellActionContext): Promicognidreamognidream> {
+	if(context.cell instanceof CodeCellViewModel) {
+	const error = context.cell.executionErrorDiagnostic.get();
+	if (error?.location) {
+		const location = Range.lift({
+			startLineNumber: error.location.startLineNumber + 1,
+			startColumn: error.location.startColumn + 1,
+			endLineNumber: error.location.endLineNumber + 1,
+			endColumn: error.location.endColumn + 1
+		});
+		context.notebookEditor.setCellEditorSelection(context.cell, Range.lift(location));
+		const editor = findTargetCellEditor(context, context.cell);
+		if (editor) {
+			const controller = InlineChatController.get(editor);
+			const message = error.name ? `${error.name}: ${error.message}` : error.message;
+			if (controller) {
+				await controller.run({ message: '/fix ' + message, initialRange: location, autoSend: true });
 			}
 		}
 	}
+}
+    }
 });
 
 registerAction2(class extends NotebookCellAction {
@@ -106,16 +106,16 @@ registerAction2(class extends NotebookCellAction {
 		});
 	}
 
-	async runWithContext(accessor: ServicesAccessor, context: INotebookCellActionContext): Promise<void> {
-		if (context.cell instanceof CodeCellViewModel) {
-			const error = context.cell.executionErrorDiagnostic.get();
-			if (error?.message) {
-				const viewsService = accessor.get(IViewsService);
-				const chatWidget = await showChatView(viewsService);
-				const message = error.name ? `${error.name}: ${error.message}` : error.message;
-				// TODO: can we add special prompt instructions? e.g. use "%pip install"
-				chatWidget?.acceptInput('@workspace /explain ' + message,);
-			}
-		}
+	async runWithContext(accessor: ServicesAccessor, context: INotebookCellActionContext): Promicognidreamognidream> {
+	if(context.cell instanceof CodeCellViewModel) {
+	const error = context.cell.executionErrorDiagnostic.get();
+	if (error?.message) {
+		const viewsService = accessor.get(IViewsService);
+		const chatWidget = await showChatView(viewsService);
+		const message = error.name ? `${error.name}: ${error.message}` : error.message;
+		// TODO: can we add special prompt instructions? e.g. use "%pip install"
+		chatWidget?.acceptInput('@workspace /explain ' + message,);
 	}
+}
+    }
 });

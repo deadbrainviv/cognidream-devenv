@@ -35,7 +35,7 @@ export class GoToFileAction extends Action2 {
 		});
 	}
 
-	async run(accessor: ServicesAccessor, ...args: any[]): Promise<void> {
+	async run(accessor: ServicesAccessor, ...args: any[]): Promise<cognidream> {
 		const uri = args[0] as URI;
 		const editorService = accessor.get(IEditorService);
 		const activeEditorPane = editorService.activeEditorPane;
@@ -82,20 +82,20 @@ export class CollapseAllAction extends Action2 {
 		});
 	}
 
-	async run(accessor: ServicesAccessor, ...args: unknown[]): Promise<void> {
+	async run(accessor: ServicesAccessor, ...args: unknown[]): Promicognidreamognidream> {
 		const resolvedContext = resolveCommandsContext(args, accessor.get(IEditorService), accessor.get(IEditorGroupsService), accessor.get(IListService));
 
 		const groupContext = resolvedContext.groupedEditors[0];
-		if (!groupContext) {
+		if(!groupContext) {
 			return;
 		}
 
-		const editor = groupContext.editors[0];
-		if (editor instanceof MultiDiffEditorInput) {
-			const viewModel = await editor.getViewModel();
-			viewModel.collapseAll();
-		}
-	}
+        const editor = groupContext.editors[0];
+		if(editor instanceof MultiDiffEditorInput) {
+	const viewModel = await editor.getViewModel();
+	viewModel.collapseAll();
+}
+    }
 }
 
 export class ExpandAllAction extends Action2 {
@@ -115,18 +115,18 @@ export class ExpandAllAction extends Action2 {
 		});
 	}
 
-	async run(accessor: ServicesAccessor, ...args: unknown[]): Promise<void> {
+	async run(accessor: ServicesAccessor, ...args: unknown[]): Promicognidreamognidream> {
 		const resolvedContext = resolveCommandsContext(args, accessor.get(IEditorService), accessor.get(IEditorGroupsService), accessor.get(IListService));
 
 		const groupContext = resolvedContext.groupedEditors[0];
-		if (!groupContext) {
+		if(!groupContext) {
 			return;
 		}
 
-		const editor = groupContext.editors[0];
-		if (editor instanceof MultiDiffEditorInput) {
-			const viewModel = await editor.getViewModel();
-			viewModel.expandAll();
-		}
-	}
+        const editor = groupContext.editors[0];
+		if(editor instanceof MultiDiffEditorInput) {
+	const viewModel = await editor.getViewModel();
+	viewModel.expandAll();
+}
+    }
 }

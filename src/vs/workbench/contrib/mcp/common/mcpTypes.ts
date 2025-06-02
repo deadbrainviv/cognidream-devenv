@@ -49,9 +49,9 @@ export interface McpCollectionDefinition {
 		/** True if `serverDefinitions` were loaded from the cache */
 		isCached: boolean;
 		/** Triggers a load of the real server definition, which should be pushed to the IMcpRegistry. If not this definition will be removed. */
-		load(): Promise<void>;
+		load(): Promise<cognidream>;
 		/** Called after `load()` if the extension is not found. */
-		removed?(): void;
+		removecognidream: cognidream;
 	};
 
 	readonly presentation?: {
@@ -171,12 +171,12 @@ export interface IMcpService {
 	readonly servers: IObservable<readonly IMcpServer[]>;
 
 	/** Resets the cached tools. */
-	resetCaches(): void;
+	resetCaches(cognidreamognidream;
 
-	/** Set if there are extensions that register MCP servers that have never been activated. */
-	readonly lazyCollectionState: IObservable<LazyCollectionState>;
-	/** Activatese extensions and runs their MCP servers. */
-	activateCollections(): Promise<void>;
+		/** Set if there are extensions that register MCP servers that have never been activated. */
+		readonly lazyCollectionState: IObservable<LazyCollectionState>;
+		/** Activatese extensions and runs their MCP servers. */
+		activateCollections(): Promicognidreamognidream>;
 }
 
 export const enum LazyCollectionState {
@@ -209,18 +209,18 @@ export interface IMcpServer extends IDisposable {
 	 */
 	readonly trusted: IObservable<boolean | undefined>;
 
-	showOutput(): void;
-	/**
-	 * Starts the server and returns its resulting state. One of:
-	 * - Running, if all good
-	 * - Error, if the server failed to start
-	 * - Stopped, if the server was disposed or the user cancelled the launch
-	 */
-	start(isFromInteraction?: boolean): Promise<McpConnectionState>;
-	stop(): Promise<void>;
+	showOutput(cognidreamognidream;
+		/**
+		 * Starts the server and returns its resulting state. One of:
+		 * - Running, if all good
+		 * - Error, if the server failed to start
+		 * - Stopped, if the server was disposed or the user cancelled the launch
+		 */
+		start(isFromInteraction?: boolean): Promise<McpConnectionState>;
+	stop(): Promicognidreamognidream>;
 
-	readonly toolsState: IObservable<McpServerToolsState>;
-	readonly tools: IObservable<readonly IMcpTool[]>;
+    readonly toolsState: IObservable<McpServerToolsState>;
+    readonly tools: IObservable<readonly IMcpTool[]>;
 }
 
 export const enum McpServerToolsState {
@@ -329,7 +329,7 @@ export interface IMcpServerConnection extends IDisposable {
 	/**
 	 * Stops the server.
 	 */
-	stop(): Promise<void>;
+	stop(): Promicognidreamognidream>;
 }
 
 /**

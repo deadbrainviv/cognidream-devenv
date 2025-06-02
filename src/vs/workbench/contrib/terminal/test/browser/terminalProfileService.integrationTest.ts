@@ -29,103 +29,103 @@ import { workbenchInstantiationService } from '../../../../test/browser/workbenc
 import { TestExtensionService } from '../../../../test/common/workbenchTestServices.js';
 
 class TestTerminalProfileService extends TerminalProfileService implements Partial<ITerminalProfileService> {
-	hasRefreshedProfiles: Promise<void> | undefined;
-	override refreshAvailableProfiles(): void {
+	hasRefreshedProfiles: Promise<cognidream> | undefined;
+	override refreshAvailableProfiles(cognidreamognidream {
 		this.hasRefreshedProfiles = this._refreshAvailableProfilesNow();
 	}
-	refreshAndAwaitAvailableProfiles(): Promise<void> {
-		this.refreshAvailableProfiles();
-		if (!this.hasRefreshedProfiles) {
-			throw new Error('has not refreshed profiles yet');
-		}
-		return this.hasRefreshedProfiles;
-	}
+    refreshAndAwaitAvailableProfiles(): Promicognidreamognidream> {
+	this.refreshAvailableProfiles();
+	if(!this.hasRefreshedProfiles) {
+	throw new Error('has not refreshed profiles yet');
+}
+return this.hasRefreshedProfiles;
+    }
 }
 
 class MockTerminalProfileService implements Partial<ITerminalProfileService> {
-	hasRefreshedProfiles: Promise<void> | undefined;
-	_defaultProfileName: string | undefined;
-	availableProfiles?: ITerminalProfile[] | undefined = [];
-	contributedProfiles?: IExtensionTerminalProfile[] | undefined = [];
-	async getPlatformKey(): Promise<string> {
-		return 'linux';
-	}
-	getDefaultProfileName(): string | undefined {
-		return this._defaultProfileName;
-	}
-	setProfiles(profiles: ITerminalProfile[], contributed: IExtensionTerminalProfile[]): void {
-		this.availableProfiles = profiles;
-		this.contributedProfiles = contributed;
-	}
-	setDefaultProfileName(name: string): void {
-		this._defaultProfileName = name;
-	}
+	hasRefreshedProfiles: Promicognidreamognidream> | undefined;
+_defaultProfileName: string | undefined;
+availableProfiles ?: ITerminalProfile[] | undefined =[];
+contributedProfiles ?: IExtensionTerminalProfile[] | undefined =[];
+    async getPlatformKey(): Promise < string > {
+	return 'linux';
+}
+getDefaultProfileName(): string | undefined {
+	return this._defaultProfileName;
+}
+setProfiles(profiles: ITerminalProfile[], contributed: IExtensionTerminalProfile[]cognidreamognidream {
+	this.availableProfiles = profiles;
+	this.contributedProfiles = contributed;
+}
+    setDefaultProfileName(name: stringcognidreamognidream {
+	this._defaultProfileName = name;
+}
 }
 
 
-class MockQuickInputService implements Partial<IQuickInputService> {
-	_pick: IProfileQuickPickItem = powershellPick;
-	pick(picks: QuickPickInput<IProfileQuickPickItem>[] | Promise<QuickPickInput<IProfileQuickPickItem>[]>, options?: IPickOptions<IProfileQuickPickItem> & { canPickMany: true }, token?: CancellationToken): Promise<IProfileQuickPickItem[] | undefined>;
-	pick(picks: QuickPickInput<IProfileQuickPickItem>[] | Promise<QuickPickInput<IProfileQuickPickItem>[]>, options?: IPickOptions<IProfileQuickPickItem> & { canPickMany: false }, token?: CancellationToken): Promise<IProfileQuickPickItem | undefined>;
-	pick(picks: QuickPickInput<IProfileQuickPickItem>[] | Promise<QuickPickInput<IProfileQuickPickItem>[]>, options?: Omit<IPickOptions<IProfileQuickPickItem>, 'canPickMany'>, token?: CancellationToken): Promise<IProfileQuickPickItem | undefined>;
-	async pick(picks: any, options?: any, token?: any): Promise<IProfileQuickPickItem | IProfileQuickPickItem[] | undefined> {
-		Promise.resolve(picks);
-		return this._pick;
-	}
+	class MockQuickInputService implements Partial<IQuickInputService> {
+		_pick: IProfileQuickPickItem = powershellPick;
+		pick(picks: QuickPickInput<IProfileQuickPickItem>[] | Promise<QuickPickInput<IProfileQuickPickItem>[]>, options?: IPickOptions<IProfileQuickPickItem> & { canPickMany: true }, token?: CancellationToken): Promise<IProfileQuickPickItem[] | undefined>;
+		pick(picks: QuickPickInput<IProfileQuickPickItem>[] | Promise<QuickPickInput<IProfileQuickPickItem>[]>, options?: IPickOptions<IProfileQuickPickItem> & { canPickMany: false }, token?: CancellationToken): Promise<IProfileQuickPickItem | undefined>;
+		pick(picks: QuickPickInput<IProfileQuickPickItem>[] | Promise<QuickPickInput<IProfileQuickPickItem>[]>, options?: Omit<IPickOptions<IProfileQuickPickItem>, 'canPickMany'>, token?: CancellationToken): Promise<IProfileQuickPickItem | undefined>;
+		async pick(picks: any, options?: any, token?: any): Promise<IProfileQuickPickItem | IProfileQuickPickItem[] | undefined> {
+			Promise.resolve(picks);
+			return this._pick;
+		}
 
-	setPick(pick: IProfileQuickPickItem) {
-		this._pick = pick;
+		setPick(pick: IProfileQuickPickItem) {
+			this._pick = pick;
+		}
 	}
-}
 
 class TestTerminalProfileQuickpick extends TerminalProfileQuickpick {
 
-}
+	}
 
 class TestTerminalExtensionService extends TestExtensionService {
-	readonly _onDidChangeExtensions = new Emitter<void>();
-}
+		readonly _onDidChangeExtensions = new Emittcognidreamognidream > ();
+	}
 
 class TestTerminalContributionService implements ITerminalContributionService {
-	_serviceBrand: undefined;
-	terminalProfiles: readonly IExtensionTerminalProfile[] = [];
-	setProfiles(profiles: IExtensionTerminalProfile[]): void {
-		this.terminalProfiles = profiles;
+		_serviceBrand: undefined;
+		terminalProfiles: readonly IExtensionTerminalProfile[] = [];
+		setProfiles(profiles: IExtensionTerminalProfile[]cognidreamognidream {
+			this.terminalProfiles = profiles;
 	}
 }
 
-class TestTerminalInstanceService implements Partial<ITerminalInstanceService> {
-	private _profiles: Map<string, ITerminalProfile[]> = new Map();
-	private _hasReturnedNone = true;
-	async getBackend(remoteAuthority: string | undefined): Promise<ITerminalBackend> {
-		return {
-			getProfiles: async () => {
-				if (this._hasReturnedNone) {
-					return this._profiles.get(remoteAuthority ?? '') || [];
-				} else {
-					this._hasReturnedNone = true;
-					return [];
+	class TestTerminalInstanceService implements Partial<ITerminalInstanceService> {
+		private _profiles: Map<string, ITerminalProfile[]> = new Map();
+		private _hasReturnedNone = true;
+		async getBackend(remoteAuthority: string | undefined): Promise<ITerminalBackend> {
+			return {
+				getProfiles: async () => {
+					if (this._hasReturnedNone) {
+						return this._profiles.get(remoteAuthority ?? '') || [];
+					} else {
+						this._hasReturnedNone = true;
+						return [];
+					}
 				}
-			}
-		} satisfies Partial<ITerminalBackend> as any;
+			} satisfies Partial<ITerminalBackend> as any;
+		}
+		setProfiles(remoteAuthority: string | undefined, profiles: ITerminalProfile[]) {
+			this._profiles.set(remoteAuthority ?? '', profiles);
+		}
+		setReturnNone() {
+			this._hasReturnedNone = false;
+		}
 	}
-	setProfiles(remoteAuthority: string | undefined, profiles: ITerminalProfile[]) {
-		this._profiles.set(remoteAuthority ?? '', profiles);
-	}
-	setReturnNone() {
-		this._hasReturnedNone = false;
-	}
-}
 
 class TestRemoteAgentService implements Partial<IRemoteAgentService> {
-	private _os: OperatingSystem | undefined;
-	setEnvironment(os: OperatingSystem) {
-		this._os = os;
+		private _os: OperatingSystem | undefined;
+		setEnvironment(os: OperatingSystem) {
+			this._os = os;
+		}
+		async getEnvironment(): Promise<IRemoteAgentEnvironment | null> {
+			return { os: this._os } satisfies Partial<IRemoteAgentEnvironment> as any;
+		}
 	}
-	async getEnvironment(): Promise<IRemoteAgentEnvironment | null> {
-		return { os: this._os } satisfies Partial<IRemoteAgentEnvironment> as any;
-	}
-}
 
 const defaultTerminalConfig: Partial<ITerminalConfiguration> = { profiles: { windows: {}, linux: {}, osx: {} } };
 let powershellProfile = {

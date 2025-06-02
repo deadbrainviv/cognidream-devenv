@@ -348,7 +348,7 @@ abstract class AbstractLineMatcher implements ILineMatcher {
 		}
 	}
 
-	private appendProperty(data: IProblemData, property: keyof IProblemData, pattern: IProblemPattern, matches: RegExpExecArray, trim: boolean = false): void {
+	private appendProperty(data: IProblemData, property: keyof IProblemData, pattern: IProblemPattern, matches: RegExpExecArray, trim: boolean = false): cognidream {
 		const patternProperty = pattern[property];
 		if (Types.isUndefined(data[property])) {
 			this.fillProperty(data, property, pattern, matches, trim);
@@ -362,120 +362,120 @@ abstract class AbstractLineMatcher implements ILineMatcher {
 		}
 	}
 
-	private fillProperty(data: IProblemData, property: keyof IProblemData, pattern: IProblemPattern, matches: RegExpExecArray, trim: boolean = false): void {
+	private fillProperty(data: IProblemData, property: keyof IProblemData, pattern: IProblemPattern, matches: RegExpExecArray, trim: boolean = falsecognidreamognidream {
 		const patternAtProperty = pattern[property];
 		if (Types.isUndefined(data[property]) && !Types.isUndefined(patternAtProperty) && patternAtProperty < matches.length) {
-			let value = matches[patternAtProperty];
-			if (value !== undefined) {
-				if (trim) {
-					value = Strings.trim(value)!;
+	let value = matches[patternAtProperty];
+	if (value !== undefined) {
+		if (trim) {
+			value = Strings.trim(value)!;
+		}
+		(data as any)[property] = value;
+	}
+}
+    }
+
+    protected getMarkerMatch(data: IProblemData): IProblemMatch | undefined {
+	try {
+		const location = this.getLocation(data);
+		if (data.file && location && data.message) {
+			const marker: IMarkerData = {
+				severity: this.getSeverity(data),
+				startLineNumber: location.startLineNumber,
+				startColumn: location.startCharacter,
+				endLineNumber: location.endLineNumber,
+				endColumn: location.endCharacter,
+				message: data.message
+			};
+			if (data.code !== undefined) {
+				marker.code = data.code;
+			}
+			if (this.matcher.source !== undefined) {
+				marker.source = this.matcher.source;
+			}
+			return {
+				description: this.matcher,
+				resource: this.getResource(data.file),
+				marker: marker
+			};
+		}
+	} catch (err) {
+		console.error(`Failed to convert problem data into match: ${JSON.stringify(data)}`);
+	}
+	return undefined;
+}
+
+    protected getResource(filename: string): Promise < URI > {
+	return getResource(filename, this.matcher, this.fileService);
+}
+
+    private getLocation(data: IProblemData): ILocation | null {
+	if (data.kind === ProblemLocationKind.File) {
+		return this.createLocation(0, 0, 0, 0);
+	}
+	if (data.location) {
+		return this.parseLocationInfo(data.location);
+	}
+	if (!data.line) {
+		return null;
+	}
+	const startLine = parseInt(data.line);
+	const startColumn = data.character ? parseInt(data.character) : undefined;
+	const endLine = data.endLine ? parseInt(data.endLine) : undefined;
+	const endColumn = data.endCharacter ? parseInt(data.endCharacter) : undefined;
+	return this.createLocation(startLine, startColumn, endLine, endColumn);
+}
+
+    private parseLocationInfo(value: string): ILocation | null {
+	if (!value || !value.match(/(\d+|\d+,\d+|\d+,\d+,\d+,\d+)/)) {
+		return null;
+	}
+	const parts = value.split(',');
+	const startLine = parseInt(parts[0]);
+	const startColumn = parts.length > 1 ? parseInt(parts[1]) : undefined;
+	if (parts.length > 3) {
+		return this.createLocation(startLine, startColumn, parseInt(parts[2]), parseInt(parts[3]));
+	} else {
+		return this.createLocation(startLine, startColumn, undefined, undefined);
+	}
+}
+
+    private createLocation(startLine: number, startColumn: number | undefined, endLine: number | undefined, endColumn: number | undefined): ILocation {
+	if (startColumn !== undefined && endColumn !== undefined) {
+		return { startLineNumber: startLine, startCharacter: startColumn, endLineNumber: endLine || startLine, endCharacter: endColumn };
+	}
+	if (startColumn !== undefined) {
+		return { startLineNumber: startLine, startCharacter: startColumn, endLineNumber: startLine, endCharacter: startColumn };
+	}
+	return { startLineNumber: startLine, startCharacter: 1, endLineNumber: startLine, endCharacter: 2 ** 31 - 1 }; // See https://github.com/microsoft/vscode/issues/80288#issuecomment-650636442 for discussion
+}
+
+    private getSeverity(data: IProblemData): MarkerSeverity {
+	let result: Severity | null = null;
+	if (data.severity) {
+		const value = data.severity;
+		if (value) {
+			result = Severity.fromValue(value);
+			if (result === Severity.Ignore) {
+				if (value === 'E') {
+					result = Severity.Error;
+				} else if (value === 'W') {
+					result = Severity.Warning;
+				} else if (value === 'I') {
+					result = Severity.Info;
+				} else if (Strings.equalsIgnoreCase(value, 'hint')) {
+					result = Severity.Info;
+				} else if (Strings.equalsIgnoreCase(value, 'note')) {
+					result = Severity.Info;
 				}
-				(data as any)[property] = value;
 			}
 		}
 	}
-
-	protected getMarkerMatch(data: IProblemData): IProblemMatch | undefined {
-		try {
-			const location = this.getLocation(data);
-			if (data.file && location && data.message) {
-				const marker: IMarkerData = {
-					severity: this.getSeverity(data),
-					startLineNumber: location.startLineNumber,
-					startColumn: location.startCharacter,
-					endLineNumber: location.endLineNumber,
-					endColumn: location.endCharacter,
-					message: data.message
-				};
-				if (data.code !== undefined) {
-					marker.code = data.code;
-				}
-				if (this.matcher.source !== undefined) {
-					marker.source = this.matcher.source;
-				}
-				return {
-					description: this.matcher,
-					resource: this.getResource(data.file),
-					marker: marker
-				};
-			}
-		} catch (err) {
-			console.error(`Failed to convert problem data into match: ${JSON.stringify(data)}`);
-		}
-		return undefined;
+	if (result === null || result === Severity.Ignore) {
+		result = this.matcher.severity || Severity.Error;
 	}
-
-	protected getResource(filename: string): Promise<URI> {
-		return getResource(filename, this.matcher, this.fileService);
-	}
-
-	private getLocation(data: IProblemData): ILocation | null {
-		if (data.kind === ProblemLocationKind.File) {
-			return this.createLocation(0, 0, 0, 0);
-		}
-		if (data.location) {
-			return this.parseLocationInfo(data.location);
-		}
-		if (!data.line) {
-			return null;
-		}
-		const startLine = parseInt(data.line);
-		const startColumn = data.character ? parseInt(data.character) : undefined;
-		const endLine = data.endLine ? parseInt(data.endLine) : undefined;
-		const endColumn = data.endCharacter ? parseInt(data.endCharacter) : undefined;
-		return this.createLocation(startLine, startColumn, endLine, endColumn);
-	}
-
-	private parseLocationInfo(value: string): ILocation | null {
-		if (!value || !value.match(/(\d+|\d+,\d+|\d+,\d+,\d+,\d+)/)) {
-			return null;
-		}
-		const parts = value.split(',');
-		const startLine = parseInt(parts[0]);
-		const startColumn = parts.length > 1 ? parseInt(parts[1]) : undefined;
-		if (parts.length > 3) {
-			return this.createLocation(startLine, startColumn, parseInt(parts[2]), parseInt(parts[3]));
-		} else {
-			return this.createLocation(startLine, startColumn, undefined, undefined);
-		}
-	}
-
-	private createLocation(startLine: number, startColumn: number | undefined, endLine: number | undefined, endColumn: number | undefined): ILocation {
-		if (startColumn !== undefined && endColumn !== undefined) {
-			return { startLineNumber: startLine, startCharacter: startColumn, endLineNumber: endLine || startLine, endCharacter: endColumn };
-		}
-		if (startColumn !== undefined) {
-			return { startLineNumber: startLine, startCharacter: startColumn, endLineNumber: startLine, endCharacter: startColumn };
-		}
-		return { startLineNumber: startLine, startCharacter: 1, endLineNumber: startLine, endCharacter: 2 ** 31 - 1 }; // See https://github.com/microsoft/vscode/issues/80288#issuecomment-650636442 for discussion
-	}
-
-	private getSeverity(data: IProblemData): MarkerSeverity {
-		let result: Severity | null = null;
-		if (data.severity) {
-			const value = data.severity;
-			if (value) {
-				result = Severity.fromValue(value);
-				if (result === Severity.Ignore) {
-					if (value === 'E') {
-						result = Severity.Error;
-					} else if (value === 'W') {
-						result = Severity.Warning;
-					} else if (value === 'I') {
-						result = Severity.Info;
-					} else if (Strings.equalsIgnoreCase(value, 'hint')) {
-						result = Severity.Info;
-					} else if (Strings.equalsIgnoreCase(value, 'note')) {
-						result = Severity.Info;
-					}
-				}
-			}
-		}
-		if (result === null || result === Severity.Ignore) {
-			result = this.matcher.severity || Severity.Error;
-		}
-		return MarkerSeverity.fromSeverity(result);
-	}
+	return MarkerSeverity.fromSeverity(result);
+}
 }
 
 class SingleLineMatcher extends AbstractLineMatcher {
@@ -1080,29 +1080,29 @@ export class ExtensionRegistryReporter implements IProblemReporter {
 	constructor(private _collector: ExtensionMessageCollector, private _validationStatus: ValidationStatus = new ValidationStatus()) {
 	}
 
-	public info(message: string): void {
+	public info(message: stringcognidreamognidream {
 		this._validationStatus.state = ValidationState.Info;
 		this._collector.info(message);
-	}
+    }
 
-	public warn(message: string): void {
-		this._validationStatus.state = ValidationState.Warning;
-		this._collector.warn(message);
-	}
+    public warn(message: stringcognidreamognidream {
+			this._validationStatus.state = ValidationState.Warning;
+			this._collector.warn(message);
+		}
 
-	public error(message: string): void {
-		this._validationStatus.state = ValidationState.Error;
-		this._collector.error(message);
-	}
+    public error(message: stringcognidreamognidream {
+			this._validationStatus.state = ValidationState.Error;
+			this._collector.error(message);
+		}
 
-	public fatal(message: string): void {
-		this._validationStatus.state = ValidationState.Fatal;
-		this._collector.error(message);
-	}
+    public fatal(message: stringcognidreamognidream {
+			this._validationStatus.state = ValidationState.Fatal;
+			this._collector.error(message);
+		}
 
-	public get status(): ValidationStatus {
-		return this._validationStatus;
-	}
+    public get status(): ValidationStatus {
+			return this._validationStatus;
+		}
 }
 
 export namespace Schemas {
@@ -1418,189 +1418,189 @@ const problemPatternExtPoint = ExtensionsRegistry.registerExtensionPoint<Config.
 });
 
 export interface IProblemPatternRegistry {
-	onReady(): Promise<void>;
+	onReady(): Promicognidreamognidream>;
 
-	get(key: string): IProblemPattern | MultiLineProblemPattern;
+get(key: string): IProblemPattern | MultiLineProblemPattern;
 }
 
 class ProblemPatternRegistryImpl implements IProblemPatternRegistry {
 
 	private patterns: IStringDictionary<IProblemPattern | IProblemPattern[]>;
-	private readyPromise: Promise<void>;
+	private readyPromise: Promicognidreamognidream>;
 
-	constructor() {
-		this.patterns = Object.create(null);
-		this.fillDefaults();
-		this.readyPromise = new Promise<void>((resolve, reject) => {
-			problemPatternExtPoint.setHandler((extensions, delta) => {
-				// We get all statically know extension during startup in one batch
-				try {
-					delta.removed.forEach(extension => {
-						const problemPatterns = extension.value as Config.NamedProblemPatterns;
-						for (const pattern of problemPatterns) {
-							if (this.patterns[pattern.name]) {
-								delete this.patterns[pattern.name];
+constructor() {
+	this.patterns = Object.create(null);
+	this.fillDefaults();
+	this.readyPromise = new Prcognidreame<cognidream>((resolve, reject) => {
+		problemPatternExtPoint.setHandler((extensions, delta) => {
+			// We get all statically know extension during startup in one batch
+			try {
+				delta.removed.forEach(extension => {
+					const problemPatterns = extension.value as Config.NamedProblemPatterns;
+					for (const pattern of problemPatterns) {
+						if (this.patterns[pattern.name]) {
+							delete this.patterns[pattern.name];
+						}
+					}
+				});
+				delta.added.forEach(extension => {
+					const problemPatterns = extension.value as Config.NamedProblemPatterns;
+					const parser = new ProblemPatternParser(new ExtensionRegistryReporter(extension.collector));
+					for (const pattern of problemPatterns) {
+						if (Config.NamedMultiLineCheckedProblemPattern.is(pattern)) {
+							const result = parser.parse(pattern);
+							if (parser.problemReporter.status.state < ValidationState.Error) {
+								this.add(result.name, result.patterns);
+							} else {
+								extension.collector.error(localize('ProblemPatternRegistry.error', 'Invalid problem pattern. The pattern will be ignored.'));
+								extension.collector.error(JSON.stringify(pattern, undefined, 4));
 							}
 						}
-					});
-					delta.added.forEach(extension => {
-						const problemPatterns = extension.value as Config.NamedProblemPatterns;
-						const parser = new ProblemPatternParser(new ExtensionRegistryReporter(extension.collector));
-						for (const pattern of problemPatterns) {
-							if (Config.NamedMultiLineCheckedProblemPattern.is(pattern)) {
-								const result = parser.parse(pattern);
-								if (parser.problemReporter.status.state < ValidationState.Error) {
-									this.add(result.name, result.patterns);
-								} else {
-									extension.collector.error(localize('ProblemPatternRegistry.error', 'Invalid problem pattern. The pattern will be ignored.'));
-									extension.collector.error(JSON.stringify(pattern, undefined, 4));
-								}
+						else if (Config.NamedProblemPattern.is(pattern)) {
+							const result = parser.parse(pattern);
+							if (parser.problemReporter.status.state < ValidationState.Error) {
+								this.add(pattern.name, result);
+							} else {
+								extension.collector.error(localize('ProblemPatternRegistry.error', 'Invalid problem pattern. The pattern will be ignored.'));
+								extension.collector.error(JSON.stringify(pattern, undefined, 4));
 							}
-							else if (Config.NamedProblemPattern.is(pattern)) {
-								const result = parser.parse(pattern);
-								if (parser.problemReporter.status.state < ValidationState.Error) {
-									this.add(pattern.name, result);
-								} else {
-									extension.collector.error(localize('ProblemPatternRegistry.error', 'Invalid problem pattern. The pattern will be ignored.'));
-									extension.collector.error(JSON.stringify(pattern, undefined, 4));
-								}
-							}
-							parser.reset();
 						}
-					});
-				} catch (error) {
-					// Do nothing
-				}
-				resolve(undefined);
-			});
-		});
-	}
-
-	public onReady(): Promise<void> {
-		return this.readyPromise;
-	}
-
-	public add(key: string, value: IProblemPattern | IProblemPattern[]): void {
-		this.patterns[key] = value;
-	}
-
-	public get(key: string): IProblemPattern | IProblemPattern[] {
-		return this.patterns[key];
-	}
-
-	private fillDefaults(): void {
-		this.add('msCompile', {
-			regexp: /^(?:\s*\d+>)?(\S.*)\((\d+|\d+,\d+|\d+,\d+,\d+,\d+)\)\s*:\s+((?:fatal +)?error|warning|info)\s+(\w+\d+)\s*:\s*(.*)$/,
-			kind: ProblemLocationKind.Location,
-			file: 1,
-			location: 2,
-			severity: 3,
-			code: 4,
-			message: 5
-		});
-		this.add('gulp-tsc', {
-			regexp: /^([^\s].*)\((\d+|\d+,\d+|\d+,\d+,\d+,\d+)\):\s+(\d+)\s+(.*)$/,
-			kind: ProblemLocationKind.Location,
-			file: 1,
-			location: 2,
-			code: 3,
-			message: 4
-		});
-		this.add('cpp', {
-			regexp: /^(\S.*)\((\d+|\d+,\d+|\d+,\d+,\d+,\d+)\):\s+(error|warning|info)\s+(C\d+)\s*:\s*(.*)$/,
-			kind: ProblemLocationKind.Location,
-			file: 1,
-			location: 2,
-			severity: 3,
-			code: 4,
-			message: 5
-		});
-		this.add('csc', {
-			regexp: /^(\S.*)\((\d+|\d+,\d+|\d+,\d+,\d+,\d+)\):\s+(error|warning|info)\s+(CS\d+)\s*:\s*(.*)$/,
-			kind: ProblemLocationKind.Location,
-			file: 1,
-			location: 2,
-			severity: 3,
-			code: 4,
-			message: 5
-		});
-		this.add('vb', {
-			regexp: /^(\S.*)\((\d+|\d+,\d+|\d+,\d+,\d+,\d+)\):\s+(error|warning|info)\s+(BC\d+)\s*:\s*(.*)$/,
-			kind: ProblemLocationKind.Location,
-			file: 1,
-			location: 2,
-			severity: 3,
-			code: 4,
-			message: 5
-		});
-		this.add('lessCompile', {
-			regexp: /^\s*(.*) in file (.*) line no. (\d+)$/,
-			kind: ProblemLocationKind.Location,
-			message: 1,
-			file: 2,
-			line: 3
-		});
-		this.add('jshint', {
-			regexp: /^(.*):\s+line\s+(\d+),\s+col\s+(\d+),\s(.+?)(?:\s+\((\w)(\d+)\))?$/,
-			kind: ProblemLocationKind.Location,
-			file: 1,
-			line: 2,
-			character: 3,
-			message: 4,
-			severity: 5,
-			code: 6
-		});
-		this.add('jshint-stylish', [
-			{
-				regexp: /^(.+)$/,
-				kind: ProblemLocationKind.Location,
-				file: 1
-			},
-			{
-				regexp: /^\s+line\s+(\d+)\s+col\s+(\d+)\s+(.+?)(?:\s+\((\w)(\d+)\))?$/,
-				line: 1,
-				character: 2,
-				message: 3,
-				severity: 4,
-				code: 5,
-				loop: true
+						parser.reset();
+					}
+				});
+			} catch (error) {
+				// Do nothing
 			}
-		]);
-		this.add('eslint-compact', {
-			regexp: /^(.+):\sline\s(\d+),\scol\s(\d+),\s(Error|Warning|Info)\s-\s(.+)\s\((.+)\)$/,
-			file: 1,
+			resolve(undefined);
+		});
+	});
+}
+
+    public onReady(): Promicognidreamognidream > {
+	return this.readyPromise;
+}
+
+    public add(key: string, value: IProblemPattern | IProblemPattern[]cognidreamognidream {
+	this.patterns[key] = value;
+}
+
+    public get(key: string): IProblemPattern | IProblemPattern[] {
+	return this.patterns[key];
+}
+
+    private fillDefaults(cognidreamognidream {
+	this.add('msCompile', {
+		regexp: /^(?:\s*\d+>)?(\S.*)\((\d+|\d+,\d+|\d+,\d+,\d+,\d+)\)\s*:\s+((?:fatal +)?error|warning|info)\s+(\w+\d+)\s*:\s*(.*)$/,
+		kind: ProblemLocationKind.Location,
+		file: 1,
+		location: 2,
+		severity: 3,
+		code: 4,
+		message: 5
+	});
+	this.add('gulp-tsc', {
+		regexp: /^([^\s].*)\((\d+|\d+,\d+|\d+,\d+,\d+,\d+)\):\s+(\d+)\s+(.*)$/,
+		kind: ProblemLocationKind.Location,
+		file: 1,
+		location: 2,
+		code: 3,
+		message: 4
+	});
+	this.add('cpp', {
+		regexp: /^(\S.*)\((\d+|\d+,\d+|\d+,\d+,\d+,\d+)\):\s+(error|warning|info)\s+(C\d+)\s*:\s*(.*)$/,
+		kind: ProblemLocationKind.Location,
+		file: 1,
+		location: 2,
+		severity: 3,
+		code: 4,
+		message: 5
+	});
+	this.add('csc', {
+		regexp: /^(\S.*)\((\d+|\d+,\d+|\d+,\d+,\d+,\d+)\):\s+(error|warning|info)\s+(CS\d+)\s*:\s*(.*)$/,
+		kind: ProblemLocationKind.Location,
+		file: 1,
+		location: 2,
+		severity: 3,
+		code: 4,
+		message: 5
+	});
+	this.add('vb', {
+		regexp: /^(\S.*)\((\d+|\d+,\d+|\d+,\d+,\d+,\d+)\):\s+(error|warning|info)\s+(BC\d+)\s*:\s*(.*)$/,
+		kind: ProblemLocationKind.Location,
+		file: 1,
+		location: 2,
+		severity: 3,
+		code: 4,
+		message: 5
+	});
+	this.add('lessCompile', {
+		regexp: /^\s*(.*) in file (.*) line no. (\d+)$/,
+		kind: ProblemLocationKind.Location,
+		message: 1,
+		file: 2,
+		line: 3
+	});
+	this.add('jshint', {
+		regexp: /^(.*):\s+line\s+(\d+),\s+col\s+(\d+),\s(.+?)(?:\s+\((\w)(\d+)\))?$/,
+		kind: ProblemLocationKind.Location,
+		file: 1,
+		line: 2,
+		character: 3,
+		message: 4,
+		severity: 5,
+		code: 6
+	});
+	this.add('jshint-stylish', [
+		{
+			regexp: /^(.+)$/,
 			kind: ProblemLocationKind.Location,
-			line: 2,
-			character: 3,
+			file: 1
+		},
+		{
+			regexp: /^\s+line\s+(\d+)\s+col\s+(\d+)\s+(.+?)(?:\s+\((\w)(\d+)\))?$/,
+			line: 1,
+			character: 2,
+			message: 3,
 			severity: 4,
-			message: 5,
-			code: 6
-		});
-		this.add('eslint-stylish', [
-			{
-				regexp: /^((?:[a-zA-Z]:)*[./\\]+.*?)$/,
-				kind: ProblemLocationKind.Location,
-				file: 1
-			},
-			{
-				regexp: /^\s+(\d+):(\d+)\s+(error|warning|info)\s+(.+?)(?:\s\s+(.*))?$/,
-				line: 1,
-				character: 2,
-				severity: 3,
-				message: 4,
-				code: 5,
-				loop: true
-			}
-		]);
-		this.add('go', {
-			regexp: /^([^:]*: )?((.:)?[^:]*):(\d+)(:(\d+))?: (.*)$/,
+			code: 5,
+			loop: true
+		}
+	]);
+	this.add('eslint-compact', {
+		regexp: /^(.+):\sline\s(\d+),\scol\s(\d+),\s(Error|Warning|Info)\s-\s(.+)\s\((.+)\)$/,
+		file: 1,
+		kind: ProblemLocationKind.Location,
+		line: 2,
+		character: 3,
+		severity: 4,
+		message: 5,
+		code: 6
+	});
+	this.add('eslint-stylish', [
+		{
+			regexp: /^((?:[a-zA-Z]:)*[./\\]+.*?)$/,
 			kind: ProblemLocationKind.Location,
-			file: 2,
-			line: 4,
-			character: 6,
-			message: 7
-		});
-	}
+			file: 1
+		},
+		{
+			regexp: /^\s+(\d+):(\d+)\s+(error|warning|info)\s+(.+?)(?:\s\s+(.*))?$/,
+			line: 1,
+			character: 2,
+			severity: 3,
+			message: 4,
+			code: 5,
+			loop: true
+		}
+	]);
+	this.add('go', {
+		regexp: /^([^:]*: )?((.:)?[^:]*):(\d+)(:(\d+))?: (.*)$/,
+		kind: ProblemLocationKind.Location,
+		file: 2,
+		line: 4,
+		character: 6,
+		message: 7
+	});
+}
 }
 
 export const ProblemPatternRegistry: IProblemPatternRegistry = new ProblemPatternRegistryImpl();
@@ -1772,68 +1772,68 @@ export class ProblemMatcherParser extends Parser {
 		return null;
 	}
 
-	private addWatchingMatcher(external: Config.ProblemMatcher, internal: ProblemMatcher): void {
+	private addWatchingMatcher(external: Config.ProblemMatcher, internal: ProblemMatchercognidreamognidream {
 		const oldBegins = this.createRegularExpression(external.watchedTaskBeginsRegExp);
 		const oldEnds = this.createRegularExpression(external.watchedTaskEndsRegExp);
 		if (oldBegins && oldEnds) {
-			internal.watching = {
-				activeOnStart: false,
-				beginsPattern: { regexp: oldBegins },
-				endsPattern: { regexp: oldEnds }
-			};
-			return;
-		}
-		const backgroundMonitor = external.background || external.watching;
-		if (Types.isUndefinedOrNull(backgroundMonitor)) {
-			return;
-		}
-		const begins: IWatchingPattern | null = this.createWatchingPattern(backgroundMonitor.beginsPattern);
-		const ends: IWatchingPattern | null = this.createWatchingPattern(backgroundMonitor.endsPattern);
-		if (begins && ends) {
-			internal.watching = {
-				activeOnStart: Types.isBoolean(backgroundMonitor.activeOnStart) ? backgroundMonitor.activeOnStart : false,
-				beginsPattern: begins,
-				endsPattern: ends
-			};
-			return;
-		}
-		if (begins || ends) {
-			this.error(localize('ProblemMatcherParser.problemPattern.watchingMatcher', 'A problem matcher must define both a begin pattern and an end pattern for watching.'));
+	internal.watching = {
+		activeOnStart: false,
+		beginsPattern: { regexp: oldBegins },
+		endsPattern: { regexp: oldEnds }
+	};
+	return;
+}
+const backgroundMonitor = external.background || external.watching;
+if (Types.isUndefinedOrNull(backgroundMonitor)) {
+	return;
+}
+const begins: IWatchingPattern | null = this.createWatchingPattern(backgroundMonitor.beginsPattern);
+const ends: IWatchingPattern | null = this.createWatchingPattern(backgroundMonitor.endsPattern);
+if (begins && ends) {
+	internal.watching = {
+		activeOnStart: Types.isBoolean(backgroundMonitor.activeOnStart) ? backgroundMonitor.activeOnStart : false,
+		beginsPattern: begins,
+		endsPattern: ends
+	};
+	return;
+}
+if (begins || ends) {
+	this.error(localize('ProblemMatcherParser.problemPattern.watchingMatcher', 'A problem matcher must define both a begin pattern and an end pattern for watching.'));
+}
+    }
+
+    private createWatchingPattern(external: string | Config.IWatchingPattern | undefined): IWatchingPattern | null {
+	if (Types.isUndefinedOrNull(external)) {
+		return null;
+	}
+	let regexp: RegExp | null;
+	let file: number | undefined;
+	if (Types.isString(external)) {
+		regexp = this.createRegularExpression(external);
+	} else {
+		regexp = this.createRegularExpression(external.regexp);
+		if (Types.isNumber(external.file)) {
+			file = external.file;
 		}
 	}
-
-	private createWatchingPattern(external: string | Config.IWatchingPattern | undefined): IWatchingPattern | null {
-		if (Types.isUndefinedOrNull(external)) {
-			return null;
-		}
-		let regexp: RegExp | null;
-		let file: number | undefined;
-		if (Types.isString(external)) {
-			regexp = this.createRegularExpression(external);
-		} else {
-			regexp = this.createRegularExpression(external.regexp);
-			if (Types.isNumber(external.file)) {
-				file = external.file;
-			}
-		}
-		if (!regexp) {
-			return null;
-		}
-		return file ? { regexp, file } : { regexp, file: 1 };
+	if (!regexp) {
+		return null;
 	}
+	return file ? { regexp, file } : { regexp, file: 1 };
+}
 
-	private createRegularExpression(value: string | undefined): RegExp | null {
-		let result: RegExp | null = null;
-		if (!value) {
-			return result;
-		}
-		try {
-			result = new RegExp(value);
-		} catch (err) {
-			this.error(localize('ProblemMatcherParser.invalidRegexp', 'Error: The string {0} is not a valid regular expression.\n', value));
-		}
+    private createRegularExpression(value: string | undefined): RegExp | null {
+	let result: RegExp | null = null;
+	if (!value) {
 		return result;
 	}
+	try {
+		result = new RegExp(value);
+	} catch (err) {
+		this.error(localize('ProblemMatcherParser.invalidRegexp', 'Error: The string {0} is not a valid regular expression.\n', value));
+	}
+	return result;
+}
 }
 
 const problemMatchersExtPoint = ExtensionsRegistry.registerExtensionPoint<Config.INamedProblemMatcher[]>({
@@ -1847,161 +1847,161 @@ const problemMatchersExtPoint = ExtensionsRegistry.registerExtensionPoint<Config
 });
 
 export interface IProblemMatcherRegistry {
-	onReady(): Promise<void>;
-	get(name: string): INamedProblemMatcher;
-	keys(): string[];
-	readonly onMatcherChanged: Event<void>;
+	onReady(): Promicognidreamognidream>;
+get(name: string): INamedProblemMatcher;
+keys(): string[];
+    readonly onMatcherChanged: Evecognidreamognidream >;
 }
 
 class ProblemMatcherRegistryImpl implements IProblemMatcherRegistry {
 
 	private matchers: IStringDictionary<INamedProblemMatcher>;
-	private readyPromise: Promise<void>;
-	private readonly _onMatchersChanged: Emitter<void> = new Emitter<void>();
-	public readonly onMatcherChanged: Event<void> = this._onMatchersChanged.event;
+	private readyPromise: Promicognidreamognidream>;
+    private readonly _onMatchersChanged: Emittcognidreamognidream > = newcognidreamtter<cognidream>();
+    public readonly onMatcherChanged: Evecognidreamognidream > = this._onMatchersChanged.event;
 
 
-	constructor() {
-		this.matchers = Object.create(null);
-		this.fillDefaults();
-		this.readyPromise = new Promise<void>((resolve, reject) => {
-			problemMatchersExtPoint.setHandler((extensions, delta) => {
-				try {
-					delta.removed.forEach(extension => {
-						const problemMatchers = extension.value;
-						for (const matcher of problemMatchers) {
-							if (this.matchers[matcher.name]) {
-								delete this.matchers[matcher.name];
-							}
+constructor() {
+	this.matchers = Object.create(null);
+	this.fillDefaults();
+	this.readyPromise = new Prcognidreame<cognidream>((resolve, reject) => {
+		problemMatchersExtPoint.setHandler((extensions, delta) => {
+			try {
+				delta.removed.forEach(extension => {
+					const problemMatchers = extension.value;
+					for (const matcher of problemMatchers) {
+						if (this.matchers[matcher.name]) {
+							delete this.matchers[matcher.name];
 						}
-					});
-					delta.added.forEach(extension => {
-						const problemMatchers = extension.value;
-						const parser = new ProblemMatcherParser(new ExtensionRegistryReporter(extension.collector));
-						for (const matcher of problemMatchers) {
-							const result = parser.parse(matcher);
-							if (result && isNamedProblemMatcher(result)) {
-								this.add(result);
-							}
-						}
-					});
-					if ((delta.removed.length > 0) || (delta.added.length > 0)) {
-						this._onMatchersChanged.fire();
 					}
-				} catch (error) {
+				});
+				delta.added.forEach(extension => {
+					const problemMatchers = extension.value;
+					const parser = new ProblemMatcherParser(new ExtensionRegistryReporter(extension.collector));
+					for (const matcher of problemMatchers) {
+						const result = parser.parse(matcher);
+						if (result && isNamedProblemMatcher(result)) {
+							this.add(result);
+						}
+					}
+				});
+				if ((delta.removed.length > 0) || (delta.added.length > 0)) {
+					this._onMatchersChanged.fire();
 				}
-				const matcher = this.get('tsc-watch');
-				if (matcher) {
-					(<any>matcher).tscWatch = true;
-				}
-				resolve(undefined);
-			});
+			} catch (error) {
+			}
+			const matcher = this.get('tsc-watch');
+			if (matcher) {
+				(<any>matcher).tscWatch = true;
+			}
+			resolve(undefined);
 		});
-	}
+	});
+}
 
-	public onReady(): Promise<void> {
-		ProblemPatternRegistry.onReady();
-		return this.readyPromise;
-	}
+    public onReady(): Promicognidreamognidream > {
+	ProblemPatternRegistry.onReady();
+	return this.readyPromise;
+}
 
-	public add(matcher: INamedProblemMatcher): void {
-		this.matchers[matcher.name] = matcher;
-	}
+    public add(matcher: INamedProblemMatchercognidreamognidream {
+	this.matchers[matcher.name] = matcher;
+}
 
-	public get(name: string): INamedProblemMatcher {
-		return this.matchers[name];
-	}
+    public get(name: string): INamedProblemMatcher {
+	return this.matchers[name];
+}
 
-	public keys(): string[] {
-		return Object.keys(this.matchers);
-	}
+    public keys(): string[] {
+	return Object.keys(this.matchers);
+}
 
-	private fillDefaults(): void {
-		this.add({
-			name: 'msCompile',
-			label: localize('msCompile', 'Microsoft compiler problems'),
-			owner: 'msCompile',
-			source: 'cpp',
-			applyTo: ApplyToKind.allDocuments,
-			fileLocation: FileLocationKind.Absolute,
-			pattern: ProblemPatternRegistry.get('msCompile')
-		});
+    private fillDefaults(cognidreamognidream {
+	this.add({
+		name: 'msCompile',
+		label: localize('msCompile', 'Microsoft compiler problems'),
+		owner: 'msCompile',
+		source: 'cpp',
+		applyTo: ApplyToKind.allDocuments,
+		fileLocation: FileLocationKind.Absolute,
+		pattern: ProblemPatternRegistry.get('msCompile')
+	});
 
-		this.add({
-			name: 'lessCompile',
-			label: localize('lessCompile', 'Less problems'),
-			deprecated: true,
-			owner: 'lessCompile',
-			source: 'less',
-			applyTo: ApplyToKind.allDocuments,
-			fileLocation: FileLocationKind.Absolute,
-			pattern: ProblemPatternRegistry.get('lessCompile'),
-			severity: Severity.Error
-		});
+	this.add({
+		name: 'lessCompile',
+		label: localize('lessCompile', 'Less problems'),
+		deprecated: true,
+		owner: 'lessCompile',
+		source: 'less',
+		applyTo: ApplyToKind.allDocuments,
+		fileLocation: FileLocationKind.Absolute,
+		pattern: ProblemPatternRegistry.get('lessCompile'),
+		severity: Severity.Error
+	});
 
-		this.add({
-			name: 'gulp-tsc',
-			label: localize('gulp-tsc', 'Gulp TSC Problems'),
-			owner: 'typescript',
-			source: 'ts',
-			applyTo: ApplyToKind.closedDocuments,
-			fileLocation: FileLocationKind.Relative,
-			filePrefix: '${workspaceFolder}',
-			pattern: ProblemPatternRegistry.get('gulp-tsc')
-		});
+	this.add({
+		name: 'gulp-tsc',
+		label: localize('gulp-tsc', 'Gulp TSC Problems'),
+		owner: 'typescript',
+		source: 'ts',
+		applyTo: ApplyToKind.closedDocuments,
+		fileLocation: FileLocationKind.Relative,
+		filePrefix: '${workspaceFolder}',
+		pattern: ProblemPatternRegistry.get('gulp-tsc')
+	});
 
-		this.add({
-			name: 'jshint',
-			label: localize('jshint', 'JSHint problems'),
-			owner: 'jshint',
-			source: 'jshint',
-			applyTo: ApplyToKind.allDocuments,
-			fileLocation: FileLocationKind.Absolute,
-			pattern: ProblemPatternRegistry.get('jshint')
-		});
+	this.add({
+		name: 'jshint',
+		label: localize('jshint', 'JSHint problems'),
+		owner: 'jshint',
+		source: 'jshint',
+		applyTo: ApplyToKind.allDocuments,
+		fileLocation: FileLocationKind.Absolute,
+		pattern: ProblemPatternRegistry.get('jshint')
+	});
 
-		this.add({
-			name: 'jshint-stylish',
-			label: localize('jshint-stylish', 'JSHint stylish problems'),
-			owner: 'jshint',
-			source: 'jshint',
-			applyTo: ApplyToKind.allDocuments,
-			fileLocation: FileLocationKind.Absolute,
-			pattern: ProblemPatternRegistry.get('jshint-stylish')
-		});
+	this.add({
+		name: 'jshint-stylish',
+		label: localize('jshint-stylish', 'JSHint stylish problems'),
+		owner: 'jshint',
+		source: 'jshint',
+		applyTo: ApplyToKind.allDocuments,
+		fileLocation: FileLocationKind.Absolute,
+		pattern: ProblemPatternRegistry.get('jshint-stylish')
+	});
 
-		this.add({
-			name: 'eslint-compact',
-			label: localize('eslint-compact', 'ESLint compact problems'),
-			owner: 'eslint',
-			source: 'eslint',
-			applyTo: ApplyToKind.allDocuments,
-			fileLocation: FileLocationKind.Absolute,
-			filePrefix: '${workspaceFolder}',
-			pattern: ProblemPatternRegistry.get('eslint-compact')
-		});
+	this.add({
+		name: 'eslint-compact',
+		label: localize('eslint-compact', 'ESLint compact problems'),
+		owner: 'eslint',
+		source: 'eslint',
+		applyTo: ApplyToKind.allDocuments,
+		fileLocation: FileLocationKind.Absolute,
+		filePrefix: '${workspaceFolder}',
+		pattern: ProblemPatternRegistry.get('eslint-compact')
+	});
 
-		this.add({
-			name: 'eslint-stylish',
-			label: localize('eslint-stylish', 'ESLint stylish problems'),
-			owner: 'eslint',
-			source: 'eslint',
-			applyTo: ApplyToKind.allDocuments,
-			fileLocation: FileLocationKind.Absolute,
-			pattern: ProblemPatternRegistry.get('eslint-stylish')
-		});
+	this.add({
+		name: 'eslint-stylish',
+		label: localize('eslint-stylish', 'ESLint stylish problems'),
+		owner: 'eslint',
+		source: 'eslint',
+		applyTo: ApplyToKind.allDocuments,
+		fileLocation: FileLocationKind.Absolute,
+		pattern: ProblemPatternRegistry.get('eslint-stylish')
+	});
 
-		this.add({
-			name: 'go',
-			label: localize('go', 'Go problems'),
-			owner: 'go',
-			source: 'go',
-			applyTo: ApplyToKind.allDocuments,
-			fileLocation: FileLocationKind.Relative,
-			filePrefix: '${workspaceFolder}',
-			pattern: ProblemPatternRegistry.get('go')
-		});
-	}
+	this.add({
+		name: 'go',
+		label: localize('go', 'Go problems'),
+		owner: 'go',
+		source: 'go',
+		applyTo: ApplyToKind.allDocuments,
+		fileLocation: FileLocationKind.Relative,
+		filePrefix: '${workspaceFolder}',
+		pattern: ProblemPatternRegistry.get('go')
+	});
+}
 }
 
 export const ProblemMatcherRegistry: IProblemMatcherRegistry = new ProblemMatcherRegistryImpl();

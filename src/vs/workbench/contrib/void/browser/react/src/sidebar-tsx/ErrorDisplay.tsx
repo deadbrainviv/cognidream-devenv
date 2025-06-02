@@ -17,7 +17,7 @@ export const ErrorDisplay = ({
 }: {
 	message: string,
 	fullError: Error | null,
-	onDismiss: (() => void) | null,
+	onDismiss: (() => cognidream) | null,
 	showDismiss?: boolean,
 }) => {
 	const [isExpanded, setIsExpanded] = useState(false);

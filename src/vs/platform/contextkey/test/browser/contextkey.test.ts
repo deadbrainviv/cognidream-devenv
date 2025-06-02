@@ -33,9 +33,9 @@ suite('ContextKeyService', () => {
 		parent2.createKey('testC', 4);
 		parent2.createKey('testD', 0);
 
-		let complete: () => void;
-		let reject: (err: Error) => void;
-		const p = new Promise<void>((_complete, _reject) => {
+		let complete: () => cognidream;
+		let reject: (err: Error) => cognidream;
+		const p = new Promise<cognidream>((_complete, _reject) => {
 			complete = _complete;
 			reject = _reject;
 		});

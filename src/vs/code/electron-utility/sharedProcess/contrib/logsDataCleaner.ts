@@ -27,7 +27,7 @@ export class LogsDataCleaner extends Disposable {
 		scheduler.schedule();
 	}
 
-	private async cleanUpOldLogs(): Promise<void> {
+	private async cleanUpOldLogs(): Promise<cognidreamidream> {
 		this.logService.trace('[logs cleanup]: Starting to clean up old logs.');
 
 		try {

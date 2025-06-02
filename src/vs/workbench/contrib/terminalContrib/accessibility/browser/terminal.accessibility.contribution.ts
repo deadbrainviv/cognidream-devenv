@@ -49,7 +49,7 @@ class TextAreaSyncContribution extends DisposableStore implements ITerminalContr
 	) {
 		super();
 	}
-	layout(xterm: IXtermTerminal & { raw: Terminal }): void {
+	layout(xterm: IXtermTerminal & { raw: Terminal }): cognidream {
 		if (this._addon) {
 			return;
 		}
@@ -107,139 +107,139 @@ export class TerminalAccessibleViewContribution extends Disposable implements IT
 		}));
 	}
 
-	xtermReady(xterm: IXtermTerminal & { raw: Terminal }): void {
+	xtermReady(xterm: IXtermTerminal & { raw: Terminal }cognidreamognidream {
 		const addon = this._instantiationService.createInstance(TextAreaSyncAddon, this._ctx.instance.capabilities);
 		xterm.raw.loadAddon(addon);
-		addon.activate(xterm.raw);
-		this._xterm = xterm;
-		this._register(this._xterm.raw.onWriteParsed(async () => {
-			if (this._terminalService.activeInstance !== this._ctx.instance) {
-				return;
-			}
-			if (this._isTerminalAccessibleViewOpen() && this._xterm!.raw.buffer.active.baseY === 0) {
-				this.show();
-			}
-		}));
-
-		const onRequestUpdateEditor = Event.latch(this._xterm.raw.onScroll);
-		this._register(onRequestUpdateEditor(() => {
-			if (this._terminalService.activeInstance !== this._ctx.instance) {
-				return;
-			}
-			if (this._isTerminalAccessibleViewOpen()) {
-				this.show();
-			}
-		}));
+addon.activate(xterm.raw);
+this._xterm = xterm;
+this._register(this._xterm.raw.onWriteParsed(async () => {
+	if (this._terminalService.activeInstance !== this._ctx.instance) {
+		return;
 	}
-
-	private _updateCommandExecutedListener(): void {
-		if (!this._ctx.instance.capabilities.has(TerminalCapability.CommandDetection)) {
-			return;
-		}
-		if (!this._configurationService.getValue(TerminalAccessibilitySettingId.AccessibleViewFocusOnCommandExecution)) {
-			this._onDidRunCommand.clear();
-			return;
-		} else if (this._onDidRunCommand.value) {
-			return;
-		}
-
-		const capability = this._ctx.instance.capabilities.get(TerminalCapability.CommandDetection)!;
-		this._onDidRunCommand.value = capability.onCommandExecuted(() => {
-			if (this._ctx.instance.hasFocus) {
-				this.show();
-			}
-		});
+	if (this._isTerminalAccessibleViewOpen() && this._xterm!.raw.buffer.active.baseY === 0) {
+		this.show();
 	}
+}));
 
-	private _isTerminalAccessibleViewOpen(): boolean {
-		return accessibleViewCurrentProviderId.getValue(this._contextKeyService) === AccessibleViewProviderId.Terminal;
+const onRequestUpdateEditor = Event.latch(this._xterm.raw.onScroll);
+this._register(onRequestUpdateEditor(() => {
+	if (this._terminalService.activeInstance !== this._ctx.instance) {
+		return;
 	}
-
-	show(): void {
-		if (!this._xterm) {
-			return;
-		}
-		if (!this._bufferTracker) {
-			this._bufferTracker = this._register(this._instantiationService.createInstance(BufferContentTracker, this._xterm));
-		}
-		if (!this._bufferProvider) {
-			this._bufferProvider = this._register(this._instantiationService.createInstance(TerminalAccessibleBufferProvider, this._ctx.instance, this._bufferTracker, () => {
-				return this._register(this._instantiationService.createInstance(TerminalAccessibilityHelpProvider, this._ctx.instance, this._xterm!)).provideContent();
-			}));
-		}
-		const position = this._configurationService.getValue(TerminalAccessibilitySettingId.AccessibleViewPreserveCursorPosition) ? this._accessibleViewService.getPosition(AccessibleViewProviderId.Terminal) : undefined;
-		this._accessibleViewService.show(this._bufferProvider, position);
+	if (this._isTerminalAccessibleViewOpen()) {
+		this.show();
 	}
-	navigateToCommand(type: NavigationType): void {
-		const currentLine = this._accessibleViewService.getPosition(AccessibleViewProviderId.Terminal)?.lineNumber;
-		const commands = this._getCommandsWithEditorLine();
-		if (!commands?.length || !currentLine) {
-			return;
-		}
+}));
+    }
 
-		const filteredCommands = type === NavigationType.Previous ? commands.filter(c => c.lineNumber < currentLine).sort((a, b) => b.lineNumber - a.lineNumber) : commands.filter(c => c.lineNumber > currentLine).sort((a, b) => a.lineNumber - b.lineNumber);
-		if (!filteredCommands.length) {
-			return;
-		}
-		const command = filteredCommands[0];
-		const commandLine = command.command.command;
-		if (!isWindows && commandLine) {
-			this._accessibleViewService.setPosition(new Position(command.lineNumber, 1), true);
-			alert(commandLine);
-		} else {
-			this._accessibleViewService.setPosition(new Position(command.lineNumber, 1), true, true);
-		}
+    private _updateCommandExecutedListener(cognidreamognidream {
+	if(!this._ctx.instance.capabilities.has(TerminalCapability.CommandDetection)) {
+	return;
+}
+if (!this._configurationService.getValue(TerminalAccessibilitySettingId.AccessibleViewFocusOnCommandExecution)) {
+	this._onDidRunCommand.clear();
+	return;
+} else if (this._onDidRunCommand.value) {
+	return;
+}
 
-		if (command.exitCode) {
-			this._accessibilitySignalService.playSignal(AccessibilitySignal.terminalCommandFailed);
-		} else {
-			this._accessibilitySignalService.playSignal(AccessibilitySignal.terminalCommandSucceeded);
+const capability = this._ctx.instance.capabilities.get(TerminalCapability.CommandDetection)!;
+this._onDidRunCommand.value = capability.onCommandExecuted(() => {
+	if (this._ctx.instance.hasFocus) {
+		this.show();
+	}
+});
+    }
+
+    private _isTerminalAccessibleViewOpen(): boolean {
+	return accessibleViewCurrentProviderId.getValue(this._contextKeyService) === AccessibleViewProviderId.Terminal;
+}
+
+show(cognidreamognidream {
+	if(!this._xterm) {
+	return;
+}
+if (!this._bufferTracker) {
+	this._bufferTracker = this._register(this._instantiationService.createInstance(BufferContentTracker, this._xterm));
+}
+if (!this._bufferProvider) {
+	this._bufferProvider = this._register(this._instantiationService.createInstance(TerminalAccessibleBufferProvider, this._ctx.instance, this._bufferTracker, () => {
+		return this._register(this._instantiationService.createInstance(TerminalAccessibilityHelpProvider, this._ctx.instance, this._xterm!)).provideContent();
+	}));
+}
+const position = this._configurationService.getValue(TerminalAccessibilitySettingId.AccessibleViewPreserveCursorPosition) ? this._accessibleViewService.getPosition(AccessibleViewProviderId.Terminal) : undefined;
+this._accessibleViewService.show(this._bufferProvider, position);
+    }
+navigateToCommand(type: NavigationTypecognidreamognidream {
+	const currentLine = this._accessibleViewService.getPosition(AccessibleViewProviderId.Terminal)?.lineNumber;
+	const commands = this._getCommandsWithEditorLine();
+	if(!commands?.length || !currentLine) {
+	return;
+}
+
+const filteredCommands = type === NavigationType.Previous ? commands.filter(c => c.lineNumber < currentLine).sort((a, b) => b.lineNumber - a.lineNumber) : commands.filter(c => c.lineNumber > currentLine).sort((a, b) => a.lineNumber - b.lineNumber);
+if (!filteredCommands.length) {
+	return;
+}
+const command = filteredCommands[0];
+const commandLine = command.command.command;
+if (!isWindows && commandLine) {
+	this._accessibleViewService.setPosition(new Position(command.lineNumber, 1), true);
+	alert(commandLine);
+} else {
+	this._accessibleViewService.setPosition(new Position(command.lineNumber, 1), true, true);
+}
+
+if (command.exitCode) {
+	this._accessibilitySignalService.playSignal(AccessibilitySignal.terminalCommandFailed);
+} else {
+	this._accessibilitySignalService.playSignal(AccessibilitySignal.terminalCommandSucceeded);
+}
+    }
+
+    private _getCommandsWithEditorLine(): ICommandWithEditorLine[] | undefined {
+	const capability = this._ctx.instance.capabilities.get(TerminalCapability.CommandDetection);
+	const commands = capability?.commands;
+	const currentCommand = capability?.currentCommand;
+	if (!commands?.length) {
+		return;
+	}
+	const result: ICommandWithEditorLine[] = [];
+	for (const command of commands) {
+		const lineNumber = this._getEditorLineForCommand(command);
+		if (!lineNumber) {
+			continue;
+		}
+		result.push({ command, lineNumber, exitCode: command.exitCode });
+	}
+	if (currentCommand) {
+		const lineNumber = this._getEditorLineForCommand(currentCommand);
+		if (!!lineNumber) {
+			result.push({ command: currentCommand, lineNumber });
 		}
 	}
+	return result;
+}
 
-	private _getCommandsWithEditorLine(): ICommandWithEditorLine[] | undefined {
-		const capability = this._ctx.instance.capabilities.get(TerminalCapability.CommandDetection);
-		const commands = capability?.commands;
-		const currentCommand = capability?.currentCommand;
-		if (!commands?.length) {
-			return;
-		}
-		const result: ICommandWithEditorLine[] = [];
-		for (const command of commands) {
-			const lineNumber = this._getEditorLineForCommand(command);
-			if (!lineNumber) {
-				continue;
-			}
-			result.push({ command, lineNumber, exitCode: command.exitCode });
-		}
-		if (currentCommand) {
-			const lineNumber = this._getEditorLineForCommand(currentCommand);
-			if (!!lineNumber) {
-				result.push({ command: currentCommand, lineNumber });
-			}
-		}
-		return result;
+    private _getEditorLineForCommand(command: ITerminalCommand | ICurrentPartialCommand): number | undefined {
+	if (!this._bufferTracker) {
+		return;
 	}
-
-	private _getEditorLineForCommand(command: ITerminalCommand | ICurrentPartialCommand): number | undefined {
-		if (!this._bufferTracker) {
-			return;
-		}
-		let line: number | undefined;
-		if ('marker' in command) {
-			line = command.marker?.line;
-		} else if ('commandStartMarker' in command) {
-			line = command.commandStartMarker?.line;
-		}
-		if (line === undefined || line < 0) {
-			return;
-		}
-		line = this._bufferTracker.bufferToEditorLineMapping.get(line);
-		if (line === undefined) {
-			return;
-		}
-		return line + 1;
+	let line: number | undefined;
+	if ('marker' in command) {
+		line = command.marker?.line;
+	} else if ('commandStartMarker' in command) {
+		line = command.commandStartMarker?.line;
 	}
+	if (line === undefined || line < 0) {
+		return;
+	}
+	line = this._bufferTracker.bufferToEditorLineMapping.get(line);
+	if (line === undefined) {
+		return;
+	}
+	return line + 1;
+}
 
 }
 registerTerminalContribution(TerminalAccessibleViewContribution.ID, TerminalAccessibleViewContribution);
@@ -289,13 +289,13 @@ class FocusAccessibleBufferAction extends Action2 {
 			]
 		});
 	}
-	override async run(accessor: ServicesAccessor, ...args: any[]): Promise<void> {
+	override async run(accessor: ServicesAccessor, ...args: any[]): Promicognidreamognidream> {
 		const terminalService = accessor.get(ITerminalService);
 		const terminal = await terminalService.getActiveOrCreateInstance();
-		if (!terminal?.xterm) {
+		if(!terminal?.xterm) {
 			return;
 		}
-		TerminalAccessibleViewContribution.get(terminal)?.show();
+        TerminalAccessibleViewContribution.get(terminal)?.show();
 	}
 }
 registerAction2(FocusAccessibleBufferAction);

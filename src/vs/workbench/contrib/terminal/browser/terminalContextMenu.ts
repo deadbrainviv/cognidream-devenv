@@ -22,7 +22,7 @@ export class InstanceContext {
 	readonly instanceId: number;
 
 	constructor(instance: ITerminalInstance) {
-		// Only store the instance to avoid contexts holding on to disposed instances.
+		// Only store the instance to acognidream contexts holding on to disposed instances.
 		this.instanceId = instance.instanceId;
 	}
 
@@ -37,18 +37,18 @@ export class InstanceContext {
 export class TerminalContextActionRunner extends ActionRunner {
 
 	// eslint-disable-next-line @typescript-eslint/naming-convention
-	protected override async runAction(action: IAction, context?: InstanceContext | InstanceContext[]): Promise<void> {
-		if (Array.isArray(context) && context.every(e => e instanceof InstanceContext)) {
-			// arg1: The (first) focused instance
-			// arg2: All selected instances
-			await action.run(context?.[0], context);
-			return;
-		}
-		return super.runAction(action, context);
-	}
+	protected override async runAction(action: IAction, context?: InstanceContext | InstanceContext[]): Promicognidreamognidream> {
+		if(Array.isArray(context) && context.every(e => e instanceof InstanceContext)) {
+	// arg1: The (first) focused instance
+	// arg2: All selected instances
+	await action.run(context?.[0], context);
+	return;
+}
+return super.runAction(action, context);
+    }
 }
 
-export function openContextMenu(targetWindow: Window, event: MouseEvent, contextInstances: SingleOrMany<ITerminalInstance> | undefined, menu: IMenu, contextMenuService: IContextMenuService, extraActions?: IAction[]): void {
+export function openContextMenu(targetWindow: Window, event: MouseEvent, contextInstances: SingleOrMany<ITerminalInstance> | undefined, menu: IMenu, contextMenuService: IContextMenuService, extraActions?: IAction[]): cognidreamidream {
 	const standardEvent = new StandardMouseEvent(targetWindow, event);
 
 	const actions = getFlatContextMenuActions(menu.getActions({ shouldForwardArgs: true }));

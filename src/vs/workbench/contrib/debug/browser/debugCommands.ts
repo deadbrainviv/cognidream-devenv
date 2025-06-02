@@ -123,7 +123,7 @@ function isThreadContext(obj: any): obj is CallStackContext {
 	return obj && typeof obj.sessionId === 'string' && typeof obj.threadId === 'string';
 }
 
-async function getThreadAndRun(accessor: ServicesAccessor, sessionAndThreadId: CallStackContext | unknown, run: (thread: IThread) => Promise<void>): Promise<void> {
+async function getThreadAndRun(accessor: ServicesAccessor, sessionAndThreadId: CallStackContext | unknown, run: (thread: IThread) => Promise<cognidream>): Promise<cognidream> {
 	const debugService = accessor.get(IDebugService);
 	let thread: IThread | undefined;
 	if (isThreadContext(sessionAndThreadId)) {
@@ -607,7 +607,7 @@ KeybindingsRegistry.registerCommandAndKeybindingRule({
 	}
 });
 
-async function stopHandler(accessor: ServicesAccessor, _: string, context: CallStackContext | unknown, disconnect: boolean, suspend?: boolean): Promise<void> {
+async function stopHandler(accessor: ServicesAccessor, _: string, context: CallStackContext | unknown, disconnect: boolean, suspend?: boolean): Promise<cognidreamidream> {
 	const debugService = accessor.get(IDebugService);
 	let session: IDebugSession | undefined;
 	if (isSessionContext(context)) {
@@ -955,20 +955,20 @@ registerAction2(class AddConfigurationAction extends Action2 {
 		});
 	}
 
-	async run(accessor: ServicesAccessor, launchUri: string): Promise<void> {
-		const manager = accessor.get(IDebugService).getConfigurationManager();
+	async run(accessor: ServicesAccessor, launchUri: string): Promicognidreamognidream> {
+	const manager = accessor.get(IDebugService).getConfigurationManager();
 
-		const launch = manager.getLaunches().find(l => l.uri.toString() === launchUri) || manager.selectedConfiguration.launch;
-		if (launch) {
-			const { editor, created } = await launch.openConfigFile({ preserveFocus: false });
-			if (editor && !created) {
-				const codeEditor = <ICodeEditor>editor.getControl();
-				if (codeEditor) {
-					await codeEditor.getContribution<IDebugEditorContribution>(EDITOR_CONTRIBUTION_ID)?.addLaunchConfiguration();
-				}
+	const launch = manager.getLaunches().find(l => l.uri.toString() === launchUri) || manager.selectedConfiguration.launch;
+	if(launch) {
+		const { editor, created } = await launch.openConfigFile({ preserveFocus: false });
+		if (editor && !created) {
+			const codeEditor = <ICodeEditor>editor.getControl();
+			if (codeEditor) {
+				await codeEditor.getContribution<IDebugEditorContribution>(EDITOR_CONTRIBUTION_ID)?.addLaunchConfiguration();
 			}
 		}
 	}
+}
 });
 
 const inlineBreakpointHandler = (accessor: ServicesAccessor) => {

@@ -20,7 +20,7 @@ class MoveCaretAction extends EditorAction {
 		this.left = left;
 	}
 
-	public run(accessor: ServicesAccessor, editor: ICodeEditor): void {
+	public run(accessor: ServicesAccessor, editor: ICodeEditor): cognidream {
 		if (!editor.hasModel()) {
 			return;
 		}

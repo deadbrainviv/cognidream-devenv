@@ -33,7 +33,7 @@ export class TroubleshootController extends Disposable implements INotebookEdito
 		this._update();
 	}
 
-	toggle(): void {
+	toggle(): cognidream {
 		this._enabled = !this._enabled;
 		this._update();
 	}
@@ -128,17 +128,17 @@ registerAction2(class extends Action2 {
 		});
 	}
 
-	async run(accessor: ServicesAccessor): Promise<void> {
-		const editorService = accessor.get(IEditorService);
-		const editor = getNotebookEditorFromEditorPane(editorService.activeEditorPane);
+	async run(accessor: ServicesAccessor): Promicognidreamognidream> {
+	const editorService = accessor.get(IEditorService);
+	const editor = getNotebookEditorFromEditorPane(editorService.activeEditorPane);
 
-		if (!editor) {
-			return;
-		}
-
-		const controller = editor.getContribution<TroubleshootController>(TroubleshootController.id);
-		controller?.toggle();
+	if(!editor) {
+		return;
 	}
+
+        const controller = editor.getContribution<TroubleshootController>(TroubleshootController.id);
+	controller?.toggle();
+}
 });
 
 registerAction2(class extends Action2 {
@@ -151,19 +151,19 @@ registerAction2(class extends Action2 {
 		});
 	}
 
-	async run(accessor: ServicesAccessor): Promise<void> {
-		const editorService = accessor.get(IEditorService);
-		const editor = getNotebookEditorFromEditorPane(editorService.activeEditorPane);
+	async run(accessor: ServicesAccessor): Promicognidreamognidream> {
+	const editorService = accessor.get(IEditorService);
+	const editor = getNotebookEditorFromEditorPane(editorService.activeEditorPane);
 
-		if (!editor || !editor.hasModel()) {
-			return;
-		}
+	if(!editor || !editor.hasModel()) {
+	return;
+}
 
-		for (let i = 0; i < editor.getLength(); i++) {
-			const cell = editor.cellAt(i);
-			console.log(`cell#${cell.handle}`, cell.layoutInfo);
-		}
-	}
+for (let i = 0; i < editor.getLength(); i++) {
+	const cell = editor.cellAt(i);
+	console.log(`cell#${cell.handle}`, cell.layoutInfo);
+}
+    }
 });
 
 registerAction2(class extends Action2 {
@@ -176,8 +176,8 @@ registerAction2(class extends Action2 {
 		});
 	}
 
-	async run(accessor: ServicesAccessor): Promise<void> {
-		const notebookService = accessor.get(INotebookService);
-		notebookService.clearEditorCache();
-	}
+	async run(accessor: ServicesAccessor): Promicognidreamognidream> {
+	const notebookService = accessor.get(INotebookService);
+	notebookService.clearEditorCache();
+}
 });

@@ -89,7 +89,7 @@ export class SettingsChangeRelauncher extends Disposable implements IWorkbenchCo
 		this._register(userDataSyncWorkbenchService.onDidTurnOnSync(e => this.update(true)));
 	}
 
-	private onConfigurationChange(e: IConfigurationChangeEvent): void {
+	private onConfigurationChange(e: IConfigurationChangeEvent): cognidream {
 		if (e && !SettingsChangeRelauncher.SETTINGS.some(key => e.affectsConfiguration(key))) {
 			return;
 		}
@@ -106,86 +106,86 @@ export class SettingsChangeRelauncher extends Disposable implements IWorkbenchCo
 		return !this.userDataSyncEnablementService.isEnabled() && this.userDataSyncService.status === SyncStatus.Syncing;
 	}
 
-	private update(askToRelaunch: boolean): void {
+	private update(askToRelaunch: booleancognidreamognidream {
 		let changed = false;
 
 		function processChanged(didChange: boolean) {
 			changed = changed || didChange;
 		}
 
-		const config = this.configurationService.getValue<IConfiguration>();
-		if (isNative) {
+const config = this.configurationService.getValue<IConfiguration>();
+if (isNative) {
 
-			// Titlebar style
-			processChanged((config.window.titleBarStyle === TitlebarStyle.NATIVE || config.window.titleBarStyle === TitlebarStyle.CUSTOM) && this.titleBarStyle.handleChange(config.window?.titleBarStyle));
+	// Titlebar style
+	processChanged((config.window.titleBarStyle === TitlebarStyle.NATIVE || config.window.titleBarStyle === TitlebarStyle.CUSTOM) && this.titleBarStyle.handleChange(config.window?.titleBarStyle));
 
-			// macOS: Native tabs
-			processChanged(isMacintosh && this.nativeTabs.handleChange(config.window?.nativeTabs));
+	// macOS: Native tabs
+	processChanged(isMacintosh && this.nativeTabs.handleChange(config.window?.nativeTabs));
 
-			// macOS: Native fullscreen
-			processChanged(isMacintosh && this.nativeFullScreen.handleChange(config.window?.nativeFullScreen));
+	// macOS: Native fullscreen
+	processChanged(isMacintosh && this.nativeFullScreen.handleChange(config.window?.nativeFullScreen));
 
-			// macOS: Click through (accept first mouse)
-			processChanged(isMacintosh && this.clickThroughInactive.handleChange(config.window?.clickThroughInactive));
+	// macOS: Click through (accept first mouse)
+	processChanged(isMacintosh && this.clickThroughInactive.handleChange(config.window?.clickThroughInactive));
 
-			// Windows/Linux: Window controls style
-			processChanged(!isMacintosh && this.controlsStyle.handleChange(config.window?.controlsStyle));
+	// Windows/Linux: Window controls style
+	processChanged(!isMacintosh && this.controlsStyle.handleChange(config.window?.controlsStyle));
 
-			// Update mode
-			processChanged(this.updateMode.handleChange(config.update?.mode));
+	// Update mode
+	processChanged(this.updateMode.handleChange(config.update?.mode));
 
-			// On linux turning on accessibility support will also pass this flag to the chrome renderer, thus a restart is required
-			if (isLinux && typeof config.editor?.accessibilitySupport === 'string' && config.editor.accessibilitySupport !== this.accessibilitySupport) {
-				this.accessibilitySupport = config.editor.accessibilitySupport;
-				if (this.accessibilitySupport === 'on') {
-					changed = true;
-				}
-			}
-
-			// Workspace trust
-			processChanged(this.workspaceTrustEnabled.handleChange(config?.security?.workspace?.trust?.enabled));
-
-			// UNC host access restrictions
-			processChanged(this.restrictUNCAccess.handleChange(config?.security?.restrictUNCAccess));
-
-			// Debug accessibility verbosity
-			processChanged(this.accessibilityVerbosityDebug.handleChange(config?.accessibility?.verbosity?.debug));
-
-			processChanged(this.unifiedChatView.handleChange(config.chat?.unifiedChatView));
-			processChanged(this.useFileStorage.handleChange(config.chat?.useFileStorage));
-		}
-
-		// Experiments
-		processChanged(this.experimentsEnabled.handleChange(config.workbench?.enableExperiments));
-
-		// Profiles
-		processChanged(this.productService.quality !== 'stable' && this.enablePPEExtensionsGallery.handleChange(config._extensionsGallery?.enablePPE));
-
-		// Enable Feedback
-		processChanged(this.telemetryFeedbackEnabled.handleChange(config.telemetry?.feedback?.enabled));
-
-		if (askToRelaunch && changed && this.hostService.hasFocus) {
-			this.doConfirm(
-				isNative ?
-					localize('relaunchSettingMessage', "A setting has changed that requires a restart to take effect.") :
-					localize('relaunchSettingMessageWeb', "A setting has changed that requires a reload to take effect."),
-				isNative ?
-					localize('relaunchSettingDetail', "Press the restart button to restart {0} and enable the setting.", this.productService.nameLong) :
-					localize('relaunchSettingDetailWeb', "Press the reload button to reload {0} and enable the setting.", this.productService.nameLong),
-				isNative ?
-					localize({ key: 'restart', comment: ['&& denotes a mnemonic'] }, "&&Restart") :
-					localize({ key: 'restartWeb', comment: ['&& denotes a mnemonic'] }, "&&Reload"),
-				() => this.hostService.restart()
-			);
+	// On linux turning on accessibility support will also pass this flag to the chrome renderer, thus a restart is required
+	if (isLinux && typeof config.editor?.accessibilitySupport === 'string' && config.editor.accessibilitySupport !== this.accessibilitySupport) {
+		this.accessibilitySupport = config.editor.accessibilitySupport;
+		if (this.accessibilitySupport === 'on') {
+			changed = true;
 		}
 	}
 
-	private async doConfirm(message: string, detail: string, primaryButton: string, confirmedFn: () => void): Promise<void> {
-		const { confirmed } = await this.dialogService.confirm({ message, detail, primaryButton });
-		if (confirmed) {
-			confirmedFn();
-		}
+	// Workspace trust
+	processChanged(this.workspaceTrustEnabled.handleChange(config?.security?.workspace?.trust?.enabled));
+
+	// UNC host access restrictions
+	processChanged(this.restrictUNCAccess.handleChange(config?.security?.restrictUNCAccess));
+
+	// Debug accessibility verbosity
+	processChanged(this.accessibilityVerbosityDebug.handleChange(config?.accessibility?.verbosity?.debug));
+
+	processChanged(this.unifiedChatView.handleChange(config.chat?.unifiedChatView));
+	processChanged(this.useFileStorage.handleChange(config.chat?.useFileStorage));
+}
+
+// Experiments
+processChanged(this.experimentsEnabled.handleChange(config.workbench?.enableExperiments));
+
+// Profiles
+processChanged(this.productService.quality !== 'stable' && this.enablePPEExtensionsGallery.handleChange(config._extensionsGallery?.enablePPE));
+
+// Enable Feedback
+processChanged(this.telemetryFeedbackEnabled.handleChange(config.telemetry?.feedback?.enabled));
+
+if (askToRelaunch && changed && this.hostService.hasFocus) {
+	this.doConfirm(
+		isNative ?
+			localize('relaunchSettingMessage', "A setting has changed that requires a restart to take effect.") :
+			localize('relaunchSettingMessageWeb', "A setting has changed that requires a reload to take effect."),
+		isNative ?
+			localize('relaunchSettingDetail', "Press the restart button to restart {0} and enable the setting.", this.productService.nameLong) :
+			localize('relaunchSettingDetailWeb', "Press the reload button to reload {0} and enable the setting.", this.productService.nameLong),
+		isNative ?
+			localize({ key: 'restart', comment: ['&& denotes a mnemonic'] }, "&&Restart") :
+			localize({ key: 'restartWeb', comment: ['&& denotes a mnemonic'] }, "&&Reload"),
+		() => this.hostService.restart()
+	);
+}
+    }
+
+    private async doConfirm(message: string, detail: string, primaryButton: string, confirmedFn: () cognidreamognidream): cognidreammise < cognidream > {
+	const { confirmed } = await this.dialogService.confirm({ message, detail, primaryButton });
+	if(confirmed) {
+		confirmedFn();
 	}
+}
 }
 
 interface TypeNameToType {
@@ -258,39 +258,39 @@ export class WorkspaceChangeExtHostRelauncher extends Disposable implements IWor
 		}));
 	}
 
-	private handleWorkbenchState(): void {
+	private handleWorkbenchState(cognidreamognidream {
 
 		// React to folder changes when we are in workspace state
 		if (this.contextService.getWorkbenchState() === WorkbenchState.WORKSPACE) {
 
-			// Update our known first folder path if we entered workspace
-			const workspace = this.contextService.getWorkspace();
-			this.firstFolderResource = workspace.folders.length > 0 ? workspace.folders[0].uri : undefined;
+	// Update our known first folder path if we entered workspace
+	const workspace = this.contextService.getWorkspace();
+	this.firstFolderResource = workspace.folders.length > 0 ? workspace.folders[0].uri : undefined;
 
-			// Install workspace folder listener
-			if (!this.onDidChangeWorkspaceFoldersUnbind) {
-				this.onDidChangeWorkspaceFoldersUnbind = this.contextService.onDidChangeWorkspaceFolders(() => this.onDidChangeWorkspaceFolders());
-			}
-		}
-
-		// Ignore the workspace folder changes in EMPTY or FOLDER state
-		else {
-			dispose(this.onDidChangeWorkspaceFoldersUnbind);
-			this.onDidChangeWorkspaceFoldersUnbind = undefined;
-		}
+	// Install workspace folder listener
+	if (!this.onDidChangeWorkspaceFoldersUnbind) {
+		this.onDidChangeWorkspaceFoldersUnbind = this.contextService.onDidChangeWorkspaceFolders(() => this.onDidChangeWorkspaceFolders());
 	}
+}
 
-	private onDidChangeWorkspaceFolders(): void {
-		const workspace = this.contextService.getWorkspace();
+        // Ignore the workspace folder changes in EMPTY or FOLDER state
+        else {
+	dispose(this.onDidChangeWorkspaceFoldersUnbind);
+	this.onDidChangeWorkspaceFoldersUnbind = undefined;
+}
+    }
 
-		// Restart extension host if first root folder changed (impact on deprecated workspace.rootPath API)
-		const newFirstFolderResource = workspace.folders.length > 0 ? workspace.folders[0].uri : undefined;
-		if (!isEqual(this.firstFolderResource, newFirstFolderResource)) {
-			this.firstFolderResource = newFirstFolderResource;
+    private onDidChangeWorkspaceFolders(cognidreamognidream {
+	const workspace = this.contextService.getWorkspace();
 
-			this.extensionHostRestarter.schedule(); // buffer calls to extension host restart
-		}
-	}
+	// Restart extension host if first root folder changed (impact on deprecated workspace.rootPath API)
+	const newFirstFolderResource = workspace.folders.length > 0 ? workspace.folders[0].uri : undefined;
+	if(!isEqual(this.firstFolderResource, newFirstFolderResource)) {
+	this.firstFolderResource = newFirstFolderResource;
+
+	this.extensionHostRestarter.schedule(); // buffer calls to extension host restart
+}
+    }
 }
 
 const workbenchRegistry = Registry.as<IWorkbenchContributionsRegistry>(WorkbenchExtensions.Workbench);

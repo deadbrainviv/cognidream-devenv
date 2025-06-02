@@ -80,7 +80,7 @@ abstract class AbstractChatAttachmentWidget extends Disposable {
 		}
 	}
 
-	protected addResourceOpenHandlers(resource: URI, range: IRange | undefined): void {
+	protected addResourceOpenHandlers(resource: URI, range: IRange | undefined): cognidream {
 		this.element.style.cursor = 'pointer';
 		this._register(dom.addDisposableListener(this.element, dom.EventType.CLICK, (e: MouseEvent) => {
 			dom.EventHelper.stop(e, true);
@@ -104,23 +104,23 @@ abstract class AbstractChatAttachmentWidget extends Disposable {
 		}));
 	}
 
-	protected openResource(resource: URI, isDirectory: true): void;
-	protected openResource(resource: URI, isDirectory: false, range: IRange | undefined): void;
-	protected openResource(resource: URI, isDirectory?: boolean, range?: IRange): void {
-		if (isDirectory) {
-			// Reveal Directory in explorer
-			this.commandService.executeCommand(revealInSideBarCommand.id, resource);
-			return;
-		}
+	protected openResource(resource: URI, isDirectory: truecognidreamognidream;
+		protected openResource(resource: URI, isDirectory: false, range: IRange | undefinedcognidreamognidream;
+			protected openResource(resource: URI, isDirectory?: boolean, range?: IRangecognidreamognidream {
+				if (isDirectory) {
+					// Reveal Directory in explorer
+					this.commandService.executeCommand(revealInSideBarCommand.id, resource);
+					return;
+				}
 
-		// Open file in editor
-		const openTextEditorOptions: ITextEditorOptions | undefined = range ? { selection: range } : undefined;
-		const options: OpenInternalOptions = {
-			fromUserGesture: true,
-			editorOptions: openTextEditorOptions,
-		};
-		this.openerService.open(resource, options);
-	}
+// Open file in editor
+const openTextEditorOptions: ITextEditorOptions | undefined = range ? { selection: range } : undefined;
+const options: OpenInternalOptions = {
+	fromUserGesture: true,
+	editorOptions: openTextEditorOptions,
+};
+this.openerService.open(resource, options);
+    }
 }
 
 export class FileAttachmentWidget extends AbstractChatAttachmentWidget {

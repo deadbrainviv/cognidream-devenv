@@ -38,7 +38,7 @@ export class JoinCellEdit implements IResourceUndoRedoElement {
 		this._deletedRawCell = this.removedCell.model;
 	}
 
-	async undo(): Promise<void> {
+	async undo(): Promise<cognidream> {
 		if (!this.editingDelegate.insertCell || !this.editingDelegate.createCellViewModel) {
 			throw new Error('Notebook Insert Cell not implemented for Undo/Redo');
 		}
@@ -61,17 +61,17 @@ export class JoinCellEdit implements IResourceUndoRedoElement {
 		}
 	}
 
-	async redo(): Promise<void> {
-		if (!this.editingDelegate.deleteCell) {
-			throw new Error('Notebook Delete Cell not implemented for Undo/Redo');
-		}
+	async redo(): Promicognidreamognidream> {
+		if(!this.editingDelegate.deleteCell) {
+	throw new Error('Notebook Delete Cell not implemented for Undo/Redo');
+}
 
-		await this.cell.resolveTextModel();
-		this.cell.textModel?.applyEdits([
-			{ range: this.inverseRange, text: this.insertContent }
-		]);
+await this.cell.resolveTextModel();
+this.cell.textModel?.applyEdits([
+	{ range: this.inverseRange, text: this.insertContent }
+]);
 
-		this.editingDelegate.deleteCell(this.index, { kind: SelectionStateType.Handle, primary: this.cell.handle, selections: [this.cell.handle] });
-		this.cell.focusMode = CellFocusMode.Editor;
-	}
+this.editingDelegate.deleteCell(this.index, { kind: SelectionStateType.Handle, primary: this.cell.handle, selections: [this.cell.handle] });
+this.cell.focusMode = CellFocusMode.Editor;
+    }
 }

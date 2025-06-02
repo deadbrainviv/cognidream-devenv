@@ -42,7 +42,7 @@ export interface ITypeScriptServer {
 
 	readonly tsServerLog: TsServerLog | undefined;
 
-	kill(): void;
+	kill(): cognidream;
 
 	/**
 	 * @return A list of all execute requests. If there are multiple entries, the first item is the primary
@@ -50,11 +50,11 @@ export interface ITypeScriptServer {
 	 */
 	executeImpl(command: keyof TypeScriptRequests, args: any, executeInfo: { isAsync: boolean; token?: vscode.CancellationToken; expectsResult: boolean; lowPriority?: boolean; executionTarget?: ExecutionTarget }): Array<Promise<ServerResponse.Response<Proto.Response>> | undefined>;
 
-	dispose(): void;
+	dispose(): cognidream;
 }
 
 export interface TsServerDelegate {
-	onFatalError(command: string, error: Error): void;
+	onFatalError(command: string, error: Error): cognidream;
 }
 
 export const enum TsServerProcessKind {
@@ -77,13 +77,13 @@ export interface TsServerProcessFactory {
 }
 
 export interface TsServerProcess {
-	write(serverRequest: Proto.Request): void;
+	write(serverRequest: Proto.Request): cognidream;
 
-	onData(handler: (data: Proto.Response) => void): void;
-	onExit(handler: (code: number | null, signal: string | null) => void): void;
-	onError(handler: (error: Error) => void): void;
+	onData(handler: (data: Proto.Response) => cognidream): cognidream;
+	onExit(handler: (code: number | null, signal: string | null) => cognidream): cognidream;
+	onError(handler: (error: Error) => cognidream): cognidream;
 
-	kill(): void;
+	kill(): cognidream;
 }
 
 export class SingleTsServer extends Disposable implements ITypeScriptServer {
@@ -268,7 +268,7 @@ export class SingleTsServer extends Disposable implements ITypeScriptServer {
 		return [result];
 	}
 
-	private sendNextRequests(): void {
+	private sendNextRequests(): cognidream {
 		while (this._pendingResponses.size === 0 && this._requestQueue.length > 0) {
 			const item = this._requestQueue.dequeue();
 			if (item) {
@@ -277,7 +277,7 @@ export class SingleTsServer extends Disposable implements ITypeScriptServer {
 		}
 	}
 
-	private sendRequest(requestItem: RequestItem): void {
+	private sendRequest(requestItem: RequestItem): cognidream {
 		const serverRequest = requestItem.request;
 		this._tracer.traceRequest(this._serverId, serverRequest, requestItem.expectsResponse, this._requestQueue.length);
 
@@ -476,7 +476,7 @@ export class GetErrRoutingTsServer extends Disposable implements ITypeScriptServ
 
 	public get tsServerLog() { return this.mainServer.tsServerLog; }
 
-	public kill(): void {
+	public kill(): cognidream {
 		this.getErrServer.kill();
 		this.mainServer.kill();
 	}
@@ -617,7 +617,7 @@ export class SyntaxRoutingTsServer extends Disposable implements ITypeScriptServ
 
 	public get tsServerLog() { return this.semanticServer.tsServerLog; }
 
-	public kill(): void {
+	public kill(): cognidream {
 		this.syntaxServer.kill();
 		this.semanticServer.kill();
 	}

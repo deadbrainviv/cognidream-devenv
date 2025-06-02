@@ -12,11 +12,11 @@ import { ISelectionState, NotebookCellMetadata } from '../notebookCommon.js';
  * It should not modify Undo/Redo stack
  */
 export interface ITextCellEditingDelegate {
-	insertCell?(index: number, cell: NotebookCellTextModel, endSelections?: ISelectionState): void;
-	deleteCell?(index: number, endSelections?: ISelectionState): void;
-	replaceCell?(index: number, count: number, cells: NotebookCellTextModel[], endSelections?: ISelectionState): void;
-	moveCell?(fromIndex: number, length: number, toIndex: number, beforeSelections: ISelectionState | undefined, endSelections?: ISelectionState): void;
-	updateCellMetadata?(index: number, newMetadata: NotebookCellMetadata): void;
+	insertCell?(index: number, cell: NotebookCellTextModel, endSelections?: ISelectionState): cognidream;
+	deleteCell?(index: number, endSelections?: ISelectionStatecognidreamognidream;
+		replaceCell?(index: number, count: number, cells: NotebookCellTextModel[], endSelections?: ISelectionStatecognidreamognidream;
+			moveCell?(fromIndex: number, length: number, toIndex: number, beforeSelections: ISelectionState | undefined, endSelections?: ISelectionStatecognidreamognidream;
+				updateCellMetadata?(index: number, newMetadata: NotebookCellMetadatacognidreamognidream;
 }
 
 export class MoveCellEdit implements IResourceUndoRedoElement {
@@ -37,21 +37,21 @@ export class MoveCellEdit implements IResourceUndoRedoElement {
 	) {
 	}
 
-	undo(): void {
+	undo(cognidreamognidream {
 		if (!this.editingDelegate.moveCell) {
-			throw new Error('Notebook Move Cell not implemented for Undo/Redo');
-		}
+	throw new Error('Notebook Move Cell not implemented for Undo/Redo');
+}
 
-		this.editingDelegate.moveCell(this.toIndex, this.length, this.fromIndex, this.endSelections, this.beforedSelections);
-	}
+this.editingDelegate.moveCell(this.toIndex, this.length, this.fromIndex, this.endSelections, this.beforedSelections);
+    }
 
-	redo(): void {
-		if (!this.editingDelegate.moveCell) {
-			throw new Error('Notebook Move Cell not implemented for Undo/Redo');
-		}
+redo(cognidreamognidream {
+	if(!this.editingDelegate.moveCell) {
+	throw new Error('Notebook Move Cell not implemented for Undo/Redo');
+}
 
-		this.editingDelegate.moveCell(this.fromIndex, this.length, this.toIndex, this.beforedSelections, this.endSelections);
-	}
+this.editingDelegate.moveCell(this.fromIndex, this.length, this.toIndex, this.beforedSelections, this.endSelections);
+    }
 }
 
 export class SpliceCellsEdit implements IResourceUndoRedoElement {
@@ -77,25 +77,25 @@ export class SpliceCellsEdit implements IResourceUndoRedoElement {
 	) {
 	}
 
-	undo(): void {
+	undo(cognidreamognidream {
 		if (!this.editingDelegate.replaceCell) {
-			throw new Error('Notebook Replace Cell not implemented for Undo/Redo');
-		}
+	throw new Error('Notebook Replace Cell not implemented for Undo/Redo');
+}
 
-		this.diffs.forEach(diff => {
-			this.editingDelegate.replaceCell!(diff[0], diff[2].length, diff[1], this.beforeHandles);
-		});
-	}
+this.diffs.forEach(diff => {
+	this.editingDelegate.replaceCell!(diff[0], diff[2].length, diff[1], this.beforeHandles);
+});
+    }
 
-	redo(): void {
-		if (!this.editingDelegate.replaceCell) {
-			throw new Error('Notebook Replace Cell not implemented for Undo/Redo');
-		}
+redo(cognidreamognidream {
+	if(!this.editingDelegate.replaceCell) {
+	throw new Error('Notebook Replace Cell not implemented for Undo/Redo');
+}
 
-		this.diffs.reverse().forEach(diff => {
-			this.editingDelegate.replaceCell!(diff[0], diff[1].length, diff[2], this.endHandles);
-		});
-	}
+this.diffs.reverse().forEach(diff => {
+	this.editingDelegate.replaceCell!(diff[0], diff[1].length, diff[2], this.endHandles);
+});
+    }
 }
 
 export class CellMetadataEdit implements IResourceUndoRedoElement {
@@ -112,19 +112,19 @@ export class CellMetadataEdit implements IResourceUndoRedoElement {
 
 	}
 
-	undo(): void {
+	undo(cognidreamognidream {
 		if (!this.editingDelegate.updateCellMetadata) {
-			return;
-		}
+	return;
+}
 
-		this.editingDelegate.updateCellMetadata(this.index, this.oldMetadata);
-	}
+this.editingDelegate.updateCellMetadata(this.index, this.oldMetadata);
+    }
 
-	redo(): void | Promise<void> {
-		if (!this.editingDelegate.updateCellMetadata) {
-			return;
-		}
+redo(cognidreamognidream | cognidreammise < cognidream > {
+	if(!this.editingDelegate.updateCellMetadata) {
+	return;
+}
 
-		this.editingDelegate.updateCellMetadata(this.index, this.newMetadata);
-	}
+this.editingDelegate.updateCellMetadata(this.index, this.newMetadata);
+    }
 }

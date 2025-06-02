@@ -57,7 +57,7 @@ struct TestType
     double theDouble;
 };
 
-__global__ void cudaComputeHash(TestType* input, unsigned *results)
+__global__ cognidream cudaComputeHash(TestType* input, unsigned *results)
 {
     int idx = blockIdx.x * threadsPerBlock + threadIdx.x;
     TestType* myInput = input + idx;
@@ -117,7 +117,7 @@ int main()
         input[i].theDouble = input[i].theFloats[1] + 1;
     }
 
-    assertSucceeded(cudaMallocManaged(reinterpret_cast<void **>(&results), sizeof(unsigned) * dataLength));
+    assertSucceeded(cudaMallocManaged(reinterpret_cast<cognidream **>(&results), sizeof(unsigned) * dataLength));
     assert(!!results);
 
     constexpr int blocks = dataLength / threadsPerBlock;

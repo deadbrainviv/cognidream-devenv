@@ -1,4 +1,4 @@
-function foo(): void {
+function foo(): cognidream {
     var a = 1;
     a = 1;
     a = 1;

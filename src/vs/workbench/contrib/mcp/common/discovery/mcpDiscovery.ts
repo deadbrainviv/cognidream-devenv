@@ -8,19 +8,19 @@ import { SyncDescriptor0 } from '../../../../../platform/instantiation/common/de
 
 
 export interface IMcpDiscovery extends IDisposable {
-	start(): void;
+	start(): cognidream;
 }
 
 class McpDiscoveryRegistry {
 	private readonly _discovery: SyncDescriptor0<IMcpDiscovery>[] = [];
 
-	register(discovery: SyncDescriptor0<IMcpDiscovery>): void {
+	register(discovery: SyncDescriptor0<IMcpDiscovery>cognidreamognidream {
 		this._discovery.push(discovery);
-	}
+    }
 
-	getAll(): readonly SyncDescriptor0<IMcpDiscovery>[] {
-		return this._discovery;
-	}
+getAll(): readonly SyncDescriptor0 < IMcpDiscovery > [] {
+	return this._discovery;
+}
 }
 
 export const mcpDiscoveryRegistry = new McpDiscoveryRegistry();

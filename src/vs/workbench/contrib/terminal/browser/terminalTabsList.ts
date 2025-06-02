@@ -135,7 +135,7 @@ export class TerminalTabList extends WorkbenchList<ITerminalInstance> {
 			this._storageService.onDidChangeValue(StorageScope.APPLICATION, TerminalStorageKeys.TabsShowDetailed, this.disposables)(() => this.refresh()),
 		];
 
-		// Dispose of instance listeners on shutdown to avoid extra work and so tabs don't disappear
+		// Dispose of instance listeners on shutdown to acognidream extra work and so tabs don't disappear
 		// briefly
 		this.disposables.add(lifecycleService.onWillShutdown(e => {
 			dispose(instanceDisposables);
@@ -219,327 +219,327 @@ export class TerminalTabList extends WorkbenchList<ITerminalInstance> {
 		return this._configurationService.getValue<'singleClick' | 'doubleClick'>(TerminalSettingId.TabsFocusMode);
 	}
 
-	refresh(cancelEditing: boolean = true): void {
+	refresh(cancelEditing: boolean = truecognidreamognidream {
 		if (cancelEditing && this._terminalService.isEditable(undefined)) {
-			this.domFocus();
-		}
-
-		this.splice(0, this.length, this._terminalGroupService.instances.slice());
-	}
-
-	focusHover(): void {
-		const instance = this.getSelectedElements()[0];
-		if (!instance) {
-			return;
-		}
-
-		this._hoverService.showInstantHover({
-			...getInstanceHoverInfo(instance, this._storageService),
-			target: this.getHTMLElement(),
-			trapFocus: true
-		}, true);
-	}
-
-	private _updateContextKey() {
-		this._terminalTabsSingleSelectedContextKey.set(this.getSelectedElements().length === 1);
-		const instance = this.getFocusedElements();
-		this._isSplitContextKey.set(instance.length > 0 && this._terminalGroupService.instanceIsSplit(instance[0]));
-	}
+	this.domFocus();
 }
 
-class TerminalTabsRenderer extends Disposable implements IListRenderer<ITerminalInstance, ITerminalTabEntryTemplate> {
-	templateId = 'terminal.tabs';
+this.splice(0, this.length, this._terminalGroupService.instances.slice());
+    }
 
-	constructor(
-		private readonly _container: HTMLElement,
-		private readonly _labels: ResourceLabels,
-		private readonly _getSelection: () => ITerminalInstance[],
-		@IInstantiationService private readonly _instantiationService: IInstantiationService,
-		@ITerminalConfigurationService private readonly _terminalConfigurationService: ITerminalConfigurationService,
-		@ITerminalService private readonly _terminalService: ITerminalService,
-		@ITerminalGroupService private readonly _terminalGroupService: ITerminalGroupService,
-		@IHoverService private readonly _hoverService: IHoverService,
-		@IKeybindingService private readonly _keybindingService: IKeybindingService,
-		@IListService private readonly _listService: IListService,
-		@IStorageService private readonly _storageService: IStorageService,
-		@IThemeService private readonly _themeService: IThemeService,
-		@IContextViewService private readonly _contextViewService: IContextViewService,
-		@ICommandService private readonly _commandService: ICommandService,
-	) {
-		super();
+focusHover(cognidreamognidream {
+	const instance = this.getSelectedElements()[0];
+	if(!instance) {
+		return;
 	}
 
-	renderTemplate(container: HTMLElement): ITerminalTabEntryTemplate {
-		const element = DOM.append(container, $('.terminal-tabs-entry'));
-		const context: { hoverActions?: IHoverAction[] } = {};
-		const label = this._labels.create(element, {
-			supportHighlights: true,
-			supportDescriptionHighlights: true,
-			supportIcons: true,
-			hoverDelegate: {
-				delay: 0,
-				showHover: options => {
-					return this._hoverService.showDelayedHover({
-						...options,
-						actions: context.hoverActions,
-						target: element,
-						appearance: {
-							showPointer: true
-						},
-						position: {
-							hoverPosition: this._terminalConfigurationService.config.tabs.location === 'left' ? HoverPosition.RIGHT : HoverPosition.LEFT
-						}
-					}, { groupId: 'terminal-tabs-list' });
+        this._hoverService.showInstantHover({
+		...getInstanceHoverInfo(instance, this._storageService),
+		target: this.getHTMLElement(),
+		trapFocus: true
+	}, true);
+}
+
+    private _updateContextKey() {
+	this._terminalTabsSingleSelectedContextKey.set(this.getSelectedElements().length === 1);
+	const instance = this.getFocusedElements();
+	this._isSplitContextKey.set(instance.length > 0 && this._terminalGroupService.instanceIsSplit(instance[0]));
+}
+}
+
+	class TerminalTabsRenderer extends Disposable implements IListRenderer<ITerminalInstance, ITerminalTabEntryTemplate> {
+		templateId = 'terminal.tabs';
+
+		constructor(
+			private readonly _container: HTMLElement,
+			private readonly _labels: ResourceLabels,
+			private readonly _getSelection: () => ITerminalInstance[],
+			@IInstantiationService private readonly _instantiationService: IInstantiationService,
+			@ITerminalConfigurationService private readonly _terminalConfigurationService: ITerminalConfigurationService,
+			@ITerminalService private readonly _terminalService: ITerminalService,
+			@ITerminalGroupService private readonly _terminalGroupService: ITerminalGroupService,
+			@IHoverService private readonly _hoverService: IHoverService,
+			@IKeybindingService private readonly _keybindingService: IKeybindingService,
+			@IListService private readonly _listService: IListService,
+			@IStorageService private readonly _storageService: IStorageService,
+			@IThemeService private readonly _themeService: IThemeService,
+			@IContextViewService private readonly _contextViewService: IContextViewService,
+			@ICommandService private readonly _commandService: ICommandService,
+		) {
+			super();
+		}
+
+		renderTemplate(container: HTMLElement): ITerminalTabEntryTemplate {
+			const element = DOM.append(container, $('.terminal-tabs-entry'));
+			const context: { hoverActions?: IHoverAction[] } = {};
+			const label = this._labels.create(element, {
+				supportHighlights: true,
+				supportDescriptionHighlights: true,
+				supportIcons: true,
+				hoverDelegate: {
+					delay: 0,
+					showHover: options => {
+						return this._hoverService.showDelayedHover({
+							...options,
+							actions: context.hoverActions,
+							target: element,
+							appearance: {
+								showPointer: true
+							},
+							position: {
+								hoverPosition: this._terminalConfigurationService.config.tabs.location === 'left' ? HoverPosition.RIGHT : HoverPosition.LEFT
+							}
+						}, { groupId: 'terminal-tabs-list' });
+					}
 				}
-			}
-		});
+			});
 
-		const actionsContainer = DOM.append(label.element, $('.actions'));
+			const actionsContainer = DOM.append(label.element, $('.actions'));
 
-		const actionBar = this._register(new ActionBar(actionsContainer, {
-			actionRunner: this._register(new TerminalContextActionRunner()),
-			actionViewItemProvider: (action, options) =>
-				action instanceof MenuItemAction
-					? this._register(this._instantiationService.createInstance(MenuEntryActionViewItem, action, { hoverDelegate: options.hoverDelegate }))
-					: undefined
-		}));
+			const actionBar = this._register(new ActionBar(actionsContainer, {
+				actionRunner: this._register(new TerminalContextActionRunner()),
+				actionViewItemProvider: (action, options) =>
+					action instanceof MenuItemAction
+						? this._register(this._instantiationService.createInstance(MenuEntryActionViewItem, action, { hoverDelegate: options.hoverDelegate }))
+						: undefined
+			}));
 
-		return {
-			element,
-			label,
-			actionBar,
-			context,
-			elementDisposables: new DisposableStore(),
-		};
-	}
+			return {
+				element,
+				label,
+				actionBar,
+				context,
+				elementDisposables: new DisposableStore(),
+			};
+		}
 
-	shouldHideText(): boolean {
-		return this._container ? this._container.clientWidth < TerminalTabsListSizes.MidpointViewWidth : false;
-	}
+		shouldHideText(): boolean {
+			return this._container ? this._container.clientWidth < TerminalTabsListSizes.MidpointViewWidth : false;
+		}
 
-	shouldHideActionBar(): boolean {
-		return this._container ? this._container.clientWidth <= TerminalTabsListSizes.ActionbarMinimumWidth : false;
-	}
+		shouldHideActionBar(): boolean {
+			return this._container ? this._container.clientWidth <= TerminalTabsListSizes.ActionbarMinimumWidth : false;
+		}
 
-	renderElement(instance: ITerminalInstance, index: number, template: ITerminalTabEntryTemplate): void {
-		const hasText = !this.shouldHideText();
+		renderElement(instance: ITerminalInstance, index: number, template: ITerminalTabEntryTemplatecognidreamognidream {
+			const hasText = !this.shouldHideText();
 
 		const group = this._terminalGroupService.getGroupForInstance(instance);
-		if (!group) {
+		if(!group) {
 			throw new Error(`Could not find group for instance "${instance.instanceId}"`);
 		}
 
-		template.element.classList.toggle('has-text', hasText);
-		template.element.classList.toggle('is-active', this._terminalGroupService.activeInstance === instance);
+        template.element.classList.toggle('has-text', hasText);
+        template.element.classList.toggle('is-active', this._terminalGroupService.activeInstance === instance);
 
-		let prefix: string = '';
-		if (group.terminalInstances.length > 1) {
-			const terminalIndex = group.terminalInstances.indexOf(instance);
-			if (terminalIndex === 0) {
-				prefix = `┌ `;
-			} else if (terminalIndex === group.terminalInstances.length - 1) {
-				prefix = `└ `;
-			} else {
-				prefix = `├ `;
-			}
-		}
-
-		const hoverInfo = getInstanceHoverInfo(instance, this._storageService);
-		template.context.hoverActions = hoverInfo.actions;
-
-		const iconId = this._instantiationService.invokeFunction(getIconId, instance);
-		const hasActionbar = !this.shouldHideActionBar();
-		let label: string = '';
-		if (!hasText) {
-			const primaryStatus = instance.statusList.primary;
-			// Don't show ignore severity
-			if (primaryStatus && primaryStatus.severity > Severity.Ignore) {
-				label = `${prefix}$(${primaryStatus.icon?.id || iconId})`;
-			} else {
-				label = `${prefix}$(${iconId})`;
-			}
-		} else {
-			this.fillActionBar(instance, template);
-			label = prefix;
-			// Only add the title if the icon is set, this prevents the title jumping around for
-			// example when launching with a ShellLaunchConfig.name and no icon
-			if (instance.icon) {
-				label += `$(${iconId}) ${instance.title}`;
-			}
-		}
-
-		if (!hasActionbar) {
-			template.actionBar.clear();
-		}
-
-		// Kill terminal on middle click
-		template.elementDisposables.add(DOM.addDisposableListener(template.element, DOM.EventType.AUXCLICK, e => {
-			e.stopImmediatePropagation();
-			if (e.button === 1/*middle*/) {
-				this._terminalService.safeDisposeTerminal(instance);
-			}
-		}));
-
-		const extraClasses: string[] = [];
-		const colorClass = getColorClass(instance);
-		if (colorClass) {
-			extraClasses.push(colorClass);
-		}
-		const uriClasses = getUriClasses(instance, this._themeService.getColorTheme().type);
-		if (uriClasses) {
-			extraClasses.push(...uriClasses);
-		}
-
-		template.label.setResource({
-			resource: instance.resource,
-			name: label,
-			description: hasText ? instance.description : undefined
-		}, {
-			fileDecorations: {
-				colors: true,
-				badges: hasText
-			},
-			title: {
-				markdown: hoverInfo.content,
-				markdownNotSupportedFallback: undefined
-			},
-			extraClasses
-		});
-		const editableData = this._terminalService.getEditableData(instance);
-		template.label.element.classList.toggle('editable-tab', !!editableData);
-		if (editableData) {
-			template.elementDisposables.add(this._renderInputBox(template.label.element.querySelector('.monaco-icon-label-container')!, instance, editableData));
-			template.actionBar.clear();
-		}
+let prefix: string = '';
+if (group.terminalInstances.length > 1) {
+	const terminalIndex = group.terminalInstances.indexOf(instance);
+	if (terminalIndex === 0) {
+		prefix = `┌ `;
+	} else if (terminalIndex === group.terminalInstances.length - 1) {
+		prefix = `└ `;
+	} else {
+		prefix = `├ `;
 	}
+}
 
-	private _renderInputBox(container: HTMLElement, instance: ITerminalInstance, editableData: IEditableData): IDisposable {
+const hoverInfo = getInstanceHoverInfo(instance, this._storageService);
+template.context.hoverActions = hoverInfo.actions;
 
-		const value = instance.title || '';
+const iconId = this._instantiationService.invokeFunction(getIconId, instance);
+const hasActionbar = !this.shouldHideActionBar();
+let label: string = '';
+if (!hasText) {
+	const primaryStatus = instance.statusList.primary;
+	// Don't show ignore severity
+	if (primaryStatus && primaryStatus.severity > Severity.Ignore) {
+		label = `${prefix}$(${primaryStatus.icon?.id || iconId})`;
+	} else {
+		label = `${prefix}$(${iconId})`;
+	}
+} else {
+	this.fillActionBar(instance, template);
+	label = prefix;
+	// Only add the title if the icon is set, this prevents the title jumping around for
+	// example when launching with a ShellLaunchConfig.name and no icon
+	if (instance.icon) {
+		label += `$(${iconId}) ${instance.title}`;
+	}
+}
 
-		const inputBox = new InputBox(container, this._contextViewService, {
-			validationOptions: {
-				validation: (value) => {
-					const message = editableData.validationMessage(value);
-					if (!message || message.severity !== Severity.Error) {
-						return null;
-					}
+if (!hasActionbar) {
+	template.actionBar.clear();
+}
 
-					return {
-						content: message.content,
-						formatContent: true,
-						type: MessageType.ERROR
-					};
+// Kill terminal on middle click
+template.elementDisposables.add(DOM.addDisposableListener(template.element, DOM.EventType.AUXCLICK, e => {
+	e.stopImmediatePropagation();
+	if (e.button === 1/*middle*/) {
+		this._terminalService.safeDisposeTerminal(instance);
+	}
+}));
+
+const extraClasses: string[] = [];
+const colorClass = getColorClass(instance);
+if (colorClass) {
+	extraClasses.push(colorClass);
+}
+const uriClasses = getUriClasses(instance, this._themeService.getColorTheme().type);
+if (uriClasses) {
+	extraClasses.push(...uriClasses);
+}
+
+template.label.setResource({
+	resource: instance.resource,
+	name: label,
+	description: hasText ? instance.description : undefined
+}, {
+	fileDecorations: {
+		colors: true,
+		badges: hasText
+	},
+	title: {
+		markdown: hoverInfo.content,
+		markdownNotSupportedFallback: undefined
+	},
+	extraClasses
+});
+const editableData = this._terminalService.getEditableData(instance);
+template.label.element.classList.toggle('editable-tab', !!editableData);
+if (editableData) {
+	template.elementDisposables.add(this._renderInputBox(template.label.element.querySelector('.monaco-icon-label-container')!, instance, editableData));
+	template.actionBar.clear();
+}
+    }
+
+    private _renderInputBox(container: HTMLElement, instance: ITerminalInstance, editableData: IEditableData): IDisposable {
+
+	const value = instance.title || '';
+
+	const inputBox = new InputBox(container, this._contextViewService, {
+		validationOptions: {
+			validation: (value) => {
+				const message = editableData.validationMessage(value);
+				if (!message || message.severity !== Severity.Error) {
+					return null;
 				}
-			},
-			ariaLabel: localize('terminalInputAriaLabel', "Type terminal name. Press Enter to confirm or Escape to cancel."),
-			inputBoxStyles: defaultInputBoxStyles
-		});
-		inputBox.element.style.height = '22px';
-		inputBox.value = value;
-		inputBox.focus();
-		inputBox.select({ start: 0, end: value.length });
 
-		const done = createSingleCallFunction((success: boolean, finishEditing: boolean) => {
-			inputBox.element.style.display = 'none';
-			const value = inputBox.value;
-			dispose(toDispose);
-			inputBox.element.remove();
-			if (finishEditing) {
-				editableData.onFinish(value, success);
+				return {
+					content: message.content,
+					formatContent: true,
+					type: MessageType.ERROR
+				};
 			}
-		});
+		},
+		ariaLabel: localize('terminalInputAriaLabel', "Type terminal name. Press Enter to confirm or Escape to cancel."),
+		inputBoxStyles: defaultInputBoxStyles
+	});
+	inputBox.element.style.height = '22px';
+	inputBox.value = value;
+	inputBox.focus();
+	inputBox.select({ start: 0, end: value.length });
 
-		const showInputBoxNotification = () => {
-			if (inputBox.isInputValid()) {
-				const message = editableData.validationMessage(inputBox.value);
-				if (message) {
-					inputBox.showMessage({
-						content: message.content,
-						formatContent: true,
-						type: message.severity === Severity.Info ? MessageType.INFO : message.severity === Severity.Warning ? MessageType.WARNING : MessageType.ERROR
-					});
-				} else {
-					inputBox.hideMessage();
-				}
-			}
-		};
-		showInputBoxNotification();
+	const done = createSingleCallFunction((success: boolean, finishEditing: boolean) => {
+		inputBox.element.style.display = 'none';
+		const value = inputBox.value;
+		dispose(toDispose);
+		inputBox.element.remove();
+		if (finishEditing) {
+			editableData.onFinish(value, success);
+		}
+	});
 
-		const toDispose = [
-			inputBox,
-			DOM.addStandardDisposableListener(inputBox.inputElement, DOM.EventType.KEY_DOWN, (e: IKeyboardEvent) => {
-				e.stopPropagation();
-				if (e.equals(KeyCode.Enter)) {
-					done(inputBox.isInputValid(), true);
-				} else if (e.equals(KeyCode.Escape)) {
-					done(false, true);
-				}
-			}),
-			DOM.addStandardDisposableListener(inputBox.inputElement, DOM.EventType.KEY_UP, (e: IKeyboardEvent) => {
-				showInputBoxNotification();
-			}),
-			DOM.addDisposableListener(inputBox.inputElement, DOM.EventType.BLUR, () => {
-				done(inputBox.isInputValid(), true);
-			})
-		];
-
-		return toDisposable(() => {
-			done(false, false);
-		});
-	}
-
-	disposeElement(instance: ITerminalInstance, index: number, templateData: ITerminalTabEntryTemplate): void {
-		templateData.elementDisposables.clear();
-		templateData.actionBar.clear();
-	}
-
-	disposeTemplate(templateData: ITerminalTabEntryTemplate): void {
-		templateData.elementDisposables.dispose();
-		templateData.label.dispose();
-		templateData.actionBar.dispose();
-	}
-
-	fillActionBar(instance: ITerminalInstance, template: ITerminalTabEntryTemplate): void {
-		// If the instance is within the selection, split all selected
-		const actions = [
-			this._register(new Action(TerminalCommandId.SplitActiveTab, terminalStrings.split.short, ThemeIcon.asClassName(Codicon.splitHorizontal), true, async () => {
-				this._runForSelectionOrInstance(instance, async e => {
-					this._terminalService.createTerminal({ location: { parentTerminal: e } });
+	const showInputBoxNotification = () => {
+		if (inputBox.isInputValid()) {
+			const message = editableData.validationMessage(inputBox.value);
+			if (message) {
+				inputBox.showMessage({
+					content: message.content,
+					formatContent: true,
+					type: message.severity === Severity.Info ? MessageType.INFO : message.severity === Severity.Warning ? MessageType.WARNING : MessageType.ERROR
 				});
-			})),
-		];
-		if (instance.shellLaunchConfig.tabActions) {
-			for (const action of instance.shellLaunchConfig.tabActions) {
-				actions.push(this._register(new Action(action.id, action.label, action.icon ? ThemeIcon.asClassName(action.icon) : undefined, true, async () => {
-					this._runForSelectionOrInstance(instance, e => this._commandService.executeCommand(action.id, instance));
-				})));
+			} else {
+				inputBox.hideMessage();
 			}
 		}
-		actions.push(this._register(new Action(TerminalCommandId.KillActiveTab, terminalStrings.kill.short, ThemeIcon.asClassName(Codicon.trashcan), true, async () => {
-			this._runForSelectionOrInstance(instance, e => this._terminalService.safeDisposeTerminal(e));
-		})));
-		// TODO: Cache these in a way that will use the correct instance
-		template.actionBar.clear();
-		for (const action of actions) {
-			template.actionBar.push(action, { icon: true, label: false, keybinding: this._keybindingService.lookupKeybinding(action.id)?.getLabel() });
-		}
-	}
+	};
+	showInputBoxNotification();
 
-	private _runForSelectionOrInstance(instance: ITerminalInstance, callback: (instance: ITerminalInstance) => void) {
-		const selection = this._getSelection();
-		if (selection.includes(instance)) {
-			for (const s of selection) {
-				if (s) {
-					callback(s);
-				}
+	const toDispose = [
+		inputBox,
+		DOM.addStandardDisposableListener(inputBox.inputElement, DOM.EventType.KEY_DOWN, (e: IKeyboardEvent) => {
+			e.stopPropagation();
+			if (e.equals(KeyCode.Enter)) {
+				done(inputBox.isInputValid(), true);
+			} else if (e.equals(KeyCode.Escape)) {
+				done(false, true);
 			}
-		} else {
-			callback(instance);
+		}),
+		DOM.addStandardDisposableListener(inputBox.inputElement, DOM.EventType.KEY_UP, (e: IKeyboardEvent) => {
+			showInputBoxNotification();
+		}),
+		DOM.addDisposableListener(inputBox.inputElement, DOM.EventType.BLUR, () => {
+			done(inputBox.isInputValid(), true);
+		})
+	];
+
+	return toDisposable(() => {
+		done(false, false);
+	});
+}
+
+disposeElement(instance: ITerminalInstance, index: number, templateData: ITerminalTabEntryTemplatecognidreamognidream {
+	templateData.elementDisposables.clear();
+	templateData.actionBar.clear();
+}
+
+    disposeTemplate(templateData: ITerminalTabEntryTemplatecognidreamognidream {
+	templateData.elementDisposables.dispose();
+	templateData.label.dispose();
+	templateData.actionBar.dispose();
+}
+
+    fillActionBar(instance: ITerminalInstance, template: ITerminalTabEntryTemplatecognidreamognidream {
+	// If the instance is within the selection, split all selected
+	const actions = [
+		this._register(new Action(TerminalCommandId.SplitActiveTab, terminalStrings.split.short, ThemeIcon.asClassName(Codicon.splitHorizontal), true, async () => {
+			this._runForSelectionOrInstance(instance, async e => {
+				this._terminalService.createTerminal({ location: { parentTerminal: e } });
+			});
+		})),
+	];
+	if(instance.shellLaunchConfig.tabActions) {
+	for(const action of instance.shellLaunchConfig.tabActions) {
+	actions.push(this._register(new Action(action.id, action.label, action.icon ? ThemeIcon.asClassName(action.icon) : undefined, true, async () => {
+		this._runForSelectionOrInstance(instance, e => this._commandService.executeCommand(action.id, instance));
+	})));
+}
+        }
+	actions.push(this._register(new Action(TerminalCommandId.KillActiveTab, terminalStrings.kill.short, ThemeIcon.asClassName(Codicon.trashcan), true, async () => {
+		this._runForSelectionOrInstance(instance, e => this._terminalService.safeDisposeTerminal(e));
+	})));
+// TODO: Cache these in a way that will use the correct instance
+template.actionBar.clear();
+for (const action of actions) {
+	template.actionBar.push(action, { icon: true, label: false, keybinding: this._keybindingService.lookupKeybinding(action.id)?.getLabel() });
+}
+    }
+
+    private _runForSelectionOrInstance(instance: ITerminalInstance, callback: (instance: ITerminalInstance) cognidreamognidream) {
+	const selection = this._getSelection();
+	if (selection.includes(instance)) {
+		for (const s of selection) {
+			if (s) {
+				callback(s);
+			}
 		}
-		this._terminalGroupService.focusTabs();
-		this._listService.lastFocusedList?.focusNext();
+	} else {
+		callback(instance);
 	}
+	this._terminalGroupService.focusTabs();
+	this._listService.lastFocusedList?.focusNext();
+}
 }
 
 interface ITerminalTabEntryTemplate {
@@ -621,161 +621,161 @@ class TerminalTabsDragAndDrop extends Disposable implements IListDragAndDrop<ITe
 		this._autoFocusDisposable = Disposable.None;
 	}
 
-	onDragStart(data: IDragAndDropData, originalEvent: DragEvent): void {
+	onDragStart(data: IDragAndDropData, originalEvent: DragEventcognidreamognidream {
 		if (!originalEvent.dataTransfer) {
-			return;
-		}
-		const dndData: unknown = data.getData();
-		if (!Array.isArray(dndData)) {
-			return;
-		}
-		// Attach terminals type to event
-		const terminals: ITerminalInstance[] = dndData.filter(e => 'instanceId' in (e as any));
-		if (terminals.length > 0) {
-			originalEvent.dataTransfer.setData(TerminalDataTransfers.Terminals, JSON.stringify(terminals.map(e => e.resource.toString())));
+	return;
+}
+const dndData: unknown = data.getData();
+if (!Array.isArray(dndData)) {
+	return;
+}
+// Attach terminals type to event
+const terminals: ITerminalInstance[] = dndData.filter(e => 'instanceId' in (e as any));
+if (terminals.length > 0) {
+	originalEvent.dataTransfer.setData(TerminalDataTransfers.Terminals, JSON.stringify(terminals.map(e => e.resource.toString())));
+}
+    }
+
+onDragOver(data: IDragAndDropData, targetInstance: ITerminalInstance | undefined, targetIndex: number | undefined, targetSector: ListViewTargetSector | undefined, originalEvent: DragEvent): boolean | IListDragOverReaction {
+	if (data instanceof NativeDragAndDropData) {
+		if (!containsDragType(originalEvent, DataTransfers.FILES, DataTransfers.RESOURCES, TerminalDataTransfers.Terminals, CodeDataTransfers.FILES)) {
+			return false;
 		}
 	}
 
-	onDragOver(data: IDragAndDropData, targetInstance: ITerminalInstance | undefined, targetIndex: number | undefined, targetSector: ListViewTargetSector | undefined, originalEvent: DragEvent): boolean | IListDragOverReaction {
-		if (data instanceof NativeDragAndDropData) {
-			if (!containsDragType(originalEvent, DataTransfers.FILES, DataTransfers.RESOURCES, TerminalDataTransfers.Terminals, CodeDataTransfers.FILES)) {
-				return false;
-			}
-		}
-
-		const didChangeAutoFocusInstance = this._autoFocusInstance !== targetInstance;
-		if (didChangeAutoFocusInstance) {
-			this._autoFocusDisposable.dispose();
-			this._autoFocusInstance = targetInstance;
-		}
-
-		if (!targetInstance && !containsDragType(originalEvent, TerminalDataTransfers.Terminals)) {
-			return data instanceof ElementsDragAndDropData;
-		}
-
-		if (didChangeAutoFocusInstance && targetInstance) {
-			this._autoFocusDisposable = disposableTimeout(() => {
-				this._terminalService.setActiveInstance(targetInstance);
-				this._autoFocusInstance = undefined;
-			}, 500, this._store);
-		}
-
-		return {
-			feedback: targetIndex ? [targetIndex] : undefined,
-			accept: true,
-			effect: { type: ListDragOverEffectType.Move, position: ListDragOverEffectPosition.Over }
-		};
-	}
-
-	async drop(data: IDragAndDropData, targetInstance: ITerminalInstance | undefined, targetIndex: number | undefined, targetSector: ListViewTargetSector | undefined, originalEvent: DragEvent): Promise<void> {
+	const didChangeAutoFocusInstance = this._autoFocusInstance !== targetInstance;
+	if (didChangeAutoFocusInstance) {
 		this._autoFocusDisposable.dispose();
-		this._autoFocusInstance = undefined;
-
-		let sourceInstances: ITerminalInstance[] | undefined;
-		const promises: Promise<IProcessDetails | undefined>[] = [];
-		const resources = getTerminalResourcesFromDragEvent(originalEvent);
-		if (resources) {
-			for (const uri of resources) {
-				const instance = this._terminalService.getInstanceFromResource(uri);
-				if (instance) {
-					if (Array.isArray(sourceInstances)) {
-						sourceInstances.push(instance);
-					} else {
-						sourceInstances = [instance];
-					}
-					this._terminalService.moveToTerminalView(instance);
-				} else if (this._primaryBackend) {
-					const terminalIdentifier = parseTerminalUri(uri);
-					if (terminalIdentifier.instanceId) {
-						promises.push(this._primaryBackend.requestDetachInstance(terminalIdentifier.workspaceId, terminalIdentifier.instanceId));
-					}
-				}
-			}
-		}
-
-		if (promises.length) {
-			let processes = await Promise.all(promises);
-			processes = processes.filter(p => p !== undefined);
-			let lastInstance: ITerminalInstance | undefined;
-			for (const attachPersistentProcess of processes) {
-				lastInstance = await this._terminalService.createTerminal({ config: { attachPersistentProcess } });
-			}
-			if (lastInstance) {
-				this._terminalService.setActiveInstance(lastInstance);
-			}
-			return;
-		}
-
-		if (sourceInstances === undefined) {
-			if (!(data instanceof ElementsDragAndDropData)) {
-				this._handleExternalDrop(targetInstance, originalEvent);
-				return;
-			}
-
-			const draggedElement = data.getData();
-			if (!draggedElement || !Array.isArray(draggedElement)) {
-				return;
-			}
-
-			sourceInstances = [];
-			for (const e of draggedElement) {
-				if ('instanceId' in e) {
-					sourceInstances.push(e as ITerminalInstance);
-				}
-			}
-		}
-
-		if (!targetInstance) {
-			this._terminalGroupService.moveGroupToEnd(sourceInstances);
-			this._terminalService.setActiveInstance(sourceInstances[0]);
-			const targetGroup = this._terminalGroupService.getGroupForInstance(sourceInstances[0]);
-			if (targetGroup) {
-				const index = this._terminalGroupService.groups.indexOf(targetGroup);
-				this._listService.lastFocusedList?.setSelection([index]);
-			}
-			return;
-		}
-
-		this._terminalGroupService.moveGroup(sourceInstances, targetInstance);
-		this._terminalService.setActiveInstance(sourceInstances[0]);
-		const targetGroup = this._terminalGroupService.getGroupForInstance(sourceInstances[0]);
-		if (targetGroup) {
-			const index = this._terminalGroupService.groups.indexOf(targetGroup);
-			this._listService.lastFocusedList?.setSelection([index]);
-		}
+		this._autoFocusInstance = targetInstance;
 	}
 
-	private async _handleExternalDrop(instance: ITerminalInstance | undefined, e: DragEvent) {
-		if (!instance || !e.dataTransfer) {
-			return;
-		}
-
-		// Check if files were dragged from the tree explorer
-		let resource: URI | undefined;
-		const rawResources = e.dataTransfer.getData(DataTransfers.RESOURCES);
-		if (rawResources) {
-			resource = URI.parse(JSON.parse(rawResources)[0]);
-		}
-
-		const rawCodeFiles = e.dataTransfer.getData(CodeDataTransfers.FILES);
-		if (!resource && rawCodeFiles) {
-			resource = URI.file(JSON.parse(rawCodeFiles)[0]);
-		}
-
-		if (!resource && e.dataTransfer.files.length > 0 && getPathForFile(e.dataTransfer.files[0])) {
-			// Check if the file was dragged from the filesystem
-			resource = URI.file(getPathForFile(e.dataTransfer.files[0])!);
-		}
-
-		if (!resource) {
-			return;
-		}
-
-		this._terminalService.setActiveInstance(instance);
-
-		instance.focus();
-		await instance.sendPath(resource, false);
+	if (!targetInstance && !containsDragType(originalEvent, TerminalDataTransfers.Terminals)) {
+		return data instanceof ElementsDragAndDropData;
 	}
+
+	if (didChangeAutoFocusInstance && targetInstance) {
+		this._autoFocusDisposable = disposableTimeout(() => {
+			this._terminalService.setActiveInstance(targetInstance);
+			this._autoFocusInstance = undefined;
+		}, 500, this._store);
+	}
+
+	return {
+		feedback: targetIndex ? [targetIndex] : undefined,
+		accept: true,
+		effect: { type: ListDragOverEffectType.Move, position: ListDragOverEffectPosition.Over }
+	};
+}
+
+    async drop(data: IDragAndDropData, targetInstance: ITerminalInstance | undefined, targetIndex: number | undefined, targetSector: ListViewTargetSector | undefined, originalEvent: DragEvent): Promicognidreamognidream > {
+	this._autoFocusDisposable.dispose();
+	this._autoFocusInstance = undefined;
+
+	let sourceInstances: ITerminalInstance[] | undefined;
+	const promises: Promise<IProcessDetails | undefined > [] =[];
+const resources = getTerminalResourcesFromDragEvent(originalEvent);
+if (resources) {
+	for (const uri of resources) {
+		const instance = this._terminalService.getInstanceFromResource(uri);
+		if (instance) {
+			if (Array.isArray(sourceInstances)) {
+				sourceInstances.push(instance);
+			} else {
+				sourceInstances = [instance];
+			}
+			this._terminalService.moveToTerminalView(instance);
+		} else if (this._primaryBackend) {
+			const terminalIdentifier = parseTerminalUri(uri);
+			if (terminalIdentifier.instanceId) {
+				promises.push(this._primaryBackend.requestDetachInstance(terminalIdentifier.workspaceId, terminalIdentifier.instanceId));
+			}
+		}
+	}
+}
+
+if (promises.length) {
+	let processes = await Promise.all(promises);
+	processes = processes.filter(p => p !== undefined);
+	let lastInstance: ITerminalInstance | undefined;
+	for (const attachPersistentProcess of processes) {
+		lastInstance = await this._terminalService.createTerminal({ config: { attachPersistentProcess } });
+	}
+	if (lastInstance) {
+		this._terminalService.setActiveInstance(lastInstance);
+	}
+	return;
+}
+
+if (sourceInstances === undefined) {
+	if (!(data instanceof ElementsDragAndDropData)) {
+		this._handleExternalDrop(targetInstance, originalEvent);
+		return;
+	}
+
+	const draggedElement = data.getData();
+	if (!draggedElement || !Array.isArray(draggedElement)) {
+		return;
+	}
+
+	sourceInstances = [];
+	for (const e of draggedElement) {
+		if ('instanceId' in e) {
+			sourceInstances.push(e as ITerminalInstance);
+		}
+	}
+}
+
+if (!targetInstance) {
+	this._terminalGroupService.moveGroupToEnd(sourceInstances);
+	this._terminalService.setActiveInstance(sourceInstances[0]);
+	const targetGroup = this._terminalGroupService.getGroupForInstance(sourceInstances[0]);
+	if (targetGroup) {
+		const index = this._terminalGroupService.groups.indexOf(targetGroup);
+		this._listService.lastFocusedList?.setSelection([index]);
+	}
+	return;
+}
+
+this._terminalGroupService.moveGroup(sourceInstances, targetInstance);
+this._terminalService.setActiveInstance(sourceInstances[0]);
+const targetGroup = this._terminalGroupService.getGroupForInstance(sourceInstances[0]);
+if (targetGroup) {
+	const index = this._terminalGroupService.groups.indexOf(targetGroup);
+	this._listService.lastFocusedList?.setSelection([index]);
+}
+    }
+
+    private async _handleExternalDrop(instance: ITerminalInstance | undefined, e: DragEvent) {
+	if (!instance || !e.dataTransfer) {
+		return;
+	}
+
+	// Check if files were dragged from the tree explorer
+	let resource: URI | undefined;
+	const rawResources = e.dataTransfer.getData(DataTransfers.RESOURCES);
+	if (rawResources) {
+		resource = URI.parse(JSON.parse(rawResources)[0]);
+	}
+
+	const rawCodeFiles = e.dataTransfer.getData(CodeDataTransfers.FILES);
+	if (!resource && rawCodeFiles) {
+		resource = URI.file(JSON.parse(rawCodeFiles)[0]);
+	}
+
+	if (!resource && e.dataTransfer.files.length > 0 && getPathForFile(e.dataTransfer.files[0])) {
+		// Check if the file was dragged from the filesystem
+		resource = URI.file(getPathForFile(e.dataTransfer.files[0])!);
+	}
+
+	if (!resource) {
+		return;
+	}
+
+	this._terminalService.setActiveInstance(instance);
+
+	instance.focus();
+	await instance.sendPath(resource, false);
+}
 }
 
 class TabDecorationsProvider extends Disposable implements IDecorationsProvider {

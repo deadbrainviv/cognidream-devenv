@@ -48,7 +48,7 @@ const profiles = {
 	}
 };
 
-async function applyProfile(configService: IConfigurationService, profile: Record<string, any>): Promise<void> {
+async function applyProfile(configService: IConfigurationService, profile: Record<string, any>): Promise<cognidream> {
 	const promises = [];
 	for (const settingKey in profile) {
 		promises.push(configService.updateValue(settingKey, profile[settingKey]));
@@ -69,14 +69,14 @@ registerAction2(class extends Action2 {
 		});
 	}
 
-	async run(accessor: ServicesAccessor, args: unknown): Promise<void> {
-		if (!isSetProfileArgs(args)) {
-			return;
-		}
+	async run(accessor: ServicesAccessor, args: unknown): Promicognidreamognidream> {
+		if(!isSetProfileArgs(args)) {
+	return;
+}
 
-		const configService = accessor.get(IConfigurationService);
-		return applyProfile(configService, profiles[args.profile]);
-	}
+const configService = accessor.get(IConfigurationService);
+return applyProfile(configService, profiles[args.profile]);
+    }
 });
 
 function isSetProfileArgs(args: unknown): args is ISetProfileArgs {

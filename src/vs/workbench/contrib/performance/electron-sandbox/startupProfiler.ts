@@ -44,7 +44,7 @@ export class StartupProfiler implements IWorkbenchContribution {
 		});
 	}
 
-	private _stopProfiling(): void {
+	private _stopProfiling(): cognidream {
 
 		if (!this._environmentService.args['prof-startup-prefix']) {
 			return;
@@ -57,7 +57,7 @@ export class StartupProfiler implements IWorkbenchContribution {
 		const removeArgs: string[] = ['--prof-startup'];
 		const markerFile = this._fileService.readFile(profileFilenamePrefix).then(value => removeArgs.push(...value.toString().split('|')))
 			.then(() => this._fileService.del(profileFilenamePrefix, { recursive: true })) // (1) delete the file to tell the main process to stop profiling
-			.then(() => new Promise<void>(resolve => { // (2) wait for main that recreates the fail to signal profiling has stopped
+			.then(() => newcognidreammise<cognidream>(resolve => { // (2) wait for main that recreates the fail to signal profiling has stopped
 				const check = () => {
 					this._fileService.exists(profileFilenamePrefix).then(exists => {
 						if (exists) {
@@ -112,13 +112,13 @@ export class StartupProfiler implements IWorkbenchContribution {
 		});
 	}
 
-	private async _createPerfIssue(files: string[]): Promise<void> {
+	private async _createPerfIssue(files: string[]): Promicognidreamognidream> {
 		const reportIssueUrl = this._productService.reportIssueUrl;
-		if (!reportIssueUrl) {
+		if(!reportIssueUrl) {
 			return;
 		}
 
-		const contrib = PerfviewContrib.get();
+        const contrib = PerfviewContrib.get();
 		const ref = await this._textModelResolverService.createModelReference(contrib.getInputUri());
 		try {
 			await this._clipboardService.writeText(ref.object.textEditorModel.getValue());
@@ -126,7 +126,7 @@ export class StartupProfiler implements IWorkbenchContribution {
 			ref.dispose();
 		}
 
-		const body = `
+        const body = `
 1. :warning: We have copied additional data to your clipboard. Make sure to **paste** here. :warning:
 1. :warning: Make sure to **attach** these files from your *home*-directory: :warning:\n${files.map(file => `-\`${file}\``).join('\n')}
 `;

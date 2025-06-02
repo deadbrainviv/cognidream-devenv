@@ -15,39 +15,39 @@ import { IProductService } from '../../../../platform/product/common/productServ
 import { ISearchResult, ISettingsEditorModel } from '../../../services/preferences/common/preferences.js';
 
 export interface IWorkbenchSettingsConfiguration {
-	workbench: {
-		settings: {
-			openDefaultSettings: boolean;
-			naturalLanguageSearchEndpoint: string;
-			naturalLanguageSearchKey: string;
-			naturalLanguageSearchAutoIngestFeedback: boolean;
-			useNaturalLanguageSearchPost: boolean;
-			enableNaturalLanguageSearch: boolean;
-			enableNaturalLanguageSearchFeedback: boolean;
-		};
-	};
+    workbench: {
+        settings: {
+            openDefaultSettings: boolean;
+            naturalLanguageSearchEndpoint: string;
+            naturalLanguageSearchKey: string;
+            naturalLanguageSearchAutoIngestFeedback: boolean;
+            useNaturalLanguageSearchPost: boolean;
+            enableNaturalLanguageSearch: boolean;
+            enableNaturalLanguageSearchFeedback: boolean;
+        };
+    };
 }
 
 export interface IEndpointDetails {
-	urlBase: string;
-	key?: string;
+    urlBase: string;
+    key?: string;
 }
 
 export const IPreferencesSearchService = createDecorator<IPreferencesSearchService>('preferencesSearchService');
 
 export interface IPreferencesSearchService {
-	readonly _serviceBrand: undefined;
+    readonly _serviceBrand: undefined;
 
-	getLocalSearchProvider(filter: string): ISearchProvider;
-	getRemoteSearchProvider(filter: string, newExtensionsOnly?: boolean): ISearchProvider | undefined;
+    getLocalSearchProvider(filter: string): ISearchProvider;
+    getRemoteSearchProvider(filter: string, newExtensionsOnly?: boolean): ISearchProvider | undefined;
 }
 
 export interface ISearchProvider {
-	searchModel(preferencesModel: ISettingsEditorModel, token: CancellationToken): Promise<ISearchResult | null>;
+    searchModel(preferencesModel: ISettingsEditorModel, token: CancellationToken): Promise<ISearchResult | null>;
 }
 
 export interface IRemoteSearchProvider extends ISearchProvider {
-	setFilter(filter: string): void;
+    setFilter(filter: string): cognidream;
 }
 
 export const SETTINGS_EDITOR_COMMAND_CLEAR_SEARCH_RESULTS = 'settings.action.clearSearchResults';
@@ -102,78 +102,78 @@ export const ENABLE_EXTENSION_TOGGLE_SETTINGS = true;
 export const EXTENSION_FETCH_TIMEOUT_MS = 1000;
 
 export type ExtensionToggleData = {
-	settingsEditorRecommendedExtensions: IStringDictionary<IExtensionRecommendations>;
-	recommendedExtensionsGalleryInfo: IStringDictionary<IGalleryExtension>;
-	commonlyUsed: string[];
+    settingsEditorRecommendedExtensions: IStringDictionary<IExtensionRecommendations>;
+    recommendedExtensionsGalleryInfo: IStringDictionary<IGalleryExtension>;
+    commonlyUsed: string[];
 };
 
 let cachedExtensionToggleData: ExtensionToggleData | undefined;
 
 export async function getExperimentalExtensionToggleData(extensionGalleryService: IExtensionGalleryService, productService: IProductService): Promise<ExtensionToggleData | undefined> {
-	if (!ENABLE_EXTENSION_TOGGLE_SETTINGS) {
-		return undefined;
-	}
+    if (!ENABLE_EXTENSION_TOGGLE_SETTINGS) {
+        return undefined;
+    }
 
-	if (!extensionGalleryService.isEnabled()) {
-		return undefined;
-	}
+    if (!extensionGalleryService.isEnabled()) {
+        return undefined;
+    }
 
-	if (cachedExtensionToggleData) {
-		return cachedExtensionToggleData;
-	}
+    if (cachedExtensionToggleData) {
+        return cachedExtensionToggleData;
+    }
 
-	if (productService.extensionRecommendations && productService.commonlyUsedSettings) {
-		const settingsEditorRecommendedExtensions: IStringDictionary<IExtensionRecommendations> = {};
-		Object.keys(productService.extensionRecommendations).forEach(extensionId => {
-			const extensionInfo = productService.extensionRecommendations![extensionId];
-			if (extensionInfo.onSettingsEditorOpen) {
-				settingsEditorRecommendedExtensions[extensionId] = extensionInfo;
-			}
-		});
+    if (productService.extensionRecommendations && productService.commonlyUsedSettings) {
+        const settingsEditorRecommendedExtensions: IStringDictionary<IExtensionRecommendations> = {};
+        Object.keys(productService.extensionRecommendations).forEach(extensionId => {
+            const extensionInfo = productService.extensionRecommendations![extensionId];
+            if (extensionInfo.onSettingsEditorOpen) {
+                settingsEditorRecommendedExtensions[extensionId] = extensionInfo;
+            }
+        });
 
-		const recommendedExtensionsGalleryInfo: IStringDictionary<IGalleryExtension> = {};
-		for (const key in settingsEditorRecommendedExtensions) {
-			const extensionId = key;
-			// Recommend prerelease if not on Stable.
-			const isStable = productService.quality === 'stable';
-			try {
-				const extensions = await raceTimeout(extensionGalleryService.getExtensions([{ id: extensionId, preRelease: !isStable }], CancellationToken.None), EXTENSION_FETCH_TIMEOUT_MS);
-				if (extensions?.length === 1) {
-					recommendedExtensionsGalleryInfo[key] = extensions[0];
-				} else {
-					// same as network connection fail. we do not want a blank settings page: https://github.com/microsoft/vscode/issues/195722
-					// so instead of returning partial data we return undefined here
-					return undefined;
-				}
-			} catch (e) {
-				// Network connection fail. Return nothing rather than partial data.
-				return undefined;
-			}
-		}
+        const recommendedExtensionsGalleryInfo: IStringDictionary<IGalleryExtension> = {};
+        for (const key in settingsEditorRecommendedExtensions) {
+            const extensionId = key;
+            // Recommend prerelease if not on Stable.
+            const isStable = productService.quality === 'stable';
+            try {
+                const extensions = await raceTimeout(extensionGalleryService.getExtensions([{ id: extensionId, preRelease: !isStable }], CancellationToken.None), EXTENSION_FETCH_TIMEOUT_MS);
+                if (extensions?.length === 1) {
+                    recommendedExtensionsGalleryInfo[key] = extensions[0];
+                } else {
+                    // same as network connection fail. we do not want a blank settings page: https://github.com/microsoft/vscode/issues/195722
+                    // so instead of returning partial data we return undefined here
+                    return undefined;
+                }
+            } catch (e) {
+                // Network connection fail. Return nothing rather than partial data.
+                return undefined;
+            }
+        }
 
-		cachedExtensionToggleData = {
-			settingsEditorRecommendedExtensions,
-			recommendedExtensionsGalleryInfo,
-			commonlyUsed: productService.commonlyUsedSettings
-		};
-		return cachedExtensionToggleData;
-	}
-	return undefined;
+        cachedExtensionToggleData = {
+            settingsEditorRecommendedExtensions,
+            recommendedExtensionsGalleryInfo,
+            commonlyUsed: productService.commonlyUsedSettings
+        };
+        return cachedExtensionToggleData;
+    }
+    return undefined;
 }
 
 /**
  * Compares two nullable numbers such that null values always come after defined ones.
  */
 export function compareTwoNullableNumbers(a: number | undefined, b: number | undefined): number {
-	const aOrMax = a ?? Number.MAX_SAFE_INTEGER;
-	const bOrMax = b ?? Number.MAX_SAFE_INTEGER;
-	if (aOrMax < bOrMax) {
-		return -1;
-	} else if (aOrMax > bOrMax) {
-		return 1;
-	} else {
-		return 0;
-	}
+    const aOrMax = a ?? Number.MAX_SAFE_INTEGER;
+    const bOrMax = b ?? Number.MAX_SAFE_INTEGER;
+    if (aOrMax < bOrMax) {
+        return -1;
+    } else if (aOrMax > bOrMax) {
+        return 1;
+    } else {
+        return 0;
+    }
 }
 
 export const PREVIEW_INDICATOR_DESCRIPTION = localize('previewIndicatorDescription', "Preview setting: this setting controls a new feature that is still under refinement yet ready to use. Feedback is welcome.");

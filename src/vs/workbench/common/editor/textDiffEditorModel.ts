@@ -32,47 +32,47 @@ export class TextDiffEditorModel extends DiffEditorModel {
 		this.updateTextDiffEditorModel();
 	}
 
-	override async resolve(): Promise<void> {
+	override async resolve(): Promise<cognidream> {
 		await super.resolve();
 
 		this.updateTextDiffEditorModel();
 	}
 
-	private updateTextDiffEditorModel(): void {
+	private updateTextDiffEditorModel(cognidreamognidream {
 		if (this.originalModel?.isResolved() && this.modifiedModel?.isResolved()) {
 
-			// Create new
-			if (!this._textDiffEditorModel) {
-				this._textDiffEditorModel = {
-					original: this.originalModel.textEditorModel,
-					modified: this.modifiedModel.textEditorModel
-				};
-			}
-
-			// Update existing
-			else {
-				this._textDiffEditorModel.original = this.originalModel.textEditorModel;
-				this._textDiffEditorModel.modified = this.modifiedModel.textEditorModel;
-			}
-		}
+	// Create new
+	if (!this._textDiffEditorModel) {
+		this._textDiffEditorModel = {
+			original: this.originalModel.textEditorModel,
+			modified: this.modifiedModel.textEditorModel
+		};
 	}
 
-	override isResolved(): boolean {
-		return !!this._textDiffEditorModel;
+	// Update existing
+	else {
+		this._textDiffEditorModel.original = this.originalModel.textEditorModel;
+		this._textDiffEditorModel.modified = this.modifiedModel.textEditorModel;
 	}
+}
+    }
 
-	isReadonly(): boolean | IMarkdownString {
-		return !!this.modifiedModel && this.modifiedModel.isReadonly();
-	}
+    override isResolved(): boolean {
+	return !!this._textDiffEditorModel;
+}
 
-	override dispose(): void {
+isReadonly(): boolean | IMarkdownString {
+	return !!this.modifiedModel && this.modifiedModel.isReadonly();
+}
 
-		// Free the diff editor model but do not propagate the dispose() call to the two models
-		// inside. We never created the two models (original and modified) so we can not dispose
-		// them without sideeffects. Rather rely on the models getting disposed when their related
-		// inputs get disposed from the diffEditorInput.
-		this._textDiffEditorModel = undefined;
+    override dispose(cognidreamognidream {
 
-		super.dispose();
-	}
+	// Free the diff editor model but do not propagate the dispose() call to the two models
+	// inside. We never created the two models (original and modified) so we can not dispose
+	// them without sideeffects. Rather rely on the models getting disposed when their related
+	// inputs get disposed from the diffEditorInput.
+	this._textDiffEditorModel = undefined;
+
+	super.dispose();
+}
 }

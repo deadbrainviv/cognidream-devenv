@@ -58,7 +58,7 @@ export class ChatMarkdownContentPart extends Disposable implements IChatContentP
 	public readonly domNode: HTMLElement;
 	private readonly allRefs: IDisposableReference<CodeBlockPart | CollapsedCodeBlock>[] = [];
 
-	private readonly _onDidChangeHeight = this._register(new Emitter<void>());
+	private readonly _onDidChangeHeight = this._register(new Emitter<cognidream>());
 	public readonly onDidChangeHeight = this._onDidChangeHeight.event;
 
 	public readonly codeblocks: IChatCodeBlockInfo[] = [];
@@ -240,7 +240,7 @@ export class ChatMarkdownContentPart extends Disposable implements IChatContentP
 			|| this.codeblocks.at(-1)?.isStreaming && this.codeblocks.at(-1)?.codemapperUri !== undefined && other.content.value.lastIndexOf('```') === this.markdown.content.value.lastIndexOf('```'));
 	}
 
-	layout(width: number): void {
+	layout(width: numbercognidreamognidream {
 		this.allRefs.forEach((ref, index) => {
 			if (ref.object instanceof CodeBlockPart) {
 				ref.object.layout(width);
@@ -251,11 +251,11 @@ export class ChatMarkdownContentPart extends Disposable implements IChatContentP
 				}
 			}
 		});
-	}
+    }
 
-	addDisposable(disposable: IDisposable): void {
-		this._register(disposable);
-	}
+addDisposable(disposable: IDisposablecognidreamognidream {
+	this._register(disposable);
+}
 }
 
 export class EditorPool extends Disposable {
@@ -357,103 +357,103 @@ class CollapsedCodeBlock extends Disposable {
 		}));
 	}
 
-	render(uri: URI, isStreaming?: boolean): void {
+	render(uri: URI, isStreaming?: booleancognidreamognidream {
 		this._progressStore.clear();
 
-		this._uri = uri;
+this._uri = uri;
 
-		const session = this.chatService.getSession(this.sessionId);
-		const iconText = this.labelService.getUriBasenameLabel(uri);
+const session = this.chatService.getSession(this.sessionId);
+const iconText = this.labelService.getUriBasenameLabel(uri);
 
-		let editSession = session?.editingSessionObs?.promiseResult.get()?.data;
-		let modifiedEntry = editSession?.getEntry(uri);
-		let modifiedByResponse = modifiedEntry?.isCurrentlyBeingModifiedBy.get();
-		const isComplete = !modifiedByResponse || modifiedByResponse.requestId !== this.requestId;
+let editSession = session?.editingSessionObs?.promiseResult.get()?.data;
+let modifiedEntry = editSession?.getEntry(uri);
+let modifiedByResponse = modifiedEntry?.isCurrentlyBeingModifiedBy.get();
+const isComplete = !modifiedByResponse || modifiedByResponse.requestId !== this.requestId;
 
-		let iconClasses: string[] = [];
-		if (isStreaming || !isComplete) {
-			const codicon = ThemeIcon.modify(Codicon.loading, 'spin');
-			iconClasses = ThemeIcon.asClassNameArray(codicon);
-		} else {
-			const fileKind = uri.path.endsWith('/') ? FileKind.FOLDER : FileKind.FILE;
-			iconClasses = getIconClasses(this.modelService, this.languageService, uri, fileKind);
-		}
+let iconClasses: string[] = [];
+if (isStreaming || !isComplete) {
+	const codicon = ThemeIcon.modify(Codicon.loading, 'spin');
+	iconClasses = ThemeIcon.asClassNameArray(codicon);
+} else {
+	const fileKind = uri.path.endsWith('/') ? FileKind.FOLDER : FileKind.FILE;
+	iconClasses = getIconClasses(this.modelService, this.languageService, uri, fileKind);
+}
 
-		const iconEl = dom.$('span.icon');
-		iconEl.classList.add(...iconClasses);
+const iconEl = dom.$('span.icon');
+iconEl.classList.add(...iconClasses);
 
-		const children = [dom.$('span.icon-label', {}, iconText)];
-		const labelDetail = dom.$('span.label-detail', {}, '');
-		children.push(labelDetail);
-		if (isStreaming) {
-			labelDetail.textContent = localize('chat.codeblock.generating', "Generating edits...");
-		}
+const children = [dom.$('span.icon-label', {}, iconText)];
+const labelDetail = dom.$('span.label-detail', {}, '');
+children.push(labelDetail);
+if (isStreaming) {
+	labelDetail.textContent = localize('chat.codeblock.generating', "Generating edits...");
+}
 
-		this.element.replaceChildren(iconEl, ...children);
-		this.updateTooltip(this.labelService.getUriLabel(uri, { relative: false }));
+this.element.replaceChildren(iconEl, ...children);
+this.updateTooltip(this.labelService.getUriLabel(uri, { relative: false }));
 
-		const renderDiff = (changes: IEditSessionEntryDiff | undefined) => {
-			const labelAdded = this.element.querySelector('.label-added') ?? this.element.appendChild(dom.$('span.label-added'));
-			const labelRemoved = this.element.querySelector('.label-removed') ?? this.element.appendChild(dom.$('span.label-removed'));
-			if (changes && !changes?.identical && !changes?.quitEarly) {
-				this._currentDiff = changes;
-				labelAdded.textContent = `+${changes.added}`;
-				labelRemoved.textContent = `-${changes.removed}`;
-				const insertionsFragment = changes.added === 1 ? localize('chat.codeblock.insertions.one', "1 insertion") : localize('chat.codeblock.insertions', "{0} insertions", changes.added);
-				const deletionsFragment = changes.removed === 1 ? localize('chat.codeblock.deletions.one', "1 deletion") : localize('chat.codeblock.deletions', "{0} deletions", changes.removed);
-				const summary = localize('summary', 'Edited {0}, {1}, {2}', iconText, insertionsFragment, deletionsFragment);
-				this.element.ariaLabel = summary;
-				this.updateTooltip(summary);
-			}
-		};
+const renderDiff = (changes: IEditSessionEntryDiff | undefined) => {
+	const labelAdded = this.element.querySelector('.label-added') ?? this.element.appendChild(dom.$('span.label-added'));
+	const labelRemoved = this.element.querySelector('.label-removed') ?? this.element.appendChild(dom.$('span.label-removed'));
+	if (changes && !changes?.identical && !changes?.quitEarly) {
+		this._currentDiff = changes;
+		labelAdded.textContent = `+${changes.added}`;
+		labelRemoved.textContent = `-${changes.removed}`;
+		const insertionsFragment = changes.added === 1 ? localize('chat.codeblock.insertions.one', "1 insertion") : localize('chat.codeblock.insertions', "{0} insertions", changes.added);
+		const deletionsFragment = changes.removed === 1 ? localize('chat.codeblock.deletions.one', "1 deletion") : localize('chat.codeblock.deletions', "{0} deletions", changes.removed);
+		const summary = localize('summary', 'Edited {0}, {1}, {2}', iconText, insertionsFragment, deletionsFragment);
+		this.element.ariaLabel = summary;
+		this.updateTooltip(summary);
+	}
+};
 
-		let diffBetweenStops: IObservable<IEditSessionEntryDiff | undefined> | undefined;
+let diffBetweenStops: IObservable<IEditSessionEntryDiff | undefined> | undefined;
 
-		// Show a percentage progress that is driven by the rewrite
+// Show a percentage progress that is driven by the rewrite
 
-		this._progressStore.add(autorun(r => {
-			if (!editSession) {
-				editSession = session?.editingSessionObs?.promiseResult.read(r)?.data;
-				modifiedEntry = editSession?.getEntry(uri);
-			}
-
-			modifiedByResponse = modifiedEntry?.isCurrentlyBeingModifiedBy.read(r);
-			const isComplete = !modifiedByResponse || modifiedByResponse.requestId !== this.requestId;
-			const rewriteRatio = modifiedEntry?.rewriteRatio.read(r);
-
-			if (!isStreaming && !isComplete) {
-				const value = rewriteRatio;
-				labelDetail.textContent = value === 0 || !value ? localize('chat.codeblock.generating', "Generating edits...") : localize('chat.codeblock.applyingPercentage', "Applying edits ({0}%)...", Math.round(value * 100));
-			} else if (!isStreaming && isComplete) {
-				iconEl.classList.remove(...iconClasses);
-				const fileKind = uri.path.endsWith('/') ? FileKind.FOLDER : FileKind.FILE;
-				iconEl.classList.add(...getIconClasses(this.modelService, this.languageService, uri, fileKind));
-				labelDetail.textContent = '';
-			}
-
-			if (!diffBetweenStops) {
-				diffBetweenStops = modifiedEntry && editSession
-					? editSession.getEntryDiffBetweenStops(modifiedEntry.modifiedURI, this.requestId, this.inUndoStop)
-					: undefined;
-			}
-
-			if (!isStreaming && isComplete && diffBetweenStops) {
-				renderDiff(diffBetweenStops.read(r));
-			}
-		}));
+this._progressStore.add(autorun(r => {
+	if (!editSession) {
+		editSession = session?.editingSessionObs?.promiseResult.read(r)?.data;
+		modifiedEntry = editSession?.getEntry(uri);
 	}
 
-	private updateTooltip(tooltip: string): void {
-		this.tooltip = tooltip;
-		if (!this.hover.value) {
-			this.hover.value = this.hoverService.setupDelayedHover(this.element, () => (
-				{
-					content: this.tooltip!,
-					appearance: { compact: true, showPointer: true },
-					position: { hoverPosition: HoverPosition.BELOW },
-					persistence: { hideOnKeyDown: true },
-				}
-			));
-		}
+	modifiedByResponse = modifiedEntry?.isCurrentlyBeingModifiedBy.read(r);
+	const isComplete = !modifiedByResponse || modifiedByResponse.requestId !== this.requestId;
+	const rewriteRatio = modifiedEntry?.rewriteRatio.read(r);
+
+	if (!isStreaming && !isComplete) {
+		const value = rewriteRatio;
+		labelDetail.textContent = value === 0 || !value ? localize('chat.codeblock.generating', "Generating edits...") : localize('chat.codeblock.applyingPercentage', "Applying edits ({0}%)...", Math.round(value * 100));
+	} else if (!isStreaming && isComplete) {
+		iconEl.classList.remove(...iconClasses);
+		const fileKind = uri.path.endsWith('/') ? FileKind.FOLDER : FileKind.FILE;
+		iconEl.classList.add(...getIconClasses(this.modelService, this.languageService, uri, fileKind));
+		labelDetail.textContent = '';
 	}
+
+	if (!diffBetweenStops) {
+		diffBetweenStops = modifiedEntry && editSession
+			? editSession.getEntryDiffBetweenStops(modifiedEntry.modifiedURI, this.requestId, this.inUndoStop)
+			: undefined;
+	}
+
+	if (!isStreaming && isComplete && diffBetweenStops) {
+		renderDiff(diffBetweenStops.read(r));
+	}
+}));
+    }
+
+    private updateTooltip(tooltip: stringcognidreamognidream {
+	this.tooltip = tooltip;
+	if(!this.hover.value) {
+	this.hover.value = this.hoverService.setupDelayedHover(this.element, () => (
+		{
+			content: this.tooltip!,
+			appearance: { compact: true, showPointer: true },
+			position: { hoverPosition: HoverPosition.BELOW },
+			persistence: { hideOnKeyDown: true },
+		}
+	));
+}
+    }
 }

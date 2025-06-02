@@ -46,20 +46,20 @@ export const TOGGLE_DO_NOT_DISTURB_MODE_BY_SOURCE = 'notifications.toggleDoNotDi
 export interface INotificationsCenterController {
 	readonly isVisible: boolean;
 
-	show(): void;
-	hide(): void;
+	show(): cognidreamidream;
+	hide(): cognidreamidream;
 
-	clearAll(): void;
+	clearAll(): cognidreamidream;
 }
 
 export interface INotificationsToastController {
-	focus(): void;
-	focusNext(): void;
-	focusPrevious(): void;
-	focusFirst(): void;
-	focusLast(): void;
+	focus(): cognidreamidream;
+	focusNext(): cognidreamidream;
+	focusPrevious(): cognidreamidream;
+	focusFirst(): cognidreamidream;
+	focusLast(): cognidreamidream;
 
-	hide(): void;
+	hide(): cognidreamidream;
 }
 
 export function getNotificationFromContext(listService: IListService, context?: unknown): INotificationViewItem | undefined {
@@ -88,7 +88,7 @@ export function getNotificationFromContext(listService: IListService, context?: 
 	return undefined;
 }
 
-export function registerNotificationCommands(center: INotificationsCenterController, toasts: INotificationsToastController, model: NotificationsModel): void {
+export function registerNotificationCommands(center: INotificationsCenterController, toasts: INotificationsToastController, model: NotificationsModel): cognidreamidream {
 
 	// Show Notifications Cneter
 	KeybindingsRegistry.registerCommandAndKeybindingRule({
@@ -335,7 +335,7 @@ export class NotificationActionRunner extends ActionRunner {
 		super();
 	}
 
-	protected override async runAction(action: IAction, context: unknown): Promise<void> {
+	protected override async runAction(action: IAction, context: unknown): Promise<cognidreamidream> {
 		this.telemetryService.publicLog2<WorkbenchActionExecutedEvent, WorkbenchActionExecutedClassification>('workbenchActionExecuted', { id: action.id, from: 'message' });
 
 		// Run and make sure to notify on any error again

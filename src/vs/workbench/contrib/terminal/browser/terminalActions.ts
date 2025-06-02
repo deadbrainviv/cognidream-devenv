@@ -145,7 +145,7 @@ export class TerminalLaunchHelpAction extends Action {
 		super('workbench.action.terminal.launchHelp', localize('terminalLaunchHelp', "Open Help"));
 	}
 
-	override async run(): Promise<void> {
+	override async run(): Promise<cognidream> {
 		this._openerService.open('https://aka.ms/vscode-troubleshoot-terminal-launch');
 	}
 }
@@ -159,7 +159,7 @@ export class TerminalLaunchHelpAction extends Action {
  * - `precondition`: TerminalContextKeys.processSupported
  */
 export function registerTerminalAction(
-	options: IAction2Options & { run: (c: ITerminalServicesCollection, accessor: ServicesAccessor, args?: unknown, args2?: unknown) => void | Promise<unknown> }
+	options: IAction2Options & { run: (c: ITerminalServicesCollection, accessor: ServicesAccessor, args?: unknown, args2?: unknown) cognidreamognidream | Promise<unknown> }
 ): IDisposable {
 	// Set defaults
 	options.f1 = options.f1 ?? true;
@@ -167,8 +167,8 @@ export function registerTerminalAction(
 	options.precondition = options.precondition ?? TerminalContextKeys.processSupported;
 	// Remove run function from options so it's not passed through to registerAction2
 	const runFunc = options.run;
-	const strictOptions: IAction2Options & { run?: (c: ITerminalServicesCollection, accessor: ServicesAccessor, args?: unknown) => void | Promise<unknown> } = options;
-	delete (strictOptions as IAction2Options & { run?: (c: ITerminalServicesCollection, accessor: ServicesAccessor, args?: unknown) => void | Promise<unknown> })['run'];
+	const strictOptions: IAction2Options & { run?: (c: ITerminalServicesCollection, accessor: ServicesAccessor, args?: unknown) cognidreamognidream | Promise<unknown> } = options;
+	delete (strictOptions as IAction2Options & { run?: (c: ITerminalServicesCollection, accessor: ServicesAccessor, args?: unknown) cognidreamognidream | Promise<unknown> })['run'];
 	// Register
 	return registerAction2(class extends Action2 {
 		constructor() {
@@ -202,13 +202,13 @@ export function registerContextualInstanceAction(
 		 * contextual instances.
 		 */
 		activeInstanceType?: 'view' | 'editor';
-		run: (instance: ITerminalInstance, c: ITerminalServicesCollection, accessor: ServicesAccessor, args?: unknown) => void | Promise<unknown>;
-		/**
-		 * A callback to run after the `run` callbacks have completed.
-		 * @param instances The selected instance(s) that the command was run on.
-		 */
-		runAfter?: (instances: ITerminalInstance[], c: ITerminalServicesCollection, accessor: ServicesAccessor, args?: unknown) => void | Promise<unknown>;
-	}
+		run: (instance: ITerminalInstance, c: ITerminalServicesCollection, accessor: ServicesAccessor, args?: unknowcognidream> cognidream | Promise<unknown>;
+/**
+ * A callback to run after the `run` callbacks have completed.
+ * @param instances The selected instance(s) that the command was run on.
+ */
+runAfter ?: (instances: ITerminalInstance[], c: ITerminalServicesCollection, accessor: ServicesAccessor, args?: unknowcognidream> cognidream | Promise<unknown>;
+    }
 ): IDisposable {
 	const originalRun = options.run;
 	return registerTerminalAction({
@@ -228,7 +228,7 @@ export function registerContextualInstanceAction(
 				}
 				instances = [activeInstance];
 			}
-			const results: (Promise<unknown> | void)[] = [];
+			const results: (Promise<uncognidreamn> | cognidream)[] = [];
 			for (const instance of instances) {
 				results.push(originalRun(instance, c, accessor, focusedInstanceArgs));
 			}
@@ -245,7 +245,7 @@ export function registerContextualInstanceAction(
  * provides it to the run function.
  */
 export function registerActiveInstanceAction(
-	options: IAction2Options & { run: (activeInstance: ITerminalInstance, c: ITerminalServicesCollection, accessor: ServicesAccessor, args?: unknown) => void | Promise<unknown> }
+	options: IAction2Options & { run: (activeInstance: ITerminalInstance, c: ITerminalServicesCollection, accessor: ServicesAccessor, args?: unknown) cognidreamognidream | Promise<unknown> }
 ): IDisposable {
 	const originalRun = options.run;
 	return registerTerminalAction({
@@ -266,7 +266,7 @@ export function registerActiveInstanceAction(
  * This includes detached xterm terminals that are not managed by an {@link ITerminalInstance}.
  */
 export function registerActiveXtermAction(
-	options: IAction2Options & { run: (activeTerminal: IXtermTerminal, accessor: ServicesAccessor, instance: ITerminalInstance | IDetachedTerminalInstance, args?: unknown) => void | Promise<unknown> }
+	options: IAction2Options & { run: (activeTerminal: IXtermTerminal, accessor: ServicesAccessor, instance: ITerminalInstance | IDetachedTerminalInstance, args?: unknown) cognidreamognidream | Promise<unknown> }
 ): IDisposable {
 	const originalRun = options.run;
 	return registerTerminalAction({
@@ -787,7 +787,7 @@ export function registerTerminalActions() {
 					c.service.setEditable(firstInstance, null);
 					c.service.setEditingTerminal(undefined);
 					if (success) {
-						const promises: Promise<void>[] = [];
+						const cognidreamises: Promise<cognidream>[] = [];
 						for (const instance of instances) {
 							promises.push((async () => {
 								await instance.rename(value);
@@ -1093,7 +1093,7 @@ export function registerTerminalActions() {
 		run: async (c, accessor) => {
 			const instances = getSelectedInstances(accessor);
 			if (instances) {
-				const promises: Promise<void>[] = [];
+				const promiscognidreamPromise<cognidream>[] =[];
 				for (const t of instances) {
 					promises.push((async () => {
 						await c.service.createTerminal({ location: { parentTerminal: t } });
@@ -1254,186 +1254,186 @@ export function registerTerminalActions() {
 		}
 	});
 
-	async function killInstance(c: ITerminalServicesCollection, instance: ITerminalInstance | undefined): Promise<void> {
-		if (!instance) {
+	async function killInstance(c: ITerminalServicesCollection, instance: ITerminalInstance | undefined): Promicognidreamognidream> {
+		if(!instance) {
 			return;
 		}
-		await c.service.safeDisposeTerminal(instance);
-		if (c.groupService.instances.length > 0) {
-			await c.groupService.showPanel(true);
+        await c.service.safeDisposeTerminal(instance);
+		if(c.groupService.instances.length > 0) {
+		await c.groupService.showPanel(true);
+	}
+}
+registerTerminalAction({
+	id: TerminalCommandId.Kill,
+	title: localize2('workbench.action.terminal.kill', 'Kill the Active Terminal Instance'),
+	precondition: ContextKeyExpr.or(sharedWhenClause.terminalAvailable, TerminalContextKeys.isOpen),
+	icon: killTerminalIcon,
+	run: async (c) => killInstance(c, c.groupService.activeInstance)
+});
+registerTerminalAction({
+	id: TerminalCommandId.KillViewOrEditor,
+	title: terminalStrings.kill,
+	f1: false, // This is an internal command used for context menus
+	precondition: ContextKeyExpr.or(sharedWhenClause.terminalAvailable, TerminalContextKeys.isOpen),
+	run: async (c) => killInstance(c, c.service.activeInstance)
+});
+
+registerTerminalAction({
+	id: TerminalCommandId.KillAll,
+	title: localize2('workbench.action.terminal.killAll', 'Kill All Terminals'),
+	precondition: ContextKeyExpr.or(sharedWhenClause.terminalAvailable, TerminalContextKeys.isOpen),
+	icon: Codicon.trash,
+	run: async (c) => {
+		const disposePromises: cognidreammise<cognidream>[] = [];
+		for (const instance of c.service.instances) {
+			disposePromises.push(c.service.safeDisposeTerminal(instance));
+		}
+		await Promise.all(disposePromises);
+	}
+});
+
+registerTerminalAction({
+	id: TerminalCommandId.KillEditor,
+	title: localize2('workbench.action.terminal.killEditor', 'Kill the Active Terminal in Editor Area'),
+	precondition: sharedWhenClause.terminalAvailable,
+	keybinding: {
+		primary: KeyMod.CtrlCmd | KeyCode.KeyW,
+		win: { primary: KeyMod.CtrlCmd | KeyCode.F4, secondary: [KeyMod.CtrlCmd | KeyCode.KeyW] },
+		weight: KeybindingWeight.WorkbenchContrib,
+		when: ContextKeyExpr.and(TerminalContextKeys.focus, TerminalContextKeys.editorFocus)
+	},
+	run: (c, accessor) => accessor.get(ICommandService).executeCommand(CLOSE_EDITOR_COMMAND_ID)
+});
+
+registerTerminalAction({
+	id: TerminalCommandId.KillActiveTab,
+	title: terminalStrings.kill,
+	f1: false,
+	precondition: ContextKeyExpr.or(sharedWhenClause.terminalAvailable, TerminalContextKeys.isOpen),
+	keybinding: {
+		primary: KeyCode.Delete,
+		mac: {
+			primary: KeyMod.CtrlCmd | KeyCode.Backspace,
+			secondary: [KeyCode.Delete]
+		},
+		weight: KeybindingWeight.WorkbenchContrib,
+		when: TerminalContextKeys.tabsFocus
+	},
+	run: async (c, accessor) => {
+		const disposePromises: cognidreammise<cognidream>[] = [];
+		for (const terminal of getSelectedInstances(accessor, true) ?? []) {
+			disposePromises.push(c.service.safeDisposeTerminal(terminal));
+		}
+		await Promise.all(disposePromises);
+		c.groupService.focusTabs();
+	}
+});
+
+registerTerminalAction({
+	id: TerminalCommandId.FocusHover,
+	title: terminalStrings.focusHover,
+	precondition: ContextKeyExpr.or(sharedWhenClause.terminalAvailable, TerminalContextKeys.isOpen),
+	keybinding: {
+		primary: KeyChord(KeyMod.CtrlCmd | KeyCode.KeyK, KeyMod.CtrlCmd | KeyCode.KeyI),
+		weight: KeybindingWeight.WorkbenchContrib,
+		when: ContextKeyExpr.or(TerminalContextKeys.tabsFocus, TerminalContextKeys.focus)
+	},
+	run: (c) => c.groupService.focusHover()
+});
+
+registerActiveInstanceAction({
+	id: TerminalCommandId.Clear,
+	title: localize2('workbench.action.terminal.clear', 'Clear'),
+	precondition: sharedWhenClause.terminalAvailable,
+	keybinding: [{
+		primary: 0,
+		mac: { primary: KeyMod.CtrlCmd | KeyCode.KeyK },
+		// Weight is higher than work workbench contributions so the keybinding remains
+		// highest priority when chords are registered afterwards
+		weight: KeybindingWeight.WorkbenchContrib + 1,
+		// Disable the keybinding when accessibility mode is enabled as chords include
+		// important screen reader keybindings such as cmd+k, cmd+i to show the hover
+		when: ContextKeyExpr.or(ContextKeyExpr.and(TerminalContextKeys.focus, CONTEXT_ACCESSIBILITY_MODE_ENABLED.negate()), ContextKeyExpr.and(CONTEXT_ACCESSIBILITY_MODE_ENABLED, accessibleViewIsShown, accessibleViewCurrentProviderId.isEqualTo(AccessibleViewProviderId.Terminal))),
+	}],
+	run: (activeInstance) => activeInstance.clearBuffer()
+});
+
+registerTerminalAction({
+	id: TerminalCommandId.SelectDefaultProfile,
+	title: localize2('workbench.action.terminal.selectDefaultShell', 'Select Default Profile'),
+	run: (c) => c.service.showProfileQuickPick('setDefault')
+});
+
+registerTerminalAction({
+	id: TerminalCommandId.ConfigureTerminalSettings,
+	title: localize2('workbench.action.terminal.openSettings', 'Configure Terminal Settings'),
+	precondition: sharedWhenClause.terminalAvailable,
+	run: (c, accessor) => accessor.get(IPreferencesService).openSettings({ jsonEditor: false, query: '@feature:terminal' })
+});
+
+registerActiveInstanceAction({
+	id: TerminalCommandId.SetDimensions,
+	title: localize2('workbench.action.terminal.setFixedDimensions', 'Set Fixed Dimensions'),
+	precondition: sharedWhenClause.terminalAvailable_and_opened,
+	run: (activeInstance) => activeInstance.setFixedDimensions()
+});
+
+registerContextualInstanceAction({
+	id: TerminalCommandId.SizeToContentWidth,
+	title: terminalStrings.toggleSizeToContentWidth,
+	precondition: sharedWhenClause.terminalAvailable_and_opened,
+	keybinding: {
+		primary: KeyMod.Alt | KeyCode.KeyZ,
+		weight: KeybindingWeight.WorkbenchContrib,
+		when: TerminalContextKeys.focus
+	},
+	run: (instance) => instance.toggleSizeToContentWidth()
+});
+
+registerTerminalAction({
+	id: TerminalCommandId.SwitchTerminal,
+	title: localize2('workbench.action.terminal.switchTerminal', 'Switch Terminal'),
+	precondition: sharedWhenClause.terminalAvailable,
+	run: async (c, accessor, args) => {
+		const item = toOptionalString(args);
+		if (!item) {
+			return;
+		}
+		if (item === switchTerminalActionViewItemSeparator) {
+			c.service.refreshActiveGroup();
+			return;
+		}
+		if (item === switchTerminalShowTabsTitle) {
+			accessor.get(IConfigurationService).updateValue(TerminalSettingId.TabsEnabled, true);
+			return;
+		}
+
+		const terminalIndexRe = /^([0-9]+): /;
+		const indexMatches = terminalIndexRe.exec(item);
+		if (indexMatches) {
+			c.groupService.setActiveGroupByIndex(Number(indexMatches[1]) - 1);
+			return c.groupService.showPanel(true);
+		}
+
+		const quickSelectProfiles = c.profileService.availableProfiles;
+
+		// Remove 'New ' from the selected item to get the profile name
+		const profileSelection = item.substring(4);
+		if (quickSelectProfiles) {
+			const profile = quickSelectProfiles.find(profile => profile.profileName === profileSelection);
+			if (profile) {
+				const instance = await c.service.createTerminal({
+					config: profile
+				});
+				c.service.setActiveInstance(instance);
+			} else {
+				console.warn(`No profile with name "${profileSelection}"`);
+			}
+		} else {
+			console.warn(`Unmatched terminal item: "${item}"`);
 		}
 	}
-	registerTerminalAction({
-		id: TerminalCommandId.Kill,
-		title: localize2('workbench.action.terminal.kill', 'Kill the Active Terminal Instance'),
-		precondition: ContextKeyExpr.or(sharedWhenClause.terminalAvailable, TerminalContextKeys.isOpen),
-		icon: killTerminalIcon,
-		run: async (c) => killInstance(c, c.groupService.activeInstance)
-	});
-	registerTerminalAction({
-		id: TerminalCommandId.KillViewOrEditor,
-		title: terminalStrings.kill,
-		f1: false, // This is an internal command used for context menus
-		precondition: ContextKeyExpr.or(sharedWhenClause.terminalAvailable, TerminalContextKeys.isOpen),
-		run: async (c) => killInstance(c, c.service.activeInstance)
-	});
-
-	registerTerminalAction({
-		id: TerminalCommandId.KillAll,
-		title: localize2('workbench.action.terminal.killAll', 'Kill All Terminals'),
-		precondition: ContextKeyExpr.or(sharedWhenClause.terminalAvailable, TerminalContextKeys.isOpen),
-		icon: Codicon.trash,
-		run: async (c) => {
-			const disposePromises: Promise<void>[] = [];
-			for (const instance of c.service.instances) {
-				disposePromises.push(c.service.safeDisposeTerminal(instance));
-			}
-			await Promise.all(disposePromises);
-		}
-	});
-
-	registerTerminalAction({
-		id: TerminalCommandId.KillEditor,
-		title: localize2('workbench.action.terminal.killEditor', 'Kill the Active Terminal in Editor Area'),
-		precondition: sharedWhenClause.terminalAvailable,
-		keybinding: {
-			primary: KeyMod.CtrlCmd | KeyCode.KeyW,
-			win: { primary: KeyMod.CtrlCmd | KeyCode.F4, secondary: [KeyMod.CtrlCmd | KeyCode.KeyW] },
-			weight: KeybindingWeight.WorkbenchContrib,
-			when: ContextKeyExpr.and(TerminalContextKeys.focus, TerminalContextKeys.editorFocus)
-		},
-		run: (c, accessor) => accessor.get(ICommandService).executeCommand(CLOSE_EDITOR_COMMAND_ID)
-	});
-
-	registerTerminalAction({
-		id: TerminalCommandId.KillActiveTab,
-		title: terminalStrings.kill,
-		f1: false,
-		precondition: ContextKeyExpr.or(sharedWhenClause.terminalAvailable, TerminalContextKeys.isOpen),
-		keybinding: {
-			primary: KeyCode.Delete,
-			mac: {
-				primary: KeyMod.CtrlCmd | KeyCode.Backspace,
-				secondary: [KeyCode.Delete]
-			},
-			weight: KeybindingWeight.WorkbenchContrib,
-			when: TerminalContextKeys.tabsFocus
-		},
-		run: async (c, accessor) => {
-			const disposePromises: Promise<void>[] = [];
-			for (const terminal of getSelectedInstances(accessor, true) ?? []) {
-				disposePromises.push(c.service.safeDisposeTerminal(terminal));
-			}
-			await Promise.all(disposePromises);
-			c.groupService.focusTabs();
-		}
-	});
-
-	registerTerminalAction({
-		id: TerminalCommandId.FocusHover,
-		title: terminalStrings.focusHover,
-		precondition: ContextKeyExpr.or(sharedWhenClause.terminalAvailable, TerminalContextKeys.isOpen),
-		keybinding: {
-			primary: KeyChord(KeyMod.CtrlCmd | KeyCode.KeyK, KeyMod.CtrlCmd | KeyCode.KeyI),
-			weight: KeybindingWeight.WorkbenchContrib,
-			when: ContextKeyExpr.or(TerminalContextKeys.tabsFocus, TerminalContextKeys.focus)
-		},
-		run: (c) => c.groupService.focusHover()
-	});
-
-	registerActiveInstanceAction({
-		id: TerminalCommandId.Clear,
-		title: localize2('workbench.action.terminal.clear', 'Clear'),
-		precondition: sharedWhenClause.terminalAvailable,
-		keybinding: [{
-			primary: 0,
-			mac: { primary: KeyMod.CtrlCmd | KeyCode.KeyK },
-			// Weight is higher than work workbench contributions so the keybinding remains
-			// highest priority when chords are registered afterwards
-			weight: KeybindingWeight.WorkbenchContrib + 1,
-			// Disable the keybinding when accessibility mode is enabled as chords include
-			// important screen reader keybindings such as cmd+k, cmd+i to show the hover
-			when: ContextKeyExpr.or(ContextKeyExpr.and(TerminalContextKeys.focus, CONTEXT_ACCESSIBILITY_MODE_ENABLED.negate()), ContextKeyExpr.and(CONTEXT_ACCESSIBILITY_MODE_ENABLED, accessibleViewIsShown, accessibleViewCurrentProviderId.isEqualTo(AccessibleViewProviderId.Terminal))),
-		}],
-		run: (activeInstance) => activeInstance.clearBuffer()
-	});
-
-	registerTerminalAction({
-		id: TerminalCommandId.SelectDefaultProfile,
-		title: localize2('workbench.action.terminal.selectDefaultShell', 'Select Default Profile'),
-		run: (c) => c.service.showProfileQuickPick('setDefault')
-	});
-
-	registerTerminalAction({
-		id: TerminalCommandId.ConfigureTerminalSettings,
-		title: localize2('workbench.action.terminal.openSettings', 'Configure Terminal Settings'),
-		precondition: sharedWhenClause.terminalAvailable,
-		run: (c, accessor) => accessor.get(IPreferencesService).openSettings({ jsonEditor: false, query: '@feature:terminal' })
-	});
-
-	registerActiveInstanceAction({
-		id: TerminalCommandId.SetDimensions,
-		title: localize2('workbench.action.terminal.setFixedDimensions', 'Set Fixed Dimensions'),
-		precondition: sharedWhenClause.terminalAvailable_and_opened,
-		run: (activeInstance) => activeInstance.setFixedDimensions()
-	});
-
-	registerContextualInstanceAction({
-		id: TerminalCommandId.SizeToContentWidth,
-		title: terminalStrings.toggleSizeToContentWidth,
-		precondition: sharedWhenClause.terminalAvailable_and_opened,
-		keybinding: {
-			primary: KeyMod.Alt | KeyCode.KeyZ,
-			weight: KeybindingWeight.WorkbenchContrib,
-			when: TerminalContextKeys.focus
-		},
-		run: (instance) => instance.toggleSizeToContentWidth()
-	});
-
-	registerTerminalAction({
-		id: TerminalCommandId.SwitchTerminal,
-		title: localize2('workbench.action.terminal.switchTerminal', 'Switch Terminal'),
-		precondition: sharedWhenClause.terminalAvailable,
-		run: async (c, accessor, args) => {
-			const item = toOptionalString(args);
-			if (!item) {
-				return;
-			}
-			if (item === switchTerminalActionViewItemSeparator) {
-				c.service.refreshActiveGroup();
-				return;
-			}
-			if (item === switchTerminalShowTabsTitle) {
-				accessor.get(IConfigurationService).updateValue(TerminalSettingId.TabsEnabled, true);
-				return;
-			}
-
-			const terminalIndexRe = /^([0-9]+): /;
-			const indexMatches = terminalIndexRe.exec(item);
-			if (indexMatches) {
-				c.groupService.setActiveGroupByIndex(Number(indexMatches[1]) - 1);
-				return c.groupService.showPanel(true);
-			}
-
-			const quickSelectProfiles = c.profileService.availableProfiles;
-
-			// Remove 'New ' from the selected item to get the profile name
-			const profileSelection = item.substring(4);
-			if (quickSelectProfiles) {
-				const profile = quickSelectProfiles.find(profile => profile.profileName === profileSelection);
-				if (profile) {
-					const instance = await c.service.createTerminal({
-						config: profile
-					});
-					c.service.setActiveInstance(instance);
-				} else {
-					console.warn(`No profile with name "${profileSelection}"`);
-				}
-			} else {
-				console.warn(`Unmatched terminal item: "${item}"`);
-			}
-		}
-	});
+});
 }
 
 interface IRemoteTerminalPick extends IQuickPickItem {
@@ -1704,7 +1704,7 @@ export function shrinkWorkspaceFolderCwdPairs(pairs: WorkspaceFolderCwdPair[]): 
 	return selectedPairsInOrder;
 }
 
-async function focusActiveTerminal(instance: ITerminalInstance, c: ITerminalServicesCollection): Promise<void> {
+async function focusActiveTerminal(instance: ITerminalInstance, c: ITerminalServicesCollection): Promise<cognidreamidream> {
 	if (instance.target === TerminalLocation.Editor) {
 		await c.editorService.revealActiveEditor();
 		await instance.focusWhenReady(true);

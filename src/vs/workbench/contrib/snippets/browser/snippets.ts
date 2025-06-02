@@ -23,9 +23,9 @@ export interface ISnippetsService {
 
 	isEnabled(snippet: Snippet): boolean;
 
-	updateEnablement(snippet: Snippet, enabled: boolean): void;
+	updateEnablement(snippet: Snippet, enabled: boolean): cognidreamidream;
 
-	updateUsageTimestamp(snippet: Snippet): void;
+	updateUsageTimestamp(snippet: Snippet): cognidreamidream;
 
 	getSnippets(languageId: string | undefined, opt?: ISnippetGetOptions): Promise<Snippet[]>;
 

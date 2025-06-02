@@ -29,13 +29,13 @@ export class SuggestWidgetAdaptor extends Disposable {
 	public get selectedItem(): SuggestItemInfo | undefined {
 		return this._currentSuggestItemInfo;
 	}
-	private _onDidSelectedItemChange = this._register(new Emitter<void>());
-	public readonly onDidSelectedItemChange: Event<void> = this._onDidSelectedItemChange.event;
+	private _onDidSelectedItemChange = this._register(new Emitter<cognidream>());
+	public readonly onDidSelectedItemChange: Event<cognidream> = this._onDidSelectedItemChange.event;
 
 	constructor(
 		private readonly editor: ICodeEditor,
 		private readonly suggestControllerPreselector: () => SingleTextEdit | undefined,
-		private readonly onWillAccept: (item: SuggestItemInfo) => void,
+		private readonly onWillAccept: (item: SuggestItemInfo) => cognidream,
 	) {
 		super();
 
@@ -132,7 +132,7 @@ export class SuggestWidgetAdaptor extends Disposable {
 		this.update(this._isActive);
 	}
 
-	private update(newActive: boolean): void {
+	private update(newActive: boolean): cognidream {
 		const newInlineCompletion = this.getSuggestItemInfo();
 
 		if (this._isActive !== newActive || !suggestItemInfoEquals(this._currentSuggestItemInfo, newInlineCompletion)) {
@@ -166,12 +166,12 @@ export class SuggestWidgetAdaptor extends Disposable {
 		);
 	}
 
-	public stopForceRenderingAbove(): void {
+	public stopForceRenderingAbove(): cognidream {
 		const suggestController = SuggestController.get(this.editor);
 		suggestController?.stopForceRenderingAbove();
 	}
 
-	public forceRenderingAbove(): void {
+	public forceRenderingAbove(): cognidream {
 		const suggestController = SuggestController.get(this.editor);
 		suggestController?.forceRenderingAbove();
 	}
@@ -259,17 +259,17 @@ export class ObservableSuggestWidgetAdapter extends Disposable {
 	constructor(
 		private readonly _editorObs: ObservableCodeEditor,
 
-		private readonly _handleSuggestAccepted: (item: SuggestItemInfo) => void,
+		private readonly _handleSuggestAccepted: (item: SuggestItemInfo) => cognidream,
 		private readonly _suggestControllerPreselector: () => SingleTextEdit | undefined,
 	) {
 		super();
 	}
 
-	public stopForceRenderingAbove(): void {
+	public stopForceRenderingAbove(): cognidream {
 		this._suggestWidgetAdaptor.stopForceRenderingAbove();
 	}
 
-	public forceRenderingAbove(): void {
+	public forceRenderingAbove(): cognidream {
 		this._suggestWidgetAdaptor.forceRenderingAbove();
 	}
 }

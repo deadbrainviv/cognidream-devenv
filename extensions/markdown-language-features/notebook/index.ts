@@ -129,7 +129,7 @@ const sanitizerOptions: DOMPurify.Config = {
 	],
 };
 
-export const activate: ActivationFunction<void> = (ctx) => {
+export const activate: ActivationFunction<cognidream> = (ctx) => {
 	const markdownIt: MarkdownIt = new MarkdownIt({
 		html: true,
 		linkify: true,
@@ -341,7 +341,7 @@ export const activate: ActivationFunction<void> = (ctx) => {
 					: DOMPurify.sanitize(unsanitizedRenderedMarkdown, sanitizerOptions)) as string;
 			}
 		},
-		extendMarkdownIt: (f: (md: typeof markdownIt) => void) => {
+		extendMarkdownIt: (f: (md: typeof markdownIt) => cognidream) => {
 			try {
 				f(markdownIt);
 			} catch (err) {
@@ -352,7 +352,7 @@ export const activate: ActivationFunction<void> = (ctx) => {
 };
 
 
-function addNamedHeaderRendering(md: InstanceType<typeof MarkdownIt>): void {
+function addNamedHeaderRendering(md: InstanceType<typeof MarkdownIt>): cognidream {
 	const slugCounter = new Map<string, number>();
 
 	const originalHeaderOpen = md.renderer.rules.heading_open;
@@ -384,7 +384,7 @@ function addNamedHeaderRendering(md: InstanceType<typeof MarkdownIt>): void {
 	};
 }
 
-function addLinkRenderer(md: MarkdownIt): void {
+function addLinkRenderer(md: MarkdownIt): cognidream {
 	const original = md.renderer.rules.link_open;
 
 	md.renderer.rules.link_open = (tokens: MarkdownItToken[], idx: number, options, env, self) => {

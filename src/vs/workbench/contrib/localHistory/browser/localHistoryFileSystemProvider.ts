@@ -145,15 +145,15 @@ export class LocalHistoryFileSystemProvider implements IFileSystemProvider, IFil
 	readonly onDidChangeCapabilities = Event.None;
 	readonly onDidChangeFile = Event.None;
 
-	async writeFile(resource: URI, content: Uint8Array, opts: IFileWriteOptions): Promise<void> { }
+	async writeFile(resource: URI, content: Uint8Array, opts: IFileWriteOptions): Promise<cognidream> { }
 
-	async mkdir(resource: URI): Promise<void> { }
-	async readdir(resource: URI): Promise<[string, FileType][]> { return []; }
+	async mkdir(resource: URI): Promicognidreamognidream> {}
+    async readdir(resource: URI): Promise < [string, FileType][] > { return []; }
 
-	async rename(from: URI, to: URI, opts: IFileOverwriteOptions): Promise<void> { }
-	async delete(resource: URI, opts: IFileDeleteOptions): Promise<void> { }
+    async rename(from: URI, to: URI, opts: IFileOverwriteOptions): Promicognidreamognidream > {}
+    async delete (resource: URI, opts: IFileDeleteOptions): Promicognidreamognidream > {}
 
-	watch(resource: URI, opts: IWatchOptions): IDisposable { return Disposable.None; }
+watch(resource: URI, opts: IWatchOptions): IDisposable { return Disposable.None; }
 
-	//#endregion
+    //#endregion
 }

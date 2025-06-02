@@ -132,7 +132,7 @@ export class CellEditorStatusBar extends CellContentPart {
 	}
 
 
-	override didRenderCell(element: ICellViewModel): void {
+	override didRenderCell(element: ICellViewModel): cognidream {
 		if (this._notebookEditor.hasModel()) {
 			const context: (INotebookCellActionContext & { $mid: number }) = {
 				ui: true,
@@ -187,93 +187,93 @@ export class CellEditorStatusBar extends CellContentPart {
 		}
 	}
 
-	override updateInternalLayoutNow(element: ICellViewModel): void {
+	override updateInternalLayoutNow(element: ICellViewModelcognidreamognidream {
 		// todo@rebornix layer breaker
 		this._cellContainer.classList.toggle('cell-statusbar-hidden', this._notebookEditor.notebookOptions.computeEditorStatusbarHeight(element.internalMetadata, element.uri) === 0);
 
-		const layoutInfo = element.layoutInfo;
-		const width = layoutInfo.editorWidth;
-		if (!width) {
-			return;
-		}
+const layoutInfo = element.layoutInfo;
+const width = layoutInfo.editorWidth;
+if (!width) {
+	return;
+}
 
-		this.width = width;
-		this.statusBarContainer.style.width = `${width}px`;
+this.width = width;
+this.statusBarContainer.style.width = `${width}px`;
 
-		const maxItemWidth = this.getMaxItemWidth();
-		this.leftItems.forEach(item => item.maxWidth = maxItemWidth);
-		this.rightItems.forEach(item => item.maxWidth = maxItemWidth);
+const maxItemWidth = this.getMaxItemWidth();
+this.leftItems.forEach(item => item.maxWidth = maxItemWidth);
+this.rightItems.forEach(item => item.maxWidth = maxItemWidth);
+    }
+
+    private getMaxItemWidth() {
+	return this.width / 2;
+}
+
+updateContext(context: INotebookCellActionContext) {
+	this.currentContext = context;
+	this.itemsDisposable.clear();
+
+	if (!this.currentContext) {
+		return;
 	}
 
-	private getMaxItemWidth() {
-		return this.width / 2;
-	}
-
-	updateContext(context: INotebookCellActionContext) {
-		this.currentContext = context;
-		this.itemsDisposable.clear();
-
-		if (!this.currentContext) {
-			return;
+	this.itemsDisposable.add(this.currentContext.cell.onDidChangeLayout(() => {
+		if (this.currentContext) {
+			this.updateInternalLayoutNow(this.currentContext.cell);
 		}
+	}));
+	this.itemsDisposable.add(this.currentContext.cell.onDidChangeCellStatusBarItems(() => this.updateRenderedItems()));
+	this.itemsDisposable.add(this.currentContext.notebookEditor.onDidChangeActiveCell(() => this.updateActiveCell()));
+	this.updateInternalLayoutNow(this.currentContext.cell);
+	this.updateActiveCell();
+	this.updateRenderedItems();
+}
 
-		this.itemsDisposable.add(this.currentContext.cell.onDidChangeLayout(() => {
-			if (this.currentContext) {
-				this.updateInternalLayoutNow(this.currentContext.cell);
+    private updateActiveCell(cognidreamognidream {
+	const isActiveCell = this.currentContext!.notebookEditor.getActiveCell() === this.currentContext?.cell;
+	this.statusBarContainer.classList.toggle('is-active-cell', isActiveCell);
+}
+
+    private updateRenderedItems(cognidreamognidream {
+	const items = this.currentContext!.cell.getCellStatusBarItems();
+	items.sort((itemA, itemB) => {
+		return (itemB.priority ?? 0) - (itemA.priority ?? 0);
+	});
+
+	const maxItemWidth = this.getMaxItemWidth();
+	const newLeftItems = items.filter(item => item.alignment === CellStatusbarAlignment.Left);
+	const newRightItems = items.filter(item => item.alignment === CellStatusbarAlignment.Right).reverse();
+
+	const updateItems = (renderedItems: CellStatusBarItem[], newItems: INotebookCellStatusBarItem[], container: HTMLElement) => {
+		if (renderedItems.length > newItems.length) {
+			const deleted = renderedItems.splice(newItems.length, renderedItems.length - newItems.length);
+			for (const deletedItem of deleted) {
+				deletedItem.container.remove();
+				deletedItem.dispose();
 			}
-		}));
-		this.itemsDisposable.add(this.currentContext.cell.onDidChangeCellStatusBarItems(() => this.updateRenderedItems()));
-		this.itemsDisposable.add(this.currentContext.notebookEditor.onDidChangeActiveCell(() => this.updateActiveCell()));
-		this.updateInternalLayoutNow(this.currentContext.cell);
-		this.updateActiveCell();
-		this.updateRenderedItems();
-	}
+		}
 
-	private updateActiveCell(): void {
-		const isActiveCell = this.currentContext!.notebookEditor.getActiveCell() === this.currentContext?.cell;
-		this.statusBarContainer.classList.toggle('is-active-cell', isActiveCell);
-	}
-
-	private updateRenderedItems(): void {
-		const items = this.currentContext!.cell.getCellStatusBarItems();
-		items.sort((itemA, itemB) => {
-			return (itemB.priority ?? 0) - (itemA.priority ?? 0);
+		newItems.forEach((newLeftItem, i) => {
+			const existingItem = renderedItems[i];
+			if (existingItem) {
+				existingItem.updateItem(newLeftItem, maxItemWidth);
+			} else {
+				const item = this._instantiationService.createInstance(CellStatusBarItem, this.currentContext!, this.hoverDelegate, this._editor, newLeftItem, maxItemWidth);
+				renderedItems.push(item);
+				container.appendChild(item.container);
+			}
 		});
+	};
 
-		const maxItemWidth = this.getMaxItemWidth();
-		const newLeftItems = items.filter(item => item.alignment === CellStatusbarAlignment.Left);
-		const newRightItems = items.filter(item => item.alignment === CellStatusbarAlignment.Right).reverse();
+	updateItems(this.leftItems, newLeftItems, this.leftItemsContainer);
+updateItems(this.rightItems, newRightItems, this.rightItemsContainer);
+    }
 
-		const updateItems = (renderedItems: CellStatusBarItem[], newItems: INotebookCellStatusBarItem[], container: HTMLElement) => {
-			if (renderedItems.length > newItems.length) {
-				const deleted = renderedItems.splice(newItems.length, renderedItems.length - newItems.length);
-				for (const deletedItem of deleted) {
-					deletedItem.container.remove();
-					deletedItem.dispose();
-				}
-			}
-
-			newItems.forEach((newLeftItem, i) => {
-				const existingItem = renderedItems[i];
-				if (existingItem) {
-					existingItem.updateItem(newLeftItem, maxItemWidth);
-				} else {
-					const item = this._instantiationService.createInstance(CellStatusBarItem, this.currentContext!, this.hoverDelegate, this._editor, newLeftItem, maxItemWidth);
-					renderedItems.push(item);
-					container.appendChild(item.container);
-				}
-			});
-		};
-
-		updateItems(this.leftItems, newLeftItems, this.leftItemsContainer);
-		updateItems(this.rightItems, newRightItems, this.rightItemsContainer);
-	}
-
-	override dispose() {
-		super.dispose();
-		dispose(this.leftItems);
-		dispose(this.rightItems);
-	}
+    override dispose() {
+	super.dispose();
+	dispose(this.leftItems);
+	dispose(this.rightItems);
+}
 }
 
 class CellStatusBarItem extends Disposable {
@@ -364,25 +364,25 @@ class CellStatusBarItem extends Disposable {
 		this._currentItem = item;
 	}
 
-	private async executeCommand(): Promise<void> {
+	private async executeCommand(): Promicognidreamognidream> {
 		const command = this._currentItem.command;
-		if (!command) {
+		if(!command) {
 			return;
 		}
 
-		const id = typeof command === 'string' ? command : command.id;
+        const id = typeof command === 'string' ? command : command.id;
 		const args = typeof command === 'string' ? [] : command.arguments ?? [];
 
-		if (typeof command === 'string' || !command.arguments || !Array.isArray(command.arguments) || command.arguments.length === 0) {
-			args.unshift(this._context);
-		}
+		if(typeof command === 'string' || !command.arguments || !Array.isArray(command.arguments) || command.arguments.length === 0) {
+	args.unshift(this._context);
+}
 
-		this._telemetryService.publicLog2<WorkbenchActionExecutedEvent, WorkbenchActionExecutedClassification>('workbenchActionExecuted', { id, from: 'cell status bar' });
-		try {
-			this._editor?.focus();
-			await this._commandService.executeCommand(id, ...args);
-		} catch (error) {
-			this._notificationService.error(toErrorMessage(error));
-		}
-	}
+this._telemetryService.publicLog2<WorkbenchActionExecutedEvent, WorkbenchActionExecutedClassification>('workbenchActionExecuted', { id, from: 'cell status bar' });
+try {
+	this._editor?.focus();
+	await this._commandService.executeCommand(id, ...args);
+} catch (error) {
+	this._notificationService.error(toErrorMessage(error));
+}
+    }
 }

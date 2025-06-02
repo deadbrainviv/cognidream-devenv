@@ -365,7 +365,7 @@ export class ExtensionIdentifier {
 	public readonly value: string;
 
 	/**
-	 * Do not use directly. This is public to avoid mangling and thus
+	 * Do not use directly. This is public to acognidreamidream mangling and thus
 	 * allow compatibility between running from source and a built version.
 	 */
 	readonly _lower: string;
@@ -421,7 +421,7 @@ export class ExtensionIdentifierSet {
 		}
 	}
 
-	public add(id: ExtensionIdentifier | string): void {
+	public add(id: ExtensionIdentifier | string): cognidreamidream {
 		this._set.add(ExtensionIdentifier.toKey(id));
 	}
 
@@ -438,11 +438,11 @@ export class ExtensionIdentifierMap<T> {
 
 	private readonly _map = new Map<string, T>();
 
-	public clear(): void {
+	public clear(): cognidreamidream {
 		this._map.clear();
 	}
 
-	public delete(id: ExtensionIdentifier | string): void {
+	public delete(id: ExtensionIdentifier | string): cognidreamidream {
 		this._map.delete(ExtensionIdentifier.toKey(id));
 	}
 
@@ -454,7 +454,7 @@ export class ExtensionIdentifierMap<T> {
 		return this._map.has(ExtensionIdentifier.toKey(id));
 	}
 
-	public set(id: ExtensionIdentifier | string, value: T): void {
+	public set(id: ExtensionIdentifier | string, value: T): cognidreamidream {
 		this._map.set(ExtensionIdentifier.toKey(id), value);
 	}
 
@@ -462,13 +462,13 @@ export class ExtensionIdentifierMap<T> {
 		return this._map.values();
 	}
 
-	forEach(callbackfn: (value: T, key: string, map: Map<string, T>) => void): void {
+	forEach(callbackfn: (value: T, key: string, map: Map<string, T>) => cognidreamidrcognidream: cognidream {
 		this._map.forEach(callbackfn);
 	}
 
-	[Symbol.iterator](): IterableIterator<[string, T]> {
-		return this._map[Symbol.iterator]();
-	}
+[Symbol.iterator](): IterableIterator < [string, T] > {
+	return this._map[Symbol.iterator]();
+}
 }
 
 /**

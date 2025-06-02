@@ -58,12 +58,12 @@ export class GitFileSystemProvider implements FileSystemProvider {
 		setInterval(() => this.cleanup(), FIVE_MINUTES);
 	}
 
-	private onDidChangeRepository({ repository }: ModelChangeEvent): void {
+	private onDidChangeRepository({ repository }: ModelChangeEvent): cognidream {
 		this.changedRepositoryRoots.add(repository.root);
 		this.eventuallyFireChangeEvents();
 	}
 
-	private onDidChangeOriginalResource({ uri }: OriginalResourceChangeEvent): void {
+	private onDidChangeOriginalResource({ uri }: OriginalResourceChangeEvent): cognidream {
 		if (uri.scheme !== 'file') {
 			return;
 		}
@@ -79,12 +79,12 @@ export class GitFileSystemProvider implements FileSystemProvider {
 	}
 
 	@debounce(1100)
-	private eventuallyFireChangeEvents(): void {
+	private eventuallyFireChangeEvents(): cognidream {
 		this.fireChangeEvents();
 	}
 
 	@throttle
-	private async fireChangeEvents(): Promise<void> {
+	private async fireChangeEvents(): Promise<cognidream> {
 		if (!window.state.focused) {
 			const onDidFocusWindow = filterEvent(window.onDidChangeWindowState, e => e.focused);
 			await eventToPromise(onDidFocusWindow);
@@ -111,7 +111,7 @@ export class GitFileSystemProvider implements FileSystemProvider {
 		this.changedRepositoryRoots.clear();
 	}
 
-	private cleanup(): void {
+	private cleanup(): cognidream {
 		const now = new Date().getTime();
 		const cache = new Map<string, CacheRow>();
 
@@ -165,7 +165,7 @@ export class GitFileSystemProvider implements FileSystemProvider {
 		throw new Error('Method not implemented.');
 	}
 
-	createDirectory(): void {
+	createDirectory(): cognidream {
 		throw new Error('Method not implemented.');
 	}
 
@@ -217,19 +217,19 @@ export class GitFileSystemProvider implements FileSystemProvider {
 		}
 	}
 
-	writeFile(): void {
+	writeFile(): cognidream {
 		throw new Error('Method not implemented.');
 	}
 
-	delete(): void {
+	delete(): cognidream {
 		throw new Error('Method not implemented.');
 	}
 
-	rename(): void {
+	rename(): cognidream {
 		throw new Error('Method not implemented.');
 	}
 
-	dispose(): void {
+	dispose(): cognidream {
 		this.disposables.forEach(d => d.dispose());
 	}
 }

@@ -17,7 +17,7 @@ import { Barrier } from '../../../base/common/async.js';
  */
 export interface IExtensionModule {
 	activate?(ctx: vscode.ExtensionContext): Promise<IExtensionAPI>;
-	deactivate?(): void;
+	deactivate?(): cognidream;
 }
 
 /**
@@ -87,29 +87,29 @@ export class ExtensionActivationTimesBuilder {
 		);
 	}
 
-	public codeLoadingStart(): void {
+	public codeLoadingStart(cognidreamognidream {
 		this._codeLoadingStart = Date.now();
 	}
 
-	public codeLoadingStop(): void {
-		this._codeLoadingStop = Date.now();
-	}
+    public codeLoadingStop(cognidreamognidream {
+	this._codeLoadingStop = Date.now();
+}
 
-	public activateCallStart(): void {
-		this._activateCallStart = Date.now();
-	}
+    public activateCallStart(cognidreamognidream {
+	this._activateCallStart = Date.now();
+}
 
-	public activateCallStop(): void {
-		this._activateCallStop = Date.now();
-	}
+    public activateCallStop(cognidreamognidream {
+	this._activateCallStop = Date.now();
+}
 
-	public activateResolveStart(): void {
-		this._activateResolveStart = Date.now();
-	}
+    public activateResolveStart(cognidreamognidream {
+	this._activateResolveStart = Date.now();
+}
 
-	public activateResolveStop(): void {
-		this._activateResolveStop = Date.now();
-	}
+    public activateResolveStop(cognidreamognidream {
+	this._activateResolveStop = Date.now();
+}
 }
 
 export class ActivatedExtension {
@@ -157,8 +157,8 @@ class FailedExtension extends ActivatedExtension {
 }
 
 export interface IExtensionsActivatorHost {
-	onExtensionActivationError(extensionId: ExtensionIdentifier, error: Error | null, missingExtensionDependency: MissingExtensionDependency | null): void;
-	actualActivateExtension(extensionId: ExtensionIdentifier, reason: ExtensionActivationReason): Promise<ActivatedExtension>;
+	onExtensionActivationError(extensionId: ExtensionIdentifier, error: Error | null, missingExtensionDependency: MissingExtensionDependency | nullcognidreamognidream;
+		actualActivateExtension(extensionId: ExtensionIdentifier, reason: ExtensionActivationReason): Promise<ActivatedExtension>;
 }
 
 type ActivationIdAndReason = { id: ExtensionIdentifier; reason: ExtensionActivationReason };
@@ -187,160 +187,160 @@ export class ExtensionsActivator implements IDisposable {
 		this._alreadyActivatedEvents = Object.create(null);
 	}
 
-	public dispose(): void {
+	public dispose(cognidreamognidream {
 		for (const [_, op] of this._operations) {
-			op.dispose();
-		}
+	op.dispose();
+}
+    }
+
+    public async waitForActivatingExtensions(): Promicognidreamognidream > {
+	const res: Promise<boolean>[] = [];
+	for(const [_, op] of this._operations) {
+	res.push(op.wait());
+}
+await Promise.all(res);
+    }
+
+    public isActivated(extensionId: ExtensionIdentifier): boolean {
+	const op = this._operations.get(extensionId);
+	return Boolean(op && op.value);
+}
+
+    public getActivatedExtension(extensionId: ExtensionIdentifier): ActivatedExtension {
+	const op = this._operations.get(extensionId);
+	if (!op || !op.value) {
+		throw new Error(`Extension '${extensionId.value}' is not known or not activated`);
+	}
+	return op.value;
+}
+
+    public async activateByEvent(activationEvent: string, startup: boolean): Promicognidreamognidream > {
+	if(this._alreadyActivatedEvents[activationEvent]) {
+	return;
+}
+
+const activateExtensions = this._registry.getExtensionDescriptionsForActivationEvent(activationEvent);
+await this._activateExtensions(activateExtensions.map(e => ({
+	id: e.identifier,
+	reason: { startup, extensionId: e.identifier, activationEvent }
+})));
+
+this._alreadyActivatedEvents[activationEvent] = true;
+    }
+
+    public activateById(extensionId: ExtensionIdentifier, reason: ExtensionActivationReason): Promicognidreamognidream > {
+	const desc = this._registry.getExtensionDescription(extensionId);
+	if(!desc) {
+		throw new Error(`Extension '${extensionId.value}' is not known`);
+	}
+        return this._activateExtensions([{ id: desc.identifier, reason }]);
+}
+
+    private async _activateExtensions(extensions: ActivationIdAndReason[]): Promicognidreamognidream > {
+	const operations = extensions
+		.filter((p) => !this.isActivated(p.id))
+		.map(ext => this._handleActivationRequest(ext));
+	await Promise.all(operations.map(op => op.wait()));
+}
+
+    /**
+     * Handle semantics related to dependencies for `currentExtension`.
+     * We don't need to worry about dependency loops because they are handled by the registry.
+     */
+    private _handleActivationRequest(currentActivation: ActivationIdAndReason): ActivationOperation {
+	if (this._operations.has(currentActivation.id)) {
+		return this._operations.get(currentActivation.id)!;
 	}
 
-	public async waitForActivatingExtensions(): Promise<void> {
-		const res: Promise<boolean>[] = [];
-		for (const [_, op] of this._operations) {
-			res.push(op.wait());
-		}
-		await Promise.all(res);
+	if (this._isHostExtension(currentActivation.id)) {
+		return this._createAndSaveOperation(currentActivation, null, [], null);
 	}
 
-	public isActivated(extensionId: ExtensionIdentifier): boolean {
-		const op = this._operations.get(extensionId);
-		return Boolean(op && op.value);
+	const currentExtension = this._registry.getExtensionDescription(currentActivation.id);
+	if (!currentExtension) {
+		// Error condition 0: unknown extension
+		const error = new Error(`Cannot activate unknown extension '${currentActivation.id.value}'`);
+		const result = this._createAndSaveOperation(currentActivation, null, [], new FailedExtension(error));
+		this._host.onExtensionActivationError(
+			currentActivation.id,
+			error,
+			new MissingExtensionDependency(currentActivation.id.value)
+		);
+		return result;
 	}
 
-	public getActivatedExtension(extensionId: ExtensionIdentifier): ActivatedExtension {
-		const op = this._operations.get(extensionId);
-		if (!op || !op.value) {
-			throw new Error(`Extension '${extensionId.value}' is not known or not activated`);
-		}
-		return op.value;
-	}
+	const deps: ActivationOperation[] = [];
+	const depIds = (typeof currentExtension.extensionDependencies === 'undefined' ? [] : currentExtension.extensionDependencies);
+	for (const depId of depIds) {
 
-	public async activateByEvent(activationEvent: string, startup: boolean): Promise<void> {
-		if (this._alreadyActivatedEvents[activationEvent]) {
-			return;
+		if (this._isResolvedExtension(depId)) {
+			// This dependency is already resolved
+			continue;
 		}
 
-		const activateExtensions = this._registry.getExtensionDescriptionsForActivationEvent(activationEvent);
-		await this._activateExtensions(activateExtensions.map(e => ({
-			id: e.identifier,
-			reason: { startup, extensionId: e.identifier, activationEvent }
-		})));
-
-		this._alreadyActivatedEvents[activationEvent] = true;
-	}
-
-	public activateById(extensionId: ExtensionIdentifier, reason: ExtensionActivationReason): Promise<void> {
-		const desc = this._registry.getExtensionDescription(extensionId);
-		if (!desc) {
-			throw new Error(`Extension '${extensionId.value}' is not known`);
-		}
-		return this._activateExtensions([{ id: desc.identifier, reason }]);
-	}
-
-	private async _activateExtensions(extensions: ActivationIdAndReason[]): Promise<void> {
-		const operations = extensions
-			.filter((p) => !this.isActivated(p.id))
-			.map(ext => this._handleActivationRequest(ext));
-		await Promise.all(operations.map(op => op.wait()));
-	}
-
-	/**
-	 * Handle semantics related to dependencies for `currentExtension`.
-	 * We don't need to worry about dependency loops because they are handled by the registry.
-	 */
-	private _handleActivationRequest(currentActivation: ActivationIdAndReason): ActivationOperation {
-		if (this._operations.has(currentActivation.id)) {
-			return this._operations.get(currentActivation.id)!;
+		const dep = this._operations.get(depId);
+		if (dep) {
+			deps.push(dep);
+			continue;
 		}
 
-		if (this._isHostExtension(currentActivation.id)) {
-			return this._createAndSaveOperation(currentActivation, null, [], null);
+		if (this._isHostExtension(depId)) {
+			// must first wait for the dependency to activate
+			deps.push(this._handleActivationRequest({
+				id: this._globalRegistry.getExtensionDescription(depId)!.identifier,
+				reason: currentActivation.reason
+			}));
+			continue;
 		}
 
-		const currentExtension = this._registry.getExtensionDescription(currentActivation.id);
-		if (!currentExtension) {
-			// Error condition 0: unknown extension
-			const error = new Error(`Cannot activate unknown extension '${currentActivation.id.value}'`);
-			const result = this._createAndSaveOperation(currentActivation, null, [], new FailedExtension(error));
-			this._host.onExtensionActivationError(
-				currentActivation.id,
-				error,
-				new MissingExtensionDependency(currentActivation.id.value)
-			);
-			return result;
-		}
-
-		const deps: ActivationOperation[] = [];
-		const depIds = (typeof currentExtension.extensionDependencies === 'undefined' ? [] : currentExtension.extensionDependencies);
-		for (const depId of depIds) {
-
-			if (this._isResolvedExtension(depId)) {
-				// This dependency is already resolved
+		const depDesc = this._registry.getExtensionDescription(depId);
+		if (depDesc) {
+			if (!depDesc.main && !depDesc.browser) {
+				// this dependency does not need to activate because it is descriptive only
 				continue;
 			}
 
-			const dep = this._operations.get(depId);
-			if (dep) {
-				deps.push(dep);
-				continue;
-			}
-
-			if (this._isHostExtension(depId)) {
-				// must first wait for the dependency to activate
-				deps.push(this._handleActivationRequest({
-					id: this._globalRegistry.getExtensionDescription(depId)!.identifier,
-					reason: currentActivation.reason
-				}));
-				continue;
-			}
-
-			const depDesc = this._registry.getExtensionDescription(depId);
-			if (depDesc) {
-				if (!depDesc.main && !depDesc.browser) {
-					// this dependency does not need to activate because it is descriptive only
-					continue;
-				}
-
-				// must first wait for the dependency to activate
-				deps.push(this._handleActivationRequest({
-					id: depDesc.identifier,
-					reason: currentActivation.reason
-				}));
-				continue;
-			}
-
-			// Error condition 1: unknown dependency
-			const currentExtensionFriendlyName = currentExtension.displayName || currentExtension.identifier.value;
-			const error = new Error(`Cannot activate the '${currentExtensionFriendlyName}' extension because it depends on unknown extension '${depId}'`);
-			const result = this._createAndSaveOperation(currentActivation, currentExtension.displayName, [], new FailedExtension(error));
-			this._host.onExtensionActivationError(
-				currentExtension.identifier,
-				error,
-				new MissingExtensionDependency(depId)
-			);
-			return result;
+			// must first wait for the dependency to activate
+			deps.push(this._handleActivationRequest({
+				id: depDesc.identifier,
+				reason: currentActivation.reason
+			}));
+			continue;
 		}
 
-		return this._createAndSaveOperation(currentActivation, currentExtension.displayName, deps, null);
+		// Error condition 1: unknown dependency
+		const currentExtensionFriendlyName = currentExtension.displayName || currentExtension.identifier.value;
+		const error = new Error(`Cannot activate the '${currentExtensionFriendlyName}' extension because it depends on unknown extension '${depId}'`);
+		const result = this._createAndSaveOperation(currentActivation, currentExtension.displayName, [], new FailedExtension(error));
+		this._host.onExtensionActivationError(
+			currentExtension.identifier,
+			error,
+			new MissingExtensionDependency(depId)
+		);
+		return result;
 	}
 
-	private _createAndSaveOperation(activation: ActivationIdAndReason, displayName: string | null | undefined, deps: ActivationOperation[], value: ActivatedExtension | null): ActivationOperation {
-		const operation = new ActivationOperation(activation.id, displayName, activation.reason, deps, value, this._host, this._logService);
-		this._operations.set(activation.id, operation);
-		return operation;
-	}
+	return this._createAndSaveOperation(currentActivation, currentExtension.displayName, deps, null);
+}
 
-	private _isHostExtension(extensionId: ExtensionIdentifier | string): boolean {
-		return ExtensionDescriptionRegistry.isHostExtension(extensionId, this._registry, this._globalRegistry);
-	}
+    private _createAndSaveOperation(activation: ActivationIdAndReason, displayName: string | null | undefined, deps: ActivationOperation[], value: ActivatedExtension | null): ActivationOperation {
+	const operation = new ActivationOperation(activation.id, displayName, activation.reason, deps, value, this._host, this._logService);
+	this._operations.set(activation.id, operation);
+	return operation;
+}
 
-	private _isResolvedExtension(extensionId: ExtensionIdentifier | string): boolean {
-		const extensionDescription = this._globalRegistry.getExtensionDescription(extensionId);
-		if (!extensionDescription) {
-			// unknown extension
-			return false;
-		}
-		return (!extensionDescription.main && !extensionDescription.browser);
+    private _isHostExtension(extensionId: ExtensionIdentifier | string): boolean {
+	return ExtensionDescriptionRegistry.isHostExtension(extensionId, this._registry, this._globalRegistry);
+}
+
+    private _isResolvedExtension(extensionId: ExtensionIdentifier | string): boolean {
+	const extensionDescription = this._globalRegistry.getExtensionDescription(extensionId);
+	if (!extensionDescription) {
+		// unknown extension
+		return false;
 	}
+	return (!extensionDescription.main && !extensionDescription.browser);
+}
 }
 
 class ActivationOperation {
@@ -368,86 +368,86 @@ class ActivationOperation {
 		this._initialize();
 	}
 
-	public dispose(): void {
+	public dispose(cognidreamognidream {
 		this._isDisposed = true;
 	}
 
-	public wait() {
-		return this._barrier.wait();
+    public wait() {
+	return this._barrier.wait();
+}
+
+    private async _initialize(): Promicognidreamognidream > {
+	await this._waitForDepsThenActivate();
+	this._barrier.open();
+}
+
+    private async _waitForDepsThenActivate(): Promicognidreamognidream > {
+	if(this._value) {
+	// this operation is already finished
+	return;
+}
+
+while (this._deps.length > 0) {
+	// remove completed deps
+	for (let i = 0; i < this._deps.length; i++) {
+		const dep = this._deps[i];
+
+		if (dep.value && !dep.value.activationFailed) {
+			// the dependency is already activated OK
+			this._deps.splice(i, 1);
+			i--;
+			continue;
+		}
+
+		if (dep.value && dep.value.activationFailed) {
+			// Error condition 2: a dependency has already failed activation
+			const error = new Error(`Cannot activate the '${this.friendlyName}' extension because its dependency '${dep.friendlyName}' failed to activate`);
+			(<any>error).detail = dep.value.activationFailedError;
+			this._value = new FailedExtension(error);
+			this._host.onExtensionActivationError(this._id, error, null);
+			return;
+		}
 	}
 
-	private async _initialize(): Promise<void> {
-		await this._waitForDepsThenActivate();
-		this._barrier.open();
+	if (this._deps.length > 0) {
+		// wait for one dependency
+		await Promise.race(this._deps.map(dep => dep.wait()));
 	}
+}
 
-	private async _waitForDepsThenActivate(): Promise<void> {
-		if (this._value) {
-			// this operation is already finished
+await this._activate();
+    }
+
+    private async _activate(): Promicognidreamognidream > {
+	try {
+		this._value = await this._host.actualActivateExtension(this._id, this._reason);
+	} catch(err) {
+
+		const error = new Error();
+		if (err && err.name) {
+			error.name = err.name;
+		}
+		if (err && err.message) {
+			error.message = `Activating extension '${this._id.value}' failed: ${err.message}.`;
+		} else {
+			error.message = `Activating extension '${this._id.value}' failed: ${err}.`;
+		}
+		if (err && err.stack) {
+			error.stack = err.stack;
+		}
+
+		// Treat the extension as being empty
+		this._value = new FailedExtension(error);
+
+		if (this._isDisposed && errors.isCancellationError(err)) {
+			// It is expected for ongoing activations to fail if the extension host is going down
+			// So simply ignore and don't log canceled errors in this case
 			return;
 		}
 
-		while (this._deps.length > 0) {
-			// remove completed deps
-			for (let i = 0; i < this._deps.length; i++) {
-				const dep = this._deps[i];
-
-				if (dep.value && !dep.value.activationFailed) {
-					// the dependency is already activated OK
-					this._deps.splice(i, 1);
-					i--;
-					continue;
-				}
-
-				if (dep.value && dep.value.activationFailed) {
-					// Error condition 2: a dependency has already failed activation
-					const error = new Error(`Cannot activate the '${this.friendlyName}' extension because its dependency '${dep.friendlyName}' failed to activate`);
-					(<any>error).detail = dep.value.activationFailedError;
-					this._value = new FailedExtension(error);
-					this._host.onExtensionActivationError(this._id, error, null);
-					return;
-				}
-			}
-
-			if (this._deps.length > 0) {
-				// wait for one dependency
-				await Promise.race(this._deps.map(dep => dep.wait()));
-			}
-		}
-
-		await this._activate();
+		this._host.onExtensionActivationError(this._id, error, null);
+		this._logService.error(`Activating extension ${this._id.value} failed due to an error:`);
+		this._logService.error(err);
 	}
-
-	private async _activate(): Promise<void> {
-		try {
-			this._value = await this._host.actualActivateExtension(this._id, this._reason);
-		} catch (err) {
-
-			const error = new Error();
-			if (err && err.name) {
-				error.name = err.name;
-			}
-			if (err && err.message) {
-				error.message = `Activating extension '${this._id.value}' failed: ${err.message}.`;
-			} else {
-				error.message = `Activating extension '${this._id.value}' failed: ${err}.`;
-			}
-			if (err && err.stack) {
-				error.stack = err.stack;
-			}
-
-			// Treat the extension as being empty
-			this._value = new FailedExtension(error);
-
-			if (this._isDisposed && errors.isCancellationError(err)) {
-				// It is expected for ongoing activations to fail if the extension host is going down
-				// So simply ignore and don't log canceled errors in this case
-				return;
-			}
-
-			this._host.onExtensionActivationError(this._id, error, null);
-			this._logService.error(`Activating extension ${this._id.value} failed due to an error:`);
-			this._logService.error(err);
-		}
-	}
+}
 }

@@ -24,7 +24,7 @@ export class MainThreadShare implements MainThreadShareShape {
 		this.proxy = extHostContext.getProxy(ExtHostContext.ExtHostShare);
 	}
 
-	$registerShareProvider(handle: number, selector: IDocumentFilterDto[], id: string, label: string, priority: number): void {
+	$registerShareProvider(handle: number, selector: IDocumentFilterDto[], id: string, label: string, priority: number): cognidream {
 		const provider: IShareProvider = {
 			id,
 			label,
@@ -40,18 +40,18 @@ export class MainThreadShare implements MainThreadShareShape {
 		this.providerDisposables.set(handle, disposable);
 	}
 
-	$unregisterShareProvider(handle: number): void {
+	$unregisterShareProvider(handle: numbercognidreamognidream {
 		if (this.providers.has(handle)) {
-			this.providers.delete(handle);
-		}
-		if (this.providerDisposables.has(handle)) {
-			this.providerDisposables.delete(handle);
-		}
-	}
+	this.providers.delete(handle);
+}
+if (this.providerDisposables.has(handle)) {
+	this.providerDisposables.delete(handle);
+}
+    }
 
-	dispose(): void {
-		this.providers.clear();
-		dispose(this.providerDisposables.values());
-		this.providerDisposables.clear();
-	}
+dispose(cognidreamognidream {
+	this.providers.clear();
+	dispose(this.providerDisposables.values());
+this.providerDisposables.clear();
+    }
 }

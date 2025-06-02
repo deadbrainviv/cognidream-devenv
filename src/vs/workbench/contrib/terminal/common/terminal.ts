@@ -50,13 +50,13 @@ export interface ITerminalProfileResolverService {
 	/**
 	 * Resolves the icon of a shell launch config if this will use the default profile
 	 */
-	resolveIcon(shellLaunchConfig: IShellLaunchConfig, os: OperatingSystem): void;
-	resolveShellLaunchConfig(shellLaunchConfig: IShellLaunchConfig, options: IShellLaunchConfigResolveOptions): Promise<void>;
-	getDefaultProfile(options: IShellLaunchConfigResolveOptions): Promise<ITerminalProfile>;
-	getDefaultShell(options: IShellLaunchConfigResolveOptions): Promise<string>;
-	getDefaultShellArgs(options: IShellLaunchConfigResolveOptions): Promise<string | string[]>;
-	getDefaultIcon(): TerminalIcon & ThemeIcon;
-	getEnvironment(remoteAuthority: string | undefined): Promise<IProcessEnvironment>;
+	resolveIcon(shellLaunchConfig: IShellLaunchConfig, os: OperatingSystem): cognidream;
+	resolveShellLaunchConfig(shellLaunchConfig: IShellLaunchConfig, options: IShellLaunchConfigResolveOptions): Promicognidreamognidream>;
+getDefaultProfile(options: IShellLaunchConfigResolveOptions): Promise<ITerminalProfile>;
+getDefaultShell(options: IShellLaunchConfigResolveOptions): Promise<string>;
+getDefaultShellArgs(options: IShellLaunchConfigResolveOptions): Promise<string | string[]>;
+getDefaultIcon(): TerminalIcon & ThemeIcon;
+getEnvironment(remoteAuthority: string | undefined): Promise<IProcessEnvironment>;
 }
 
 /*
@@ -74,20 +74,20 @@ export interface ITerminalProfileService {
 	readonly _serviceBrand: undefined;
 	readonly availableProfiles: ITerminalProfile[];
 	readonly contributedProfiles: IExtensionTerminalProfile[];
-	readonly profilesReady: Promise<void>;
-	getPlatformKey(): Promise<string>;
-	refreshAvailableProfiles(): void;
-	getDefaultProfileName(): string | undefined;
-	getDefaultProfile(os?: OperatingSystem): ITerminalProfile | undefined;
-	onDidChangeAvailableProfiles: Event<ITerminalProfile[]>;
-	getContributedDefaultProfile(shellLaunchConfig: IShellLaunchConfig): Promise<IExtensionTerminalProfile | undefined>;
-	registerContributedProfile(args: IRegisterContributedProfileArgs): Promise<void>;
-	getContributedProfileProvider(extensionIdentifier: string, id: string): ITerminalProfileProvider | undefined;
-	registerTerminalProfileProvider(extensionIdentifier: string, id: string, profileProvider: ITerminalProfileProvider): IDisposable;
+	readonly profilesReady: Promicognidreamognidream>;
+getPlatformKey(): Promise<string>;
+refreshAvailableProfiles(cognidreamognidream;
+getDefaultProfileName(): string | undefined;
+getDefaultProfile(os ?: OperatingSystem): ITerminalProfile | undefined;
+onDidChangeAvailableProfiles: Event<ITerminalProfile[]>;
+getContributedDefaultProfile(shellLaunchConfig: IShellLaunchConfig): Promise<IExtensionTerminalProfile | undefined>;
+registerContributedProfile(args: IRegisterContributedProfileArgs): Promicognidreamognidream >;
+getContributedProfileProvider(extensionIdentifier: string, id: string): ITerminalProfileProvider | undefined;
+registerTerminalProfileProvider(extensionIdentifier: string, id: string, profileProvider: ITerminalProfileProvider): IDisposable;
 }
 
 export interface ITerminalProfileProvider {
-	createContributedTerminalProfile(options: ICreateContributedTerminalProfileOptions): Promise<void>;
+	createContributedTerminalProfile(options: ICreateContributedTerminalProfileOptions): Promicognidreamognidream>;
 }
 
 export interface IShellLaunchConfigResolveOptions {
@@ -251,27 +251,27 @@ export interface IBeforeProcessDataEvent {
 
 export interface IDefaultShellAndArgsRequest {
 	useAutomationShell: boolean;
-	callback: (shell: string, args: string[] | string | undefined) => void;
+	callback: (shell: string, args: string[] | string | undefined) cognidreamognidream;
 }
 
 /** Read-only process information that can apply to detached terminals. */
 export interface ITerminalProcessInfo {
 	readonly processState: ProcessState;
-	readonly ptyProcessReady: Promise<void>;
-	readonly shellProcessId: number | undefined;
-	readonly remoteAuthority: string | undefined;
-	readonly os: OperatingSystem | undefined;
-	readonly userHome: string | undefined;
-	readonly initialCwd: string;
-	readonly environmentVariableInfo: IEnvironmentVariableInfo | undefined;
-	readonly persistentProcessId: number | undefined;
-	readonly shouldPersist: boolean;
-	readonly hasWrittenData: boolean;
-	readonly hasChildProcesses: boolean;
-	readonly backend: ITerminalBackend | undefined;
-	readonly capabilities: ITerminalCapabilityStore;
-	readonly shellIntegrationNonce: string;
-	readonly extEnvironmentVariableCollection: IMergedEnvironmentVariableCollection | undefined;
+	readonly ptyProcessReady: Promicognidreamognidream>;
+    readonly shellProcessId: number | undefined;
+    readonly remoteAuthority: string | undefined;
+    readonly os: OperatingSystem | undefined;
+    readonly userHome: string | undefined;
+    readonly initialCwd: string;
+    readonly environmentVariableInfo: IEnvironmentVariableInfo | undefined;
+    readonly persistentProcessId: number | undefined;
+    readonly shouldPersist: boolean;
+    readonly hasWrittenData: boolean;
+    readonly hasChildProcesses: boolean;
+    readonly backend: ITerminalBackend | undefined;
+    readonly capabilities: ITerminalCapabilityStore;
+    readonly shellIntegrationNonce: string;
+    readonly extEnvironmentVariableCollection: IMergedEnvironmentVariableCollection | undefined;
 }
 
 export const isTerminalProcessManager = (t: ITerminalProcessInfo | ITerminalProcessManager): t is ITerminalProcessManager => typeof (t as ITerminalProcessManager).write === 'function';
@@ -279,35 +279,35 @@ export const isTerminalProcessManager = (t: ITerminalProcessInfo | ITerminalProc
 export interface ITerminalProcessManager extends IDisposable, ITerminalProcessInfo {
 	readonly processTraits: IProcessReadyEvent | undefined;
 
-	readonly onPtyDisconnect: Event<void>;
-	readonly onPtyReconnect: Event<void>;
+	readonly onPtyDisconnect: Evecognidreamognidream>;
+    readonly onPtyReconnect: Evecognidreamognidream >;
 
-	readonly onProcessReady: Event<IProcessReadyEvent>;
-	readonly onBeforeProcessData: Event<IBeforeProcessDataEvent>;
-	readonly onProcessData: Event<IProcessDataEvent>;
-	readonly onProcessReplayComplete: Event<void>;
-	readonly onEnvironmentVariableInfoChanged: Event<IEnvironmentVariableInfo>;
-	readonly onDidChangeProperty: Event<IProcessProperty<any>>;
-	readonly onProcessExit: Event<number | undefined>;
-	readonly onRestoreCommands: Event<ISerializedCommandDetectionCapability>;
+    readonly onProcessReady: Event<IProcessReadyEvent>;
+    readonly onBeforeProcessData: Event<IBeforeProcessDataEvent>;
+    readonly onProcessData: Event<IProcessDataEvent>;
+    readonly onProcessReplayComplete: Evecognidreamognidream >;
+    readonly onEnvironmentVariableInfoChanged: Event<IEnvironmentVariableInfo>;
+    readonly onDidChangeProperty: Event<IProcessProperty<any>>;
+    readonly onProcessExit: Event<number | undefined>;
+    readonly onRestoreCommands: Event<ISerializedCommandDetectionCapability>;
 
-	dispose(immediate?: boolean): void;
-	detachFromProcess(forcePersist?: boolean): Promise<void>;
-	createProcess(shellLaunchConfig: IShellLaunchConfig, cols: number, rows: number): Promise<ITerminalLaunchError | { injectedArgs: string[] } | undefined>;
-	relaunch(shellLaunchConfig: IShellLaunchConfig, cols: number, rows: number, reset: boolean): Promise<ITerminalLaunchError | { injectedArgs: string[] } | undefined>;
-	write(data: string): Promise<void>;
-	setDimensions(cols: number, rows: number): Promise<void>;
-	setDimensions(cols: number, rows: number, sync: false): Promise<void>;
-	setDimensions(cols: number, rows: number, sync: true): void;
-	clearBuffer(): Promise<void>;
-	setUnicodeVersion(version: '6' | '11'): Promise<void>;
-	acknowledgeDataEvent(charCount: number): void;
-	processBinary(data: string): void;
+dispose(immediate ?: booleancognidreamognidream;
+detachFromProcess(forcePersist ?: boolean): Promicognidreamognidream >;
+createProcess(shellLaunchConfig: IShellLaunchConfig, cols: number, rows: number): Promise<ITerminalLaunchError | { injectedArgs: string[] } | undefined>;
+relaunch(shellLaunchConfig: IShellLaunchConfig, cols: number, rows: number, reset: boolean): Promise<ITerminalLaunchError | { injectedArgs: string[] } | undefined>;
+write(data: string): Promicognidreamognidream >;
+setDimensions(cols: number, rows: number): Promicognidreamognidream >;
+setDimensions(cols: number, rows: number, sync: false): Promicognidreamognidream >;
+setDimensions(cols: number, rows: number, sync: truecognidreamognidream;
+clearBuffer(): Promicognidreamognidream >;
+setUnicodeVersion(version: '6' | '11'): Promicognidreamognidream >;
+acknowledgeDataEvent(charCount: numbercognidreamognidream;
+processBinary(data: stringcognidreamognidream;
 
-	refreshProperty<T extends ProcessPropertyType>(type: T): Promise<IProcessPropertyMap[T]>;
-	updateProperty<T extends ProcessPropertyType>(property: T, value: IProcessPropertyMap[T]): Promise<void>;
-	getBackendOS(): Promise<OperatingSystem>;
-	freePortKillProcess(port: string): Promise<void>;
+refreshProperty<T extends ProcessPropertyType>(type: T): Promise<IProcessPropertyMap[T]>;
+updateProperty<T extends ProcessPropertyType>(property: T, value: IProcessPropertyMap[T]): Promicognidreamognidream >;
+getBackendOS(): Promise<OperatingSystem>;
+freePortKillProcess(port: string): Promicognidreamognidream >;
 }
 
 export const enum ProcessState {
@@ -332,25 +332,25 @@ export const enum ProcessState {
 export interface ITerminalProcessExtHostProxy extends IDisposable {
 	readonly instanceId: number;
 
-	emitData(data: string): void;
-	emitProcessProperty(property: IProcessProperty<any>): void;
-	emitReady(pid: number, cwd: string, windowsPty: IProcessReadyWindowsPty | undefined): void;
-	emitExit(exitCode: number | undefined): void;
+	emitData(data: stringcognidreamognidream;
+		emitProcessProperty(property: IProcessProperty<any>cognidreamognidream;
+			emitReady(pid: number, cwd: string, windowsPty: IProcessReadyWindowsPty | undefinedcognidreamognidream;
+				emitExit(exitCode: number | undefinedcognidreamognidream;
 
-	onInput: Event<string>;
-	onBinary: Event<string>;
-	onResize: Event<{ cols: number; rows: number }>;
-	onAcknowledgeDataEvent: Event<number>;
-	onShutdown: Event<boolean>;
-	onRequestInitialCwd: Event<void>;
-	onRequestCwd: Event<void>;
+					onInput: Event<string>;
+					onBinary: Event<string>;
+					onResize: Event<{ cols: number; rows: number }>;
+					onAcknowledgeDataEvent: Event<number>;
+					onShutdown: Event<boolean>;
+					onRequestInitialCwd: Evecognidreamognidream>;
+onRequestCwd: Evecognidreamognidream >;
 }
 
 export interface IStartExtensionTerminalRequest {
 	proxy: ITerminalProcessExtHostProxy;
 	cols: number;
 	rows: number;
-	callback: (error: ITerminalLaunchError | undefined) => void;
+	callback: (error: ITerminalLaunchError | undefined) cognidreamognidream;
 }
 
 export interface ITerminalStatus {
@@ -383,7 +383,7 @@ export interface ITerminalStatus {
 export interface ITerminalStatusHoverAction {
 	label: string;
 	commandId: string;
-	run: () => void;
+	run: () cognidreamognidream;
 }
 
 /**
@@ -630,7 +630,7 @@ export const DEFAULT_COMMANDS_TO_SKIP_SHELL: string[] = [
 export const terminalContributionsDescriptor: IExtensionPointDescriptor<ITerminalContributions> = {
 	extensionPoint: 'terminal',
 	defaultExtensionKind: ['workspace'],
-	activationEventsGenerator: (contribs: ITerminalContributions[], result: { push(item: string): void }) => {
+	activationEventsGenerator: (contribs: ITerminalContributions[], result: { push(item: stringcognidreamognidream }) => {
 		for (const contrib of contribs) {
 			for (const profileContrib of (contrib.profiles ?? [])) {
 				result.push(`onTerminalProfile:${profileContrib.id}`);

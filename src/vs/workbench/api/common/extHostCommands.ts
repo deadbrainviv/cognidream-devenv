@@ -72,11 +72,11 @@ export class ExtHostCommands implements ExtHostCommandsShape {
 		this.converter = new CommandsConverter(
 			this,
 			id => {
-				// API commands that have no return type (void) can be
+				// API commands that have no return type (cognidream) can be
 				// converted to their internal command and don't need
 				// any indirection commands
 				const candidate = this._apiCommands.get(id);
-				return candidate?.result === ApiCommandResult.Void
+				return candidate?.result === ApiCocognidreamdResult.cognidream
 					? candidate : undefined;
 			},
 			logService
@@ -113,229 +113,229 @@ export class ExtHostCommands implements ExtHostCommandsShape {
 		];
 	}
 
-	registerArgumentProcessor(processor: ArgumentProcessor): void {
+	registerArgumentProcessor(processor: ArgumentProcessorcognidreamognidream {
 		this._argumentProcessors.push(processor);
-	}
+    }
 
-	registerApiCommand(apiCommand: ApiCommand): extHostTypes.Disposable {
+registerApiCommand(apiCommand: ApiCommand): extHostTypes.Disposable {
 
 
-		const registration = this.registerCommand(false, apiCommand.id, async (...apiArgs) => {
+	const registration = this.registerCommand(false, apiCommand.id, async (...apiArgs) => {
 
-			const internalArgs = apiCommand.args.map((arg, i) => {
-				if (!arg.validate(apiArgs[i])) {
-					throw new Error(`Invalid argument '${arg.name}' when running '${apiCommand.id}', received: ${typeof apiArgs[i] === 'object' ? JSON.stringify(apiArgs[i], null, '\t') : apiArgs[i]} `);
-				}
-				return arg.convert(apiArgs[i]);
-			});
-
-			const internalResult = await this.executeCommand(apiCommand.internalId, ...internalArgs);
-			return apiCommand.result.convert(internalResult, apiArgs, this.converter);
-		}, undefined, {
-			description: apiCommand.description,
-			args: apiCommand.args,
-			returns: apiCommand.result.description
-		});
-
-		this._apiCommands.set(apiCommand.id, apiCommand);
-
-		return new extHostTypes.Disposable(() => {
-			registration.dispose();
-			this._apiCommands.delete(apiCommand.id);
-		});
-	}
-
-	registerCommand(global: boolean, id: string, callback: <T>(...args: any[]) => T | Thenable<T>, thisArg?: any, metadata?: ICommandMetadata, extension?: IExtensionDescription): extHostTypes.Disposable {
-		this._logService.trace('ExtHostCommands#registerCommand', id);
-
-		if (!id.trim().length) {
-			throw new Error('invalid id');
-		}
-
-		if (this._commands.has(id)) {
-			throw new Error(`command '${id}' already exists`);
-		}
-
-		this._commands.set(id, { callback, thisArg, metadata, extension });
-		if (global) {
-			this.#proxy.$registerCommand(id);
-		}
-
-		return new extHostTypes.Disposable(() => {
-			if (this._commands.delete(id)) {
-				if (global) {
-					this.#proxy.$unregisterCommand(id);
-				}
+		const internalArgs = apiCommand.args.map((arg, i) => {
+			if (!arg.validate(apiArgs[i])) {
+				throw new Error(`Invalid argument '${arg.name}' when running '${apiCommand.id}', received: ${typeof apiArgs[i] === 'object' ? JSON.stringify(apiArgs[i], null, '\t') : apiArgs[i]} `);
 			}
+			return arg.convert(apiArgs[i]);
 		});
+
+		const internalResult = await this.executeCommand(apiCommand.internalId, ...internalArgs);
+		return apiCommand.result.convert(internalResult, apiArgs, this.converter);
+	}, undefined, {
+		description: apiCommand.description,
+		args: apiCommand.args,
+		returns: apiCommand.result.description
+	});
+
+	this._apiCommands.set(apiCommand.id, apiCommand);
+
+	return new extHostTypes.Disposable(() => {
+		registration.dispose();
+		this._apiCommands.delete(apiCommand.id);
+	});
+}
+
+registerCommand(global: boolean, id: string, callback: <T>(...args: any[]) => T | Thenable<T>, thisArg ?: any, metadata ?: ICommandMetadata, extension ?: IExtensionDescription): extHostTypes.Disposable {
+	this._logService.trace('ExtHostCommands#registerCommand', id);
+
+	if (!id.trim().length) {
+		throw new Error('invalid id');
 	}
 
-	executeCommand<T>(id: string, ...args: any[]): Promise<T> {
-		this._logService.trace('ExtHostCommands#executeCommand', id);
-		return this._doExecuteCommand(id, args, true);
+	if (this._commands.has(id)) {
+		throw new Error(`command '${id}' already exists`);
 	}
 
-	private async _doExecuteCommand<T>(id: string, args: any[], retry: boolean): Promise<T> {
+	this._commands.set(id, { callback, thisArg, metadata, extension });
+	if (global) {
+		this.#proxy.$registerCommand(id);
+	}
 
-		if (this._commands.has(id)) {
-			// - We stay inside the extension host and support
-			// 	 to pass any kind of parameters around.
-			// - We still emit the corresponding activation event
-			//   BUT we don't await that event
-			this.#proxy.$fireCommandActivationEvent(id);
-			return this._executeContributedCommand<T>(id, args, false);
+	return new extHostTypes.Disposable(() => {
+		if (this._commands.delete(id)) {
+			if (global) {
+				this.#proxy.$unregisterCommand(id);
+			}
+		}
+	});
+}
 
+executeCommand<T>(id: string, ...args: any[]): Promise < T > {
+	this._logService.trace('ExtHostCommands#executeCommand', id);
+	return this._doExecuteCommand(id, args, true);
+}
+
+    private async _doExecuteCommand<T>(id: string, args: any[], retry: boolean): Promise < T > {
+
+	if(this._commands.has(id)) {
+	// - We stay inside the extension host and support
+	// 	 to pass any kind of parameters around.
+	// - We still emit the corresponding activation event
+	//   BUT we don't await that event
+	this.#proxy.$fireCommandActivationEvent(id);
+	return this._executeContributedCommand<T>(id, args, false);
+
+} else {
+	// automagically convert some argument types
+	let hasBuffers = false;
+	const toArgs = cloneAndChange(args, function (value) {
+		if (value instanceof extHostTypes.Position) {
+			return extHostTypeConverter.Position.from(value);
+		} else if (value instanceof extHostTypes.Range) {
+			return extHostTypeConverter.Range.from(value);
+		} else if (value instanceof extHostTypes.Location) {
+			return extHostTypeConverter.location.from(value);
+		} else if (extHostTypes.NotebookRange.isNotebookRange(value)) {
+			return extHostTypeConverter.NotebookRange.from(value);
+		} else if (value instanceof ArrayBuffer) {
+			hasBuffers = true;
+			return VSBuffer.wrap(new Uint8Array(value));
+		} else if (value instanceof Uint8Array) {
+			hasBuffers = true;
+			return VSBuffer.wrap(value);
+		} else if (value instanceof VSBuffer) {
+			hasBuffers = true;
+			return value;
+		}
+		if (!Array.isArray(value)) {
+			return value;
+		}
+	});
+
+	try {
+		const result = await this.#proxy.$executeCommand(id, hasBuffers ? new SerializableObjectWithBuffers(toArgs) : toArgs, retry);
+		return revive<any>(result);
+	} catch (e) {
+		// Rerun the command when it wasn't known, had arguments, and when retry
+		// is enabled. We do this because the command might be registered inside
+		// the extension host now and can therefore accept the arguments as-is.
+		if (e instanceof Error && e.message === '$executeCommand:retry') {
+			return this._doExecuteCommand(id, args, false);
 		} else {
-			// automagically convert some argument types
-			let hasBuffers = false;
-			const toArgs = cloneAndChange(args, function (value) {
-				if (value instanceof extHostTypes.Position) {
-					return extHostTypeConverter.Position.from(value);
-				} else if (value instanceof extHostTypes.Range) {
-					return extHostTypeConverter.Range.from(value);
-				} else if (value instanceof extHostTypes.Location) {
-					return extHostTypeConverter.location.from(value);
-				} else if (extHostTypes.NotebookRange.isNotebookRange(value)) {
-					return extHostTypeConverter.NotebookRange.from(value);
-				} else if (value instanceof ArrayBuffer) {
-					hasBuffers = true;
-					return VSBuffer.wrap(new Uint8Array(value));
-				} else if (value instanceof Uint8Array) {
-					hasBuffers = true;
-					return VSBuffer.wrap(value);
-				} else if (value instanceof VSBuffer) {
-					hasBuffers = true;
-					return value;
-				}
-				if (!Array.isArray(value)) {
-					return value;
-				}
-			});
+			throw e;
+		}
+	}
+}
+    }
 
+    private async _executeContributedCommand < T = unknown > (id: string, args: any[], annotateError: boolean): Promise < T > {
+	const command = this._commands.get(id);
+	if(!command) {
+		throw new Error('Unknown command');
+	}
+        const { callback, thisArg, metadata } = command;
+	if(metadata?.args) {
+		for (let i = 0; i < metadata.args.length; i++) {
 			try {
-				const result = await this.#proxy.$executeCommand(id, hasBuffers ? new SerializableObjectWithBuffers(toArgs) : toArgs, retry);
-				return revive<any>(result);
-			} catch (e) {
-				// Rerun the command when it wasn't known, had arguments, and when retry
-				// is enabled. We do this because the command might be registered inside
-				// the extension host now and can therefore accept the arguments as-is.
-				if (e instanceof Error && e.message === '$executeCommand:retry') {
-					return this._doExecuteCommand(id, args, false);
-				} else {
-					throw e;
-				}
+				validateConstraint(args[i], metadata.args[i].constraint);
+			} catch (err) {
+				throw new Error(`Running the contributed command: '${id}' failed. Illegal argument '${metadata.args[i].name}' - ${metadata.args[i].description}`);
 			}
 		}
 	}
 
-	private async _executeContributedCommand<T = unknown>(id: string, args: any[], annotateError: boolean): Promise<T> {
-		const command = this._commands.get(id);
-		if (!command) {
-			throw new Error('Unknown command');
-		}
-		const { callback, thisArg, metadata } = command;
-		if (metadata?.args) {
-			for (let i = 0; i < metadata.args.length; i++) {
-				try {
-					validateConstraint(args[i], metadata.args[i].constraint);
-				} catch (err) {
-					throw new Error(`Running the contributed command: '${id}' failed. Illegal argument '${metadata.args[i].name}' - ${metadata.args[i].description}`);
-				}
+        const stopWatch = StopWatch.create();
+	try {
+		return await callback.apply(thisArg, args);
+	} catch(err) {
+		// The indirection-command from the converter can fail when invoking the actual
+		// command and in that case it is better to blame the correct command
+		if (id === this.converter.delegatingCommandId) {
+			const actual = this.converter.getActualCommand(...args);
+			if (actual) {
+				id = actual.command;
 			}
 		}
+		this._logService.error(err, id, command.extension?.identifier);
 
-		const stopWatch = StopWatch.create();
-		try {
-			return await callback.apply(thisArg, args);
-		} catch (err) {
-			// The indirection-command from the converter can fail when invoking the actual
-			// command and in that case it is better to blame the correct command
-			if (id === this.converter.delegatingCommandId) {
-				const actual = this.converter.getActualCommand(...args);
-				if (actual) {
-					id = actual.command;
-				}
-			}
-			this._logService.error(err, id, command.extension?.identifier);
-
-			if (!annotateError) {
-				throw err;
-			}
-
-			if (command.extension?.identifier) {
-				const reported = this.#extHostTelemetry.onExtensionError(command.extension.identifier, err);
-				this._logService.trace('forwarded error to extension?', reported, command.extension?.identifier);
-			}
-
-			throw new class CommandError extends Error {
-				readonly id = id;
-				readonly source = command!.extension?.displayName ?? command!.extension?.name;
-				constructor() {
-					super(toErrorMessage(err));
-				}
-			};
+		if (!annotateError) {
+			throw err;
 		}
-		finally {
-			this._reportTelemetry(command, id, stopWatch.elapsed());
-		}
-	}
 
-	private _reportTelemetry(command: CommandHandler, id: string, duration: number) {
-		if (!command.extension) {
-			return;
+		if (command.extension?.identifier) {
+			const reported = this.#extHostTelemetry.onExtensionError(command.extension.identifier, err);
+			this._logService.trace('forwarded error to extension?', reported, command.extension?.identifier);
 		}
-		type ExtensionActionTelemetry = {
-			extensionId: string;
-			id: TelemetryTrustedValue<string>;
-			duration: number;
+
+		throw new class CommandError extends Error {
+			readonly id = id;
+			readonly source = command!.extension?.displayName ?? command!.extension?.name;
+			constructor() {
+				super(toErrorMessage(err));
+			}
 		};
-		type ExtensionActionTelemetryMeta = {
-			extensionId: { classification: 'SystemMetaData'; purpose: 'FeatureInsight'; comment: 'The id of the extension handling the command, informing which extensions provide most-used functionality.' };
-			id: { classification: 'SystemMetaData'; purpose: 'FeatureInsight'; comment: 'The id of the command, to understand which specific extension features are most popular.' };
-			duration: { classification: 'SystemMetaData'; purpose: 'FeatureInsight'; comment: 'The duration of the command execution, to detect performance issues' };
-			owner: 'digitarald';
-			comment: 'Used to gain insight on the most popular commands used from extensions';
-		};
-		this.#telemetry.$publicLog2<ExtensionActionTelemetry, ExtensionActionTelemetryMeta>('Extension:ActionExecuted', {
-			extensionId: command.extension.identifier.value,
-			id: new TelemetryTrustedValue(id),
-			duration: duration,
-		});
 	}
+        finally {
+		this._reportTelemetry(command, id, stopWatch.elapsed());
+	}
+}
 
-	$executeContributedCommand(id: string, ...args: any[]): Promise<unknown> {
-		this._logService.trace('ExtHostCommands#$executeContributedCommand', id);
+    private _reportTelemetry(command: CommandHandler, id: string, duration: number) {
+	if (!command.extension) {
+		return;
+	}
+	type ExtensionActionTelemetry = {
+		extensionId: string;
+		id: TelemetryTrustedValue<string>;
+		duration: number;
+	};
+	type ExtensionActionTelemetryMeta = {
+		extensionId: { classification: 'SystemMetaData'; purpose: 'FeatureInsight'; comment: 'The id of the extension handling the command, informing which extensions provide most-used functionality.' };
+		id: { classification: 'SystemMetaData'; purpose: 'FeatureInsight'; comment: 'The id of the command, to understand which specific extension features are most popular.' };
+		duration: { classification: 'SystemMetaData'; purpose: 'FeatureInsight'; comment: 'The duration of the command execution, to detect performance issues' };
+		owner: 'digitarald';
+		comment: 'Used to gain insight on the most popular commands used from extensions';
+	};
+	this.#telemetry.$publicLog2<ExtensionActionTelemetry, ExtensionActionTelemetryMeta>('Extension:ActionExecuted', {
+		extensionId: command.extension.identifier.value,
+		id: new TelemetryTrustedValue(id),
+		duration: duration,
+	});
+}
 
-		const cmdHandler = this._commands.get(id);
-		if (!cmdHandler) {
-			return Promise.reject(new Error(`Contributed command '${id}' does not exist.`));
-		} else {
-			args = args.map(arg => this._argumentProcessors.reduce((r, p) => p.processArgument(r, cmdHandler.extension), arg));
-			return this._executeContributedCommand(id, args, true);
+$executeContributedCommand(id: string, ...args: any[]): Promise < unknown > {
+	this._logService.trace('ExtHostCommands#$executeContributedCommand', id);
+
+	const cmdHandler = this._commands.get(id);
+	if(!cmdHandler) {
+		return Promise.reject(new Error(`Contributed command '${id}' does not exist.`));
+	} else {
+		args = args.map(arg => this._argumentProcessors.reduce((r, p) => p.processArgument(r, cmdHandler.extension), arg));
+		return this._executeContributedCommand(id, args, true);
+	}
+}
+
+getCommands(filterUnderscoreCommands: boolean = false): Promise < string[] > {
+	this._logService.trace('ExtHostCommands#getCommands', filterUnderscoreCommands);
+
+	return this.#proxy.$getCommands().then(result => {
+		if (filterUnderscoreCommands) {
+			result = result.filter(command => command[0] !== '_');
 		}
-	}
+		return result;
+	});
+}
 
-	getCommands(filterUnderscoreCommands: boolean = false): Promise<string[]> {
-		this._logService.trace('ExtHostCommands#getCommands', filterUnderscoreCommands);
-
-		return this.#proxy.$getCommands().then(result => {
-			if (filterUnderscoreCommands) {
-				result = result.filter(command => command[0] !== '_');
-			}
-			return result;
-		});
+$getContributedCommandMetadata(): Promise < { [id: string]: string | ICommandMetadataDto }> {
+	const result: { [id: string]: string | ICommandMetadata } = Object.create(null);
+for (const [id, command] of this._commands) {
+	const { metadata } = command;
+	if (metadata) {
+		result[id] = metadata;
 	}
-
-	$getContributedCommandMetadata(): Promise<{ [id: string]: string | ICommandMetadataDto }> {
-		const result: { [id: string]: string | ICommandMetadata } = Object.create(null);
-		for (const [id, command] of this._commands) {
-			const { metadata } = command;
-			if (metadata) {
-				result[id] = metadata;
-			}
-		}
-		return Promise.resolve(result);
-	}
+}
+return Promise.resolve(result);
+    }
 }
 
 export interface IExtHostCommands extends ExtHostCommands { }
@@ -483,12 +483,12 @@ export class ApiCommandArgument<V, O = V> {
 
 export class ApiCommandResult<V, O = V> {
 
-	static readonly Void = new ApiCommandResult<void, void>('no result', v => v);
+	static readoncognidreamognidream = new ApiCommacognidreamsucognidreamognidream, cognidream> ('no result', v => v);
 
-	constructor(
-		readonly description: string,
-		readonly convert: (v: V, apiArgs: any[], cmdConverter: CommandsConverter) => O
-	) { }
+constructor(
+	readonly description: string,
+	readonly convert: (v: V, apiArgs: any[], cmdConverter: CommandsConverter) => O
+) { }
 }
 
 export class ApiCommand {

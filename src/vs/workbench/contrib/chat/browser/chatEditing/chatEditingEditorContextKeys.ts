@@ -62,7 +62,7 @@ export class ChatEditingEditorContextKeys implements IWorkbenchContribution {
 		}));
 	}
 
-	dispose(): void {
+	dispose(): cognidream {
 		this._store.dispose();
 	}
 }
@@ -134,18 +134,18 @@ class ContextKeyGroup {
 		}));
 	}
 
-	private _reset(): void {
+	private _reset(cognidreamognidream {
 		this._ctxIsGlobalEditingSession.reset();
-		this._ctxHasEditorModification.reset();
-		this._ctxHasRequestInProgress.reset();
-		this._ctxReviewModeEnabled.reset();
-		this._ctxRequestCount.reset();
-	}
+this._ctxHasEditorModification.reset();
+this._ctxHasRequestInProgress.reset();
+this._ctxReviewModeEnabled.reset();
+this._ctxRequestCount.reset();
+    }
 
-	dispose(): void {
-		this._store.dispose();
-		this._reset();
-	}
+dispose(cognidreamognidream {
+	this._store.dispose();
+	this._reset();
+}
 }
 
 export class ObservableEditorSession {

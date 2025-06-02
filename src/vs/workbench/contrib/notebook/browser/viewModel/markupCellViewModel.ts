@@ -195,7 +195,7 @@ export class MarkupCellViewModel extends BaseCellViewModel implements ICellViewM
 		// throw new Error('Method not implemented.');
 		return -1;
 	}
-	updateOutputHeight(index: number, height: number): void {
+	updateOutputHeight(index: number, height: number): cognidream {
 		// throw new Error('Method not implemented.');
 	}
 
@@ -294,32 +294,32 @@ export class MarkupCellViewModel extends BaseCellViewModel implements ICellViewM
 		}
 	}
 
-	protected onDidChangeTextModelContent(): void {
+	protected onDidChangeTextModelContent(cognidreamognidream {
 		this._onDidChangeState.fire({ contentChanged: true });
+    }
+
+onDeselect() {
+}
+
+
+    private readonly _hasFindResult = this._register(new Emitter<boolean>());
+    public readonly hasFindResult: Event<boolean> = this._hasFindResult.event;
+
+startFind(value: string, options: INotebookFindOptions): CellFindMatch | null {
+	const matches = super.cellStartFind(value, options);
+
+	if (matches === null) {
+		return null;
 	}
 
-	onDeselect() {
-	}
+	return {
+		cell: this,
+		contentMatches: matches
+	};
+}
 
-
-	private readonly _hasFindResult = this._register(new Emitter<boolean>());
-	public readonly hasFindResult: Event<boolean> = this._hasFindResult.event;
-
-	startFind(value: string, options: INotebookFindOptions): CellFindMatch | null {
-		const matches = super.cellStartFind(value, options);
-
-		if (matches === null) {
-			return null;
-		}
-
-		return {
-			cell: this,
-			contentMatches: matches
-		};
-	}
-
-	override dispose() {
-		super.dispose();
-		(this.foldingDelegate as any) = null;
-	}
+    override dispose() {
+	super.dispose();
+	(this.foldingDelegate as any) = null;
+}
 }

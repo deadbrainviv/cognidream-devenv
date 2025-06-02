@@ -51,14 +51,14 @@ export interface IChatViewModel {
 	readonly model: IChatModel;
 	readonly initState: ChatModelInitState;
 	readonly sessionId: string;
-	readonly onDidDisposeModel: Event<void>;
+	readonly onDidDisposeModel: Event<cognidream>;
 	readonly onDidChange: Event<IChatViewModelChangeEvent>;
 	readonly requestInProgress: boolean;
 	readonly requestPausibility: ChatPauseState;
 	readonly inputPlaceholder?: string;
 	getItems(): (IChatRequestViewModel | IChatResponseViewModel)[];
-	setInputPlaceholder(text: string): void;
-	resetInputPlaceholder(): void;
+	setInputPlaceholder(text: stringcognidreamognidream;
+		resetInputPlaceholder(cognidreamognidream;
 }
 
 export interface IChatRequestViewModel {
@@ -191,16 +191,16 @@ export interface IChatResponseViewModel {
 	readonly isPaused: IObservable<boolean>;
 	renderData?: IChatResponseRenderData;
 	currentRenderedHeight: number | undefined;
-	setVote(vote: ChatAgentVoteDirection): void;
-	setVoteDownReason(reason: ChatAgentVoteDownReason | undefined): void;
-	usedReferencesExpanded?: boolean;
-	vulnerabilitiesListExpanded: boolean;
-	setEditApplied(edit: IChatTextEditGroup, editCount: number): void;
+	setVote(vote: ChatAgentVoteDirectioncognidreamognidream;
+		setVoteDownReason(reason: ChatAgentVoteDownReason | undefinedcognidreamognidream;
+			usedReferencesExpanded?: boolean;
+			vulnerabilitiesListExpanded: boolean;
+			setEditApplied(edit: IChatTextEditGroup, editCount: numbercognidreamognidream;
 }
 
 export class ChatViewModel extends Disposable implements IChatViewModel {
 
-	private readonly _onDidDisposeModel = this._register(new Emitter<void>());
+	private readonly _onDidDisposeModel = this._register(new Emittcognidreamognidream > ());
 	readonly onDidDisposeModel = this._onDidDisposeModel.event;
 
 	private readonly _onDidChange = this._register(new Emitter<IChatViewModelChangeEvent>());
@@ -217,124 +217,124 @@ export class ChatViewModel extends Disposable implements IChatViewModel {
 		return this._model;
 	}
 
-	setInputPlaceholder(text: string): void {
+	setInputPlaceholder(text: stringcognidreamognidream {
 		this._inputPlaceholder = text;
 		this._onDidChange.fire({ kind: 'changePlaceholder' });
-	}
+    }
 
-	resetInputPlaceholder(): void {
-		this._inputPlaceholder = undefined;
-		this._onDidChange.fire({ kind: 'changePlaceholder' });
-	}
+resetInputPlaceholder(cognidreamognidream {
+	this._inputPlaceholder = undefined;
+	this._onDidChange.fire({ kind: 'changePlaceholder' });
+}
 
-	get sessionId() {
-		return this._model.sessionId;
-	}
+    get sessionId() {
+	return this._model.sessionId;
+}
 
-	get requestInProgress(): boolean {
-		return this._model.requestInProgress;
-	}
+    get requestInProgress(): boolean {
+	return this._model.requestInProgress;
+}
 
-	get requestPausibility(): ChatPauseState {
-		return this._model.requestPausibility;
-	}
+    get requestPausibility(): ChatPauseState {
+	return this._model.requestPausibility;
+}
 
-	get initState() {
-		return this._model.initState;
-	}
+    get initState() {
+	return this._model.initState;
+}
 
-	constructor(
-		private readonly _model: IChatModel,
-		public readonly codeBlockModelCollection: CodeBlockModelCollection,
-		@IInstantiationService private readonly instantiationService: IInstantiationService,
-	) {
-		super();
+    constructor(
+	private readonly _model: IChatModel,
+	public readonly codeBlockModelCollection: CodeBlockModelCollection,
+	@IInstantiationService private readonly instantiationService: IInstantiationService,
+) {
+	super();
 
-		_model.getRequests().forEach((request, i) => {
-			const requestModel = this.instantiationService.createInstance(ChatRequestViewModel, request);
+        _model.getRequests().forEach((request, i) => {
+		const requestModel = this.instantiationService.createInstance(ChatRequestViewModel, request);
+		this._items.push(requestModel);
+		this.updateCodeBlockTextModels(requestModel);
+
+		if (request.response) {
+			this.onAddResponse(request.response);
+		}
+	});
+
+	this._register(_model.onDidDispose(() => this._onDidDisposeModel.fire()));
+	this._register(_model.onDidChange(e => {
+		if (e.kind === 'addRequest') {
+			const requestModel = this.instantiationService.createInstance(ChatRequestViewModel, e.request);
 			this._items.push(requestModel);
 			this.updateCodeBlockTextModels(requestModel);
 
-			if (request.response) {
-				this.onAddResponse(request.response);
+			if (e.request.response) {
+				this.onAddResponse(e.request.response);
 			}
-		});
-
-		this._register(_model.onDidDispose(() => this._onDidDisposeModel.fire()));
-		this._register(_model.onDidChange(e => {
-			if (e.kind === 'addRequest') {
-				const requestModel = this.instantiationService.createInstance(ChatRequestViewModel, e.request);
-				this._items.push(requestModel);
-				this.updateCodeBlockTextModels(requestModel);
-
-				if (e.request.response) {
-					this.onAddResponse(e.request.response);
-				}
-			} else if (e.kind === 'addResponse') {
-				this.onAddResponse(e.response);
-			} else if (e.kind === 'removeRequest') {
-				const requestIdx = this._items.findIndex(item => isRequestVM(item) && item.id === e.requestId);
-				if (requestIdx >= 0) {
-					this._items.splice(requestIdx, 1);
-				}
-
-				const responseIdx = e.responseId && this._items.findIndex(item => isResponseVM(item) && item.id === e.responseId);
-				if (typeof responseIdx === 'number' && responseIdx >= 0) {
-					const items = this._items.splice(responseIdx, 1);
-					const item = items[0];
-					if (item instanceof ChatResponseViewModel) {
-						item.dispose();
-					}
-				}
+		} else if (e.kind === 'addResponse') {
+			this.onAddResponse(e.response);
+		} else if (e.kind === 'removeRequest') {
+			const requestIdx = this._items.findIndex(item => isRequestVM(item) && item.id === e.requestId);
+			if (requestIdx >= 0) {
+				this._items.splice(requestIdx, 1);
 			}
 
-			const modelEventToVmEvent: IChatViewModelChangeEvent =
-				e.kind === 'addRequest' ? { kind: 'addRequest' }
-					: e.kind === 'initialize' ? { kind: 'initialize' }
-						: e.kind === 'setHidden' ? { kind: 'setHidden' }
-							: null;
-			this._onDidChange.fire(modelEventToVmEvent);
-		}));
-	}
-
-	private onAddResponse(responseModel: IChatResponseModel) {
-		const response = this.instantiationService.createInstance(ChatResponseViewModel, responseModel, this);
-		this._register(response.onDidChange(() => {
-			if (response.isComplete) {
-				this.updateCodeBlockTextModels(response);
+			const responseIdx = e.responseId && this._items.findIndex(item => isResponseVM(item) && item.id === e.responseId);
+			if (typeof responseIdx === 'number' && responseIdx >= 0) {
+				const items = this._items.splice(responseIdx, 1);
+				const item = items[0];
+				if (item instanceof ChatResponseViewModel) {
+					item.dispose();
+				}
 			}
-			return this._onDidChange.fire(null);
-		}));
-		this._items.push(response);
-		this.updateCodeBlockTextModels(response);
-	}
-
-	getItems(): (IChatRequestViewModel | IChatResponseViewModel)[] {
-		return this._items.filter((item) => !item.shouldBeRemovedOnSend || item.shouldBeRemovedOnSend.afterUndoStop);
-	}
-
-	override dispose() {
-		super.dispose();
-		dispose(this._items.filter((item): item is ChatResponseViewModel => item instanceof ChatResponseViewModel));
-	}
-
-	updateCodeBlockTextModels(model: IChatRequestViewModel | IChatResponseViewModel) {
-		let content: string;
-		if (isRequestVM(model)) {
-			content = model.messageText;
-		} else {
-			content = annotateVulnerabilitiesInText(model.response.value).map(x => x.content.value).join('');
 		}
 
-		let codeBlockIndex = 0;
-		marked.walkTokens(marked.lexer(content), token => {
-			if (token.type === 'code') {
-				const lang = token.lang || '';
-				const text = token.text;
-				this.codeBlockModelCollection.update(this._model.sessionId, model, codeBlockIndex++, { text, languageId: lang, isComplete: true });
-			}
-		});
+		const modelEventToVmEvent: IChatViewModelChangeEvent =
+			e.kind === 'addRequest' ? { kind: 'addRequest' }
+				: e.kind === 'initialize' ? { kind: 'initialize' }
+					: e.kind === 'setHidden' ? { kind: 'setHidden' }
+						: null;
+		this._onDidChange.fire(modelEventToVmEvent);
+	}));
+}
+
+    private onAddResponse(responseModel: IChatResponseModel) {
+	const response = this.instantiationService.createInstance(ChatResponseViewModel, responseModel, this);
+	this._register(response.onDidChange(() => {
+		if (response.isComplete) {
+			this.updateCodeBlockTextModels(response);
+		}
+		return this._onDidChange.fire(null);
+	}));
+	this._items.push(response);
+	this.updateCodeBlockTextModels(response);
+}
+
+    getItems(): (IChatRequestViewModel | IChatResponseViewModel)[] {
+	return this._items.filter((item) => !item.shouldBeRemovedOnSend || item.shouldBeRemovedOnSend.afterUndoStop);
+}
+
+    override dispose() {
+	super.dispose();
+	dispose(this._items.filter((item): item is ChatResponseViewModel => item instanceof ChatResponseViewModel));
+    }
+
+updateCodeBlockTextModels(model: IChatRequestViewModel | IChatResponseViewModel) {
+	let content: string;
+	if (isRequestVM(model)) {
+		content = model.messageText;
+	} else {
+		content = annotateVulnerabilitiesInText(model.response.value).map(x => x.content.value).join('');
 	}
+
+	let codeBlockIndex = 0;
+	marked.walkTokens(marked.lexer(content), token => {
+		if (token.type === 'code') {
+			const lang = token.lang || '';
+			const text = token.text;
+			this.codeBlockModelCollection.update(this._model.sessionId, model, codeBlockIndex++, { text, languageId: lang, isComplete: true });
+		}
+	});
+}
 }
 
 export class ChatRequestViewModel implements IChatRequestViewModel {
@@ -412,7 +412,7 @@ export class ChatRequestViewModel implements IChatRequestViewModel {
 export class ChatResponseViewModel extends Disposable implements IChatResponseViewModel {
 	private _modelChangeCount = 0;
 
-	private readonly _onDidChange = this._register(new Emitter<void>());
+	private readonly _onDidChange = this._register(new Emittcognidreamognidream > ());
 	readonly onDidChange = this._onDidChange.event;
 
 	get model() {
@@ -621,18 +621,18 @@ export class ChatResponseViewModel extends Disposable implements IChatResponseVi
 		this.logService.trace(`ChatResponseViewModel#${tag}: ${message}`);
 	}
 
-	setVote(vote: ChatAgentVoteDirection): void {
+	setVote(vote: ChatAgentVoteDirectioncognidreamognidream {
 		this._modelChangeCount++;
-		this._model.setVote(vote);
-	}
+this._model.setVote(vote);
+    }
 
-	setVoteDownReason(reason: ChatAgentVoteDownReason | undefined): void {
-		this._modelChangeCount++;
-		this._model.setVoteDownReason(reason);
-	}
+setVoteDownReason(reason: ChatAgentVoteDownReason | undefinedcognidreamognidream {
+	this._modelChangeCount++;
+	this._model.setVoteDownReason(reason);
+}
 
-	setEditApplied(edit: IChatTextEditGroup, editCount: number) {
-		this._modelChangeCount++;
-		this._model.setEditApplied(edit, editCount);
-	}
+    setEditApplied(edit: IChatTextEditGroup, editCount: number) {
+	this._modelChangeCount++;
+	this._model.setEditApplied(edit, editCount);
+}
 }

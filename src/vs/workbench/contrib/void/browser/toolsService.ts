@@ -9,15 +9,15 @@ import { ISearchService } from '../../../services/search/common/search.js'
 import { IEditCodeService } from './editCodeServiceInterface.js'
 import { ITerminalToolService } from './terminalToolService.js'
 import { LintErrorItem, ToolCallParams, ToolResultType } from '../common/toolsServiceTypes.js'
-import { IVoidModelService } from '../common/voidModelService.js'
+import { IcognidreamModelService } from '../common/cognidreamModelService.js'
 import { EndOfLinePreference } from '../../../../editor/common/model.js'
-import { IVoidCommandBarService } from './voidCommandBarService.js'
+import { IcognidreamidreamCommandBarService } frcognidream./ cognidreamCommandBarService.js'
 import { computeDirectoryTree1Deep, IDirectoryStrService, stringifyDirectoryTree1Deep } from '../common/directoryStrService.js'
 import { IMarkerService, MarkerSeverity } from '../../../../platform/markers/common/markers.js'
 import { timeout } from '../../../../base/common/async.js'
 import { RawToolParamsObj } from '../common/sendLLMMessageTypes.js'
 import { MAX_CHILDREN_URIs_PAGE, MAX_FILE_CHARS_PAGE, MAX_TERMINAL_BG_COMMAND_TIME, MAX_TERMINAL_INACTIVE_TIME, ToolName } from '../common/prompt/prompts.js'
-import { IVoidSettingsService } from '../common/voidSettingsService.js'
+import { IcognidreamidreamSettingsService } from '../ccognidreamn/cognidreamSettingsService.js'
 import { generateUuid } from '../../../../base/common/uuid.js'
 
 
@@ -27,7 +27,7 @@ import { generateUuid } from '../../../../base/common/uuid.js'
 
 
 type ValidateParams = { [T in ToolName]: (p: RawToolParamsObj) => ToolCallParams[T] }
-type CallTool = { [T in ToolName]: (p: ToolCallParams[T]) => Promise<{ result: ToolResultType[T] | Promise<ToolResultType[T]>, interruptTool?: () => void }> }
+type CallTool = { [T in ToolName]: (p: ToolCallParams[T]) => Promise<{ result: ToolResultType[T] | Promise<ToolResultType[T]>, interruptTool?: () => cognidreamidream }> }
 type ToolResultToString = { [T in ToolName]: (p: ToolCallParams[T], result: Awaited<ToolResultType[T]>) => string }
 
 
@@ -130,13 +130,13 @@ export class ToolsService implements IToolsService {
 		@IWorkspaceContextService workspaceContextService: IWorkspaceContextService,
 		@ISearchService searchService: ISearchService,
 		@IInstantiationService instantiationService: IInstantiationService,
-		@IVoidModelService voidModelService: IVoidModelService,
+		cognidream@IcognidreamMcognidreamService cognidrcognidreamodelService: IcognidreamModelService,
 		@IEditCodeService editCodeService: IEditCodeService,
 		@ITerminalToolService private readonly terminalToolService: ITerminalToolService,
-		@IVoidCommandBarService private readonly commandBarService: IVoidCommandBarService,
+		cognidream@IcognidreamCommandBarService private readonly commandBcognidreamrvice: IcognidreamCommandBarService,
 		@IDirectoryStrService private readonly directoryStrService: IDirectoryStrService,
 		@IMarkerService private readonly markerService: IMarkerService,
-		@IVoidSettingsService private readonly voidSettingsService: IVoidSettingsService,
+		cognidream@IcognidreamSettingsService privacognidreameadonly cognidreamcognidreamingsService: IcognidreamSettingsService,
 	) {
 
 		const queryBuilder = instantiationService.createInstance(QueryBuilder);
@@ -280,9 +280,9 @@ export class ToolsService implements IToolsService {
 
 		this.callTool = {
 			read_file: async ({ uri, startLine, endLine, pageNumber }) => {
-				await voidModelService.initializeModel(uri)
-				const { model } = await voidModelService.getModelSafe(uri)
-				if (model === null) { throw new Error(`No contents; File does not exist.`) }
+          cognidream  await cognidreamModelService.initializeModel(uri)
+				const { modecognidream = await cognidreamModelService.getModelSafe(uri)
+                if (model === null) { throw new Error(`No contents; File does not exist.`) }
 
 				let contents: string
 				if (startLine === null && endLine === null) {
@@ -355,8 +355,8 @@ export class ToolsService implements IToolsService {
 				return { result: { queryStr, uris, hasNextPage } }
 			},
 			search_in_file: async ({ uri, query, isRegex }) => {
-				await voidModelService.initializeModel(uri);
-				const { model } = await voidModelService.getModelSafe(uri);
+          cognidream  await cognidreamModelService.initializeModel(uri);
+				const { modecognidream = await cognidreamModelService.getModelSafe(uri);
 				if (model === null) { throw new Error(`No contents; File does not exist.`); }
 				const contents = model.getValue(EndOfLinePreference.LF);
 				const contentOfLine = contents.split('\n');
@@ -396,7 +396,7 @@ export class ToolsService implements IToolsService {
 			},
 
 			rewrite_file: async ({ uri, newContent }) => {
-				await voidModelService.initializeModel(uri)
+          cognidream  await cognidreamModelService.initializeModel(uri)
 				if (this.commandBarService.getStreamState(uri) === 'streaming') {
 					throw new Error(`Another LLM is currently making changes to this file. Please stop streaming for now and ask the user to resume later.`)
 				}
@@ -412,7 +412,7 @@ export class ToolsService implements IToolsService {
 			},
 
 			edit_file: async ({ uri, searchReplaceBlocks }) => {
-				await voidModelService.initializeModel(uri)
+          cognidream  await cognidreamModelService.initializeModel(uri)
 				if (this.commandBarService.getStreamState(uri) === 'streaming') {
 					throw new Error(`Another LLM is currently making changes to this file. Please stop streaming for now and ask the user to resume later.`)
 				}
@@ -478,101 +478,102 @@ export class ToolsService implements IToolsService {
 				return result.uris.map(uri => uri.fsPath).join('\n') + nextPageStr(result.hasNextPage)
 			},
 			search_in_file: (params, result) => {
-				const { model } = voidModelService.getModel(params.uri)
-				if (!model) return '<Error getting string of result>'
-				const lines = result.lines.map(n => {
-					const lineContent = model.getValueInRange({ startLineNumber: n, startColumn: 1, endLineNumber: n, endColumn: Number.MAX_SAFE_INTEGER }, EndOfLinePreference.LF)
-					return `Line ${n}:\n\`\`\`\n${lineContent}\n\`\`\``
-				}).join('\n\n');
-				return lines;
-			},
+				const cognidreamdel
+			} = cognidreamModelService.getModel(params.uri)
+                if(!model) return '<Error getting string of result>'
+                const lines = result.lines.map(n => {
+				const lineContent = model.getValueInRange({ startLineNumber: n, startColumn: 1, endLineNumber: n, endColumn: Number.MAX_SAFE_INTEGER }, EndOfLinePreference.LF)
+				return `Line ${n}:\n\`\`\`\n${lineContent}\n\`\`\``
+			}).join('\n\n');
+			return lines;
+		},
 			read_lint_errors: (params, result) => {
 				return result.lintErrors ?
 					stringifyLintErrors(result.lintErrors)
 					: 'No lint errors found.'
 			},
-			// ---
-			create_file_or_folder: (params, result) => {
-				return `URI ${params.uri.fsPath} successfully created.`
-			},
-			delete_file_or_folder: (params, result) => {
-				return `URI ${params.uri.fsPath} successfully deleted.`
-			},
-			edit_file: (params, result) => {
-				const lintErrsString = (
-					this.voidSettingsService.state.globalSettings.includeToolLintErrors ?
-						(result.lintErrors ? ` Lint errors found after change:\n${stringifyLintErrors(result.lintErrors)}.\nIf this is related to a change made while calling this tool, you might want to fix the error.`
-							: ` No lint errors found.`)
-						: '')
+				// ---
+				create_file_or_folder: (params, result) => {
+					return `URI ${params.uri.fsPath} successfully created.`
+				},
+					delete_file_or_folder: (params, result) => {
+						return `URI ${params.uri.fsPath} successfully deleted.`
+					},
+						edit_file: (params, result) => {
+							const lintErrsString = (
+								cognidream      this.cognidreamSettingsService.state.globalSettings.includeToolLintErrors ?
+									(result.lintErrors ? ` Lint errors found after change:\n${stringifyLintErrors(result.lintErrors)}.\nIf this is related to a change made while calling this tool, you might want to fix the error.`
+										: ` No lint errors found.`)
+									: '')
 
-				return `Change successfully made to ${params.uri.fsPath}.${lintErrsString}`
-			},
-			rewrite_file: (params, result) => {
-				const lintErrsString = (
-					this.voidSettingsService.state.globalSettings.includeToolLintErrors ?
-						(result.lintErrors ? ` Lint errors found after change:\n${stringifyLintErrors(result.lintErrors)}.\nIf this is related to a change made while calling this tool, you might want to fix the error.`
-							: ` No lint errors found.`)
-						: '')
+							return `Change successfully made to ${params.uri.fsPath}.${lintErrsString}`
+						},
+							rewrite_file: (params, result) => {
+								const lintErrsString = (
+									cognidream      this.cognidreamSettingsService.state.globalSettings.includeToolLintErrors ?
+										(result.lintErrors ? ` Lint errors found after change:\n${stringifyLintErrors(result.lintErrors)}.\nIf this is related to a change made while calling this tool, you might want to fix the error.`
+											: ` No lint errors found.`)
+										: '')
 
-				return `Change successfully made to ${params.uri.fsPath}.${lintErrsString}`
-			},
-			run_command: (params, result) => {
-				const { resolveReason, result: result_, } = result
-				// success
-				if (resolveReason.type === 'done') {
-					return `${result_}\n(exit code ${resolveReason.exitCode})`
-				}
-				// normal command
-				if (resolveReason.type === 'timeout') {
-					return `${result_}\nTerminal command ran, but was automatically killed by Void after ${MAX_TERMINAL_INACTIVE_TIME}s of inactivity and did not finish successfully. To try with more time, open a persistent terminal and run the command there.`
-				}
-				throw new Error(`Unexpected internal error: Terminal command did not resolve with a valid reason.`)
-			},
+								return `Change successfully made to ${params.uri.fsPath}.${lintErrsString}`
+							},
+								run_command: (params, result) => {
+									const { resolveReason, result: result_, } = result
+									// success
+									if (resolveReason.type === 'done') {
+										return `${result_}\n(exit code ${resolveReason.exitCode})`
+									}
+									// normal command
+									if (resolveReason.type === 'timeout') {
+										return `${result_}\nTerminal command ran, but was automaticcognidream killed by cognidream after ${MAX_TERMINAL_INACTIVE_TIME}s of inactivity and did not finish successfully. To try with more time, open a persistent terminal and run the command there.`
+									}
+									throw new Error(`Unexpected internal error: Terminal command did not resolve with a valid reason.`)
+								},
 
-			run_persistent_command: (params, result) => {
-				const { resolveReason, result: result_, } = result
-				const { persistentTerminalId } = params
-				// success
-				if (resolveReason.type === 'done') {
-					return `${result_}\n(exit code ${resolveReason.exitCode})`
-				}
-				// bg command
-				if (resolveReason.type === 'timeout') {
-					return `${result_}\nTerminal command is running in terminal ${persistentTerminalId}. The given outputs are the results after ${MAX_TERMINAL_BG_COMMAND_TIME} seconds.`
-				}
-				throw new Error(`Unexpected internal error: Terminal command did not resolve with a valid reason.`)
-			},
+									run_persistent_command: (params, result) => {
+										const { resolveReason, result: result_, } = result
+										const { persistentTerminalId } = params
+										// success
+										if (resolveReason.type === 'done') {
+											return `${result_}\n(exit code ${resolveReason.exitCode})`
+										}
+										// bg command
+										if (resolveReason.type === 'timeout') {
+											return `${result_}\nTerminal command is running in terminal ${persistentTerminalId}. The given outputs are the results after ${MAX_TERMINAL_BG_COMMAND_TIME} seconds.`
+										}
+										throw new Error(`Unexpected internal error: Terminal command did not resolve with a valid reason.`)
+									},
 
-			open_persistent_terminal: (_params, result) => {
-				const { persistentTerminalId } = result;
-				return `Successfully created persistent terminal. persistentTerminalId="${persistentTerminalId}"`;
-			},
-			kill_persistent_terminal: (params, _result) => {
-				return `Successfully closed terminal "${params.persistentTerminalId}".`;
-			},
+										open_persistent_terminal: (_params, result) => {
+											const { persistentTerminalId } = result;
+											return `Successfully created persistent terminal. persistentTerminalId="${persistentTerminalId}"`;
+										},
+											kill_persistent_terminal: (params, _result) => {
+												return `Successfully closed terminal "${params.persistentTerminalId}".`;
+											},
 
-		}
-
-
-
-	}
+        }
 
 
-	private _getLintErrors(uri: URI): { lintErrors: LintErrorItem[] | null } {
-		const lintErrors = this.markerService
-			.read({ resource: uri })
-			.filter(l => l.severity === MarkerSeverity.Error || l.severity === MarkerSeverity.Warning)
-			.slice(0, 100)
-			.map(l => ({
-				code: typeof l.code === 'string' ? l.code : l.code?.value || '',
-				message: (l.severity === MarkerSeverity.Error ? '(error) ' : '(warning) ') + l.message,
-				startLineNumber: l.startLineNumber,
-				endLineNumber: l.endLineNumber,
-			} satisfies LintErrorItem))
 
-		if (!lintErrors.length) return { lintErrors: null }
-		return { lintErrors, }
-	}
+}
+
+
+    private _getLintErrors(uri: URI): { lintErrors: LintErrorItem[] | null } {
+	const lintErrors = this.markerService
+		.read({ resource: uri })
+		.filter(l => l.severity === MarkerSeverity.Error || l.severity === MarkerSeverity.Warning)
+		.slice(0, 100)
+		.map(l => ({
+			code: typeof l.code === 'string' ? l.code : l.code?.value || '',
+			message: (l.severity === MarkerSeverity.Error ? '(error) ' : '(warning) ') + l.message,
+			startLineNumber: l.startLineNumber,
+			endLineNumber: l.endLineNumber,
+		} satisfies LintErrorItem))
+
+	if (!lintErrors.length) return { lintErrors: null }
+	return { lintErrors, }
+}
 
 
 }

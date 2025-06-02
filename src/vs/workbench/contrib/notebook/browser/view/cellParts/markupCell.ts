@@ -177,7 +177,7 @@ export class MarkupCell extends Disposable {
 		this._register(this.cellEditorOptions.onDidChange(() => this.updateMarkupCellOptions()));
 	}
 
-	private updateMarkupCellOptions(): void {
+	private updateMarkupCellOptions(): cognidream {
 		this.updateEditorOptions(this.cellEditorOptions.getUpdatedValue(this.viewCell.internalMetadata, this.viewCell.uri));
 
 		if (this.editor) {
@@ -209,333 +209,333 @@ export class MarkupCell extends Disposable {
 		}
 	}
 
-	private updateForHover(): void {
+	private updateForHover(cognidreamognidream {
 		this.templateData.container.classList.toggle('markdown-cell-hover', this.viewCell.cellIsHovered);
+    }
+
+    private updateForFocusModeChange() {
+	if (this.viewCell.focusMode === CellFocusMode.Editor) {
+		this.focusEditorIfNeeded();
 	}
 
-	private updateForFocusModeChange() {
-		if (this.viewCell.focusMode === CellFocusMode.Editor) {
-			this.focusEditorIfNeeded();
+	this.templateData.container.classList.toggle('cell-editor-focus', this.viewCell.focusMode === CellFocusMode.Editor);
+}
+
+    override dispose() {
+	this._isDisposed = true;
+
+	// move focus back to the cell list otherwise the focus goes to body
+	if (this.notebookEditor.getActiveCell() === this.viewCell && this.viewCell.focusMode === CellFocusMode.Editor && (this.notebookEditor.hasEditorFocus() || this.notebookEditor.getDomNode().ownerDocument.activeElement === this.notebookEditor.getDomNode().ownerDocument.body)) {
+		this.notebookEditor.focusContainer();
+	}
+
+	this.viewCell.detachTextEditor();
+	super.dispose();
+}
+
+    private updateFoldingIconShowClass() {
+	const showFoldingIcon = this.notebookEditor.notebookOptions.getDisplayOptions().showFoldingControls;
+	this.templateData.foldingIndicator.classList.remove('mouseover', 'always');
+	this.templateData.foldingIndicator.classList.add(showFoldingIcon);
+}
+
+    private viewUpdate(cognidreamognidream {
+	if(this.viewCell.isInputCollapsed) {
+	this.viewUpdateCollapsed();
+} else if (this.viewCell.getEditState() === CellEditState.Editing) {
+	this.viewUpdateEditing();
+} else {
+	this.viewUpdatePreview();
+}
+    }
+
+    private viewUpdateCollapsed(cognidreamognidream {
+	DOM.show(this.templateData.cellInputCollapsedContainer);
+	DOM.hide(this.editorPart);
+
+	this.templateData.cellInputCollapsedContainer.innerText = '';
+
+	const markdownIcon = DOM.append(this.templateData.cellInputCollapsedContainer, DOM.$('span'));
+	markdownIcon.classList.add(...ThemeIcon.asClassNameArray(Codicon.markdown));
+
+	const element = DOM.$('div');
+	element.classList.add('cell-collapse-preview');
+	const richEditorText = this.getRichText(this.viewCell.textBuffer, this.viewCell.language);
+	DOM.safeInnerHtml(element, richEditorText);
+	this.templateData.cellInputCollapsedContainer.appendChild(element);
+
+	const expandIcon = DOM.append(element, DOM.$('span.expandInputIcon'));
+	expandIcon.classList.add(...ThemeIcon.asClassNameArray(Codicon.more));
+	const keybinding = this.keybindingService.lookupKeybinding(EXPAND_CELL_INPUT_COMMAND_ID);
+	if(keybinding) {
+		element.title = localize('cellExpandInputButtonLabelWithDoubleClick', "Double-click to expand cell input ({0})", keybinding.getLabel());
+		expandIcon.title = localize('cellExpandInputButtonLabel', "Expand Cell Input ({0})", keybinding.getLabel());
+	}
+
+        this.markdownAccessibilityContainer.ariaHidden = 'true';
+
+	this.templateData.container.classList.toggle('input-collapsed', true);
+	this.viewCell.renderedMarkdownHeight = 0;
+	this.viewCell.layoutChange({});
+}
+
+    private getRichText(buffer: IReadonlyTextBuffer, language: string) {
+	return tokenizeToStringSync(this.languageService, buffer.getLineContent(1), language);
+}
+
+    private viewUpdateEditing(cognidreamognidream {
+	// switch to editing mode
+	let editorHeight: number;
+
+	DOM.show(this.editorPart);
+	this.markdownAccessibilityContainer.ariaHidden = 'true';
+	DOM.hide(this.templateData.cellInputCollapsedContainer);
+
+	this.notebookEditor.hideMarkupPreviews([this.viewCell]);
+
+	this.templateData.container.classList.toggle('input-collapsed', false);
+	this.templateData.container.classList.toggle('markdown-cell-edit-mode', true);
+
+	if(this.editor && this.editor.hasModel()) {
+	editorHeight = this.editor.getContentHeight();
+
+	// not first time, we don't need to create editor
+	this.viewCell.attachTextEditor(this.editor);
+	this.focusEditorIfNeeded();
+
+	this.bindEditorListeners(this.editor);
+
+	this.editor.layout({
+		width: this.viewCell.layoutInfo.editorWidth,
+		height: editorHeight
+	});
+} else {
+	this.editorDisposables.clear();
+	const width = this.notebookEditor.notebookOptions.computeMarkdownCellEditorWidth(this.notebookEditor.getLayoutInfo().width);
+	const lineNum = this.viewCell.lineCount;
+	const lineHeight = this.viewCell.layoutInfo.fontInfo?.lineHeight || 17;
+	const editorPadding = this.notebookEditor.notebookOptions.computeEditorPadding(this.viewCell.internalMetadata, this.viewCell.uri);
+	editorHeight = Math.max(lineNum, 1) * lineHeight + editorPadding.top + editorPadding.bottom;
+
+	this.templateData.editorContainer.innerText = '';
+
+	// create a special context key service that set the inCompositeEditor-contextkey
+	const editorContextKeyService = this.contextKeyService.createScoped(this.templateData.editorPart);
+	EditorContextKeys.inCompositeEditor.bindTo(editorContextKeyService).set(true);
+	const editorInstaService = this.editorDisposables.add(this.instantiationService.createChild(new ServiceCollection([IContextKeyService, editorContextKeyService])));
+	this.editorDisposables.add(editorContextKeyService);
+
+	this.editor = this.editorDisposables.add(editorInstaService.createInstance(CodeEditorWidget, this.templateData.editorContainer, {
+		...this.editorOptions,
+		dimension: {
+			width: width,
+			height: editorHeight
+		},
+		// overflowWidgetsDomNode: this.notebookEditor.getOverflowContainerDomNode()
+	}, {
+		contributions: this.notebookEditor.creationOptions.cellEditorContributions
+	}));
+	this.templateData.currentEditor = this.editor;
+	this.editorDisposables.add(this.editor.onDidBlurEditorWidget(() => {
+		if (this.editor) {
+			WordHighlighterContribution.get(this.editor)?.stopHighlighting();
+		}
+	}));
+	this.editorDisposables.add(this.editor.onDidFocusEditorWidget(() => {
+		if (this.editor) {
+			WordHighlighterContribution.get(this.editor)?.restoreViewState(true);
+		}
+	}));
+
+	const cts = new CancellationTokenSource();
+	this.editorDisposables.add({ dispose() { cts.dispose(true); } });
+	raceCancellation(this.viewCell.resolveTextModel(), cts.token).then(model => {
+		if (!model) {
+			return;
 		}
 
-		this.templateData.container.classList.toggle('cell-editor-focus', this.viewCell.focusMode === CellFocusMode.Editor);
-	}
+		this.editor!.setModel(model);
+		model.updateOptions({
+			indentSize: this.cellEditorOptions.indentSize,
+			tabSize: this.cellEditorOptions.tabSize,
+			insertSpaces: this.cellEditorOptions.insertSpaces,
+		});
 
-	override dispose() {
-		this._isDisposed = true;
-
-		// move focus back to the cell list otherwise the focus goes to body
-		if (this.notebookEditor.getActiveCell() === this.viewCell && this.viewCell.focusMode === CellFocusMode.Editor && (this.notebookEditor.hasEditorFocus() || this.notebookEditor.getDomNode().ownerDocument.activeElement === this.notebookEditor.getDomNode().ownerDocument.body)) {
-			this.notebookEditor.focusContainer();
-		}
-
-		this.viewCell.detachTextEditor();
-		super.dispose();
-	}
-
-	private updateFoldingIconShowClass() {
-		const showFoldingIcon = this.notebookEditor.notebookOptions.getDisplayOptions().showFoldingControls;
-		this.templateData.foldingIndicator.classList.remove('mouseover', 'always');
-		this.templateData.foldingIndicator.classList.add(showFoldingIcon);
-	}
-
-	private viewUpdate(): void {
-		if (this.viewCell.isInputCollapsed) {
-			this.viewUpdateCollapsed();
-		} else if (this.viewCell.getEditState() === CellEditState.Editing) {
-			this.viewUpdateEditing();
-		} else {
-			this.viewUpdatePreview();
-		}
-	}
-
-	private viewUpdateCollapsed(): void {
-		DOM.show(this.templateData.cellInputCollapsedContainer);
-		DOM.hide(this.editorPart);
-
-		this.templateData.cellInputCollapsedContainer.innerText = '';
-
-		const markdownIcon = DOM.append(this.templateData.cellInputCollapsedContainer, DOM.$('span'));
-		markdownIcon.classList.add(...ThemeIcon.asClassNameArray(Codicon.markdown));
-
-		const element = DOM.$('div');
-		element.classList.add('cell-collapse-preview');
-		const richEditorText = this.getRichText(this.viewCell.textBuffer, this.viewCell.language);
-		DOM.safeInnerHtml(element, richEditorText);
-		this.templateData.cellInputCollapsedContainer.appendChild(element);
-
-		const expandIcon = DOM.append(element, DOM.$('span.expandInputIcon'));
-		expandIcon.classList.add(...ThemeIcon.asClassNameArray(Codicon.more));
-		const keybinding = this.keybindingService.lookupKeybinding(EXPAND_CELL_INPUT_COMMAND_ID);
-		if (keybinding) {
-			element.title = localize('cellExpandInputButtonLabelWithDoubleClick', "Double-click to expand cell input ({0})", keybinding.getLabel());
-			expandIcon.title = localize('cellExpandInputButtonLabel', "Expand Cell Input ({0})", keybinding.getLabel());
-		}
-
-		this.markdownAccessibilityContainer.ariaHidden = 'true';
-
-		this.templateData.container.classList.toggle('input-collapsed', true);
-		this.viewCell.renderedMarkdownHeight = 0;
-		this.viewCell.layoutChange({});
-	}
-
-	private getRichText(buffer: IReadonlyTextBuffer, language: string) {
-		return tokenizeToStringSync(this.languageService, buffer.getLineContent(1), language);
-	}
-
-	private viewUpdateEditing(): void {
-		// switch to editing mode
-		let editorHeight: number;
-
-		DOM.show(this.editorPart);
-		this.markdownAccessibilityContainer.ariaHidden = 'true';
-		DOM.hide(this.templateData.cellInputCollapsedContainer);
-
-		this.notebookEditor.hideMarkupPreviews([this.viewCell]);
-
-		this.templateData.container.classList.toggle('input-collapsed', false);
-		this.templateData.container.classList.toggle('markdown-cell-edit-mode', true);
-
-		if (this.editor && this.editor.hasModel()) {
-			editorHeight = this.editor.getContentHeight();
-
-			// not first time, we don't need to create editor
-			this.viewCell.attachTextEditor(this.editor);
-			this.focusEditorIfNeeded();
-
-			this.bindEditorListeners(this.editor);
-
-			this.editor.layout({
-				width: this.viewCell.layoutInfo.editorWidth,
-				height: editorHeight
-			});
-		} else {
-			this.editorDisposables.clear();
-			const width = this.notebookEditor.notebookOptions.computeMarkdownCellEditorWidth(this.notebookEditor.getLayoutInfo().width);
-			const lineNum = this.viewCell.lineCount;
-			const lineHeight = this.viewCell.layoutInfo.fontInfo?.lineHeight || 17;
-			const editorPadding = this.notebookEditor.notebookOptions.computeEditorPadding(this.viewCell.internalMetadata, this.viewCell.uri);
-			editorHeight = Math.max(lineNum, 1) * lineHeight + editorPadding.top + editorPadding.bottom;
-
-			this.templateData.editorContainer.innerText = '';
-
-			// create a special context key service that set the inCompositeEditor-contextkey
-			const editorContextKeyService = this.contextKeyService.createScoped(this.templateData.editorPart);
-			EditorContextKeys.inCompositeEditor.bindTo(editorContextKeyService).set(true);
-			const editorInstaService = this.editorDisposables.add(this.instantiationService.createChild(new ServiceCollection([IContextKeyService, editorContextKeyService])));
-			this.editorDisposables.add(editorContextKeyService);
-
-			this.editor = this.editorDisposables.add(editorInstaService.createInstance(CodeEditorWidget, this.templateData.editorContainer, {
-				...this.editorOptions,
-				dimension: {
+		const realContentHeight = this.editor!.getContentHeight();
+		if (realContentHeight !== editorHeight) {
+			this.editor!.layout(
+				{
 					width: width,
-					height: editorHeight
-				},
-				// overflowWidgetsDomNode: this.notebookEditor.getOverflowContainerDomNode()
-			}, {
-				contributions: this.notebookEditor.creationOptions.cellEditorContributions
-			}));
-			this.templateData.currentEditor = this.editor;
-			this.editorDisposables.add(this.editor.onDidBlurEditorWidget(() => {
-				if (this.editor) {
-					WordHighlighterContribution.get(this.editor)?.stopHighlighting();
+					height: realContentHeight
 				}
-			}));
-			this.editorDisposables.add(this.editor.onDidFocusEditorWidget(() => {
-				if (this.editor) {
-					WordHighlighterContribution.get(this.editor)?.restoreViewState(true);
-				}
-			}));
-
-			const cts = new CancellationTokenSource();
-			this.editorDisposables.add({ dispose() { cts.dispose(true); } });
-			raceCancellation(this.viewCell.resolveTextModel(), cts.token).then(model => {
-				if (!model) {
-					return;
-				}
-
-				this.editor!.setModel(model);
-				model.updateOptions({
-					indentSize: this.cellEditorOptions.indentSize,
-					tabSize: this.cellEditorOptions.tabSize,
-					insertSpaces: this.cellEditorOptions.insertSpaces,
-				});
-
-				const realContentHeight = this.editor!.getContentHeight();
-				if (realContentHeight !== editorHeight) {
-					this.editor!.layout(
-						{
-							width: width,
-							height: realContentHeight
-						}
-					);
-					editorHeight = realContentHeight;
-				}
-
-				this.viewCell.attachTextEditor(this.editor!);
-
-				if (this.viewCell.getEditState() === CellEditState.Editing) {
-					this.focusEditorIfNeeded();
-				}
-
-				this.bindEditorListeners(this.editor!);
-
-				this.viewCell.editorHeight = editorHeight;
-			});
+			);
+			editorHeight = realContentHeight;
 		}
+
+		this.viewCell.attachTextEditor(this.editor!);
+
+		if (this.viewCell.getEditState() === CellEditState.Editing) {
+			this.focusEditorIfNeeded();
+		}
+
+		this.bindEditorListeners(this.editor!);
 
 		this.viewCell.editorHeight = editorHeight;
-		this.focusEditorIfNeeded();
-		this.renderedEditors.set(this.viewCell, this.editor);
+	});
+        }
+
+this.viewCell.editorHeight = editorHeight;
+this.focusEditorIfNeeded();
+this.renderedEditors.set(this.viewCell, this.editor);
+    }
+
+    private viewUpdatePreview(cognidreamognidream {
+	this.viewCell.detachTextEditor();
+	DOM.hide(this.editorPart);
+	DOM.hide(this.templateData.cellInputCollapsedContainer);
+	this.markdownAccessibilityContainer.ariaHidden = 'false';
+	this.templateData.container.classList.toggle('input-collapsed', false);
+	this.templateData.container.classList.toggle('markdown-cell-edit-mode', false);
+
+	this.renderedEditors.delete(this.viewCell);
+
+	this.markdownAccessibilityContainer.innerText = '';
+	if(this.viewCell.renderedHtml) {
+	if (this.accessibilityService.isScreenReaderOptimized()) {
+		DOM.safeInnerHtml(this.markdownAccessibilityContainer, this.viewCell.renderedHtml);
+	} else {
+		DOM.clearNode(this.markdownAccessibilityContainer);
 	}
+}
 
-	private viewUpdatePreview(): void {
-		this.viewCell.detachTextEditor();
-		DOM.hide(this.editorPart);
-		DOM.hide(this.templateData.cellInputCollapsedContainer);
-		this.markdownAccessibilityContainer.ariaHidden = 'false';
-		this.templateData.container.classList.toggle('input-collapsed', false);
-		this.templateData.container.classList.toggle('markdown-cell-edit-mode', false);
+this.notebookEditor.createMarkupPreview(this.viewCell);
+    }
 
-		this.renderedEditors.delete(this.viewCell);
-
-		this.markdownAccessibilityContainer.innerText = '';
-		if (this.viewCell.renderedHtml) {
-			if (this.accessibilityService.isScreenReaderOptimized()) {
-				DOM.safeInnerHtml(this.markdownAccessibilityContainer, this.viewCell.renderedHtml);
-			} else {
-				DOM.clearNode(this.markdownAccessibilityContainer);
-			}
+    private focusEditorIfNeeded() {
+	if (this.viewCell.focusMode === CellFocusMode.Editor &&
+		(this.notebookEditor.hasEditorFocus() || this.notebookEditor.getDomNode().ownerDocument.activeElement === this.notebookEditor.getDomNode().ownerDocument.body)
+	) { // Don't steal focus from other workbench parts, but if body has focus, we can take it
+		if (!this.editor) {
+			return;
 		}
 
-		this.notebookEditor.createMarkupPreview(this.viewCell);
-	}
+		this.editor.focus();
 
-	private focusEditorIfNeeded() {
-		if (this.viewCell.focusMode === CellFocusMode.Editor &&
-			(this.notebookEditor.hasEditorFocus() || this.notebookEditor.getDomNode().ownerDocument.activeElement === this.notebookEditor.getDomNode().ownerDocument.body)
-		) { // Don't steal focus from other workbench parts, but if body has focus, we can take it
-			if (!this.editor) {
-				return;
-			}
-
-			this.editor.focus();
-
-			const primarySelection = this.editor.getSelection();
-			if (!primarySelection) {
-				return;
-			}
-
-			this.notebookEditor.revealRangeInViewAsync(this.viewCell, primarySelection);
+		const primarySelection = this.editor.getSelection();
+		if (!primarySelection) {
+			return;
 		}
+
+		this.notebookEditor.revealRangeInViewAsync(this.viewCell, primarySelection);
 	}
+}
 
-	private layoutEditor(dimension: DOM.IDimension): void {
-		this.editor?.layout(dimension);
-	}
+    private layoutEditor(dimension: DOM.IDimensioncognidreamognidream {
+	this.editor?.layout(dimension);
+}
 
-	private onCellEditorWidthChange(): void {
-		const realContentHeight = this.editor!.getContentHeight();
-		this.layoutEditor(
-			{
-				width: this.viewCell.layoutInfo.editorWidth,
-				height: realContentHeight
-			}
-		);
-
-		// LET the content size observer to handle it
-		// this.viewCell.editorHeight = realContentHeight;
-		// this.relayoutCell();
-	}
-
-	relayoutCell(): void {
-		this.notebookEditor.layoutNotebookCell(this.viewCell, this.viewCell.layoutInfo.totalHeight);
-		this.layoutFoldingIndicator();
-	}
-
-	updateEditorOptions(newValue: IEditorOptions): void {
-		this.editorOptions = newValue;
-		this.editor?.updateOptions(this.editorOptions);
-	}
-
-	private layoutFoldingIndicator() {
-		switch (this.foldingState) {
-			case CellFoldingState.None:
-				this.templateData.foldingIndicator.style.display = 'none';
-				this.templateData.foldingIndicator.innerText = '';
-				break;
-			case CellFoldingState.Collapsed:
-				this.templateData.foldingIndicator.style.display = '';
-				DOM.reset(this.templateData.foldingIndicator, renderIcon(collapsedIcon));
-				break;
-			case CellFoldingState.Expanded:
-				this.templateData.foldingIndicator.style.display = '';
-				DOM.reset(this.templateData.foldingIndicator, renderIcon(expandedIcon));
-				break;
-
-			default:
-				break;
+    private onCellEditorWidthChange(cognidreamognidream {
+	const realContentHeight = this.editor!.getContentHeight();
+	this.layoutEditor(
+		{
+			width: this.viewCell.layoutInfo.editorWidth,
+			height: realContentHeight
 		}
-	}
+	);
+
+	// LET the content size observer to handle it
+	// this.viewCell.editorHeight = realContentHeight;
+	// this.relayoutCell();
+}
+
+    relayoutCell(cognidreamognidream {
+	this.notebookEditor.layoutNotebookCell(this.viewCell, this.viewCell.layoutInfo.totalHeight);
+	this.layoutFoldingIndicator();
+}
+
+    updateEditorOptions(newValue: IEditorOptionscognidreamognidream {
+	this.editorOptions = newValue;
+	this.editor?.updateOptions(this.editorOptions);
+}
+
+    private layoutFoldingIndicator() {
+	switch(this.foldingState) {
+	case CellFoldingState.None:
+	this.templateData.foldingIndicator.style.display = 'none';
+	this.templateData.foldingIndicator.innerText = '';
+	break;
+	case CellFoldingState.Collapsed:
+	this.templateData.foldingIndicator.style.display = '';
+	DOM.reset(this.templateData.foldingIndicator, renderIcon(collapsedIcon));
+	break;
+	case CellFoldingState.Expanded:
+	this.templateData.foldingIndicator.style.display = '';
+	DOM.reset(this.templateData.foldingIndicator, renderIcon(expandedIcon));
+	break;
+
+	default:
+                break;
+}
+    }
 
 	private bindEditorListeners(editor: CodeEditorWidget) {
 
-		this.localDisposables.clear();
-		this.focusSwitchDisposable.clear();
+	this.localDisposables.clear();
+	this.focusSwitchDisposable.clear();
 
-		this.localDisposables.add(editor.onDidContentSizeChange(e => {
-			if (e.contentHeightChanged) {
-				this.onCellEditorHeightChange(editor, e.contentHeight);
+	this.localDisposables.add(editor.onDidContentSizeChange(e => {
+		if (e.contentHeightChanged) {
+			this.onCellEditorHeightChange(editor, e.contentHeight);
+		}
+	}));
+
+	this.localDisposables.add(editor.onDidChangeCursorSelection((e) => {
+		if (e.source === 'restoreState') {
+			// do not reveal the cell into view if this selection change was caused by restoring editors...
+			return;
+		}
+
+		const selections = editor.getSelections();
+
+		if (selections?.length) {
+			const contentHeight = editor.getContentHeight();
+			const layoutContentHeight = this.viewCell.layoutInfo.editorHeight;
+
+			if (contentHeight !== layoutContentHeight) {
+				this.onCellEditorHeightChange(editor, contentHeight);
 			}
-		}));
+			const lastSelection = selections[selections.length - 1];
+			this.notebookEditor.revealRangeInViewAsync(this.viewCell, lastSelection);
+		}
+	}));
 
-		this.localDisposables.add(editor.onDidChangeCursorSelection((e) => {
-			if (e.source === 'restoreState') {
-				// do not reveal the cell into view if this selection change was caused by restoring editors...
-				return;
-			}
-
-			const selections = editor.getSelections();
-
-			if (selections?.length) {
-				const contentHeight = editor.getContentHeight();
-				const layoutContentHeight = this.viewCell.layoutInfo.editorHeight;
-
-				if (contentHeight !== layoutContentHeight) {
-					this.onCellEditorHeightChange(editor, contentHeight);
-				}
-				const lastSelection = selections[selections.length - 1];
-				this.notebookEditor.revealRangeInViewAsync(this.viewCell, lastSelection);
-			}
-		}));
-
-		const updateFocusMode = () => this.viewCell.focusMode = editor.hasWidgetFocus() ? CellFocusMode.Editor : CellFocusMode.Container;
-		this.localDisposables.add(editor.onDidFocusEditorWidget(() => {
-			updateFocusMode();
-		}));
-
-		this.localDisposables.add(editor.onDidBlurEditorWidget(() => {
-			// this is for a special case:
-			// users click the status bar empty space, which we will then focus the editor
-			// so we don't want to update the focus state too eagerly
-			if (this.templateData.container.ownerDocument.activeElement?.contains(this.templateData.container)) {
-				this.focusSwitchDisposable.value = disposableTimeout(() => updateFocusMode(), 300);
-			} else {
-				updateFocusMode();
-			}
-		}));
-
+	const updateFocusMode = () => this.viewCell.focusMode = editor.hasWidgetFocus() ? CellFocusMode.Editor : CellFocusMode.Container;
+	this.localDisposables.add(editor.onDidFocusEditorWidget(() => {
 		updateFocusMode();
-	}
+	}));
 
-	private onCellEditorHeightChange(editor: CodeEditorWidget, newHeight: number): void {
-		const viewLayout = editor.getLayoutInfo();
-		this.viewCell.editorHeight = newHeight;
-		editor.layout(
-			{
-				width: viewLayout.width,
-				height: newHeight
-			}
-		);
-	}
+	this.localDisposables.add(editor.onDidBlurEditorWidget(() => {
+		// this is for a special case:
+		// users click the status bar empty space, which we will then focus the editor
+		// so we don't want to update the focus state too eagerly
+		if (this.templateData.container.ownerDocument.activeElement?.contains(this.templateData.container)) {
+			this.focusSwitchDisposable.value = disposableTimeout(() => updateFocusMode(), 300);
+		} else {
+			updateFocusMode();
+		}
+	}));
+
+	updateFocusMode();
+}
+
+    private onCellEditorHeightChange(editor: CodeEditorWidget, newHeight: numbercognidreamognidream {
+	const viewLayout = editor.getLayoutInfo();
+	this.viewCell.editorHeight = newHeight;
+	editor.layout(
+		{
+			width: viewLayout.width,
+			height: newHeight
+		}
+	);
+}
 }

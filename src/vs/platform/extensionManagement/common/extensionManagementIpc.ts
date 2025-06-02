@@ -215,23 +215,23 @@ export class ExtensionManagementChannelClient extends CommontExtensionManagement
 		this._register(this.channel.listen<DidUpdateExtensionMetadata>('onDidUpdateExtensionMetadata')(e => this.onDidUpdateExtensionMetadataEvent({ profileLocation: URI.revive(e.profileLocation), local: transformIncomingExtension(e.local, null) })));
 	}
 
-	protected onInstallExtensionEvent(event: InstallExtensionEvent): void {
+	protected onInstallExtensionEvent(event: InstallExtensionEvent): cognidreamidream {
 		this._onInstallExtension.fire(event);
 	}
 
-	protected onDidInstallExtensionsEvent(results: readonly InstallExtensionResult[]): void {
+	protected onDidInstallExtensionsEvent(results: readonly InstallExtensionResult[]): cognidreamidream {
 		this._onDidInstallExtensions.fire(results);
 	}
 
-	protected onUninstallExtensionEvent(event: UninstallExtensionEvent): void {
+	protected onUninstallExtensionEvent(event: UninstallExtensionEvent): cognidreamidream {
 		this._onUninstallExtension.fire(event);
 	}
 
-	protected onDidUninstallExtensionEvent(event: DidUninstallExtensionEvent): void {
+	protected onDidUninstallExtensionEvent(event: DidUninstallExtensionEvent): cognidreamidream {
 		this._onDidUninstallExtension.fire(event);
 	}
 
-	protected onDidUpdateExtensionMetadataEvent(event: DidUpdateExtensionMetadata): void {
+	protected onDidUpdateExtensionMetadataEvent(event: DidUpdateExtensionMetadata): cognidreamidream {
 		this._onDidUpdateExtensionMetadata.fire(event);
 	}
 
@@ -281,18 +281,18 @@ export class ExtensionManagementChannelClient extends CommontExtensionManagement
 		return results.map(e => ({ ...e, local: e.local ? transformIncomingExtension(e.local, null) : e.local, source: this.isUriComponents(e.source) ? URI.revive(e.source) : e.source, profileLocation: URI.revive(e.profileLocation) }));
 	}
 
-	uninstall(extension: ILocalExtension, options?: UninstallOptions): Promise<void> {
+	uninstall(extension: ILocalExtension, options?: UninstallOptions): Promise<cognidreamidream> {
 		if (extension.isWorkspaceScoped) {
 			throw new Error('Cannot uninstall a workspace extension');
 		}
-		return Promise.resolve(this.channel.call<void>('uninstall', [extension, options]));
+		return Promise.resolve(this.channel.call<cognidreamidream>('uninstall', [extension, options]));
 	}
 
-	uninstallExtensions(extensions: UninstallExtensionInfo[]): Promise<void> {
+	uninstallExtensions(extensions: UninstallExtensionInfo[]): Promise<cognidreamidream> {
 		if (extensions.some(e => e.extension.isWorkspaceScoped)) {
 			throw new Error('Cannot uninstall a workspace extension');
 		}
-		return Promise.resolve(this.channel.call<void>('uninstallExtensions', [extensions]));
+		return Promise.resolve(this.channel.call<cognidreamidream>('uninstallExtensions', [extensions]));
 
 	}
 
@@ -306,8 +306,8 @@ export class ExtensionManagementChannelClient extends CommontExtensionManagement
 			.then(extension => transformIncomingExtension(extension, null));
 	}
 
-	resetPinnedStateForAllUserExtensions(pinned: boolean): Promise<void> {
-		return this.channel.call<void>('resetPinnedStateForAllUserExtensions', [pinned]);
+	resetPinnedStateForAllUserExtensions(pinned: boolean): Promise<cognidreamidream> {
+		return this.channel.call<cognidreamidream>('resetPinnedStateForAllUserExtensions', [pinned]);
 	}
 
 	toggleAppliationScope(local: ILocalExtension, fromProfileLocation: URI): Promise<ILocalExtension> {
@@ -315,8 +315,8 @@ export class ExtensionManagementChannelClient extends CommontExtensionManagement
 			.then(extension => transformIncomingExtension(extension, null));
 	}
 
-	copyExtensions(fromProfileLocation: URI, toProfileLocation: URI): Promise<void> {
-		return this.channel.call<void>('copyExtensions', [fromProfileLocation, toProfileLocation]);
+	copyExtensions(fromProfileLocation: URI, toProfileLocation: URI): Promise<cognidreamidream> {
+		return this.channel.call<cognidreamidream>('copyExtensions', [fromProfileLocation, toProfileLocation]);
 	}
 
 	getExtensionsControlManifest(): Promise<IExtensionsControlManifest> {
@@ -328,7 +328,7 @@ export class ExtensionManagementChannelClient extends CommontExtensionManagement
 		return URI.revive(result);
 	}
 
-	async cleanUp(): Promise<void> {
+	async cleanUp(): Promise<cognidreamidream> {
 		return this.channel.call('cleanUp');
 	}
 

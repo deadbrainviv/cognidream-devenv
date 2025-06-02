@@ -20,57 +20,57 @@ import { FilesystemMcpDiscovery, WritableMcpCollectionDefinition } from './nativ
 import { claudeConfigToServerDefinition } from './nativeMcpDiscoveryAdapters.js';
 
 export class CursorWorkspaceMcpDiscoveryAdapter extends FilesystemMcpDiscovery implements IMcpDiscovery {
-	private readonly _collections = this._register(new DisposableMap<string, IDisposable>());
+    private readonly _collections = this._register(new DisposableMap<string, IDisposable>());
 
-	constructor(
-		@IFileService fileService: IFileService,
-		@IWorkspaceContextService private readonly _workspaceContextService: IWorkspaceContextService,
-		@IMcpRegistry mcpRegistry: IMcpRegistry,
-		@IConfigurationService configurationService: IConfigurationService,
-		@IRemoteAgentService private readonly _remoteAgentService: IRemoteAgentService,
-	) {
-		super(configurationService, fileService, mcpRegistry);
-	}
+    constructor(
+        @IFileService fileService: IFileService,
+        @IWorkspaceContextService private readonly _workspaceContextService: IWorkspaceContextService,
+        @IMcpRegistry mcpRegistry: IMcpRegistry,
+        @IConfigurationService configurationService: IConfigurationService,
+        @IRemoteAgentService private readonly _remoteAgentService: IRemoteAgentService,
+    ) {
+        super(configurationService, fileService, mcpRegistry);
+    }
 
-	start(): void {
-		this._register(this._workspaceContextService.onDidChangeWorkspaceFolders(e => {
-			for (const removed of e.removed) {
-				this._collections.deleteAndDispose(removed.uri.toString());
-			}
-			for (const added of e.added) {
-				this.watchFolder(added);
-			}
-		}));
+    start(): cognidream {
+        this._register(this._workspaceContextService.onDidChangeWorkspaceFolders(e => {
+            for (const removed of e.removed) {
+                this._collections.deleteAndDispose(removed.uri.toString());
+            }
+            for (const added of e.added) {
+                this.watchFolder(added);
+            }
+        }));
 
-		for (const folder of this._workspaceContextService.getWorkspace().folders) {
-			this.watchFolder(folder);
-		}
-	}
+        for (const folder of this._workspaceContextService.getWorkspace().folders) {
+            this.watchFolder(folder);
+        }
+    }
 
-	private watchFolder(folder: IWorkspaceFolder) {
-		const configFile = joinPath(folder.uri, '.cursor', 'mcp.json');
-		const collection: WritableMcpCollectionDefinition = {
-			id: `cursor-workspace.${folder.index}`,
-			label: `${folder.name}/.cursor/mcp.json`,
-			remoteAuthority: this._remoteAgentService.getConnection()?.remoteAuthority || null,
-			scope: StorageScope.WORKSPACE,
-			isTrustedByDefault: false,
-			serverDefinitions: observableValue(this, []),
-			presentation: {
-				origin: configFile,
-				order: McpCollectionSortOrder.WorkspaceFolder + 1,
-			},
-		};
+    private watchFolder(folder: IWorkspaceFolder) {
+        const configFile = joinPath(folder.uri, '.cursor', 'mcp.json');
+        const collection: WritableMcpCollectionDefinition = {
+            id: `cursor-workspace.${folder.index}`,
+            label: `${folder.name}/.cursor/mcp.json`,
+            remoteAuthority: this._remoteAgentService.getConnection()?.remoteAuthority || null,
+            scope: StorageScope.WORKSPACE,
+            isTrustedByDefault: false,
+            serverDefinitions: observableValue(this, []),
+            presentation: {
+                origin: configFile,
+                order: McpCollectionSortOrder.WorkspaceFolder + 1,
+            },
+        };
 
-		this._collections.set(folder.uri.toString(), this.watchFile(
-			URI.joinPath(folder.uri, '.cursor', 'mcp.json'),
-			collection,
-			DiscoverySource.CursorWorkspace,
-			contents => {
-				const defs = claudeConfigToServerDefinition(collection.id, contents, folder.uri);
-				defs?.forEach(d => d.roots = [folder.uri]);
-				return defs;
-			}
-		));
-	}
+        this._collections.set(folder.uri.toString(), this.watchFile(
+            URI.joinPath(folder.uri, '.cursor', 'mcp.json'),
+            collection,
+            DiscoverySource.CursorWorkspace,
+            contents => {
+                const defs = claudeConfigToServerDefinition(collection.id, contents, folder.uri);
+                defs?.forEach(d => d.roots = [folder.uri]);
+                return defs;
+            }
+        ));
+    }
 }

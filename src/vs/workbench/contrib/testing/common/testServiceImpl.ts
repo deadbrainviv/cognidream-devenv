@@ -336,7 +336,7 @@ export class TestService extends Disposable implements ITestService {
 	/**
 	 * @inheritdoc
 	 */
-	public async syncTests(): Promise<void> {
+	public async syncTests(): Promise<cognidream> {
 		const cts = new CancellationTokenSource();
 		try {
 			await Promise.all([...this.testControllers.get().values()].map(c => c.syncTests(cts.token)));
@@ -348,13 +348,13 @@ export class TestService extends Disposable implements ITestService {
 	/**
 	 * @inheritdoc
 	 */
-	public async refreshTests(controllerId?: string): Promise<void> {
+	public async refreshTests(controllerId?: string): Promicognidreamognidream> {
 		const cts = new CancellationTokenSource();
 		this.testRefreshCancellations.add(cts);
 		this.isRefreshingTests.set(true);
 
 		try {
-			if (controllerId) {
+			if(controllerId) {
 				await this.getTestController(controllerId)?.refreshTests(cts.token);
 			} else {
 				await Promise.all([...this.testControllers.get().values()].map(c => c.refreshTests(cts.token)));
@@ -366,82 +366,82 @@ export class TestService extends Disposable implements ITestService {
 		}
 	}
 
-	/**
-	 * @inheritdoc
-	 */
-	public cancelRefreshTests(): void {
-		for (const cts of this.testRefreshCancellations) {
-			cts.cancel();
-		}
-		this.testRefreshCancellations.clear();
-		this.isRefreshingTests.set(false);
-	}
+    /**
+     * @inheritdoc
+     */
+    public cancelRefreshTests(cognidreamognidream {
+		for(const cts of this.testRefreshCancellations) {
+	cts.cancel();
+}
+this.testRefreshCancellations.clear();
+this.isRefreshingTests.set(false);
+    }
 
-	/**
-	 * @inheritdoc
-	 */
-	public registerExtHost(controller: IMainThreadTestHostProxy): IDisposable {
-		this.testExtHosts.add(controller);
-		return toDisposable(() => this.testExtHosts.delete(controller));
-	}
+    /**
+     * @inheritdoc
+     */
+    public registerExtHost(controller: IMainThreadTestHostProxy): IDisposable {
+	this.testExtHosts.add(controller);
+	return toDisposable(() => this.testExtHosts.delete(controller));
+}
 
-	/**
-	 * @inheritdoc
-	 */
-	public async getTestsRelatedToCode(uri: URI, position: Position, token: CancellationToken = CancellationToken.None): Promise<InternalTestItem[]> {
-		const testIds = await Promise.all([...this.testExtHosts.values()].map(v => v.getTestsRelatedToCode(uri, position, token)));
-		// ext host will flush diffs before returning, so we should have everything here:
-		return testIds.flatMap(ids => ids.map(id => this.collection.getNodeById(id))).filter(isDefined);
-	}
+    /**
+     * @inheritdoc
+     */
+    public async getTestsRelatedToCode(uri: URI, position: Position, token: CancellationToken = CancellationToken.None): Promise < InternalTestItem[] > {
+	const testIds = await Promise.all([...this.testExtHosts.values()].map(v => v.getTestsRelatedToCode(uri, position, token)));
+	// ext host will flush diffs before returning, so we should have everything here:
+	return testIds.flatMap(ids => ids.map(id => this.collection.getNodeById(id))).filter(isDefined);
+}
 
-	/**
-	 * @inheritdoc
-	 */
-	public registerTestController(id: string, controller: IMainThreadTestController): IDisposable {
-		this.testControllers.set(new Map(this.testControllers.get()).set(id, controller), undefined);
+    /**
+     * @inheritdoc
+     */
+    public registerTestController(id: string, controller: IMainThreadTestController): IDisposable {
+	this.testControllers.set(new Map(this.testControllers.get()).set(id, controller), undefined);
 
-		return toDisposable(() => {
-			const diff: TestsDiff = [];
-			for (const root of this.collection.rootItems) {
-				if (root.controllerId === id) {
-					diff.push({ op: TestDiffOpType.Remove, itemId: root.item.extId });
-				}
+	return toDisposable(() => {
+		const diff: TestsDiff = [];
+		for (const root of this.collection.rootItems) {
+			if (root.controllerId === id) {
+				diff.push({ op: TestDiffOpType.Remove, itemId: root.item.extId });
 			}
-
-			this.publishDiff(id, diff);
-
-			const next = new Map(this.testControllers.get());
-			next.delete(id);
-			this.testControllers.set(next, undefined);
-		});
-	}
-
-	/**
-	 * @inheritdoc
-	 */
-	public async getCodeRelatedToTest(test: InternalTestItem, token: CancellationToken = CancellationToken.None): Promise<Location[]> {
-		return (await this.testControllers.get().get(test.controllerId)?.getRelatedCode(test.item.extId, token)) || [];
-	}
-
-	private updateEditorContextKeys() {
-		const uri = this.editorService.activeEditor?.resource;
-		if (uri) {
-			this.activeEditorHasTests.set(!Iterable.isEmpty(this.collection.getNodeByUrl(uri)));
-		} else {
-			this.activeEditorHasTests.set(false);
 		}
-	}
 
-	private async saveAllBeforeTest(req: ResolvedTestRunRequest, configurationService: IConfigurationService = this.configurationService, editorService: IEditorService = this.editorService): Promise<void> {
-		if (req.preserveFocus === true) {
-			return;
-		}
-		const saveBeforeTest = getTestingConfiguration(this.configurationService, TestingConfigKeys.SaveBeforeTest);
-		if (saveBeforeTest) {
-			await editorService.saveAll();
-		}
-		return;
+		this.publishDiff(id, diff);
+
+		const next = new Map(this.testControllers.get());
+		next.delete(id);
+		this.testControllers.set(next, undefined);
+	});
+}
+
+    /**
+     * @inheritdoc
+     */
+    public async getCodeRelatedToTest(test: InternalTestItem, token: CancellationToken = CancellationToken.None): Promise < Location[] > {
+	return(await this.testControllers.get().get(test.controllerId)?.getRelatedCode(test.item.extId, token)) || [];
+    }
+
+    private updateEditorContextKeys() {
+	const uri = this.editorService.activeEditor?.resource;
+	if (uri) {
+		this.activeEditorHasTests.set(!Iterable.isEmpty(this.collection.getNodeByUrl(uri)));
+	} else {
+		this.activeEditorHasTests.set(false);
 	}
+}
+
+    private async saveAllBeforeTest(req: ResolvedTestRunRequest, configurationService: IConfigurationService = this.configurationService, editorService: IEditorService = this.editorService): Promicognidreamognidream > {
+	if(req.preserveFocus === true) {
+	return;
+}
+const saveBeforeTest = getTestingConfiguration(this.configurationService, TestingConfigKeys.SaveBeforeTest);
+if (saveBeforeTest) {
+	await editorService.saveAll();
+}
+return;
+    }
 }
 
 

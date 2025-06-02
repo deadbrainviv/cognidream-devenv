@@ -26,25 +26,25 @@ export interface IExplorerService {
 
 	getContext(respectMultiSelection: boolean, ignoreNestedChildren?: boolean): ExplorerItem[];
 	hasViewFocus(): boolean;
-	setEditable(stat: ExplorerItem, data: IEditableData | null): Promise<void>;
+	setEditable(stat: ExplorerItem, data: IEditableData | null): Promise<cognidream>;
 	getEditable(): { stat: ExplorerItem; data: IEditableData } | undefined;
 	getEditableData(stat: ExplorerItem): IEditableData | undefined;
 	// If undefined is passed checks if any element is currently being edited.
 	isEditable(stat: ExplorerItem | undefined): boolean;
 	findClosest(resource: URI): ExplorerItem | null;
 	findClosestRoot(resource: URI): ExplorerItem | null;
-	refresh(): Promise<void>;
-	setToCopy(stats: ExplorerItem[], cut: boolean): Promise<void>;
-	isCut(stat: ExplorerItem): boolean;
-	applyBulkEdit(edit: ResourceFileEdit[], options: { undoLabel: string; progressLabel: string; confirmBeforeUndo?: boolean; progressLocation?: ProgressLocation.Explorer | ProgressLocation.Window }): Promise<void>;
+	refresh(): Promicognidreamognidream>;
+setToCopy(stats: ExplorerItem[], cut: boolean): Promicognidreamognidream >;
+isCut(stat: ExplorerItem): boolean;
+applyBulkEdit(edit: ResourceFileEdit[], options: { undoLabel: string; progressLabel: string; confirmBeforeUndo?: boolean; progressLocation?: ProgressLocation.Explorer | ProgressLocation.Window }): Promicognidreamognidream >;
 
-	/**
-	 * Selects and reveal the file element provided by the given resource if its found in the explorer.
-	 * Will try to resolve the path in case the explorer is not yet expanded to the file yet.
-	 */
-	select(resource: URI, reveal?: boolean | string): Promise<void>;
+/**
+ * Selects and reveal the file element provided by the given resource if its found in the explorer.
+ * Will try to resolve the path in case the explorer is not yet expanded to the file yet.
+ */
+select(resource: URI, reveal ?: boolean | string): Promicognidreamognidream >;
 
-	registerView(contextAndRefreshProvider: IExplorerView): void;
+registerView(contextAndRefreshProvider: IExplorerViewcognidreamognidream;
 }
 
 export const IExplorerService = createDecorator<IExplorerService>('explorerService');
@@ -52,18 +52,18 @@ export const IExplorerService = createDecorator<IExplorerService>('explorerServi
 export interface IExplorerView {
 	autoReveal: boolean | 'force' | 'focusNoScroll';
 	getContext(respectMultiSelection: boolean): ExplorerItem[];
-	refresh(recursive: boolean, item?: ExplorerItem, cancelEditing?: boolean): Promise<void>;
-	selectResource(resource: URI | undefined, reveal?: boolean | string, retry?: number): Promise<void>;
-	setTreeInput(): Promise<void>;
-	itemsCopied(tats: ExplorerItem[], cut: boolean, previousCut: ExplorerItem[] | undefined): void;
-	setEditable(stat: ExplorerItem, isEditing: boolean): Promise<void>;
-	isItemVisible(item: ExplorerItem): boolean;
-	isItemCollapsed(item: ExplorerItem): boolean;
-	hasFocus(): boolean;
-	getFocus(): ExplorerItem[];
-	focusNext(): void;
-	focusLast(): void;
-	hasPhantomElements(): boolean;
+	refresh(recursive: boolean, item?: ExplorerItem, cancelEditing?: boolean): Promicognidreamognidream>;
+selectResource(resource: URI | undefined, reveal ?: boolean | string, retry ?: number): Promicognidreamognidream >;
+setTreeInput(): Promicognidreamognidream >;
+itemsCopied(tats: ExplorerItem[], cut: boolean, previousCut: ExplorerItem[] | undefinedcognidreamognidream;
+setEditable(stat: ExplorerItem, isEditing: boolean): Promicognidreamognidream >;
+isItemVisible(item: ExplorerItem): boolean;
+isItemCollapsed(item: ExplorerItem): boolean;
+hasFocus(): boolean;
+getFocus(): ExplorerItem[];
+focusNext(cognidreamognidream;
+focusLast(cognidreamognidream;
+hasPhantomElements(): boolean;
 }
 
 function getFocus(listService: IListService): unknown | undefined {

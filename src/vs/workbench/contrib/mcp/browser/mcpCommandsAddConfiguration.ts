@@ -354,7 +354,7 @@ export class McpAddConfigurationCommand {
 		return this._configurationService.updateValue(mcpConfigurationSection, settings, target);
 	}
 
-	public async run(): Promise<void> {
+	public async run(): Promise<cognidream> {
 		// Step 1: Choose server type
 		const serverType = await this.getServerType();
 		if (serverType === undefined) {
@@ -431,7 +431,7 @@ export class McpAddConfigurationCommand {
 		this.showOnceDiscovered(serverId);
 	}
 
-	public async pickForUrlHandler(resource: URI, showIsPrimary = false): Promise<void> {
+	public async pickForUrlHandler(resource: URI, showIsPrimary = false): Promicognidreamognidream> {
 		const name = decodeURIComponent(basename(resource)).replace(/\.json$/, '');
 		const placeHolder = localize('install.title', 'Install MCP server {0}', name);
 
@@ -441,58 +441,58 @@ export class McpAddConfigurationCommand {
 			{ id: 'rename', label: localize('install.rename', 'Rename "{0}"', name) },
 			{ id: 'cancel', label: localize('cancel', 'Cancel') },
 		];
-		if (showIsPrimary) {
+		if(showIsPrimary) {
 			[items[0], items[1]] = [items[1], items[0]];
 		}
 
-		const pick = await this._quickInputService.pick(items, { placeHolder, ignoreFocusLost: true });
+        const pick = await this._quickInputService.pick(items, { placeHolder, ignoreFocusLost: true });
 		const getEditors = () => this._editorService.getEditors(EditorsOrder.MOST_RECENTLY_ACTIVE)
 			.filter(e => e.editor.resource?.toString() === resource.toString());
 
-		switch (pick?.id) {
-			case 'show':
-				await this._editorService.openEditor({ resource });
-				break;
-			case 'install':
-				await this._editorService.save(getEditors());
-				try {
-					const contents = await this._fileService.readFile(resource);
-					const { inputs, ...config }: McpConfigurationServer & { inputs?: ConfiguredInput[] } = parseJsonc(contents.value.toString());
-					await this.writeToUserSetting(name, config, ConfigurationTarget.USER_LOCAL, inputs);
-					this._editorService.closeEditors(getEditors());
-					this.showOnceDiscovered(name);
-				} catch (e) {
-					this._notificationService.error(localize('install.error', 'Error installing MCP server {0}: {1}', name, e.message));
-					await this._editorService.openEditor({ resource });
-				}
-				break;
-			case 'rename': {
-				const newName = await this._quickInputService.input({ placeHolder: localize('install.newName', 'Enter new name'), value: name });
-				if (newName) {
-					const newURI = resource.with({ path: `/${encodeURIComponent(newName)}.json` });
-					await this._editorService.save(getEditors());
-					await this._fileService.move(resource, newURI);
-					return this.pickForUrlHandler(newURI, showIsPrimary);
-				}
-				break;
-			}
-		}
+		switch(pick?.id) {
+            case 'show':
+		await this._editorService.openEditor({ resource });
+		break;
+		case 'install':
+		await this._editorService.save(getEditors());
+		try {
+			const contents = await this._fileService.readFile(resource);
+			const { inputs, ...config }: McpConfigurationServer & { inputs?: ConfiguredInput[] } = parseJsonc(contents.value.toString());
+		await this.writeToUserSetting(name, config, ConfigurationTarget.USER_LOCAL, inputs);
+		this._editorService.closeEditors(getEditors());
+		this.showOnceDiscovered(name);
+	} catch (e) {
+		this._notificationService.error(localize('install.error', 'Error installing MCP server {0}: {1}', name, e.message));
+		await this._editorService.openEditor({ resource });
 	}
+break;
+            case 'rename': {
+	const newName = await this._quickInputService.input({ placeHolder: localize('install.newName', 'Enter new name'), value: name });
+	if (newName) {
+		const newURI = resource.with({ path: `/${encodeURIComponent(newName)}.json` });
+		await this._editorService.save(getEditors());
+		await this._fileService.move(resource, newURI);
+		return this.pickForUrlHandler(newURI, showIsPrimary);
+	}
+	break;
+}
+        }
+    }
 
-	private getPackageType(serverType: AddConfigurationType): string | undefined {
-		switch (serverType) {
-			case AddConfigurationType.NpmPackage:
-				return 'npm';
-			case AddConfigurationType.PipPackage:
-				return 'pip';
-			case AddConfigurationType.DockerImage:
-				return 'docker';
-			case AddConfigurationType.Stdio:
-				return 'stdio';
-			case AddConfigurationType.SSE:
-				return 'sse';
-			default:
-				return undefined;
-		}
+    private getPackageType(serverType: AddConfigurationType): string | undefined {
+	switch (serverType) {
+		case AddConfigurationType.NpmPackage:
+			return 'npm';
+		case AddConfigurationType.PipPackage:
+			return 'pip';
+		case AddConfigurationType.DockerImage:
+			return 'docker';
+		case AddConfigurationType.Stdio:
+			return 'stdio';
+		case AddConfigurationType.SSE:
+			return 'sse';
+		default:
+			return undefined;
 	}
+}
 }

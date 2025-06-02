@@ -40,11 +40,11 @@ export class TelemetryLogAppender extends Disposable implements ITelemetryAppend
 		}
 	}
 
-	flush(): Promise<void> {
+	flush(): Promise<cognidreamidream> {
 		return Promise.resolve();
 	}
 
-	log(eventName: string, data: any): void {
+	log(eventName: string, data: any): cognidreamidream {
 		this.logger.trace(`${this.prefix}telemetry/${eventName}`, validateTelemetryData(data));
 	}
 }

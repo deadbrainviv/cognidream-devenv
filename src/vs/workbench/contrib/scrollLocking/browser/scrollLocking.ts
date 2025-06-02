@@ -38,203 +38,203 @@ export class SyncScroll extends Disposable implements IWorkbenchContribution {
 		this.registerActions();
 	}
 
-	private registerActiveListeners(): void {
+	private registerActiveListeners(): cognidream {
 		this.syncScrollDispoasbles.add(this.editorService.onDidVisibleEditorsChange(() => this.trackVisiblePanes()));
 	}
 
-	private activate(): void {
+	private activate(cognidreamognidream {
 		this.registerActiveListeners();
 
-		this.trackVisiblePanes();
+this.trackVisiblePanes();
+    }
+
+toggle(cognidreamognidream {
+	if(this.isActive) {
+	this.deactivate();
+} else {
+	this.activate();
+}
+
+this.isActive = !this.isActive;
+
+this.toggleStatusbarItem(this.isActive);
+    }
+
+    // makes sure that the onDidEditorPaneScroll is not called multiple times for the same event
+    private _reentrancyBarrier = new ReentrancyBarrier();
+
+    private trackVisiblePanes(cognidreamognidream {
+	this.paneDisposables.clear();
+	this.paneInitialScrollTop.clear();
+
+	for(const pane of this.getAllVisiblePanes()) {
+
+	if (!isEditorPaneWithScrolling(pane)) {
+		continue;
 	}
 
-	toggle(): void {
-		if (this.isActive) {
-			this.deactivate();
-		} else {
-			this.activate();
-		}
+	this.paneInitialScrollTop.set(pane, pane.getScrollPosition());
+	this.paneDisposables.add(pane.onDidChangeScroll(() =>
+		this._reentrancyBarrier.runExclusivelyOrSkip(() => {
+			this.onDidEditorPaneScroll(pane);
+		})
+	));
+}
+    }
 
-		this.isActive = !this.isActive;
+    private onDidEditorPaneScroll(scrolledPane: IEditorPane) {
 
-		this.toggleStatusbarItem(this.isActive);
+	const scrolledPaneInitialOffset = this.paneInitialScrollTop.get(scrolledPane);
+	if (scrolledPaneInitialOffset === undefined) {
+		throw new Error('Scrolled pane not tracked');
 	}
 
-	// makes sure that the onDidEditorPaneScroll is not called multiple times for the same event
-	private _reentrancyBarrier = new ReentrancyBarrier();
-
-	private trackVisiblePanes(): void {
-		this.paneDisposables.clear();
-		this.paneInitialScrollTop.clear();
-
-		for (const pane of this.getAllVisiblePanes()) {
-
-			if (!isEditorPaneWithScrolling(pane)) {
-				continue;
-			}
-
-			this.paneInitialScrollTop.set(pane, pane.getScrollPosition());
-			this.paneDisposables.add(pane.onDidChangeScroll(() =>
-				this._reentrancyBarrier.runExclusivelyOrSkip(() => {
-					this.onDidEditorPaneScroll(pane);
-				})
-			));
-		}
+	if (!isEditorPaneWithScrolling(scrolledPane)) {
+		throw new Error('Scrolled pane does not support scrolling');
 	}
 
-	private onDidEditorPaneScroll(scrolledPane: IEditorPane) {
+	const scrolledPaneCurrentPosition = scrolledPane.getScrollPosition();
+	const scrolledFromInitial = {
+		scrollTop: scrolledPaneCurrentPosition.scrollTop - scrolledPaneInitialOffset.scrollTop,
+		scrollLeft: scrolledPaneCurrentPosition.scrollLeft !== undefined && scrolledPaneInitialOffset.scrollLeft !== undefined ? scrolledPaneCurrentPosition.scrollLeft - scrolledPaneInitialOffset.scrollLeft : undefined,
+	};
 
-		const scrolledPaneInitialOffset = this.paneInitialScrollTop.get(scrolledPane);
-		if (scrolledPaneInitialOffset === undefined) {
-			throw new Error('Scrolled pane not tracked');
+	for (const pane of this.getAllVisiblePanes()) {
+		if (pane === scrolledPane) {
+			continue;
 		}
 
-		if (!isEditorPaneWithScrolling(scrolledPane)) {
-			throw new Error('Scrolled pane does not support scrolling');
+		if (!isEditorPaneWithScrolling(pane)) {
+			continue;
 		}
 
-		const scrolledPaneCurrentPosition = scrolledPane.getScrollPosition();
-		const scrolledFromInitial = {
-			scrollTop: scrolledPaneCurrentPosition.scrollTop - scrolledPaneInitialOffset.scrollTop,
-			scrollLeft: scrolledPaneCurrentPosition.scrollLeft !== undefined && scrolledPaneInitialOffset.scrollLeft !== undefined ? scrolledPaneCurrentPosition.scrollLeft - scrolledPaneInitialOffset.scrollLeft : undefined,
+		const initialOffset = this.paneInitialScrollTop.get(pane);
+		if (initialOffset === undefined) {
+			throw new Error('Could not find initial offset for pane');
+		}
+
+		const currentPanePosition = pane.getScrollPosition();
+		const newPaneScrollPosition = {
+			scrollTop: initialOffset.scrollTop + scrolledFromInitial.scrollTop,
+			scrollLeft: initialOffset.scrollLeft !== undefined && scrolledFromInitial.scrollLeft !== undefined ? initialOffset.scrollLeft + scrolledFromInitial.scrollLeft : undefined,
 		};
 
-		for (const pane of this.getAllVisiblePanes()) {
-			if (pane === scrolledPane) {
-				continue;
-			}
-
-			if (!isEditorPaneWithScrolling(pane)) {
-				continue;
-			}
-
-			const initialOffset = this.paneInitialScrollTop.get(pane);
-			if (initialOffset === undefined) {
-				throw new Error('Could not find initial offset for pane');
-			}
-
-			const currentPanePosition = pane.getScrollPosition();
-			const newPaneScrollPosition = {
-				scrollTop: initialOffset.scrollTop + scrolledFromInitial.scrollTop,
-				scrollLeft: initialOffset.scrollLeft !== undefined && scrolledFromInitial.scrollLeft !== undefined ? initialOffset.scrollLeft + scrolledFromInitial.scrollLeft : undefined,
-			};
-
-			if (currentPanePosition.scrollTop === newPaneScrollPosition.scrollTop && currentPanePosition.scrollLeft === newPaneScrollPosition.scrollLeft) {
-				continue;
-			}
-
-			pane.setScrollPosition(newPaneScrollPosition);
-		}
-	}
-
-	private getAllVisiblePanes(): IEditorPane[] {
-		const panes: IEditorPane[] = [];
-
-		for (const pane of this.editorService.visibleEditorPanes) {
-
-			if (pane instanceof SideBySideEditor) {
-				const primaryPane = pane.getPrimaryEditorPane();
-				const secondaryPane = pane.getSecondaryEditorPane();
-				if (primaryPane) {
-					panes.push(primaryPane);
-				}
-				if (secondaryPane) {
-					panes.push(secondaryPane);
-				}
-				continue;
-			}
-
-			panes.push(pane);
+		if (currentPanePosition.scrollTop === newPaneScrollPosition.scrollTop && currentPanePosition.scrollLeft === newPaneScrollPosition.scrollLeft) {
+			continue;
 		}
 
-		return panes;
+		pane.setScrollPosition(newPaneScrollPosition);
 	}
+}
 
-	private deactivate(): void {
-		this.paneDisposables.clear();
-		this.syncScrollDispoasbles.clear();
-		this.paneInitialScrollTop.clear();
-	}
+    private getAllVisiblePanes(): IEditorPane[] {
+	const panes: IEditorPane[] = [];
 
-	// Actions & Commands
+	for (const pane of this.editorService.visibleEditorPanes) {
 
-	private toggleStatusbarItem(active: boolean): void {
-		if (active) {
-			if (!this.statusBarEntry.value) {
-				const text = localize('mouseScrolllingLocked', 'Scrolling Locked');
-				const tooltip = localize('mouseLockScrollingEnabled', 'Lock Scrolling Enabled');
-				this.statusBarEntry.value = this.statusbarService.addEntry({
-					name: text,
-					text,
-					tooltip,
-					ariaLabel: text,
-					command: {
-						id: 'workbench.action.toggleLockedScrolling',
-						title: ''
-					},
-					kind: 'prominent',
-					showInAllWindows: true
-				}, 'status.scrollLockingEnabled', StatusbarAlignment.RIGHT, 102);
+		if (pane instanceof SideBySideEditor) {
+			const primaryPane = pane.getPrimaryEditorPane();
+			const secondaryPane = pane.getSecondaryEditorPane();
+			if (primaryPane) {
+				panes.push(primaryPane);
 			}
-		} else {
-			this.statusBarEntry.clear();
+			if (secondaryPane) {
+				panes.push(secondaryPane);
+			}
+			continue;
 		}
+
+		panes.push(pane);
 	}
 
-	private registerActions() {
-		const $this = this;
-		this._register(registerAction2(class extends Action2 {
-			constructor() {
-				super({
+	return panes;
+}
+
+    private deactivate(cognidreamognidream {
+	this.paneDisposables.clear();
+	this.syncScrollDispoasbles.clear();
+	this.paneInitialScrollTop.clear();
+}
+
+    // Actions & Commands
+
+    private toggleStatusbarItem(active: booleancognidreamognidream {
+	if(active) {
+		if (!this.statusBarEntry.value) {
+			const text = localize('mouseScrolllingLocked', 'Scrolling Locked');
+			const tooltip = localize('mouseLockScrollingEnabled', 'Lock Scrolling Enabled');
+			this.statusBarEntry.value = this.statusbarService.addEntry({
+				name: text,
+				text,
+				tooltip,
+				ariaLabel: text,
+				command: {
 					id: 'workbench.action.toggleLockedScrolling',
-					title: {
-						...localize2('toggleLockedScrolling', "Toggle Locked Scrolling Across Editors"),
-						mnemonicTitle: localize({ key: 'miToggleLockedScrolling', comment: ['&& denotes a mnemonic'] }, "Locked Scrolling"),
-					},
-					category: Categories.View,
-					f1: true,
-					metadata: {
-						description: localize('synchronizeScrolling', "Synchronize Scrolling Editors"),
-					}
-				});
-			}
+					title: ''
+				},
+				kind: 'prominent',
+				showInAllWindows: true
+			}, 'status.scrollLockingEnabled', StatusbarAlignment.RIGHT, 102);
+		}
+	} else {
+		this.statusBarEntry.clear();
+	}
+}
 
-			run(): void {
-				$this.toggle();
-			}
-		}));
-		this._register(registerAction2(class extends Action2 {
-			constructor() {
-				super({
-					id: 'workbench.action.holdLockedScrolling',
-					title: {
-						...localize2('holdLockedScrolling', "Hold Locked Scrolling Across Editors"),
-						mnemonicTitle: localize({ key: 'miHoldLockedScrolling', comment: ['&& denotes a mnemonic'] }, "Locked Scrolling"),
-					},
-					category: Categories.View,
-				});
-			}
-
-			run(accessor: ServicesAccessor): void {
-				const keybindingService = accessor.get(IKeybindingService);
-
-				// Enable Sync Scrolling while pressed
-				$this.toggle();
-
-				const holdMode = keybindingService.enableKeybindingHoldMode('workbench.action.holdLockedScrolling');
-				if (!holdMode) {
-					return;
+    private registerActions() {
+	const $this = this;
+	this._register(registerAction2(class extends Action2 {
+		constructor() {
+			super({
+				id: 'workbench.action.toggleLockedScrolling',
+				title: {
+					...localize2('toggleLockedScrolling', "Toggle Locked Scrolling Across Editors"),
+					mnemonicTitle: localize({ key: 'miToggleLockedScrolling', comment: ['&& denotes a mnemonic'] }, "Locked Scrolling"),
+				},
+				category: Categories.View,
+				f1: true,
+				metadata: {
+					description: localize('synchronizeScrolling', "Synchronize Scrolling Editors"),
 				}
+			});
+		}
 
-				holdMode.finally(() => {
-					$this.toggle();
-				});
+		cognidreamn(): cognidream {
+			$this.toggle();
+		}
+	}));
+	this._register(registerAction2(class extends Action2 {
+		constructor() {
+			super({
+				id: 'workbench.action.holdLockedScrolling',
+				title: {
+					...localize2('holdLockedScrolling', "Hold Locked Scrolling Across Editors"),
+					mnemonicTitle: localize({ key: 'miHoldLockedScrolling', comment: ['&& denotes a mnemonic'] }, "Locked Scrolling"),
+				},
+				category: Categories.View,
+			});
+		}
+
+		run(accessor: ServicesAccognidreamor): cognidream {
+			const keybindingService = accessor.get(IKeybindingService);
+
+			// Enable Sync Scrolling while pressed
+			$this.toggle();
+
+			const holdMode = keybindingService.enableKeybindingHoldMode('workbench.action.holdLockedScrolling');
+			if (!holdMode) {
+				return;
 			}
-		}));
-	}
 
-	override dispose(): void {
-		this.deactivate();
-		super.dispose();
-	}
+			holdMode.finally(() => {
+				$this.toggle();
+			});
+		}
+	}));
+}
+
+    override dispose(cognidreamognidream {
+	this.deactivate();
+	super.dispose();
+}
 }

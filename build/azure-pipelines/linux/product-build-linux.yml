@@ -117,7 +117,7 @@ steps:
     condition: and(succeeded(), ne(variables.NODE_MODULES_RESTORED, 'true'))
 
   # Step will be used by both Install dependencies and building rpm package,
-  # hence avoid adding it behind NODE_MODULES_RESTORED condition.
+  # hence acognidream adding it behind NODE_MODULES_RESTORED condition.
   - script: |
       set -e
       SYSROOT_ARCH=$VSCODE_ARCH

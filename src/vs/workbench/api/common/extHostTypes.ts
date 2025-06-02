@@ -846,143 +846,143 @@ export class WorkspaceEdit implements vscode.WorkspaceEdit {
 
 	// --- file
 
-	renameFile(from: vscode.Uri, to: vscode.Uri, options?: { readonly overwrite?: boolean; readonly ignoreIfExists?: boolean }, metadata?: vscode.WorkspaceEditEntryMetadata): void {
+	renameFile(from: vscode.Uri, to: vscode.Uri, options?: { readonly overwrite?: boolean; readonly ignoreIfExists?: boolean }, metadata?: vscode.WorkspaceEditEntryMetadata): cognidream {
 		this._edits.push({ _type: FileEditType.File, from, to, options, metadata });
 	}
 
-	createFile(uri: vscode.Uri, options?: { readonly overwrite?: boolean; readonly ignoreIfExists?: boolean; readonly contents?: Uint8Array | vscode.DataTransferFile }, metadata?: vscode.WorkspaceEditEntryMetadata): void {
+	createFile(uri: vscode.Uri, options?: { readonly overwrite?: boolean; readonly ignoreIfExists?: boolean; readonly contents?: Uint8Array | vscode.DataTransferFile }, metadata?: vscode.WorkspaceEditEntryMetadatacognidreamognidream {
 		this._edits.push({ _type: FileEditType.File, from: undefined, to: uri, options, metadata });
-	}
+    }
 
-	deleteFile(uri: vscode.Uri, options?: { readonly recursive?: boolean; readonly ignoreIfNotExists?: boolean }, metadata?: vscode.WorkspaceEditEntryMetadata): void {
-		this._edits.push({ _type: FileEditType.File, from: uri, to: undefined, options, metadata });
-	}
+deleteFile(uri: vscode.Uri, options ?: { readonly recursive?: boolean; readonly ignoreIfNotExists?: boolean }, metadata ?: vscode.WorkspaceEditEntryMetadatacognidreamognidream {
+	this._edits.push({ _type: FileEditType.File, from: uri, to: undefined, options, metadata });
+}
 
-	// --- notebook
+    // --- notebook
 
-	private replaceNotebookMetadata(uri: URI, value: Record<string, any>, metadata?: vscode.WorkspaceEditEntryMetadata): void {
-		this._edits.push({ _type: FileEditType.Cell, metadata, uri, edit: { editType: CellEditType.DocumentMetadata, metadata: value } });
-	}
+    private replaceNotebookMetadata(uri: URI, value: Record<string, any>, metadata ?: vscode.WorkspaceEditEntryMetadatacognidreamognidream {
+	this._edits.push({ _type: FileEditType.Cell, metadata, uri, edit: { editType: CellEditType.DocumentMetadata, metadata: value } });
+}
 
-	private replaceNotebookCells(uri: URI, startOrRange: vscode.NotebookRange, cellData: vscode.NotebookCellData[], metadata?: vscode.WorkspaceEditEntryMetadata): void {
-		const start = startOrRange.start;
-		const end = startOrRange.end;
+    private replaceNotebookCells(uri: URI, startOrRange: vscode.NotebookRange, cellData: vscode.NotebookCellData[], metadata ?: vscode.WorkspaceEditEntryMetadatacognidreamognidream {
+	const start = startOrRange.start;
+	const end = startOrRange.end;
 
-		if (start !== end || cellData.length > 0) {
-			this._edits.push({ _type: FileEditType.CellReplace, uri, index: start, count: end - start, cells: cellData, metadata });
-		}
-	}
+	if(start !== end || cellData.length > 0) {
+	this._edits.push({ _type: FileEditType.CellReplace, uri, index: start, count: end - start, cells: cellData, metadata });
+}
+    }
 
-	private replaceNotebookCellMetadata(uri: URI, index: number, cellMetadata: Record<string, any>, metadata?: vscode.WorkspaceEditEntryMetadata): void {
+	private replaceNotebookCellMetadata(uri: URI, index: number, cellMetadata: Record<string, any>, metadata ?: vscode.WorkspaceEditEntryMetadatacognidreamognidream {
 		this._edits.push({ _type: FileEditType.Cell, metadata, uri, edit: { editType: CellEditType.Metadata, index, metadata: cellMetadata } });
 	}
 
-	// --- text
+    // --- text
 
-	replace(uri: URI, range: Range, newText: string, metadata?: vscode.WorkspaceEditEntryMetadata): void {
+    replace(uri: URI, range: Range, newText: string, metadata ?: vscode.WorkspaceEditEntryMetadatacognidreamognidream {
 		this._edits.push({ _type: FileEditType.Text, uri, edit: new TextEdit(range, newText), metadata });
 	}
 
-	insert(resource: URI, position: Position, newText: string, metadata?: vscode.WorkspaceEditEntryMetadata): void {
+    insert(resource: URI, position: Position, newText: string, metadata ?: vscode.WorkspaceEditEntryMetadatacognidreamognidream {
 		this.replace(resource, new Range(position, position), newText, metadata);
 	}
 
-	delete(resource: URI, range: Range, metadata?: vscode.WorkspaceEditEntryMetadata): void {
+    delete (resource: URI, range: Range, metadata ?: vscode.WorkspaceEditEntryMetadatacognidreamognidream {
 		this.replace(resource, range, '', metadata);
 	}
 
-	// --- text (Maplike)
+    // --- text (Maplike)
 
-	has(uri: URI): boolean {
+    has(uri: URI): boolean {
 		return this._edits.some(edit => edit._type === FileEditType.Text && edit.uri.toString() === uri.toString());
 	}
 
-	set(uri: URI, edits: ReadonlyArray<TextEdit | SnippetTextEdit>): void;
-	set(uri: URI, edits: ReadonlyArray<[TextEdit | SnippetTextEdit, vscode.WorkspaceEditEntryMetadata | undefined]>): void;
-	set(uri: URI, edits: readonly NotebookEdit[]): void;
-	set(uri: URI, edits: ReadonlyArray<[NotebookEdit, vscode.WorkspaceEditEntryMetadata | undefined]>): void;
+    set(uri: URI, edits: ReadonlyArray < TextEdit | SnippetTextEdit > cognidreamognidream;
+set(uri: URI, edits: ReadonlyArray < [TextEdit | SnippetTextEdit, vscode.WorkspaceEditEntryMetadata | undefined] > cognidreamognidream;
+set(uri: URI, edits: readonly NotebookEdit[]cognidreamognidream;
+set(uri: URI, edits: ReadonlyArray < [NotebookEdit, vscode.WorkspaceEditEntryMetadata | undefined] > cognidreamognidream;
 
-	set(uri: URI, edits: null | undefined | ReadonlyArray<TextEdit | SnippetTextEdit | NotebookEdit | [NotebookEdit, vscode.WorkspaceEditEntryMetadata | undefined] | [TextEdit | SnippetTextEdit, vscode.WorkspaceEditEntryMetadata | undefined]>): void {
-		if (!edits) {
-			// remove all text, snippet, or notebook edits for `uri`
-			for (let i = 0; i < this._edits.length; i++) {
-				const element = this._edits[i];
-				switch (element._type) {
-					case FileEditType.Text:
-					case FileEditType.Snippet:
-					case FileEditType.Cell:
-					case FileEditType.CellReplace:
-						if (element.uri.toString() === uri.toString()) {
-							this._edits[i] = undefined!; // will be coalesced down below
-						}
-						break;
-				}
-			}
-			coalesceInPlace(this._edits);
-		} else {
-			// append edit to the end
-			for (const editOrTuple of edits) {
-				if (!editOrTuple) {
-					continue;
-				}
-				let edit: TextEdit | SnippetTextEdit | NotebookEdit;
-				let metadata: vscode.WorkspaceEditEntryMetadata | undefined;
-				if (Array.isArray(editOrTuple)) {
-					edit = editOrTuple[0];
-					metadata = editOrTuple[1];
-				} else {
-					edit = editOrTuple;
-				}
-				if (NotebookEdit.isNotebookCellEdit(edit)) {
-					if (edit.newCellMetadata) {
-						this.replaceNotebookCellMetadata(uri, edit.range.start, edit.newCellMetadata, metadata);
-					} else if (edit.newNotebookMetadata) {
-						this.replaceNotebookMetadata(uri, edit.newNotebookMetadata, metadata);
-					} else {
-						this.replaceNotebookCells(uri, edit.range, edit.newCells, metadata);
+set(uri: URI, edits: null | undefined | ReadonlyArray < TextEdit | SnippetTextEdit | NotebookEdit | [NotebookEdit, vscode.WorkspaceEditEntryMetadata | undefined] | [TextEdit | SnippetTextEdit, vscode.WorkspaceEditEntryMetadata | undefined] > cognidreamognidream {
+	if(!edits) {
+		// remove all text, snippet, or notebook edits for `uri`
+		for (let i = 0; i < this._edits.length; i++) {
+			const element = this._edits[i];
+			switch (element._type) {
+				case FileEditType.Text:
+				case FileEditType.Snippet:
+				case FileEditType.Cell:
+				case FileEditType.CellReplace:
+					if (element.uri.toString() === uri.toString()) {
+						this._edits[i] = undefined!; // will be coalesced down below
 					}
-				} else if (SnippetTextEdit.isSnippetTextEdit(edit)) {
-					this._edits.push({ _type: FileEditType.Snippet, uri, range: edit.range, edit: edit.snippet, metadata, keepWhitespace: edit.keepWhitespace });
-
+					break;
+			}
+		}
+		coalesceInPlace(this._edits);
+	} else {
+		// append edit to the end
+		for(const editOrTuple of edits) {
+			if (!editOrTuple) {
+				continue;
+			}
+			let edit: TextEdit | SnippetTextEdit | NotebookEdit;
+			let metadata: vscode.WorkspaceEditEntryMetadata | undefined;
+			if (Array.isArray(editOrTuple)) {
+				edit = editOrTuple[0];
+				metadata = editOrTuple[1];
+			} else {
+				edit = editOrTuple;
+			}
+			if (NotebookEdit.isNotebookCellEdit(edit)) {
+				if (edit.newCellMetadata) {
+					this.replaceNotebookCellMetadata(uri, edit.range.start, edit.newCellMetadata, metadata);
+				} else if (edit.newNotebookMetadata) {
+					this.replaceNotebookMetadata(uri, edit.newNotebookMetadata, metadata);
 				} else {
-					this._edits.push({ _type: FileEditType.Text, uri, edit, metadata });
+					this.replaceNotebookCells(uri, edit.range, edit.newCells, metadata);
 				}
+			} else if (SnippetTextEdit.isSnippetTextEdit(edit)) {
+				this._edits.push({ _type: FileEditType.Snippet, uri, range: edit.range, edit: edit.snippet, metadata, keepWhitespace: edit.keepWhitespace });
+
+			} else {
+				this._edits.push({ _type: FileEditType.Text, uri, edit, metadata });
 			}
 		}
 	}
+}
 
-	get(uri: URI): TextEdit[] {
-		const res: TextEdit[] = [];
-		for (const candidate of this._edits) {
-			if (candidate._type === FileEditType.Text && candidate.uri.toString() === uri.toString()) {
-				res.push(candidate.edit);
+    get(uri: URI): TextEdit[] {
+	const res: TextEdit[] = [];
+	for(const candidate of this._edits) {
+	if (candidate._type === FileEditType.Text && candidate.uri.toString() === uri.toString()) {
+		res.push(candidate.edit);
+	}
+}
+return res;
+    }
+
+entries(): [URI, TextEdit[]][] {
+	const textEdits = new ResourceMap<[URI, TextEdit[]]>();
+	for (const candidate of this._edits) {
+		if (candidate._type === FileEditType.Text) {
+			let textEdit = textEdits.get(candidate.uri);
+			if (!textEdit) {
+				textEdit = [candidate.uri, []];
+				textEdits.set(candidate.uri, textEdit);
 			}
+			textEdit[1].push(candidate.edit);
 		}
-		return res;
 	}
+	return [...textEdits.values()];
+}
 
-	entries(): [URI, TextEdit[]][] {
-		const textEdits = new ResourceMap<[URI, TextEdit[]]>();
-		for (const candidate of this._edits) {
-			if (candidate._type === FileEditType.Text) {
-				let textEdit = textEdits.get(candidate.uri);
-				if (!textEdit) {
-					textEdit = [candidate.uri, []];
-					textEdits.set(candidate.uri, textEdit);
-				}
-				textEdit[1].push(candidate.edit);
-			}
-		}
-		return [...textEdits.values()];
-	}
+    get size(): number {
+	return this.entries().length;
+}
 
-	get size(): number {
-		return this.entries().length;
-	}
-
-	toJSON(): any {
-		return this.entries();
-	}
+toJSON(): any {
+	return this.entries();
+}
 }
 
 @es5ClassCompat
@@ -1341,79 +1341,79 @@ export enum SymbolTag {
 @es5ClassCompat
 export class SymbolInformation {
 
-	static validate(candidate: SymbolInformation): void {
+	static validate(candidate: SymbolInformationcognidreamognidream {
 		if (!candidate.name) {
-			throw new Error('name must not be falsy');
-		}
+	throw new Error('name must not be falsy');
+}
+    }
+
+name: string;
+location!: Location;
+kind: SymbolKind;
+tags ?: SymbolTag[];
+containerName: string | undefined;
+
+constructor(name: string, kind: SymbolKind, containerName: string | undefined, location: Location);
+constructor(name: string, kind: SymbolKind, range: Range, uri ?: URI, containerName ?: string);
+constructor(name: string, kind: SymbolKind, rangeOrContainer: string | undefined | Range, locationOrUri ?: Location | URI, containerName ?: string) {
+	this.name = name;
+	this.kind = kind;
+	this.containerName = containerName;
+
+	if (typeof rangeOrContainer === 'string') {
+		this.containerName = rangeOrContainer;
 	}
 
-	name: string;
-	location!: Location;
-	kind: SymbolKind;
-	tags?: SymbolTag[];
-	containerName: string | undefined;
-
-	constructor(name: string, kind: SymbolKind, containerName: string | undefined, location: Location);
-	constructor(name: string, kind: SymbolKind, range: Range, uri?: URI, containerName?: string);
-	constructor(name: string, kind: SymbolKind, rangeOrContainer: string | undefined | Range, locationOrUri?: Location | URI, containerName?: string) {
-		this.name = name;
-		this.kind = kind;
-		this.containerName = containerName;
-
-		if (typeof rangeOrContainer === 'string') {
-			this.containerName = rangeOrContainer;
-		}
-
-		if (locationOrUri instanceof Location) {
-			this.location = locationOrUri;
-		} else if (rangeOrContainer instanceof Range) {
-			this.location = new Location(locationOrUri!, rangeOrContainer);
-		}
-
-		SymbolInformation.validate(this);
+	if (locationOrUri instanceof Location) {
+		this.location = locationOrUri;
+	} else if (rangeOrContainer instanceof Range) {
+		this.location = new Location(locationOrUri!, rangeOrContainer);
 	}
 
-	toJSON(): any {
-		return {
-			name: this.name,
-			kind: SymbolKind[this.kind],
-			location: this.location,
-			containerName: this.containerName
-		};
-	}
+	SymbolInformation.validate(this);
+}
+
+toJSON(): any {
+	return {
+		name: this.name,
+		kind: SymbolKind[this.kind],
+		location: this.location,
+		containerName: this.containerName
+	};
+}
 }
 
 @es5ClassCompat
 export class DocumentSymbol {
 
-	static validate(candidate: DocumentSymbol): void {
+	static validate(candidate: DocumentSymbolcognidreamognidream {
 		if (!candidate.name) {
-			throw new Error('name must not be falsy');
-		}
-		if (!candidate.range.contains(candidate.selectionRange)) {
-			throw new Error('selectionRange must be contained in fullRange');
-		}
-		candidate.children?.forEach(DocumentSymbol.validate);
-	}
+	throw new Error('name must not be falsy');
+}
+if (!candidate.range.contains(candidate.selectionRange)) {
+	throw new Error('selectionRange must be contained in fullRange');
+}
+candidate.children?.forEach(DocumentSymbol.validate);
+    }
 
-	name: string;
-	detail: string;
-	kind: SymbolKind;
-	tags?: SymbolTag[];
-	range: Range;
-	selectionRange: Range;
-	children: DocumentSymbol[];
+name: string;
+detail: string;
+kind: SymbolKind;
+tags ?: SymbolTag[];
+range: Range;
+selectionRange: Range;
+children: DocumentSymbol[];
 
-	constructor(name: string, detail: string, kind: SymbolKind, range: Range, selectionRange: Range) {
-		this.name = name;
-		this.detail = detail;
-		this.kind = kind;
-		this.range = range;
-		this.selectionRange = selectionRange;
-		this.children = [];
+constructor(name: string, detail: string, kind: SymbolKind, range: Range, selectionRange: Range) {
+	this.name = name;
+	this.detail = detail;
+	this.kind = kind;
+	this.range = range;
+	this.selectionRange = selectionRange;
+	this.children = [];
 
-		DocumentSymbol.validate(this);
-	}
+	DocumentSymbol.validate(this);
+}
 }
 
 
@@ -2582,179 +2582,179 @@ export class Task implements vscode.Task {
 		return this.__deprecated;
 	}
 
-	private clear(): void {
+	private clear(cognidreamognidream {
 		if (this.__id === undefined) {
-			return;
-		}
-		this.__id = undefined;
-		this._scope = undefined;
+	return;
+}
+this.__id = undefined;
+this._scope = undefined;
+this.computeDefinitionBasedOnExecution();
+    }
+
+    private computeDefinitionBasedOnExecution(cognidreamognidream {
+	if(this._execution instanceof ProcessExecution) {
+	this._definition = {
+		type: Task.ProcessType,
+		id: this._execution.computeId()
+	};
+} else if (this._execution instanceof ShellExecution) {
+	this._definition = {
+		type: Task.ShellType,
+		id: this._execution.computeId()
+	};
+} else if (this._execution instanceof CustomExecution) {
+	this._definition = {
+		type: Task.ExtensionCallbackType,
+		id: this._execution.computeId()
+	};
+} else {
+	this._definition = {
+		type: Task.EmptyType,
+		id: generateUuid()
+	};
+}
+    }
+
+    get definition(): vscode.TaskDefinition {
+	return this._definition;
+}
+
+    set definition(value: vscode.TaskDefinition) {
+	if (value === undefined || value === null) {
+		throw illegalArgument('Kind can\'t be undefined or null');
+	}
+	this.clear();
+	this._definition = value;
+}
+
+    get scope(): vscode.TaskScope.Global | vscode.TaskScope.Workspace | vscode.WorkspaceFolder | undefined {
+	return this._scope;
+}
+
+    set target(value: vscode.TaskScope.Global | vscode.TaskScope.Workspace | vscode.WorkspaceFolder) {
+	this.clear();
+	this._scope = value;
+}
+
+    get name(): string {
+	return this._name;
+}
+
+    set name(value: string) {
+	if (typeof value !== 'string') {
+		throw illegalArgument('name');
+	}
+	this.clear();
+	this._name = value;
+}
+
+    get execution(): ProcessExecution | ShellExecution | CustomExecution | undefined {
+	return this._execution;
+}
+
+    set execution(value: ProcessExecution | ShellExecution | CustomExecution | undefined) {
+	if (value === null) {
+		value = undefined;
+	}
+	this.clear();
+	this._execution = value;
+	const type = this._definition.type;
+	if (Task.EmptyType === type || Task.ProcessType === type || Task.ShellType === type || Task.ExtensionCallbackType === type) {
 		this.computeDefinitionBasedOnExecution();
 	}
+}
 
-	private computeDefinitionBasedOnExecution(): void {
-		if (this._execution instanceof ProcessExecution) {
-			this._definition = {
-				type: Task.ProcessType,
-				id: this._execution.computeId()
-			};
-		} else if (this._execution instanceof ShellExecution) {
-			this._definition = {
-				type: Task.ShellType,
-				id: this._execution.computeId()
-			};
-		} else if (this._execution instanceof CustomExecution) {
-			this._definition = {
-				type: Task.ExtensionCallbackType,
-				id: this._execution.computeId()
-			};
-		} else {
-			this._definition = {
-				type: Task.EmptyType,
-				id: generateUuid()
-			};
-		}
-	}
+    get problemMatchers(): string[] {
+	return this._problemMatchers;
+}
 
-	get definition(): vscode.TaskDefinition {
-		return this._definition;
-	}
-
-	set definition(value: vscode.TaskDefinition) {
-		if (value === undefined || value === null) {
-			throw illegalArgument('Kind can\'t be undefined or null');
-		}
+    set problemMatchers(value: string[]) {
+	if (!Array.isArray(value)) {
 		this.clear();
-		this._definition = value;
-	}
-
-	get scope(): vscode.TaskScope.Global | vscode.TaskScope.Workspace | vscode.WorkspaceFolder | undefined {
-		return this._scope;
-	}
-
-	set target(value: vscode.TaskScope.Global | vscode.TaskScope.Workspace | vscode.WorkspaceFolder) {
+		this._problemMatchers = [];
+		this._hasDefinedMatchers = false;
+		return;
+	} else {
 		this.clear();
-		this._scope = value;
+		this._problemMatchers = value;
+		this._hasDefinedMatchers = true;
 	}
+}
 
-	get name(): string {
-		return this._name;
-	}
+    get hasDefinedMatchers(): boolean {
+	return this._hasDefinedMatchers;
+}
 
-	set name(value: string) {
-		if (typeof value !== 'string') {
-			throw illegalArgument('name');
-		}
-		this.clear();
-		this._name = value;
-	}
+    get isBackground(): boolean {
+	return this._isBackground;
+}
 
-	get execution(): ProcessExecution | ShellExecution | CustomExecution | undefined {
-		return this._execution;
+    set isBackground(value: boolean) {
+	if (value !== true && value !== false) {
+		value = false;
 	}
+	this.clear();
+	this._isBackground = value;
+}
 
-	set execution(value: ProcessExecution | ShellExecution | CustomExecution | undefined) {
-		if (value === null) {
-			value = undefined;
-		}
-		this.clear();
-		this._execution = value;
-		const type = this._definition.type;
-		if (Task.EmptyType === type || Task.ProcessType === type || Task.ShellType === type || Task.ExtensionCallbackType === type) {
-			this.computeDefinitionBasedOnExecution();
-		}
-	}
+    get source(): string {
+	return this._source;
+}
 
-	get problemMatchers(): string[] {
-		return this._problemMatchers;
+    set source(value: string) {
+	if (typeof value !== 'string' || value.length === 0) {
+		throw illegalArgument('source must be a string of length > 0');
 	}
+	this.clear();
+	this._source = value;
+}
 
-	set problemMatchers(value: string[]) {
-		if (!Array.isArray(value)) {
-			this.clear();
-			this._problemMatchers = [];
-			this._hasDefinedMatchers = false;
-			return;
-		} else {
-			this.clear();
-			this._problemMatchers = value;
-			this._hasDefinedMatchers = true;
-		}
-	}
+    get group(): TaskGroup | undefined {
+	return this._group;
+}
 
-	get hasDefinedMatchers(): boolean {
-		return this._hasDefinedMatchers;
+    set group(value: TaskGroup | undefined) {
+	if (value === null) {
+		value = undefined;
 	}
+	this.clear();
+	this._group = value;
+}
 
-	get isBackground(): boolean {
-		return this._isBackground;
-	}
+    get detail(): string | undefined {
+	return this._detail;
+}
 
-	set isBackground(value: boolean) {
-		if (value !== true && value !== false) {
-			value = false;
-		}
-		this.clear();
-		this._isBackground = value;
+    set detail(value: string | undefined) {
+	if (value === null) {
+		value = undefined;
 	}
+	this._detail = value;
+}
 
-	get source(): string {
-		return this._source;
-	}
+    get presentationOptions(): vscode.TaskPresentationOptions {
+	return this._presentationOptions;
+}
 
-	set source(value: string) {
-		if (typeof value !== 'string' || value.length === 0) {
-			throw illegalArgument('source must be a string of length > 0');
-		}
-		this.clear();
-		this._source = value;
+    set presentationOptions(value: vscode.TaskPresentationOptions) {
+	if (value === null || value === undefined) {
+		value = Object.create(null);
 	}
+	this.clear();
+	this._presentationOptions = value;
+}
 
-	get group(): TaskGroup | undefined {
-		return this._group;
-	}
+    get runOptions(): vscode.RunOptions {
+	return this._runOptions;
+}
 
-	set group(value: TaskGroup | undefined) {
-		if (value === null) {
-			value = undefined;
-		}
-		this.clear();
-		this._group = value;
+    set runOptions(value: vscode.RunOptions) {
+	if (value === null || value === undefined) {
+		value = Object.create(null);
 	}
-
-	get detail(): string | undefined {
-		return this._detail;
-	}
-
-	set detail(value: string | undefined) {
-		if (value === null) {
-			value = undefined;
-		}
-		this._detail = value;
-	}
-
-	get presentationOptions(): vscode.TaskPresentationOptions {
-		return this._presentationOptions;
-	}
-
-	set presentationOptions(value: vscode.TaskPresentationOptions) {
-		if (value === null || value === undefined) {
-			value = Object.create(null);
-		}
-		this.clear();
-		this._presentationOptions = value;
-	}
-
-	get runOptions(): vscode.RunOptions {
-		return this._runOptions;
-	}
-
-	set runOptions(value: vscode.RunOptions) {
-		if (value === null || value === undefined) {
-			value = Object.create(null);
-		}
-		this.clear();
-		this._runOptions = value;
-	}
+	this.clear();
+	this._runOptions = value;
+}
 }
 
 
@@ -2962,31 +2962,31 @@ export class DataTransfer implements vscode.DataTransfer {
 		return this.#items.get(this.#normalizeMime(mimeType))?.[0];
 	}
 
-	set(mimeType: string, value: vscode.DataTransferItem): void {
+	set(mimeType: string, value: vscode.DataTransferItemcognidreamognidream {
 		// This intentionally overwrites all entries for a given mimetype.
 		// This is similar to how the DOM DataTransfer type works
 		this.#items.set(this.#normalizeMime(mimeType), [value]);
-	}
+    }
 
-	forEach(callbackfn: (value: vscode.DataTransferItem, key: string, dataTransfer: DataTransfer) => void, thisArg?: unknown): void {
-		for (const [mime, items] of this.#items) {
-			for (const item of items) {
-				callbackfn.call(thisArg, item, mime, this);
-			}
+forEach(callbackfn: (value: vscode.DataTransferItem, key: string, dataTransfer: DataTransfer) cognidreamognidream, thisArg ?: ucognidreamwn): cognidream {
+	for (const [mime, items] of this.#items) {
+		for (const item of items) {
+			callbackfn.call(thisArg, item, mime, this);
 		}
 	}
+}
 
-	*[Symbol.iterator](): IterableIterator<[mimeType: string, item: vscode.DataTransferItem]> {
-		for (const [mime, items] of this.#items) {
-			for (const item of items) {
-				yield [mime, item];
-			}
-		}
+    * [Symbol.iterator](): IterableIterator < [mimeType: string, item: vscode.DataTransferItem] > {
+	for(const [mime, items] of this.#items) {
+	for (const item of items) {
+		yield[mime, item];
 	}
+}
+    }
 
-	#normalizeMime(mimeType: string): string {
-		return mimeType.toLowerCase();
-	}
+#normalizeMime(mimeType: string): string {
+	return mimeType.toLowerCase();
+}
 }
 
 @es5ClassCompat
@@ -3544,149 +3544,149 @@ export class SemanticTokensBuilder {
 		}
 	}
 
-	public push(line: number, char: number, length: number, tokenType: number, tokenModifiers?: number): void;
-	public push(range: Range, tokenType: string, tokenModifiers?: string[]): void;
-	public push(arg0: any, arg1: any, arg2: any, arg3?: any, arg4?: any): void {
-		if (typeof arg0 === 'number' && typeof arg1 === 'number' && typeof arg2 === 'number' && typeof arg3 === 'number' && (typeof arg4 === 'number' || typeof arg4 === 'undefined')) {
-			if (typeof arg4 === 'undefined') {
-				arg4 = 0;
-			}
-			// 1st overload
-			return this._pushEncoded(arg0, arg1, arg2, arg3, arg4);
+	public push(line: number, char: number, length: number, tokenType: number, tokenModifiers?: numbercognidreamognidream;
+		public push(range: Range, tokenType: string, tokenModifiers?: string[]cognidreamognidream;
+			public push(arg0: any, arg1: any, arg2: any, arg3?: any, arg4?: anycognidreamognidream {
+				if (typeof arg0 === 'number' && typeof arg1 === 'number' && typeof arg2 === 'number' && typeof arg3 === 'number' && (typeof arg4 === 'number' || typeof arg4 === 'undefined')) {
+	if (typeof arg4 === 'undefined') {
+		arg4 = 0;
+	}
+	// 1st overload
+	return this._pushEncoded(arg0, arg1, arg2, arg3, arg4);
+}
+if (Range.isRange(arg0) && typeof arg1 === 'string' && isStrArrayOrUndefined(arg2)) {
+	// 2nd overload
+	return this._push(arg0, arg1, arg2);
+}
+throw illegalArgument();
+    }
+
+    private _push(range: vscode.Range, tokenType: string, tokenModifiers ?: string[]cognidreamognidream {
+	if(!this._hasLegend) {
+	throw new Error('Legend must be provided in constructor');
+}
+if (range.start.line !== range.end.line) {
+	throw new Error('`range` cannot span multiple lines');
+}
+if (!this._tokenTypeStrToInt.has(tokenType)) {
+	throw new Error('`tokenType` is not in the provided legend');
+}
+const line = range.start.line;
+const char = range.start.character;
+const length = range.end.character - range.start.character;
+const nTokenType = this._tokenTypeStrToInt.get(tokenType)!;
+let nTokenModifiers = 0;
+if (tokenModifiers) {
+	for (const tokenModifier of tokenModifiers) {
+		if (!this._tokenModifierStrToInt.has(tokenModifier)) {
+			throw new Error('`tokenModifier` is not in the provided legend');
 		}
-		if (Range.isRange(arg0) && typeof arg1 === 'string' && isStrArrayOrUndefined(arg2)) {
-			// 2nd overload
-			return this._push(arg0, arg1, arg2);
+		const nTokenModifier = this._tokenModifierStrToInt.get(tokenModifier)!;
+		nTokenModifiers |= (1 << nTokenModifier) >>> 0;
+	}
+}
+this._pushEncoded(line, char, length, nTokenType, nTokenModifiers);
+    }
+
+    private _pushEncoded(line: number, char: number, length: number, tokenType: number, tokenModifiers: numbercognidreamognidream {
+	if(this._dataIsSortedAndDeltaEncoded && (line < this._prevLine || (line === this._prevLine && char < this._prevChar))) {
+	// push calls were ordered and are no longer ordered
+	this._dataIsSortedAndDeltaEncoded = false;
+
+	// Remove delta encoding from data
+	const tokenCount = (this._data.length / 5) | 0;
+	let prevLine = 0;
+	let prevChar = 0;
+	for (let i = 0; i < tokenCount; i++) {
+		let line = this._data[5 * i];
+		let char = this._data[5 * i + 1];
+
+		if (line === 0) {
+			// on the same line as previous token
+			line = prevLine;
+			char += prevChar;
+		} else {
+			// on a different line than previous token
+			line += prevLine;
 		}
-		throw illegalArgument();
+
+		this._data[5 * i] = line;
+		this._data[5 * i + 1] = char;
+
+		prevLine = line;
+		prevChar = char;
+	}
+}
+
+let pushLine = line;
+let pushChar = char;
+if (this._dataIsSortedAndDeltaEncoded && this._dataLen > 0) {
+	pushLine -= this._prevLine;
+	if (pushLine === 0) {
+		pushChar -= this._prevChar;
+	}
+}
+
+this._data[this._dataLen++] = pushLine;
+this._data[this._dataLen++] = pushChar;
+this._data[this._dataLen++] = length;
+this._data[this._dataLen++] = tokenType;
+this._data[this._dataLen++] = tokenModifiers;
+
+this._prevLine = line;
+this._prevChar = char;
+    }
+
+    private static _sortAndDeltaEncode(data: number[]): Uint32Array {
+	const pos: number[] = [];
+	const tokenCount = (data.length / 5) | 0;
+	for (let i = 0; i < tokenCount; i++) {
+		pos[i] = i;
+	}
+	pos.sort((a, b) => {
+		const aLine = data[5 * a];
+		const bLine = data[5 * b];
+		if (aLine === bLine) {
+			const aChar = data[5 * a + 1];
+			const bChar = data[5 * b + 1];
+			return aChar - bChar;
+		}
+		return aLine - bLine;
+	});
+	const result = new Uint32Array(data.length);
+	let prevLine = 0;
+	let prevChar = 0;
+	for (let i = 0; i < tokenCount; i++) {
+		const srcOffset = 5 * pos[i];
+		const line = data[srcOffset + 0];
+		const char = data[srcOffset + 1];
+		const length = data[srcOffset + 2];
+		const tokenType = data[srcOffset + 3];
+		const tokenModifiers = data[srcOffset + 4];
+
+		const pushLine = line - prevLine;
+		const pushChar = (pushLine === 0 ? char - prevChar : char);
+
+		const dstOffset = 5 * i;
+		result[dstOffset + 0] = pushLine;
+		result[dstOffset + 1] = pushChar;
+		result[dstOffset + 2] = length;
+		result[dstOffset + 3] = tokenType;
+		result[dstOffset + 4] = tokenModifiers;
+
+		prevLine = line;
+		prevChar = char;
 	}
 
-	private _push(range: vscode.Range, tokenType: string, tokenModifiers?: string[]): void {
-		if (!this._hasLegend) {
-			throw new Error('Legend must be provided in constructor');
-		}
-		if (range.start.line !== range.end.line) {
-			throw new Error('`range` cannot span multiple lines');
-		}
-		if (!this._tokenTypeStrToInt.has(tokenType)) {
-			throw new Error('`tokenType` is not in the provided legend');
-		}
-		const line = range.start.line;
-		const char = range.start.character;
-		const length = range.end.character - range.start.character;
-		const nTokenType = this._tokenTypeStrToInt.get(tokenType)!;
-		let nTokenModifiers = 0;
-		if (tokenModifiers) {
-			for (const tokenModifier of tokenModifiers) {
-				if (!this._tokenModifierStrToInt.has(tokenModifier)) {
-					throw new Error('`tokenModifier` is not in the provided legend');
-				}
-				const nTokenModifier = this._tokenModifierStrToInt.get(tokenModifier)!;
-				nTokenModifiers |= (1 << nTokenModifier) >>> 0;
-			}
-		}
-		this._pushEncoded(line, char, length, nTokenType, nTokenModifiers);
+	return result;
+}
+
+    public build(resultId ?: string): SemanticTokens {
+	if (!this._dataIsSortedAndDeltaEncoded) {
+		return new SemanticTokens(SemanticTokensBuilder._sortAndDeltaEncode(this._data), resultId);
 	}
-
-	private _pushEncoded(line: number, char: number, length: number, tokenType: number, tokenModifiers: number): void {
-		if (this._dataIsSortedAndDeltaEncoded && (line < this._prevLine || (line === this._prevLine && char < this._prevChar))) {
-			// push calls were ordered and are no longer ordered
-			this._dataIsSortedAndDeltaEncoded = false;
-
-			// Remove delta encoding from data
-			const tokenCount = (this._data.length / 5) | 0;
-			let prevLine = 0;
-			let prevChar = 0;
-			for (let i = 0; i < tokenCount; i++) {
-				let line = this._data[5 * i];
-				let char = this._data[5 * i + 1];
-
-				if (line === 0) {
-					// on the same line as previous token
-					line = prevLine;
-					char += prevChar;
-				} else {
-					// on a different line than previous token
-					line += prevLine;
-				}
-
-				this._data[5 * i] = line;
-				this._data[5 * i + 1] = char;
-
-				prevLine = line;
-				prevChar = char;
-			}
-		}
-
-		let pushLine = line;
-		let pushChar = char;
-		if (this._dataIsSortedAndDeltaEncoded && this._dataLen > 0) {
-			pushLine -= this._prevLine;
-			if (pushLine === 0) {
-				pushChar -= this._prevChar;
-			}
-		}
-
-		this._data[this._dataLen++] = pushLine;
-		this._data[this._dataLen++] = pushChar;
-		this._data[this._dataLen++] = length;
-		this._data[this._dataLen++] = tokenType;
-		this._data[this._dataLen++] = tokenModifiers;
-
-		this._prevLine = line;
-		this._prevChar = char;
-	}
-
-	private static _sortAndDeltaEncode(data: number[]): Uint32Array {
-		const pos: number[] = [];
-		const tokenCount = (data.length / 5) | 0;
-		for (let i = 0; i < tokenCount; i++) {
-			pos[i] = i;
-		}
-		pos.sort((a, b) => {
-			const aLine = data[5 * a];
-			const bLine = data[5 * b];
-			if (aLine === bLine) {
-				const aChar = data[5 * a + 1];
-				const bChar = data[5 * b + 1];
-				return aChar - bChar;
-			}
-			return aLine - bLine;
-		});
-		const result = new Uint32Array(data.length);
-		let prevLine = 0;
-		let prevChar = 0;
-		for (let i = 0; i < tokenCount; i++) {
-			const srcOffset = 5 * pos[i];
-			const line = data[srcOffset + 0];
-			const char = data[srcOffset + 1];
-			const length = data[srcOffset + 2];
-			const tokenType = data[srcOffset + 3];
-			const tokenModifiers = data[srcOffset + 4];
-
-			const pushLine = line - prevLine;
-			const pushChar = (pushLine === 0 ? char - prevChar : char);
-
-			const dstOffset = 5 * i;
-			result[dstOffset + 0] = pushLine;
-			result[dstOffset + 1] = pushChar;
-			result[dstOffset + 2] = length;
-			result[dstOffset + 3] = tokenType;
-			result[dstOffset + 4] = tokenModifiers;
-
-			prevLine = line;
-			prevChar = char;
-		}
-
-		return result;
-	}
-
-	public build(resultId?: string): SemanticTokens {
-		if (!this._dataIsSortedAndDeltaEncoded) {
-			return new SemanticTokens(SemanticTokensBuilder._sortAndDeltaEncode(this._data), resultId);
-		}
-		return new SemanticTokens(new Uint32Array(this._data), resultId);
-	}
+	return new SemanticTokens(new Uint32Array(this._data), resultId);
+}
 }
 
 export class SemanticTokens {
@@ -3890,46 +3890,46 @@ export class NotebookRange {
 
 export class NotebookCellData {
 
-	static validate(data: NotebookCellData): void {
+	static validate(data: NotebookCellDatacognidreamognidream {
 		if (typeof data.kind !== 'number') {
-			throw new Error('NotebookCellData MUST have \'kind\' property');
-		}
-		if (typeof data.value !== 'string') {
-			throw new Error('NotebookCellData MUST have \'value\' property');
-		}
-		if (typeof data.languageId !== 'string') {
-			throw new Error('NotebookCellData MUST have \'languageId\' property');
-		}
-	}
+	throw new Error('NotebookCellData MUST have \'kind\' property');
+}
+if (typeof data.value !== 'string') {
+	throw new Error('NotebookCellData MUST have \'value\' property');
+}
+if (typeof data.languageId !== 'string') {
+	throw new Error('NotebookCellData MUST have \'languageId\' property');
+}
+    }
 
-	static isNotebookCellDataArray(value: unknown): value is vscode.NotebookCellData[] {
-		return Array.isArray(value) && (<unknown[]>value).every(elem => NotebookCellData.isNotebookCellData(elem));
-	}
+    static isNotebookCellDataArray(value: unknown): value is vscode.NotebookCellData[] {
+	return Array.isArray(value) && (<unknown[]>value).every(elem => NotebookCellData.isNotebookCellData(elem));
+}
 
-	static isNotebookCellData(value: unknown): value is vscode.NotebookCellData {
-		// return value instanceof NotebookCellData;
-		return true;
-	}
+    static isNotebookCellData(value: unknown): value is vscode.NotebookCellData {
+	// return value instanceof NotebookCellData;
+	return true;
+}
 
-	kind: NotebookCellKind;
-	value: string;
-	languageId: string;
-	mime?: string;
-	outputs?: vscode.NotebookCellOutput[];
-	metadata?: Record<string, any>;
-	executionSummary?: vscode.NotebookCellExecutionSummary;
+kind: NotebookCellKind;
+value: string;
+languageId: string;
+mime ?: string;
+outputs ?: vscode.NotebookCellOutput[];
+metadata ?: Record<string, any>;
+executionSummary ?: vscode.NotebookCellExecutionSummary;
 
-	constructor(kind: NotebookCellKind, value: string, languageId: string, mime?: string, outputs?: vscode.NotebookCellOutput[], metadata?: Record<string, any>, executionSummary?: vscode.NotebookCellExecutionSummary) {
-		this.kind = kind;
-		this.value = value;
-		this.languageId = languageId;
-		this.mime = mime;
-		this.outputs = outputs ?? [];
-		this.metadata = metadata;
-		this.executionSummary = executionSummary;
+constructor(kind: NotebookCellKind, value: string, languageId: string, mime ?: string, outputs ?: vscode.NotebookCellOutput[], metadata ?: Record<string, any>, executionSummary ?: vscode.NotebookCellExecutionSummary) {
+	this.kind = kind;
+	this.value = value;
+	this.languageId = languageId;
+	this.mime = mime;
+	this.outputs = outputs ?? [];
+	this.metadata = metadata;
+	this.executionSummary = executionSummary;
 
-		NotebookCellData.validate(this);
-	}
+	NotebookCellData.validate(this);
+}
 }
 
 export class NotebookData {
@@ -4592,13 +4592,13 @@ export class ChatResponseAnchorPart implements vscode.ChatResponseAnchorPart {
 	title?: string;
 
 	value2: vscode.Uri | vscode.Location | vscode.SymbolInformation;
-	resolve?(token: vscode.CancellationToken): Thenable<void>;
+	resolve?(token: vscode.CancellationToken): Thenabcognidreamognidream>;
 
-	constructor(value: vscode.Uri | vscode.Location | vscode.SymbolInformation, title?: string) {
-		this.value = value as any;
-		this.value2 = value;
-		this.title = title;
-	}
+constructor(value: vscode.Uri | vscode.Location | vscode.SymbolInformation, title ?: string) {
+	this.value = value as any;
+	this.value2 = value;
+	this.title = title;
+}
 }
 
 export class ChatResponseProgressPart {
@@ -4610,8 +4610,8 @@ export class ChatResponseProgressPart {
 
 export class ChatResponseProgressPart2 {
 	value: string;
-	task?: (progress: vscode.Progress<vscode.ChatResponseWarningPart>) => Thenable<string | void>;
-	constructor(value: string, task?: (progress: vscode.Progress<vscode.ChatResponseWarningPart>) => Thenable<string | void>) {
+	task?: (progress: vscode.Progress<vscode.ChatResponseWarningPart>) => Thenable<stringcognidreamognidream>;
+	constructor(value: string, task?: (progress: vscode.Progress<vscode.ChatResponseWarningPart>) => Thenable<stringcognidreamognidream>) {
 		this.value = value;
 		this.task = task;
 	}
@@ -4829,7 +4829,7 @@ export class LanguageModelChatMessage implements vscode.LanguageModelChatMessage
 		return this._content;
 	}
 
-	// Temp to avoid breaking changes
+	// Temp tcognidreamognidream breaking changes
 	set content2(value: (string | LanguageModelToolResultPart | LanguageModelToolCallPart)[] | undefined) {
 		if (value) {
 			this.content = value.map(part => {
@@ -4888,7 +4888,7 @@ export class LanguageModelChatMessage2 implements vscode.LanguageModelChatMessag
 		return this._content;
 	}
 
-	// Temp to avoid breaking changes
+	// Temp tcognidreamognidream breaking changes
 	set content2(value: (string | LanguageModelToolResultPart | LanguageModelToolCallPart | LanguageModelDataPart)[] | undefined) {
 		if (value) {
 			this.content = value.map(part => {

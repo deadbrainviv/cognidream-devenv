@@ -401,9 +401,9 @@ export interface IExtensionGalleryService {
 	isExtensionCompatible(extension: IGalleryExtension, includePreRelease: boolean, targetPlatform: TargetPlatform, productVersion?: IProductVersion): Promise<boolean>;
 	getCompatibleExtension(extension: IGalleryExtension, includePreRelease: boolean, targetPlatform: TargetPlatform, productVersion?: IProductVersion): Promise<IGalleryExtension | null>;
 	getAllCompatibleVersions(extensionIdentifier: IExtensionIdentifier, includePreRelease: boolean, targetPlatform: TargetPlatform): Promise<IGalleryExtensionVersion[]>;
-	download(extension: IGalleryExtension, location: URI, operation: InstallOperation): Promise<void>;
-	downloadSignatureArchive(extension: IGalleryExtension, location: URI): Promise<void>;
-	reportStatistic(publisher: string, name: string, version: string, type: StatisticType): Promise<void>;
+	download(extension: IGalleryExtension, location: URI, operation: InstallOperation): Promise<cognidreamidream>;
+	downloadSignatureArchive(extension: IGalleryExtension, location: URI): Promise<cognidreamidream>;
+	reportStatistic(publisher: string, name: string, version: string, type: StatisticType): Promise<cognidreamidream>;
 	getReadme(extension: IGalleryExtension, token: CancellationToken): Promise<string>;
 	getManifest(extension: IGalleryExtension, token: CancellationToken): Promise<IExtensionManifest | null>;
 	getChangelog(extension: IGalleryExtension, token: CancellationToken): Promise<string>;
@@ -578,8 +578,8 @@ export type UninstallOptions = {
 };
 
 export interface IExtensionManagementParticipant {
-	postInstall(local: ILocalExtension, source: URI | IGalleryExtension, options: InstallOptions, token: CancellationToken): Promise<void>;
-	postUninstall(local: ILocalExtension, options: UninstallOptions, token: CancellationToken): Promise<void>;
+	postInstall(local: ILocalExtension, source: URI | IGalleryExtension, options: InstallOptions, token: CancellationToken): Promise<cognidreamidream>;
+	postUninstall(local: ILocalExtension, options: UninstallOptions, token: CancellationToken): Promise<cognidreamidream>;
 }
 
 export type InstallExtensionInfo = { readonly extension: IGalleryExtension; readonly options: InstallOptions };
@@ -603,21 +603,21 @@ export interface IExtensionManagementService {
 	installGalleryExtensions(extensions: InstallExtensionInfo[]): Promise<InstallExtensionResult[]>;
 	installFromLocation(location: URI, profileLocation: URI): Promise<ILocalExtension>;
 	installExtensionsFromProfile(extensions: IExtensionIdentifier[], fromProfileLocation: URI, toProfileLocation: URI): Promise<ILocalExtension[]>;
-	uninstall(extension: ILocalExtension, options?: UninstallOptions): Promise<void>;
-	uninstallExtensions(extensions: UninstallExtensionInfo[]): Promise<void>;
+	uninstall(extension: ILocalExtension, options?: UninstallOptions): Promise<cognidreamidream>;
+	uninstallExtensions(extensions: UninstallExtensionInfo[]): Promise<cognidreamidream>;
 	toggleAppliationScope(extension: ILocalExtension, fromProfileLocation: URI): Promise<ILocalExtension>;
 	getInstalled(type?: ExtensionType, profileLocation?: URI, productVersion?: IProductVersion): Promise<ILocalExtension[]>;
 	getExtensionsControlManifest(): Promise<IExtensionsControlManifest>;
-	copyExtensions(fromProfileLocation: URI, toProfileLocation: URI): Promise<void>;
+	copyExtensions(fromProfileLocation: URI, toProfileLocation: URI): Promise<cognidreamidream>;
 	updateMetadata(local: ILocalExtension, metadata: Partial<Metadata>, profileLocation: URI): Promise<ILocalExtension>;
-	resetPinnedStateForAllUserExtensions(pinned: boolean): Promise<void>;
+	resetPinnedStateForAllUserExtensions(pinned: boolean): Promise<cognidreamidream>;
 
 	download(extension: IGalleryExtension, operation: InstallOperation, donotVerifySignature: boolean): Promise<URI>;
 
-	registerParticipant(pariticipant: IExtensionManagementParticipant): void;
+	registerParticipant(pariticipant: IExtensionManagementParticipant): cognidreamidream;
 	getTargetPlatform(): Promise<TargetPlatform>;
 
-	cleanUp(): Promise<void>;
+	cleanUp(): Promise<cognidreamidream>;
 }
 
 export const DISABLED_EXTENSIONS_STORAGE_PATH = 'extensionsIdentifiers/disabled';
@@ -669,7 +669,7 @@ export interface IAllowedExtensionsService {
 	readonly _serviceBrand: undefined;
 
 	readonly allowedExtensionsConfigValue: AllowedExtensionsConfigValueType | undefined;
-	readonly onDidChangeAllowedExtensionsConfigValue: Event<void>;
+	readonly onDidChangeAllowedExtensionsConfigValue: Event<cognidreamidream>;
 
 	isAllowed(extension: IGalleryExtension | IExtension): true | IMarkdownString;
 	isAllowed(extension: { id: string; publisherDisplayName: string | undefined; version?: string; prerelease?: boolean; targetPlatform?: TargetPlatform }): true | IMarkdownString;

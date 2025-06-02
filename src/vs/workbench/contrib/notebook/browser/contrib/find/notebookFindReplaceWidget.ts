@@ -84,7 +84,7 @@ class NotebookFindFilterActionViewItem extends DropdownMenuActionViewItem {
 		);
 	}
 
-	override render(container: HTMLElement): void {
+	override render(container: HTMLElement): cognidream {
 		super.render(container);
 		this.updateChecked();
 	}
@@ -156,9 +156,9 @@ class NotebookFindFilterActionViewItem extends DropdownMenuActionViewItem {
 
 	}
 
-	protected override updateChecked(): void {
+	protected override updateChecked(cognidreamognidream {
 		this.element!.classList.toggle('checked', this._action.checked);
-	}
+    }
 }
 
 export class NotebookFindInputFilterButton extends Disposable {
@@ -193,43 +193,43 @@ export class NotebookFindInputFilterButton extends Disposable {
 		return 2 /*margin left*/ + 2 /*border*/ + 2 /*padding*/ + 16 /* icon width */;
 	}
 
-	enable(): void {
+	enable(cognidreamognidream {
 		this.container.setAttribute('aria-disabled', String(false));
-	}
+    }
 
-	disable(): void {
-		this.container.setAttribute('aria-disabled', String(true));
-	}
+disable(cognidreamognidream {
+	this.container.setAttribute('aria-disabled', String(true));
+}
 
-	set visible(visible: boolean) {
-		this._filterButtonContainer.style.display = visible ? '' : 'none';
-	}
+    set visible(visible: boolean) {
+	this._filterButtonContainer.style.display = visible ? '' : 'none';
+}
 
-	get visible() {
-		return this._filterButtonContainer.style.display !== 'none';
-	}
+    get visible() {
+	return this._filterButtonContainer.style.display !== 'none';
+}
 
-	applyStyles(filterChecked: boolean): void {
-		const toggleStyles = this._toggleStyles;
+    applyStyles(filterChecked: booleancognidreamognidream {
+	const toggleStyles = this._toggleStyles;
 
-		this._filterButtonContainer.style.border = '1px solid transparent';
-		this._filterButtonContainer.style.borderRadius = '3px';
-		this._filterButtonContainer.style.borderColor = (filterChecked && toggleStyles.inputActiveOptionBorder) || '';
-		this._filterButtonContainer.style.color = (filterChecked && toggleStyles.inputActiveOptionForeground) || 'inherit';
-		this._filterButtonContainer.style.backgroundColor = (filterChecked && toggleStyles.inputActiveOptionBackground) || '';
-	}
+	this._filterButtonContainer.style.border = '1px solid transparent';
+	this._filterButtonContainer.style.borderRadius = '3px';
+	this._filterButtonContainer.style.borderColor = (filterChecked && toggleStyles.inputActiveOptionBorder) || '';
+	this._filterButtonContainer.style.color = (filterChecked && toggleStyles.inputActiveOptionForeground) || 'inherit';
+	this._filterButtonContainer.style.backgroundColor = (filterChecked && toggleStyles.inputActiveOptionBackground) || '';
+}
 
-	private createFilters(container: HTMLElement): void {
-		this._actionbar = this._register(new ActionBar(container, {
-			actionViewItemProvider: (action, options) => {
-				if (action.id === this._filtersAction.id) {
-					return this.instantiationService.createInstance(NotebookFindFilterActionViewItem, this.filters, action, options, this._register(new ActionRunner()));
-				}
-				return undefined;
+    private createFilters(container: HTMLElementcognidreamognidream {
+	this._actionbar = this._register(new ActionBar(container, {
+		actionViewItemProvider: (action, options) => {
+			if (action.id === this._filtersAction.id) {
+				return this.instantiationService.createInstance(NotebookFindFilterActionViewItem, this.filters, action, options, this._register(new ActionRunner()));
 			}
-		}));
-		this._actionbar.push(this._filtersAction, { icon: true, label: false });
-	}
+			return undefined;
+		}
+	}));
+	this._actionbar.push(this._filtersAction, { icon: true, label: false });
+}
 }
 
 export class NotebookFindInput extends FindInput {
@@ -290,608 +290,608 @@ export abstract class SimpleFindReplaceWidget extends Widget {
 	private readonly _innerFindDomNode: HTMLElement;
 	private readonly _focusTracker: dom.IFocusTracker;
 	private readonly _findInputFocusTracker: dom.IFocusTracker;
-	private readonly _updateHistoryDelayer: Delayer<void>;
-	protected readonly _matchesCount!: HTMLElement;
-	private readonly prevBtn: SimpleButton;
-	private readonly nextBtn: SimpleButton;
+	private readonly _updateHistoryDelayer: Delaycognidreamognidream>;
+    protected readonly _matchesCount!: HTMLElement;
+    private readonly prevBtn: SimpleButton;
+    private readonly nextBtn: SimpleButton;
 
-	protected readonly _replaceInput!: ReplaceInput;
-	private readonly _innerReplaceDomNode!: HTMLElement;
-	private _toggleReplaceBtn!: SimpleButton;
-	private readonly _replaceInputFocusTracker!: dom.IFocusTracker;
-	protected _replaceBtn!: SimpleButton;
-	protected _replaceAllBtn!: SimpleButton;
+    protected readonly _replaceInput!: ReplaceInput;
+    private readonly _innerReplaceDomNode!: HTMLElement;
+    private _toggleReplaceBtn!: SimpleButton;
+    private readonly _replaceInputFocusTracker!: dom.IFocusTracker;
+    protected _replaceBtn!: SimpleButton;
+    protected _replaceAllBtn!: SimpleButton;
 
-	private readonly _resizeSash: Sash;
-	private _resizeOriginalWidth = NOTEBOOK_FIND_WIDGET_INITIAL_WIDTH;
+    private readonly _resizeSash: Sash;
+    private _resizeOriginalWidth = NOTEBOOK_FIND_WIDGET_INITIAL_WIDTH;
 
-	private _isVisible: boolean = false;
-	private _isReplaceVisible: boolean = false;
-	private foundMatch: boolean = false;
+    private _isVisible: boolean = false;
+    private _isReplaceVisible: boolean = false;
+    private foundMatch: boolean = false;
 
-	protected _progressBar!: ProgressBar;
-	protected _scopedContextKeyService: IContextKeyService;
+    protected _progressBar!: ProgressBar;
+    protected _scopedContextKeyService: IContextKeyService;
 
-	private _filters: NotebookFindFilters;
+    private _filters: NotebookFindFilters;
 
-	private readonly inSelectionToggle: Toggle;
-	private cellSelectionDecorationIds: string[] = [];
-	private textSelectionDecorationIds: ICellModelDecorations[] = [];
+    private readonly inSelectionToggle: Toggle;
+    private cellSelectionDecorationIds: string[] = [];
+    private textSelectionDecorationIds: ICellModelDecorations[] = [];
 
-	constructor(
-		@IContextViewService private readonly _contextViewService: IContextViewService,
-		@IContextKeyService contextKeyService: IContextKeyService,
-		@IConfigurationService protected readonly _configurationService: IConfigurationService,
-		@IContextMenuService private readonly contextMenuService: IContextMenuService,
-		@IInstantiationService private readonly instantiationService: IInstantiationService,
-		@IHoverService hoverService: IHoverService,
-		protected readonly _state: FindReplaceState<NotebookFindFilters> = new FindReplaceState<NotebookFindFilters>(),
-		protected readonly _notebookEditor: INotebookEditor,
-	) {
-		super();
+constructor(
+	@IContextViewService private readonly _contextViewService: IContextViewService,
+	@IContextKeyService contextKeyService: IContextKeyService,
+	@IConfigurationService protected readonly _configurationService: IConfigurationService,
+	@IContextMenuService private readonly contextMenuService: IContextMenuService,
+	@IInstantiationService private readonly instantiationService: IInstantiationService,
+	@IHoverService hoverService: IHoverService,
+	protected readonly _state: FindReplaceState<NotebookFindFilters> = new FindReplaceState<NotebookFindFilters>(),
+	protected readonly _notebookEditor: INotebookEditor,
+) {
+	super();
 
-		this._register(this._state);
+	this._register(this._state);
 
-		const findFilters = this._configurationService.getValue<{
-			markupSource: boolean;
-			markupPreview: boolean;
-			codeSource: boolean;
-			codeOutput: boolean;
-		}>(NotebookSetting.findFilters) ?? { markupSource: true, markupPreview: true, codeSource: true, codeOutput: true };
+	const findFilters = this._configurationService.getValue<{
+		markupSource: boolean;
+		markupPreview: boolean;
+		codeSource: boolean;
+		codeOutput: boolean;
+	}>(NotebookSetting.findFilters) ?? { markupSource: true, markupPreview: true, codeSource: true, codeOutput: true };
 
-		this._filters = new NotebookFindFilters(findFilters.markupSource, findFilters.markupPreview, findFilters.codeSource, findFilters.codeOutput, { findScopeType: NotebookFindScopeType.None });
+	this._filters = new NotebookFindFilters(findFilters.markupSource, findFilters.markupPreview, findFilters.codeSource, findFilters.codeOutput, { findScopeType: NotebookFindScopeType.None });
+	this._state.change({ filters: this._filters }, false);
+
+	this._filters.onDidChange(() => {
 		this._state.change({ filters: this._filters }, false);
+	});
 
-		this._filters.onDidChange(() => {
-			this._state.change({ filters: this._filters }, false);
-		});
+	this._domNode = document.createElement('div');
+	this._domNode.classList.add('simple-fr-find-part-wrapper');
 
-		this._domNode = document.createElement('div');
-		this._domNode.classList.add('simple-fr-find-part-wrapper');
-
-		this._register(Event.runAndSubscribe(this._configurationService.onDidChangeConfiguration, e => {
-			if (!e || e.affectsConfiguration(NotebookSetting.globalToolbar)) {
-				if (this._notebookEditor.notebookOptions.getLayoutConfiguration().globalToolbar) {
-					this._domNode.style.top = '26px';
-				} else {
-					this._domNode.style.top = '0px';
-				}
-			}
-		}));
-
-		this._register(this._state.onFindReplaceStateChange((e) => this._onStateChanged(e)));
-		this._scopedContextKeyService = contextKeyService.createScoped(this._domNode);
-
-		const progressContainer = dom.$('.find-replace-progress');
-		this._progressBar = new ProgressBar(progressContainer, defaultProgressBarStyles);
-		this._domNode.appendChild(progressContainer);
-
-		const isInteractiveWindow = contextKeyService.getContextKeyValue('notebookType') === 'interactive';
-		// Toggle replace button
-		this._toggleReplaceBtn = this._register(new SimpleButton({
-			label: NLS_TOGGLE_REPLACE_MODE_BTN_LABEL,
-			className: 'codicon toggle left',
-			onTrigger: isInteractiveWindow ? () => { } :
-				() => {
-					this._isReplaceVisible = !this._isReplaceVisible;
-					this._state.change({ isReplaceRevealed: this._isReplaceVisible }, false);
-					this._updateReplaceViewDisplay();
-				}
-		}, hoverService));
-		this._toggleReplaceBtn.setEnabled(!isInteractiveWindow);
-		this._toggleReplaceBtn.setExpanded(this._isReplaceVisible);
-		this._domNode.appendChild(this._toggleReplaceBtn.domNode);
-
-
-
-		this._innerFindDomNode = document.createElement('div');
-		this._innerFindDomNode.classList.add('simple-fr-find-part');
-
-		this._findInput = this._register(new NotebookFindInput(
-			this._filters,
-			this._scopedContextKeyService,
-			this.contextMenuService,
-			this.instantiationService,
-			null,
-			this._contextViewService,
-			{
-				// width:FIND_INPUT_AREA_WIDTH,
-				label: NLS_FIND_INPUT_LABEL,
-				placeholder: NLS_FIND_INPUT_PLACEHOLDER,
-				validation: (value: string): InputBoxMessage | null => {
-					if (value.length === 0 || !this._findInput.getRegex()) {
-						return null;
-					}
-					try {
-						new RegExp(value);
-						return null;
-					} catch (e) {
-						this.foundMatch = false;
-						this.updateButtons(this.foundMatch);
-						return { content: e.message };
-					}
-				},
-				flexibleWidth: true,
-				showCommonFindToggles: true,
-				inputBoxStyles: defaultInputBoxStyles,
-				toggleStyles: defaultToggleStyles
-			}
-		));
-
-		// Find History with update delayer
-		this._updateHistoryDelayer = new Delayer<void>(500);
-
-		this.oninput(this._findInput.domNode, (e) => {
-			this.foundMatch = this.onInputChanged();
-			this.updateButtons(this.foundMatch);
-			this._delayedUpdateHistory();
-		});
-
-		this._register(this._findInput.inputBox.onDidChange(() => {
-			this._state.change({ searchString: this._findInput.getValue() }, true);
-		}));
-
-		this._findInput.setRegex(!!this._state.isRegex);
-		this._findInput.setCaseSensitive(!!this._state.matchCase);
-		this._findInput.setWholeWords(!!this._state.wholeWord);
-
-		this._register(this._findInput.onDidOptionChange(() => {
-			this._state.change({
-				isRegex: this._findInput.getRegex(),
-				wholeWord: this._findInput.getWholeWords(),
-				matchCase: this._findInput.getCaseSensitive()
-			}, true);
-		}));
-
-		this._register(this._state.onFindReplaceStateChange(() => {
-			this._findInput.setRegex(this._state.isRegex);
-			this._findInput.setWholeWords(this._state.wholeWord);
-			this._findInput.setCaseSensitive(this._state.matchCase);
-			this._replaceInput.setPreserveCase(this._state.preserveCase);
-		}));
-
-		this._matchesCount = document.createElement('div');
-		this._matchesCount.className = 'matchesCount';
-		this._updateMatchesCount();
-
-		this.prevBtn = this._register(new SimpleButton({
-			label: NLS_PREVIOUS_MATCH_BTN_LABEL,
-			icon: findPreviousMatchIcon,
-			onTrigger: () => {
-				this.find(true);
-			}
-		}, hoverService));
-
-		this.nextBtn = this._register(new SimpleButton({
-			label: NLS_NEXT_MATCH_BTN_LABEL,
-			icon: findNextMatchIcon,
-			onTrigger: () => {
-				this.find(false);
-			}
-		}, hoverService));
-
-		this.inSelectionToggle = this._register(new Toggle({
-			icon: findSelectionIcon,
-			title: NLS_TOGGLE_SELECTION_FIND_TITLE,
-			isChecked: false,
-			inputActiveOptionBackground: asCssVariable(inputActiveOptionBackground),
-			inputActiveOptionBorder: asCssVariable(inputActiveOptionBorder),
-			inputActiveOptionForeground: asCssVariable(inputActiveOptionForeground),
-		}));
-		this.inSelectionToggle.domNode.style.display = 'inline';
-
-		this.inSelectionToggle.onChange(() => {
-			const checked = this.inSelectionToggle.checked;
-			if (checked) {
-				// selection logic:
-				// 1. if there are multiple cells, do that.
-				// 2. if there is only one cell, do the following:
-				// 		- if there is a multi-line range highlighted, textual in selection
-				// 		- if there is no range, cell in selection for that cell
-
-				const cellSelection: ICellRange[] = this._notebookEditor.getSelections();
-				const textSelection: Range[] = this._notebookEditor.getSelectionViewModels()[0].getSelections();
-
-				if (cellSelection.length > 1 || cellSelection.some(range => range.end - range.start > 1)) {
-					this._filters.findScope = {
-						findScopeType: NotebookFindScopeType.Cells,
-						selectedCellRanges: cellSelection
-					};
-					this.setCellSelectionDecorations();
-
-				} else if (textSelection.length > 1 || textSelection.some(range => range.endLineNumber - range.startLineNumber >= 1)) {
-					this._filters.findScope = {
-						findScopeType: NotebookFindScopeType.Text,
-						selectedCellRanges: cellSelection,
-						selectedTextRanges: textSelection
-					};
-					this.setTextSelectionDecorations(textSelection, this._notebookEditor.getSelectionViewModels()[0]);
-
-				} else {
-					this._filters.findScope = {
-						findScopeType: NotebookFindScopeType.Cells,
-						selectedCellRanges: cellSelection
-					};
-					this.setCellSelectionDecorations();
-				}
+	this._register(Event.runAndSubscribe(this._configurationService.onDidChangeConfiguration, e => {
+		if (!e || e.affectsConfiguration(NotebookSetting.globalToolbar)) {
+			if (this._notebookEditor.notebookOptions.getLayoutConfiguration().globalToolbar) {
+				this._domNode.style.top = '26px';
 			} else {
-				this._filters.findScope = {
-					findScopeType: NotebookFindScopeType.None
-				};
-				this.clearCellSelectionDecorations();
-				this.clearTextSelectionDecorations();
+				this._domNode.style.top = '0px';
 			}
-		});
+		}
+	}));
 
-		const closeBtn = this._register(new SimpleButton({
-			label: NLS_CLOSE_BTN_LABEL,
-			icon: widgetClose,
-			onTrigger: () => {
-				this.hide();
+	this._register(this._state.onFindReplaceStateChange((e) => this._onStateChanged(e)));
+	this._scopedContextKeyService = contextKeyService.createScoped(this._domNode);
+
+	const progressContainer = dom.$('.find-replace-progress');
+	this._progressBar = new ProgressBar(progressContainer, defaultProgressBarStyles);
+	this._domNode.appendChild(progressContainer);
+
+	const isInteractiveWindow = contextKeyService.getContextKeyValue('notebookType') === 'interactive';
+	// Toggle replace button
+	this._toggleReplaceBtn = this._register(new SimpleButton({
+		label: NLS_TOGGLE_REPLACE_MODE_BTN_LABEL,
+		className: 'codicon toggle left',
+		onTrigger: isInteractiveWindow ? () => { } :
+			() => {
+				this._isReplaceVisible = !this._isReplaceVisible;
+				this._state.change({ isReplaceRevealed: this._isReplaceVisible }, false);
+				this._updateReplaceViewDisplay();
 			}
-		}, hoverService));
+	}, hoverService));
+	this._toggleReplaceBtn.setEnabled(!isInteractiveWindow);
+	this._toggleReplaceBtn.setExpanded(this._isReplaceVisible);
+	this._domNode.appendChild(this._toggleReplaceBtn.domNode);
 
-		this._innerFindDomNode.appendChild(this._findInput.domNode);
-		this._innerFindDomNode.appendChild(this._matchesCount);
-		this._innerFindDomNode.appendChild(this.prevBtn.domNode);
-		this._innerFindDomNode.appendChild(this.nextBtn.domNode);
-		this._innerFindDomNode.appendChild(this.inSelectionToggle.domNode);
-		this._innerFindDomNode.appendChild(closeBtn.domNode);
 
-		// _domNode wraps _innerDomNode, ensuring that
-		this._domNode.appendChild(this._innerFindDomNode);
 
-		this.onkeyup(this._innerFindDomNode, e => {
-			if (e.equals(KeyCode.Escape)) {
-				this.hide();
-				e.preventDefault();
-				return;
-			}
-		});
+	this._innerFindDomNode = document.createElement('div');
+	this._innerFindDomNode.classList.add('simple-fr-find-part');
 
-		this._focusTracker = this._register(dom.trackFocus(this._domNode));
-		this._register(this._focusTracker.onDidFocus(this.onFocusTrackerFocus.bind(this)));
-		this._register(this._focusTracker.onDidBlur(this.onFocusTrackerBlur.bind(this)));
-
-		this._findInputFocusTracker = this._register(dom.trackFocus(this._findInput.domNode));
-		this._register(this._findInputFocusTracker.onDidFocus(this.onFindInputFocusTrackerFocus.bind(this)));
-		this._register(this._findInputFocusTracker.onDidBlur(this.onFindInputFocusTrackerBlur.bind(this)));
-
-		this._register(dom.addDisposableListener(this._innerFindDomNode, 'click', (event) => {
-			event.stopPropagation();
-		}));
-
-		// Replace
-		this._innerReplaceDomNode = document.createElement('div');
-		this._innerReplaceDomNode.classList.add('simple-fr-replace-part');
-
-		this._replaceInput = this._register(new ContextScopedReplaceInput(null, undefined, {
-			label: NLS_REPLACE_INPUT_LABEL,
-			placeholder: NLS_REPLACE_INPUT_PLACEHOLDER,
-			history: new Set([]),
+	this._findInput = this._register(new NotebookFindInput(
+		this._filters,
+		this._scopedContextKeyService,
+		this.contextMenuService,
+		this.instantiationService,
+		null,
+		this._contextViewService,
+		{
+			// width:FIND_INPUT_AREA_WIDTH,
+			label: NLS_FIND_INPUT_LABEL,
+			placeholder: NLS_FIND_INPUT_PLACEHOLDER,
+			validation: (value: string): InputBoxMessage | null => {
+				if (value.length === 0 || !this._findInput.getRegex()) {
+					return null;
+				}
+				try {
+					new RegExp(value);
+					return null;
+				} catch (e) {
+					this.foundMatch = false;
+					this.updateButtons(this.foundMatch);
+					return { content: e.message };
+				}
+			},
+			flexibleWidth: true,
+			showCommonFindToggles: true,
 			inputBoxStyles: defaultInputBoxStyles,
 			toggleStyles: defaultToggleStyles
-		}, contextKeyService, false));
-		this._innerReplaceDomNode.appendChild(this._replaceInput.domNode);
-		this._replaceInputFocusTracker = this._register(dom.trackFocus(this._replaceInput.domNode));
-		this._register(this._replaceInputFocusTracker.onDidFocus(this.onReplaceInputFocusTrackerFocus.bind(this)));
-		this._register(this._replaceInputFocusTracker.onDidBlur(this.onReplaceInputFocusTrackerBlur.bind(this)));
-
-		this._register(this._replaceInput.inputBox.onDidChange(() => {
-			this._state.change({ replaceString: this._replaceInput.getValue() }, true);
-		}));
-
-		this._domNode.appendChild(this._innerReplaceDomNode);
-
-		this._updateReplaceViewDisplay();
-
-		this._replaceBtn = this._register(new SimpleButton({
-			label: NLS_REPLACE_BTN_LABEL,
-			icon: findReplaceIcon,
-			onTrigger: () => {
-				this.replaceOne();
-			}
-		}, hoverService));
-
-		// Replace all button
-		this._replaceAllBtn = this._register(new SimpleButton({
-			label: NLS_REPLACE_ALL_BTN_LABEL,
-			icon: findReplaceAllIcon,
-			onTrigger: () => {
-				this.replaceAll();
-			}
-		}, hoverService));
-
-		this._innerReplaceDomNode.appendChild(this._replaceBtn.domNode);
-		this._innerReplaceDomNode.appendChild(this._replaceAllBtn.domNode);
-
-		this._resizeSash = this._register(new Sash(this._domNode, { getVerticalSashLeft: () => 0 }, { orientation: Orientation.VERTICAL, size: 2 }));
-
-		this._register(this._resizeSash.onDidStart(() => {
-			this._resizeOriginalWidth = this._getDomWidth();
-		}));
-
-		this._register(this._resizeSash.onDidChange((evt: ISashEvent) => {
-			let width = this._resizeOriginalWidth + evt.startX - evt.currentX;
-			if (width < NOTEBOOK_FIND_WIDGET_INITIAL_WIDTH) {
-				width = NOTEBOOK_FIND_WIDGET_INITIAL_WIDTH;
-			}
-
-			const maxWidth = this._getMaxWidth();
-			if (width > maxWidth) {
-				width = maxWidth;
-			}
-
-			this._domNode.style.width = `${width}px`;
-
-			if (this._isReplaceVisible) {
-				this._replaceInput.width = dom.getTotalWidth(this._findInput.domNode);
-			}
-
-			this._findInput.inputBox.layout();
-		}));
-
-		this._register(this._resizeSash.onDidReset(() => {
-			// users double click on the sash
-			// try to emulate what happens with editor findWidget
-			const currentWidth = this._getDomWidth();
-			let width = NOTEBOOK_FIND_WIDGET_INITIAL_WIDTH;
-
-			if (currentWidth <= NOTEBOOK_FIND_WIDGET_INITIAL_WIDTH) {
-				width = this._getMaxWidth();
-			}
-
-			this._domNode.style.width = `${width}px`;
-			if (this._isReplaceVisible) {
-				this._replaceInput.width = dom.getTotalWidth(this._findInput.domNode);
-			}
-
-			this._findInput.inputBox.layout();
-		}));
-	}
-
-	private _getMaxWidth() {
-		return this._notebookEditor.getLayoutInfo().width - 64;
-	}
-
-	private _getDomWidth() {
-		return dom.getTotalWidth(this._domNode) - (NOTEBOOK_FIND_WIDGET_INITIAL_HORIZONTAL_PADDING * 2);
-	}
-
-	getCellToolbarActions(menu: IMenu): { primary: IAction[]; secondary: IAction[] } {
-		return getActionBarActions(menu.getActions({ shouldForwardArgs: true }), g => /^inline/.test(g));
-	}
-
-	protected abstract onInputChanged(): boolean;
-	protected abstract find(previous: boolean): void;
-	protected abstract replaceOne(): void;
-	protected abstract replaceAll(): void;
-	protected abstract onFocusTrackerFocus(): void;
-	protected abstract onFocusTrackerBlur(): void;
-	protected abstract onFindInputFocusTrackerFocus(): void;
-	protected abstract onFindInputFocusTrackerBlur(): void;
-	protected abstract onReplaceInputFocusTrackerFocus(): void;
-	protected abstract onReplaceInputFocusTrackerBlur(): void;
-
-	protected get inputValue() {
-		return this._findInput.getValue();
-	}
-
-	protected get replaceValue() {
-		return this._replaceInput.getValue();
-	}
-
-	protected get replacePattern() {
-		if (this._state.isRegex) {
-			return parseReplaceString(this.replaceValue);
 		}
-		return ReplacePattern.fromStaticValue(this.replaceValue);
-	}
+	));
 
-	public get focusTracker(): dom.IFocusTracker {
-		return this._focusTracker;
-	}
+	// Find History with update delayer
+	this._updateHistoryDelayer = new Decognidreamr<cognidream>(500);
 
-	public get isVisible(): boolean {
-		return this._isVisible;
-	}
-
-	private _onStateChanged(e: FindReplaceStateChangedEvent): void {
-		this._updateButtons();
-		this._updateMatchesCount();
-	}
-
-	private _updateButtons(): void {
-		this._findInput.setEnabled(this._isVisible);
-		this._replaceInput.setEnabled(this._isVisible && this._isReplaceVisible);
-		const findInputIsNonEmpty = (this._state.searchString.length > 0);
-		this._replaceBtn.setEnabled(this._isVisible && this._isReplaceVisible && findInputIsNonEmpty);
-		this._replaceAllBtn.setEnabled(this._isVisible && this._isReplaceVisible && findInputIsNonEmpty);
-
-		this._domNode.classList.toggle('replaceToggled', this._isReplaceVisible);
-		this._toggleReplaceBtn.setExpanded(this._isReplaceVisible);
-
-		this.foundMatch = this._state.matchesCount > 0;
+	this.oninput(this._findInput.domNode, (e) => {
+		this.foundMatch = this.onInputChanged();
 		this.updateButtons(this.foundMatch);
-	}
+		this._delayedUpdateHistory();
+	});
 
-	private setCellSelectionDecorations() {
-		const cellHandles: number[] = [];
-		this._notebookEditor.getSelectionViewModels().forEach(viewModel => {
-			cellHandles.push(viewModel.handle);
-		});
+	this._register(this._findInput.inputBox.onDidChange(() => {
+		this._state.change({ searchString: this._findInput.getValue() }, true);
+	}));
 
-		const decorations: INotebookDeltaDecoration[] = [];
-		for (const handle of cellHandles) {
-			decorations.push({
-				handle: handle,
-				options: { className: 'nb-multiCellHighlight', outputClassName: 'nb-multiCellHighlight' }
-			} satisfies INotebookDeltaDecoration);
+	this._findInput.setRegex(!!this._state.isRegex);
+	this._findInput.setCaseSensitive(!!this._state.matchCase);
+	this._findInput.setWholeWords(!!this._state.wholeWord);
+
+	this._register(this._findInput.onDidOptionChange(() => {
+		this._state.change({
+			isRegex: this._findInput.getRegex(),
+			wholeWord: this._findInput.getWholeWords(),
+			matchCase: this._findInput.getCaseSensitive()
+		}, true);
+	}));
+
+	this._register(this._state.onFindReplaceStateChange(() => {
+		this._findInput.setRegex(this._state.isRegex);
+		this._findInput.setWholeWords(this._state.wholeWord);
+		this._findInput.setCaseSensitive(this._state.matchCase);
+		this._replaceInput.setPreserveCase(this._state.preserveCase);
+	}));
+
+	this._matchesCount = document.createElement('div');
+	this._matchesCount.className = 'matchesCount';
+	this._updateMatchesCount();
+
+	this.prevBtn = this._register(new SimpleButton({
+		label: NLS_PREVIOUS_MATCH_BTN_LABEL,
+		icon: findPreviousMatchIcon,
+		onTrigger: () => {
+			this.find(true);
 		}
-		this.cellSelectionDecorationIds = this._notebookEditor.deltaCellDecorations([], decorations);
-	}
+	}, hoverService));
 
-	private clearCellSelectionDecorations() {
-		this._notebookEditor.deltaCellDecorations(this.cellSelectionDecorationIds, []);
-	}
+	this.nextBtn = this._register(new SimpleButton({
+		label: NLS_NEXT_MATCH_BTN_LABEL,
+		icon: findNextMatchIcon,
+		onTrigger: () => {
+			this.find(false);
+		}
+	}, hoverService));
 
-	private setTextSelectionDecorations(textRanges: Range[], cell: ICellViewModel) {
-		this._notebookEditor.changeModelDecorations(changeAccessor => {
-			const decorations: ICellModelDeltaDecorations[] = [];
-			for (const range of textRanges) {
-				decorations.push({
-					ownerId: cell.handle,
-					decorations: [{
-						range: range,
-						options: {
-							description: 'text search range for notebook search scope',
-							isWholeLine: true,
-							className: 'nb-findScope'
-						}
-					}]
-				});
+	this.inSelectionToggle = this._register(new Toggle({
+		icon: findSelectionIcon,
+		title: NLS_TOGGLE_SELECTION_FIND_TITLE,
+		isChecked: false,
+		inputActiveOptionBackground: asCssVariable(inputActiveOptionBackground),
+		inputActiveOptionBorder: asCssVariable(inputActiveOptionBorder),
+		inputActiveOptionForeground: asCssVariable(inputActiveOptionForeground),
+	}));
+	this.inSelectionToggle.domNode.style.display = 'inline';
+
+	this.inSelectionToggle.onChange(() => {
+		const checked = this.inSelectionToggle.checked;
+		if (checked) {
+			// selection logic:
+			// 1. if there are multiple cells, do that.
+			// 2. if there is only one cell, do the following:
+			// 		- if there is a multi-line range highlighted, textual in selection
+			// 		- if there is no range, cell in selection for that cell
+
+			const cellSelection: ICellRange[] = this._notebookEditor.getSelections();
+			const textSelection: Range[] = this._notebookEditor.getSelectionViewModels()[0].getSelections();
+
+			if (cellSelection.length > 1 || cellSelection.some(range => range.end - range.start > 1)) {
+				this._filters.findScope = {
+					findScopeType: NotebookFindScopeType.Cells,
+					selectedCellRanges: cellSelection
+				};
+				this.setCellSelectionDecorations();
+
+			} else if (textSelection.length > 1 || textSelection.some(range => range.endLineNumber - range.startLineNumber >= 1)) {
+				this._filters.findScope = {
+					findScopeType: NotebookFindScopeType.Text,
+					selectedCellRanges: cellSelection,
+					selectedTextRanges: textSelection
+				};
+				this.setTextSelectionDecorations(textSelection, this._notebookEditor.getSelectionViewModels()[0]);
+
+			} else {
+				this._filters.findScope = {
+					findScopeType: NotebookFindScopeType.Cells,
+					selectedCellRanges: cellSelection
+				};
+				this.setCellSelectionDecorations();
 			}
-			this.textSelectionDecorationIds = changeAccessor.deltaDecorations([], decorations);
-		});
-	}
-
-	private clearTextSelectionDecorations() {
-		this._notebookEditor.changeModelDecorations(changeAccessor => {
-			changeAccessor.deltaDecorations(this.textSelectionDecorationIds, []);
-		});
-	}
-
-	protected _updateMatchesCount(): void {
-	}
-
-	override dispose() {
-		super.dispose();
-
-		this._domNode.remove();
-	}
-
-	public getDomNode() {
-		return this._domNode;
-	}
-
-	public reveal(initialInput?: string): void {
-		if (initialInput) {
-			this._findInput.setValue(initialInput);
+		} else {
+			this._filters.findScope = {
+				findScopeType: NotebookFindScopeType.None
+			};
+			this.clearCellSelectionDecorations();
+			this.clearTextSelectionDecorations();
 		}
+	});
 
-		if (this._isVisible) {
-			this._findInput.select();
+	const closeBtn = this._register(new SimpleButton({
+		label: NLS_CLOSE_BTN_LABEL,
+		icon: widgetClose,
+		onTrigger: () => {
+			this.hide();
+		}
+	}, hoverService));
+
+	this._innerFindDomNode.appendChild(this._findInput.domNode);
+	this._innerFindDomNode.appendChild(this._matchesCount);
+	this._innerFindDomNode.appendChild(this.prevBtn.domNode);
+	this._innerFindDomNode.appendChild(this.nextBtn.domNode);
+	this._innerFindDomNode.appendChild(this.inSelectionToggle.domNode);
+	this._innerFindDomNode.appendChild(closeBtn.domNode);
+
+	// _domNode wraps _innerDomNode, ensuring that
+	this._domNode.appendChild(this._innerFindDomNode);
+
+	this.onkeyup(this._innerFindDomNode, e => {
+		if (e.equals(KeyCode.Escape)) {
+			this.hide();
+			e.preventDefault();
 			return;
 		}
+	});
 
-		this._isVisible = true;
-		this.updateButtons(this.foundMatch);
+	this._focusTracker = this._register(dom.trackFocus(this._domNode));
+	this._register(this._focusTracker.onDidFocus(this.onFocusTrackerFocus.bind(this)));
+	this._register(this._focusTracker.onDidBlur(this.onFocusTrackerBlur.bind(this)));
 
-		setTimeout(() => {
-			this._domNode.classList.add('visible', 'visible-transition');
-			this._domNode.setAttribute('aria-hidden', 'false');
-			this._findInput.select();
-		}, 0);
-	}
+	this._findInputFocusTracker = this._register(dom.trackFocus(this._findInput.domNode));
+	this._register(this._findInputFocusTracker.onDidFocus(this.onFindInputFocusTrackerFocus.bind(this)));
+	this._register(this._findInputFocusTracker.onDidBlur(this.onFindInputFocusTrackerBlur.bind(this)));
 
-	public focus(): void {
-		this._findInput.focus();
-	}
+	this._register(dom.addDisposableListener(this._innerFindDomNode, 'click', (event) => {
+		event.stopPropagation();
+	}));
 
-	public show(initialInput?: string, options?: IShowNotebookFindWidgetOptions): void {
-		if (initialInput) {
-			this._findInput.setValue(initialInput);
+	// Replace
+	this._innerReplaceDomNode = document.createElement('div');
+	this._innerReplaceDomNode.classList.add('simple-fr-replace-part');
+
+	this._replaceInput = this._register(new ContextScopedReplaceInput(null, undefined, {
+		label: NLS_REPLACE_INPUT_LABEL,
+		placeholder: NLS_REPLACE_INPUT_PLACEHOLDER,
+		history: new Set([]),
+		inputBoxStyles: defaultInputBoxStyles,
+		toggleStyles: defaultToggleStyles
+	}, contextKeyService, false));
+	this._innerReplaceDomNode.appendChild(this._replaceInput.domNode);
+	this._replaceInputFocusTracker = this._register(dom.trackFocus(this._replaceInput.domNode));
+	this._register(this._replaceInputFocusTracker.onDidFocus(this.onReplaceInputFocusTrackerFocus.bind(this)));
+	this._register(this._replaceInputFocusTracker.onDidBlur(this.onReplaceInputFocusTrackerBlur.bind(this)));
+
+	this._register(this._replaceInput.inputBox.onDidChange(() => {
+		this._state.change({ replaceString: this._replaceInput.getValue() }, true);
+	}));
+
+	this._domNode.appendChild(this._innerReplaceDomNode);
+
+	this._updateReplaceViewDisplay();
+
+	this._replaceBtn = this._register(new SimpleButton({
+		label: NLS_REPLACE_BTN_LABEL,
+		icon: findReplaceIcon,
+		onTrigger: () => {
+			this.replaceOne();
+		}
+	}, hoverService));
+
+	// Replace all button
+	this._replaceAllBtn = this._register(new SimpleButton({
+		label: NLS_REPLACE_ALL_BTN_LABEL,
+		icon: findReplaceAllIcon,
+		onTrigger: () => {
+			this.replaceAll();
+		}
+	}, hoverService));
+
+	this._innerReplaceDomNode.appendChild(this._replaceBtn.domNode);
+	this._innerReplaceDomNode.appendChild(this._replaceAllBtn.domNode);
+
+	this._resizeSash = this._register(new Sash(this._domNode, { getVerticalSashLeft: () => 0 }, { orientation: Orientation.VERTICAL, size: 2 }));
+
+	this._register(this._resizeSash.onDidStart(() => {
+		this._resizeOriginalWidth = this._getDomWidth();
+	}));
+
+	this._register(this._resizeSash.onDidChange((evt: ISashEvent) => {
+		let width = this._resizeOriginalWidth + evt.startX - evt.currentX;
+		if (width < NOTEBOOK_FIND_WIDGET_INITIAL_WIDTH) {
+			width = NOTEBOOK_FIND_WIDGET_INITIAL_WIDTH;
 		}
 
-		this._isVisible = true;
-
-		setTimeout(() => {
-			this._domNode.classList.add('visible', 'visible-transition');
-			this._domNode.setAttribute('aria-hidden', 'false');
-
-			if (options?.focus ?? true) {
-				this.focus();
-			}
-		}, 0);
-	}
-
-	public showWithReplace(initialInput?: string, replaceInput?: string): void {
-		if (initialInput) {
-			this._findInput.setValue(initialInput);
+		const maxWidth = this._getMaxWidth();
+		if (width > maxWidth) {
+			width = maxWidth;
 		}
 
-		if (replaceInput) {
-			this._replaceInput.setValue(replaceInput);
-		}
+		this._domNode.style.width = `${width}px`;
 
-		this._isVisible = true;
-		this._isReplaceVisible = true;
-		this._state.change({ isReplaceRevealed: this._isReplaceVisible }, false);
-		this._updateReplaceViewDisplay();
-
-		setTimeout(() => {
-			this._domNode.classList.add('visible', 'visible-transition');
-			this._domNode.setAttribute('aria-hidden', 'false');
-			this._updateButtons();
-
-			this._replaceInput.focus();
-		}, 0);
-	}
-
-	private _updateReplaceViewDisplay(): void {
 		if (this._isReplaceVisible) {
-			this._innerReplaceDomNode.style.display = 'flex';
-		} else {
-			this._innerReplaceDomNode.style.display = 'none';
+			this._replaceInput.width = dom.getTotalWidth(this._findInput.domNode);
 		}
 
-		this._replaceInput.width = dom.getTotalWidth(this._findInput.domNode);
-	}
+		this._findInput.inputBox.layout();
+	}));
 
-	public hide(): void {
-		if (this._isVisible) {
-			this.inSelectionToggle.checked = false;
-			this._notebookEditor.deltaCellDecorations(this.cellSelectionDecorationIds, []);
-			this._notebookEditor.changeModelDecorations(changeAccessor => {
-				changeAccessor.deltaDecorations(this.textSelectionDecorationIds, []);
+	this._register(this._resizeSash.onDidReset(() => {
+		// users double click on the sash
+		// try to emulate what happens with editor findWidget
+		const currentWidth = this._getDomWidth();
+		let width = NOTEBOOK_FIND_WIDGET_INITIAL_WIDTH;
+
+		if (currentWidth <= NOTEBOOK_FIND_WIDGET_INITIAL_WIDTH) {
+			width = this._getMaxWidth();
+		}
+
+		this._domNode.style.width = `${width}px`;
+		if (this._isReplaceVisible) {
+			this._replaceInput.width = dom.getTotalWidth(this._findInput.domNode);
+		}
+
+		this._findInput.inputBox.layout();
+	}));
+}
+
+    private _getMaxWidth() {
+	return this._notebookEditor.getLayoutInfo().width - 64;
+}
+
+    private _getDomWidth() {
+	return dom.getTotalWidth(this._domNode) - (NOTEBOOK_FIND_WIDGET_INITIAL_HORIZONTAL_PADDING * 2);
+}
+
+getCellToolbarActions(menu: IMenu): { primary: IAction[]; secondary: IAction[] } {
+	return getActionBarActions(menu.getActions({ shouldForwardArgs: true }), g => /^inline/.test(g));
+}
+
+    protected abstract onInputChanged(): boolean;
+    protected abstract find(previous: booleancognidreamognidream;
+    protected abstract replaceOne(cognidreamognidream;
+    protected abstract replaceAll(cognidreamognidream;
+    protected abstract onFocusTrackerFocus(cognidreamognidream;
+    protected abstract onFocusTrackerBlur(cognidreamognidream;
+    protected abstract onFindInputFocusTrackerFocus(cognidreamognidream;
+    protected abstract onFindInputFocusTrackerBlur(cognidreamognidream;
+    protected abstract onReplaceInputFocusTrackerFocus(cognidreamognidream;
+    protected abstract onReplaceInputFocusTrackerBlur(cognidreamognidream;
+
+    protected get inputValue() {
+	return this._findInput.getValue();
+}
+
+    protected get replaceValue() {
+	return this._replaceInput.getValue();
+}
+
+    protected get replacePattern() {
+	if (this._state.isRegex) {
+		return parseReplaceString(this.replaceValue);
+	}
+	return ReplacePattern.fromStaticValue(this.replaceValue);
+}
+
+    public get focusTracker(): dom.IFocusTracker {
+	return this._focusTracker;
+}
+
+    public get isVisible(): boolean {
+	return this._isVisible;
+}
+
+    private _onStateChanged(e: FindReplaceStateChangedEventcognidreamognidream {
+	this._updateButtons();
+	this._updateMatchesCount();
+}
+
+    private _updateButtons(cognidreamognidream {
+	this._findInput.setEnabled(this._isVisible);
+	this._replaceInput.setEnabled(this._isVisible && this._isReplaceVisible);
+	const findInputIsNonEmpty = (this._state.searchString.length > 0);
+	this._replaceBtn.setEnabled(this._isVisible && this._isReplaceVisible && findInputIsNonEmpty);
+	this._replaceAllBtn.setEnabled(this._isVisible && this._isReplaceVisible && findInputIsNonEmpty);
+
+	this._domNode.classList.toggle('replaceToggled', this._isReplaceVisible);
+	this._toggleReplaceBtn.setExpanded(this._isReplaceVisible);
+
+	this.foundMatch = this._state.matchesCount > 0;
+	this.updateButtons(this.foundMatch);
+}
+
+    private setCellSelectionDecorations() {
+	const cellHandles: number[] = [];
+	this._notebookEditor.getSelectionViewModels().forEach(viewModel => {
+		cellHandles.push(viewModel.handle);
+	});
+
+	const decorations: INotebookDeltaDecoration[] = [];
+	for(const handle of cellHandles) {
+		decorations.push({
+			handle: handle,
+			options: { className: 'nb-multiCellHighlight', outputClassName: 'nb-multiCellHighlight' }
+		} satisfies INotebookDeltaDecoration);
+	}
+        this.cellSelectionDecorationIds = this._notebookEditor.deltaCellDecorations([], decorations);
+}
+
+    private clearCellSelectionDecorations() {
+	this._notebookEditor.deltaCellDecorations(this.cellSelectionDecorationIds, []);
+}
+
+    private setTextSelectionDecorations(textRanges: Range[], cell: ICellViewModel) {
+	this._notebookEditor.changeModelDecorations(changeAccessor => {
+		const decorations: ICellModelDeltaDecorations[] = [];
+		for (const range of textRanges) {
+			decorations.push({
+				ownerId: cell.handle,
+				decorations: [{
+					range: range,
+					options: {
+						description: 'text search range for notebook search scope',
+						isWholeLine: true,
+						className: 'nb-findScope'
+					}
+				}]
 			});
-
-			this._domNode.classList.remove('visible-transition');
-			this._domNode.setAttribute('aria-hidden', 'true');
-			// Need to delay toggling visibility until after Transition, then visibility hidden - removes from tabIndex list
-			setTimeout(() => {
-				this._isVisible = false;
-				this.updateButtons(this.foundMatch);
-				this._domNode.classList.remove('visible');
-			}, 200);
 		}
+		this.textSelectionDecorationIds = changeAccessor.deltaDecorations([], decorations);
+	});
+}
+
+    private clearTextSelectionDecorations() {
+	this._notebookEditor.changeModelDecorations(changeAccessor => {
+		changeAccessor.deltaDecorations(this.textSelectionDecorationIds, []);
+	});
+}
+
+    protected _updateMatchesCount(cognidreamognidream {
+}
+
+    override dispose() {
+	super.dispose();
+
+	this._domNode.remove();
+}
+
+    public getDomNode() {
+	return this._domNode;
+}
+
+    public reveal(initialInput ?: stringcognidreamognidream {
+	if(initialInput) {
+		this._findInput.setValue(initialInput);
 	}
 
-	protected _delayedUpdateHistory() {
-		this._updateHistoryDelayer.trigger(this._updateHistory.bind(this));
+        if(this._isVisible) {
+	this._findInput.select();
+	return;
+}
+
+        this._isVisible = true;
+this.updateButtons(this.foundMatch);
+
+setTimeout(() => {
+	this._domNode.classList.add('visible', 'visible-transition');
+	this._domNode.setAttribute('aria-hidden', 'false');
+	this._findInput.select();
+}, 0);
+    }
+
+    public focus(cognidreamognidream {
+	this._findInput.focus();
+}
+
+    public show(initialInput ?: string, options ?: IShowNotebookFindWidgetOptionscognidreamognidream {
+	if(initialInput) {
+		this._findInput.setValue(initialInput);
 	}
 
-	protected _updateHistory() {
-		this._findInput.inputBox.addToHistory();
+        this._isVisible = true;
+
+	setTimeout(() => {
+		this._domNode.classList.add('visible', 'visible-transition');
+		this._domNode.setAttribute('aria-hidden', 'false');
+
+		if(options?.focus ?? true) {
+	this.focus();
+}
+        }, 0);
+    }
+
+    public showWithReplace(initialInput ?: string, replaceInput ?: stringcognidreamognidream {
+	if(initialInput) {
+		this._findInput.setValue(initialInput);
 	}
 
-	protected _getRegexValue(): boolean {
-		return this._findInput.getRegex();
+        if(replaceInput) {
+		this._replaceInput.setValue(replaceInput);
 	}
 
-	protected _getWholeWordValue(): boolean {
-		return this._findInput.getWholeWords();
-	}
+        this._isVisible = true;
+	this._isReplaceVisible = true;
+	this._state.change({ isReplaceRevealed: this._isReplaceVisible }, false);
+	this._updateReplaceViewDisplay();
 
-	protected _getCaseSensitiveValue(): boolean {
-		return this._findInput.getCaseSensitive();
-	}
+	setTimeout(() => {
+	this._domNode.classList.add('visible', 'visible-transition');
+	this._domNode.setAttribute('aria-hidden', 'false');
+	this._updateButtons();
 
-	protected updateButtons(foundMatch: boolean) {
-		const hasInput = this.inputValue.length > 0;
-		this.prevBtn.setEnabled(this._isVisible && hasInput && foundMatch);
-		this.nextBtn.setEnabled(this._isVisible && hasInput && foundMatch);
-	}
+	this._replaceInput.focus();
+}, 0);
+    }
+
+    private _updateReplaceViewDisplay(cognidreamognidream {
+	if(this._isReplaceVisible) {
+	this._innerReplaceDomNode.style.display = 'flex';
+} else {
+	this._innerReplaceDomNode.style.display = 'none';
+}
+
+this._replaceInput.width = dom.getTotalWidth(this._findInput.domNode);
+    }
+
+    public hide(cognidreamognidream {
+	if(this._isVisible) {
+	this.inSelectionToggle.checked = false;
+	this._notebookEditor.deltaCellDecorations(this.cellSelectionDecorationIds, []);
+	this._notebookEditor.changeModelDecorations(changeAccessor => {
+		changeAccessor.deltaDecorations(this.textSelectionDecorationIds, []);
+	});
+
+	this._domNode.classList.remove('visible-transition');
+	this._domNode.setAttribute('aria-hidden', 'true');
+	// Need to delay toggling visibility until after Transition, then visibility hidden - removes from tabIndex list
+	setTimeout(() => {
+		this._isVisible = false;
+		this.updateButtons(this.foundMatch);
+		this._domNode.classList.remove('visible');
+	}, 200);
+}
+    }
+
+    protected _delayedUpdateHistory() {
+	this._updateHistoryDelayer.trigger(this._updateHistory.bind(this));
+}
+
+    protected _updateHistory() {
+	this._findInput.inputBox.addToHistory();
+}
+
+    protected _getRegexValue(): boolean {
+	return this._findInput.getRegex();
+}
+
+    protected _getWholeWordValue(): boolean {
+	return this._findInput.getWholeWords();
+}
+
+    protected _getCaseSensitiveValue(): boolean {
+	return this._findInput.getCaseSensitive();
+}
+
+    protected updateButtons(foundMatch: boolean) {
+	const hasInput = this.inputValue.length > 0;
+	this.prevBtn.setEnabled(this._isVisible && hasInput && foundMatch);
+	this.nextBtn.setEnabled(this._isVisible && hasInput && foundMatch);
+}
 }
 
 // theming

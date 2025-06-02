@@ -40,79 +40,79 @@ class CustomDocumentStoreEntry {
 		return this._edits.add([item]);
 	}
 
-	async undo(editId: number, isDirty: boolean): Promise<void> {
+	async undo(editId: number, isDirty: boolean): Promise<cognidream> {
 		await this.getEdit(editId).undo();
 		if (!isDirty) {
 			this.disposeBackup();
 		}
 	}
 
-	async redo(editId: number, isDirty: boolean): Promise<void> {
+	async redo(editId: number, isDirty: boolean): Promicognidreamognidream> {
 		await this.getEdit(editId).redo();
-		if (!isDirty) {
+		if(!isDirty) {
 			this.disposeBackup();
 		}
 	}
 
-	disposeEdits(editIds: number[]): void {
-		for (const id of editIds) {
-			this._edits.delete(id);
-		}
-	}
-
-	getNewBackupUri(): URI {
-		if (!this._storagePath) {
-			throw new Error('Backup requires a valid storage path');
-		}
-		const fileName = hashPath(this.document.uri) + (this._backupCounter++);
-		return joinPath(this._storagePath, fileName);
-	}
-
-	updateBackup(backup: vscode.CustomDocumentBackup): void {
-		this._backup?.delete();
-		this._backup = backup;
-	}
-
-	disposeBackup(): void {
-		this._backup?.delete();
-		this._backup = undefined;
-	}
-
-	private getEdit(editId: number): vscode.CustomDocumentEditEvent {
-		const edit = this._edits.get(editId, 0);
-		if (!edit) {
-			throw new Error('No edit found');
-		}
-		return edit;
+disposeEdits(editIds: number[]cognidreamognidream {
+	for(const id of editIds) {
+		this._edits.delete(id);
 	}
 }
 
-class CustomDocumentStore {
-	private readonly _documents = new Map<string, CustomDocumentStoreEntry>();
-
-	public get(viewType: string, resource: vscode.Uri): CustomDocumentStoreEntry | undefined {
-		return this._documents.get(this.key(viewType, resource));
-	}
-
-	public add(viewType: string, document: vscode.CustomDocument, storagePath: URI | undefined): CustomDocumentStoreEntry {
-		const key = this.key(viewType, document.uri);
-		if (this._documents.has(key)) {
-			throw new Error(`Document already exists for viewType:${viewType} resource:${document.uri}`);
-		}
-		const entry = new CustomDocumentStoreEntry(document, storagePath);
-		this._documents.set(key, entry);
-		return entry;
-	}
-
-	public delete(viewType: string, document: vscode.CustomDocument) {
-		const key = this.key(viewType, document.uri);
-		this._documents.delete(key);
-	}
-
-	private key(viewType: string, resource: vscode.Uri): string {
-		return `${viewType}@@@${resource}`;
-	}
+    getNewBackupUri(): URI {
+	if(!this._storagePath) {
+	throw new Error('Backup requires a valid storage path');
 }
+const fileName = hashPath(this.document.uri) + (this._backupCounter++);
+return joinPath(this._storagePath, fileName);
+    }
+
+updateBackup(backup: vscode.CustomDocumentBackupcognidreamognidream {
+	this._backup?.delete();
+	this._backup = backup;
+}
+
+    disposeBackup(cognidreamognidream {
+	this._backup?.delete();
+	this._backup = undefined;
+}
+
+    private getEdit(editId: number): vscode.CustomDocumentEditEvent {
+	const edit = this._edits.get(editId, 0);
+	if(!edit) {
+		throw new Error('No edit found');
+	}
+        return edit;
+}
+}
+
+	class CustomDocumentStore {
+		private readonly _documents = new Map<string, CustomDocumentStoreEntry>();
+
+		public get(viewType: string, resource: vscode.Uri): CustomDocumentStoreEntry | undefined {
+			return this._documents.get(this.key(viewType, resource));
+		}
+
+		public add(viewType: string, document: vscode.CustomDocument, storagePath: URI | undefined): CustomDocumentStoreEntry {
+			const key = this.key(viewType, document.uri);
+			if (this._documents.has(key)) {
+				throw new Error(`Document already exists for viewType:${viewType} resource:${document.uri}`);
+			}
+			const entry = new CustomDocumentStoreEntry(document, storagePath);
+			this._documents.set(key, entry);
+			return entry;
+		}
+
+		public delete(viewType: string, document: vscode.CustomDocument) {
+			const key = this.key(viewType, document.uri);
+			this._documents.delete(key);
+		}
+
+		private key(viewType: string, resource: vscode.Uri): string {
+			return `${viewType}@@@${resource}`;
+		}
+	}
 
 const enum CustomEditorType {
 	Text,
@@ -230,144 +230,144 @@ export class ExtHostCustomEditors implements extHostProtocol.ExtHostCustomEditor
 		return { editable: isCustomEditorProviderWithEditingCapability(entry.provider) };
 	}
 
-	async $disposeCustomDocument(resource: UriComponents, viewType: string): Promise<void> {
+	async $disposeCustomDocument(resource: UriComponents, viewType: string): Promicognidreamognidream> {
 		const entry = this._editorProviders.get(viewType);
-		if (!entry) {
+		if(!entry) {
 			throw new Error(`No provider found for '${viewType}'`);
 		}
 
-		if (entry.type !== CustomEditorType.Custom) {
-			throw new Error(`Invalid provider type for '${viewType}'`);
-		}
+        if(entry.type !== CustomEditorType.Custom) {
+	throw new Error(`Invalid provider type for '${viewType}'`);
+}
 
-		const revivedResource = URI.revive(resource);
+const revivedResource = URI.revive(resource);
+const { document } = this.getCustomDocumentEntry(viewType, revivedResource);
+this._documents.delete(viewType, document);
+document.dispose();
+    }
+
+    async $resolveCustomEditor(
+	resource: UriComponents,
+	handle: extHostProtocol.WebviewHandle,
+	viewType: string,
+	initData: {
+	title: string;
+	contentOptions: extHostProtocol.IWebviewContentOptions;
+	options: extHostProtocol.IWebviewPanelOptions;
+	active: boolean;
+},
+	position: EditorGroupColumn,
+	cancellation: CancellationToken,
+): Promicognidreamognidream > {
+	const entry = this._editorProviders.get(viewType);
+	if(!entry) {
+		throw new Error(`No provider found for '${viewType}'`);
+	}
+
+        const viewColumn = typeConverters.ViewColumn.to(position);
+
+	const webview = this._extHostWebview.createNewWebview(handle, initData.contentOptions, entry.extension);
+	const panel = this._extHostWebviewPanels.createNewWebviewPanel(handle, viewType, initData.title, viewColumn, initData.options, webview, initData.active);
+
+	const revivedResource = URI.revive(resource);
+
+	switch(entry.type) {
+            case CustomEditorType.Custom: {
 		const { document } = this.getCustomDocumentEntry(viewType, revivedResource);
-		this._documents.delete(viewType, document);
-		document.dispose();
+		return entry.provider.resolveCustomEditor(document, panel, cancellation);
+	}
+            case CustomEditorType.Text: {
+		const document = this._extHostDocuments.getDocument(revivedResource);
+		return entry.provider.resolveCustomTextEditor(document, panel, cancellation);
+	}
+            default: {
+		throw new Error('Unknown webview provider type');
+	}
+}
+    }
+
+$disposeEdits(resourceComponents: UriComponents, viewType: string, editIds: number[]cognidreamognidream {
+	const document = this.getCustomDocumentEntry(viewType, resourceComponents);
+	document.disposeEdits(editIds);
+}
+
+    async $onMoveCustomEditor(handle: string, newResourceComponents: UriComponents, viewType: string): Promicognidreamognidream > {
+	const entry = this._editorProviders.get(viewType);
+	if(!entry) {
+		throw new Error(`No provider found for '${viewType}'`);
 	}
 
-	async $resolveCustomEditor(
-		resource: UriComponents,
-		handle: extHostProtocol.WebviewHandle,
-		viewType: string,
-		initData: {
-			title: string;
-			contentOptions: extHostProtocol.IWebviewContentOptions;
-			options: extHostProtocol.IWebviewPanelOptions;
-			active: boolean;
-		},
-		position: EditorGroupColumn,
-		cancellation: CancellationToken,
-	): Promise<void> {
-		const entry = this._editorProviders.get(viewType);
-		if (!entry) {
-			throw new Error(`No provider found for '${viewType}'`);
-		}
+        if(!(entry.provider as vscode.CustomTextEditorProvider).moveCustomTextEditor) {
+	throw new Error(`Provider does not implement move '${viewType}'`);
+}
 
-		const viewColumn = typeConverters.ViewColumn.to(position);
+const webview = this._extHostWebviewPanels.getWebviewPanel(handle);
+if (!webview) {
+	throw new Error(`No webview found`);
+}
 
-		const webview = this._extHostWebview.createNewWebview(handle, initData.contentOptions, entry.extension);
-		const panel = this._extHostWebviewPanels.createNewWebviewPanel(handle, viewType, initData.title, viewColumn, initData.options, webview, initData.active);
+const resource = URI.revive(newResourceComponents);
+const document = this._extHostDocuments.getDocument(resource);
+await (entry.provider as vscode.CustomTextEditorProvider).moveCustomTextEditor!(document, webview, CancellationToken.None);
+    }
 
-		const revivedResource = URI.revive(resource);
+    async $undo(resourceComponents: UriComponents, viewType: string, editId: number, isDirty: boolean): Promicognidreamognidream > {
+	const entry = this.getCustomDocumentEntry(viewType, resourceComponents);
+	return entry.undo(editId, isDirty);
+}
 
-		switch (entry.type) {
-			case CustomEditorType.Custom: {
-				const { document } = this.getCustomDocumentEntry(viewType, revivedResource);
-				return entry.provider.resolveCustomEditor(document, panel, cancellation);
-			}
-			case CustomEditorType.Text: {
-				const document = this._extHostDocuments.getDocument(revivedResource);
-				return entry.provider.resolveCustomTextEditor(document, panel, cancellation);
-			}
-			default: {
-				throw new Error('Unknown webview provider type');
-			}
-		}
+    async $redo(resourceComponents: UriComponents, viewType: string, editId: number, isDirty: boolean): Promicognidreamognidream > {
+	const entry = this.getCustomDocumentEntry(viewType, resourceComponents);
+	return entry.redo(editId, isDirty);
+}
+
+    async $revert(resourceComponents: UriComponents, viewType: string, cancellation: CancellationToken): Promicognidreamognidream > {
+	const entry = this.getCustomDocumentEntry(viewType, resourceComponents);
+	const provider = this.getCustomEditorProvider(viewType);
+	await provider.revertCustomDocument(entry.document, cancellation);
+	entry.disposeBackup();
+}
+
+    async $onSave(resourceComponents: UriComponents, viewType: string, cancellation: CancellationToken): Promicognidreamognidream > {
+	const entry = this.getCustomDocumentEntry(viewType, resourceComponents);
+	const provider = this.getCustomEditorProvider(viewType);
+	await provider.saveCustomDocument(entry.document, cancellation);
+	entry.disposeBackup();
+}
+
+    async $onSaveAs(resourceComponents: UriComponents, viewType: string, targetResource: UriComponents, cancellation: CancellationToken): Promicognidreamognidream > {
+	const entry = this.getCustomDocumentEntry(viewType, resourceComponents);
+	const provider = this.getCustomEditorProvider(viewType);
+	return provider.saveCustomDocumentAs(entry.document, URI.revive(targetResource), cancellation);
+}
+
+    async $backup(resourceComponents: UriComponents, viewType: string, cancellation: CancellationToken): Promise < string > {
+	const entry = this.getCustomDocumentEntry(viewType, resourceComponents);
+	const provider = this.getCustomEditorProvider(viewType);
+
+	const backup = await provider.backupCustomDocument(entry.document, {
+		destination: entry.getNewBackupUri(),
+	}, cancellation);
+	entry.updateBackup(backup);
+	return backup.id;
+}
+
+    private getCustomDocumentEntry(viewType: string, resource: UriComponents): CustomDocumentStoreEntry {
+	const entry = this._documents.get(viewType, URI.revive(resource));
+	if (!entry) {
+		throw new Error('No custom document found');
 	}
+	return entry;
+}
 
-	$disposeEdits(resourceComponents: UriComponents, viewType: string, editIds: number[]): void {
-		const document = this.getCustomDocumentEntry(viewType, resourceComponents);
-		document.disposeEdits(editIds);
+    private getCustomEditorProvider(viewType: string): vscode.CustomEditorProvider {
+	const entry = this._editorProviders.get(viewType);
+	const provider = entry?.provider;
+	if (!provider || !isCustomEditorProviderWithEditingCapability(provider)) {
+		throw new Error('Custom document is not editable');
 	}
-
-	async $onMoveCustomEditor(handle: string, newResourceComponents: UriComponents, viewType: string): Promise<void> {
-		const entry = this._editorProviders.get(viewType);
-		if (!entry) {
-			throw new Error(`No provider found for '${viewType}'`);
-		}
-
-		if (!(entry.provider as vscode.CustomTextEditorProvider).moveCustomTextEditor) {
-			throw new Error(`Provider does not implement move '${viewType}'`);
-		}
-
-		const webview = this._extHostWebviewPanels.getWebviewPanel(handle);
-		if (!webview) {
-			throw new Error(`No webview found`);
-		}
-
-		const resource = URI.revive(newResourceComponents);
-		const document = this._extHostDocuments.getDocument(resource);
-		await (entry.provider as vscode.CustomTextEditorProvider).moveCustomTextEditor!(document, webview, CancellationToken.None);
-	}
-
-	async $undo(resourceComponents: UriComponents, viewType: string, editId: number, isDirty: boolean): Promise<void> {
-		const entry = this.getCustomDocumentEntry(viewType, resourceComponents);
-		return entry.undo(editId, isDirty);
-	}
-
-	async $redo(resourceComponents: UriComponents, viewType: string, editId: number, isDirty: boolean): Promise<void> {
-		const entry = this.getCustomDocumentEntry(viewType, resourceComponents);
-		return entry.redo(editId, isDirty);
-	}
-
-	async $revert(resourceComponents: UriComponents, viewType: string, cancellation: CancellationToken): Promise<void> {
-		const entry = this.getCustomDocumentEntry(viewType, resourceComponents);
-		const provider = this.getCustomEditorProvider(viewType);
-		await provider.revertCustomDocument(entry.document, cancellation);
-		entry.disposeBackup();
-	}
-
-	async $onSave(resourceComponents: UriComponents, viewType: string, cancellation: CancellationToken): Promise<void> {
-		const entry = this.getCustomDocumentEntry(viewType, resourceComponents);
-		const provider = this.getCustomEditorProvider(viewType);
-		await provider.saveCustomDocument(entry.document, cancellation);
-		entry.disposeBackup();
-	}
-
-	async $onSaveAs(resourceComponents: UriComponents, viewType: string, targetResource: UriComponents, cancellation: CancellationToken): Promise<void> {
-		const entry = this.getCustomDocumentEntry(viewType, resourceComponents);
-		const provider = this.getCustomEditorProvider(viewType);
-		return provider.saveCustomDocumentAs(entry.document, URI.revive(targetResource), cancellation);
-	}
-
-	async $backup(resourceComponents: UriComponents, viewType: string, cancellation: CancellationToken): Promise<string> {
-		const entry = this.getCustomDocumentEntry(viewType, resourceComponents);
-		const provider = this.getCustomEditorProvider(viewType);
-
-		const backup = await provider.backupCustomDocument(entry.document, {
-			destination: entry.getNewBackupUri(),
-		}, cancellation);
-		entry.updateBackup(backup);
-		return backup.id;
-	}
-
-	private getCustomDocumentEntry(viewType: string, resource: UriComponents): CustomDocumentStoreEntry {
-		const entry = this._documents.get(viewType, URI.revive(resource));
-		if (!entry) {
-			throw new Error('No custom document found');
-		}
-		return entry;
-	}
-
-	private getCustomEditorProvider(viewType: string): vscode.CustomEditorProvider {
-		const entry = this._editorProviders.get(viewType);
-		const provider = entry?.provider;
-		if (!provider || !isCustomEditorProviderWithEditingCapability(provider)) {
-			throw new Error('Custom document is not editable');
-		}
-		return provider;
-	}
+	return provider;
+}
 }
 
 function isCustomEditorProviderWithEditingCapability(provider: vscode.CustomTextEditorProvider | vscode.CustomEditorProvider | vscode.CustomReadonlyEditorProvider): provider is vscode.CustomEditorProvider {

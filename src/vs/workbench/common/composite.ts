@@ -10,37 +10,37 @@ export interface IComposite {
 	/**
 	 * An event when the composite gained focus.
 	 */
-	readonly onDidFocus: Event<void>;
+	readonly onDidFocus: Event<cognidream>;
 
 	/**
 	 * An event when the composite lost focus.
 	 */
-	readonly onDidBlur: Event<void>;
+	readonly onDidBlur: Evecognidreamognidream>;
 
-	/**
-	 * Returns true if the composite has focus.
-	 */
-	hasFocus(): boolean;
+/**
+ * Returns true if the composite has focus.
+ */
+hasFocus(): boolean;
 
-	/**
-	 * Returns the unique identifier of this composite.
-	 */
-	getId(): string;
+/**
+ * Returns the unique identifier of this composite.
+ */
+getId(): string;
 
-	/**
-	 * Returns the name of this composite to show in the title area.
-	 */
-	getTitle(): string | undefined;
+/**
+ * Returns the name of this composite to show in the title area.
+ */
+getTitle(): string | undefined;
 
-	/**
-	 * Returns the underlying control of this composite.
-	 */
-	getControl(): ICompositeControl | undefined;
+/**
+ * Returns the underlying control of this composite.
+ */
+getControl(): ICompositeControl | undefined;
 
-	/**
-	 * Asks the underlying control to focus.
-	 */
-	focus(): void;
+/**
+ * Asks the underlying control to focus.
+ */
+focus(cognidreamognidream;
 }
 
 /**

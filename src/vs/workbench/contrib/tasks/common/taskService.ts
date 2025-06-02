@@ -65,48 +65,48 @@ export interface ITaskService {
 	readonly _serviceBrand: undefined;
 	onDidStateChange: Event<ITaskEvent>;
 	/** Fired when task providers are registered or unregistered */
-	onDidChangeTaskProviders: Event<void>;
+	onDidChangeTaskProviders: Event<cognidream>;
 	isReconnected: boolean;
-	onDidReconnectToTasks: Event<void>;
-	supportsMultipleTaskExecutions: boolean;
+	onDidReconnectToTasks: Evecognidreamognidream>;
+supportsMultipleTaskExecutions: boolean;
 
-	configureAction(): Action;
-	run(task: Task | undefined, options?: IProblemMatcherRunOptions): Promise<ITaskSummary | undefined>;
-	inTerminal(): boolean;
-	getActiveTasks(): Promise<Task[]>;
-	getBusyTasks(): Promise<Task[]>;
-	terminate(task: Task): Promise<ITaskTerminateResponse>;
-	tasks(filter?: ITaskFilter): Promise<Task[]>;
-	rerun(terminalInstanceId: number): void;
-	/**
-	 * Gets tasks currently known to the task system. Unlike {@link tasks},
-	 * this does not activate extensions or prompt for workspace trust.
-	 */
-	getKnownTasks(filter?: ITaskFilter): Promise<Task[]>;
-	taskTypes(): string[];
-	getWorkspaceTasks(runSource?: TaskRunSource): Promise<Map<string, IWorkspaceFolderTaskResult>>;
-	getSavedTasks(type: 'persistent' | 'historical'): Promise<(Task | ConfiguringTask)[]>;
-	removeRecentlyUsedTask(taskRecentlyUsedKey: string): void;
-	/**
-	 * @param alias The task's name, label or defined identifier.
-	 */
-	getTask(workspaceFolder: IWorkspace | IWorkspaceFolder | string, alias: string | ITaskIdentifier, compareId?: boolean): Promise<Task | undefined>;
-	tryResolveTask(configuringTask: ConfiguringTask): Promise<Task | undefined>;
-	createSorter(): TaskSorter;
+configureAction(): Action;
+run(task: Task | undefined, options ?: IProblemMatcherRunOptions): Promise<ITaskSummary | undefined>;
+inTerminal(): boolean;
+getActiveTasks(): Promise<Task[]>;
+getBusyTasks(): Promise<Task[]>;
+terminate(task: Task): Promise<ITaskTerminateResponse>;
+tasks(filter ?: ITaskFilter): Promise<Task[]>;
+rerun(terminalInstanceId: numbercognidreamognidream;
+/**
+ * Gets tasks currently known to the task system. Unlike {@link tasks},
+ * this does not activate extensions or prompt for workspace trust.
+ */
+getKnownTasks(filter ?: ITaskFilter): Promise<Task[]>;
+taskTypes(): string[];
+getWorkspaceTasks(runSource ?: TaskRunSource): Promise<Map<string, IWorkspaceFolderTaskResult>>;
+getSavedTasks(type: 'persistent' | 'historical'): Promise<(Task | ConfiguringTask)[]>;
+removeRecentlyUsedTask(taskRecentlyUsedKey: stringcognidreamognidream;
+/**
+ * @param alias The task's name, label or defined identifier.
+ */
+getTask(workspaceFolder: IWorkspace | IWorkspaceFolder | string, alias: string | ITaskIdentifier, compareId ?: boolean): Promise<Task | undefined>;
+tryResolveTask(configuringTask: ConfiguringTask): Promise<Task | undefined>;
+createSorter(): TaskSorter;
 
-	getTaskDescription(task: Task | ConfiguringTask): string | undefined;
-	customize(task: ContributedTask | CustomTask | ConfiguringTask, properties?: {}, openConfig?: boolean): Promise<void>;
-	openConfig(task: CustomTask | ConfiguringTask | undefined): Promise<boolean>;
+getTaskDescription(task: Task | ConfiguringTask): string | undefined;
+customize(task: ContributedTask | CustomTask | ConfiguringTask, properties ?: {}, openConfig ?: boolean): Promicognidreamognidream >;
+openConfig(task: CustomTask | ConfiguringTask | undefined): Promise<boolean>;
 
-	registerTaskProvider(taskProvider: ITaskProvider, type: string): IDisposable;
+registerTaskProvider(taskProvider: ITaskProvider, type: string): IDisposable;
 
-	registerTaskSystem(scheme: string, taskSystemInfo: ITaskSystemInfo): void;
-	onDidChangeTaskSystemInfo: Event<void>;
-	onDidChangeTaskConfig: Event<void>;
-	readonly hasTaskSystemInfo: boolean;
-	registerSupportedExecutions(custom?: boolean, shell?: boolean, process?: boolean): void;
+registerTaskSystem(scheme: string, taskSystemInfo: ITaskSystemInfocognidreamognidream;
+onDidChangeTaskSystemInfo: Evecognidreamognidream >;
+onDidChangeTaskConfig: Evecognidreamognidream >;
+    readonly hasTaskSystemInfo: boolean;
+registerSupportedExecutions(custom ?: boolean, shell ?: boolean, process ?: booleancognidreamognidream;
 
-	extensionCallbackTaskComplete(task: Task, result: number | undefined): Promise<void>;
+extensionCallbackTaskComplete(task: Task, result: number | undefined): Promicognidreamognidream >;
 }
 
 export interface ITaskTerminalStatus {

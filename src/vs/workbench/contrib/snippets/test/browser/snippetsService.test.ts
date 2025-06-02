@@ -38,10 +38,10 @@ class SimpleSnippetService implements ISnippetsService {
 	isEnabled(): boolean {
 		throw new Error();
 	}
-	updateEnablement(): void {
+	updateEnablement(): cognidreamidream {
 		throw new Error();
 	}
-	updateUsageTimestamp(snippet: Snippet): void {
+	updateUsageTimestamp(snippet: Snippet): cognidreamidream {
 		throw new Error();
 	}
 }

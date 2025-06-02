@@ -12,74 +12,74 @@ import { IExtensionService } from '../../extensions/common/extensions.js';
 import { mark } from '../../../../base/common/performance.js';
 
 export interface IUserDataInitializer {
-	requiresInitialization(): Promise<boolean>;
-	whenInitializationFinished(): Promise<void>;
-	initializeRequiredResources(): Promise<void>;
-	initializeInstalledExtensions(instantiationService: IInstantiationService): Promise<void>;
-	initializeOtherResources(instantiationService: IInstantiationService): Promise<void>;
+    requiresInitialization(): Promise<boolean>;
+    whenInitializationFinished(): Promise<cognidream>;
+    initializeRequiredResources(): Promise<cognidream>;
+    initializeInstalledExtensions(instantiationService: IInstantiationService): Promise<cognidream>;
+    initializeOtherResources(instantiationService: IInstantiationService): Promise<cognidream>;
 }
 
 export const IUserDataInitializationService = createDecorator<IUserDataInitializationService>('IUserDataInitializationService');
 export interface IUserDataInitializationService extends IUserDataInitializer {
-	_serviceBrand: any;
+    _serviceBrand: any;
 }
 
 export class UserDataInitializationService implements IUserDataInitializationService {
 
-	_serviceBrand: any;
+    _serviceBrand: any;
 
-	constructor(private readonly initializers: IUserDataInitializer[] = []) {
-	}
+    constructor(private readonly initializers: IUserDataInitializer[] = []) {
+    }
 
-	async whenInitializationFinished(): Promise<void> {
-		if (await this.requiresInitialization()) {
-			await Promise.all(this.initializers.map(initializer => initializer.whenInitializationFinished()));
-		}
-	}
+    async whenInitializationFinished(): Promise<cognidream> {
+        if (await this.requiresInitialization()) {
+            await Promise.all(this.initializers.map(initializer => initializer.whenInitializationFinished()));
+        }
+    }
 
-	async requiresInitialization(): Promise<boolean> {
-		return (await Promise.all(this.initializers.map(initializer => initializer.requiresInitialization()))).some(result => result);
-	}
+    async requiresInitialization(): Promise<boolean> {
+        return (await Promise.all(this.initializers.map(initializer => initializer.requiresInitialization()))).some(result => result);
+    }
 
-	async initializeRequiredResources(): Promise<void> {
-		if (await this.requiresInitialization()) {
-			await Promise.all(this.initializers.map(initializer => initializer.initializeRequiredResources()));
-		}
-	}
+    async initializeRequiredResources(): Promise<cognidream> {
+        if (await this.requiresInitialization()) {
+            await Promise.all(this.initializers.map(initializer => initializer.initializeRequiredResources()));
+        }
+    }
 
-	async initializeOtherResources(instantiationService: IInstantiationService): Promise<void> {
-		if (await this.requiresInitialization()) {
-			await Promise.all(this.initializers.map(initializer => initializer.initializeOtherResources(instantiationService)));
-		}
-	}
+    async initializeOtherResources(instantiationService: IInstantiationService): Promise<cognidream> {
+        if (await this.requiresInitialization()) {
+            await Promise.all(this.initializers.map(initializer => initializer.initializeOtherResources(instantiationService)));
+        }
+    }
 
-	async initializeInstalledExtensions(instantiationService: IInstantiationService): Promise<void> {
-		if (await this.requiresInitialization()) {
-			await Promise.all(this.initializers.map(initializer => initializer.initializeInstalledExtensions(instantiationService)));
-		}
-	}
+    async initializeInstalledExtensions(instantiationService: IInstantiationService): Promise<cognidream> {
+        if (await this.requiresInitialization()) {
+            await Promise.all(this.initializers.map(initializer => initializer.initializeInstalledExtensions(instantiationService)));
+        }
+    }
 
 }
 
 class InitializeOtherResourcesContribution implements IWorkbenchContribution {
-	constructor(
-		@IUserDataInitializationService userDataInitializeService: IUserDataInitializationService,
-		@IInstantiationService instantiationService: IInstantiationService,
-		@IExtensionService extensionService: IExtensionService
-	) {
-		extensionService.whenInstalledExtensionsRegistered().then(() => this.initializeOtherResource(userDataInitializeService, instantiationService));
-	}
+    constructor(
+        @IUserDataInitializationService userDataInitializeService: IUserDataInitializationService,
+        @IInstantiationService instantiationService: IInstantiationService,
+        @IExtensionService extensionService: IExtensionService
+    ) {
+        extensionService.whenInstalledExtensionsRegistered().then(() => this.initializeOtherResource(userDataInitializeService, instantiationService));
+    }
 
-	private async initializeOtherResource(userDataInitializeService: IUserDataInitializationService, instantiationService: IInstantiationService): Promise<void> {
-		if (await userDataInitializeService.requiresInitialization()) {
-			mark('code/willInitOtherUserData');
-			await userDataInitializeService.initializeOtherResources(instantiationService);
-			mark('code/didInitOtherUserData');
-		}
-	}
+    private async initializeOtherResource(userDataInitializeService: IUserDataInitializationService, instantiationService: IInstantiationService): Promise<cognidream> {
+        if (await userDataInitializeService.requiresInitialization()) {
+            mark('code/willInitOtherUserData');
+            await userDataInitializeService.initializeOtherResources(instantiationService);
+            mark('code/didInitOtherUserData');
+        }
+    }
 }
 
 if (isWeb) {
-	const workbenchRegistry = Registry.as<IWorkbenchContributionsRegistry>(Extensions.Workbench);
-	workbenchRegistry.registerWorkbenchContribution(InitializeOtherResourcesContribution, LifecyclePhase.Restored);
+    const workbenchRegistry = Registry.as<IWorkbenchContributionsRegistry>(Extensions.Workbench);
+    workbenchRegistry.registerWorkbenchContribution(InitializeOtherResourcesContribution, LifecyclePhase.Restored);
 }

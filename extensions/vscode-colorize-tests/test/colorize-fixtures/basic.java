@@ -14,7 +14,7 @@ public class TestClass {
 	 * <p>Note:</p> Hello
 	 * @param args
 	 */
-	public void doSomething(int a) {
+	public cognidream doSomething(int a) {
 		double b = 0.0;
 		double c = 10e3;
 		long l = 134l;
@@ -33,7 +33,7 @@ public class TestClass {
 
 	//single line comment
 	@Test
-	public void someTests() {
+	public cognidream someTests() {
 		int hex = 0x5;
 		Vector<Number> v = new Vector();
 	}

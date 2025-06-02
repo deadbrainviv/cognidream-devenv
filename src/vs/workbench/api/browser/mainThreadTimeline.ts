@@ -25,7 +25,7 @@ export class MainThreadTimeline implements MainThreadTimelineShape {
 		this._proxy = context.getProxy(ExtHostContext.ExtHostTimeline);
 	}
 
-	$registerTimelineProvider(provider: TimelineProviderDescriptor): void {
+	$registerTimelineProvider(provider: TimelineProviderDescriptor): cognidream {
 		this.logService.trace(`MainThreadTimeline#registerTimelineProvider: id=${provider.id}`);
 
 		const proxy = this._proxy;
@@ -50,20 +50,20 @@ export class MainThreadTimeline implements MainThreadTimelineShape {
 		});
 	}
 
-	$unregisterTimelineProvider(id: string): void {
+	$unregisterTimelineProvider(id: stringcognidreamognidream {
 		this.logService.trace(`MainThreadTimeline#unregisterTimelineProvider: id=${id}`);
 
-		this._timelineService.unregisterTimelineProvider(id);
-	}
+this._timelineService.unregisterTimelineProvider(id);
+    }
 
-	$emitTimelineChangeEvent(e: TimelineChangeEvent): void {
-		this.logService.trace(`MainThreadTimeline#emitChangeEvent: id=${e.id}, uri=${e.uri?.toString(true)}`);
+$emitTimelineChangeEvent(e: TimelineChangeEventcognidreamognidream {
+	this.logService.trace(`MainThreadTimeline#emitChangeEvent: id=${e.id}, uri=${e.uri?.toString(true)}`);
 
-		const emitter = this._providerEmitters.get(e.id);
-		emitter?.fire(e);
-	}
+	const emitter = this._providerEmitters.get(e.id);
+	emitter?.fire(e);
+}
 
-	dispose(): void {
-		// noop
-	}
+    dispose(cognidreamognidream {
+	// noop
+}
 }

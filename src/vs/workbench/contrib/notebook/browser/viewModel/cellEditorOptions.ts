@@ -33,73 +33,73 @@ export class BaseCellEditorOptions extends Disposable implements IBaseCellEditor
 	};
 
 	private readonly _localDisposableStore = this._register(new DisposableStore());
-	private readonly _onDidChange = this._register(new Emitter<void>());
-	readonly onDidChange: Event<void> = this._onDidChange.event;
-	private _value: IEditorOptions;
+	private readonly _onDidChange = this._register(new Emitter<cognidream>());
+	readonly onDidChange: Evecognidreamognidream> = this._onDidChange.event;
+    private _value: IEditorOptions;
 
-	get value(): Readonly<IEditorOptions> {
-		return this._value;
-	}
+    get value(): Readonly < IEditorOptions > {
+	return this._value;
+}
 
-	constructor(readonly notebookEditor: INotebookEditorDelegate, readonly notebookOptions: NotebookOptions, readonly configurationService: IConfigurationService, readonly language: string) {
-		super();
-		this._register(configurationService.onDidChangeConfiguration(e => {
-			if (e.affectsConfiguration('editor') || e.affectsConfiguration('notebook')) {
-				this._recomputeOptions();
-			}
-		}));
+constructor(readonly notebookEditor: INotebookEditorDelegate, readonly notebookOptions: NotebookOptions, readonly configurationService: IConfigurationService, readonly language: string) {
+	super();
+	this._register(configurationService.onDidChangeConfiguration(e => {
+		if (e.affectsConfiguration('editor') || e.affectsConfiguration('notebook')) {
+			this._recomputeOptions();
+		}
+	}));
 
-		this._register(notebookOptions.onDidChangeOptions(e => {
-			if (e.cellStatusBarVisibility || e.editorTopPadding || e.editorOptionsCustomizations) {
-				this._recomputeOptions();
-			}
-		}));
+	this._register(notebookOptions.onDidChangeOptions(e => {
+		if (e.cellStatusBarVisibility || e.editorTopPadding || e.editorOptionsCustomizations) {
+			this._recomputeOptions();
+		}
+	}));
 
-		this._register(this.notebookEditor.onDidChangeModel(() => {
-			this._localDisposableStore.clear();
-
-			if (this.notebookEditor.hasModel()) {
-				this._localDisposableStore.add(this.notebookEditor.onDidChangeOptions(() => {
-					this._recomputeOptions();
-				}));
-
-				this._recomputeOptions();
-			}
-		}));
+	this._register(this.notebookEditor.onDidChangeModel(() => {
+		this._localDisposableStore.clear();
 
 		if (this.notebookEditor.hasModel()) {
 			this._localDisposableStore.add(this.notebookEditor.onDidChangeOptions(() => {
 				this._recomputeOptions();
 			}));
+
+			this._recomputeOptions();
 		}
+	}));
 
-		this._value = this._computeEditorOptions();
+	if (this.notebookEditor.hasModel()) {
+		this._localDisposableStore.add(this.notebookEditor.onDidChangeOptions(() => {
+			this._recomputeOptions();
+		}));
 	}
 
-	private _recomputeOptions(): void {
-		this._value = this._computeEditorOptions();
-		this._onDidChange.fire();
-	}
+	this._value = this._computeEditorOptions();
+}
 
-	private _computeEditorOptions() {
-		const editorOptions = deepClone(this.configurationService.getValue<IEditorOptions>('editor', { overrideIdentifier: this.language }));
-		const editorOptionsOverrideRaw = this.notebookOptions.getDisplayOptions().editorOptionsCustomizations;
-		const editorOptionsOverride: Record<string, any> = {};
-		if (editorOptionsOverrideRaw) {
-			for (const key in editorOptionsOverrideRaw) {
-				if (key.indexOf('editor.') === 0) {
-					editorOptionsOverride[key.substring(7)] = editorOptionsOverrideRaw[key as keyof typeof editorOptionsOverrideRaw];
-				}
-			}
+    private _recomputeOptions(cognidreamognidream {
+	this._value = this._computeEditorOptions();
+	this._onDidChange.fire();
+}
+
+    private _computeEditorOptions() {
+	const editorOptions = deepClone(this.configurationService.getValue<IEditorOptions>('editor', { overrideIdentifier: this.language }));
+	const editorOptionsOverrideRaw = this.notebookOptions.getDisplayOptions().editorOptionsCustomizations;
+	const editorOptionsOverride: Record<string, any> = {};
+if (editorOptionsOverrideRaw) {
+	for (const key in editorOptionsOverrideRaw) {
+		if (key.indexOf('editor.') === 0) {
+			editorOptionsOverride[key.substring(7)] = editorOptionsOverrideRaw[key as keyof typeof editorOptionsOverrideRaw];
 		}
-		const computed = Object.freeze({
-			...editorOptions,
-			...BaseCellEditorOptions.fixedEditorOptions,
-			...editorOptionsOverride,
-			...{ padding: { top: 12, bottom: 12 } },
-			readOnly: this.notebookEditor.isReadOnly
-		});
-
-		return computed;
 	}
+}
+const computed = Object.freeze({
+	...editorOptions,
+	...BaseCellEditorOptions.fixedEditorOptions,
+	...editorOptionsOverride,
+	...{ padding: { top: 12, bottom: 12 } },
+	readOnly: this.notebookEditor.isReadOnly
+});
+
+return computed;
+    }
 }

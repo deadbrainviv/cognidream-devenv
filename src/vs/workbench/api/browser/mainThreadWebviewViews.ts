@@ -33,109 +33,109 @@ export class MainThreadWebviewsViews extends Disposable implements extHostProtoc
 		this._proxy = context.getProxy(extHostProtocol.ExtHostContext.ExtHostWebviewViews);
 	}
 
-	public $setWebviewViewTitle(handle: extHostProtocol.WebviewHandle, value: string | undefined): void {
+	public $setWebviewViewTitle(handle: extHostProtocol.WebviewHandle, value: string | undefined): cognidream {
 		const webviewView = this.getWebviewView(handle);
 		webviewView.title = value;
 	}
 
-	public $setWebviewViewDescription(handle: extHostProtocol.WebviewHandle, value: string | undefined): void {
+	public $setWebviewViewDescription(handle: extHostProtocol.WebviewHandle, value: string | undefinedcognidreamognidream {
 		const webviewView = this.getWebviewView(handle);
 		webviewView.description = value;
 	}
 
-	public $setWebviewViewBadge(handle: string, badge: IViewBadge | undefined): void {
+    public $setWebviewViewBadge(handle: string, badge: IViewBadge | undefinedcognidreamognidream {
 		const webviewView = this.getWebviewView(handle);
 		webviewView.badge = badge;
 	}
 
-	public $show(handle: extHostProtocol.WebviewHandle, preserveFocus: boolean): void {
+    public $show(handle: extHostProtocol.WebviewHandle, preserveFocus: booleancognidreamognidream {
 		const webviewView = this.getWebviewView(handle);
 		webviewView.show(preserveFocus);
-	}
+    }
 
-	public $registerWebviewViewProvider(
-		extensionData: extHostProtocol.WebviewExtensionDescription,
-		viewType: string,
-		options: { retainContextWhenHidden?: boolean; serializeBuffersForPostMessage: boolean }
-	): void {
-		if (this._webviewViewProviders.has(viewType)) {
-			throw new Error(`View provider for ${viewType} already registered`);
+    public $registerWebviewViewProvider(
+			extensionData: extHostProtocol.WebviewExtensionDescription,
+			viewType: string,
+			options: { retainContextWhenHidden?: boolean; serializeBuffersForPostMessage: boolean }
+    cognidreamognidream {
+			if(this._webviewViewProviders.has(viewType)) {
+	throw new Error(`View provider for ${viewType} already registered`);
+}
+
+const extension = reviveWebviewExtension(extensionData);
+
+const registration = this._webviewViewService.register(viewType, {
+	resolve: async (webviewView: WebviewView, cancellation: CancellationToken) => {
+		const handle = generateUuid();
+
+		this._webviewViews.set(handle, webviewView);
+		this.mainThreadWebviews.addWebview(handle, webviewView.webview, { serializeBuffersForPostMessage: options.serializeBuffersForPostMessage });
+
+		let state = undefined;
+		if (webviewView.webview.state) {
+			try {
+				state = JSON.parse(webviewView.webview.state);
+			} catch (e) {
+				console.error('Could not load webview state', e, webviewView.webview.state);
+			}
 		}
 
-		const extension = reviveWebviewExtension(extensionData);
+		webviewView.webview.extension = extension;
 
-		const registration = this._webviewViewService.register(viewType, {
-			resolve: async (webviewView: WebviewView, cancellation: CancellationToken) => {
-				const handle = generateUuid();
+		if (options) {
+			webviewView.webview.options = options;
+		}
 
-				this._webviewViews.set(handle, webviewView);
-				this.mainThreadWebviews.addWebview(handle, webviewView.webview, { serializeBuffersForPostMessage: options.serializeBuffersForPostMessage });
-
-				let state = undefined;
-				if (webviewView.webview.state) {
-					try {
-						state = JSON.parse(webviewView.webview.state);
-					} catch (e) {
-						console.error('Could not load webview state', e, webviewView.webview.state);
-					}
-				}
-
-				webviewView.webview.extension = extension;
-
-				if (options) {
-					webviewView.webview.options = options;
-				}
-
-				webviewView.onDidChangeVisibility(visible => {
-					this._proxy.$onDidChangeWebviewViewVisibility(handle, visible);
-				});
-
-				webviewView.onDispose(() => {
-					this._proxy.$disposeWebviewView(handle);
-					this._webviewViews.deleteAndDispose(handle);
-				});
-
-				type CreateWebviewViewTelemetry = {
-					extensionId: string;
-					id: string;
-				};
-				type Classification = {
-					extensionId: { classification: 'SystemMetaData'; purpose: 'FeatureInsight'; comment: 'Id of the extension' };
-					id: { classification: 'SystemMetaData'; purpose: 'FeatureInsight'; comment: 'Id of the view' };
-					owner: 'digitarald';
-					comment: 'Helps to gain insights on what extension contributed views are most popular';
-				};
-				this._telemetryService.publicLog2<CreateWebviewViewTelemetry, Classification>('webviews:createWebviewView', {
-					extensionId: extension.id.value,
-					id: viewType,
-				});
-
-				try {
-					await this._proxy.$resolveWebviewView(handle, viewType, webviewView.title, state, cancellation);
-				} catch (error) {
-					onUnexpectedError(error);
-					webviewView.webview.setHtml(this.mainThreadWebviews.getWebviewResolvedFailedContent(viewType));
-				}
-			}
+		webviewView.onDidChangeVisibility(visible => {
+			this._proxy.$onDidChangeWebviewViewVisibility(handle, visible);
 		});
 
-		this._webviewViewProviders.set(viewType, registration);
-	}
+		webviewView.onDispose(() => {
+			this._proxy.$disposeWebviewView(handle);
+			this._webviewViews.deleteAndDispose(handle);
+		});
 
-	public $unregisterWebviewViewProvider(viewType: string): void {
-		if (!this._webviewViewProviders.has(viewType)) {
-			throw new Error(`No view provider for ${viewType} registered`);
+		type CreateWebviewViewTelemetry = {
+			extensionId: string;
+			id: string;
+		};
+		type Classification = {
+			extensionId: { classification: 'SystemMetaData'; purpose: 'FeatureInsight'; comment: 'Id of the extension' };
+			id: { classification: 'SystemMetaData'; purpose: 'FeatureInsight'; comment: 'Id of the view' };
+			owner: 'digitarald';
+			comment: 'Helps to gain insights on what extension contributed views are most popular';
+		};
+		this._telemetryService.publicLog2<CreateWebviewViewTelemetry, Classification>('webviews:createWebviewView', {
+			extensionId: extension.id.value,
+			id: viewType,
+		});
+
+		try {
+			await this._proxy.$resolveWebviewView(handle, viewType, webviewView.title, state, cancellation);
+		} catch (error) {
+			onUnexpectedError(error);
+			webviewView.webview.setHtml(this.mainThreadWebviews.getWebviewResolvedFailedContent(viewType));
 		}
-
-		this._webviewViewProviders.deleteAndDispose(viewType);
 	}
+});
 
-	private getWebviewView(handle: string): WebviewView {
-		const webviewView = this._webviewViews.get(handle);
-		if (!webviewView) {
-			throw new Error('unknown webview view');
-		}
-		return webviewView;
+this._webviewViewProviders.set(viewType, registration);
+    }
+
+    public $unregisterWebviewViewProvider(viewType: stringcognidreamognidream {
+	if(!this._webviewViewProviders.has(viewType)) {
+	throw new Error(`No view provider for ${viewType} registered`);
+}
+
+this._webviewViewProviders.deleteAndDispose(viewType);
+    }
+
+    private getWebviewView(handle: string): WebviewView {
+	const webviewView = this._webviewViews.get(handle);
+	if (!webviewView) {
+		throw new Error('unknown webview view');
 	}
+	return webviewView;
+}
 }
 

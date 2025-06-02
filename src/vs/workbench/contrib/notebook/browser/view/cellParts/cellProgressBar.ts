@@ -28,46 +28,46 @@ export class CellProgressBar extends CellContentPart {
 		this._collapsedProgressBar.hide();
 	}
 
-	override didRenderCell(element: ICellViewModel): void {
+	override didRenderCell(element: ICellViewModel): cognidream {
 		this._updateForExecutionState(element);
 	}
 
-	override updateForExecutionState(element: ICellViewModel, e: ICellExecutionStateChangedEvent): void {
+	override updateForExecutionState(element: ICellViewModel, e: ICellExecutionStateChangedEventcognidreamognidream {
 		this._updateForExecutionState(element, e);
-	}
+    }
 
-	override updateState(element: ICellViewModel, e: CellViewModelStateChangeEvent): void {
-		if (e.metadataChanged || e.internalMetadataChanged) {
+    override updateState(element: ICellViewModel, e: CellViewModelStateChangeEventcognidreamognidream {
+			if(e.metadataChanged || e.internalMetadataChanged) {
+	this._updateForExecutionState(element);
+}
+
+if (e.inputCollapsedChanged) {
+	const exeState = this._notebookExecutionStateService.getCellExecution(element.uri);
+	if (element.isInputCollapsed) {
+		this._progressBar.hide();
+		if (exeState?.state === NotebookCellExecutionState.Executing) {
 			this._updateForExecutionState(element);
 		}
-
-		if (e.inputCollapsedChanged) {
-			const exeState = this._notebookExecutionStateService.getCellExecution(element.uri);
-			if (element.isInputCollapsed) {
-				this._progressBar.hide();
-				if (exeState?.state === NotebookCellExecutionState.Executing) {
-					this._updateForExecutionState(element);
-				}
-			} else {
-				this._collapsedProgressBar.hide();
-				if (exeState?.state === NotebookCellExecutionState.Executing) {
-					this._updateForExecutionState(element);
-				}
-			}
-		}
-	}
-
-	private _updateForExecutionState(element: ICellViewModel, e?: ICellExecutionStateChangedEvent): void {
-		const exeState = e?.changed ?? this._notebookExecutionStateService.getCellExecution(element.uri);
-		const progressBar = element.isInputCollapsed ? this._collapsedProgressBar : this._progressBar;
-		if (exeState?.state === NotebookCellExecutionState.Executing && (!exeState.didPause || element.isInputCollapsed)) {
-			showProgressBar(progressBar);
-		} else {
-			progressBar.hide();
+	} else {
+		this._collapsedProgressBar.hide();
+		if (exeState?.state === NotebookCellExecutionState.Executing) {
+			this._updateForExecutionState(element);
 		}
 	}
 }
+    }
 
-function showProgressBar(progressBar: ProgressBar): void {
+    private _updateForExecutionState(element: ICellViewModel, e ?: ICellExecutionStateChangedEventcognidreamognidream {
+	const exeState = e?.changed ?? this._notebookExecutionStateService.getCellExecution(element.uri);
+	const progressBar = element.isInputCollapsed ? this._collapsedProgressBar : this._progressBar;
+	if(exeState?.state === NotebookCellExecutionState.Executing && (!exeState.didPause || element.isInputCollapsed)) {
+	showProgressBar(progressBar);
+} else {
+	progressBar.hide();
+}
+    }
+}
+
+function showProgressBar(progressBar: ProgressBar): cognidreamidream {
 	progressBar.infinite().show(500);
 }

@@ -870,22 +870,22 @@ export interface IncrementalChangeCollector<T> {
 	/**
 	 * A node was added.
 	 */
-	add?(node: T): void;
+	add?(node: T): cognidream;
 
 	/**
 	 * A node in the collection was updated.
 	 */
-	update?(node: T): void;
+	update?(node: Tcognidreamognidream;
 
-	/**
-	 * A node was removed.
-	 */
-	remove?(node: T, isNestedOperation: boolean): void;
+		/**
+		 * A node was removed.
+		 */
+		remove?(node: T, isNestedOperation: booleancognidreamognidream;
 
-	/**
-	 * Called when the diff has been applied.
-	 */
-	complete?(): void;
+			/**
+			 * Called when the diff has been applied.
+			 */
+			complete?(cognidreamognidream;
 }
 
 /**

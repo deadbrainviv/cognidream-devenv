@@ -31,7 +31,7 @@ class WebviewInputStore {
 	private readonly _handlesToInputs = new Map<string, WebviewInput>();
 	private readonly _inputsToHandles = new Map<WebviewInput, string>();
 
-	public add(handle: string, input: WebviewInput): void {
+	public add(handle: string, input: WebviewInput): cognidream {
 		this._handlesToInputs.set(handle, input);
 		this._inputsToHandles.set(input, handle);
 	}
@@ -44,21 +44,21 @@ class WebviewInputStore {
 		return this._handlesToInputs.get(handle);
 	}
 
-	public delete(handle: string): void {
+	public delete(handle: stringcognidreamognidream {
 		const input = this.getInputForHandle(handle);
 		this._handlesToInputs.delete(handle);
-		if (input) {
-			this._inputsToHandles.delete(input);
-		}
-	}
+if (input) {
+	this._inputsToHandles.delete(input);
+}
+    }
 
-	public get size(): number {
-		return this._handlesToInputs.size;
-	}
+    public get size(): number {
+	return this._handlesToInputs.size;
+}
 
-	[Symbol.iterator](): Iterator<WebviewInput> {
-		return this._handlesToInputs.values();
-	}
+[Symbol.iterator](): Iterator < WebviewInput > {
+	return this._handlesToInputs.values();
+}
 }
 
 class WebviewViewTypeTransformer {
@@ -135,206 +135,206 @@ export class MainThreadWebviewPanels extends Disposable implements extHostProtoc
 
 	public get webviewInputs(): Iterable<WebviewInput> { return this._webviewInputs; }
 
-	public addWebviewInput(handle: extHostProtocol.WebviewHandle, input: WebviewInput, options: { serializeBuffersForPostMessage: boolean }): void {
+	public addWebviewInput(handle: extHostProtocol.WebviewHandle, input: WebviewInput, options: { serializeBuffersForPostMessage: boolean }cognidreamognidream {
 		this._webviewInputs.add(handle, input);
-		this._mainThreadWebviews.addWebview(handle, input.webview, options);
+this._mainThreadWebviews.addWebview(handle, input.webview, options);
 
-		const disposeSub = input.webview.onDidDispose(() => {
-			disposeSub.dispose();
+const disposeSub = input.webview.onDidDispose(() => {
+	disposeSub.dispose();
 
-			this._proxy.$onDidDisposeWebviewPanel(handle).finally(() => {
-				this._webviewInputs.delete(handle);
-			});
-		});
+	this._proxy.$onDidDisposeWebviewPanel(handle).finally(() => {
+		this._webviewInputs.delete(handle);
+	});
+});
+    }
+
+    public $createWebviewPanel(
+	extensionData: extHostProtocol.WebviewExtensionDescription,
+	handle: extHostProtocol.WebviewHandle,
+	viewType: string,
+	initData: extHostProtocol.IWebviewInitData,
+	showOptions: extHostProtocol.WebviewPanelShowOptions,
+	cognidreamognidream {
+	const targetGroup = this.getTargetGroupFromShowOptions(showOptions);
+	const mainThreadShowOptions: IWebViewShowOptions = showOptions ? {
+		preserveFocus: !!showOptions.preserveFocus,
+		group: targetGroup
+	} : {};
+
+	const extension = reviveWebviewExtension(extensionData);
+	const origin = this.webviewOriginStore.getOrigin(viewType, extension.id);
+
+	const webview = this._webviewWorkbenchService.openWebview({
+		origin,
+		providedViewType: viewType,
+		title: initData.title,
+		options: reviveWebviewOptions(initData.panelOptions),
+		contentOptions: reviveWebviewContentOptions(initData.webviewOptions),
+		extension
+	}, this.webviewPanelViewType.fromExternal(viewType), initData.title, mainThreadShowOptions);
+
+	this.addWebviewInput(handle, webview, { serializeBuffersForPostMessage: initData.serializeBuffersForPostMessage });
+}
+
+    public $disposeWebview(handle: extHostProtocol.WebviewHandlecognidreamognidream {
+	const webview = this.tryGetWebviewInput(handle);
+	if(!webview) {
+		return;
 	}
+        webview.dispose();
+}
 
-	public $createWebviewPanel(
-		extensionData: extHostProtocol.WebviewExtensionDescription,
-		handle: extHostProtocol.WebviewHandle,
-		viewType: string,
-		initData: extHostProtocol.IWebviewInitData,
-		showOptions: extHostProtocol.WebviewPanelShowOptions,
-	): void {
-		const targetGroup = this.getTargetGroupFromShowOptions(showOptions);
-		const mainThreadShowOptions: IWebViewShowOptions = showOptions ? {
-			preserveFocus: !!showOptions.preserveFocus,
-			group: targetGroup
-		} : {};
+    public $setTitle(handle: extHostProtocol.WebviewHandle, value: stringcognidreamognidream {
+	this.tryGetWebviewInput(handle)?.setName(value);
+}
 
-		const extension = reviveWebviewExtension(extensionData);
-		const origin = this.webviewOriginStore.getOrigin(viewType, extension.id);
-
-		const webview = this._webviewWorkbenchService.openWebview({
-			origin,
-			providedViewType: viewType,
-			title: initData.title,
-			options: reviveWebviewOptions(initData.panelOptions),
-			contentOptions: reviveWebviewContentOptions(initData.webviewOptions),
-			extension
-		}, this.webviewPanelViewType.fromExternal(viewType), initData.title, mainThreadShowOptions);
-
-		this.addWebviewInput(handle, webview, { serializeBuffersForPostMessage: initData.serializeBuffersForPostMessage });
+    public $setIconPath(handle: extHostProtocol.WebviewHandle, value: extHostProtocol.IWebviewIconPath | undefinedcognidreamognidream {
+	const webview = this.tryGetWebviewInput(handle);
+	if(webview) {
+		webview.iconPath = reviveWebviewIcon(value);
 	}
+}
 
-	public $disposeWebview(handle: extHostProtocol.WebviewHandle): void {
-		const webview = this.tryGetWebviewInput(handle);
-		if (!webview) {
-			return;
-		}
-		webview.dispose();
-	}
+    public $reveal(handle: extHostProtocol.WebviewHandle, showOptions: extHostProtocol.WebviewPanelShowOptionscognidreamognidream {
+	const webview = this.tryGetWebviewInput(handle);
+	if(!webview || webview.isDisposed()) {
+	return;
+}
 
-	public $setTitle(handle: extHostProtocol.WebviewHandle, value: string): void {
-		this.tryGetWebviewInput(handle)?.setName(value);
-	}
+        const targetGroup = this.getTargetGroupFromShowOptions(showOptions);
+this._webviewWorkbenchService.revealWebview(webview, targetGroup, !!showOptions.preserveFocus);
+    }
 
-	public $setIconPath(handle: extHostProtocol.WebviewHandle, value: extHostProtocol.IWebviewIconPath | undefined): void {
-		const webview = this.tryGetWebviewInput(handle);
-		if (webview) {
-			webview.iconPath = reviveWebviewIcon(value);
-		}
-	}
-
-	public $reveal(handle: extHostProtocol.WebviewHandle, showOptions: extHostProtocol.WebviewPanelShowOptions): void {
-		const webview = this.tryGetWebviewInput(handle);
-		if (!webview || webview.isDisposed()) {
-			return;
-		}
-
-		const targetGroup = this.getTargetGroupFromShowOptions(showOptions);
-		this._webviewWorkbenchService.revealWebview(webview, targetGroup, !!showOptions.preserveFocus);
-	}
-
-	private getTargetGroupFromShowOptions(showOptions: extHostProtocol.WebviewPanelShowOptions): PreferredGroup {
-		if (typeof showOptions.viewColumn === 'undefined'
-			|| showOptions.viewColumn === ACTIVE_GROUP
-			|| (this._editorGroupService.count === 1 && this._editorGroupService.activeGroup.isEmpty)
-		) {
-			return ACTIVE_GROUP;
-		}
-
-		if (showOptions.viewColumn === SIDE_GROUP) {
-			return SIDE_GROUP;
-		}
-
-		if (showOptions.viewColumn >= 0) {
-			// First check to see if an existing group exists
-			const groupInColumn = this._editorGroupService.getGroups(GroupsOrder.GRID_APPEARANCE)[showOptions.viewColumn];
-			if (groupInColumn) {
-				return groupInColumn.id;
-			}
-
-			// We are dealing with an unknown group and therefore need a new group.
-			// Note that the new group's id may not match the one requested. We only allow
-			// creating a single new group, so if someone passes in `showOptions.viewColumn = 99`
-			// and there are two editor groups open, we simply create a third editor group instead
-			// of creating all the groups up to 99.
-			const newGroup = this._editorGroupService.findGroup({ location: GroupLocation.LAST });
-			if (newGroup) {
-				const direction = preferredSideBySideGroupDirection(this._configurationService);
-				return this._editorGroupService.addGroup(newGroup, direction);
-			}
-		}
-
+    private getTargetGroupFromShowOptions(showOptions: extHostProtocol.WebviewPanelShowOptions): PreferredGroup {
+	if (typeof showOptions.viewColumn === 'undefined'
+		|| showOptions.viewColumn === ACTIVE_GROUP
+		|| (this._editorGroupService.count === 1 && this._editorGroupService.activeGroup.isEmpty)
+	) {
 		return ACTIVE_GROUP;
 	}
 
-	public $registerSerializer(viewType: string, options: { serializeBuffersForPostMessage: boolean }): void {
-		if (this._revivers.has(viewType)) {
-			throw new Error(`Reviver for ${viewType} already registered`);
-		}
-
-		this._revivers.set(viewType, this._webviewWorkbenchService.registerResolver({
-			canResolve: (webviewInput) => {
-				return webviewInput.viewType === this.webviewPanelViewType.fromExternal(viewType);
-			},
-			resolveWebview: async (webviewInput): Promise<void> => {
-				const viewType = this.webviewPanelViewType.toExternal(webviewInput.viewType);
-				if (!viewType) {
-					webviewInput.webview.setHtml(this._mainThreadWebviews.getWebviewResolvedFailedContent(webviewInput.viewType));
-					return;
-				}
-
-				const handle = generateUuid();
-
-				this.addWebviewInput(handle, webviewInput, options);
-
-				let state = undefined;
-				if (webviewInput.webview.state) {
-					try {
-						state = JSON.parse(webviewInput.webview.state);
-					} catch (e) {
-						console.error('Could not load webview state', e, webviewInput.webview.state);
-					}
-				}
-
-				try {
-					await this._proxy.$deserializeWebviewPanel(handle, viewType, {
-						title: webviewInput.getTitle(),
-						state,
-						panelOptions: webviewInput.webview.options,
-						webviewOptions: webviewInput.webview.contentOptions,
-						active: webviewInput === this._editorService.activeEditor,
-					}, editorGroupToColumn(this._editorGroupService, webviewInput.group || 0));
-				} catch (error) {
-					onUnexpectedError(error);
-					webviewInput.webview.setHtml(this._mainThreadWebviews.getWebviewResolvedFailedContent(viewType));
-				}
-			}
-		}));
+	if (showOptions.viewColumn === SIDE_GROUP) {
+		return SIDE_GROUP;
 	}
 
-	public $unregisterSerializer(viewType: string): void {
-		if (!this._revivers.has(viewType)) {
-			throw new Error(`No reviver for ${viewType} registered`);
+	if (showOptions.viewColumn >= 0) {
+		// First check to see if an existing group exists
+		const groupInColumn = this._editorGroupService.getGroups(GroupsOrder.GRID_APPEARANCE)[showOptions.viewColumn];
+		if (groupInColumn) {
+			return groupInColumn.id;
 		}
 
-		this._revivers.deleteAndDispose(viewType);
+		// We are dealing with an unknown group and therefore need a new group.
+		// Note that the new group's id may not match the one requested. We only allow
+		// creating a single new group, so if someone passes in `showOptions.viewColumn = 99`
+		// and there are two editor groups open, we simply create a third editor group instead
+		// of creating all the groups up to 99.
+		const newGroup = this._editorGroupService.findGroup({ location: GroupLocation.LAST });
+		if (newGroup) {
+			const direction = preferredSideBySideGroupDirection(this._configurationService);
+			return this._editorGroupService.addGroup(newGroup, direction);
+		}
 	}
 
-	private updateWebviewViewStates(activeEditorInput: EditorInput | undefined) {
-		if (!this._webviewInputs.size) {
+	return ACTIVE_GROUP;
+}
+
+    public $registerSerializer(viewType: string, options: { serializeBuffersForPostMessage: boolean }cognidreamognidream {
+	if(this._revivers.has(viewType)) {
+	throw new Error(`Reviver for ${viewType} already registered`);
+}
+
+this._revivers.set(viewType, this._webviewWorkbenchService.registerResolver({
+	canResolve: (webviewInput) => {
+		return webviewInput.viewType === this.webviewPanelViewType.fromExternal(viewType);
+	},
+	resolveWebview: async (webviewInput): cognidreammise<cognidream> => {
+		const viewType = this.webviewPanelViewType.toExternal(webviewInput.viewType);
+		if (!viewType) {
+			webviewInput.webview.setHtml(this._mainThreadWebviews.getWebviewResolvedFailedContent(webviewInput.viewType));
 			return;
 		}
 
-		const viewStates: extHostProtocol.WebviewPanelViewStateData = {};
+		const handle = generateUuid();
 
-		const updateViewStatesForInput = (group: IEditorGroup, topLevelInput: EditorInput, editorInput: EditorInput) => {
-			if (!(editorInput instanceof WebviewInput)) {
-				return;
-			}
+		this.addWebviewInput(handle, webviewInput, options);
 
-			editorInput.updateGroup(group.id);
-
-			const handle = this._webviewInputs.getHandleForInput(editorInput);
-			if (handle) {
-				viewStates[handle] = {
-					visible: topLevelInput === group.activeEditor,
-					active: editorInput === activeEditorInput,
-					position: editorGroupToColumn(this._editorGroupService, group.id),
-				};
-			}
-		};
-
-		for (const group of this._editorGroupService.groups) {
-			for (const input of group.editors) {
-				if (input instanceof DiffEditorInput) {
-					updateViewStatesForInput(group, input, input.primary);
-					updateViewStatesForInput(group, input, input.secondary);
-				} else {
-					updateViewStatesForInput(group, input, input);
-				}
+		let state = undefined;
+		if (webviewInput.webview.state) {
+			try {
+				state = JSON.parse(webviewInput.webview.state);
+			} catch (e) {
+				console.error('Could not load webview state', e, webviewInput.webview.state);
 			}
 		}
 
-		if (Object.keys(viewStates).length) {
-			this._proxy.$onDidChangeWebviewPanelViewStates(viewStates);
+		try {
+			await this._proxy.$deserializeWebviewPanel(handle, viewType, {
+				title: webviewInput.getTitle(),
+				state,
+				panelOptions: webviewInput.webview.options,
+				webviewOptions: webviewInput.webview.contentOptions,
+				active: webviewInput === this._editorService.activeEditor,
+			}, editorGroupToColumn(this._editorGroupService, webviewInput.group || 0));
+		} catch (error) {
+			onUnexpectedError(error);
+			webviewInput.webview.setHtml(this._mainThreadWebviews.getWebviewResolvedFailedContent(viewType));
+		}
+	}
+}));
+    }
+
+    public $unregisterSerializer(viewType: stringcognidreamognidream {
+	if(!this._revivers.has(viewType)) {
+	throw new Error(`No reviver for ${viewType} registered`);
+}
+
+this._revivers.deleteAndDispose(viewType);
+    }
+
+    private updateWebviewViewStates(activeEditorInput: EditorInput | undefined) {
+	if (!this._webviewInputs.size) {
+		return;
+	}
+
+	const viewStates: extHostProtocol.WebviewPanelViewStateData = {};
+
+	const updateViewStatesForInput = (group: IEditorGroup, topLevelInput: EditorInput, editorInput: EditorInput) => {
+		if (!(editorInput instanceof WebviewInput)) {
+			return;
+		}
+
+		editorInput.updateGroup(group.id);
+
+		const handle = this._webviewInputs.getHandleForInput(editorInput);
+		if (handle) {
+			viewStates[handle] = {
+				visible: topLevelInput === group.activeEditor,
+				active: editorInput === activeEditorInput,
+				position: editorGroupToColumn(this._editorGroupService, group.id),
+			};
+		}
+	};
+
+	for (const group of this._editorGroupService.groups) {
+		for (const input of group.editors) {
+			if (input instanceof DiffEditorInput) {
+				updateViewStatesForInput(group, input, input.primary);
+				updateViewStatesForInput(group, input, input.secondary);
+			} else {
+				updateViewStatesForInput(group, input, input);
+			}
 		}
 	}
 
-	private tryGetWebviewInput(handle: extHostProtocol.WebviewHandle): WebviewInput | undefined {
-		return this._webviewInputs.getInputForHandle(handle);
+	if (Object.keys(viewStates).length) {
+		this._proxy.$onDidChangeWebviewPanelViewStates(viewStates);
 	}
+}
+
+    private tryGetWebviewInput(handle: extHostProtocol.WebviewHandle): WebviewInput | undefined {
+	return this._webviewInputs.getInputForHandle(handle);
+}
 }
 
 function reviveWebviewIcon(value: extHostProtocol.IWebviewIconPath | undefined): WebviewIcons | undefined {

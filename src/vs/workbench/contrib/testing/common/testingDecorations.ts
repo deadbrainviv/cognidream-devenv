@@ -19,22 +19,22 @@ export interface ITestingDecorationsService {
 	 * Fires when something happened to change decorations in an editor.
 	 * Interested consumers should call {@link syncDecorations} to update them.
 	 */
-	onDidChange: Event<void>;
+	onDidChange: Event<cognidream>;
 
 	/**
 	 * Signals the code underlying a test message has changed, and it should
 	 * no longer be decorated in the source.
 	 */
-	invalidateResultMessage(message: ITestMessage): void;
+	invalidateResultMessage(message: ITestMessagecognidreamognidream;
 
-	/**
-	 * Ensures decorations in the given document URI are up to date,
-	 * and returns them.
-	 */
-	syncDecorations(resource: URI): Iterable<ITestDecoration> & {
-		readonly size: number;
-		getById(decorationId: string): ITestDecoration | undefined;
-	};
+		/**
+		 * Ensures decorations in the given document URI are up to date,
+		 * and returns them.
+		 */
+		syncDecorations(resource: URI): Iterable<ITestDecoration> & {
+			readonly size: number;
+			getById(decorationId: string): ITestDecoration | undefined;
+		};
 
 	/**
 	 * Gets the range where a test ID is displayed, in the given URI.
@@ -45,7 +45,7 @@ export interface ITestingDecorationsService {
 	/**
 	 * Sets that alternative actions are displayed on the model.
 	 */
-	updateDecorationsAlternateAction(resource: URI, isAlt: boolean): void;
+	updateDecorationsAlternateAction(resource: URI, isAlt: booleancognidreamognidream;
 }
 
 export interface ITestDecoration {
@@ -65,7 +65,7 @@ export interface ITestDecoration {
 	 */
 	readonly editorDecoration: IModelDeltaDecoration;
 
-	getContextMenuActions(): { object: IAction[]; dispose(): void };
+	getContextMenuActions(): { object: IAction[]; dispose(cognidreamognidream };
 }
 
 export class TestDecorations<T extends { id: string; line: number } = ITestDecoration> {

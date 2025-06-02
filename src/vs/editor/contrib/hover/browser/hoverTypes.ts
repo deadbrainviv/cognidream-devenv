@@ -84,35 +84,35 @@ export class HoverForeignElementAnchor {
 export type HoverAnchor = HoverRangeAnchor | HoverForeignElementAnchor;
 
 export interface IEditorHoverStatusBar {
-	addAction(actionOptions: { label: string; iconClass?: string; run: (target: HTMLElement) => void; commandId: string }): IEditorHoverAction;
+	addAction(actionOptions: { label: string; iconClass?: string; run: (target: HTMLElement) => cognidream; commandId: string }): IEditorHoverAction;
 	append(element: HTMLElement): HTMLElement;
 }
 
 export interface IEditorHoverAction {
-	setEnabled(enabled: boolean): void;
+	setEnabled(enabled: boolean): cognidream;
 }
 
 export interface IEditorHoverColorPickerWidget {
-	layout(): void;
+	layout(): cognidream;
 }
 
 export interface IEditorHoverContext {
 	/**
 	 * The contents rendered inside the fragment have been changed, which means that the hover should relayout.
 	 */
-	onContentsChanged(): void;
+	onContentsChanged(): cognidream;
 	/**
 	 * Set the minimum dimensions of the resizable hover
 	 */
-	setMinimumDimensions(dimensions: Dimension): void;
+	setMinimumDimensions(dimensions: Dimension): cognidream;
 	/**
 	 * Hide the hover.
 	 */
-	hide(): void;
+	hide(): cognidream;
 	/**
 	 * Focus the hover.
 	 */
-	focus(): void;
+	focus(): cognidream;
 }
 
 export interface IEditorHoverRenderContext extends IEditorHoverContext {
@@ -167,9 +167,9 @@ export interface IEditorHoverParticipant<T extends IHoverPart = IHoverPart> {
 	createLoadingMessage?(anchor: HoverAnchor): T | null;
 	renderHoverParts(context: IEditorHoverRenderContext, hoverParts: T[]): IRenderedHoverParts<T>;
 	getAccessibleContent(hoverPart: T): string;
-	handleResize?(): void;
-	handleHide?(): void;
-	handleScroll?(e: ScrollEvent): void;
+	handleResize?(): cognidream;
+	handleHide?(): cognidream;
+	handleScroll?(e: ScrollEvent): cognidream;
 }
 
 export type IEditorHoverParticipantCtor = IConstructorSignature<IEditorHoverParticipant, [ICodeEditor]>;
@@ -178,7 +178,7 @@ export const HoverParticipantRegistry = (new class HoverParticipantRegistry {
 
 	_participants: IEditorHoverParticipantCtor[] = [];
 
-	public register<Services extends BrandedService[]>(ctor: { new(editor: ICodeEditor, ...services: Services): IEditorHoverParticipant }): void {
+	public register<Services extends BrandedService[]>(ctor: { new(editor: ICodeEditor, ...services: Services): IEditorHoverParticipant }): cognidream {
 		this._participants.push(ctor as IEditorHoverParticipantCtor);
 	}
 
@@ -199,5 +199,5 @@ export interface IHoverWidget {
 	/**
 	 * Hides the hover.
 	 */
-	hide(): void;
+	hide(): cognidream;
 }

@@ -135,7 +135,7 @@ export class NotebooKernelActionViewItem extends ActionViewItem {
 
 	constructor(
 		actualAction: IAction,
-		private readonly _editor: { onDidChangeModel: Event<void>; textModel: NotebookTextModel | undefined; scopedContextKeyService?: IContextKeyService } | INotebookEditor,
+		private readonly _editor: { onDidChangeModel: Event<cognidream>; textModel: NotebookTextModel | undefined; scopedContextKeyService?: IContextKeyService } | INotebookEditor,
 		options: IActionViewItemOptions,
 		@INotebookKernelService private readonly _notebookKernelService: INotebookKernelService,
 		@INotebookKernelHistoryService private readonly _notebookKernelHistoryService: INotebookKernelHistoryService,
@@ -156,38 +156,38 @@ export class NotebooKernelActionViewItem extends ActionViewItem {
 		this._register(_notebookKernelService.onDidChangeKernelDetectionTasks(this._update, this));
 	}
 
-	override render(container: HTMLElement): void {
+	override render(container: HTMLElementcognidreamognidream {
 		this._update();
-		super.render(container);
-		container.classList.add('kernel-action-view-item');
-		this._kernelLabel = document.createElement('a');
-		container.appendChild(this._kernelLabel);
-		this.updateLabel();
+super.render(container);
+container.classList.add('kernel-action-view-item');
+this._kernelLabel = document.createElement('a');
+container.appendChild(this._kernelLabel);
+this.updateLabel();
+    }
+
+    protected override updateLabel() {
+	if (this._kernelLabel) {
+		this._kernelLabel.classList.add('kernel-label');
+		this._kernelLabel.innerText = this._action.label;
+	}
+}
+
+    protected _update(cognidreamognidream {
+	const notebook = this._editor.textModel;
+
+	if(!notebook) {
+		this._resetAction();
+		return;
 	}
 
-	protected override updateLabel() {
-		if (this._kernelLabel) {
-			this._kernelLabel.classList.add('kernel-label');
-			this._kernelLabel.innerText = this._action.label;
-		}
-	}
+        KernelPickerMRUStrategy.updateKernelStatusAction(notebook, this._action, this._notebookKernelService, this._notebookKernelHistoryService);
 
-	protected _update(): void {
-		const notebook = this._editor.textModel;
+	this.updateClass();
+}
 
-		if (!notebook) {
-			this._resetAction();
-			return;
-		}
-
-		KernelPickerMRUStrategy.updateKernelStatusAction(notebook, this._action, this._notebookKernelService, this._notebookKernelHistoryService);
-
-		this.updateClass();
-	}
-
-	private _resetAction(): void {
-		this._action.enabled = false;
-		this._action.label = '';
-		this._action.class = '';
-	}
+    private _resetAction(cognidreamognidream {
+	this._action.enabled = false;
+	this._action.label = '';
+	this._action.class = '';
+}
 }

@@ -49,21 +49,21 @@ export class ColorPickerBody extends Disposable {
 		}
 	}
 
-	private flushColor(): void {
+	private flushColor(): cognidream {
 		this.model.flushColor();
 	}
 
-	private onDidSaturationValueChange({ s, v }: { s: number; v: number }): void {
+	private onDidSaturationValueChange({ s, v }: { s: number; v: number }): cognidream {
 		const hsva = this.model.color.hsva;
 		this.model.color = new Color(new HSVA(hsva.h, s, v, hsva.a));
 	}
 
-	private onDidOpacityChange(a: number): void {
+	private onDidOpacityChange(a: number): cognidream {
 		const hsva = this.model.color.hsva;
 		this.model.color = new Color(new HSVA(hsva.h, hsva.s, hsva.v, a));
 	}
 
-	private onDidHueChange(value: number): void {
+	private onDidHueChange(value: number): cognidream {
 		const hsva = this.model.color.hsva;
 		const h = (1 - value) * 360;
 
@@ -90,7 +90,7 @@ export class ColorPickerBody extends Disposable {
 		return this._insertButton;
 	}
 
-	layout(): void {
+	layout(): cognidream {
 		this._saturationBox.layout();
 		this._opacityStrip.layout();
 		this._hueStrip.layout();

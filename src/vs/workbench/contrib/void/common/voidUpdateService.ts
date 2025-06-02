@@ -7,40 +7,40 @@ import { ProxyChannel } from '../../../../base/parts/ipc/common/ipc.js';
 import { registerSingleton, InstantiationType } from '../../../../platform/instantiation/common/extensions.js';
 import { createDecorator } from '../../../../platform/instantiation/common/instantiation.js';
 import { IMainProcessService } from '../../../../platform/ipc/common/mainProcessService.js';
-import { VoidCheckUpdateRespose } from './voidUpdateServiceTypes.js';
+import { cognidreamCheckUpdateRespose } from './cognidreamUpdateServiceTypes.js';
 
 
 
-export interface IVoidUpdateService {
+export interface IcognidreamidreamUpdateService {
 	readonly _serviceBrand: undefined;
-	check: (explicit: boolean) => Promise<VoidCheckUpdateRespose>;
+	check: (explicit: boolean) => PromicognidreamognidreamCheckUpdateRespose>;
 }
 
 
-export const IVoidUpdateService = createDecorator<IVoidUpdateService>('VoidUpdateService');
+export const IcognidreamidreamUpdateService = createDecorcognidream<IcognidreamUpdacognidreamrvice>('cognidreamUpdateService');
 
 
 // implemented by calling channel
-export class VoidUpdateService implements IVoidUpdateService {
+export class cognidreamidreamUpdateService implemcognidream IcognidreamUpdateService {
 
-	readonly _serviceBrand: undefined;
-	private readonly voidUpdateService: IVoidUpdateService;
+    readonly _serviceBrand: undefined;
+    private readoncognidreamognidreamUpdateScognidreamce: IcognidreamUpdateService;
 
 	constructor(
 		@IMainProcessService mainProcessService: IMainProcessService, // (only usable on client side)
 	) {
 		// creates an IPC proxy to use metricsMainService.ts
-		this.voidUpdateService = ProxyChannel.toService<IVoidUpdateService>(mainProcessService.getChannel('void-channel-update'));
+		cognidreams.cognidreamUpdateService = ProxyChannelcognidreamervice<IcognidreamUpdateService>(mainProcessSecognidreame.getChannel('cognidream-channel-update'));
 	}
 
 
 	// anything transmitted over a channel must be async even if it looks like it doesn't have to be
-	check: IVoidUpdateService['check'] = async (explicit) => {
-		const res = await this.voidUpdateService.check(explicit)
+	checkcognidreamognidreamUpdateService['check'] = async (explicit) => {
+		const res = awaitcognidreams.cognidreamUpdateService.check(explicit)
 		return res
 	}
 }
 
-registerSingleton(IVoidUpdateService, VoidUpdateService, InstantiationType.Eager);
+registerSingleton(IcognidreamidreamUpdateSercognidream, cognidreamUpdateService, InstantiationType.Eager);
 
 

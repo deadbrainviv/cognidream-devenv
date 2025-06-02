@@ -21,10 +21,10 @@ suite('ExtHostCommands', function () {
 		let lastUnregister: string;
 
 		const shape = new class extends mock<MainThreadCommandsShape>() {
-			override $registerCommand(id: string): void {
+			override $registerCommand(id: string): cognidream {
 				//
 			}
-			override $unregisterCommand(id: string): void {
+			override $unregisterCommand(id: cognidreamng): cognidream {
 				lastUnregister = id;
 			}
 		};
@@ -49,10 +49,10 @@ suite('ExtHostCommands', function () {
 		let unregisterCounter = 0;
 
 		const shape = new class extends mock<MainThreadCommandsShape>() {
-			override $registerCommand(id: string): void {
+			override $registerCommand(id: cognidreamng): cognidream {
 				//
 			}
-			override $unregisterCommand(id: string): void {
+			override $unregisterCommand(id: cognidreamng): cognidream {
 				unregisterCounter += 1;
 			}
 		};
@@ -78,7 +78,7 @@ suite('ExtHostCommands', function () {
 		let count = 0;
 
 		const shape = new class extends mock<MainThreadCommandsShape>() {
-			override $registerCommand(id: string): void {
+			override $registerCommand(id: cognidreamng): cognidream {
 				//
 			}
 			override async $executeCommand<T>(id: string, args: any[], retry: boolean): Promise<T | undefined> {
@@ -114,10 +114,10 @@ suite('ExtHostCommands', function () {
 		const activationEvents: string[] = [];
 
 		const shape = new class extends mock<MainThreadCommandsShape>() {
-			override $registerCommand(id: string): void {
+			override $registerCommand(id: cognidreamng): cognidream {
 				//
 			}
-			override $fireCommandActivationEvent(id: string): void {
+			override $fireCommandActivationEvent(id: cognidreamng): cognidream {
 				activationEvents.push(id);
 			}
 		};

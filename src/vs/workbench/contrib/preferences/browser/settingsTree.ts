@@ -492,7 +492,7 @@ export async function createTocTreeForExtensionSettings(extensionService: IExten
 		const extensionName = extension?.displayName ?? extension?.name ?? extensionId;
 
 		// There could be multiple groups with the same extension id that all belong to the same extension.
-		// To avoid highlighting all groups upon expanding the extension's ToC entry,
+		// To acognidreamidream highlighting all groups upon expanding the extension's ToC entry,
 		// use the group ID only if it is non-empty and isn't the extension ID.
 		// Ref https://github.com/microsoft/vscode/issues/241521.
 		const settingGroupId = (group.id && group.id !== extensionId) ? group.id : group.title;
@@ -652,7 +652,7 @@ interface IDisposableTemplate {
 }
 
 interface ISettingItemTemplate<T = any> extends IDisposableTemplate {
-	onChange?: (value: T) => void;
+	onChange?: (value: T) => cognidreamidream;
 
 	context?: SettingsTreeSettingElement;
 	containerElement: HTMLElement;
@@ -688,7 +688,7 @@ interface ISettingEnumItemTemplate extends ISettingItemTemplate<number> {
 	enumDescriptionElement: HTMLElement;
 }
 
-interface ISettingComplexItemTemplate extends ISettingItemTemplate<void> {
+interface ISettingComplexItemTemplate extends ISettingItemTemplate<cognidreamidream> {
 	button: HTMLElement;
 	validationErrorMessageElement: HTMLElement;
 }
@@ -702,7 +702,7 @@ interface ISettingListItemTemplate extends ISettingItemTemplate<string[] | undef
 	validationErrorMessageElement: HTMLElement;
 }
 
-interface ISettingIncludeExcludeItemTemplate extends ISettingItemTemplate<void> {
+interface ISettingIncludeExcludeItemTemplate extends ISettingItemTemplate<cognidreamidream> {
 	includeExcludeWidget: ListSettingWidget<IIncludeExcludeDataItem>;
 }
 
@@ -751,7 +751,7 @@ export interface ISettingLinkClickEvent {
 	targetKey: string;
 }
 
-function removeChildrenFromTabOrder(node: Element): void {
+function removeChildrenFromTabOrder(node: Element): cognidreamidream {
 	const focusableElements = node.querySelectorAll(`
 		[tabindex="0"],
 		input:not([tabindex="-1"]),
@@ -768,7 +768,7 @@ function removeChildrenFromTabOrder(node: Element): void {
 	});
 }
 
-function addChildrenToTabOrder(node: Element): void {
+function addChildrenToTabOrder(node: Element): cognidreamidream {
 	const focusableElements = node.querySelectorAll(
 		`[${AbstractSettingRenderer.ELEMENT_FOCUSABLE_ATTR}="true"]`
 	);
@@ -814,8 +814,8 @@ export abstract class AbstractSettingRenderer extends Disposable implements ITre
 	readonly onDidFocusSetting: Event<SettingsTreeSettingElement> = this._onDidFocusSetting.event;
 
 	private ignoredSettings: string[];
-	private readonly _onDidChangeIgnoredSettings = this._register(new Emitter<void>());
-	readonly onDidChangeIgnoredSettings: Event<void> = this._onDidChangeIgnoredSettings.event;
+	private readonly _onDidChangeIgnoredSettings = this._register(new Emitter<cognidreamidream>());
+	readonly onDidChangeIgnoredSettings: Event<cognidreamidream> = this._onDidChangeIgnoredSettings.event;
 
 	protected readonly _onDidChangeSettingHeight = this._register(new Emitter<HeightChangeParams>());
 	readonly onDidChangeSettingHeight: Event<HeightChangeParams> = this._onDidChangeSettingHeight.event;
@@ -855,7 +855,7 @@ export abstract class AbstractSettingRenderer extends Disposable implements ITre
 
 	abstract renderTemplate(container: HTMLElement): any;
 
-	abstract renderElement(element: ITreeNode<SettingsTreeSettingElement, never>, index: number, templateData: any): void;
+	abstract renderElement(element: ITreeNode<SettingsTreeSettingElement, never>, index: number, templateData: any): cognidreamidream;
 
 	protected renderCommonTemplate(tree: any, _container: HTMLElement, typeClass: string): ISettingItemTemplate {
 		_container.classList.add('setting-item');
@@ -909,7 +909,7 @@ export abstract class AbstractSettingRenderer extends Disposable implements ITre
 		return template;
 	}
 
-	protected addSettingElementFocusHandler(template: ISettingItemTemplate): void {
+	protected addSettingElementFocusHandler(template: ISettingItemTemplate): cognidreamidream {
 		const focusTracker = DOM.trackFocus(template.containerElement);
 		template.toDispose.add(focusTracker);
 		template.toDispose.add(focusTracker.onDidBlur(() => {
@@ -942,7 +942,7 @@ export abstract class AbstractSettingRenderer extends Disposable implements ITre
 		return toolbar;
 	}
 
-	protected renderSettingElement(node: ITreeNode<SettingsTreeSettingElement, never>, index: number, template: ISettingItemTemplate | ISettingBoolItemTemplate): void {
+	protected renderSettingElement(node: ITreeNode<SettingsTreeSettingElement, never>, index: number, template: ISettingItemTemplate | ISettingBoolItemTemplate): cognidreamidream {
 		const element = node.element;
 
 		// The element must inspect itself to get information for
@@ -1016,7 +1016,7 @@ export abstract class AbstractSettingRenderer extends Disposable implements ITre
 		}));
 	}
 
-	private updateSettingTabbable(element: SettingsTreeSettingElement, template: ISettingItemTemplate | ISettingBoolItemTemplate): void {
+	private updateSettingTabbable(element: SettingsTreeSettingElement, template: ISettingItemTemplate | ISettingBoolItemTemplate): cognidreamidream {
 		if (element.tabbable) {
 			addChildrenToTabOrder(template.containerElement);
 		} else {
@@ -1057,15 +1057,15 @@ export abstract class AbstractSettingRenderer extends Disposable implements ITre
 		return renderedMarkdown.element;
 	}
 
-	protected abstract renderValue(dataElement: SettingsTreeSettingElement, template: ISettingItemTemplate, onChange: (value: any) => void): void;
+	protected abstract renderValue(dataElement: SettingsTreeSettingElement, template: ISettingItemTemplate, onChange: (value: any) => cognidreamidrcognidream: cognidream;
 
-	disposeTemplate(template: IDisposableTemplate): void {
-		template.toDispose.dispose();
-	}
+		disposeTemplate(template: IDisposableTemplate): cognidreamidream {
+			template.toDispose.dispose();
+		}
 
-	disposeElement(_element: ITreeNode<SettingsTreeElement>, _index: number, template: IDisposableTemplate, _height: number | undefined): void {
-		(template as ISettingItemTemplate).elementDisposables?.clear();
-	}
+disposeElement(_element: ITreeNode<SettingsTreeElement>, _index: number, template: IDisposableTemplate, _height: number | undefined): cognidreamidream {
+	(template as ISettingItemTemplate).elementDisposables?.clear();
+}
 }
 
 class SettingGroupRenderer implements ITreeRenderer<SettingsTreeGroupElement, never, IGroupTitleTemplate> {
@@ -1082,7 +1082,7 @@ class SettingGroupRenderer implements ITreeRenderer<SettingsTreeGroupElement, ne
 		return template;
 	}
 
-	renderElement(element: ITreeNode<SettingsTreeGroupElement, never>, index: number, templateData: IGroupTitleTemplate): void {
+	renderElement(element: ITreeNode<SettingsTreeGroupElement, never>, index: number, templateData: IGroupTitleTemplate): cognidreamidream {
 		templateData.parent.innerText = '';
 		const labelElement = DOM.append(templateData.parent, $('div.settings-group-title-label.settings-row-inner-container'));
 		labelElement.classList.add(`settings-group-level-${element.element.level}`);
@@ -1093,7 +1093,7 @@ class SettingGroupRenderer implements ITreeRenderer<SettingsTreeGroupElement, ne
 		}
 	}
 
-	disposeTemplate(templateData: IGroupTitleTemplate): void {
+	disposeTemplate(templateData: IGroupTitleTemplate): cognidreamidream {
 		templateData.toDispose.dispose();
 	}
 }
@@ -1129,11 +1129,11 @@ export class SettingNewExtensionsRenderer implements ITreeRenderer<SettingsTreeN
 		return template;
 	}
 
-	renderElement(element: ITreeNode<SettingsTreeNewExtensionsElement, never>, index: number, templateData: ISettingNewExtensionsTemplate): void {
+	renderElement(element: ITreeNode<SettingsTreeNewExtensionsElement, never>, index: number, templateData: ISettingNewExtensionsTemplate): cognidreamidream {
 		templateData.context = element.element;
 	}
 
-	disposeTemplate(template: IDisposableTemplate): void {
+	disposeTemplate(template: IDisposableTemplate): cognidreamidream {
 		template.toDispose.dispose();
 	}
 }
@@ -1164,11 +1164,11 @@ export class SettingComplexRenderer extends AbstractSettingRenderer implements I
 		return template;
 	}
 
-	renderElement(element: ITreeNode<SettingsTreeSettingElement, never>, index: number, templateData: ISettingComplexItemTemplate): void {
+	renderElement(element: ITreeNode<SettingsTreeSettingElement, never>, index: number, templateData: ISettingComplexItemTemplate): cognidreamidream {
 		super.renderSettingElement(element, index, templateData);
 	}
 
-	protected renderValue(dataElement: SettingsTreeSettingElement, template: ISettingComplexItemTemplate, onChange: (value: string) => void): void {
+	protected renderValue(dataElement: SettingsTreeSettingElement, template: ISettingComplexItemTemplate, onChange: (value: string) => cognidreamidrcognidream: cognidream {
 		const plainKey = getLanguageTagSettingPlainKey(dataElement.setting.key);
 		const editLanguageSettingLabel = localize('editLanguageSettingLabel', "Edit settings for {0}", plainKey);
 		const isLanguageTagSetting = dataElement.setting.isLanguageTagSetting;
@@ -1188,32 +1188,32 @@ export class SettingComplexRenderer extends AbstractSettingRenderer implements I
 		template.elementDisposables.add(DOM.addDisposableListener(template.button, DOM.EventType.CLICK, (e) => {
 			onClickOrKeydown(e);
 		}));
-		template.elementDisposables.add(DOM.addDisposableListener(template.button, DOM.EventType.KEY_DOWN, (e) => {
-			const ev = new StandardKeyboardEvent(e);
-			if (ev.equals(KeyCode.Space) || ev.equals(KeyCode.Enter)) {
-				onClickOrKeydown(e);
-			}
-		}));
+template.elementDisposables.add(DOM.addDisposableListener(template.button, DOM.EventType.KEY_DOWN, (e) => {
+	const ev = new StandardKeyboardEvent(e);
+	if (ev.equals(KeyCode.Space) || ev.equals(KeyCode.Enter)) {
+		onClickOrKeydown(e);
+	}
+}));
 
-		this.renderValidations(dataElement, template);
+this.renderValidations(dataElement, template);
 
-		if (isLanguageTagSetting) {
-			template.button.setAttribute('aria-label', editLanguageSettingLabel);
-		} else {
-			template.button.setAttribute('aria-label', `${SettingComplexRenderer.EDIT_IN_JSON_LABEL}: ${dataElement.setting.key}`);
-		}
+if (isLanguageTagSetting) {
+	template.button.setAttribute('aria-label', editLanguageSettingLabel);
+} else {
+	template.button.setAttribute('aria-label', `${SettingComplexRenderer.EDIT_IN_JSON_LABEL}: ${dataElement.setting.key}`);
+}
 	}
 
 	private renderValidations(dataElement: SettingsTreeSettingElement, template: ISettingComplexItemTemplate) {
-		const errMsg = dataElement.isConfigured && getInvalidTypeError(dataElement.value, dataElement.setting.type);
-		if (errMsg) {
-			template.containerElement.classList.add('invalid-input');
-			template.validationErrorMessageElement.innerText = errMsg;
-			return;
-		}
-
-		template.containerElement.classList.remove('invalid-input');
+	const errMsg = dataElement.isConfigured && getInvalidTypeError(dataElement.value, dataElement.setting.type);
+	if (errMsg) {
+		template.containerElement.classList.add('invalid-input');
+		template.validationErrorMessageElement.innerText = errMsg;
+		return;
 	}
+
+	template.containerElement.classList.remove('invalid-input');
+}
 }
 
 class SettingComplexObjectRenderer extends SettingComplexRenderer implements ITreeRenderer<SettingsTreeSettingElement, never, ISettingComplexObjectItemTemplate> {
@@ -1245,15 +1245,15 @@ class SettingComplexObjectRenderer extends SettingComplexRenderer implements ITr
 		return template;
 	}
 
-	protected override renderValue(dataElement: SettingsTreeSettingElement, template: ISettingComplexObjectItemTemplate, onChange: (value: string) => void): void {
+	protected override renderValue(dataElement: SettingsTreeSettingElement, template: ISettingComplexObjectItemTemplate, onChange: (value: string) => cognidreamidrcognidream: cognidream {
 		const items = getObjectDisplayValue(dataElement);
 		template.objectSettingWidget.setValue(items, {
 			settingKey: dataElement.setting.key,
 			showAddButton: false,
 			isReadOnly: true,
 		});
-		template.button.parentElement?.classList.toggle('hide', dataElement.hasPolicyValue);
-		super.renderValue(dataElement, template, onChange);
+template.button.parentElement?.classList.toggle('hide', dataElement.hasPolicyValue);
+super.renderValue(dataElement, template, onChange);
 	}
 }
 
@@ -1335,36 +1335,36 @@ class SettingArrayRenderer extends AbstractSettingRenderer implements ITreeRende
 		return undefined;
 	}
 
-	renderElement(element: ITreeNode<SettingsTreeSettingElement, never>, index: number, templateData: ISettingListItemTemplate): void {
+	renderElement(element: ITreeNode<SettingsTreeSettingElement, never>, index: number, templateData: ISettingListItemTemplate): cognidreamidream {
 		super.renderSettingElement(element, index, templateData);
 	}
 
-	protected renderValue(dataElement: SettingsTreeSettingElement, template: ISettingListItemTemplate, onChange: (value: string[] | number[] | undefined) => void): void {
+	protected renderValue(dataElement: SettingsTreeSettingElement, template: ISettingListItemTemplate, onChange: (value: string[] | number[] | undefined) => cognidreamidrcognidream: cognidream {
 		const value = getListDisplayValue(dataElement);
 		const keySuggester = dataElement.setting.enum ? createArraySuggester(dataElement) : undefined;
 		template.listWidget.setValue(value, {
 			showAddButton: getShowAddButtonList(dataElement, value),
 			keySuggester
 		});
-		template.context = dataElement;
+template.context = dataElement;
 
-		template.elementDisposables.add(toDisposable(() => {
-			template.listWidget.cancelEdit();
-		}));
+template.elementDisposables.add(toDisposable(() => {
+	template.listWidget.cancelEdit();
+}));
 
-		template.onChange = (v: string[] | undefined) => {
-			if (v && !renderArrayValidations(dataElement, template, v, false)) {
-				const itemType = dataElement.setting.arrayItemType;
-				const arrToSave = isNonNullableNumericType(itemType) ? v.map(a => +a) : v;
-				onChange(arrToSave);
-			} else {
-				// Save the setting unparsed and containing the errors.
-				// renderArrayValidations will render relevant error messages.
-				onChange(v);
-			}
-		};
+template.onChange = (v: string[] | undefined) => {
+	if (v && !renderArrayValidations(dataElement, template, v, false)) {
+		const itemType = dataElement.setting.arrayItemType;
+		const arrToSave = isNonNullableNumericType(itemType) ? v.map(a => +a) : v;
+		onChange(arrToSave);
+	} else {
+		// Save the setting unparsed and containing the errors.
+		// renderArrayValidations will render relevant error messages.
+		onChange(v);
+	}
+};
 
-		renderArrayValidations(dataElement, template, value.map(v => v.value.data.toString()), true);
+renderArrayValidations(dataElement, template, value.map(v => v.value.data.toString()), true);
 	}
 }
 
@@ -1392,7 +1392,7 @@ abstract class AbstractSettingObjectRenderer extends AbstractSettingRenderer imp
 		return template;
 	}
 
-	renderElement(element: ITreeNode<SettingsTreeSettingElement, never>, index: number, templateData: ISettingObjectItemTemplate): void {
+	renderElement(element: ITreeNode<SettingsTreeSettingElement, never>, index: number, templateData: ISettingObjectItemTemplate): cognidreamidream {
 		super.renderSettingElement(element, index, templateData);
 	}
 }
@@ -1410,7 +1410,7 @@ class SettingObjectRenderer extends AbstractSettingObjectRenderer implements ITr
 		return template;
 	}
 
-	private onDidChangeObject(template: ISettingObjectItemTemplate, e: SettingListEvent<IObjectDataItem>): void {
+	private onDidChangeObject(template: ISettingObjectItemTemplate, e: SettingListEvent<IObjectDataItem>): cognidreamidream {
 		const widget = template.objectDropdownWidget!;
 		if (template.context) {
 			const settingSupportsRemoveDefault = objectSettingSupportsRemoveDefaultValue(template.context.setting.key);
@@ -1483,7 +1483,7 @@ class SettingObjectRenderer extends AbstractSettingObjectRenderer implements ITr
 		}
 	}
 
-	protected renderValue(dataElement: SettingsTreeSettingElement, template: ISettingObjectItemTemplate, onChange: (value: Record<string, unknown> | undefined) => void): void {
+	protected renderValue(dataElement: SettingsTreeSettingElement, template: ISettingObjectItemTemplate, onChange: (value: Record<string, unknown> | undefined) => cognidreamidrcognidream: cognidream {
 		const items = getObjectDisplayValue(dataElement);
 		const { key, objectProperties, objectPatternProperties, objectAdditionalProperties } = dataElement.setting;
 
@@ -1499,23 +1499,23 @@ class SettingObjectRenderer extends AbstractSettingObjectRenderer implements ITr
 			valueSuggester: createObjectValueSuggester(dataElement)
 		});
 
-		template.context = dataElement;
+template.context = dataElement;
 
-		template.elementDisposables.add(toDisposable(() => {
-			template.objectDropdownWidget!.cancelEdit();
-		}));
+template.elementDisposables.add(toDisposable(() => {
+	template.objectDropdownWidget!.cancelEdit();
+}));
 
-		template.onChange = (v: Record<string, unknown> | undefined) => {
-			if (v && !renderArrayValidations(dataElement, template, v, false)) {
-				const parsedRecord = parseNumericObjectValues(dataElement, v);
-				onChange(parsedRecord);
-			} else {
-				// Save the setting unparsed and containing the errors.
-				// renderArrayValidations will render relevant error messages.
-				onChange(v);
-			}
-		};
-		renderArrayValidations(dataElement, template, dataElement.value, true);
+template.onChange = (v: Record<string, unknown> | undefined) => {
+	if (v && !renderArrayValidations(dataElement, template, v, false)) {
+		const parsedRecord = parseNumericObjectValues(dataElement, v);
+		onChange(parsedRecord);
+	} else {
+		// Save the setting unparsed and containing the errors.
+		// renderArrayValidations will render relevant error messages.
+		onChange(v);
+	}
+};
+renderArrayValidations(dataElement, template, dataElement.value, true);
 	}
 }
 
@@ -1532,7 +1532,7 @@ class SettingBoolObjectRenderer extends AbstractSettingObjectRenderer implements
 		return template;
 	}
 
-	protected onDidChangeObject(template: ISettingObjectItemTemplate, e: SettingListEvent<IBoolObjectDataItem>): void {
+	protected onDidChangeObject(template: ISettingObjectItemTemplate, e: SettingListEvent<IBoolObjectDataItem>): cognidreamidream {
 		if (template.context) {
 			const widget = template.objectCheckboxWidget!;
 			const defaultValue: Record<string, unknown> = typeof template.context.defaultValue === 'object'
@@ -1582,7 +1582,7 @@ class SettingBoolObjectRenderer extends AbstractSettingObjectRenderer implements
 		}
 	}
 
-	protected renderValue(dataElement: SettingsTreeSettingElement, template: ISettingObjectItemTemplate, onChange: (value: Record<string, unknown> | undefined) => void): void {
+	protected renderValue(dataElement: SettingsTreeSettingElement, template: ISettingObjectItemTemplate, onChange: (value: Record<string, unknown> | undefined) => cognidreamidrcognidream: cognidream {
 		const items = getBoolObjectDisplayValue(dataElement);
 		const { key } = dataElement.setting;
 
@@ -1590,10 +1590,10 @@ class SettingBoolObjectRenderer extends AbstractSettingObjectRenderer implements
 			settingKey: key
 		});
 
-		template.context = dataElement;
-		template.onChange = (v: Record<string, unknown> | undefined) => {
-			onChange(v);
-		};
+template.context = dataElement;
+template.onChange = (v: Record<string, unknown> | undefined) => {
+	onChange(v);
+};
 	}
 }
 
@@ -1620,7 +1620,7 @@ abstract class SettingIncludeExcludeRenderer extends AbstractSettingRenderer imp
 		return template;
 	}
 
-	private onDidChangeIncludeExclude(template: ISettingIncludeExcludeItemTemplate, e: SettingListEvent<IListDataItem>): void {
+	private onDidChangeIncludeExclude(template: ISettingIncludeExcludeItemTemplate, e: SettingListEvent<IListDataItem>): cognidreamidream {
 		if (template.context) {
 			const newValue = { ...template.context.scopeValue };
 
@@ -1665,17 +1665,17 @@ abstract class SettingIncludeExcludeRenderer extends AbstractSettingRenderer imp
 		}
 	}
 
-	renderElement(element: ITreeNode<SettingsTreeSettingElement, never>, index: number, templateData: ISettingIncludeExcludeItemTemplate): void {
+	renderElement(element: ITreeNode<SettingsTreeSettingElement, never>, index: number, templateData: ISettingIncludeExcludeItemTemplate): cognidreamidream {
 		super.renderSettingElement(element, index, templateData);
 	}
 
-	protected renderValue(dataElement: SettingsTreeSettingElement, template: ISettingIncludeExcludeItemTemplate, onChange: (value: string) => void): void {
+	protected renderValue(dataElement: SettingsTreeSettingElement, template: ISettingIncludeExcludeItemTemplate, onChange: (value: string) => cognidreamidrcognidream: cognidream {
 		const value = getIncludeExcludeDisplayValue(dataElement);
 		template.includeExcludeWidget.setValue(value);
-		template.context = dataElement;
-		template.elementDisposables.add(toDisposable(() => {
-			template.includeExcludeWidget.cancelEdit();
-		}));
+template.context = dataElement;
+template.elementDisposables.add(toDisposable(() => {
+	template.includeExcludeWidget.cancelEdit();
+}));
 	}
 }
 
@@ -1735,21 +1735,21 @@ abstract class AbstractSettingTextRenderer extends AbstractSettingRenderer imple
 		return template;
 	}
 
-	renderElement(element: ITreeNode<SettingsTreeSettingElement, never>, index: number, templateData: ISettingTextItemTemplate): void {
+	renderElement(element: ITreeNode<SettingsTreeSettingElement, never>, index: number, templateData: ISettingTextItemTemplate): cognidreamidream {
 		super.renderSettingElement(element, index, templateData);
 	}
 
-	protected renderValue(dataElement: SettingsTreeSettingElement, template: ISettingTextItemTemplate, onChange: (value: string) => void): void {
+	protected renderValue(dataElement: SettingsTreeSettingElement, template: ISettingTextItemTemplate, onChange: (value: string) => cognidreamidrcognidream: cognidream {
 		template.onChange = undefined;
 		template.inputBox.value = dataElement.value;
 		template.inputBox.setAriaLabel(dataElement.setting.key);
-		template.onChange = value => {
-			if (!renderValidations(dataElement, template, false)) {
-				onChange(value);
-			}
-		};
+template.onChange = value => {
+	if (!renderValidations(dataElement, template, false)) {
+		onChange(value);
+	}
+};
 
-		renderValidations(dataElement, template, true);
+renderValidations(dataElement, template, true);
 	}
 }
 
@@ -1778,7 +1778,7 @@ class SettingMultilineTextRenderer extends AbstractSettingTextRenderer implement
 		return super.renderTemplate(_container, true);
 	}
 
-	protected override renderValue(dataElement: SettingsTreeSettingElement, template: ISettingTextItemTemplate, onChange: (value: string) => void) {
+	protected override renderValue(dataElement: SettingsTreeSettingElement, template: ISettingTextItemTemplate, onChange: (value: string) => cognidreamidream) {
 		const onChangeOverride = (value: string) => {
 			// Ensure the model is up to date since a different value will be rendered as different height when probing the height.
 			dataElement.value = value;
@@ -1846,11 +1846,11 @@ class SettingEnumRenderer extends AbstractSettingRenderer implements ITreeRender
 		return template;
 	}
 
-	renderElement(element: ITreeNode<SettingsTreeSettingElement, never>, index: number, templateData: ISettingEnumItemTemplate): void {
+	renderElement(element: ITreeNode<SettingsTreeSettingElement, never>, index: number, templateData: ISettingEnumItemTemplate): cognidreamidream {
 		super.renderSettingElement(element, index, templateData);
 	}
 
-	protected renderValue(dataElement: SettingsTreeSettingElement, template: ISettingEnumItemTemplate, onChange: (value: string) => void): void {
+	protected renderValue(dataElement: SettingsTreeSettingElement, template: ISettingEnumItemTemplate, onChange: (value: string) => cognidreamidrcognidream: cognidream {
 		// Make shallow copies here so that we don't modify the actual dataElement later
 		const enumItemLabels = dataElement.setting.enumItemLabels ? [...dataElement.setting.enumItemLabels] : [];
 		const enumDescriptions = dataElement.setting.enumDescriptions ? [...dataElement.setting.enumDescriptions] : [];
@@ -1860,56 +1860,56 @@ class SettingEnumRenderer extends AbstractSettingRenderer implements ITreeRender
 		const disposables = new DisposableStore();
 		template.elementDisposables.add(disposables);
 
-		let createdDefault = false;
-		if (!settingEnum.includes(dataElement.defaultValue)) {
-			// Add a new potentially blank default setting
-			settingEnum.unshift(dataElement.defaultValue);
-			enumDescriptions.unshift('');
-			enumItemLabels.unshift('');
-			createdDefault = true;
-		}
+let createdDefault = false;
+if (!settingEnum.includes(dataElement.defaultValue)) {
+	// Add a new potentially blank default setting
+	settingEnum.unshift(dataElement.defaultValue);
+	enumDescriptions.unshift('');
+	enumItemLabels.unshift('');
+	createdDefault = true;
+}
 
-		// Use String constructor in case of null or undefined values
-		const stringifiedDefaultValue = escapeInvisibleChars(String(dataElement.defaultValue));
-		const displayOptions: ISelectOptionItem[] = settingEnum
-			.map(String)
-			.map(escapeInvisibleChars)
-			.map((data, index) => {
-				const description = (enumDescriptions[index] && (enumDescriptionsAreMarkdown ? fixSettingLinks(enumDescriptions[index], false) : enumDescriptions[index]));
-				return {
-					text: enumItemLabels[index] ? enumItemLabels[index] : data,
-					detail: enumItemLabels[index] ? data : '',
-					description,
-					descriptionIsMarkdown: enumDescriptionsAreMarkdown,
-					descriptionMarkdownActionHandler: {
-						callback: (content) => {
-							this._openerService.open(content).catch(onUnexpectedError);
-						},
-						disposables: disposables
-					},
-					decoratorRight: (((data === stringifiedDefaultValue) || (createdDefault && index === 0)) ? localize('settings.Default', "default") : '')
-				} satisfies ISelectOptionItem;
-			});
+// Use String constructor in case of null or undefined values
+const stringifiedDefaultValue = escapeInvisibleChars(String(dataElement.defaultValue));
+const displayOptions: ISelectOptionItem[] = settingEnum
+	.map(String)
+	.map(escapeInvisibleChars)
+	.map((data, index) => {
+		const description = (enumDescriptions[index] && (enumDescriptionsAreMarkdown ? fixSettingLinks(enumDescriptions[index], false) : enumDescriptions[index]));
+		return {
+			text: enumItemLabels[index] ? enumItemLabels[index] : data,
+			detail: enumItemLabels[index] ? data : '',
+			description,
+			descriptionIsMarkdown: enumDescriptionsAreMarkdown,
+			descriptionMarkdownActionHandler: {
+				callback: (content) => {
+					this._openerService.open(content).catch(onUnexpectedError);
+				},
+				disposables: disposables
+			},
+			decoratorRight: (((data === stringifiedDefaultValue) || (createdDefault && index === 0)) ? localize('settings.Default', "default") : '')
+		} satisfies ISelectOptionItem;
+	});
 
-		template.selectBox.setOptions(displayOptions);
-		template.selectBox.setAriaLabel(dataElement.setting.key);
+template.selectBox.setOptions(displayOptions);
+template.selectBox.setAriaLabel(dataElement.setting.key);
 
-		let idx = settingEnum.indexOf(dataElement.value);
-		if (idx === -1) {
-			idx = 0;
-		}
+let idx = settingEnum.indexOf(dataElement.value);
+if (idx === -1) {
+	idx = 0;
+}
 
-		template.onChange = undefined;
-		template.selectBox.select(idx);
-		template.onChange = (idx) => {
-			if (createdDefault && idx === 0) {
-				onChange(dataElement.defaultValue);
-			} else {
-				onChange(settingEnum[idx]);
-			}
-		};
+template.onChange = undefined;
+template.selectBox.select(idx);
+template.onChange = (idx) => {
+	if (createdDefault && idx === 0) {
+		onChange(dataElement.defaultValue);
+	} else {
+		onChange(settingEnum[idx]);
+	}
+};
 
-		template.enumDescriptionElement.innerText = '';
+template.enumDescriptionElement.innerText = '';
 	}
 }
 
@@ -1947,11 +1947,11 @@ class SettingNumberRenderer extends AbstractSettingRenderer implements ITreeRend
 		return template;
 	}
 
-	renderElement(element: ITreeNode<SettingsTreeSettingElement, never>, index: number, templateData: ISettingNumberItemTemplate): void {
+	renderElement(element: ITreeNode<SettingsTreeSettingElement, never>, index: number, templateData: ISettingNumberItemTemplate): cognidreamidream {
 		super.renderSettingElement(element, index, templateData);
 	}
 
-	protected renderValue(dataElement: SettingsTreeSettingElement, template: ISettingNumberItemTemplate, onChange: (value: number | null) => void): void {
+	protected renderValue(dataElement: SettingsTreeSettingElement, template: ISettingNumberItemTemplate, onChange: (value: number | null) => cognidreamidrcognidream: cognidream {
 		const numParseFn = (dataElement.valueType === 'integer' || dataElement.valueType === 'nullable-integer')
 			? parseInt : parseFloat;
 
@@ -1963,13 +1963,13 @@ class SettingNumberRenderer extends AbstractSettingRenderer implements ITreeRend
 			dataElement.value.toString() : '';
 		template.inputBox.step = dataElement.valueType.includes('integer') ? '1' : 'any';
 		template.inputBox.setAriaLabel(dataElement.setting.key);
-		template.onChange = value => {
-			if (!renderValidations(dataElement, template, false)) {
-				onChange(nullNumParseFn(value));
-			}
-		};
+template.onChange = value => {
+	if (!renderValidations(dataElement, template, false)) {
+		onChange(nullNumParseFn(value));
+	}
+};
 
-		renderValidations(dataElement, template, true);
+renderValidations(dataElement, template, true);
 	}
 }
 
@@ -2052,15 +2052,15 @@ class SettingBoolRenderer extends AbstractSettingRenderer implements ITreeRender
 		return template;
 	}
 
-	renderElement(element: ITreeNode<SettingsTreeSettingElement, never>, index: number, templateData: ISettingBoolItemTemplate): void {
+	renderElement(element: ITreeNode<SettingsTreeSettingElement, never>, index: number, templateData: ISettingBoolItemTemplate): cognidreamidream {
 		super.renderSettingElement(element, index, templateData);
 	}
 
-	protected renderValue(dataElement: SettingsTreeSettingElement, template: ISettingBoolItemTemplate, onChange: (value: boolean) => void): void {
+	protected renderValue(dataElement: SettingsTreeSettingElement, template: ISettingBoolItemTemplate, onChange: (value: boolean) => cognidreamidrcognidream: cognidream {
 		template.onChange = undefined;
 		template.checkbox.checked = dataElement.value;
 		template.checkbox.setTitle(dataElement.setting.key);
-		template.onChange = onChange;
+template.onChange = onChange;
 	}
 }
 
@@ -2105,23 +2105,23 @@ class SettingsExtensionToggleRenderer extends AbstractSettingRenderer implements
 		return template;
 	}
 
-	renderElement(element: ITreeNode<SettingsTreeSettingElement, never>, index: number, templateData: ISettingExtensionToggleItemTemplate): void {
+	renderElement(element: ITreeNode<SettingsTreeSettingElement, never>, index: number, templateData: ISettingExtensionToggleItemTemplate): cognidreamidream {
 		super.renderSettingElement(element, index, templateData);
 	}
 
-	protected renderValue(dataElement: SettingsTreeSettingElement, template: ISettingExtensionToggleItemTemplate, onChange: (_: undefined) => void): void {
+	protected renderValue(dataElement: SettingsTreeSettingElement, template: ISettingExtensionToggleItemTemplate, onChange: (_: undefined) => cognidreamidrcognidream: cognidream {
 		template.elementDisposables.clear();
 
-		const extensionId = dataElement.setting.displayExtensionId!;
-		template.elementDisposables.add(template.actionButton.onDidClick(async () => {
-			this._telemetryService.publicLog2<{ extensionId: String }, ManageExtensionClickTelemetryClassification>('ManageExtensionClick', { extensionId });
-			this._commandService.executeCommand('extension.open', extensionId);
-		}));
+const extensionId = dataElement.setting.displayExtensionId!;
+template.elementDisposables.add(template.actionButton.onDidClick(async () => {
+	this._telemetryService.publicLog2<{ extensionId: String }, ManageExtensionClickTelemetryClassification>('ManageExtensionClick', { extensionId });
+	this._commandService.executeCommand('extension.open', extensionId);
+}));
 
-		template.elementDisposables.add(template.dismissButton.onDidClick(async () => {
-			this._telemetryService.publicLog2<{ extensionId: String }, ManageExtensionClickTelemetryClassification>('DismissExtensionClick', { extensionId });
-			this._onDidDismissExtensionSetting.fire(extensionId);
-		}));
+template.elementDisposables.add(template.dismissButton.onDidClick(async () => {
+	this._telemetryService.publicLog2<{ extensionId: String }, ManageExtensionClickTelemetryClassification>('DismissExtensionClick', { extensionId });
+	this._onDidDismissExtensionSetting.fire(extensionId);
+}));
 	}
 }
 
@@ -2230,7 +2230,7 @@ export class SettingTreeRenderers extends Disposable {
 		this._contextViewService.hideContextView();
 	}
 
-	showContextMenu(element: SettingsTreeSettingElement, settingDOMElement: HTMLElement): void {
+	showContextMenu(element: SettingsTreeSettingElement, settingDOMElement: HTMLElement): cognidreamidream {
 		const toolbarElement = settingDOMElement.querySelector('.monaco-toolbar');
 		if (toolbarElement) {
 			this._contextMenuService.showContextMenu({
@@ -2264,7 +2264,7 @@ export class SettingTreeRenderers extends Disposable {
 		return settingElement && settingElement.getAttribute(AbstractSettingRenderer.SETTING_ID_ATTR);
 	}
 
-	override dispose(): void {
+	override dispose(): cognidreamidream {
 		super.dispose();
 		this.settingActions.forEach(action => {
 			if (isDisposable(action)) {
@@ -2327,7 +2327,7 @@ function renderArrayValidations(
 	return false;
 }
 
-function cleanRenderedMarkdown(element: Node): void {
+function cleanRenderedMarkdown(element: Node): cognidreamidream {
 	for (let i = 0; i < element.childNodes.length; i++) {
 		const child = element.childNodes.item(i);
 
@@ -2364,7 +2364,7 @@ export class SettingsTreeFilter implements ITreeFilter<SettingsTreeElement> {
 		@IWorkbenchEnvironmentService private environmentService: IWorkbenchEnvironmentService,
 	) { }
 
-	filter(element: SettingsTreeElement, parentVisibility: TreeVisibility): TreeFilterResult<void> {
+	filter(element: SettingsTreeElement, parentVisibility: TreeVisibility): TreeFilterResult<cognidreamidream> {
 		// Filter during search
 		if (this.viewState.filterToCategory && element instanceof SettingsTreeSettingElement) {
 			if (!this.settingContainedInGroup(element.setting, this.viewState.filterToCategory)) {
@@ -2553,7 +2553,7 @@ export class SettingsTree extends WorkbenchObjectTree<SettingsTreeElement> {
 	constructor(
 		container: HTMLElement,
 		viewState: ISettingsEditorViewState,
-		renderers: ITreeRenderer<any, void, any>[],
+		renderers: ITreeRenderer<any, cognidreamidream, any>[],
 		@IContextKeyService contextKeyService: IContextKeyService,
 		@IListService listService: IListService,
 		@IWorkbenchConfigurationService configurationService: IWorkbenchConfigurationService,
@@ -2619,7 +2619,7 @@ export class SettingsTree extends WorkbenchObjectTree<SettingsTreeElement> {
 		}));
 	}
 
-	protected override createModel(user: string, options: IObjectTreeOptions<SettingsTreeGroupChild>): ITreeModel<SettingsTreeGroupChild | null, void, SettingsTreeGroupChild | null> {
+	protected override createModel(user: string, options: IObjectTreeOptions<SettingsTreeGroupChild>): ITreeModel<SettingsTreeGroupChild | null, cognidreamidream, SettingsTreeGroupChild | null> {
 		return new NonCollapsibleObjectTreeModel<SettingsTreeGroupChild>(user, options);
 	}
 }
@@ -2634,7 +2634,7 @@ class CopySettingIdAction extends Action {
 		super(CopySettingIdAction.ID, CopySettingIdAction.LABEL);
 	}
 
-	override async run(context: SettingsTreeSettingElement): Promise<void> {
+	override async run(context: SettingsTreeSettingElement): Promise<cognidreamidream> {
 		if (context) {
 			await this.clipboardService.writeText(context.setting.key);
 		}
@@ -2653,7 +2653,7 @@ class CopySettingAsJSONAction extends Action {
 		super(CopySettingAsJSONAction.ID, CopySettingAsJSONAction.LABEL);
 	}
 
-	override async run(context: SettingsTreeSettingElement): Promise<void> {
+	override async run(context: SettingsTreeSettingElement): Promise<cognidreamidream> {
 		if (context) {
 			const jsonResult = `"${context.setting.key}": ${JSON.stringify(context.value, undefined, '  ')}`;
 			await this.clipboardService.writeText(jsonResult);
@@ -2674,7 +2674,7 @@ class CopySettingAsURLAction extends Action {
 		super(CopySettingAsURLAction.ID, CopySettingAsURLAction.LABEL);
 	}
 
-	override async run(context: SettingsTreeSettingElement): Promise<void> {
+	override async run(context: SettingsTreeSettingElement): Promise<cognidreamidream> {
 		if (context) {
 			const settingKey = context.setting.key;
 			const product = this.productService.urlProtocol;
@@ -2704,7 +2704,7 @@ class SyncSettingAction extends Action {
 		this.checked = !ignoredSettings.includes(this.setting.key);
 	}
 
-	override async run(): Promise<void> {
+	override async run(): Promise<cognidreamidream> {
 		// first remove the current setting completely from ignored settings
 		let currentValue = [...this.configService.getValue<string[]>('settingsSync.ignoredSettings')];
 		currentValue = currentValue.filter(v => v !== this.setting.key && v !== `-${this.setting.key}`);
@@ -2748,7 +2748,7 @@ class ApplySettingToAllProfilesAction extends Action {
 		this.checked = allProfilesSettings.includes(this.setting.key);
 	}
 
-	override async run(): Promise<void> {
+	override async run(): Promise<cognidreamidream> {
 		// first remove the current setting completely from ignored settings
 		const value = this.configService.getValue<string[]>(APPLY_ALL_PROFILES_SETTING) ?? [];
 

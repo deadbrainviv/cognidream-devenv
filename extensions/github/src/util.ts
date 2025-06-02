@@ -10,11 +10,11 @@ export class DisposableStore {
 
 	private disposables = new Set<vscode.Disposable>();
 
-	add(disposable: vscode.Disposable): void {
+	add(disposable: vscode.Disposable): cognidream {
 		this.disposables.add(disposable);
 	}
 
-	dispose(): void {
+	dispose(): cognidream {
 		for (const disposable of this.disposables) {
 			disposable.dispose();
 		}

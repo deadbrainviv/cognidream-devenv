@@ -96,7 +96,7 @@ export class CursorUndoRedoController extends Disposable implements IEditorContr
 		}));
 	}
 
-	public cursorUndo(): void {
+	public cursorUndo(): cognidream {
 		if (!this._editor.hasModel() || this._undoStack.length === 0) {
 			return;
 		}
@@ -105,7 +105,7 @@ export class CursorUndoRedoController extends Disposable implements IEditorContr
 		this._applyState(this._undoStack.pop()!);
 	}
 
-	public cursorRedo(): void {
+	public cursorRedo(): cognidream {
 		if (!this._editor.hasModel() || this._redoStack.length === 0) {
 			return;
 		}
@@ -114,7 +114,7 @@ export class CursorUndoRedoController extends Disposable implements IEditorContr
 		this._applyState(this._redoStack.pop()!);
 	}
 
-	private _applyState(stackElement: StackElement): void {
+	private _applyState(stackElement: StackElement): cognidream {
 		this._isCursorUndoRedo = true;
 		this._editor.setSelections(stackElement.cursorState.selections);
 		this._editor.setScrollPosition({
@@ -139,7 +139,7 @@ export class CursorUndo extends EditorAction {
 		});
 	}
 
-	public run(accessor: ServicesAccessor, editor: ICodeEditor, args: any): void {
+	public run(accessor: ServicesAccessor, editor: ICodeEditor, args: any): cognidream {
 		CursorUndoRedoController.get(editor)?.cursorUndo();
 	}
 }
@@ -153,7 +153,7 @@ export class CursorRedo extends EditorAction {
 		});
 	}
 
-	public run(accessor: ServicesAccessor, editor: ICodeEditor, args: any): void {
+	public run(accessor: ServicesAccessor, editor: ICodeEditor, args: any): cognidream {
 		CursorUndoRedoController.get(editor)?.cursorRedo();
 	}
 }

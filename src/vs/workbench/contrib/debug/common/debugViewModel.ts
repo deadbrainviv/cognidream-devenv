@@ -21,7 +21,7 @@ export class ViewModel implements IViewModel {
 	private readonly _onDidFocusStackFrame = new Emitter<{ stackFrame: IStackFrame | undefined; explicit: boolean; session: IDebugSession | undefined }>();
 	private readonly _onDidSelectExpression = new Emitter<{ expression: IExpression; settingWatch: boolean } | undefined>();
 	private readonly _onDidEvaluateLazyExpression = new Emitter<IExpressionContainer>();
-	private readonly _onWillUpdateViews = new Emitter<void>();
+	private readonly _onWillUpdateViews = new Emitter<cognidream>();
 	private readonly _onDidChangeVisualization = new Emitter<{ original: IExpression; replacement: IExpression }>();
 	private readonly visualized = new WeakMap<IExpression, IExpression>();
 	private readonly preferredVisualizers = new Map</** cache key */ string, /* tree ID */ string>();
@@ -79,7 +79,7 @@ export class ViewModel implements IViewModel {
 		return this._focusedStackFrame;
 	}
 
-	setFocus(stackFrame: IStackFrame | undefined, thread: IThread | undefined, session: IDebugSession | undefined, explicit: boolean): void {
+	setFocus(stackFrame: IStackFrame | undefined, thread: IThread | undefined, session: IDebugSession | undefined, explicit: booleancognidreamognidream {
 		const shouldEmitForStackFrame = this._focusedStackFrame !== stackFrame;
 		const shouldEmitForSession = this._focusedSession !== session;
 		const shouldEmitForThread = this._focusedThread !== thread;
@@ -107,95 +107,95 @@ export class ViewModel implements IViewModel {
 			this.focusedSessionIsNoDebug.set(!!session && !!session.configuration.noDebug);
 		});
 
-		if (shouldEmitForSession) {
-			this._onDidFocusSession.fire(session);
-		}
+if (shouldEmitForSession) {
+	this._onDidFocusSession.fire(session);
+}
 
-		// should not call onDidFocusThread if onDidFocusStackFrame is called.
-		if (shouldEmitForStackFrame) {
-			this._onDidFocusStackFrame.fire({ stackFrame, explicit, session });
-		} else if (shouldEmitForThread) {
-			this._onDidFocusThread.fire({ thread, explicit, session });
-		}
-	}
+// should not call onDidFocusThread if onDidFocusStackFrame is called.
+if (shouldEmitForStackFrame) {
+	this._onDidFocusStackFrame.fire({ stackFrame, explicit, session });
+} else if (shouldEmitForThread) {
+	this._onDidFocusThread.fire({ thread, explicit, session });
+}
+    }
 
-	get onDidFocusSession(): Event<IDebugSession | undefined> {
-		return this._onDidFocusSession.event;
-	}
+    get onDidFocusSession(): Event < IDebugSession | undefined > {
+	return this._onDidFocusSession.event;
+}
 
-	get onDidFocusThread(): Event<{ thread: IThread | undefined; explicit: boolean; session: IDebugSession | undefined }> {
-		return this._onDidFocusThread.event;
-	}
+    get onDidFocusThread(): Event < { thread: IThread | undefined; explicit: boolean; session: IDebugSession | undefined } > {
+	return this._onDidFocusThread.event;
+}
 
-	get onDidFocusStackFrame(): Event<{ stackFrame: IStackFrame | undefined; explicit: boolean; session: IDebugSession | undefined }> {
-		return this._onDidFocusStackFrame.event;
-	}
+    get onDidFocusStackFrame(): Event < { stackFrame: IStackFrame | undefined; explicit: boolean; session: IDebugSession | undefined } > {
+	return this._onDidFocusStackFrame.event;
+}
 
-	get onDidChangeVisualization() {
-		return this._onDidChangeVisualization.event;
-	}
+    get onDidChangeVisualization() {
+	return this._onDidChangeVisualization.event;
+}
 
-	getSelectedExpression(): { expression: IExpression; settingWatch: boolean } | undefined {
-		return this.selectedExpression;
-	}
+getSelectedExpression(): { expression: IExpression; settingWatch: boolean } | undefined {
+	return this.selectedExpression;
+}
 
-	setSelectedExpression(expression: IExpression | undefined, settingWatch: boolean) {
-		this.selectedExpression = expression ? { expression, settingWatch: settingWatch } : undefined;
-		this.expressionSelectedContextKey.set(!!expression);
-		this._onDidSelectExpression.fire(this.selectedExpression);
-	}
+setSelectedExpression(expression: IExpression | undefined, settingWatch: boolean) {
+	this.selectedExpression = expression ? { expression, settingWatch: settingWatch } : undefined;
+	this.expressionSelectedContextKey.set(!!expression);
+	this._onDidSelectExpression.fire(this.selectedExpression);
+}
 
-	get onDidSelectExpression(): Event<{ expression: IExpression; settingWatch: boolean } | undefined> {
-		return this._onDidSelectExpression.event;
-	}
+    get onDidSelectExpression(): Event < { expression: IExpression; settingWatch: boolean } | undefined > {
+	return this._onDidSelectExpression.event;
+}
 
-	get onDidEvaluateLazyExpression(): Event<IExpressionContainer> {
-		return this._onDidEvaluateLazyExpression.event;
-	}
+    get onDidEvaluateLazyExpression(): Event < IExpressionContainer > {
+	return this._onDidEvaluateLazyExpression.event;
+}
 
-	updateViews(): void {
-		this._onWillUpdateViews.fire();
-	}
+updateViews(cognidreamognidream {
+	this._onWillUpdateViews.fire();
+}
 
-	get onWillUpdateViews(): Event<void> {
-		return this._onWillUpdateViews.event;
-	}
+    get onWillUpdateViews(): Evecognidreamognidream > {
+	return this._onWillUpdateViews.event;
+}
 
-	isMultiSessionView(): boolean {
-		return !!this.multiSessionDebug.get();
-	}
+    isMultiSessionView(): boolean {
+	return !!this.multiSessionDebug.get();
+}
 
-	setMultiSessionView(isMultiSessionView: boolean): void {
-		this.multiSessionDebug.set(isMultiSessionView);
-	}
+    setMultiSessionView(isMultiSessionView: booleancognidreamognidream {
+	this.multiSessionDebug.set(isMultiSessionView);
+}
 
-	setVisualizedExpression(original: IExpression, visualized: IExpression & { treeId: string } | undefined): void {
-		const current = this.visualized.get(original) || original;
-		const key = this.getPreferredVisualizedKey(original);
-		if (visualized) {
-			this.visualized.set(original, visualized);
-			this.preferredVisualizers.set(key, visualized.treeId);
-		} else {
-			this.visualized.delete(original);
-			this.preferredVisualizers.delete(key);
-		}
-		this._onDidChangeVisualization.fire({ original: current, replacement: visualized || original });
+    setVisualizedExpression(original: IExpression, visualized: IExpression & { treeId: string } | undefinedcognidreamognidream {
+	const current = this.visualized.get(original) || original;
+	const key = this.getPreferredVisualizedKey(original);
+	if(visualized) {
+		this.visualized.set(original, visualized);
+		this.preferredVisualizers.set(key, visualized.treeId);
+	} else {
+		this.visualized.delete(original);
+		this.preferredVisualizers.delete(key);
 	}
+        this._onDidChangeVisualization.fire({ original: current, replacement: visualized || original });
+}
 
-	getVisualizedExpression(expression: IExpression): IExpression | string | undefined {
-		return this.visualized.get(expression) || this.preferredVisualizers.get(this.getPreferredVisualizedKey(expression));
-	}
+    getVisualizedExpression(expression: IExpression): IExpression | string | undefined {
+	return this.visualized.get(expression) || this.preferredVisualizers.get(this.getPreferredVisualizedKey(expression));
+}
 
-	async evaluateLazyExpression(expression: IExpressionContainer): Promise<void> {
-		await expression.evaluateLazy();
-		this._onDidEvaluateLazyExpression.fire(expression);
-	}
+    async evaluateLazyExpression(expression: IExpressionContainer): Promicognidreamognidream > {
+	await expression.evaluateLazy();
+	this._onDidEvaluateLazyExpression.fire(expression);
+}
 
-	private getPreferredVisualizedKey(expr: IExpression) {
-		return JSON.stringify([
-			expr.name,
-			expr.type,
-			!!expr.memoryReference,
-		].join('\0'));
-	}
+    private getPreferredVisualizedKey(expr: IExpression) {
+	return JSON.stringify([
+		expr.name,
+		expr.type,
+		!!expr.memoryReference,
+	].join('\0'));
+}
 }

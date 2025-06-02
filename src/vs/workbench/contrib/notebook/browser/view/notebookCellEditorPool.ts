@@ -21,7 +21,7 @@ export class NotebookCellEditorPool extends Disposable {
 	private readonly _editorDisposable = this._register(new MutableDisposable());
 	private _editorContextKeyService!: IScopedContextKeyService;
 	private _editor!: CodeEditorWidget;
-	private _focusEditorCancellablePromise: CancelablePromise<void> | undefined;
+	private _focusEditorCancellablePromise: CancelablePromise<cognidream> | undefined;
 	private _isInitialized = false;
 	private _isDisposed = false;
 
@@ -68,69 +68,69 @@ export class NotebookCellEditorPool extends Disposable {
 		this._isInitialized = true;
 	}
 
-	preserveFocusedEditor(cell: ICellViewModel): void {
+	preserveFocusedEditor(cell: ICellViewModelcognidreamognidream {
 		if (!this._isInitialized) {
-			this._initializeEditor(cell);
+	this._initializeEditor(cell);
+}
+
+this._editorDisposable.clear();
+this._focusEditorCancellablePromise?.cancel();
+
+this._focusEditorCancellablePromise = createCancelablePromise(async token => {
+	const ref = await this.textModelService.createModelReference(cell.uri);
+
+	if (this._isDisposed || token.isCancellationRequested) {
+		ref.dispose();
+		return;
+	}
+
+	const editorDisposable = new DisposableStore();
+	editorDisposable.add(ref);
+	this._editor.setModel(ref.object.textEditorModel);
+	this._editor.setSelections(cell.getSelections());
+	this._editor.focus();
+
+	const _update = () => {
+		const editorSelections = this._editor.getSelections();
+		if (editorSelections) {
+			cell.setSelections(editorSelections);
 		}
 
-		this._editorDisposable.clear();
-		this._focusEditorCancellablePromise?.cancel();
+		this.notebookEditor.revealInView(cell);
+		this._editor.setModel(null);
+		ref.dispose();
+	};
 
-		this._focusEditorCancellablePromise = createCancelablePromise(async token => {
-			const ref = await this.textModelService.createModelReference(cell.uri);
+	editorDisposable.add(this._editor.onDidChangeModelContent((e) => {
+		_update();
+	}));
 
-			if (this._isDisposed || token.isCancellationRequested) {
-				ref.dispose();
-				return;
-			}
+	editorDisposable.add(this._editor.onDidChangeCursorSelection(e => {
+		if (e.source === 'keyboard' || e.source === 'mouse') {
+			_update();
+		}
+	}));
 
-			const editorDisposable = new DisposableStore();
-			editorDisposable.add(ref);
-			this._editor.setModel(ref.object.textEditorModel);
-			this._editor.setSelections(cell.getSelections());
-			this._editor.focus();
+	editorDisposable.add(this.notebookEditor.onDidChangeActiveEditor(() => {
+		const latestActiveCell = this.notebookEditor.getActiveCell();
 
-			const _update = () => {
-				const editorSelections = this._editor.getSelections();
-				if (editorSelections) {
-					cell.setSelections(editorSelections);
-				}
+		if (latestActiveCell !== cell || latestActiveCell.focusMode !== CellFocusMode.Editor) {
+			// focus moves to another cell or cell container
+			// we should stop preserving the editor
+			this._editorDisposable.clear();
+			this._editor.setModel(null);
+			ref.dispose();
+		}
+	}));
 
-				this.notebookEditor.revealInView(cell);
-				this._editor.setModel(null);
-				ref.dispose();
-			};
+	this._editorDisposable.value = editorDisposable;
+});
+    }
 
-			editorDisposable.add(this._editor.onDidChangeModelContent((e) => {
-				_update();
-			}));
+    override dispose() {
+	this._isDisposed = true;
+	this._focusEditorCancellablePromise?.cancel();
 
-			editorDisposable.add(this._editor.onDidChangeCursorSelection(e => {
-				if (e.source === 'keyboard' || e.source === 'mouse') {
-					_update();
-				}
-			}));
-
-			editorDisposable.add(this.notebookEditor.onDidChangeActiveEditor(() => {
-				const latestActiveCell = this.notebookEditor.getActiveCell();
-
-				if (latestActiveCell !== cell || latestActiveCell.focusMode !== CellFocusMode.Editor) {
-					// focus moves to another cell or cell container
-					// we should stop preserving the editor
-					this._editorDisposable.clear();
-					this._editor.setModel(null);
-					ref.dispose();
-				}
-			}));
-
-			this._editorDisposable.value = editorDisposable;
-		});
-	}
-
-	override dispose() {
-		this._isDisposed = true;
-		this._focusEditorCancellablePromise?.cancel();
-
-		super.dispose();
-	}
+	super.dispose();
+}
 }

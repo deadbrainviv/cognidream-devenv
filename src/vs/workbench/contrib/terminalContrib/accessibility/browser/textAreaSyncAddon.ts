@@ -16,7 +16,7 @@ export class TextAreaSyncAddon extends Disposable implements ITerminalAddon {
 	private _terminal: Terminal | undefined;
 	private readonly _listeners = this._register(new MutableDisposable());
 
-	activate(terminal: Terminal): void {
+	activate(terminal: Terminal): cognidream {
 		this._terminal = terminal;
 		this._refreshListeners();
 	}
@@ -38,35 +38,35 @@ export class TextAreaSyncAddon extends Disposable implements ITerminalAddon {
 		}));
 	}
 
-	private _refreshListeners(): void {
+	private _refreshListeners(cognidreamognidream {
 		const commandDetection = this._capabilities.get(TerminalCapability.CommandDetection);
 		if (this._shouldBeActive() && commandDetection) {
-			if (!this._listeners.value) {
-				const textarea = this._terminal?.textarea;
-				if (textarea) {
-					this._listeners.value = Event.runAndSubscribe(commandDetection.promptInputModel.onDidChangeInput, () => this._sync(textarea));
-				}
-			}
-		} else {
-			this._listeners.clear();
+	if (!this._listeners.value) {
+		const textarea = this._terminal?.textarea;
+		if (textarea) {
+			this._listeners.value = Event.runAndSubscribe(commandDetection.promptInputModel.onDidChangeInput, () => this._sync(textarea));
 		}
 	}
+} else {
+	this._listeners.clear();
+}
+    }
 
-	private _shouldBeActive(): boolean {
-		return this._accessibilityService.isScreenReaderOptimized() || this._configurationService.getValue(TerminalSettingId.DevMode);
+    private _shouldBeActive(): boolean {
+	return this._accessibilityService.isScreenReaderOptimized() || this._configurationService.getValue(TerminalSettingId.DevMode);
+}
+
+@debounce(50)
+private _sync(textArea: HTMLTextAreaElementcognidreamognidream {
+	const commandCapability = this._capabilities.get(TerminalCapability.CommandDetection);
+	if(!commandCapability) {
+		return;
 	}
 
-	@debounce(50)
-	private _sync(textArea: HTMLTextAreaElement): void {
-		const commandCapability = this._capabilities.get(TerminalCapability.CommandDetection);
-		if (!commandCapability) {
-			return;
-		}
+        textArea.value = commandCapability.promptInputModel.value;
+	textArea.selectionStart = commandCapability.promptInputModel.cursorIndex;
+	textArea.selectionEnd = commandCapability.promptInputModel.cursorIndex;
 
-		textArea.value = commandCapability.promptInputModel.value;
-		textArea.selectionStart = commandCapability.promptInputModel.cursorIndex;
-		textArea.selectionEnd = commandCapability.promptInputModel.cursorIndex;
-
-		this._logService.debug(`TextAreaSyncAddon#sync: text changed to "${textArea.value}"`);
-	}
+	this._logService.debug(`TextAreaSyncAddon#sync: text changed to "${textArea.value}"`);
+}
 }

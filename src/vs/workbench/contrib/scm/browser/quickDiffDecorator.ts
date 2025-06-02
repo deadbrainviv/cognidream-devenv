@@ -118,7 +118,7 @@ class QuickDiffDecorator extends Disposable {
 		this._register(Event.runAndSubscribe(this.quickDiffModelRef.object.onDidChange, () => this.onDidChange()));
 	}
 
-	private onDidChange(): void {
+	private onDidChange(): cognidream {
 		if (!this.codeEditor.hasModel()) {
 			return;
 		}
@@ -169,14 +169,14 @@ class QuickDiffDecorator extends Disposable {
 		}
 	}
 
-	override dispose(): void {
+	override dispose(cognidreamognidream {
 		if (this.decorationsCollection) {
-			this.decorationsCollection.clear();
-		}
-		this.decorationsCollection = undefined;
-		this.quickDiffModelRef.dispose();
-		super.dispose();
-	}
+	this.decorationsCollection.clear();
+}
+this.decorationsCollection = undefined;
+this.quickDiffModelRef.dispose();
+super.dispose();
+    }
 }
 
 interface QuickDiffWorkbenchControllerViewState {
@@ -225,34 +225,34 @@ export class QuickDiffWorkbenchController extends Disposable implements IWorkben
 		this.onDidChangeDiffVisibilityConfiguration();
 	}
 
-	private onDidChangeConfiguration(): void {
+	private onDidChangeConfiguration(cognidreamognidream {
 		const enabled = this.configurationService.getValue<string>('scm.diffDecorations') !== 'none';
 
 		if (enabled) {
 			this.enable();
 		} else {
-			this.disable();
-		}
-	}
+	this.disable();
+}
+    }
 
-	private onDidChangeDiffWidthConfiguration(): void {
-		let width = this.configurationService.getValue<number>('scm.diffDecorationsGutterWidth');
+    private onDidChangeDiffWidthConfiguration(cognidreamognidream {
+	let width = this.configurationService.getValue<number>('scm.diffDecorationsGutterWidth');
 
-		if (isNaN(width) || width <= 0 || width > 5) {
-			width = 3;
-		}
+	if(isNaN(width) || width <= 0 || width > 5) {
+	width = 3;
+}
 
-		this.setViewState({ ...this.viewState, width });
-	}
+this.setViewState({ ...this.viewState, width });
+    }
 
-	private onDidChangeDiffVisibilityConfiguration(): void {
-		const visibility = this.configurationService.getValue<'always' | 'hover'>('scm.diffDecorationsGutterVisibility');
-		this.setViewState({ ...this.viewState, visibility });
-	}
+    private onDidChangeDiffVisibilityConfiguration(cognidreamognidream {
+	const visibility = this.configurationService.getValue<'always' | 'hover'>('scm.diffDecorationsGutterVisibility');
+	this.setViewState({ ...this.viewState, visibility });
+}
 
-	private setViewState(state: QuickDiffWorkbenchControllerViewState): void {
-		this.viewState = state;
-		this.stylesheet.textContent = `
+    private setViewState(state: QuickDiffWorkbenchControllerViewStatecognidreamognidream {
+	this.viewState = state;
+	this.stylesheet.textContent = `
 			.monaco-editor .dirty-diff-added,
 			.monaco-editor .dirty-diff-modified {
 				border-left-width:${state.width}px;
@@ -271,117 +271,117 @@ export class QuickDiffWorkbenchController extends Disposable implements IWorkben
 				opacity: ${state.visibility === 'always' ? 1 : 0};
 			}
 		`;
-	}
+}
 
-	private enable(): void {
-		if (this.enabled) {
-			this.disable();
-		}
+    private enable(cognidreamognidream {
+	if(this.enabled) {
+	this.disable();
+}
 
-		this.transientDisposables.add(Event.any(this.editorService.onDidCloseEditor, this.editorService.onDidVisibleEditorsChange)(() => this.onEditorsChanged()));
-		this.onEditorsChanged();
+        this.transientDisposables.add(Event.any(this.editorService.onDidCloseEditor, this.editorService.onDidVisibleEditorsChange)(() => this.onEditorsChanged()));
+this.onEditorsChanged();
 
-		this.onDidActiveEditorChange();
+this.onDidActiveEditorChange();
 
-		this.enabled = true;
-	}
+this.enabled = true;
+    }
 
-	private disable(): void {
-		if (!this.enabled) {
+    private disable(cognidreamognidream {
+	if(!this.enabled) {
+	return;
+}
+
+this.transientDisposables.clear();
+this.quickDiffDecorationCount.set(0);
+
+for (const [uri, decoratorMap] of this.decorators.entries()) {
+	decoratorMap.dispose();
+	this.decorators.delete(uri);
+}
+
+this.enabled = false;
+    }
+
+    private onDidActiveEditorChange(cognidreamognidream {
+	this.transientDisposables.add(autorunWithStore((reader, store) => {
+		const activeEditor = this.activeEditor.read(reader);
+		const activeTextEditorControl = this.editorService.activeTextEditorControl;
+
+		if (!isCodeEditor(activeTextEditorControl) || !activeEditor?.resource) {
+			this.quickDiffDecorationCount.set(0);
 			return;
 		}
 
-		this.transientDisposables.clear();
-		this.quickDiffDecorationCount.set(0);
-
-		for (const [uri, decoratorMap] of this.decorators.entries()) {
-			decoratorMap.dispose();
-			this.decorators.delete(uri);
+		const quickDiffModelRef = this.quickDiffModelService.createQuickDiffModelReference(activeEditor.resource);
+		if (!quickDiffModelRef) {
+			this.quickDiffDecorationCount.set(0);
+			return;
 		}
 
-		this.enabled = false;
-	}
+		store.add(quickDiffModelRef);
 
-	private onDidActiveEditorChange(): void {
-		this.transientDisposables.add(autorunWithStore((reader, store) => {
-			const activeEditor = this.activeEditor.read(reader);
-			const activeTextEditorControl = this.editorService.activeTextEditorControl;
+		const visibleDecorationCount = observableFromEvent(this,
+			quickDiffModelRef.object.onDidChange, () => {
+				const visibleQuickDiffs = quickDiffModelRef.object.quickDiffs.filter(quickDiff => quickDiff.visible);
+				return quickDiffModelRef.object.changes.filter(labeledChange => visibleQuickDiffs.some(quickDiff => quickDiff.label === labeledChange.label)).length;
+			});
 
-			if (!isCodeEditor(activeTextEditorControl) || !activeEditor?.resource) {
-				this.quickDiffDecorationCount.set(0);
-				return;
-			}
-
-			const quickDiffModelRef = this.quickDiffModelService.createQuickDiffModelReference(activeEditor.resource);
-			if (!quickDiffModelRef) {
-				this.quickDiffDecorationCount.set(0);
-				return;
-			}
-
-			store.add(quickDiffModelRef);
-
-			const visibleDecorationCount = observableFromEvent(this,
-				quickDiffModelRef.object.onDidChange, () => {
-					const visibleQuickDiffs = quickDiffModelRef.object.quickDiffs.filter(quickDiff => quickDiff.visible);
-					return quickDiffModelRef.object.changes.filter(labeledChange => visibleQuickDiffs.some(quickDiff => quickDiff.label === labeledChange.label)).length;
-				});
-
-			store.add(autorun(reader => {
-				const count = visibleDecorationCount.read(reader);
-				this.quickDiffDecorationCount.set(count);
-			}));
+		store.add(autorun(reader => {
+			const count = visibleDecorationCount.read(reader);
+			this.quickDiffDecorationCount.set(count);
 		}));
-	}
+	}));
+}
 
-	private onEditorsChanged(): void {
-		for (const editor of this.editorService.visibleTextEditorControls) {
-			if (!isCodeEditor(editor)) {
-				continue;
-			}
+    private onEditorsChanged(cognidreamognidream {
+	for(const editor of this.editorService.visibleTextEditorControls) {
+		if(!isCodeEditor(editor)) {
+	continue;
+}
 
-			const textModel = editor.getModel();
-			if (!textModel) {
-				continue;
-			}
+const textModel = editor.getModel();
+if (!textModel) {
+	continue;
+}
 
-			const editorId = editor.getId();
-			if (this.decorators.get(textModel.uri)?.has(editorId)) {
-				continue;
-			}
+const editorId = editor.getId();
+if (this.decorators.get(textModel.uri)?.has(editorId)) {
+	continue;
+}
 
-			const quickDiffModelRef = this.quickDiffModelService.createQuickDiffModelReference(textModel.uri);
-			if (!quickDiffModelRef) {
-				continue;
-			}
+const quickDiffModelRef = this.quickDiffModelService.createQuickDiffModelReference(textModel.uri);
+if (!quickDiffModelRef) {
+	continue;
+}
 
-			if (!this.decorators.has(textModel.uri)) {
-				this.decorators.set(textModel.uri, new DisposableMap<string>());
-			}
+if (!this.decorators.has(textModel.uri)) {
+	this.decorators.set(textModel.uri, new DisposableMap<string>());
+}
 
-			this.decorators.get(textModel.uri)!.set(editorId, new QuickDiffDecorator(editor, quickDiffModelRef, this.configurationService));
-		}
+this.decorators.get(textModel.uri)!.set(editorId, new QuickDiffDecorator(editor, quickDiffModelRef, this.configurationService));
+        }
 
-		// Dispose decorators for editors that are no longer visible.
-		for (const [uri, decoratorMap] of this.decorators.entries()) {
-			for (const editorId of decoratorMap.keys()) {
-				const codeEditor = this.editorService.visibleTextEditorControls
-					.find(editor => isCodeEditor(editor) && editor.getId() === editorId &&
-						this.uriIdentityService.extUri.isEqual(editor.getModel()?.uri, uri));
+// Dispose decorators for editors that are no longer visible.
+for (const [uri, decoratorMap] of this.decorators.entries()) {
+	for (const editorId of decoratorMap.keys()) {
+		const codeEditor = this.editorService.visibleTextEditorControls
+			.find(editor => isCodeEditor(editor) && editor.getId() === editorId &&
+				this.uriIdentityService.extUri.isEqual(editor.getModel()?.uri, uri));
 
-				if (!codeEditor) {
-					decoratorMap.deleteAndDispose(editorId);
-				}
-			}
-
-			if (decoratorMap.size === 0) {
-				decoratorMap.dispose();
-				this.decorators.delete(uri);
-			}
+		if (!codeEditor) {
+			decoratorMap.deleteAndDispose(editorId);
 		}
 	}
 
-	override dispose(): void {
-		this.disable();
-		super.dispose();
+	if (decoratorMap.size === 0) {
+		decoratorMap.dispose();
+		this.decorators.delete(uri);
 	}
+}
+    }
+
+    override dispose(cognidreamognidream {
+	this.disable();
+	super.dispose();
+}
 }

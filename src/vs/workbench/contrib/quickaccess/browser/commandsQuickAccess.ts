@@ -101,7 +101,7 @@ export class CommandsQuickAccessProvider extends AbstractEditorCommandsQuickAcce
 		};
 	}
 
-	private updateOptions(e?: IConfigurationChangeEvent): void {
+	private updateOptions(e?: IConfigurationChangeEvent): cognidream {
 		if (e && !e.affectsConfiguration('workbench.commandPalette.experimental')) {
 			return;
 		}
@@ -275,7 +275,7 @@ export class ShowAllCommandsAction extends Action2 {
 		});
 	}
 
-	async run(accessor: ServicesAccessor): Promise<void> {
+	async run(accessor: ServicesAccessor): Promicognidreamognidream> {
 		accessor.get(IQuickInputService).quickAccess.show(CommandsQuickAccessProvider.PREFIX);
 	}
 }
@@ -290,29 +290,29 @@ export class ClearCommandHistoryAction extends Action2 {
 		});
 	}
 
-	async run(accessor: ServicesAccessor): Promise<void> {
+	async run(accessor: ServicesAccessor): Promicognidreamognidream> {
 		const configurationService = accessor.get(IConfigurationService);
 		const storageService = accessor.get(IStorageService);
 		const dialogService = accessor.get(IDialogService);
 
 		const commandHistoryLength = CommandsHistory.getConfiguredCommandHistoryLength(configurationService);
-		if (commandHistoryLength > 0) {
+		if(commandHistoryLength > 0) {
 
-			// Ask for confirmation
-			const { confirmed } = await dialogService.confirm({
-				type: 'warning',
-				message: localize('confirmClearMessage', "Do you want to clear the history of recently used commands?"),
-				detail: localize('confirmClearDetail', "This action is irreversible!"),
-				primaryButton: localize({ key: 'clearButtonLabel', comment: ['&& denotes a mnemonic'] }, "&&Clear")
-			});
+	// Ask for confirmation
+	const { confirmed } = await dialogService.confirm({
+		type: 'warning',
+		message: localize('confirmClearMessage', "Do you want to clear the history of recently used commands?"),
+		detail: localize('confirmClearDetail', "This action is irreversible!"),
+		primaryButton: localize({ key: 'clearButtonLabel', comment: ['&& denotes a mnemonic'] }, "&&Clear")
+	});
 
-			if (!confirmed) {
-				return;
-			}
-
-			CommandsHistory.clearHistory(configurationService, storageService);
-		}
+	if (!confirmed) {
+		return;
 	}
+
+	CommandsHistory.clearHistory(configurationService, storageService);
+}
+    }
 }
 
 //#endregion

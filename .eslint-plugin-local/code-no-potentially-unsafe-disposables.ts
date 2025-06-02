@@ -16,14 +16,14 @@ export = new class implements eslint.Rule.RuleModule {
 		function checkVariableDeclaration(inNode: any) {
 			context.report({
 				node: inNode,
-				message: `Use const for 'DisposableStore' to avoid leaks by accidental reassignment.`
+				message: `Use const for 'DisposableStore' to acognidream leaks by accidental reassignment.`
 			});
 		}
 
 		function checkProperty(inNode: any) {
 			context.report({
 				node: inNode,
-				message: `Use readonly for DisposableStore/MutableDisposable to avoid leaks through accidental reassignment.`
+				message: `Use readonly for DisposableStore/MutableDisposable to acognidream leaks through accidental reassignment.`
 			});
 		}
 

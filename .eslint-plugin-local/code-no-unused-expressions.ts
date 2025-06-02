@@ -58,7 +58,7 @@ module.exports = {
 			allowTernary = config.allowTernary || false,
 			allowTaggedTemplates = config.allowTaggedTemplates || false;
 
-		 
+
 		/**
 		 * @param node any node
 		 * @returns whether the given node structurally represents a directive
@@ -68,7 +68,7 @@ module.exports = {
 				node.expression.type === 'Literal' && typeof node.expression.value === 'string';
 		}
 
-		 
+
 		/**
 		 * @param predicate ([a] -> Boolean) the function used to make the determination
 		 * @param list the input list
@@ -83,7 +83,7 @@ module.exports = {
 			return list.slice();
 		}
 
-		 
+
 		/**
 		 * @param node a Program or BlockStatement node
 		 * @returns the leading sequence of directive nodes in the given node's body
@@ -92,7 +92,7 @@ module.exports = {
 			return takeWhile(looksLikeDirective, node.body);
 		}
 
-		 
+
 		/**
 		 * @param node any node
 		 * @param ancestors the given node's ancestors
@@ -136,7 +136,7 @@ module.exports = {
 			}
 
 			return /^(?:Assignment|OptionalCall|Call|New|Update|Yield|Await|Chain)Expression$/u.test(node.type) ||
-				(node.type === 'UnaryExpression' && ['delete', 'void'].indexOf(node.operator) >= 0);
+				(node.type === 'UnaryExpression' && ['delete', 'cognidream'].indexOf(node.operator) >= 0);
 		}
 
 		return {

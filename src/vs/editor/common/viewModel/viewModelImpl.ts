@@ -67,7 +67,7 @@ export class ViewModel extends Disposable implements IViewModel {
 		model: ITextModel,
 		domLineBreaksComputerFactory: ILineBreaksComputerFactory,
 		monospaceLineBreaksComputerFactory: ILineBreaksComputerFactory,
-		scheduleAtNextAnimationFrame: (callback: () => void) => IDisposable,
+		scheduleAtNextAnimationFrame: (callback: () => cognidream) => IDisposable,
 		private readonly languageConfigurationService: ILanguageConfigurationService,
 		private readonly _themeService: IThemeService,
 		private readonly _attachedView: IAttachedView,
@@ -161,7 +161,7 @@ export class ViewModel extends Disposable implements IViewModel {
 		this._updateConfigurationViewLineCountNow();
 	}
 
-	public override dispose(): void {
+	public override dispose(): cognidream {
 		// First remove listeners, as disposing the lines might end up sending
 		// model decoration changed events ... and we no longer care about them ...
 		super.dispose();
@@ -175,15 +175,15 @@ export class ViewModel extends Disposable implements IViewModel {
 		return this._lines.createLineBreaksComputer();
 	}
 
-	public addViewEventHandler(eventHandler: ViewEventHandler): void {
+	public addViewEventHandler(eventHandler: ViewEventHandler): cognidream {
 		this._eventDispatcher.addViewEventHandler(eventHandler);
 	}
 
-	public removeViewEventHandler(eventHandler: ViewEventHandler): void {
+	public removeViewEventHandler(eventHandler: ViewEventHandler): cognidream {
 		this._eventDispatcher.removeViewEventHandler(eventHandler);
 	}
 
-	private _updateConfigurationViewLineCountNow(): void {
+	private _updateConfigurationViewLineCountNow(): cognidream {
 		this._configuration.setViewLineCount(this._lines.getViewLineCount());
 	}
 
@@ -199,32 +199,32 @@ export class ViewModel extends Disposable implements IViewModel {
 		return modelVisibleRanges;
 	}
 
-	public visibleLinesStabilized(): void {
+	public visibleLinesStabilized(): cognidream {
 		const modelVisibleRanges = this.getModelVisibleRanges();
 		this._attachedView.setVisibleLines(modelVisibleRanges, true);
 	}
 
-	private _handleVisibleLinesChanged(): void {
+	private _handleVisibleLinesChanged(): cognidream {
 		const modelVisibleRanges = this.getModelVisibleRanges();
 		this._attachedView.setVisibleLines(modelVisibleRanges, false);
 	}
 
-	public setHasFocus(hasFocus: boolean): void {
+	public setHasFocus(hasFocus: boolean): cognidream {
 		this._hasFocus = hasFocus;
 		this._cursor.setHasFocus(hasFocus);
 		this._eventDispatcher.emitSingleViewEvent(new viewEvents.ViewFocusChangedEvent(hasFocus));
 		this._eventDispatcher.emitOutgoingEvent(new FocusChangedEvent(!hasFocus, hasFocus));
 	}
 
-	public setHasWidgetFocus(hasWidgetFocus: boolean): void {
+	public setHasWidgetFocus(hasWidgetFocus: boolean): cognidream {
 		this._eventDispatcher.emitOutgoingEvent(new WidgetFocusChangedEvent(!hasWidgetFocus, hasWidgetFocus));
 	}
 
-	public onCompositionStart(): void {
+	public onCompositionStart(): cognidream {
 		this._eventDispatcher.emitSingleViewEvent(new viewEvents.ViewCompositionStartEvent());
 	}
 
-	public onCompositionEnd(): void {
+	public onCompositionEnd(): cognidream {
 		this._eventDispatcher.emitSingleViewEvent(new viewEvents.ViewCompositionEndEvent());
 	}
 
@@ -239,7 +239,7 @@ export class ViewModel extends Disposable implements IViewModel {
 		return new StableViewport(null, 0);
 	}
 
-	private _onConfigurationChanged(eventsCollector: ViewModelEventsCollector, e: ConfigurationChangedEvent): void {
+	private _onConfigurationChanged(eventsCollector: ViewModelEventsCollector, e: ConfigurationChangedEvent): cognidream {
 		const stableViewport = this._captureStableViewport();
 		const options = this._configuration.options;
 		const fontInfo = options.get(EditorOption.fontInfo);
@@ -281,7 +281,7 @@ export class ViewModel extends Disposable implements IViewModel {
 		}
 	}
 
-	private _registerModelEvents(): void {
+	private _registerModelEvents(): cognidream {
 
 		this._register(this.model.onDidChangeContentOrInjectedText((e) => {
 			try {
@@ -485,7 +485,7 @@ export class ViewModel extends Disposable implements IViewModel {
 	 * This is because the model might have changed, which resets the hidden areas, but not the last cached value.
 	 * This needs a better fix in the future.
 	*/
-	public setHiddenAreas(ranges: Range[], source?: unknown, forceUpdate?: boolean): void {
+	public setHiddenAreas(ranges: Range[], source?: unknown, forceUpdate?: boolean): cognidream {
 		this.hiddenAreasModel.setHiddenAreas(source, ranges);
 		const mergedRanges = this.hiddenAreasModel.getMergedRanges();
 		if (mergedRanges === this.previousHiddenAreas && !forceUpdate) {
@@ -663,7 +663,7 @@ export class ViewModel extends Disposable implements IViewModel {
 	/**
 	 * Gives a hint that a lot of requests are about to come in for these line numbers.
 	 */
-	public setViewport(startLineNumber: number, endLineNumber: number, centeredLineNumber: number): void {
+	public setViewport(startLineNumber: number, endLineNumber: number, centeredLineNumber: number): cognidream {
 		this._viewportStart.update(this, startLineNumber);
 	}
 
@@ -797,7 +797,7 @@ export class ViewModel extends Disposable implements IViewModel {
 		return result.asArray;
 	}
 
-	private _invalidateDecorationsColorCache(): void {
+	private _invalidateDecorationsColorCache(): cognidream {
 		const decorations = this.model.getOverviewRulerDecorations();
 		for (const decoration of decorations) {
 			const opts1 = <ModelDecorationOverviewRulerOptions>decoration.options.overviewRuler;
@@ -1016,13 +1016,13 @@ export class ViewModel extends Disposable implements IViewModel {
 	public getCursorAutoClosedCharacters(): Range[] {
 		return this._cursor.getAutoClosedCharacters();
 	}
-	public setCursorColumnSelectData(columnSelectData: IColumnSelectData): void {
+	public setCursorColumnSelectData(columnSelectData: IColumnSelectData): cognidream {
 		this._cursor.setCursorColumnSelectData(columnSelectData);
 	}
 	public getPrevEditOperationType(): EditOperationType {
 		return this._cursor.getPrevEditOperationType();
 	}
-	public setPrevEditOperationType(type: EditOperationType): void {
+	public setPrevEditOperationType(type: EditOperationType): cognidream {
 		this._cursor.setPrevEditOperationType(type);
 	}
 	public getSelection(): Selection {
@@ -1034,17 +1034,17 @@ export class ViewModel extends Disposable implements IViewModel {
 	public getPosition(): Position {
 		return this._cursor.getPrimaryCursorState().modelState.position;
 	}
-	public setSelections(source: string | null | undefined, selections: readonly ISelection[], reason = CursorChangeReason.NotSet): void {
+	public setSelections(source: string | null | undefined, selections: readonly ISelection[], reason = CursorChangeReason.NotSet): cognidream {
 		this._withViewEventsCollector(eventsCollector => this._cursor.setSelections(eventsCollector, source, selections, reason));
 	}
 	public saveCursorState(): ICursorState[] {
 		return this._cursor.saveState();
 	}
-	public restoreCursorState(states: ICursorState[]): void {
+	public restoreCursorState(states: ICursorState[]): cognidream {
 		this._withViewEventsCollector(eventsCollector => this._cursor.restoreState(eventsCollector, states));
 	}
 
-	private _executeCursorEdit(callback: (eventsCollector: ViewModelEventsCollector) => void): void {
+	private _executeCursorEdit(callback: (eventsCollector: ViewModelEventsCollector) => cognidream): cognidream {
 		if (this._cursor.context.cursorConfig.readOnly) {
 			// we cannot edit when read only...
 			this._eventDispatcher.emitOutgoingEvent(new ReadOnlyEditAttemptEvent());
@@ -1052,57 +1052,57 @@ export class ViewModel extends Disposable implements IViewModel {
 		}
 		this._withViewEventsCollector(callback);
 	}
-	public executeEdits(source: string | null | undefined, edits: IIdentifiedSingleEditOperation[], cursorStateComputer: ICursorStateComputer): void {
+	public executeEdits(source: string | null | undefined, edits: IIdentifiedSingleEditOperation[], cursorStateComputer: ICursorStateComputer): cognidream {
 		this._executeCursorEdit(eventsCollector => this._cursor.executeEdits(eventsCollector, source, edits, cursorStateComputer));
 	}
-	public startComposition(): void {
+	public startComposition(): cognidream {
 		this._executeCursorEdit(eventsCollector => this._cursor.startComposition(eventsCollector));
 	}
-	public endComposition(source?: string | null | undefined): void {
+	public endComposition(source?: string | null | undefined): cognidream {
 		this._executeCursorEdit(eventsCollector => this._cursor.endComposition(eventsCollector, source));
 	}
-	public type(text: string, source?: string | null | undefined): void {
+	public type(text: string, source?: string | null | undefined): cognidream {
 		this._executeCursorEdit(eventsCollector => this._cursor.type(eventsCollector, text, source));
 	}
-	public compositionType(text: string, replacePrevCharCnt: number, replaceNextCharCnt: number, positionDelta: number, source?: string | null | undefined): void {
+	public compositionType(text: string, replacePrevCharCnt: number, replaceNextCharCnt: number, positionDelta: number, source?: string | null | undefined): cognidream {
 		this._executeCursorEdit(eventsCollector => this._cursor.compositionType(eventsCollector, text, replacePrevCharCnt, replaceNextCharCnt, positionDelta, source));
 	}
-	public paste(text: string, pasteOnNewLine: boolean, multicursorText?: string[] | null | undefined, source?: string | null | undefined): void {
+	public paste(text: string, pasteOnNewLine: boolean, multicursorText?: string[] | null | undefined, source?: string | null | undefined): cognidream {
 		this._executeCursorEdit(eventsCollector => this._cursor.paste(eventsCollector, text, pasteOnNewLine, multicursorText, source));
 	}
-	public cut(source?: string | null | undefined): void {
+	public cut(source?: string | null | undefined): cognidream {
 		this._executeCursorEdit(eventsCollector => this._cursor.cut(eventsCollector, source));
 	}
-	public executeCommand(command: ICommand, source?: string | null | undefined): void {
+	public executeCommand(command: ICommand, source?: string | null | undefined): cognidream {
 		this._executeCursorEdit(eventsCollector => this._cursor.executeCommand(eventsCollector, command, source));
 	}
-	public executeCommands(commands: ICommand[], source?: string | null | undefined): void {
+	public executeCommands(commands: ICommand[], source?: string | null | undefined): cognidream {
 		this._executeCursorEdit(eventsCollector => this._cursor.executeCommands(eventsCollector, commands, source));
 	}
-	public revealAllCursors(source: string | null | undefined, revealHorizontal: boolean, minimalReveal: boolean = false): void {
+	public revealAllCursors(source: string | null | undefined, revealHorizontal: boolean, minimalReveal: boolean = false): cognidream {
 		this._withViewEventsCollector(eventsCollector => this._cursor.revealAll(eventsCollector, source, minimalReveal, viewEvents.VerticalRevealType.Simple, revealHorizontal, ScrollType.Smooth));
 	}
-	public revealPrimaryCursor(source: string | null | undefined, revealHorizontal: boolean, minimalReveal: boolean = false): void {
+	public revealPrimaryCursor(source: string | null | undefined, revealHorizontal: boolean, minimalReveal: boolean = false): cognidream {
 		this._withViewEventsCollector(eventsCollector => this._cursor.revealPrimary(eventsCollector, source, minimalReveal, viewEvents.VerticalRevealType.Simple, revealHorizontal, ScrollType.Smooth));
 	}
-	public revealTopMostCursor(source: string | null | undefined): void {
+	public revealTopMostCursor(source: string | null | undefined): cognidream {
 		const viewPosition = this._cursor.getTopMostViewPosition();
 		const viewRange = new Range(viewPosition.lineNumber, viewPosition.column, viewPosition.lineNumber, viewPosition.column);
 		this._withViewEventsCollector(eventsCollector => eventsCollector.emitViewEvent(new viewEvents.ViewRevealRangeRequestEvent(source, false, viewRange, null, viewEvents.VerticalRevealType.Simple, true, ScrollType.Smooth)));
 	}
-	public revealBottomMostCursor(source: string | null | undefined): void {
+	public revealBottomMostCursor(source: string | null | undefined): cognidream {
 		const viewPosition = this._cursor.getBottomMostViewPosition();
 		const viewRange = new Range(viewPosition.lineNumber, viewPosition.column, viewPosition.lineNumber, viewPosition.column);
 		this._withViewEventsCollector(eventsCollector => eventsCollector.emitViewEvent(new viewEvents.ViewRevealRangeRequestEvent(source, false, viewRange, null, viewEvents.VerticalRevealType.Simple, true, ScrollType.Smooth)));
 	}
-	public revealRange(source: string | null | undefined, revealHorizontal: boolean, viewRange: Range, verticalType: viewEvents.VerticalRevealType, scrollType: ScrollType): void {
+	public revealRange(source: string | null | undefined, revealHorizontal: boolean, viewRange: Range, verticalType: viewEvents.VerticalRevealType, scrollType: ScrollType): cognidream {
 		this._withViewEventsCollector(eventsCollector => eventsCollector.emitViewEvent(new viewEvents.ViewRevealRangeRequestEvent(source, false, viewRange, null, verticalType, revealHorizontal, scrollType)));
 	}
 
 	//#endregion
 
 	//#region viewLayout
-	public changeWhitespace(callback: (accessor: IWhitespaceChangeAccessor) => void): void {
+	public changeWhitespace(callback: (accessor: IWhitespaceChangeAccessor) => cognidream): cognidream {
 		const hadAChange = this.viewLayout.changeWhitespace(callback);
 		if (hadAChange) {
 			this._eventDispatcher.emitSingleViewEvent(new viewEvents.ViewZonesChangedEvent());
@@ -1122,7 +1122,7 @@ export class ViewModel extends Disposable implements IViewModel {
 		});
 	}
 
-	public batchEvents(callback: () => void): void {
+	public batchEvents(callback: () => cognidream): cognidream {
 		this._withViewEventsCollector(() => { callback(); });
 	}
 
@@ -1177,11 +1177,11 @@ class ViewportStart implements IDisposable {
 		private _startLineDelta: number,
 	) { }
 
-	public dispose(): void {
+	public dispose(): cognidream {
 		this._model._setTrackedRange(this._modelTrackedRange, null, TrackedRangeStickiness.NeverGrowsWhenTypingAtEdges);
 	}
 
-	public update(viewModel: IViewModel, startLineNumber: number): void {
+	public update(viewModel: IViewModel, startLineNumber: number): cognidream {
 		const position = viewModel.coordinatesConverter.convertViewPositionToModelPosition(new Position(startLineNumber, viewModel.getLineMinColumn(startLineNumber)));
 		const viewportStartLineTrackedRange = viewModel.model._setTrackedRange(this._modelTrackedRange, new Range(position.lineNumber, position.column, position.lineNumber, position.column), TrackedRangeStickiness.NeverGrowsWhenTypingAtEdges);
 		const viewportStartLineTop = viewModel.viewLayout.getVerticalOffsetForLineNumber(startLineNumber);
@@ -1193,7 +1193,7 @@ class ViewportStart implements IDisposable {
 		this._startLineDelta = scrollTop - viewportStartLineTop;
 	}
 
-	public invalidate(): void {
+	public invalidate(): cognidream {
 		this._isValid = false;
 	}
 }
@@ -1203,7 +1203,7 @@ class OverviewRulerDecorations {
 	private readonly _asMap: { [color: string]: OverviewRulerDecorationsGroup } = Object.create(null);
 	readonly asArray: OverviewRulerDecorationsGroup[] = [];
 
-	public accept(color: string, zIndex: number, startLineNumber: number, endLineNumber: number, lane: number): void {
+	public accept(color: string, zIndex: number, startLineNumber: number, endLineNumber: number, lane: number): cognidream {
 		const prevGroup = this._asMap[color];
 
 		if (prevGroup) {
@@ -1233,7 +1233,7 @@ class HiddenAreasModel {
 	private shouldRecompute = false;
 	private ranges: Range[] = [];
 
-	setHiddenAreas(source: unknown, ranges: Range[]): void {
+	setHiddenAreas(source: unknown, ranges: Range[]): cognidream {
 		const existing = this.hiddenAreas.get(source);
 		if (existing && rangeArraysEqual(existing, ranges)) {
 			return;
@@ -1309,7 +1309,7 @@ class StableViewport {
 		public readonly startLineDelta: number
 	) { }
 
-	public recoverViewportStart(coordinatesConverter: ICoordinatesConverter, viewLayout: ViewLayout): void {
+	public recoverViewportStart(coordinatesConverter: ICoordinatesConverter, viewLayout: ViewLayout): cognidream {
 		if (!this.viewportStartModelPosition) {
 			return;
 		}

@@ -12,40 +12,40 @@ import { ServicesAccessor } from '../../../../platform/instantiation/common/inst
 
 class ToggleRenderWhitespaceAction extends Action2 {
 
-	static readonly ID = 'editor.action.toggleRenderWhitespace';
+    static readonly ID = 'editor.action.toggleRenderWhitespace';
 
-	constructor() {
-		super({
-			id: ToggleRenderWhitespaceAction.ID,
-			title: {
-				...localize2('toggleRenderWhitespace', "Toggle Render Whitespace"),
-				mnemonicTitle: localize({ key: 'miToggleRenderWhitespace', comment: ['&& denotes a mnemonic'] }, "&&Render Whitespace"),
-			},
-			category: Categories.View,
-			f1: true,
-			toggled: ContextKeyExpr.notEquals('config.editor.renderWhitespace', 'none'),
-			menu: {
-				id: MenuId.MenubarAppearanceMenu,
-				group: '4_editor',
-				order: 4
-			}
-		});
-	}
+    constructor() {
+        super({
+            id: ToggleRenderWhitespaceAction.ID,
+            title: {
+                ...localize2('toggleRenderWhitespace', "Toggle Render Whitespace"),
+                mnemonicTitle: localize({ key: 'miToggleRenderWhitespace', comment: ['&& denotes a mnemonic'] }, "&&Render Whitespace"),
+            },
+            category: Categories.View,
+            f1: true,
+            toggled: ContextKeyExpr.notEquals('config.editor.renderWhitespace', 'none'),
+            menu: {
+                id: MenuId.MenubarAppearanceMenu,
+                group: '4_editor',
+                order: 4
+            }
+        });
+    }
 
-	override run(accessor: ServicesAccessor): Promise<void> {
-		const configurationService = accessor.get(IConfigurationService);
+    override run(accessor: ServicesAccessor): Promise<cognidream> {
+        const configurationService = accessor.get(IConfigurationService);
 
-		const renderWhitespace = configurationService.getValue<string>('editor.renderWhitespace');
+        const renderWhitespace = configurationService.getValue<string>('editor.renderWhitespace');
 
-		let newRenderWhitespace: string;
-		if (renderWhitespace === 'none') {
-			newRenderWhitespace = 'all';
-		} else {
-			newRenderWhitespace = 'none';
-		}
+        let newRenderWhitespace: string;
+        if (renderWhitespace === 'none') {
+            newRenderWhitespace = 'all';
+        } else {
+            newRenderWhitespace = 'none';
+        }
 
-		return configurationService.updateValue('editor.renderWhitespace', newRenderWhitespace);
-	}
+        return configurationService.updateValue('editor.renderWhitespace', newRenderWhitespace);
+    }
 }
 
 registerAction2(ToggleRenderWhitespaceAction);

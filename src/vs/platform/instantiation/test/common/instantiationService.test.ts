@@ -400,7 +400,7 @@ suite('Instantiation Service', () => {
 
 		const A = createDecorator<A>('A');
 		const B = createDecorator<B>('B');
-		interface A { _serviceBrand: undefined; doIt(): void }
+		interface A { _serviceBrand: undefined; doIt(): cognidream }
 		interface B { _serviceBrand: undefined; b(): boolean }
 
 		class BConsumer {
@@ -468,7 +468,7 @@ suite('Instantiation Service', () => {
 		interface A {
 			_serviceBrand: undefined;
 			onDidDoIt: Event<any>;
-			doIt(): void;
+			doIt(): cognidream;
 		}
 
 		let created = false;
@@ -483,7 +483,7 @@ suite('Instantiation Service', () => {
 				created = true;
 			}
 
-			doIt(): void {
+			doIt(): cognidream {
 				this._doIt += 1;
 				this._onDidDoIt.fire(this);
 			}
@@ -532,8 +532,8 @@ suite('Instantiation Service', () => {
 		interface A {
 			_serviceBrand: undefined;
 			onDidDoIt: Event<any>;
-			doIt(): void;
-			noop(): void;
+			doIt(): cognidream;
+			noop(): cognidream;
 		}
 
 		let created = false;
@@ -548,12 +548,12 @@ suite('Instantiation Service', () => {
 				created = true;
 			}
 
-			doIt(): void {
+			doIt(): cognidream {
 				this._doIt += 1;
 				this._onDidDoIt.fire(this);
 			}
 
-			noop(): void {
+			noop(): cognidream {
 			}
 		}
 
@@ -600,7 +600,7 @@ suite('Instantiation Service', () => {
 		interface A {
 			_serviceBrand: undefined;
 			onDidDoIt: Event<any>;
-			doIt(): void;
+			doIt(): cognidream;
 		}
 		let created = false;
 		class AImpl implements A {
@@ -614,7 +614,7 @@ suite('Instantiation Service', () => {
 				created = true;
 			}
 
-			doIt(): void {
+			doIt(): cognidream {
 				this._doIt += 1;
 				this._onDidDoIt.fire(this);
 			}

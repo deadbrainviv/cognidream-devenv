@@ -33,11 +33,11 @@ export class MainThreadWindow implements MainThreadWindowShape {
 		this.registerNativeHandle();
 	}
 
-	dispose(): void {
+	dispose(): cognidream {
 		this.disposables.dispose();
 	}
 
-	registerNativeHandle(): void {
+	registerNativeHandle(cognidreamognidream {
 		Event.latch(this.hostService.onDidChangeActiveWindow)(
 			async windowId => {
 				const handle = await this.hostService.getNativeWindowHandle(windowId);
@@ -46,34 +46,34 @@ export class MainThreadWindow implements MainThreadWindowShape {
 			this,
 			this.disposables
 		);
-	}
+    }
 
-	$getInitialState() {
-		return Promise.resolve({
-			isFocused: this.hostService.hasFocus,
-			isActive: this.userActivityService.isActive,
-		});
-	}
+$getInitialState() {
+	return Promise.resolve({
+		isFocused: this.hostService.hasFocus,
+		isActive: this.userActivityService.isActive,
+	});
+}
 
-	async $openUri(uriComponents: UriComponents, uriString: string | undefined, options: IOpenUriOptions): Promise<boolean> {
-		const uri = URI.from(uriComponents);
-		let target: URI | string;
-		if (uriString && URI.parse(uriString).toString() === uri.toString()) {
-			// called with string and no transformation happened -> keep string
-			target = uriString;
-		} else {
-			// called with URI or transformed -> use uri
-			target = uri;
-		}
-		return this.openerService.open(target, {
-			openExternal: true,
-			allowTunneling: options.allowTunneling,
-			allowContributedOpeners: options.allowContributedOpeners,
-		});
-	}
+    async $openUri(uriComponents: UriComponents, uriString: string | undefined, options: IOpenUriOptions): Promise < boolean > {
+	const uri = URI.from(uriComponents);
+	let target: URI | string;
+	if(uriString && URI.parse(uriString).toString() === uri.toString()) {
+	// called with string and no transformation happened -> keep string
+	target = uriString;
+} else {
+	// called with URI or transformed -> use uri
+	target = uri;
+}
+return this.openerService.open(target, {
+	openExternal: true,
+	allowTunneling: options.allowTunneling,
+	allowContributedOpeners: options.allowContributedOpeners,
+});
+    }
 
-	async $asExternalUri(uriComponents: UriComponents, options: IOpenUriOptions): Promise<UriComponents> {
-		const result = await this.openerService.resolveExternalUri(URI.revive(uriComponents), options);
-		return result.resolved;
-	}
+    async $asExternalUri(uriComponents: UriComponents, options: IOpenUriOptions): Promise < UriComponents > {
+	const result = await this.openerService.resolveExternalUri(URI.revive(uriComponents), options);
+	return result.resolved;
+}
 }

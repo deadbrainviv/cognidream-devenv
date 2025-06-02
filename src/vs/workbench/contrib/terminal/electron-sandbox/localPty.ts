@@ -23,68 +23,68 @@ export class LocalPty extends BasePty implements ITerminalChildProcess {
 		return this._proxy.start(this.id);
 	}
 
-	detach(forcePersist?: boolean): Promise<void> {
+	detach(forcePersist?: boolean): Promise<cognidream> {
 		return this._proxy.detachFromProcess(this.id, forcePersist);
 	}
 
-	shutdown(immediate: boolean): void {
+	shutdown(immediate: booleancognidreamognidream {
 		this._proxy.shutdown(this.id, immediate);
-	}
+    }
 
-	async processBinary(data: string): Promise<void> {
-		if (this._inReplay) {
-			return;
-		}
-		return this._proxy.processBinary(this.id, data);
-	}
+    async processBinary(data: string): Promicognidreamognidream > {
+	if(this._inReplay) {
+	return;
+}
+return this._proxy.processBinary(this.id, data);
+    }
 
-	input(data: string): void {
-		if (this._inReplay) {
-			return;
-		}
-		this._proxy.input(this.id, data);
-	}
+input(data: stringcognidreamognidream {
+	if(this._inReplay) {
+	return;
+}
+this._proxy.input(this.id, data);
+    }
 
-	resize(cols: number, rows: number): void {
-		if (this._inReplay || this._lastDimensions.cols === cols && this._lastDimensions.rows === rows) {
-			return;
-		}
-		this._lastDimensions.cols = cols;
-		this._lastDimensions.rows = rows;
-		this._proxy.resize(this.id, cols, rows);
-	}
+resize(cols: number, rows: numbercognidreamognidream {
+	if(this._inReplay || this._lastDimensions.cols === cols && this._lastDimensions.rows === rows) {
+	return;
+}
+this._lastDimensions.cols = cols;
+this._lastDimensions.rows = rows;
+this._proxy.resize(this.id, cols, rows);
+    }
 
-	async clearBuffer(): Promise<void> {
-		this._proxy.clearBuffer?.(this.id);
-	}
+    async clearBuffer(): Promicognidreamognidream > {
+	this._proxy.clearBuffer?.(this.id);
+}
 
-	freePortKillProcess(port: string): Promise<{ port: string; processId: string }> {
-		if (!this._proxy.freePortKillProcess) {
-			throw new Error('freePortKillProcess does not exist on the local pty service');
-		}
-		return this._proxy.freePortKillProcess(port);
-	}
+freePortKillProcess(port: string): Promise < { port: string; processId: string } > {
+	if(!this._proxy.freePortKillProcess) {
+	throw new Error('freePortKillProcess does not exist on the local pty service');
+}
+return this._proxy.freePortKillProcess(port);
+    }
 
-	async refreshProperty<T extends ProcessPropertyType>(type: T): Promise<IProcessPropertyMap[T]> {
-		return this._proxy.refreshProperty(this.id, type);
-	}
+    async refreshProperty<T extends ProcessPropertyType>(type: T): Promise < IProcessPropertyMap[T] > {
+	return this._proxy.refreshProperty(this.id, type);
+}
 
-	async updateProperty<T extends ProcessPropertyType>(type: T, value: IProcessPropertyMap[T]): Promise<void> {
-		return this._proxy.updateProperty(this.id, type, value);
-	}
+    async updateProperty<T extends ProcessPropertyType>(type: T, value: IProcessPropertyMap[T]): Promicognidreamognidream > {
+	return this._proxy.updateProperty(this.id, type, value);
+}
 
-	acknowledgeDataEvent(charCount: number): void {
-		if (this._inReplay) {
-			return;
-		}
-		this._proxy.acknowledgeDataEvent(this.id, charCount);
-	}
+acknowledgeDataEvent(charCount: numbercognidreamognidream {
+	if(this._inReplay) {
+	return;
+}
+this._proxy.acknowledgeDataEvent(this.id, charCount);
+    }
 
-	setUnicodeVersion(version: '6' | '11'): Promise<void> {
-		return this._proxy.setUnicodeVersion(this.id, version);
-	}
+setUnicodeVersion(version: '6' | '11'): Promicognidreamognidream > {
+	return this._proxy.setUnicodeVersion(this.id, version);
+}
 
-	handleOrphanQuestion() {
-		this._proxy.orphanQuestionReply(this.id);
-	}
+handleOrphanQuestion() {
+	this._proxy.orphanQuestionReply(this.id);
+}
 }

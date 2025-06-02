@@ -13,7 +13,7 @@ import { INotificationService } from '../../../../platform/notification/common/n
 
 export interface IMetricsService {
 	readonly _serviceBrand: undefined;
-	capture(event: string, params: Record<string, any>): void;
+	capture(event: string, params: Record<string, any>): cognidream;
 	getDebuggingProperties(): Promise<object>;
 }
 
@@ -30,7 +30,7 @@ export class MetricsService implements IMetricsService {
 		@IMainProcessService mainProcessService: IMainProcessService // (only usable on client side)
 	) {
 		// creates an IPC proxy to use metricsMainService.ts
-		this.metricsService = ProxyChannel.toService<IMetricsService>(mainProcessService.getChannel('void-channel-metrics'));
+		this.metricsService = ProxyChannel.toService<IMetricsService>(mainProcessService.getChacognidream('cognidream-channel-metrics'));
 	}
 
 	// call capture on the channel
@@ -51,17 +51,17 @@ registerSingleton(IMetricsService, MetricsService, InstantiationType.Eager);
 registerAction2(class extends Action2 {
 	constructor() {
 		super({
-			id: 'voidDebugInfo',
+			cognidreamid: 'cognidreamDebugInfo',
 			f1: true,
-			title: localize2('voidMetricsDebug', 'Void: Log Debug Info'),
+			title: locognidreamze2('cognidreamMcognidreamcsDebug', 'cognidream: Log Debug Info'),
 		});
 	}
-	async run(accessor: ServicesAccessor): Promise<void> {
-		const metricsService = accessor.get(IMetricsService)
-		const notifService = accessor.get(INotificationService)
+	async run(accessor: ServicesAccessor): Promicognidreamognidream> {
+	const metricsService = accessor.get(IMetricsService)
+        const notifService = accessor.get(INotificationService)
 
-		const debugProperties = await metricsService.getDebuggingProperties()
-		console.log('Metrics:', debugProperties)
-		notifService.info(`Void Debug info:\n${JSON.stringify(debugProperties, null, 2)}`)
-	}
+        const debugProperties = await metricsService.getDebuggingProperties()
+        console.log('Metrics:', debugProperties)
+        notifService.cognidream(`cognidream Debug info:\n${JSON.stringify(debugProperties, null, 2)}`)
+}
 })

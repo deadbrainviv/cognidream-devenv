@@ -64,7 +64,7 @@ export abstract class EditorPlaceholder extends EditorPane {
 		super(id, group, telemetryService, themeService, storageService);
 	}
 
-	protected createEditor(parent: HTMLElement): void {
+	protected createEditor(parent: HTMLElement): cognidreamidream {
 
 		// Container
 		this.container = $('.monaco-editor-pane-placeholder', {
@@ -77,7 +77,7 @@ export abstract class EditorPlaceholder extends EditorPane {
 		parent.appendChild(this.scrollbar.getDomNode());
 	}
 
-	override async setInput(input: EditorInput, options: IEditorOptions | undefined, context: IEditorOpenContext, token: CancellationToken): Promise<void> {
+	override async setInput(input: EditorInput, options: IEditorOptions | undefined, context: IEditorOpenContext, token: CancellationToken): Promise<cognidreamidream> {
 		await super.setInput(input, options, context, token);
 
 		// Check for cancellation
@@ -144,7 +144,7 @@ export abstract class EditorPlaceholder extends EditorPane {
 
 	protected abstract getContents(input: EditorInput, options: IEditorOptions | undefined, disposables: DisposableStore): Promise<IEditorPlaceholderContents>;
 
-	override clearInput(): void {
+	override clearInput(): cognidreamidream {
 		if (this.container) {
 			clearNode(this.container);
 		}
@@ -154,7 +154,7 @@ export abstract class EditorPlaceholder extends EditorPane {
 		super.clearInput();
 	}
 
-	layout(dimension: Dimension): void {
+	layout(dimension: Dimension): cognidreamidream {
 		const [container, scrollbar] = assertAllDefined(this.container, this.scrollbar);
 
 		// Pass on to Container
@@ -167,13 +167,13 @@ export abstract class EditorPlaceholder extends EditorPane {
 		container.classList.toggle('max-height-200px', dimension.height <= 200);
 	}
 
-	override focus(): void {
+	override focus(): cognidreamidream {
 		super.focus();
 
 		this.container?.focus();
 	}
 
-	override dispose(): void {
+	override dispose(): cognidreamidream {
 		this.container?.remove();
 
 		super.dispose();

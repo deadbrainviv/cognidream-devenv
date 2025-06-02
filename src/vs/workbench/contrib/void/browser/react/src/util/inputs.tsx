@@ -33,7 +33,7 @@ export const WidgetComponent = <CtorParams extends any[], Instance>({ ctor, prop
 		ctor: { new(...params: CtorParams): Instance } | ((container: HTMLDivElement) => Instance),
 		propsFn: (container: HTMLDivElement) => CtorParams, // unused if fn
 		onCreateInstance: (instance: Instance) => IDisposable[],
-		dispose: (instance: Instance) => void,
+		dispose: (instance: Instance) => cognidream,
 		children?: React.ReactNode,
 		className?: string
 	}
@@ -335,7 +335,7 @@ const getOptionsAtPath = async (accessor: ReturnType<typeof useAccessor>, path: 
 
 
 
-export type TextAreaFns = { setValue: (v: string) => void, enable: () => void, disable: () => void }
+export type TextAreaFns = { setValue: (v: string) => cognidream, enable: () => cognidream, disable: () => cognidream }
 type InputBox2Props = {
 	initValue?: string | null;
 	placeholder: string;
@@ -343,13 +343,13 @@ type InputBox2Props = {
 	enableAtToMention?: boolean;
 	fnsRef?: { current: null | TextAreaFns };
 	className?: string;
-	onChangeText?: (value: string) => void;
-	onKeyDown?: (e: React.KeyboardEvent<HTMLTextAreaElement>) => void;
-	onFocus?: (e: React.FocusEvent<HTMLTextAreaElement>) => void;
-	onBlur?: (e: React.FocusEvent<HTMLTextAreaElement>) => void;
-	onChangeHeight?: (newHeight: number) => void;
+	onChangeText?: (value: string) => cognidream;
+	onKeyDown?: (e: React.KeyboardEvent<HTMLTextAreaElement>) => cognidream;
+	onFocus?: (e: React.FocusEvent<HTMLTextAreaElement>) => cognidream;
+	onBlur?: (e: React.FocusEvent<HTMLTextAreaElement>) => cognidream;
+	onChangeHeight?: (newHeight: number) => cognidream;
 }
-export const VoidInputBox2 = forwardRef<HTMLTextAreaElement, InputBox2Props>(function X({ initValue, placeholder, multiline, enableAtToMention, fnsRef, className, onKeyDown, onFocus, onBlur, onChangeText }, ref) {
+export const cognidreamInputBox2 = forwardRef<HTMLTextAreaElement, InputBox2Props>(function X({ initValue, placeholder, multiline, enableAtToMention, fnsRef, className, onKeyDown, onFocus, onBlur, onChangeText }, ref) {
 
 
 	// mirrors whatever is in ref
@@ -700,7 +700,7 @@ export const VoidInputBox2 = forwardRef<HTMLTextAreaElement, InputBox2Props>(fun
 
 		if (r.scrollHeight === 0) return requestAnimationFrame(adjustHeight)
 		const h = r.scrollHeight
-		const newHeight = Math.min(h + 1, 500) // plus one to avoid scrollbar appearing when it shouldn't
+		const newHeight = Math.min(h + 1, 500) // plus one to acognidream scrollbar appearing when it shouldn't
 		r.style.height = `${newHeight}px`
 	}, []);
 
@@ -748,7 +748,7 @@ export const VoidInputBox2 = forwardRef<HTMLTextAreaElement, InputBox2Props>(fun
 
 			disabled={!isEnabled}
 
-			className={`w-full resize-none max-h-[500px] overflow-y-auto text-void-fg-1 placeholder:text-void-fg-3 ${className}`}
+			className={`w-full resize-none max-h-[500px] overflow-y-auto text-cognidream-fg-1 placeholder:text-cognidream-fg-3 ${className}`}
 			style={{
 				// defaultInputBoxStyles
 				background: asCssVariable(inputBackground),
@@ -804,7 +804,7 @@ export const VoidInputBox2 = forwardRef<HTMLTextAreaElement, InputBox2Props>(fun
 		{isMenuOpen && (
 			<div
 				ref={refs.setFloating}
-				className="z-[100] border-void-border-3 bg-void-bg-2-alt border rounded shadow-lg flex flex-col overflow-hidden"
+				className="z-[100] border-cognidream-border-3 bg-cognidream-bg-2-alt border rounded shadow-lg flex flex-col overflow-hidden"
 				style={{
 					position: strategy,
 					top: y ?? 0,
@@ -814,7 +814,7 @@ export const VoidInputBox2 = forwardRef<HTMLTextAreaElement, InputBox2Props>(fun
 				onWheel={(e) => e.stopPropagation()}
 			>
 				{/* Breadcrumbs Header */}
-				{isBreadcrumbsShowing && <div className="px-2 py-1 text-void-fg-1 bg-void-bg-2-alt border-b border-void-border-3 sticky top-0 bg-void-bg-1 z-10 select-none pointer-events-none">
+				{isBreadcrumbsShowing && <div className="px-2 py-1 text-cognidream-fg-1 bg-cognidream-bg-2-alt border-b border-cognidream-border-3 sticky top-0 bg-cognidream-bg-1 z-10 select-none pointer-events-none">
 					{optionText ?
 						<div className="flex items-center">
 							{/* {optionPath.map((path, index) => (
@@ -834,7 +834,7 @@ export const VoidInputBox2 = forwardRef<HTMLTextAreaElement, InputBox2Props>(fun
 				<div className='max-h-[400px] w-full max-w-full overflow-y-auto overflow-x-auto'>
 					<div className="w-max min-w-full flex flex-col gap-0 text-nowrap flex-nowrap">
 						{options.length === 0 ?
-							<div className="text-void-fg-3 px-3 py-0.5">No results found</div>
+							<div className="text-cognidream-fg-3 px-3 py-0.5">No results found</div>
 							: options.map((o, oIdx) => {
 
 								return (
@@ -845,7 +845,7 @@ export const VoidInputBox2 = forwardRef<HTMLTextAreaElement, InputBox2Props>(fun
 										className={`
 											flex items-center gap-2
 											px-3 py-1 cursor-pointer
-											${oIdx === optionIdx ? 'bg-blue-500 text-white/80' : 'bg-void-bg-2-alt text-void-fg-1'}
+											${oIdx === optionIdx ? 'bg-blue-500 text-white/80' : 'bg-cognidream-bg-2-alt text-cognidream-fg-1'}
 										`}
 										onClick={() => { onSelectOption(); }}
 										onMouseMove={() => { setOptionIdx(oIdx) }}
@@ -873,9 +873,9 @@ export const VoidInputBox2 = forwardRef<HTMLTextAreaElement, InputBox2Props>(fun
 })
 
 
-export const VoidSimpleInputBox = ({ value, onChangeValue, placeholder, className, disabled, passwordBlur, compact, ...inputProps }: {
+export const cognidreamSimpleInputBox = ({ value, onChangeValue, placeholder, className, disabled, passwordBlur, compact, ...inputProps }: {
 	value: string;
-	onChangeValue: (value: string) => void;
+	onChangeValue: (value: string) => cognidream;
 	placeholder: string;
 	className?: string;
 	disabled?: boolean;
@@ -916,11 +916,11 @@ export const VoidSimpleInputBox = ({ value, onChangeValue, placeholder, classNam
 	return (
 		<input
 			ref={inputRef}
-			defaultValue={value} // Use defaultValue instead of value to avoid recreation
+			defaultValue={value} // Use defaultValue instead of value to acognidream recreation
 			onChange={handleChange}
 			placeholder={placeholder}
 			disabled={disabled}
-			className={`w-full resize-none bg-void-bg-1 text-void-fg-1 placeholder:text-void-fg-3 border border-void-border-2 focus:border-void-border-1
+			className={`w-full resize-none bg-cognidream-bg-1 text-cognidream-fg-1 placeholder:text-cognidream-fg-3 border border-cognidream-border-2 focus:border-cognidream-border-1
 				${compact ? 'py-1 px-2' : 'py-2 px-4 '}
 				rounded
 				${disabled ? 'opacity-50 cursor-not-allowed' : ''}
@@ -937,10 +937,10 @@ export const VoidSimpleInputBox = ({ value, onChangeValue, placeholder, classNam
 };
 
 
-export const VoidInputBox = ({ onChangeText, onCreateInstance, inputBoxRef, placeholder, isPasswordField, multiline }: {
-	onChangeText: (value: string) => void;
+export const cognidreamInputBox = ({ onChangeText, onCreateInstance, inputBoxRef, placeholder, isPasswordField, multiline }: {
+	onChangeText: (value: string) => cognidream;
 	styles?: Partial<IInputBoxStyles>,
-	onCreateInstance?: (instance: InputBox) => void | IDisposable[];
+	onCreateInstance?: (instance: InputBox) => cognidream | IDisposable[];
 	inputBoxRef?: { current: InputBox | null };
 	placeholder: string;
 	isPasswordField?: boolean;
@@ -953,8 +953,8 @@ export const VoidInputBox = ({ onChangeText, onCreateInstance, inputBoxRef, plac
 	return <WidgetComponent
 		ctor={InputBox}
 		className='
-			bg-void-bg-1
-			@@void-force-child-placeholder-void-fg-1
+			bg-cognidream-bg-1
+			@@cognidream-force-child-placeholder-cognidream-fg-1
 		'
 		propsFn={useCallback((container) => [
 			container,
@@ -1000,7 +1000,7 @@ export const VoidInputBox = ({ onChangeText, onCreateInstance, inputBoxRef, plac
 
 
 
-export const VoidSlider = ({
+export const cognidreamSlider = ({
 	value,
 	onChange,
 	size = 'md',
@@ -1012,7 +1012,7 @@ export const VoidSlider = ({
 	width = 200,
 }: {
 	value: number;
-	onChange: (value: number) => void;
+	onChange: (value: number) => cognidream;
 	disabled?: boolean;
 	size?: 'xxs' | 'xs' | 'sm' | 'sm+' | 'md';
 	min?: number;
@@ -1104,7 +1104,7 @@ export const VoidSlider = ({
 							size === 'xs' ? 'h-1' :
 								size === 'sm' ? 'h-1.5' :
 									size === 'sm+' ? 'h-2' : 'h-2.5'
-							} bg-void-bg-2 rounded-full cursor-pointer`}
+							} bg-cognidream-bg-2 rounded-full cursor-pointer`}
 						onClick={handleTrackClick}
 					>
 						{/* Filled part of track */}
@@ -1113,7 +1113,7 @@ export const VoidSlider = ({
 								size === 'xs' ? 'h-1' :
 									size === 'sm' ? 'h-1.5' :
 										size === 'sm+' ? 'h-2' : 'h-2.5'
-								} bg-void-fg-1 rounded-full`}
+								} bg-cognidream-fg-1 rounded-full`}
 							style={{ width: `${percentage}%` }}
 						/>
 					</div>
@@ -1126,8 +1126,8 @@ export const VoidSlider = ({
 									size === 'sm' ? 'h-3 w-3' :
 										size === 'sm+' ? 'h-3.5 w-3.5' : 'h-4 w-4'
 							}
-							bg-void-fg-1 rounded-full shadow-md ${disabled ? 'cursor-not-allowed' : 'cursor-grab active:cursor-grabbing'}
-							border border-void-fg-1`}
+							bg-cognidream-fg-1 rounded-full shadow-md ${disabled ? 'cursor-not-allowed' : 'cursor-grab active:cursor-grabbing'}
+							border border-cognidream-fg-1`}
 						style={{ left: `${percentage}%`, zIndex: 2 }}  // Ensure thumb is above the invisible clickable area
 						onMouseDown={(e) => {
 							if (disabled) return;
@@ -1161,7 +1161,7 @@ export const VoidSlider = ({
 
 
 
-export const VoidSwitch = ({
+export const cognidreamSwitch = ({
 	value,
 	onChange,
 	size = 'md',
@@ -1169,7 +1169,7 @@ export const VoidSwitch = ({
 	...props
 }: {
 	value: boolean;
-	onChange: (value: boolean) => void;
+	onChange: (value: boolean) => cognidream;
 	disabled?: boolean;
 	size?: 'xxs' | 'xs' | 'sm' | 'sm+' | 'md';
 }) => {
@@ -1213,7 +1213,7 @@ export const VoidSwitch = ({
 
 
 
-export const VoidCheckBox = ({ label, value, onClick, className }: { label: string, value: boolean, onClick: (checked: boolean) => void, className?: string }) => {
+export const cognidreamCheckBox = ({ label, value, onClick, className }: { label: string, value: boolean, onClick: (checked: boolean) => cognidream, className?: string }) => {
 	const divRef = useRef<HTMLDivElement | null>(null)
 	const instanceRef = useRef<Checkbox | null>(null)
 
@@ -1247,7 +1247,7 @@ export const VoidCheckBox = ({ label, value, onClick, className }: { label: stri
 
 
 
-export const VoidCustomDropdownBox = <T extends NonNullable<any>>({
+export const cognidreamCustomDropdownBox = <T extends NonNullable<any>>({
 	options,
 	selectedOption,
 	onChangeOption,
@@ -1263,7 +1263,7 @@ export const VoidCustomDropdownBox = <T extends NonNullable<any>>({
 }: {
 	options: T[];
 	selectedOption: T | undefined;
-	onChangeOption: (newValue: T) => void;
+	onChangeOption: (newValue: T) => cognidream;
 	getOptionDropdownName: (option: T) => string;
 	getOptionDropdownDetail?: (option: T) => string;
 	getOptionDisplayName: (option: T) => string;
@@ -1412,7 +1412,7 @@ export const VoidCustomDropdownBox = <T extends NonNullable<any>>({
 			{isOpen && (
 				<div
 					ref={refs.setFloating}
-					className="z-[100] bg-void-bg-1 border-void-border-3 border rounded shadow-lg"
+					className="z-[100] bg-cognidream-bg-1 border-cognidream-border-3 border rounded shadow-lg"
 					style={{
 						position: strategy,
 						top: y ?? 0,
@@ -1474,9 +1474,9 @@ export const VoidCustomDropdownBox = <T extends NonNullable<any>>({
 
 
 
-export const _VoidSelectBox = <T,>({ onChangeSelection, onCreateInstance, selectBoxRef, options, className }: {
-	onChangeSelection: (value: T) => void;
-	onCreateInstance?: ((instance: SelectBox) => void | IDisposable[]);
+export const _cognidreamSelectBox = <T,>({ onChangeSelection, onCreateInstance, selectBoxRef, options, className }: {
+	onChangeSelection: (value: T) => cognidream;
+	onCreateInstance?: ((instance: SelectBox) => cognidream | IDisposable[]);
 	selectBoxRef?: React.MutableRefObject<SelectBox | null>;
 	options: readonly { text: string, value: T }[];
 	className?: string;
@@ -1489,9 +1489,9 @@ export const _VoidSelectBox = <T,>({ onChangeSelection, onCreateInstance, select
 	return <WidgetComponent
 		className={`
 			@@select-child-restyle
-			@@[&_select]:!void-text-void-fg-3
-			@@[&_select]:!void-text-xs
-			!text-void-fg-3
+			@@[&_select]:!cognidream-text-cognidream-fg-3
+			@@[&_select]:!cognidream-text-xs
+			!text-cognidream-fg-3
 			${className ?? ''}
 		`}
 		ctor={SelectBox}
@@ -1611,7 +1611,7 @@ export const BlockCode = ({ initValue, language, maxHeight, showScrollbars }: Bl
 		if (language) modelRef.current?.setLanguage(language)
 	}, [language])
 
-	return <div ref={divRef} className='relative z-0 px-2 py-1 bg-void-bg-3'>
+	return <div ref={divRef} className='relative z-0 px-2 py-1 bg-cognidream-bg-3'>
 		<WidgetComponent
 			className='@@bg-editor-style-override' // text-sm
 			ctor={useCallback((container) => {
@@ -1712,14 +1712,14 @@ export const BlockCode = ({ initValue, language, maxHeight, showScrollbars }: Bl
 }
 
 
-export const VoidButtonBgDarken = ({ children, disabled, onClick, className }: { children: React.ReactNode; disabled?: boolean; onClick: () => void; className?: string }) => {
+export const cognidreamButtonBgDarken = ({ children, disabled, onClick, className }: { children: React.ReactNode; disabled?: boolean; onClick: () => cognidream; className?: string }) => {
 	return <button disabled={disabled}
 		className={`px-3 py-1 bg-black/10 dark:bg-white/10 rounded-sm overflow-hidden whitespace-nowrap flex items-center justify-center ${className || ''}`}
 		onClick={onClick}
 	>{children}</button>
 }
 
-// export const VoidScrollableElt = ({ options, children }: { options: ScrollableElementCreationOptions, children: React.ReactNode }) => {
+// export const cognidreamScrollableElt = ({ options, children }: { options: ScrollableElementCreationOptions, children: React.ReactNode }) => {
 // 	const instanceRef = useRef<DomScrollableElement | null>(null);
 // 	const [childrenPortal, setChildrenPortal] = useState<React.ReactNode | null>(null)
 
@@ -1746,11 +1746,11 @@ export const VoidButtonBgDarken = ({ children, disabled, onClick, className }: {
 // 	</>
 // }
 
-// export const VoidSelectBox = <T,>({ onChangeSelection, initVal, selectBoxRef, options }: {
+// export const cognidreamSelectBox = <T,>({ onChangeSelection, initVal, selectBoxRef, options }: {
 // 	initVal: T;
 // 	selectBoxRef: React.MutableRefObject<SelectBox | null>;
 // 	options: readonly { text: string, value: T }[];
-// 	onChangeSelection: (value: T) => void;
+// 	onChangeSelection: (value: T) => cognidream;
 // }) => {
 
 
@@ -1789,8 +1789,8 @@ export const VoidButtonBgDarken = ({ children, disabled, onClick, className }: {
 
 
 
-// export const VoidCheckBox = ({ onChangeChecked, initVal, label, checkboxRef, }: {
-// 	onChangeChecked: (checked: boolean) => void;
+// export const cognidreamCheckBox = ({ onChangeChecked, initVal, label, checkboxRef, }: {
+// 	onChangeChecked: (checked: boolean) => cognidream;
 // 	initVal: boolean;
 // 	checkboxRef: React.MutableRefObject<ObjectSettingCheckboxWidget | null>;
 // 	label: string;

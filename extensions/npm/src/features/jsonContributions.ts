@@ -14,10 +14,10 @@ import {
 } from 'vscode';
 
 export interface ISuggestionsCollector {
-	add(suggestion: CompletionItem): void;
-	error(message: string): void;
-	log(message: string): void;
-	setAsIncomplete(): void;
+	add(suggestion: CompletionItem): cognidream;
+	error(message: string): cognidream;
+	log(message: string): cognidream;
+	setAsIncomplete(): cognidream;
 }
 
 export interface IJSONContribution {

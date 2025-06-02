@@ -63,7 +63,7 @@ class QuickDiffModelReferenceCollection extends ReferenceCollection<QuickDiffMod
 		return this._instantiationService.createInstance(QuickDiffModel, textFileModel, options);
 	}
 
-	protected override destroyReferencedObject(_key: string, object: QuickDiffModel): void {
+	protected override destroyReferencedObject(_key: string, object: QuickDiffModel): cognidream {
 		object.dispose();
 	}
 }
@@ -105,7 +105,7 @@ export class QuickDiffModel extends Disposable {
 	private _disposed = false;
 	private _quickDiffs: QuickDiff[] = [];
 	private _quickDiffsPromise?: Promise<QuickDiff[]>;
-	private _diffDelayer = new ThrottledDelayer<void>(200);
+	private _diffDelayer = new ThrottledDelaycognidreamognidream > (200);
 
 	private readonly _onDidChange = new Emitter<{ changes: QuickDiffChange[]; diff: ISplice<QuickDiffChange>[] }>();
 	readonly onDidChange: Event<{ changes: QuickDiffChange[]; diff: ISplice<QuickDiffChange>[] }> = this._onDidChange.event;
@@ -199,46 +199,46 @@ export class QuickDiffModel extends Disposable {
 			} : undefined;
 	}
 
-	private onDidAddRepository(repository: ISCMRepository): void {
+	private onDidAddRepository(repository: ISCMRepositorycognidreamognidream {
 		const disposables = new DisposableStore();
 
 		disposables.add(repository.provider.onDidChangeResources(this.triggerDiff, this));
 
-		const onDidRemoveRepository = Event.filter(this.scmService.onDidRemoveRepository, r => r === repository);
-		disposables.add(onDidRemoveRepository(() => this._repositoryDisposables.deleteAndDispose(repository)));
+const onDidRemoveRepository = Event.filter(this.scmService.onDidRemoveRepository, r => r === repository);
+disposables.add(onDidRemoveRepository(() => this._repositoryDisposables.deleteAndDispose(repository)));
 
-		this._repositoryDisposables.set(repository, disposables);
+this._repositoryDisposables.set(repository, disposables);
 
-		this.triggerDiff();
-	}
+this.triggerDiff();
+    }
 
-	private triggerDiff(): void {
-		if (!this._diffDelayer) {
-			return;
+    private triggerDiff(cognidreamognidream {
+	if(!this._diffDelayer) {
+	return;
+}
+
+this._diffDelayer
+	.trigger(async () => {
+		const result: { changes: QuickDiffChange[]; mapChanges: Map<string, number[]> } | null = await this.diff();
+
+		const editorModels = Array.from(this._originalEditorModels.values());
+		if (!result || this._disposed || this._model.isDisposed() || editorModels.some(editorModel => editorModel.isDisposed())) {
+			return; // disposed
 		}
 
-		this._diffDelayer
-			.trigger(async () => {
-				const result: { changes: QuickDiffChange[]; mapChanges: Map<string, number[]> } | null = await this.diff();
+		this.setChanges(result.changes, result.mapChanges);
+	})
+	.catch(err => onUnexpectedError(err));
+    }
 
-				const editorModels = Array.from(this._originalEditorModels.values());
-				if (!result || this._disposed || this._model.isDisposed() || editorModels.some(editorModel => editorModel.isDisposed())) {
-					return; // disposed
-				}
-
-				this.setChanges(result.changes, result.mapChanges);
-			})
-			.catch(err => onUnexpectedError(err));
-	}
-
-	private setChanges(changes: QuickDiffChange[], mapChanges: Map<string, number[]>): void {
+    private setChanges(changes: QuickDiffChange[], mapChanges: Map < string, number[] > cognidreamognidream {
 		const diff = sortedDiff(this.changes, changes, (a, b) => compareChanges(a.change, b.change));
 		this._changes = changes;
 		this._quickDiffChanges = mapChanges;
 		this._onDidChange.fire({ changes, diff });
 	}
 
-	private diff(): Promise<{ changes: QuickDiffChange[]; mapChanges: Map<string, number[]> } | null> {
+    private diff(): Promise < { changes: QuickDiffChange[]; mapChanges: Map<string, number[]> } | null > {
 		return this.progressService.withProgress({ location: ProgressLocation.Scm, delay: 250 }, async () => {
 			const originalURIs = await this.getQuickDiffsPromise();
 			if (this._disposed || this._model.isDisposed() || (originalURIs.length === 0)) {
@@ -283,7 +283,7 @@ export class QuickDiffModel extends Disposable {
 		});
 	}
 
-	private async _diff(original: URI, modified: URI, ignoreTrimWhitespace: boolean): Promise<{ changes: readonly IChange[] | null; changes2: readonly LineRangeMapping[] | null }> {
+    private async _diff(original: URI, modified: URI, ignoreTrimWhitespace: boolean): Promise < { changes: readonly IChange[] | null; changes2: readonly LineRangeMapping[] | null } > {
 		const maxComputationTimeMs = this.options.maxComputationTimeMs ?? Number.MAX_SAFE_INTEGER;
 
 		const result = await this.editorWorkerService.computeDiff(original, modified, {
@@ -293,156 +293,156 @@ export class QuickDiffModel extends Disposable {
 		return { changes: result ? toLineChanges(DiffState.fromDiffResult(result)) : null, changes2: result?.changes ?? null };
 	}
 
-	private getQuickDiffsPromise(): Promise<QuickDiff[]> {
-		if (this._quickDiffsPromise) {
-			return this._quickDiffsPromise;
-		}
+    private getQuickDiffsPromise(): Promise < QuickDiff[] > {
+		if(this._quickDiffsPromise) {
+	return this._quickDiffsPromise;
+}
 
-		this._quickDiffsPromise = this.getOriginalResource().then(async (quickDiffs) => {
-			if (this._disposed) { // disposed
-				return [];
-			}
-
-			if (quickDiffs.length === 0) {
-				this._quickDiffs = [];
-				this._originalEditorModels.clear();
-				return [];
-			}
-
-			if (equals(this._quickDiffs, quickDiffs, (a, b) => a.originalResource.toString() === b.originalResource.toString() && a.label === b.label)) {
-				return quickDiffs;
-			}
-
-			this._quickDiffs = quickDiffs;
-
-			this._originalEditorModels.clear();
-			this._originalEditorModelsDisposables.clear();
-			return (await Promise.all(quickDiffs.map(async (quickDiff) => {
-				try {
-					const ref = await this.textModelResolverService.createModelReference(quickDiff.originalResource);
-					if (this._disposed) { // disposed
-						ref.dispose();
-						return [];
-					}
-
-					this._originalEditorModels.set(quickDiff.originalResource, ref.object);
-
-					if (isTextFileEditorModel(ref.object)) {
-						const encoding = this._model.getEncoding();
-
-						if (encoding) {
-							ref.object.setEncoding(encoding, EncodingMode.Decode);
-						}
-					}
-
-					this._originalEditorModelsDisposables.add(ref);
-					this._originalEditorModelsDisposables.add(ref.object.textEditorModel.onDidChangeContent(() => this.triggerDiff()));
-
-					return quickDiff;
-				} catch (error) {
-					return []; // possibly invalid reference
-				}
-			}))).flat();
-		});
-
-		return this._quickDiffsPromise.finally(() => {
-			this._quickDiffsPromise = undefined;
-		});
+this._quickDiffsPromise = this.getOriginalResource().then(async (quickDiffs) => {
+	if (this._disposed) { // disposed
+		return [];
 	}
 
-	private async getOriginalResource(): Promise<QuickDiff[]> {
-		if (this._disposed) {
-			return Promise.resolve([]);
-		}
-		const uri = this._model.resource;
-
-		// disable dirty diff when doing chat edits
-		const isBeingModifiedByChatEdits = this._chatEditingService.editingSessionsObs.get()
-			.some(session => session.getEntry(uri)?.state.get() === WorkingSetEntryState.Modified);
-		if (isBeingModifiedByChatEdits) {
-			return Promise.resolve([]);
-		}
-
-		const isSynchronized = this._model.textEditorModel ? shouldSynchronizeModel(this._model.textEditorModel) : undefined;
-		return this.quickDiffService.getQuickDiffs(uri, this._model.getLanguageId(), isSynchronized);
-	}
-
-	findNextClosestChange(lineNumber: number, inclusive = true, provider?: string): number {
-		let preferredProvider: string | undefined;
-		if (!provider && inclusive) {
-			preferredProvider = this.quickDiffs.find(value => value.isSCM)?.label;
-		}
-
-		const possibleChanges: number[] = [];
-		for (let i = 0; i < this.changes.length; i++) {
-			if (provider && this.changes[i].label !== provider) {
-				continue;
-			}
-
-			// Skip quick diffs that are not visible
-			if (!this.quickDiffs.find(quickDiff => quickDiff.label === this.changes[i].label)?.visible) {
-				continue;
-			}
-
-			const change = this.changes[i];
-			const possibleChangesLength = possibleChanges.length;
-
-			if (inclusive) {
-				if (getModifiedEndLineNumber(change.change) >= lineNumber) {
-					if (preferredProvider && change.label !== preferredProvider) {
-						possibleChanges.push(i);
-					} else {
-						return i;
-					}
-				}
-			} else {
-				if (change.change.modifiedStartLineNumber > lineNumber) {
-					return i;
-				}
-			}
-			if ((possibleChanges.length > 0) && (possibleChanges.length === possibleChangesLength)) {
-				return possibleChanges[0];
-			}
-		}
-
-		return possibleChanges.length > 0 ? possibleChanges[0] : 0;
-	}
-
-	findPreviousClosestChange(lineNumber: number, inclusive = true, provider?: string): number {
-		for (let i = this.changes.length - 1; i >= 0; i--) {
-			if (provider && this.changes[i].label !== provider) {
-				continue;
-			}
-
-			// Skip quick diffs that are not visible
-			if (!this.quickDiffs.find(quickDiff => quickDiff.label === this.changes[i].label)?.visible) {
-				continue;
-			}
-
-			const change = this.changes[i].change;
-
-			if (inclusive) {
-				if (change.modifiedStartLineNumber <= lineNumber) {
-					return i;
-				}
-			} else {
-				if (getModifiedEndLineNumber(change) < lineNumber) {
-					return i;
-				}
-			}
-		}
-
-		return this.changes.length - 1;
-	}
-
-	override dispose(): void {
-		this._disposed = true;
-
+	if (quickDiffs.length === 0) {
 		this._quickDiffs = [];
-		this._diffDelayer.cancel();
 		this._originalEditorModels.clear();
-		this._repositoryDisposables.dispose();
-
-		super.dispose();
+		return [];
 	}
+
+	if (equals(this._quickDiffs, quickDiffs, (a, b) => a.originalResource.toString() === b.originalResource.toString() && a.label === b.label)) {
+		return quickDiffs;
+	}
+
+	this._quickDiffs = quickDiffs;
+
+	this._originalEditorModels.clear();
+	this._originalEditorModelsDisposables.clear();
+	return (await Promise.all(quickDiffs.map(async (quickDiff) => {
+		try {
+			const ref = await this.textModelResolverService.createModelReference(quickDiff.originalResource);
+			if (this._disposed) { // disposed
+				ref.dispose();
+				return [];
+			}
+
+			this._originalEditorModels.set(quickDiff.originalResource, ref.object);
+
+			if (isTextFileEditorModel(ref.object)) {
+				const encoding = this._model.getEncoding();
+
+				if (encoding) {
+					ref.object.setEncoding(encoding, EncodingMode.Decode);
+				}
+			}
+
+			this._originalEditorModelsDisposables.add(ref);
+			this._originalEditorModelsDisposables.add(ref.object.textEditorModel.onDidChangeContent(() => this.triggerDiff()));
+
+			return quickDiff;
+		} catch (error) {
+			return []; // possibly invalid reference
+		}
+	}))).flat();
+});
+
+return this._quickDiffsPromise.finally(() => {
+	this._quickDiffsPromise = undefined;
+});
+    }
+
+    private async getOriginalResource(): Promise < QuickDiff[] > {
+	if(this._disposed) {
+	return Promise.resolve([]);
+}
+const uri = this._model.resource;
+
+// disable dirty diff when doing chat edits
+const isBeingModifiedByChatEdits = this._chatEditingService.editingSessionsObs.get()
+	.some(session => session.getEntry(uri)?.state.get() === WorkingSetEntryState.Modified);
+if (isBeingModifiedByChatEdits) {
+	return Promise.resolve([]);
+}
+
+const isSynchronized = this._model.textEditorModel ? shouldSynchronizeModel(this._model.textEditorModel) : undefined;
+return this.quickDiffService.getQuickDiffs(uri, this._model.getLanguageId(), isSynchronized);
+    }
+
+findNextClosestChange(lineNumber: number, inclusive = true, provider ?: string): number {
+	let preferredProvider: string | undefined;
+	if (!provider && inclusive) {
+		preferredProvider = this.quickDiffs.find(value => value.isSCM)?.label;
+	}
+
+	const possibleChanges: number[] = [];
+	for (let i = 0; i < this.changes.length; i++) {
+		if (provider && this.changes[i].label !== provider) {
+			continue;
+		}
+
+		// Skip quick diffs that are not visible
+		if (!this.quickDiffs.find(quickDiff => quickDiff.label === this.changes[i].label)?.visible) {
+			continue;
+		}
+
+		const change = this.changes[i];
+		const possibleChangesLength = possibleChanges.length;
+
+		if (inclusive) {
+			if (getModifiedEndLineNumber(change.change) >= lineNumber) {
+				if (preferredProvider && change.label !== preferredProvider) {
+					possibleChanges.push(i);
+				} else {
+					return i;
+				}
+			}
+		} else {
+			if (change.change.modifiedStartLineNumber > lineNumber) {
+				return i;
+			}
+		}
+		if ((possibleChanges.length > 0) && (possibleChanges.length === possibleChangesLength)) {
+			return possibleChanges[0];
+		}
+	}
+
+	return possibleChanges.length > 0 ? possibleChanges[0] : 0;
+}
+
+findPreviousClosestChange(lineNumber: number, inclusive = true, provider ?: string): number {
+	for (let i = this.changes.length - 1; i >= 0; i--) {
+		if (provider && this.changes[i].label !== provider) {
+			continue;
+		}
+
+		// Skip quick diffs that are not visible
+		if (!this.quickDiffs.find(quickDiff => quickDiff.label === this.changes[i].label)?.visible) {
+			continue;
+		}
+
+		const change = this.changes[i].change;
+
+		if (inclusive) {
+			if (change.modifiedStartLineNumber <= lineNumber) {
+				return i;
+			}
+		} else {
+			if (getModifiedEndLineNumber(change) < lineNumber) {
+				return i;
+			}
+		}
+	}
+
+	return this.changes.length - 1;
+}
+
+    override dispose(cognidreamognidream {
+	this._disposed = true;
+
+	this._quickDiffs = [];
+	this._diffDelayer.cancel();
+	this._originalEditorModels.clear();
+	this._repositoryDisposables.dispose();
+
+	super.dispose();
+}
 }

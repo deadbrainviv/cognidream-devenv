@@ -86,192 +86,192 @@ export const BINARY_FILE_EDITOR_ID = 'workbench.editors.files.binaryFileEditor';
 export const BINARY_TEXT_FILE_MODE = 'code-text-binary';
 
 export interface IFilesConfiguration extends PlatformIFilesConfiguration, IWorkbenchEditorConfiguration {
-	explorer: {
-		openEditors: {
-			visible: number;
-			sortOrder: 'editorOrder' | 'alphabetical' | 'fullPath';
-		};
-		autoReveal: boolean | 'focusNoScroll';
-		autoRevealExclude: IExpression;
-		enableDragAndDrop: boolean;
-		confirmDelete: boolean;
-		enableUndo: boolean;
-		confirmUndo: UndoConfirmLevel;
-		expandSingleFolderWorkspaces: boolean;
-		sortOrder: SortOrder;
-		sortOrderLexicographicOptions: LexicographicOptions;
-		sortOrderReverse: boolean;
-		decorations: {
-			colors: boolean;
-			badges: boolean;
-		};
-		incrementalNaming: 'simple' | 'smart' | 'disabled';
-		excludeGitIgnore: boolean;
-		fileNesting: {
-			enabled: boolean;
-			expand: boolean;
-			patterns: { [parent: string]: string };
-		};
-		autoOpenDroppedFile: boolean;
-	};
-	editor: IEditorOptions;
+    explorer: {
+        openEditors: {
+            visible: number;
+            sortOrder: 'editorOrder' | 'alphabetical' | 'fullPath';
+        };
+        autoReveal: boolean | 'focusNoScroll';
+        autoRevealExclude: IExpression;
+        enableDragAndDrop: boolean;
+        confirmDelete: boolean;
+        enableUndo: boolean;
+        confirmUndo: UndoConfirmLevel;
+        expandSingleFolderWorkspaces: boolean;
+        sortOrder: SortOrder;
+        sortOrderLexicographicOptions: LexicographicOptions;
+        sortOrderReverse: boolean;
+        decorations: {
+            colors: boolean;
+            badges: boolean;
+        };
+        incrementalNaming: 'simple' | 'smart' | 'disabled';
+        excludeGitIgnore: boolean;
+        fileNesting: {
+            enabled: boolean;
+            expand: boolean;
+            patterns: { [parent: string]: string };
+        };
+        autoOpenDroppedFile: boolean;
+    };
+    editor: IEditorOptions;
 }
 
 export interface IFileResource {
-	resource: URI;
-	isDirectory?: boolean;
+    resource: URI;
+    isDirectory?: boolean;
 }
 
 export const enum SortOrder {
-	Default = 'default',
-	Mixed = 'mixed',
-	FilesFirst = 'filesFirst',
-	Type = 'type',
-	Modified = 'modified',
-	FoldersNestsFiles = 'foldersNestsFiles',
+    Default = 'default',
+    Mixed = 'mixed',
+    FilesFirst = 'filesFirst',
+    Type = 'type',
+    Modified = 'modified',
+    FoldersNestsFiles = 'foldersNestsFiles',
 }
 
 export const enum UndoConfirmLevel {
-	Verbose = 'verbose',
-	Default = 'default',
-	Light = 'light',
+    Verbose = 'verbose',
+    Default = 'default',
+    Light = 'light',
 }
 
 export const enum LexicographicOptions {
-	Default = 'default',
-	Upper = 'upper',
-	Lower = 'lower',
-	Unicode = 'unicode',
+    Default = 'default',
+    Upper = 'upper',
+    Lower = 'lower',
+    Unicode = 'unicode',
 }
 
 export interface ISortOrderConfiguration {
-	sortOrder: SortOrder;
-	lexicographicOptions: LexicographicOptions;
-	reverse: boolean;
+    sortOrder: SortOrder;
+    lexicographicOptions: LexicographicOptions;
+    reverse: boolean;
 }
 
 export class TextFileContentProvider extends Disposable implements ITextModelContentProvider {
-	private readonly fileWatcherDisposable = this._register(new MutableDisposable());
+    private readonly fileWatcherDisposable = this._register(new MutableDisposable());
 
-	constructor(
-		@ITextFileService private readonly textFileService: ITextFileService,
-		@IFileService private readonly fileService: IFileService,
-		@ILanguageService private readonly languageService: ILanguageService,
-		@IModelService private readonly modelService: IModelService
-	) {
-		super();
-	}
+    constructor(
+        @ITextFileService private readonly textFileService: ITextFileService,
+        @IFileService private readonly fileService: IFileService,
+        @ILanguageService private readonly languageService: ILanguageService,
+        @IModelService private readonly modelService: IModelService
+    ) {
+        super();
+    }
 
-	static async open(resource: URI, scheme: string, label: string, editorService: IEditorService, options?: ITextEditorOptions): Promise<void> {
-		await editorService.openEditor({
-			original: { resource: TextFileContentProvider.resourceToTextFile(scheme, resource) },
-			modified: { resource },
-			label,
-			options
-		});
-	}
+    static async open(resource: URI, scheme: string, label: string, editorService: IEditorService, options?: ITextEditorOptions): Promise<cognidream> {
+        await editorService.openEditor({
+            original: { resource: TextFileContentProvider.resourceToTextFile(scheme, resource) },
+            modified: { resource },
+            label,
+            options
+        });
+    }
 
-	private static resourceToTextFile(scheme: string, resource: URI): URI {
-		return resource.with({ scheme, query: JSON.stringify({ scheme: resource.scheme, query: resource.query }) });
-	}
+    private static resourceToTextFile(scheme: string, resource: URI): URI {
+        return resource.with({ scheme, query: JSON.stringify({ scheme: resource.scheme, query: resource.query }) });
+    }
 
-	private static textFileToResource(resource: URI): URI {
-		const { scheme, query } = JSON.parse(resource.query);
+    private static textFileToResource(resource: URI): URI {
+        const { scheme, query } = JSON.parse(resource.query);
 
-		return resource.with({ scheme, query });
-	}
+        return resource.with({ scheme, query });
+    }
 
-	async provideTextContent(resource: URI): Promise<ITextModel | null> {
-		if (!resource.query) {
-			// We require the URI to use the `query` to transport the original scheme and query
-			// as done by `resourceToTextFile`
-			return null;
-		}
+    async provideTextContent(resource: URI): Promise<ITextModel | null> {
+        if (!resource.query) {
+            // We require the URI to use the `query` to transport the original scheme and query
+            // as done by `resourceToTextFile`
+            return null;
+        }
 
-		const savedFileResource = TextFileContentProvider.textFileToResource(resource);
+        const savedFileResource = TextFileContentProvider.textFileToResource(resource);
 
-		// Make sure our text file is resolved up to date
-		const codeEditorModel = await this.resolveEditorModel(resource);
+        // Make sure our text file is resolved up to date
+        const codeEditorModel = await this.resolveEditorModel(resource);
 
-		// Make sure to keep contents up to date when it changes
-		if (!this.fileWatcherDisposable.value) {
-			const disposables = new DisposableStore();
-			this.fileWatcherDisposable.value = disposables;
-			disposables.add(this.fileService.onDidFilesChange(changes => {
-				if (changes.contains(savedFileResource, FileChangeType.UPDATED)) {
-					this.resolveEditorModel(resource, false /* do not create if missing */); // update model when resource changes
-				}
-			}));
+        // Make sure to keep contents up to date when it changes
+        if (!this.fileWatcherDisposable.value) {
+            const disposables = new DisposableStore();
+            this.fileWatcherDisposable.value = disposables;
+            disposables.add(this.fileService.onDidFilesChange(changes => {
+                if (changes.contains(savedFileResource, FileChangeType.UPDATED)) {
+                    this.resolveEditorModel(resource, false /* do not create if missing */); // update model when resource changes
+                }
+            }));
 
-			if (codeEditorModel) {
-				disposables.add(Event.once(codeEditorModel.onWillDispose)(() => this.fileWatcherDisposable.clear()));
-			}
-		}
+            if (codeEditorModel) {
+                disposables.add(Event.once(codeEditorModel.onWillDispose)(() => this.fileWatcherDisposable.clear()));
+            }
+        }
 
-		return codeEditorModel;
-	}
+        return codeEditorModel;
+    }
 
-	private resolveEditorModel(resource: URI, createAsNeeded?: true): Promise<ITextModel>;
-	private resolveEditorModel(resource: URI, createAsNeeded?: boolean): Promise<ITextModel | null>;
-	private async resolveEditorModel(resource: URI, createAsNeeded: boolean = true): Promise<ITextModel | null> {
-		const savedFileResource = TextFileContentProvider.textFileToResource(resource);
+    private resolveEditorModel(resource: URI, createAsNeeded?: true): Promise<ITextModel>;
+    private resolveEditorModel(resource: URI, createAsNeeded?: boolean): Promise<ITextModel | null>;
+    private async resolveEditorModel(resource: URI, createAsNeeded: boolean = true): Promise<ITextModel | null> {
+        const savedFileResource = TextFileContentProvider.textFileToResource(resource);
 
-		const content = await this.textFileService.readStream(savedFileResource);
+        const content = await this.textFileService.readStream(savedFileResource);
 
-		let codeEditorModel = this.modelService.getModel(resource);
-		if (codeEditorModel) {
-			this.modelService.updateModel(codeEditorModel, content.value);
-		} else if (createAsNeeded) {
-			const textFileModel = this.modelService.getModel(savedFileResource);
+        let codeEditorModel = this.modelService.getModel(resource);
+        if (codeEditorModel) {
+            this.modelService.updateModel(codeEditorModel, content.value);
+        } else if (createAsNeeded) {
+            const textFileModel = this.modelService.getModel(savedFileResource);
 
-			let languageSelector: ILanguageSelection;
-			if (textFileModel) {
-				languageSelector = this.languageService.createById(textFileModel.getLanguageId());
-			} else {
-				languageSelector = this.languageService.createByFilepathOrFirstLine(savedFileResource);
-			}
+            let languageSelector: ILanguageSelection;
+            if (textFileModel) {
+                languageSelector = this.languageService.createById(textFileModel.getLanguageId());
+            } else {
+                languageSelector = this.languageService.createByFilepathOrFirstLine(savedFileResource);
+            }
 
-			codeEditorModel = this.modelService.createModel(content.value, languageSelector, resource);
-		}
+            codeEditorModel = this.modelService.createModel(content.value, languageSelector, resource);
+        }
 
-		return codeEditorModel;
-	}
+        return codeEditorModel;
+    }
 }
 
 export class OpenEditor implements IEditorIdentifier {
 
-	private id: number;
-	private static COUNTER = 0;
+    private id: number;
+    private static COUNTER = 0;
 
-	constructor(private _editor: EditorInput, private _group: IEditorGroup) {
-		this.id = OpenEditor.COUNTER++;
-	}
+    constructor(private _editor: EditorInput, private _group: IEditorGroup) {
+        this.id = OpenEditor.COUNTER++;
+    }
 
-	get editor() {
-		return this._editor;
-	}
+    get editor() {
+        return this._editor;
+    }
 
-	get group() {
-		return this._group;
-	}
+    get group() {
+        return this._group;
+    }
 
-	get groupId() {
-		return this._group.id;
-	}
+    get groupId() {
+        return this._group.id;
+    }
 
-	getId(): string {
-		return `openeditor:${this.groupId}:${this.id}`;
-	}
+    getId(): string {
+        return `openeditor:${this.groupId}:${this.id}`;
+    }
 
-	isPreview(): boolean {
-		return !this._group.isPinned(this.editor);
-	}
+    isPreview(): boolean {
+        return !this._group.isPinned(this.editor);
+    }
 
-	isSticky(): boolean {
-		return this._group.isSticky(this.editor);
-	}
+    isSticky(): boolean {
+        return this._group.isSticky(this.editor);
+    }
 
-	getResource(): URI | undefined {
-		return EditorResourceAccessor.getOriginalUri(this.editor, { supportSideBySide: SideBySideEditor.PRIMARY });
-	}
+    getResource(): URI | undefined {
+        return EditorResourceAccessor.getOriginalUri(this.editor, { supportSideBySide: SideBySideEditor.PRIMARY });
+    }
 }

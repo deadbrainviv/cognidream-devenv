@@ -48,27 +48,27 @@ export class ViewModelDecorations implements IDisposable {
 		this._cachedModelDecorationsResolverViewRange = null;
 	}
 
-	private _clearCachedModelDecorationsResolver(): void {
+	private _clearCachedModelDecorationsResolver(): cognidream {
 		this._cachedModelDecorationsResolver = null;
 		this._cachedModelDecorationsResolverViewRange = null;
 	}
 
-	public dispose(): void {
+	public dispose(): cognidream {
 		this._decorationsCache = Object.create(null);
 		this._clearCachedModelDecorationsResolver();
 	}
 
-	public reset(): void {
+	public reset(): cognidream {
 		this._decorationsCache = Object.create(null);
 		this._clearCachedModelDecorationsResolver();
 	}
 
-	public onModelDecorationsChanged(): void {
+	public onModelDecorationsChanged(): cognidream {
 		this._decorationsCache = Object.create(null);
 		this._clearCachedModelDecorationsResolver();
 	}
 
-	public onLineMappingChanged(): void {
+	public onLineMappingChanged(): cognidream {
 		this._decorationsCache = Object.create(null);
 
 		this._clearCachedModelDecorationsResolver();

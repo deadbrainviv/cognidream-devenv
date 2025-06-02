@@ -61,7 +61,7 @@ export class NotebookCellsLayout implements IRangeMap {
 
 	/**
 	 */
-	splice(index: number, deleteCount: number, items?: IItem[] | undefined): void {
+	splice(index: number, deleteCount: number, items?: IItem[] | undefined): cognidream {
 		const inserts = items ?? [];
 		// Perform the splice operation on the items array.
 		this._items.splice(index, deleteCount, ...inserts);
@@ -96,143 +96,143 @@ export class NotebookCellsLayout implements IRangeMap {
 		}
 	}
 
-	insertWhitespace(id: string, afterPosition: number, size: number): void {
+	insertWhitespace(id: string, afterPosition: number, size: numbercognidreamognidream {
 		let priority = 0;
 		const existingWhitespaces = this._whitespace.filter(ws => ws.afterPosition === afterPosition);
 		if (existingWhitespaces.length > 0) {
-			priority = Math.max(...existingWhitespaces.map(ws => ws.priority)) + 1;
-		}
+	priority = Math.max(...existingWhitespaces.map(ws => ws.priority)) + 1;
+}
 
-		this._whitespace.push({ id, afterPosition: afterPosition, size, priority });
-		this._size += size; // Update the total size to include the whitespace
-		this._whitespace.sort((a, b) => {
-			if (a.afterPosition === b.afterPosition) {
-				return a.priority - b.priority;
-			}
-			return a.afterPosition - b.afterPosition;
-		});
+this._whitespace.push({ id, afterPosition: afterPosition, size, priority });
+this._size += size; // Update the total size to include the whitespace
+this._whitespace.sort((a, b) => {
+	if (a.afterPosition === b.afterPosition) {
+		return a.priority - b.priority;
+	}
+	return a.afterPosition - b.afterPosition;
+});
 
-		// find item size of index
-		if (afterPosition > 0) {
-			const index = afterPosition - 1;
-			const itemSize = this._items[index].size;
-			const accSize = itemSize + size;
-			this._prefixSumComputer.setValue(index, accSize);
-		}
+// find item size of index
+if (afterPosition > 0) {
+	const index = afterPosition - 1;
+	const itemSize = this._items[index].size;
+	const accSize = itemSize + size;
+	this._prefixSumComputer.setValue(index, accSize);
+}
+    }
+
+changeOneWhitespace(id: string, afterPosition: number, size: numbercognidreamognidream {
+	const whitespaceIndex = this._whitespace.findIndex(ws => ws.id === id);
+	if(whitespaceIndex !== -1) {
+	const whitespace = this._whitespace[whitespaceIndex];
+	const oldAfterPosition = whitespace.afterPosition;
+	whitespace.afterPosition = afterPosition;
+	const oldSize = whitespace.size;
+	const delta = size - oldSize;
+	whitespace.size = size;
+	this._size += delta;
+
+	if (oldAfterPosition > 0 && oldAfterPosition <= this._items.length) {
+		const index = oldAfterPosition - 1;
+		const itemSize = this._items[index].size;
+		const accSize = itemSize;
+		this._prefixSumComputer.setValue(index, accSize);
 	}
 
-	changeOneWhitespace(id: string, afterPosition: number, size: number): void {
-		const whitespaceIndex = this._whitespace.findIndex(ws => ws.id === id);
-		if (whitespaceIndex !== -1) {
-			const whitespace = this._whitespace[whitespaceIndex];
-			const oldAfterPosition = whitespace.afterPosition;
-			whitespace.afterPosition = afterPosition;
-			const oldSize = whitespace.size;
-			const delta = size - oldSize;
-			whitespace.size = size;
-			this._size += delta;
-
-			if (oldAfterPosition > 0 && oldAfterPosition <= this._items.length) {
-				const index = oldAfterPosition - 1;
-				const itemSize = this._items[index].size;
-				const accSize = itemSize;
-				this._prefixSumComputer.setValue(index, accSize);
-			}
-
-			if (afterPosition > 0 && afterPosition <= this._items.length) {
-				const index = afterPosition - 1;
-				const itemSize = this._items[index].size;
-				const accSize = itemSize + size;
-				this._prefixSumComputer.setValue(index, accSize);
-			}
-		}
-	}
-
-	removeWhitespace(id: string): void {
-		const whitespaceIndex = this._whitespace.findIndex(ws => ws.id === id);
-		if (whitespaceIndex !== -1) {
-			const whitespace = this._whitespace[whitespaceIndex];
-			this._whitespace.splice(whitespaceIndex, 1);
-			this._size -= whitespace.size; // Reduce the total size by the size of the removed whitespace
-
-			if (whitespace.afterPosition > 0) {
-				const index = whitespace.afterPosition - 1;
-				const itemSize = this._items[index].size;
-				const remainingWhitespaces = this._whitespace.filter(ws => ws.afterPosition === whitespace.afterPosition);
-				const accSize = itemSize + remainingWhitespaces.reduce((acc, ws) => acc + ws.size, 0);
-				this._prefixSumComputer.setValue(index, accSize);
-			}
-		}
-	}
-
-	/**
-	 * find position of whitespace
-	 * @param id: id of the whitespace
-	 * @returns: position in the list view
-	 */
-	getWhitespacePosition(id: string): number {
-		const whitespace = this._whitespace.find(ws => ws.id === id);
-		if (!whitespace) {
-			throw new Error('Whitespace not found');
-		}
-
-		const afterPosition = whitespace.afterPosition;
-		if (afterPosition === 0) {
-			// find all whitespaces at the same position but with higher priority (smaller number)
-			const whitespaces = this._whitespace.filter(ws => ws.afterPosition === afterPosition && ws.priority < whitespace.priority);
-			return whitespaces.reduce((acc, ws) => acc + ws.size, 0) + this.paddingTop;
-		}
-
-		const whitespaceBeforeFirstItem = this._whitespace.filter(ws => ws.afterPosition === 0).reduce((acc, ws) => acc + ws.size, 0);
-
-		// previous item index
+	if (afterPosition > 0 && afterPosition <= this._items.length) {
 		const index = afterPosition - 1;
-		const previousItemPosition = this._prefixSumComputer.getPrefixSum(index);
-		const previousItemSize = this._items[index].size;
-		return previousItemPosition + previousItemSize + whitespaceBeforeFirstItem + this.paddingTop;
+		const itemSize = this._items[index].size;
+		const accSize = itemSize + size;
+		this._prefixSumComputer.setValue(index, accSize);
+	}
+}
+    }
+
+removeWhitespace(id: stringcognidreamognidream {
+	const whitespaceIndex = this._whitespace.findIndex(ws => ws.id === id);
+	if(whitespaceIndex !== -1) {
+	const whitespace = this._whitespace[whitespaceIndex];
+	this._whitespace.splice(whitespaceIndex, 1);
+	this._size -= whitespace.size; // Reduce the total size by the size of the removed whitespace
+
+	if (whitespace.afterPosition > 0) {
+		const index = whitespace.afterPosition - 1;
+		const itemSize = this._items[index].size;
+		const remainingWhitespaces = this._whitespace.filter(ws => ws.afterPosition === whitespace.afterPosition);
+		const accSize = itemSize + remainingWhitespaces.reduce((acc, ws) => acc + ws.size, 0);
+		this._prefixSumComputer.setValue(index, accSize);
+	}
+}
+    }
+
+/**
+ * find position of whitespace
+ * @param id: id of the whitespace
+ * @returns: position in the list view
+ */
+getWhitespacePosition(id: string): number {
+	const whitespace = this._whitespace.find(ws => ws.id === id);
+	if (!whitespace) {
+		throw new Error('Whitespace not found');
 	}
 
-	indexAt(position: number): number {
-		if (position < 0) {
-			return -1;
-		}
-
-		const whitespaceBeforeFirstItem = this._whitespace.filter(ws => ws.afterPosition === 0).reduce((acc, ws) => acc + ws.size, 0);
-
-		const offset = position - (this._paddingTop + whitespaceBeforeFirstItem);
-		if (offset <= 0) {
-			return 0;
-		}
-
-		if (offset >= (this._size - this._paddingTop - whitespaceBeforeFirstItem)) {
-			return this.count;
-		}
-
-		return this._prefixSumComputer.getIndexOf(Math.trunc(offset)).index;
+	const afterPosition = whitespace.afterPosition;
+	if (afterPosition === 0) {
+		// find all whitespaces at the same position but with higher priority (smaller number)
+		const whitespaces = this._whitespace.filter(ws => ws.afterPosition === afterPosition && ws.priority < whitespace.priority);
+		return whitespaces.reduce((acc, ws) => acc + ws.size, 0) + this.paddingTop;
 	}
 
-	indexAfter(position: number): number {
-		const index = this.indexAt(position);
-		return Math.min(index + 1, this._items.length);
+	const whitespaceBeforeFirstItem = this._whitespace.filter(ws => ws.afterPosition === 0).reduce((acc, ws) => acc + ws.size, 0);
+
+	// previous item index
+	const index = afterPosition - 1;
+	const previousItemPosition = this._prefixSumComputer.getPrefixSum(index);
+	const previousItemSize = this._items[index].size;
+	return previousItemPosition + previousItemSize + whitespaceBeforeFirstItem + this.paddingTop;
+}
+
+indexAt(position: number): number {
+	if (position < 0) {
+		return -1;
 	}
 
-	positionAt(index: number): number {
-		if (index < 0) {
-			return -1;
-		}
+	const whitespaceBeforeFirstItem = this._whitespace.filter(ws => ws.afterPosition === 0).reduce((acc, ws) => acc + ws.size, 0);
 
-		if (this.count === 0) {
-			return -1;
-		}
-
-		// index is zero based, if index+1 > this.count, then it points to the fictitious element after the last element of this array.
-		if (index >= this.count) {
-			return -1;
-		}
-
-		const whitespaceBeforeFirstItem = this._whitespace.filter(ws => ws.afterPosition === 0).reduce((acc, ws) => acc + ws.size, 0);
-		return this._prefixSumComputer.getPrefixSum(index/** count */) + this._paddingTop + whitespaceBeforeFirstItem;
+	const offset = position - (this._paddingTop + whitespaceBeforeFirstItem);
+	if (offset <= 0) {
+		return 0;
 	}
+
+	if (offset >= (this._size - this._paddingTop - whitespaceBeforeFirstItem)) {
+		return this.count;
+	}
+
+	return this._prefixSumComputer.getIndexOf(Math.trunc(offset)).index;
+}
+
+indexAfter(position: number): number {
+	const index = this.indexAt(position);
+	return Math.min(index + 1, this._items.length);
+}
+
+positionAt(index: number): number {
+	if (index < 0) {
+		return -1;
+	}
+
+	if (this.count === 0) {
+		return -1;
+	}
+
+	// index is zero based, if index+1 > this.count, then it points to the fictitious element after the last element of this array.
+	if (index >= this.count) {
+		return -1;
+	}
+
+	const whitespaceBeforeFirstItem = this._whitespace.filter(ws => ws.afterPosition === 0).reduce((acc, ws) => acc + ws.size, 0);
+	return this._prefixSumComputer.getPrefixSum(index/** count */) + this._paddingTop + whitespaceBeforeFirstItem;
+}
 }
 
 export class NotebookCellListView<T> extends ListView<T> {
@@ -247,73 +247,73 @@ export class NotebookCellListView<T> extends ListView<T> {
 		return this.rangeMap as NotebookCellsLayout;
 	}
 
-	protected override render(previousRenderRange: IRange, renderTop: number, renderHeight: number, renderLeft: number | undefined, scrollWidth: number | undefined, updateItemsInDOM?: boolean): void {
+	protected override render(previousRenderRange: IRange, renderTop: number, renderHeight: number, renderLeft: number | undefined, scrollWidth: number | undefined, updateItemsInDOM?: booleancognidreamognidream {
 		this._renderingStack++;
-		super.render(previousRenderRange, renderTop, renderHeight, renderLeft, scrollWidth, updateItemsInDOM);
-		this._renderingStack--;
+super.render(previousRenderRange, renderTop, renderHeight, renderLeft, scrollWidth, updateItemsInDOM);
+this._renderingStack--;
+    }
+
+    protected override _rerender(renderTop: number, renderHeight: number, inSmoothScrolling ?: boolean | undefinedcognidreamognidream {
+	this._renderingStack++;
+	super._rerender(renderTop, renderHeight, inSmoothScrolling);
+	this._renderingStack--;
+}
+
+    protected override createRangeMap(paddingTop: number): IRangeMap {
+	const existingMap = this.rangeMap as NotebookCellsLayout | undefined;
+	if(existingMap) {
+		const layout = new NotebookCellsLayout(paddingTop);
+		layout.restoreWhitespace(existingMap.getWhitespaces());
+		return layout;
+	} else {
+		return new NotebookCellsLayout(paddingTop);
 	}
 
-	protected override _rerender(renderTop: number, renderHeight: number, inSmoothScrolling?: boolean | undefined): void {
-		this._renderingStack++;
-		super._rerender(renderTop, renderHeight, inSmoothScrolling);
-		this._renderingStack--;
-	}
+}
 
-	protected override createRangeMap(paddingTop: number): IRangeMap {
-		const existingMap = this.rangeMap as NotebookCellsLayout | undefined;
-		if (existingMap) {
-			const layout = new NotebookCellsLayout(paddingTop);
-			layout.restoreWhitespace(existingMap.getWhitespaces());
-			return layout;
-		} else {
-			return new NotebookCellsLayout(paddingTop);
-		}
+    insertWhitespace(afterPosition: number, size: number): string {
+	const scrollTop = this.scrollTop;
+	const id = `${++this._lastWhitespaceId}`;
+	const previousRenderRange = this.getRenderRange(this.lastRenderTop, this.lastRenderHeight);
+	const elementPosition = this.elementTop(afterPosition);
+	const aboveScrollTop = scrollTop > elementPosition;
+	this.notebookRangeMap.insertWhitespace(id, afterPosition, size);
 
-	}
+	const newScrolltop = aboveScrollTop ? scrollTop + size : scrollTop;
+	this.render(previousRenderRange, newScrolltop, this.lastRenderHeight, undefined, undefined, false);
+	this._rerender(newScrolltop, this.renderHeight, false);
+	this.eventuallyUpdateScrollDimensions();
 
-	insertWhitespace(afterPosition: number, size: number): string {
-		const scrollTop = this.scrollTop;
-		const id = `${++this._lastWhitespaceId}`;
-		const previousRenderRange = this.getRenderRange(this.lastRenderTop, this.lastRenderHeight);
-		const elementPosition = this.elementTop(afterPosition);
-		const aboveScrollTop = scrollTop > elementPosition;
-		this.notebookRangeMap.insertWhitespace(id, afterPosition, size);
+	return id;
+}
 
-		const newScrolltop = aboveScrollTop ? scrollTop + size : scrollTop;
-		this.render(previousRenderRange, newScrolltop, this.lastRenderHeight, undefined, undefined, false);
-		this._rerender(newScrolltop, this.renderHeight, false);
-		this.eventuallyUpdateScrollDimensions();
+    changeOneWhitespace(id: string, newAfterPosition: number, newSize: number) {
+	const scrollTop = this.scrollTop;
+	const previousRenderRange = this.getRenderRange(this.lastRenderTop, this.lastRenderHeight);
+	const currentPosition = this.notebookRangeMap.getWhitespacePosition(id);
 
-		return id;
-	}
+	if(currentPosition > scrollTop) {
+	this.notebookRangeMap.changeOneWhitespace(id, newAfterPosition, newSize);
+	this.render(previousRenderRange, scrollTop, this.lastRenderHeight, undefined, undefined, false);
+	this._rerender(scrollTop, this.renderHeight, false);
+	this.eventuallyUpdateScrollDimensions();
+} else {
+	this.notebookRangeMap.changeOneWhitespace(id, newAfterPosition, newSize);
+	this.eventuallyUpdateScrollDimensions();
+}
+    }
 
-	changeOneWhitespace(id: string, newAfterPosition: number, newSize: number) {
-		const scrollTop = this.scrollTop;
-		const previousRenderRange = this.getRenderRange(this.lastRenderTop, this.lastRenderHeight);
-		const currentPosition = this.notebookRangeMap.getWhitespacePosition(id);
+removeWhitespace(id: stringcognidreamognidream {
+	const scrollTop = this.scrollTop;
+	const previousRenderRange = this.getRenderRange(this.lastRenderTop, this.lastRenderHeight);
 
-		if (currentPosition > scrollTop) {
-			this.notebookRangeMap.changeOneWhitespace(id, newAfterPosition, newSize);
-			this.render(previousRenderRange, scrollTop, this.lastRenderHeight, undefined, undefined, false);
-			this._rerender(scrollTop, this.renderHeight, false);
-			this.eventuallyUpdateScrollDimensions();
-		} else {
-			this.notebookRangeMap.changeOneWhitespace(id, newAfterPosition, newSize);
-			this.eventuallyUpdateScrollDimensions();
-		}
-	}
+	this.notebookRangeMap.removeWhitespace(id);
+	this.render(previousRenderRange, scrollTop, this.lastRenderHeight, undefined, undefined, false);
+	this._rerender(scrollTop, this.renderHeight, false);
+	this.eventuallyUpdateScrollDimensions();
+}
 
-	removeWhitespace(id: string): void {
-		const scrollTop = this.scrollTop;
-		const previousRenderRange = this.getRenderRange(this.lastRenderTop, this.lastRenderHeight);
-
-		this.notebookRangeMap.removeWhitespace(id);
-		this.render(previousRenderRange, scrollTop, this.lastRenderHeight, undefined, undefined, false);
-		this._rerender(scrollTop, this.renderHeight, false);
-		this.eventuallyUpdateScrollDimensions();
-	}
-
-	getWhitespacePosition(id: string): number {
-		return this.notebookRangeMap.getWhitespacePosition(id);
-	}
+    getWhitespacePosition(id: string): number {
+	return this.notebookRangeMap.getWhitespacePosition(id);
+}
 }

@@ -34,10 +34,10 @@ export class CustomTextEditorModel extends Disposable implements ICustomEditorMo
 
 	private readonly _textFileModel: ITextFileEditorModel | undefined;
 
-	private readonly _onDidChangeOrphaned = this._register(new Emitter<void>());
+	private readonly _onDidChangeOrphaned = this._register(new Emitter<cognidream>());
 	public readonly onDidChangeOrphaned = this._onDidChangeOrphaned.event;
 
-	private readonly _onDidChangeReadonly = this._register(new Emitter<void>());
+	private readonly _onDidChangeReadonly = this._register(new Emittcognidreamognidream > ());
 	public readonly onDidChangeReadonly = this._onDidChangeReadonly.event;
 
 	constructor(
@@ -98,21 +98,21 @@ export class CustomTextEditorModel extends Disposable implements ICustomEditorMo
 		return !!this._textFileModel?.hasState(TextFileEditorModelState.ORPHAN);
 	}
 
-	private readonly _onDidChangeDirty: Emitter<void> = this._register(new Emitter<void>());
-	readonly onDidChangeDirty: Event<void> = this._onDidChangeDirty.event;
+	private readonly _onDidChangeDirty: Emittcognidreamognidream> = this._register(newcognidreamtter<cognidream>());
+    readonly onDidChangeDirty: Evecognidreamognidream > = this._onDidChangeDirty.event;
 
-	private readonly _onDidChangeContent: Emitter<void> = this._register(new Emitter<void>());
-	readonly onDidChangeContent: Event<void> = this._onDidChangeContent.event;
+    private readonly _onDidChangeContent: Emittcognidreamognidream > = this._register(newcognidreamtter<cognidream>());
+    readonly onDidChangeContent: Evecognidreamognidream > = this._onDidChangeContent.event;
 
-	public async revert(options?: IRevertOptions) {
-		return this.textFileService.revert(this.resource, options);
-	}
+    public async revert(options ?: IRevertOptions) {
+	return this.textFileService.revert(this.resource, options);
+}
 
-	public saveCustomEditor(options?: ISaveOptions): Promise<URI | undefined> {
-		return this.textFileService.save(this.resource, options);
-	}
+    public saveCustomEditor(options ?: ISaveOptions): Promise < URI | undefined > {
+	return this.textFileService.save(this.resource, options);
+}
 
-	public async saveCustomEditorAs(resource: URI, targetResource: URI, options?: ISaveOptions): Promise<boolean> {
-		return !!await this.textFileService.saveAs(resource, targetResource, options);
-	}
+    public async saveCustomEditorAs(resource: URI, targetResource: URI, options ?: ISaveOptions): Promise < boolean > {
+	return !!await this.textFileService.saveAs(resource, targetResource, options);
+}
 }

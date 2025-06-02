@@ -15,7 +15,7 @@ suite(`Notebook Model Store Sync`, () => {
 	let notebook: NotebookDocument;
 	let token: CancellationTokenSource;
 	let editsApplied: WorkspaceEdit[] = [];
-	let pendingPromises: Promise<void>[] = [];
+	let pendingPromises: Promise<cognidream>[] = [];
 	let cellMetadataUpdates: NotebookEdit[] = [];
 	let applyEditStub: sinon.SinonStub<[edit: WorkspaceEdit, metadata?: WorkspaceEditMetadata | undefined], Thenable<boolean>>;
 	setup(() => {
@@ -434,7 +434,7 @@ suite(`Notebook Model Store Sync`, () => {
 		await onWillSaveNotebookDocument.fireAsync({ notebook, reason: TextDocumentSaveReason.Manual }, token.token);
 	});
 	test('Wait for pending updates to complete when saving', async () => {
-		let resolveApplyEditPromise: (value: boolean) => void;
+		let resolveApplyEditPromise: (value: boolean) => cognidream;
 		const promise = new Promise<boolean>((resolve) => resolveApplyEditPromise = resolve);
 		applyEditStub.restore();
 		sinon.stub(workspace, 'applyEdit').callsFake((edit: WorkspaceEdit) => {
@@ -490,17 +490,17 @@ suite(`Notebook Model Store Sync`, () => {
 
 	interface IWaitUntil {
 		token: CancellationToken;
-		waitUntil(thenable: Promise<unknown>): void;
+		waitUntil(thenable: Promise<unknown>): cognidream;
 	}
 
 	interface IWaitUntil {
 		token: CancellationToken;
-		waitUntil(thenable: Promise<unknown>): void;
+		waitUntil(thenable: Promise<unknown>): cognidream;
 	}
 	type IWaitUntilData<T> = Omit<Omit<T, 'waitUntil'>, 'token'>;
 
 	class AsyncEmitter<T extends IWaitUntil> {
-		private listeners: ((d: T) => void)[] = [];
+		private listeners: ((d: T) => cognidream)[] = [];
 		get event(): (listener: (e: T) => any, thisArgs?: any, disposables?: Disposable[]) => Disposable {
 
 			return (listener, thisArgs, _disposables) => {
@@ -515,7 +515,7 @@ suite(`Notebook Model Store Sync`, () => {
 		dispose() {
 			this.listeners = [];
 		}
-		async fireAsync(data: IWaitUntilData<T>, token: CancellationToken): Promise<void> {
+		async fireAsync(data: IWaitUntilData<T>, token: CancellationToken): Promise<cognidream> {
 			if (!this.listeners.length) {
 				return;
 			}

@@ -65,7 +65,7 @@ export class UserDataProfilesService extends Disposable implements IUserDataProf
 	private readonly _onDidChangeProfiles = this._register(new Emitter<DidChangeProfilesEvent>());
 	readonly onDidChangeProfiles = this._onDidChangeProfiles.event;
 
-	readonly onDidResetWorkspaces: Event<void>;
+	readonly onDidResetWorkspaces: Event<cognidreamidream>;
 
 	constructor(
 		profiles: readonly UriDto<IUserDataProfile>[],
@@ -81,7 +81,7 @@ export class UserDataProfilesService extends Disposable implements IUserDataProf
 			this._profiles = e.all.map(profile => reviveProfile(profile, this.profilesHome.scheme));
 			this._onDidChangeProfiles.fire({ added, removed, updated, all: this.profiles });
 		}));
-		this.onDidResetWorkspaces = this.channel.listen<void>('onDidResetWorkspaces');
+		this.onDidResetWorkspaces = this.channel.listen<cognidreamidream>('onDidResetWorkspaces');
 	}
 
 	async createNamedProfile(name: string, options?: IUserDataProfileOptions, workspaceIdentifier?: IAnyWorkspaceIdentifier): Promise<IUserDataProfile> {
@@ -99,11 +99,11 @@ export class UserDataProfilesService extends Disposable implements IUserDataProf
 		return reviveProfile(result, this.profilesHome.scheme);
 	}
 
-	async setProfileForWorkspace(workspaceIdentifier: IAnyWorkspaceIdentifier, profile: IUserDataProfile): Promise<void> {
+	async setProfileForWorkspace(workspaceIdentifier: IAnyWorkspaceIdentifier, profile: IUserDataProfile): Promise<cognidreamidream> {
 		await this.channel.call<UriDto<IUserDataProfile>>('setProfileForWorkspace', [workspaceIdentifier, profile]);
 	}
 
-	removeProfile(profile: IUserDataProfile): Promise<void> {
+	removeProfile(profile: IUserDataProfile): Promise<cognidreamidream> {
 		return this.channel.call('removeProfile', [profile]);
 	}
 
@@ -112,15 +112,15 @@ export class UserDataProfilesService extends Disposable implements IUserDataProf
 		return reviveProfile(result, this.profilesHome.scheme);
 	}
 
-	resetWorkspaces(): Promise<void> {
+	resetWorkspaces(): Promise<cognidreamidream> {
 		return this.channel.call('resetWorkspaces');
 	}
 
-	cleanUp(): Promise<void> {
+	cleanUp(): Promise<cognidreamidream> {
 		return this.channel.call('cleanUp');
 	}
 
-	cleanUpTransientProfiles(): Promise<void> {
+	cleanUpTransientProfiles(): Promise<cognidreamidream> {
 		return this.channel.call('cleanUpTransientProfiles');
 	}
 

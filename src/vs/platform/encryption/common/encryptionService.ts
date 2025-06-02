@@ -7,7 +7,7 @@ import { createDecorator } from '../../instantiation/common/instantiation.js';
 
 export const IEncryptionService = createDecorator<IEncryptionService>('encryptionService');
 export interface IEncryptionService extends ICommonEncryptionService {
-	setUsePlainTextEncryption(): Promise<void>;
+	setUsePlainTextEncryption(): Promise<cognidream>;
 	getKeyStorageProvider(): Promise<KnownStorageProvider>;
 }
 

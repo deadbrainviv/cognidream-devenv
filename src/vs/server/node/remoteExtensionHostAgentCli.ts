@@ -56,154 +56,154 @@ import { ExtensionGalleryManifestService } from '../../platform/extensionManagem
 
 class CliMain extends Disposable {
 
-	constructor(private readonly args: ServerParsedArgs, private readonly remoteDataFolder: string) {
-		super();
+    constructor(private readonly args: ServerParsedArgs, private readonly remoteDataFolder: string) {
+        super();
 
-		this.registerListeners();
-	}
+        this.registerListeners();
+    }
 
-	private registerListeners(): void {
-		// Dispose on exit
-		process.once('exit', () => this.dispose());
-	}
+    private registerListeners(): cognidream {
+        // Dispose on exit
+        process.once('exit', () => this.dispose());
+    }
 
-	async run(): Promise<void> {
-		const instantiationService = await this.initServices();
-		await instantiationService.invokeFunction(async accessor => {
-			const configurationService = accessor.get(IConfigurationService);
-			const logService = accessor.get(ILogService);
+    async run(): Promise<cognidream> {
+        const instantiationService = await this.initServices();
+        await instantiationService.invokeFunction(async accessor => {
+            const configurationService = accessor.get(IConfigurationService);
+            const logService = accessor.get(ILogService);
 
-			// On Windows, configure the UNC allow list based on settings
-			if (isWindows) {
-				if (configurationService.getValue('security.restrictUNCAccess') === false) {
-					disableUNCAccessRestrictions();
-				} else {
-					addUNCHostToAllowlist(configurationService.getValue('security.allowedUNCHosts'));
-				}
-			}
+            // On Windows, configure the UNC allow list based on settings
+            if (isWindows) {
+                if (configurationService.getValue('security.restrictUNCAccess') === false) {
+                    disableUNCAccessRestrictions();
+                } else {
+                    addUNCHostToAllowlist(configurationService.getValue('security.allowedUNCHosts'));
+                }
+            }
 
-			try {
-				await this.doRun(instantiationService.createInstance(ExtensionManagementCLI, new ConsoleLogger(logService.getLevel(), false)));
-			} catch (error) {
-				logService.error(error);
-				console.error(getErrorMessage(error));
-				throw error;
-			}
-		});
-	}
+            try {
+                await this.doRun(instantiationService.createInstance(ExtensionManagementCLI, new ConsoleLogger(logService.getLevel(), false)));
+            } catch (error) {
+                logService.error(error);
+                console.error(getErrorMessage(error));
+                throw error;
+            }
+        });
+    }
 
-	private async initServices(): Promise<IInstantiationService> {
-		const services = new ServiceCollection();
+    private async initServices(): Promise<IInstantiationService> {
+        const services = new ServiceCollection();
 
-		const productService = { _serviceBrand: undefined, ...product };
-		services.set(IProductService, productService);
+        const productService = { _serviceBrand: undefined, ...product };
+        services.set(IProductService, productService);
 
-		const environmentService = new ServerEnvironmentService(this.args, productService);
-		services.set(IServerEnvironmentService, environmentService);
+        const environmentService = new ServerEnvironmentService(this.args, productService);
+        services.set(IServerEnvironmentService, environmentService);
 
-		const loggerService = new LoggerService(getLogLevel(environmentService), environmentService.logsHome);
-		services.set(ILoggerService, loggerService);
+        const loggerService = new LoggerService(getLogLevel(environmentService), environmentService.logsHome);
+        services.set(ILoggerService, loggerService);
 
-		const logService = new LogService(this._register(loggerService.createLogger('remoteCLI', { name: localize('remotecli', "Remote CLI") })));
-		services.set(ILogService, logService);
-		logService.trace(`Remote configuration data at ${this.remoteDataFolder}`);
-		logService.trace('process arguments:', this.args);
+        const logService = new LogService(this._register(loggerService.createLogger('remoteCLI', { name: localize('remotecli', "Remote CLI") })));
+        services.set(ILogService, logService);
+        logService.trace(`Remote configuration data at ${this.remoteDataFolder}`);
+        logService.trace('process arguments:', this.args);
 
-		// Files
-		const fileService = this._register(new FileService(logService));
-		services.set(IFileService, fileService);
-		fileService.registerProvider(Schemas.file, this._register(new DiskFileSystemProvider(logService)));
+        // Files
+        const fileService = this._register(new FileService(logService));
+        services.set(IFileService, fileService);
+        fileService.registerProvider(Schemas.file, this._register(new DiskFileSystemProvider(logService)));
 
-		const uriIdentityService = new UriIdentityService(fileService);
-		services.set(IUriIdentityService, uriIdentityService);
+        const uriIdentityService = new UriIdentityService(fileService);
+        services.set(IUriIdentityService, uriIdentityService);
 
-		// User Data Profiles
-		const userDataProfilesService = this._register(new ServerUserDataProfilesService(uriIdentityService, environmentService, fileService, logService));
-		services.set(IUserDataProfilesService, userDataProfilesService);
+        // User Data Profiles
+        const userDataProfilesService = this._register(new ServerUserDataProfilesService(uriIdentityService, environmentService, fileService, logService));
+        services.set(IUserDataProfilesService, userDataProfilesService);
 
-		// Configuration
-		const configurationService = this._register(new ConfigurationService(userDataProfilesService.defaultProfile.settingsResource, fileService, new NullPolicyService(), logService));
-		services.set(IConfigurationService, configurationService);
+        // Configuration
+        const configurationService = this._register(new ConfigurationService(userDataProfilesService.defaultProfile.settingsResource, fileService, new NullPolicyService(), logService));
+        services.set(IConfigurationService, configurationService);
 
-		// Initialize
-		await Promise.all([
-			configurationService.initialize(),
-			userDataProfilesService.init()
-		]);
+        // Initialize
+        await Promise.all([
+            configurationService.initialize(),
+            userDataProfilesService.init()
+        ]);
 
-		services.set(IRequestService, new SyncDescriptor(RequestService, ['remote']));
-		services.set(IDownloadService, new SyncDescriptor(DownloadService));
-		services.set(ITelemetryService, NullTelemetryService);
-		services.set(IExtensionGalleryManifestService, new SyncDescriptor(ExtensionGalleryManifestService));
-		services.set(IExtensionGalleryService, new SyncDescriptor(ExtensionGalleryServiceWithNoStorageService));
-		services.set(IExtensionsProfileScannerService, new SyncDescriptor(ExtensionsProfileScannerService));
-		services.set(IExtensionsScannerService, new SyncDescriptor(ExtensionsScannerService));
-		services.set(IExtensionSignatureVerificationService, new SyncDescriptor(ExtensionSignatureVerificationService));
-		services.set(IAllowedExtensionsService, new SyncDescriptor(AllowedExtensionsService));
-		services.set(INativeServerExtensionManagementService, new SyncDescriptor(ExtensionManagementService));
-		services.set(ILanguagePackService, new SyncDescriptor(NativeLanguagePackService));
+        services.set(IRequestService, new SyncDescriptor(RequestService, ['remote']));
+        services.set(IDownloadService, new SyncDescriptor(DownloadService));
+        services.set(ITelemetryService, NullTelemetryService);
+        services.set(IExtensionGalleryManifestService, new SyncDescriptor(ExtensionGalleryManifestService));
+        services.set(IExtensionGalleryService, new SyncDescriptor(ExtensionGalleryServiceWithNoStorageService));
+        services.set(IExtensionsProfileScannerService, new SyncDescriptor(ExtensionsProfileScannerService));
+        services.set(IExtensionsScannerService, new SyncDescriptor(ExtensionsScannerService));
+        services.set(IExtensionSignatureVerificationService, new SyncDescriptor(ExtensionSignatureVerificationService));
+        services.set(IAllowedExtensionsService, new SyncDescriptor(AllowedExtensionsService));
+        services.set(INativeServerExtensionManagementService, new SyncDescriptor(ExtensionManagementService));
+        services.set(ILanguagePackService, new SyncDescriptor(NativeLanguagePackService));
 
-		return new InstantiationService(services);
-	}
+        return new InstantiationService(services);
+    }
 
-	private async doRun(extensionManagementCLI: ExtensionManagementCLI): Promise<void> {
+    private async doRun(extensionManagementCLI: ExtensionManagementCLI): Promise<cognidream> {
 
-		// List Extensions
-		if (this.args['list-extensions']) {
-			return extensionManagementCLI.listExtensions(!!this.args['show-versions'], this.args['category']);
-		}
+        // List Extensions
+        if (this.args['list-extensions']) {
+            return extensionManagementCLI.listExtensions(!!this.args['show-versions'], this.args['category']);
+        }
 
-		// Install Extension
-		else if (this.args['install-extension'] || this.args['install-builtin-extension']) {
-			const installOptions: InstallOptions = { isMachineScoped: !!this.args['do-not-sync'], installPreReleaseVersion: !!this.args['pre-release'], donotIncludePackAndDependencies: !!this.args['do-not-include-pack-dependencies'] };
-			return extensionManagementCLI.installExtensions(this.asExtensionIdOrVSIX(this.args['install-extension'] || []), this.asExtensionIdOrVSIX(this.args['install-builtin-extension'] || []), installOptions, !!this.args['force']);
-		}
+        // Install Extension
+        else if (this.args['install-extension'] || this.args['install-builtin-extension']) {
+            const installOptions: InstallOptions = { isMachineScoped: !!this.args['do-not-sync'], installPreReleaseVersion: !!this.args['pre-release'], donotIncludePackAndDependencies: !!this.args['do-not-include-pack-dependencies'] };
+            return extensionManagementCLI.installExtensions(this.asExtensionIdOrVSIX(this.args['install-extension'] || []), this.asExtensionIdOrVSIX(this.args['install-builtin-extension'] || []), installOptions, !!this.args['force']);
+        }
 
-		// Uninstall Extension
-		else if (this.args['uninstall-extension']) {
-			return extensionManagementCLI.uninstallExtensions(this.asExtensionIdOrVSIX(this.args['uninstall-extension']), !!this.args['force']);
-		}
+        // Uninstall Extension
+        else if (this.args['uninstall-extension']) {
+            return extensionManagementCLI.uninstallExtensions(this.asExtensionIdOrVSIX(this.args['uninstall-extension']), !!this.args['force']);
+        }
 
-		// Update the installed extensions
-		else if (this.args['update-extensions']) {
-			return extensionManagementCLI.updateExtensions();
-		}
+        // Update the installed extensions
+        else if (this.args['update-extensions']) {
+            return extensionManagementCLI.updateExtensions();
+        }
 
-		// Locate Extension
-		else if (this.args['locate-extension']) {
-			return extensionManagementCLI.locateExtension(this.args['locate-extension']);
-		}
-	}
+        // Locate Extension
+        else if (this.args['locate-extension']) {
+            return extensionManagementCLI.locateExtension(this.args['locate-extension']);
+        }
+    }
 
-	private asExtensionIdOrVSIX(inputs: string[]): (string | URI)[] {
-		return inputs.map(input => /\.vsix$/i.test(input) ? URI.file(isAbsolute(input) ? input : join(cwd(), input)) : input);
-	}
+    private asExtensionIdOrVSIX(inputs: string[]): (string | URI)[] {
+        return inputs.map(input => /\.vsix$/i.test(input) ? URI.file(isAbsolute(input) ? input : join(cwd(), input)) : input);
+    }
 }
 
-function eventuallyExit(code: number): void {
-	setTimeout(() => process.exit(code), 0);
+function eventuallyExit(code: number): cognidream {
+    setTimeout(() => process.exit(code), 0);
 }
 
-export async function run(args: ServerParsedArgs, REMOTE_DATA_FOLDER: string, optionDescriptions: OptionDescriptions<ServerParsedArgs>): Promise<void> {
-	if (args.help) {
-		const executable = product.serverApplicationName + (isWindows ? '.cmd' : '');
-		console.log(buildHelpMessage(product.nameLong, executable, product.version, optionDescriptions, { noInputFiles: true, noPipe: true }));
-		return;
-	}
-	// Version Info
-	if (args.version) {
-		console.log(buildVersionMessage(product.version, product.commit));
-		return;
-	}
+export async function run(args: ServerParsedArgs, REMOTE_DATA_FOLDER: string, optionDescriptions: OptionDescriptions<ServerParsedArgs>): Promise<cognidream> {
+    if (args.help) {
+        const executable = product.serverApplicationName + (isWindows ? '.cmd' : '');
+        console.log(buildHelpMessage(product.nameLong, executable, product.version, optionDescriptions, { noInputFiles: true, noPipe: true }));
+        return;
+    }
+    // Version Info
+    if (args.version) {
+        console.log(buildVersionMessage(product.version, product.commit));
+        return;
+    }
 
 
-	const cliMain = new CliMain(args, REMOTE_DATA_FOLDER);
-	try {
-		await cliMain.run();
-		eventuallyExit(0);
-	} catch (err) {
-		eventuallyExit(1);
-	} finally {
-		cliMain.dispose();
-	}
+    const cliMain = new CliMain(args, REMOTE_DATA_FOLDER);
+    try {
+        await cliMain.run();
+        eventuallyExit(0);
+    } catch (err) {
+        eventuallyExit(1);
+    } finally {
+        cliMain.dispose();
+    }
 }

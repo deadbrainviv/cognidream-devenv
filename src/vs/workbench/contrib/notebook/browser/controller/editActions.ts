@@ -79,7 +79,7 @@ registerAction2(class EditCellAction extends NotebookCellAction {
 			});
 	}
 
-	async runWithContext(accessor: ServicesAccessor, context: INotebookCellActionContext): Promise<void> {
+	async runWithContext(accessor: ServicesAccessor, context: INotebookCellActionContext): Promise<cognidream> {
 		if (!context.notebookEditor.hasModel()) {
 			return;
 		}
@@ -245,36 +245,36 @@ registerAction2(class ClearCellOutputsAction extends NotebookCellAction {
 		});
 	}
 
-	async runWithContext(accessor: ServicesAccessor, context: INotebookCellActionContext): Promise<void> {
-		const notebookExecutionStateService = accessor.get(INotebookExecutionStateService);
-		const editor = context.notebookEditor;
-		if (!editor.hasModel() || !editor.textModel.length) {
-			return;
+	async runWithContext(accessor: ServicesAccessor, context: INotebookCellActionContext): Promicognidreamognidream> {
+	const notebookExecutionStateService = accessor.get(INotebookExecutionStateService);
+	const editor = context.notebookEditor;
+	if(!editor.hasModel() || !editor.textModel.length) {
+	return;
+}
+
+const cell = context.cell;
+const index = editor.textModel.cells.indexOf(cell.model);
+
+if (index < 0) {
+	return;
+}
+
+const computeUndoRedo = !editor.isReadOnly;
+editor.textModel.applyEdits([{ editType: CellEditType.Output, index, outputs: [] }], true, undefined, () => undefined, undefined, computeUndoRedo);
+
+const runState = notebookExecutionStateService.getCellExecution(context.cell.uri)?.state;
+if (runState !== NotebookCellExecutionState.Executing) {
+	context.notebookEditor.textModel.applyEdits([{
+		editType: CellEditType.PartialInternalMetadata, index, internalMetadata: {
+			runStartTime: null,
+			runStartTimeAdjustment: null,
+			runEndTime: null,
+			executionOrder: null,
+			lastRunSuccess: null
 		}
-
-		const cell = context.cell;
-		const index = editor.textModel.cells.indexOf(cell.model);
-
-		if (index < 0) {
-			return;
-		}
-
-		const computeUndoRedo = !editor.isReadOnly;
-		editor.textModel.applyEdits([{ editType: CellEditType.Output, index, outputs: [] }], true, undefined, () => undefined, undefined, computeUndoRedo);
-
-		const runState = notebookExecutionStateService.getCellExecution(context.cell.uri)?.state;
-		if (runState !== NotebookCellExecutionState.Executing) {
-			context.notebookEditor.textModel.applyEdits([{
-				editType: CellEditType.PartialInternalMetadata, index, internalMetadata: {
-					runStartTime: null,
-					runStartTimeAdjustment: null,
-					runEndTime: null,
-					executionOrder: null,
-					lastRunSuccess: null
-				}
-			}], true, undefined, () => undefined, undefined, computeUndoRedo);
-		}
-	}
+	}], true, undefined, () => undefined, undefined, computeUndoRedo);
+}
+    }
 });
 
 registerAction2(class ClearAllCellOutputsAction extends NotebookAction {
@@ -307,42 +307,42 @@ registerAction2(class ClearAllCellOutputsAction extends NotebookAction {
 		});
 	}
 
-	async runWithContext(accessor: ServicesAccessor, context: INotebookActionContext): Promise<void> {
-		const notebookExecutionStateService = accessor.get(INotebookExecutionStateService);
-		const editor = context.notebookEditor;
-		if (!editor.hasModel() || !editor.textModel.length) {
-			return;
-		}
+	async runWithContext(accessor: ServicesAccessor, context: INotebookActionContext): Promicognidreamognidream> {
+	const notebookExecutionStateService = accessor.get(INotebookExecutionStateService);
+	const editor = context.notebookEditor;
+	if(!editor.hasModel() || !editor.textModel.length) {
+	return;
+}
 
-		const computeUndoRedo = !editor.isReadOnly;
-		editor.textModel.applyEdits(
-			editor.textModel.cells.map((cell, index) => ({
-				editType: CellEditType.Output, index, outputs: []
-			})), true, undefined, () => undefined, undefined, computeUndoRedo);
+const computeUndoRedo = !editor.isReadOnly;
+editor.textModel.applyEdits(
+	editor.textModel.cells.map((cell, index) => ({
+		editType: CellEditType.Output, index, outputs: []
+	})), true, undefined, () => undefined, undefined, computeUndoRedo);
 
-		const clearExecutionMetadataEdits = editor.textModel.cells.map((cell, index) => {
-			const runState = notebookExecutionStateService.getCellExecution(cell.uri)?.state;
-			if (runState !== NotebookCellExecutionState.Executing) {
-				return {
-					editType: CellEditType.PartialInternalMetadata, index, internalMetadata: {
-						runStartTime: null,
-						runStartTimeAdjustment: null,
-						runEndTime: null,
-						executionOrder: null,
-						lastRunSuccess: null
-					}
-				};
-			} else {
-				return undefined;
+const clearExecutionMetadataEdits = editor.textModel.cells.map((cell, index) => {
+	const runState = notebookExecutionStateService.getCellExecution(cell.uri)?.state;
+	if (runState !== NotebookCellExecutionState.Executing) {
+		return {
+			editType: CellEditType.PartialInternalMetadata, index, internalMetadata: {
+				runStartTime: null,
+				runStartTimeAdjustment: null,
+				runEndTime: null,
+				executionOrder: null,
+				lastRunSuccess: null
 			}
-		}).filter(edit => !!edit) as ICellEditOperation[];
-		if (clearExecutionMetadataEdits.length) {
-			context.notebookEditor.textModel.applyEdits(clearExecutionMetadataEdits, true, undefined, () => undefined, undefined, computeUndoRedo);
-		}
-
-		const controller = editor.getContribution<NotebookInlineVariablesController>(NotebookInlineVariablesController.id);
-		controller.clearNotebookInlineDecorations();
+		};
+	} else {
+		return undefined;
 	}
+}).filter(edit => !!edit) as ICellEditOperation[];
+if (clearExecutionMetadataEdits.length) {
+	context.notebookEditor.textModel.applyEdits(clearExecutionMetadataEdits, true, undefined, () => undefined, undefined, computeUndoRedo);
+}
+
+const controller = editor.getContribution<NotebookInlineVariablesController>(NotebookInlineVariablesController.id);
+controller.clearNotebookInlineDecorations();
+    }
 });
 
 interface ILanguagePickInput extends IQuickPickItem {
@@ -418,116 +418,116 @@ registerAction2(class ChangeCellLanguageAction extends NotebookCellAction<ICellR
 	}
 
 
-	async runWithContext(accessor: ServicesAccessor, context: IChangeCellContext): Promise<void> {
-		if (context.language) {
-			await this.setLanguage(context, context.language);
-		} else {
-			await this.showLanguagePicker(accessor, context);
-		}
+	async runWithContext(accessor: ServicesAccessor, context: IChangeCellContext): Promicognidreamognidream> {
+	if(context.language) {
+	await this.setLanguage(context, context.language);
+} else {
+	await this.showLanguagePicker(accessor, context);
+}
+    }
+
+    private async showLanguagePicker(accessor: ServicesAccessor, context: IChangeCellContext) {
+	const topItems: ILanguagePickInput[] = [];
+	const mainItems: ILanguagePickInput[] = [];
+
+	const languageService = accessor.get(ILanguageService);
+	const modelService = accessor.get(IModelService);
+	const quickInputService = accessor.get(IQuickInputService);
+	const languageDetectionService = accessor.get(ILanguageDetectionService);
+	const kernelService = accessor.get(INotebookKernelService);
+
+	let languages = context.notebookEditor.activeKernel?.supportedLanguages;
+	if (!languages) {
+		const matchResult = kernelService.getMatchingKernel(context.notebookEditor.textModel);
+		const allSupportedLanguages = matchResult.all.flatMap(kernel => kernel.supportedLanguages);
+		languages = allSupportedLanguages.length > 0 ? allSupportedLanguages : languageService.getRegisteredLanguageIds();
 	}
 
-	private async showLanguagePicker(accessor: ServicesAccessor, context: IChangeCellContext) {
-		const topItems: ILanguagePickInput[] = [];
-		const mainItems: ILanguagePickInput[] = [];
+	const providerLanguages = new Set([
+		...languages,
+		'markdown'
+	]);
 
-		const languageService = accessor.get(ILanguageService);
-		const modelService = accessor.get(IModelService);
-		const quickInputService = accessor.get(IQuickInputService);
-		const languageDetectionService = accessor.get(ILanguageDetectionService);
-		const kernelService = accessor.get(INotebookKernelService);
-
-		let languages = context.notebookEditor.activeKernel?.supportedLanguages;
-		if (!languages) {
-			const matchResult = kernelService.getMatchingKernel(context.notebookEditor.textModel);
-			const allSupportedLanguages = matchResult.all.flatMap(kernel => kernel.supportedLanguages);
-			languages = allSupportedLanguages.length > 0 ? allSupportedLanguages : languageService.getRegisteredLanguageIds();
+	providerLanguages.forEach(languageId => {
+		let description: string;
+		if (context.cell.cellKind === CellKind.Markup ? (languageId === 'markdown') : (languageId === context.cell.language)) {
+			description = localize('languageDescription', "({0}) - Current Language", languageId);
+		} else {
+			description = localize('languageDescriptionConfigured', "({0})", languageId);
 		}
 
-		const providerLanguages = new Set([
-			...languages,
-			'markdown'
-		]);
+		const languageName = languageService.getLanguageName(languageId);
+		if (!languageName) {
+			// Notebook has unrecognized language
+			return;
+		}
 
-		providerLanguages.forEach(languageId => {
-			let description: string;
-			if (context.cell.cellKind === CellKind.Markup ? (languageId === 'markdown') : (languageId === context.cell.language)) {
-				description = localize('languageDescription', "({0}) - Current Language", languageId);
-			} else {
-				description = localize('languageDescriptionConfigured', "({0})", languageId);
-			}
-
-			const languageName = languageService.getLanguageName(languageId);
-			if (!languageName) {
-				// Notebook has unrecognized language
-				return;
-			}
-
-			const item: ILanguagePickInput = {
-				label: languageName,
-				iconClasses: getIconClasses(modelService, languageService, this.getFakeResource(languageName, languageService)),
-				description,
-				languageId
-			};
-
-			if (languageId === 'markdown' || languageId === context.cell.language) {
-				topItems.push(item);
-			} else {
-				mainItems.push(item);
-			}
-		});
-
-		mainItems.sort((a, b) => {
-			return a.description.localeCompare(b.description);
-		});
-
-		// Offer to "Auto Detect"
-		const autoDetectMode: IQuickPickItem = {
-			label: localize('autoDetect', "Auto Detect")
+		const item: ILanguagePickInput = {
+			label: languageName,
+			iconClasses: getIconClasses(modelService, languageService, this.getFakeResource(languageName, languageService)),
+			description,
+			languageId
 		};
 
-		const picks: QuickPickInput[] = [
-			autoDetectMode,
-			{ type: 'separator', label: localize('languagesPicks', "languages (identifier)") },
-			...topItems,
-			{ type: 'separator' },
-			...mainItems
-		];
-
-		const selection = await quickInputService.pick(picks, { placeHolder: localize('pickLanguageToConfigure', "Select Language Mode") });
-		const languageId = selection === autoDetectMode
-			? await languageDetectionService.detectLanguage(context.cell.uri)
-			: (selection as ILanguagePickInput)?.languageId;
-
-		if (languageId) {
-			await this.setLanguage(context, languageId);
+		if (languageId === 'markdown' || languageId === context.cell.language) {
+			topItems.push(item);
+		} else {
+			mainItems.push(item);
 		}
+	});
+
+	mainItems.sort((a, b) => {
+		return a.description.localeCompare(b.description);
+	});
+
+	// Offer to "Auto Detect"
+	const autoDetectMode: IQuickPickItem = {
+		label: localize('autoDetect', "Auto Detect")
+	};
+
+	const picks: QuickPickInput[] = [
+		autoDetectMode,
+		{ type: 'separator', label: localize('languagesPicks', "languages (identifier)") },
+		...topItems,
+		{ type: 'separator' },
+		...mainItems
+	];
+
+	const selection = await quickInputService.pick(picks, { placeHolder: localize('pickLanguageToConfigure', "Select Language Mode") });
+	const languageId = selection === autoDetectMode
+		? await languageDetectionService.detectLanguage(context.cell.uri)
+		: (selection as ILanguagePickInput)?.languageId;
+
+	if (languageId) {
+		await this.setLanguage(context, languageId);
 	}
+}
 
-	private async setLanguage(context: IChangeCellContext, languageId: string) {
-		await setCellToLanguage(languageId, context);
-	}
+    private async setLanguage(context: IChangeCellContext, languageId: string) {
+	await setCellToLanguage(languageId, context);
+}
 
-	/**
-	 * Copied from editorStatus.ts
-	 */
-	private getFakeResource(lang: string, languageService: ILanguageService): URI | undefined {
-		let fakeResource: URI | undefined;
+    /**
+     * Copied from editorStatus.ts
+     */
+    private getFakeResource(lang: string, languageService: ILanguageService): URI | undefined {
+	let fakeResource: URI | undefined;
 
-		const languageId = languageService.getLanguageIdByLanguageName(lang);
-		if (languageId) {
-			const extensions = languageService.getExtensions(languageId);
-			if (extensions.length) {
-				fakeResource = URI.file(extensions[0]);
-			} else {
-				const filenames = languageService.getFilenames(languageId);
-				if (filenames.length) {
-					fakeResource = URI.file(filenames[0]);
-				}
+	const languageId = languageService.getLanguageIdByLanguageName(lang);
+	if (languageId) {
+		const extensions = languageService.getExtensions(languageId);
+		if (extensions.length) {
+			fakeResource = URI.file(extensions[0]);
+		} else {
+			const filenames = languageService.getFilenames(languageId);
+			if (filenames.length) {
+				fakeResource = URI.file(filenames[0]);
 			}
 		}
-
-		return fakeResource;
 	}
+
+	return fakeResource;
+}
 });
 
 registerAction2(class DetectCellLanguageAction extends NotebookCellAction {
@@ -541,20 +541,20 @@ registerAction2(class DetectCellLanguageAction extends NotebookCellAction {
 		});
 	}
 
-	async runWithContext(accessor: ServicesAccessor, context: INotebookCellActionContext): Promise<void> {
-		const languageDetectionService = accessor.get(ILanguageDetectionService);
-		const notificationService = accessor.get(INotificationService);
-		const kernelService = accessor.get(INotebookKernelService);
-		const kernel = kernelService.getSelectedOrSuggestedKernel(context.notebookEditor.textModel);
-		const providerLanguages = [...kernel?.supportedLanguages ?? []];
-		providerLanguages.push('markdown');
-		const detection = await languageDetectionService.detectLanguage(context.cell.uri, providerLanguages);
-		if (detection) {
-			setCellToLanguage(detection, context);
-		} else {
-			notificationService.warn(localize('noDetection', "Unable to detect cell language"));
-		}
+	async runWithContext(accessor: ServicesAccessor, context: INotebookCellActionContext): Promicognidreamognidream> {
+	const languageDetectionService = accessor.get(ILanguageDetectionService);
+	const notificationService = accessor.get(INotificationService);
+	const kernelService = accessor.get(INotebookKernelService);
+	const kernel = kernelService.getSelectedOrSuggestedKernel(context.notebookEditor.textModel);
+	const providerLanguages = [...kernel?.supportedLanguages ?? []];
+	providerLanguages.push('markdown');
+	const detection = await languageDetectionService.detectLanguage(context.cell.uri, providerLanguages);
+	if(detection) {
+		setCellToLanguage(detection, context);
+	} else {
+		notificationService.warn(localize('noDetection', "Unable to detect cell language"));
 	}
+}
 });
 
 async function setCellToLanguage(languageId: string, context: IChangeCellContext) {
@@ -587,51 +587,51 @@ registerAction2(class SelectNotebookIndentation extends NotebookAction {
 		});
 	}
 
-	async runWithContext(accessor: ServicesAccessor, context: INotebookActionContext): Promise<void> {
-		await this.showNotebookIndentationPicker(accessor, context);
-	}
+	async runWithContext(accessor: ServicesAccessor, context: INotebookActionContext): Promicognidreamognidream> {
+	await this.showNotebookIndentationPicker(accessor, context);
+}
 
-	private async showNotebookIndentationPicker(accessor: ServicesAccessor, context: INotebookActionContext) {
-		const quickInputService = accessor.get(IQuickInputService);
-		const editorService = accessor.get(IEditorService);
-		const instantiationService = accessor.get(IInstantiationService);
+    private async showNotebookIndentationPicker(accessor: ServicesAccessor, context: INotebookActionContext) {
+	const quickInputService = accessor.get(IQuickInputService);
+	const editorService = accessor.get(IEditorService);
+	const instantiationService = accessor.get(IInstantiationService);
 
-		const activeNotebook = getNotebookEditorFromEditorPane(editorService.activeEditorPane);
-		if (!activeNotebook || activeNotebook.isDisposed) {
-			return quickInputService.pick([{ label: localize('noNotebookEditor', "No notebook editor active at this time") }]);
+	const activeNotebook = getNotebookEditorFromEditorPane(editorService.activeEditorPane);
+	if(!activeNotebook || activeNotebook.isDisposed) {
+	return quickInputService.pick([{ label: localize('noNotebookEditor', "No notebook editor active at this time") }]);
+}
+
+if (activeNotebook.isReadOnly) {
+	return quickInputService.pick([{ label: localize('noWritableCodeEditor', "The active notebook editor is read-only.") }]);
+}
+
+const picks: QuickPickInput<IQuickPickItem & { rcognidream: cognidream }>[] = [
+	new NotebookIndentUsingTabs(), // indent using tabs
+	new NotebookIndentUsingSpaces(), // indent using spaces
+	new NotebookChangeTabDisplaySize(), // change tab size
+	new NotebookIndentationToTabsAction(), // convert indentation to tabs
+	new NotebookIndentationToSpacesAction() // convert indentation to spaces
+].map(item => {
+	return {
+		id: item.desc.id,
+		label: item.desc.title.toString(),
+		run: () => {
+			instantiationService.invokeFunction(item.run);
 		}
+	};
+});
 
-		if (activeNotebook.isReadOnly) {
-			return quickInputService.pick([{ label: localize('noWritableCodeEditor', "The active notebook editor is read-only.") }]);
-		}
+picks.splice(3, 0, { type: 'separator', label: localize('indentConvert', "convert file") });
+picks.unshift({ type: 'separator', label: localize('indentView', "change view") });
 
-		const picks: QuickPickInput<IQuickPickItem & { run(): void }>[] = [
-			new NotebookIndentUsingTabs(), // indent using tabs
-			new NotebookIndentUsingSpaces(), // indent using spaces
-			new NotebookChangeTabDisplaySize(), // change tab size
-			new NotebookIndentationToTabsAction(), // convert indentation to tabs
-			new NotebookIndentationToSpacesAction() // convert indentation to spaces
-		].map(item => {
-			return {
-				id: item.desc.id,
-				label: item.desc.title.toString(),
-				run: () => {
-					instantiationService.invokeFunction(item.run);
-				}
-			};
-		});
-
-		picks.splice(3, 0, { type: 'separator', label: localize('indentConvert', "convert file") });
-		picks.unshift({ type: 'separator', label: localize('indentView', "change view") });
-
-		const action = await quickInputService.pick(picks, { placeHolder: localize('pickAction', "Select Action"), matchOnDetail: true });
-		if (!action) {
-			return;
-		}
-		action.run();
-		context.notebookEditor.focus();
-		return;
-	}
+const action = await quickInputService.pick(picks, { placeHolder: localize('pickAction', "Select Action"), matchOnDetail: true });
+if (!action) {
+	return;
+}
+action.run();
+context.notebookEditor.focus();
+return;
+    }
 });
 
 registerAction2(class CommentSelectedCellsAction extends NotebookMultiCellAction {
@@ -651,38 +651,38 @@ registerAction2(class CommentSelectedCellsAction extends NotebookMultiCellAction
 		});
 	}
 
-	async runWithContext(accessor: ServicesAccessor, context: INotebookCommandContext): Promise<void> {
-		const languageConfigurationService = accessor.get(ILanguageConfigurationService);
+	async runWithContext(accessor: ServicesAccessor, context: INotebookCommandContext): Promicognidreamognidream> {
+	const languageConfigurationService = accessor.get(ILanguageConfigurationService);
 
-		context.selectedCells.forEach(async cellViewModel => {
-			const textModel = await cellViewModel.resolveTextModel();
+	context.selectedCells.forEach(async cellViewModel => {
+		const textModel = await cellViewModel.resolveTextModel();
 
-			const commentsOptions = cellViewModel.commentOptions;
-			const cellCommentCommand = new LineCommentCommand(
-				languageConfigurationService,
-				new Selection(1, 1, textModel.getLineCount(), textModel.getLineMaxColumn(textModel.getLineCount())), // comment the entire cell
-				textModel.getOptions().tabSize,
-				Type.Toggle,
-				commentsOptions.insertSpace ?? true,
-				commentsOptions.ignoreEmptyLines ?? true,
-				false
-			);
+		const commentsOptions = cellViewModel.commentOptions;
+		const cellCommentCommand = new LineCommentCommand(
+			languageConfigurationService,
+			new Selection(1, 1, textModel.getLineCount(), textModel.getLineMaxColumn(textModel.getLineCount())), // comment the entire cell
+			textModel.getOptions().tabSize,
+			Type.Toggle,
+			commentsOptions.insertSpace ?? true,
+			commentsOptions.ignoreEmptyLines ?? true,
+			false
+		);
 
-			// store any selections that are in the cell, allows them to be shifted by comments and preserved
-			const cellEditorSelections = cellViewModel.getSelections();
-			const initialTrackedRangesIDs: string[] = cellEditorSelections.map(selection => {
-				return textModel._setTrackedRange(null, selection, TrackedRangeStickiness.NeverGrowsWhenTypingAtEdges);
-			});
+		// store any selections that are in the cell, allows them to be shifted by comments and preserved
+		const cellEditorSelections = cellViewModel.getSelections();
+		const initialTrackedRangesIDs: string[] = cellEditorSelections.map(selection => {
+			return textModel._setTrackedRange(null, selection, TrackedRangeStickiness.NeverGrowsWhenTypingAtEdges);
+		});
 
-			CommandExecutor.executeCommands(textModel, cellEditorSelections, [cellCommentCommand]);
+		CommandExecutor.executeCommands(textModel, cellEditorSelections, [cellCommentCommand]);
 
-			const newTrackedSelections = initialTrackedRangesIDs.map(i => {
-				return textModel._getTrackedRange(i);
-			}).filter(r => !!r).map((range,) => {
-				return new Selection(range.startLineNumber, range.startColumn, range.endLineNumber, range.endColumn);
-			});
-			cellViewModel.setSelections(newTrackedSelections ?? []);
-		}); // end of cells forEach
-	}
+		const newTrackedSelections = initialTrackedRangesIDs.map(i => {
+			return textModel._getTrackedRange(i);
+		}).filter(r => !!r).map((range,) => {
+			return new Selection(range.startLineNumber, range.startColumn, range.endLineNumber, range.endColumn);
+		});
+		cellViewModel.setSelections(newTrackedSelections ?? []);
+	}); // end of cells forEach
+}
 
 });

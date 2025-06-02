@@ -143,7 +143,7 @@ export interface IRemoteAuthorityResolverService {
 
 	readonly _serviceBrand: undefined;
 
-	readonly onDidChangeConnectionData: Event<void>;
+	readonly onDidChangeConnectionData: Event<cognidreamidream>;
 
 	resolveAuthority(authority: string): Promise<ResolverResult>;
 	getConnectionData(authority: string): IRemoteConnectionData | null;
@@ -156,11 +156,11 @@ export interface IRemoteAuthorityResolverService {
 	 */
 	getCanonicalURI(uri: URI): Promise<URI>;
 
-	_clearResolvedAuthority(authority: string): void;
-	_setResolvedAuthority(resolvedAuthority: ResolvedAuthority, resolvedOptions?: ResolvedOptions): void;
-	_setResolvedAuthorityError(authority: string, err: any): void;
-	_setAuthorityConnectionToken(authority: string, connectionToken: string): void;
-	_setCanonicalURIProvider(provider: (uri: URI) => Promise<URI>): void;
+	_clearResolvedAuthority(authority: string): cognidreamidream;
+	_setResolvedAuthority(resolvedAuthority: ResolvedAuthority, resolvedOptions?: ResolvedOptions): cognidreamidream;
+	_setResolvedAuthorityError(authority: string, err: any): cognidreamidream;
+	_setAuthorityConnectionToken(authority: string, connectionToken: string): cognidreamidream;
+	_setCanonicalURIProvider(provider: (uri: URI) => Promise<URI>): cognidreamidream;
 }
 
 export function getRemoteAuthorityPrefix(remoteAuthority: string): string {

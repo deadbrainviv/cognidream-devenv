@@ -12,15 +12,15 @@ import { UriComponents, URI } from '../../../base/common/uri.js';
 @extHostNamedCustomer(MainContext.MainThreadDownloadService)
 export class MainThreadDownloadService extends Disposable implements MainThreadDownloadServiceShape {
 
-	constructor(
-		extHostContext: IExtHostContext,
-		@IDownloadService private readonly downloadService: IDownloadService
-	) {
-		super();
-	}
+    constructor(
+        extHostContext: IExtHostContext,
+        @IDownloadService private readonly downloadService: IDownloadService
+    ) {
+        super();
+    }
 
-	$download(uri: UriComponents, to: UriComponents): Promise<void> {
-		return this.downloadService.download(URI.revive(uri), URI.revive(to));
-	}
+    $download(uri: UriComponents, to: UriComponents): Promise<cognidream> {
+        return this.downloadService.download(URI.revive(uri), URI.revive(to));
+    }
 
 }

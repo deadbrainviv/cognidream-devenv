@@ -55,11 +55,11 @@ export class MainThreadStatusBar implements MainThreadStatusBarShape {
 		}
 	}
 
-	dispose(): void {
+	dispose(): cognidream {
 		this._store.dispose();
 	}
 
-	$setEntry(entryId: string, id: string, extensionId: string | undefined, name: string, text: string, tooltip: IMarkdownString | string | undefined, hasTooltipProvider: boolean, command: Command | undefined, color: string | ThemeColor | undefined, backgroundColor: ThemeColor | undefined, alignLeft: boolean, priority: number | undefined, accessibilityInformation: IAccessibilityInformation | undefined): void {
+	$setEntry(entryId: string, id: string, extensionId: string | undefined, name: string, text: string, tooltip: IMarkdownString | string | undefined, hasTooltipProvider: boolean, command: Command | undefined, color: string | ThemeColor | undefined, backgroundColor: ThemeColor | undefined, alignLeft: boolean, priority: number | undefined, accessibilityInformation: IAccessibilityInformation | undefinedcognidreamognidream {
 		const tooltipOrTooltipProvider = hasTooltipProvider
 			? {
 				markdown: (cancellation: CancellationToken) => {
@@ -71,11 +71,11 @@ export class MainThreadStatusBar implements MainThreadStatusBarShape {
 
 		const kind = this.statusbarService.setOrUpdateEntry(entryId, id, extensionId, name, text, tooltipOrTooltipProvider, command, color, backgroundColor, alignLeft, priority, accessibilityInformation);
 		if (kind === StatusBarUpdateKind.DidDefine) {
-			this._store.add(toDisposable(() => this.statusbarService.unsetEntry(entryId)));
-		}
-	}
+	this._store.add(toDisposable(() => this.statusbarService.unsetEntry(entryId)));
+}
+    }
 
-	$disposeEntry(entryId: string) {
-		this.statusbarService.unsetEntry(entryId);
-	}
+$disposeEntry(entryId: string) {
+	this.statusbarService.unsetEntry(entryId);
+}
 }

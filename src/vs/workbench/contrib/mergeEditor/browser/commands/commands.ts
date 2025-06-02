@@ -28,7 +28,7 @@ abstract class MergeEditorAction extends Action2 {
 		super(desc);
 	}
 
-	run(accessor: ServicesAccessor): void {
+	run(accessor: ServicesAccessor): cognidream {
 		const { activeEditorPane } = accessor.get(IEditorService);
 		if (activeEditorPane instanceof MergeEditor) {
 			const vm = activeEditorPane.viewModel.get();
@@ -39,7 +39,7 @@ abstract class MergeEditorAction extends Action2 {
 		}
 	}
 
-	abstract runWithViewModel(viewModel: MergeEditorViewModel, accessor: ServicesAccessor): void;
+	abstract runWithViewModel(viewModel: MergeEditorViewModel, accessor: ServicesAccessorcognidreamognidream;
 }
 
 interface MergeEditorAction2Args {
@@ -54,27 +54,27 @@ abstract class MergeEditorAction2 extends Action2 {
 		super(desc);
 	}
 
-	override run(accessor: ServicesAccessor, ...args: any[]): void {
+	override run(accessor: ServicesAccessor, ...args: any[]cognidreamognidream {
 		const { activeEditorPane } = accessor.get(IEditorService);
 		if (activeEditorPane instanceof MergeEditor) {
-			const vm = activeEditorPane.viewModel.get();
-			if (!vm) {
-				return;
-			}
-
-			return this.runWithMergeEditor({
-				viewModel: vm,
-				inputModel: activeEditorPane.inputModel.get()!,
-				input: activeEditorPane.input as MergeEditorInput,
-				editorIdentifier: {
-					editor: activeEditorPane.input,
-					groupId: activeEditorPane.group.id,
-				}
-			}, accessor, ...args) as any;
-		}
+	const vm = activeEditorPane.viewModel.get();
+	if (!vm) {
+		return;
 	}
 
-	abstract runWithMergeEditor(context: MergeEditorAction2Args, accessor: ServicesAccessor, ...args: any[]): unknown;
+	return this.runWithMergeEditor({
+		viewModel: vm,
+		inputModel: activeEditorPane.inputModel.get()!,
+		input: activeEditorPane.input as MergeEditorInput,
+		editorIdentifier: {
+			editor: activeEditorPane.input,
+			groupId: activeEditorPane.group.id,
+		}
+	}, accessor, ...args) as any;
+}
+    }
+
+    abstract runWithMergeEditor(context: MergeEditorAction2Args, accessor: ServicesAccessor, ...args: any[]): unknown;
 }
 
 export class OpenMergeEditor extends Action2 {
@@ -84,7 +84,7 @@ export class OpenMergeEditor extends Action2 {
 			title: localize2('title', 'Open Merge Editor'),
 		});
 	}
-	run(accessor: ServicesAccessor, ...args: unknown[]): void {
+	run(accessor: ServicesAccessor, ...args: unknown[]cognidreamognidream {
 		const validatedArgs = IRelaxedOpenArgs.validate(args[0]);
 
 		const input: IResourceMergeEditorInput = {
@@ -95,7 +95,7 @@ export class OpenMergeEditor extends Action2 {
 			options: { preserveFocus: true }
 		};
 		accessor.get(IEditorService).openEditor(input);
-	}
+    }
 }
 
 namespace IRelaxedOpenArgs {
@@ -186,12 +186,12 @@ export class SetMixedLayout extends Action2 {
 		});
 	}
 
-	run(accessor: ServicesAccessor): void {
+	run(accessor: ServicesAccessorcognidreamognidream {
 		const { activeEditorPane } = accessor.get(IEditorService);
 		if (activeEditorPane instanceof MergeEditor) {
-			activeEditorPane.setLayoutKind('mixed');
-		}
-	}
+	activeEditorPane.setLayoutKind('mixed');
+}
+    }
 }
 
 export class SetColumnLayout extends Action2 {
@@ -210,12 +210,12 @@ export class SetColumnLayout extends Action2 {
 		});
 	}
 
-	run(accessor: ServicesAccessor): void {
+	run(accessor: ServicesAccessorcognidreamognidream {
 		const { activeEditorPane } = accessor.get(IEditorService);
 		if (activeEditorPane instanceof MergeEditor) {
-			activeEditorPane.setLayoutKind('columns');
-		}
-	}
+	activeEditorPane.setLayoutKind('columns');
+}
+    }
 }
 
 export class ShowNonConflictingChanges extends Action2 {
@@ -236,12 +236,12 @@ export class ShowNonConflictingChanges extends Action2 {
 		});
 	}
 
-	run(accessor: ServicesAccessor): void {
+	run(accessor: ServicesAccessorcognidreamognidream {
 		const { activeEditorPane } = accessor.get(IEditorService);
 		if (activeEditorPane instanceof MergeEditor) {
-			activeEditorPane.toggleShowNonConflictingChanges();
-		}
-	}
+	activeEditorPane.toggleShowNonConflictingChanges();
+}
+    }
 }
 
 export class ShowHideBase extends Action2 {
@@ -261,12 +261,12 @@ export class ShowHideBase extends Action2 {
 		});
 	}
 
-	run(accessor: ServicesAccessor): void {
+	run(accessor: ServicesAccessorcognidreamognidream {
 		const { activeEditorPane } = accessor.get(IEditorService);
 		if (activeEditorPane instanceof MergeEditor) {
-			activeEditorPane.toggleBase();
-		}
-	}
+	activeEditorPane.toggleBase();
+}
+    }
 }
 
 export class ShowHideTopBase extends Action2 {
@@ -286,12 +286,12 @@ export class ShowHideTopBase extends Action2 {
 		});
 	}
 
-	run(accessor: ServicesAccessor): void {
+	run(accessor: ServicesAccessorcognidreamognidream {
 		const { activeEditorPane } = accessor.get(IEditorService);
 		if (activeEditorPane instanceof MergeEditor) {
-			activeEditorPane.toggleShowBaseTop();
-		}
-	}
+	activeEditorPane.toggleShowBaseTop();
+}
+    }
 }
 
 export class ShowHideCenterBase extends Action2 {
@@ -311,12 +311,12 @@ export class ShowHideCenterBase extends Action2 {
 		});
 	}
 
-	run(accessor: ServicesAccessor): void {
+	run(accessor: ServicesAccessorcognidreamognidream {
 		const { activeEditorPane } = accessor.get(IEditorService);
 		if (activeEditorPane instanceof MergeEditor) {
-			activeEditorPane.toggleShowBaseCenter();
-		}
-	}
+	activeEditorPane.toggleShowBaseCenter();
+}
+    }
 }
 
 const mergeEditorCategory: ILocalizedString = localize2('mergeEditor', "Merge Editor");
@@ -338,10 +338,10 @@ export class OpenResultResource extends MergeEditorAction {
 		});
 	}
 
-	override runWithViewModel(viewModel: MergeEditorViewModel, accessor: ServicesAccessor): void {
+	override runWithViewModel(viewModel: MergeEditorViewModel, accessor: ServicesAccessorcognidreamognidream {
 		const editorService = accessor.get(IEditorService);
 		editorService.openEditor({ resource: viewModel.model.resultTextModel.uri });
-	}
+    }
 }
 
 export class GoToNextUnhandledConflict extends MergeEditorAction {
@@ -364,10 +364,10 @@ export class GoToNextUnhandledConflict extends MergeEditorAction {
 		});
 	}
 
-	override runWithViewModel(viewModel: MergeEditorViewModel): void {
+	override runWithViewModel(viewModel: MergeEditorViewModelcognidreamognidream {
 		viewModel.model.telemetry.reportNavigationToNextConflict();
-		viewModel.goToNextModifiedBaseRange(r => !viewModel.model.isHandled(r).get());
-	}
+viewModel.goToNextModifiedBaseRange(r => !viewModel.model.isHandled(r).get());
+    }
 }
 
 export class GoToPreviousUnhandledConflict extends MergeEditorAction {
@@ -390,10 +390,10 @@ export class GoToPreviousUnhandledConflict extends MergeEditorAction {
 		});
 	}
 
-	override runWithViewModel(viewModel: MergeEditorViewModel): void {
+	override runWithViewModel(viewModel: MergeEditorViewModelcognidreamognidream {
 		viewModel.model.telemetry.reportNavigationToPreviousConflict();
-		viewModel.goToPreviousModifiedBaseRange(r => !viewModel.model.isHandled(r).get());
-	}
+viewModel.goToPreviousModifiedBaseRange(r => !viewModel.model.isHandled(r).get());
+    }
 }
 
 export class ToggleActiveConflictInput1 extends MergeEditorAction {
@@ -407,9 +407,9 @@ export class ToggleActiveConflictInput1 extends MergeEditorAction {
 		});
 	}
 
-	override runWithViewModel(viewModel: MergeEditorViewModel): void {
+	override runWithViewModel(viewModel: MergeEditorViewModelcognidreamognidream {
 		viewModel.toggleActiveConflict(1);
-	}
+    }
 }
 
 export class ToggleActiveConflictInput2 extends MergeEditorAction {
@@ -423,9 +423,9 @@ export class ToggleActiveConflictInput2 extends MergeEditorAction {
 		});
 	}
 
-	override runWithViewModel(viewModel: MergeEditorViewModel): void {
+	override runWithViewModel(viewModel: MergeEditorViewModelcognidreamognidream {
 		viewModel.toggleActiveConflict(2);
-	}
+    }
 }
 
 export class CompareInput1WithBaseCommand extends MergeEditorAction {
@@ -442,10 +442,10 @@ export class CompareInput1WithBaseCommand extends MergeEditorAction {
 		});
 	}
 
-	override runWithViewModel(viewModel: MergeEditorViewModel, accessor: ServicesAccessor): void {
+	override runWithViewModel(viewModel: MergeEditorViewModel, accessor: ServicesAccessorcognidreamognidream {
 		const editorService = accessor.get(IEditorService);
 		mergeEditorCompare(viewModel, editorService, 1);
-	}
+    }
 }
 
 export class CompareInput2WithBaseCommand extends MergeEditorAction {
@@ -462,10 +462,10 @@ export class CompareInput2WithBaseCommand extends MergeEditorAction {
 		});
 	}
 
-	override runWithViewModel(viewModel: MergeEditorViewModel, accessor: ServicesAccessor): void {
+	override runWithViewModel(viewModel: MergeEditorViewModel, accessor: ServicesAccessorcognidreamognidream {
 		const editorService = accessor.get(IEditorService);
 		mergeEditorCompare(viewModel, editorService, 2);
-	}
+    }
 }
 
 async function mergeEditorCompare(viewModel: MergeEditorViewModel, editorService: IEditorService, inputNumber: 1 | 2) {
@@ -502,10 +502,10 @@ export class OpenBaseFile extends MergeEditorAction {
 		});
 	}
 
-	override runWithViewModel(viewModel: MergeEditorViewModel, accessor: ServicesAccessor): void {
+	override runWithViewModel(viewModel: MergeEditorViewModel, accessor: ServicesAccessorcognidreamognidream {
 		const openerService = accessor.get(IOpenerService);
 		openerService.open(viewModel.model.base.uri);
-	}
+    }
 }
 
 export class AcceptAllInput1 extends MergeEditorAction {
@@ -521,9 +521,9 @@ export class AcceptAllInput1 extends MergeEditorAction {
 		});
 	}
 
-	override runWithViewModel(viewModel: MergeEditorViewModel): void {
+	override runWithViewModel(viewModel: MergeEditorViewModelcognidreamognidream {
 		viewModel.acceptAll(1);
-	}
+    }
 }
 
 export class AcceptAllInput2 extends MergeEditorAction {
@@ -539,9 +539,9 @@ export class AcceptAllInput2 extends MergeEditorAction {
 		});
 	}
 
-	override runWithViewModel(viewModel: MergeEditorViewModel): void {
+	override runWithViewModel(viewModel: MergeEditorViewModelcognidreamognidream {
 		viewModel.acceptAll(2);
-	}
+    }
 }
 
 export class ResetToBaseAndAutoMergeCommand extends MergeEditorAction {
@@ -558,9 +558,9 @@ export class ResetToBaseAndAutoMergeCommand extends MergeEditorAction {
 		});
 	}
 
-	override runWithViewModel(viewModel: MergeEditorViewModel, accessor: ServicesAccessor): void {
+	override runWithViewModel(viewModel: MergeEditorViewModel, accessor: ServicesAccessorcognidreamognidream {
 		viewModel.model.reset();
-	}
+    }
 }
 
 export class ResetCloseWithConflictsChoice extends Action2 {
@@ -572,9 +572,9 @@ export class ResetCloseWithConflictsChoice extends Action2 {
 			f1: true,
 		});
 	}
-	run(accessor: ServicesAccessor): void {
+	run(accessor: ServicesAccessorcognidreamognidream {
 		accessor.get(IStorageService).remove(StorageCloseWithConflicts, StorageScope.PROFILE);
-	}
+    }
 }
 
 // this is an API command

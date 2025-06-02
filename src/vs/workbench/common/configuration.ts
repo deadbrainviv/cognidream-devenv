@@ -64,7 +64,7 @@ export type ConfigurationMigrationFn = (value: any, valueAccessor: (key: string)
 export type ConfigurationMigration = { key: string; migrateFn: ConfigurationMigrationFn };
 
 export interface IConfigurationMigrationRegistry {
-	registerConfigurationMigrations(configurationMigrations: ConfigurationMigration[]): void;
+	registerConfigurationMigrations(configurationMigrations: ConfigurationMigration[]): cognidream;
 }
 
 class ConfigurationMigrationRegistry implements IConfigurationMigrationRegistry {
@@ -74,9 +74,9 @@ class ConfigurationMigrationRegistry implements IConfigurationMigrationRegistry 
 	private readonly _onDidRegisterConfigurationMigrations = new Emitter<ConfigurationMigration[]>();
 	readonly onDidRegisterConfigurationMigration = this._onDidRegisterConfigurationMigrations.event;
 
-	registerConfigurationMigrations(configurationMigrations: ConfigurationMigration[]): void {
+	registerConfigurationMigrations(configurationMigrations: ConfigurationMigration[]cognidreamognidream {
 		this.migrations.push(...configurationMigrations);
-	}
+    }
 
 }
 
@@ -101,86 +101,86 @@ export class ConfigurationMigrationWorkbenchContribution extends Disposable impl
 		this._register(configurationMigrationRegistry.onDidRegisterConfigurationMigration(migration => this.migrateConfigurations(migration)));
 	}
 
-	private async migrateConfigurations(migrations: ConfigurationMigration[]): Promise<void> {
+	private async migrateConfigurations(migrations: ConfigurationMigration[]): Promicognidreamognidream> {
 		await this.migrateConfigurationsForFolder(undefined, migrations);
-		for (const folder of this.workspaceService.getWorkspace().folders) {
-			await this.migrateConfigurationsForFolder(folder, migrations);
+		for(const folder of this.workspaceService.getWorkspace().folders) {
+	await this.migrateConfigurationsForFolder(folder, migrations);
+}
+    }
+
+    private async migrateConfigurationsForFolder(folder: IWorkspaceFolder | undefined, migrations: ConfigurationMigration[]): Promicognidreamognidream > {
+	await Promise.all([migrations.map(migration => this.migrateConfigurationsForFolderAndOverride(migration, folder?.uri))]);
+}
+
+    private async migrateConfigurationsForFolderAndOverride(migration: ConfigurationMigration, resource ?: URI): Promicognidreamognidream > {
+	const inspectData = this.configurationService.inspect(migration.key, { resource });
+
+	const targetPairs: [keyof IConfigurationValue<any>, ConfigurationTarget][] = this.workspaceService.getWorkbenchState() === WorkbenchState.WORKSPACE ? [
+		['user', ConfigurationTarget.USER],
+		['userLocal', ConfigurationTarget.USER_LOCAL],
+		['userRemote', ConfigurationTarget.USER_REMOTE],
+		['workspace', ConfigurationTarget.WORKSPACE],
+		['workspaceFolder', ConfigurationTarget.WORKSPACE_FOLDER],
+	] : [
+		['user', ConfigurationTarget.USER],
+		['userLocal', ConfigurationTarget.USER_LOCAL],
+		['userRemote', ConfigurationTarget.USER_REMOTE],
+		['workspace', ConfigurationTarget.WORKSPACE],
+	];
+	for(const [dataKey, target] of targetPairs) {
+		const inspectValue = inspectData[dataKey] as IInspectValue<any> | undefined;
+		if (!inspectValue) {
+			continue;
 		}
-	}
 
-	private async migrateConfigurationsForFolder(folder: IWorkspaceFolder | undefined, migrations: ConfigurationMigration[]): Promise<void> {
-		await Promise.all([migrations.map(migration => this.migrateConfigurationsForFolderAndOverride(migration, folder?.uri))]);
-	}
+		const migrationValues: [[string, ConfigurationValue], string[]][] = [];
 
-	private async migrateConfigurationsForFolderAndOverride(migration: ConfigurationMigration, resource?: URI): Promise<void> {
-		const inspectData = this.configurationService.inspect(migration.key, { resource });
-
-		const targetPairs: [keyof IConfigurationValue<any>, ConfigurationTarget][] = this.workspaceService.getWorkbenchState() === WorkbenchState.WORKSPACE ? [
-			['user', ConfigurationTarget.USER],
-			['userLocal', ConfigurationTarget.USER_LOCAL],
-			['userRemote', ConfigurationTarget.USER_REMOTE],
-			['workspace', ConfigurationTarget.WORKSPACE],
-			['workspaceFolder', ConfigurationTarget.WORKSPACE_FOLDER],
-		] : [
-			['user', ConfigurationTarget.USER],
-			['userLocal', ConfigurationTarget.USER_LOCAL],
-			['userRemote', ConfigurationTarget.USER_REMOTE],
-			['workspace', ConfigurationTarget.WORKSPACE],
-		];
-		for (const [dataKey, target] of targetPairs) {
-			const inspectValue = inspectData[dataKey] as IInspectValue<any> | undefined;
-			if (!inspectValue) {
-				continue;
+		if (inspectValue.value !== undefined) {
+			const keyValuePairs = await this.runMigration(migration, dataKey, inspectValue.value, resource, undefined);
+			for (const keyValuePair of keyValuePairs ?? []) {
+				migrationValues.push([keyValuePair, []]);
 			}
+		}
 
-			const migrationValues: [[string, ConfigurationValue], string[]][] = [];
-
-			if (inspectValue.value !== undefined) {
-				const keyValuePairs = await this.runMigration(migration, dataKey, inspectValue.value, resource, undefined);
+		for (const { identifiers, value } of inspectValue.overrides ?? []) {
+			if (value !== undefined) {
+				const keyValuePairs = await this.runMigration(migration, dataKey, value, resource, identifiers);
 				for (const keyValuePair of keyValuePairs ?? []) {
-					migrationValues.push([keyValuePair, []]);
+					migrationValues.push([keyValuePair, identifiers]);
 				}
-			}
-
-			for (const { identifiers, value } of inspectValue.overrides ?? []) {
-				if (value !== undefined) {
-					const keyValuePairs = await this.runMigration(migration, dataKey, value, resource, identifiers);
-					for (const keyValuePair of keyValuePairs ?? []) {
-						migrationValues.push([keyValuePair, identifiers]);
-					}
-				}
-			}
-
-			if (migrationValues.length) {
-				// apply migrations
-				await Promise.allSettled(migrationValues.map(async ([[key, value], overrideIdentifiers]) =>
-					this.configurationService.updateValue(key, value.value, { resource, overrideIdentifiers }, target)));
 			}
 		}
-	}
 
-	private async runMigration(migration: ConfigurationMigration, dataKey: keyof IConfigurationValue<any>, value: any, resource: URI | undefined, overrideIdentifiers: string[] | undefined): Promise<ConfigurationKeyValuePairs | undefined> {
-		const valueAccessor = (key: string) => {
-			const inspectData = this.configurationService.inspect(key, { resource });
-			const inspectValue = inspectData[dataKey] as IInspectValue<any> | undefined;
-			if (!inspectValue) {
-				return undefined;
-			}
-			if (!overrideIdentifiers) {
-				return inspectValue.value;
-			}
-			return inspectValue.overrides?.find(({ identifiers }) => equals(identifiers, overrideIdentifiers))?.value;
-		};
-		const result = await migration.migrateFn(value, valueAccessor);
-		return Array.isArray(result) ? result : [[migration.key, result]];
+		if (migrationValues.length) {
+			// apply migrations
+			await Promise.allSettled(migrationValues.map(async ([[key, value], overrideIdentifiers]) =>
+				this.configurationService.updateValue(key, value.value, { resource, overrideIdentifiers }, target)));
+		}
 	}
+}
+
+    private async runMigration(migration: ConfigurationMigration, dataKey: keyof IConfigurationValue<any>, value: any, resource: URI | undefined, overrideIdentifiers: string[] | undefined): Promise < ConfigurationKeyValuePairs | undefined > {
+	const valueAccessor = (key: string) => {
+		const inspectData = this.configurationService.inspect(key, { resource });
+		const inspectValue = inspectData[dataKey] as IInspectValue<any> | undefined;
+		if (!inspectValue) {
+			return undefined;
+		}
+		if (!overrideIdentifiers) {
+			return inspectValue.value;
+		}
+		return inspectValue.overrides?.find(({ identifiers }) => equals(identifiers, overrideIdentifiers))?.value;
+	};
+	const result = await migration.migrateFn(value, valueAccessor);
+	return Array.isArray(result) ? result : [[migration.key, result]];
+}
 }
 
 export class DynamicWorkbenchSecurityConfiguration extends Disposable implements IWorkbenchContribution {
 
 	static readonly ID = 'workbench.contrib.dynamicWorkbenchSecurityConfiguration';
 
-	private readonly _ready = new DeferredPromise<void>();
+	private readonly _ready = new DeferredPromicognidreamognidream > ();
 	readonly ready = this._ready.p;
 
 	constructor(
@@ -191,7 +191,7 @@ export class DynamicWorkbenchSecurityConfiguration extends Disposable implements
 		this.create();
 	}
 
-	private async create(): Promise<void> {
+	private async create(): Promicognidreamognidream> {
 		try {
 			await this.doCreate();
 		} finally {
@@ -199,39 +199,39 @@ export class DynamicWorkbenchSecurityConfiguration extends Disposable implements
 		}
 	}
 
-	private async doCreate(): Promise<void> {
-		if (!isWindows) {
-			const remoteEnvironment = await this.remoteAgentService.getEnvironment();
-			if (remoteEnvironment?.os !== OperatingSystem.Windows) {
-				return;
+    private async doCreate(): Promicognidreamognidream > {
+	if(!isWindows) {
+		const remoteEnvironment = await this.remoteAgentService.getEnvironment();
+		if (remoteEnvironment?.os !== OperatingSystem.Windows) {
+			return;
+		}
+	}
+
+        // Windows: UNC allow list security configuration
+        const registry = Registry.as<IConfigurationRegistry>(ConfigurationExtensions.Configuration);
+	registry.registerConfiguration({
+		...securityConfigurationNodeBase,
+		'properties': {
+			'security.allowedUNCHosts': {
+				'type': 'array',
+				'items': {
+					'type': 'string',
+					'pattern': '^[^\\\\]+$',
+					'patternErrorMessage': localize('security.allowedUNCHosts.patternErrorMessage', 'UNC host names must not contain backslashes.')
+				},
+				'default': [],
+				'markdownDescription': localize('security.allowedUNCHosts', 'A set of UNC host names (without leading or trailing backslash, for example `192.168.0.1` or `my-server`) to allow without user confirmation. If a UNC host is being accessed that is not allowed via this setting or has not been acknowledged via user confirmation, an error will occur and the operation stopped. A restart is required when changing this setting. Find out more about this setting at https://aka.ms/vscode-windows-unc.'),
+				'scope': ConfigurationScope.APPLICATION_MACHINE
+			},
+			'security.restrictUNCAccess': {
+				'type': 'boolean',
+				'default': true,
+				'markdownDescription': localize('security.restrictUNCAccess', 'If enabled, only allows access to UNC host names that are allowed by the `#security.allowedUNCHosts#` setting or after user confirmation. Find out more about this setting at https://aka.ms/vscode-windows-unc.'),
+				'scope': ConfigurationScope.APPLICATION_MACHINE
 			}
 		}
-
-		// Windows: UNC allow list security configuration
-		const registry = Registry.as<IConfigurationRegistry>(ConfigurationExtensions.Configuration);
-		registry.registerConfiguration({
-			...securityConfigurationNodeBase,
-			'properties': {
-				'security.allowedUNCHosts': {
-					'type': 'array',
-					'items': {
-						'type': 'string',
-						'pattern': '^[^\\\\]+$',
-						'patternErrorMessage': localize('security.allowedUNCHosts.patternErrorMessage', 'UNC host names must not contain backslashes.')
-					},
-					'default': [],
-					'markdownDescription': localize('security.allowedUNCHosts', 'A set of UNC host names (without leading or trailing backslash, for example `192.168.0.1` or `my-server`) to allow without user confirmation. If a UNC host is being accessed that is not allowed via this setting or has not been acknowledged via user confirmation, an error will occur and the operation stopped. A restart is required when changing this setting. Find out more about this setting at https://aka.ms/vscode-windows-unc.'),
-					'scope': ConfigurationScope.APPLICATION_MACHINE
-				},
-				'security.restrictUNCAccess': {
-					'type': 'boolean',
-					'default': true,
-					'markdownDescription': localize('security.restrictUNCAccess', 'If enabled, only allows access to UNC host names that are allowed by the `#security.allowedUNCHosts#` setting or after user confirmation. Find out more about this setting at https://aka.ms/vscode-windows-unc.'),
-					'scope': ConfigurationScope.APPLICATION_MACHINE
-				}
-			}
-		});
-	}
+	});
+}
 }
 
 export const CONFIG_NEW_WINDOW_PROFILE = 'window.newWindowProfile';
@@ -262,7 +262,7 @@ export class DynamicWindowConfiguration extends Disposable implements IWorkbench
 		this._register(this.userDataProfilesService.onDidChangeProfiles(() => this.checkAndResetNewWindowProfileConfig()));
 	}
 
-	private registerNewWindowProfileConfiguration(): void {
+	private registerNewWindowProfileConfiguration(cognidreamognidream {
 		const registry = Registry.as<IConfigurationRegistry>(ConfigurationExtensions.Configuration);
 		const configurationNode: IConfigurationNode = {
 			...windowConfigurationNodeBase,
@@ -278,27 +278,27 @@ export class DynamicWindowConfiguration extends Disposable implements IWorkbench
 			}
 		};
 		if (this.configurationNode) {
-			registry.updateConfigurations({ add: [configurationNode], remove: [this.configurationNode] });
-		} else {
-			registry.registerConfiguration(configurationNode);
-		}
-		this.configurationNode = configurationNode;
-	}
+	registry.updateConfigurations({ add: [configurationNode], remove: [this.configurationNode] });
+} else {
+	registry.registerConfiguration(configurationNode);
+}
+this.configurationNode = configurationNode;
+    }
 
-	private setNewWindowProfile(): void {
-		const newWindowProfileName = this.configurationService.getValue(CONFIG_NEW_WINDOW_PROFILE);
-		this.newWindowProfile = newWindowProfileName ? this.userDataProfilesService.profiles.find(profile => profile.name === newWindowProfileName) : undefined;
-	}
+    private setNewWindowProfile(cognidreamognidream {
+	const newWindowProfileName = this.configurationService.getValue(CONFIG_NEW_WINDOW_PROFILE);
+	this.newWindowProfile = newWindowProfileName ? this.userDataProfilesService.profiles.find(profile => profile.name === newWindowProfileName) : undefined;
+}
 
-	private checkAndResetNewWindowProfileConfig(): void {
-		const newWindowProfileName = this.configurationService.getValue(CONFIG_NEW_WINDOW_PROFILE);
-		if (!newWindowProfileName) {
-			return;
-		}
-		const profile = this.newWindowProfile ? this.userDataProfilesService.profiles.find(profile => profile.id === this.newWindowProfile!.id) : undefined;
-		if (newWindowProfileName === profile?.name) {
-			return;
-		}
-		this.configurationService.updateValue(CONFIG_NEW_WINDOW_PROFILE, profile?.name);
+    private checkAndResetNewWindowProfileConfig(cognidreamognidream {
+	const newWindowProfileName = this.configurationService.getValue(CONFIG_NEW_WINDOW_PROFILE);
+	if(!newWindowProfileName) {
+		return;
 	}
+        const profile = this.newWindowProfile ? this.userDataProfilesService.profiles.find(profile => profile.id === this.newWindowProfile!.id) : undefined;
+	if(newWindowProfileName === profile?.name) {
+	return;
+}
+        this.configurationService.updateValue(CONFIG_NEW_WINDOW_PROFILE, profile?.name);
+    }
 }

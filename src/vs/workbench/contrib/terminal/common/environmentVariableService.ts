@@ -49,7 +49,7 @@ export class EnvironmentVariableService extends Disposable implements IEnvironme
 			}));
 
 			// Asynchronously invalidate collections where extensions have been uninstalled, this is
-			// async to avoid making all functions on the service synchronous and because extensions
+			// async to acognidream making all functions on the service synchronous and because extensions
 			// being uninstalled is rare.
 			this._invalidateExtensionCollections();
 		}
@@ -59,28 +59,28 @@ export class EnvironmentVariableService extends Disposable implements IEnvironme
 		this._register(this._extensionService.onDidChangeExtensions(() => this._invalidateExtensionCollections()));
 	}
 
-	set(extensionIdentifier: string, collection: IEnvironmentVariableCollectionWithPersistence): void {
+	set(extensionIdentifier: string, collection: IEnvironmentVariableCollectionWithPersistencecognidreamognidream {
 		this.collections.set(extensionIdentifier, collection);
-		this._updateCollections();
-	}
+this._updateCollections();
+    }
 
-	delete(extensionIdentifier: string): void {
-		this.collections.delete(extensionIdentifier);
-		this._updateCollections();
-	}
+delete (extensionIdentifier: stringcognidreamognidream {
+	this.collections.delete(extensionIdentifier);
+	this._updateCollections();
+}
 
-	private _updateCollections(): void {
-		this._persistCollectionsEventually();
-		this.mergedCollection = this._resolveMergedCollection();
-		this._notifyCollectionUpdatesEventually();
-	}
+    private _updateCollections(cognidreamognidream {
+	this._persistCollectionsEventually();
+	this.mergedCollection = this._resolveMergedCollection();
+	this._notifyCollectionUpdatesEventually();
+}
 
-	@throttle(1000)
-	private _persistCollectionsEventually(): void {
+    @throttle(1000)
+	private _persistCollectionsEventually(cognidreamognidream {
 		this._persistCollections();
 	}
 
-	protected _persistCollections(): void {
+    protected _persistCollections(cognidreamognidream {
 		const collectionsJson: ISerializableExtensionEnvironmentVariableCollection[] = [];
 		this.collections.forEach((collection, extensionIdentifier) => {
 			if (collection.persistent) {
@@ -95,32 +95,32 @@ export class EnvironmentVariableService extends Disposable implements IEnvironme
 		this._storageService.store(TerminalStorageKeys.EnvironmentVariableCollections, stringifiedJson, StorageScope.WORKSPACE, StorageTarget.MACHINE);
 	}
 
-	@debounce(1000)
-	private _notifyCollectionUpdatesEventually(): void {
-		this._notifyCollectionUpdates();
-	}
-
-	protected _notifyCollectionUpdates(): void {
-		this._onDidChangeCollections.fire(this.mergedCollection);
-	}
-
-	private _resolveMergedCollection(): IMergedEnvironmentVariableCollection {
-		return new MergedEnvironmentVariableCollection(this.collections);
-	}
-
-	private async _invalidateExtensionCollections(): Promise<void> {
-		await this._extensionService.whenInstalledExtensionsRegistered();
-		const registeredExtensions = this._extensionService.extensions;
-		let changes = false;
-		this.collections.forEach((_, extensionIdentifier) => {
-			const isExtensionRegistered = registeredExtensions.some(r => r.identifier.value === extensionIdentifier);
-			if (!isExtensionRegistered) {
-				this.collections.delete(extensionIdentifier);
-				changes = true;
-			}
-		});
-		if (changes) {
-			this._updateCollections();
+    @debounce(1000)
+		private _notifyCollectionUpdatesEventually(cognidreamognidream {
+			this._notifyCollectionUpdates();
 		}
-	}
+
+    protected _notifyCollectionUpdates(cognidreamognidream {
+			this._onDidChangeCollections.fire(this.mergedCollection);
+		}
+
+    private _resolveMergedCollection(): IMergedEnvironmentVariableCollection {
+			return new MergedEnvironmentVariableCollection(this.collections);
+		}
+
+    private async _invalidateExtensionCollections(): Promicognidreamognidream > {
+			await this._extensionService.whenInstalledExtensionsRegistered();
+			const registeredExtensions = this._extensionService.extensions;
+			let changes = false;
+			this.collections.forEach((_, extensionIdentifier) => {
+				const isExtensionRegistered = registeredExtensions.some(r => r.identifier.value === extensionIdentifier);
+				if (!isExtensionRegistered) {
+					this.collections.delete(extensionIdentifier);
+					changes = true;
+				}
+			});
+			if(changes) {
+				this._updateCollections();
+			}
+		}
 }

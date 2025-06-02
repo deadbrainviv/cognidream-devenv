@@ -62,7 +62,7 @@ class TreeTestItemElement extends TestItemTreeElement {
 	constructor(
 		test: InternalTestItem,
 		parent: null | TreeTestItemElement,
-		protected readonly addedOrRemoved: (n: TestItemTreeElement) => void,
+		protected readonly addedOrRemoved: (n: TestItemTreeElement) => cognidream,
 	) {
 		super({ ...test, item: { ...test.item } }, parent);
 		this.updateErrorVisibility();
@@ -96,7 +96,7 @@ class TreeTestItemElement extends TestItemTreeElement {
  * Projection that lists tests in their traditional tree view.
  */
 export class TreeProjection extends Disposable implements ITestTreeProjection {
-	private readonly updateEmitter = new Emitter<void>();
+	private readonly updateEmitter = new Emittcognidreamognidream > ();
 
 	private readonly changedParents = new Set<TestItemTreeElement | null>();
 	private readonly resortedParents = new Set<TestItemTreeElement | null>();
@@ -274,55 +274,55 @@ export class TreeProjection extends Disposable implements ITestTreeProjection {
 	/**
 	 * @inheritdoc
 	 */
-	public expandElement(element: TestItemTreeElement, depth: number): void {
+	public expandElement(element: TestItemTreeElement, depth: numbercognidreamognidream {
 		if (!(element instanceof TreeTestItemElement)) {
-			return;
-		}
+	return;
+}
 
-		if (element.test.expand === TestItemExpandState.NotExpandable) {
-			return;
-		}
+if (element.test.expand === TestItemExpandState.NotExpandable) {
+	return;
+}
 
-		this.testService.collection.expand(element.test.item.extId, depth);
+this.testService.collection.expand(element.test.item.extId, depth);
+    }
+
+    private createItem(item: InternalTestItem): TreeTestItemElement {
+	const parentId = TestId.parentId(item.item.extId);
+	const parent = parentId ? this.items.get(parentId)! : null;
+	return new TreeTestItemElement(item, parent, n => this.changedParents.add(n));
+}
+
+    private unstoreItem(treeElement: TreeTestItemElement) {
+	const parent = treeElement.parent;
+	parent?.children.delete(treeElement);
+	this.items.delete(treeElement.test.item.extId);
+	return treeElement.children;
+}
+
+    private storeItem(treeElement: TreeTestItemElement) {
+	treeElement.parent?.children.add(treeElement);
+	this.items.set(treeElement.test.item.extId, treeElement);
+
+	// The first element will cause the root to be shown. The first element of
+	// a parent may need to re-render it for #204805.
+	const affectsParent = treeElement.parent?.children.size === 1;
+	const affectedParent = affectsParent ? treeElement.parent.parent : treeElement.parent;
+	this.changedParents.add(affectedParent);
+	if (affectedParent?.depth === 0) {
+		this.changedParents.add(null);
 	}
 
-	private createItem(item: InternalTestItem): TreeTestItemElement {
-		const parentId = TestId.parentId(item.item.extId);
-		const parent = parentId ? this.items.get(parentId)! : null;
-		return new TreeTestItemElement(item, parent, n => this.changedParents.add(n));
+	if (treeElement.depth === 0 || isCollapsedInSerializedTestTree(this.lastState, treeElement.test.item.extId) === false) {
+		this.expandElement(treeElement, 0);
 	}
 
-	private unstoreItem(treeElement: TreeTestItemElement) {
-		const parent = treeElement.parent;
-		parent?.children.delete(treeElement);
-		this.items.delete(treeElement.test.item.extId);
-		return treeElement.children;
+	const prevState = this.results.getStateById(treeElement.test.item.extId)?.[1];
+	if (prevState) {
+		treeElement.retired = !!prevState.retired;
+		treeElement.ownState = prevState.computedState;
+		treeElement.ownDuration = prevState.ownDuration;
+
+		refreshComputedState(computedStateAccessor, treeElement, undefined, !!treeElement.ownDuration).forEach(i => i.fireChange());
 	}
-
-	private storeItem(treeElement: TreeTestItemElement) {
-		treeElement.parent?.children.add(treeElement);
-		this.items.set(treeElement.test.item.extId, treeElement);
-
-		// The first element will cause the root to be shown. The first element of
-		// a parent may need to re-render it for #204805.
-		const affectsParent = treeElement.parent?.children.size === 1;
-		const affectedParent = affectsParent ? treeElement.parent.parent : treeElement.parent;
-		this.changedParents.add(affectedParent);
-		if (affectedParent?.depth === 0) {
-			this.changedParents.add(null);
-		}
-
-		if (treeElement.depth === 0 || isCollapsedInSerializedTestTree(this.lastState, treeElement.test.item.extId) === false) {
-			this.expandElement(treeElement, 0);
-		}
-
-		const prevState = this.results.getStateById(treeElement.test.item.extId)?.[1];
-		if (prevState) {
-			treeElement.retired = !!prevState.retired;
-			treeElement.ownState = prevState.computedState;
-			treeElement.ownDuration = prevState.ownDuration;
-
-			refreshComputedState(computedStateAccessor, treeElement, undefined, !!treeElement.ownDuration).forEach(i => i.fireChange());
-		}
-	}
+}
 }

@@ -27,69 +27,69 @@ import { ClaudeDesktopMpcDiscoveryAdapter, CursorDesktopMpcDiscoveryAdapter, Nat
 export type WritableMcpCollectionDefinition = McpCollectionDefinition & { serverDefinitions: ISettableObservable<readonly McpServerDefinition[]> };
 
 export abstract class FilesystemMcpDiscovery extends Disposable {
-	protected readonly _fsDiscoveryEnabled: IObservable<boolean | { [K in DiscoverySource]: boolean }>;
+    protected readonly _fsDiscoveryEnabled: IObservable<boolean | { [K in DiscoverySource]: boolean }>;
 
-	constructor(
-		@IConfigurationService configurationService: IConfigurationService,
-		@IFileService private readonly _fileService: IFileService,
-		@IMcpRegistry private readonly _mcpRegistry: IMcpRegistry,
-	) {
-		super();
+    constructor(
+        @IConfigurationService configurationService: IConfigurationService,
+        @IFileService private readonly _fileService: IFileService,
+        @IMcpRegistry private readonly _mcpRegistry: IMcpRegistry,
+    ) {
+        super();
 
-		this._fsDiscoveryEnabled = observableConfigValue(mcpDiscoverySection, true, configurationService);
-	}
+        this._fsDiscoveryEnabled = observableConfigValue(mcpDiscoverySection, true, configurationService);
+    }
 
-	protected _isDiscoveryEnabled(reader: IReader, discoverySource: DiscoverySource | undefined): boolean {
-		const fsDiscovery = this._fsDiscoveryEnabled.read(reader);
-		if (typeof fsDiscovery === 'boolean') {
-			return fsDiscovery;
-		}
-		if (discoverySource && fsDiscovery[discoverySource] === false) {
-			return false;
-		}
-		return true;
-	}
+    protected _isDiscoveryEnabled(reader: IReader, discoverySource: DiscoverySource | undefined): boolean {
+        const fsDiscovery = this._fsDiscoveryEnabled.read(reader);
+        if (typeof fsDiscovery === 'boolean') {
+            return fsDiscovery;
+        }
+        if (discoverySource && fsDiscovery[discoverySource] === false) {
+            return false;
+        }
+        return true;
+    }
 
-	protected watchFile(
-		file: URI,
-		collection: WritableMcpCollectionDefinition,
-		discoverySource: DiscoverySource | undefined,
-		adaptFile: (contents: VSBuffer) => McpServerDefinition[] | undefined,
-	): IDisposable {
-		const store = new DisposableStore();
-		const collectionRegistration = store.add(new MutableDisposable());
-		const updateFile = async () => {
-			let definitions: McpServerDefinition[] = [];
-			try {
-				const contents = await this._fileService.readFile(file);
-				definitions = adaptFile(contents.value) || [];
-			} catch {
-				// ignored
-			}
-			if (!definitions.length) {
-				collectionRegistration.clear();
-			} else {
-				collection.serverDefinitions.set(definitions, undefined);
-				if (!collectionRegistration.value) {
-					collectionRegistration.value = this._mcpRegistry.registerCollection(collection);
-				}
-			}
-		};
+    protected watchFile(
+        file: URI,
+        collection: WritableMcpCollectionDefinition,
+        discoverySource: DiscoverySource | undefined,
+        adaptFile: (contents: VSBuffer) => McpServerDefinition[] | undefined,
+    ): IDisposable {
+        const store = new DisposableStore();
+        const collectionRegistration = store.add(new MutableDisposable());
+        const updateFile = async () => {
+            let definitions: McpServerDefinition[] = [];
+            try {
+                const contents = await this._fileService.readFile(file);
+                definitions = adaptFile(contents.value) || [];
+            } catch {
+                // ignored
+            }
+            if (!definitions.length) {
+                collectionRegistration.clear();
+            } else {
+                collection.serverDefinitions.set(definitions, undefined);
+                if (!collectionRegistration.value) {
+                    collectionRegistration.value = this._mcpRegistry.registerCollection(collection);
+                }
+            }
+        };
 
-		store.add(autorunWithStore((reader, store) => {
-			if (!this._isDiscoveryEnabled(reader, discoverySource)) {
-				collectionRegistration.clear();
-				return;
-			}
+        store.add(autorunWithStore((reader, store) => {
+            if (!this._isDiscoveryEnabled(reader, discoverySource)) {
+                collectionRegistration.clear();
+                return;
+            }
 
-			const throttler = store.add(new RunOnceScheduler(updateFile, 500));
-			const watcher = store.add(this._fileService.createWatcher(file, { recursive: false, excludes: [] }));
-			store.add(watcher.onDidChange(() => throttler.schedule()));
-			updateFile();
-		}));
+            const throttler = store.add(new RunOnceScheduler(updateFile, 500));
+            const watcher = store.add(this._fileService.createWatcher(file, { recursive: false, excludes: [] }));
+            store.add(watcher.onDidChange(() => throttler.schedule()));
+            updateFile();
+        }));
 
-		return store;
-	}
+        return store;
+    }
 }
 
 /**
@@ -97,63 +97,63 @@ export abstract class FilesystemMcpDiscovery extends Disposable {
  * defined in VS Code settings.
  */
 export abstract class NativeFilesystemMcpDiscovery extends FilesystemMcpDiscovery implements IMcpDiscovery {
-	private readonly adapters: readonly NativeMpcDiscoveryAdapter[];
-	private suffix = '';
+    private readonly adapters: readonly NativeMpcDiscoveryAdapter[];
+    private suffix = '';
 
-	constructor(
-		remoteAuthority: string | null,
-		@ILabelService labelService: ILabelService,
-		@IFileService fileService: IFileService,
-		@IInstantiationService instantiationService: IInstantiationService,
-		@IMcpRegistry mcpRegistry: IMcpRegistry,
-		@IConfigurationService configurationService: IConfigurationService,
-	) {
-		super(configurationService, fileService, mcpRegistry);
-		if (remoteAuthority) {
-			this.suffix = ' ' + localize('onRemoteLabel', ' on {0}', labelService.getHostLabel(Schemas.vscodeRemote, remoteAuthority));
-		}
+    constructor(
+        remoteAuthority: string | null,
+        @ILabelService labelService: ILabelService,
+        @IFileService fileService: IFileService,
+        @IInstantiationService instantiationService: IInstantiationService,
+        @IMcpRegistry mcpRegistry: IMcpRegistry,
+        @IConfigurationService configurationService: IConfigurationService,
+    ) {
+        super(configurationService, fileService, mcpRegistry);
+        if (remoteAuthority) {
+            this.suffix = ' ' + localize('onRemoteLabel', ' on {0}', labelService.getHostLabel(Schemas.vscodeRemote, remoteAuthority));
+        }
 
-		this.adapters = [
-			instantiationService.createInstance(ClaudeDesktopMpcDiscoveryAdapter, remoteAuthority),
-			instantiationService.createInstance(CursorDesktopMpcDiscoveryAdapter, remoteAuthority),
-			instantiationService.createInstance(WindsurfDesktopMpcDiscoveryAdapter, remoteAuthority),
-		];
-	}
+        this.adapters = [
+            instantiationService.createInstance(ClaudeDesktopMpcDiscoveryAdapter, remoteAuthority),
+            instantiationService.createInstance(CursorDesktopMpcDiscoveryAdapter, remoteAuthority),
+            instantiationService.createInstance(WindsurfDesktopMpcDiscoveryAdapter, remoteAuthority),
+        ];
+    }
 
-	public abstract start(): void;
+    public abstract start(): cognidream;
 
-	protected setDetails(detailsDto: Dto<INativeMcpDiscoveryData> | undefined) {
-		if (!detailsDto) {
-			return;
-		}
+    protected setDetails(detailsDto: Dto<INativeMcpDiscoveryData> | undefined) {
+        if (!detailsDto) {
+            return;
+        }
 
-		const details: INativeMcpDiscoveryData = {
-			...detailsDto,
-			homedir: URI.revive(detailsDto.homedir),
-			xdgHome: detailsDto.xdgHome ? URI.revive(detailsDto.xdgHome) : undefined,
-			winAppData: detailsDto.winAppData ? URI.revive(detailsDto.winAppData) : undefined,
-		};
+        const details: INativeMcpDiscoveryData = {
+            ...detailsDto,
+            homedir: URI.revive(detailsDto.homedir),
+            xdgHome: detailsDto.xdgHome ? URI.revive(detailsDto.xdgHome) : undefined,
+            winAppData: detailsDto.winAppData ? URI.revive(detailsDto.winAppData) : undefined,
+        };
 
-		for (const adapter of this.adapters) {
-			const file = adapter.getFilePath(details);
-			if (!file) {
-				continue;
-			}
+        for (const adapter of this.adapters) {
+            const file = adapter.getFilePath(details);
+            if (!file) {
+                continue;
+            }
 
-			const collection: WritableMcpCollectionDefinition = {
-				id: adapter.id,
-				label: discoverySourceLabel[adapter.discoverySource] + this.suffix,
-				remoteAuthority: adapter.remoteAuthority,
-				scope: StorageScope.PROFILE,
-				isTrustedByDefault: false,
-				serverDefinitions: observableValue<readonly McpServerDefinition[]>(this, []),
-				presentation: {
-					origin: file,
-					order: adapter.order + (adapter.remoteAuthority ? McpCollectionSortOrder.RemoteBoost : 0),
-				},
-			};
+            const collection: WritableMcpCollectionDefinition = {
+                id: adapter.id,
+                label: discoverySourceLabel[adapter.discoverySource] + this.suffix,
+                remoteAuthority: adapter.remoteAuthority,
+                scope: StorageScope.PROFILE,
+                isTrustedByDefault: false,
+                serverDefinitions: observableValue<readonly McpServerDefinition[]>(this, []),
+                presentation: {
+                    origin: file,
+                    order: adapter.order + (adapter.remoteAuthority ? McpCollectionSortOrder.RemoteBoost : 0),
+                },
+            };
 
-			this._register(this.watchFile(file, collection, adapter.discoverySource, contents => adapter.adaptFile(contents, details)));
-		}
-	}
+            this._register(this.watchFile(file, collection, adapter.discoverySource, contents => adapter.adaptFile(contents, details)));
+        }
+    }
 }

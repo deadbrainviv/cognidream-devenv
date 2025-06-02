@@ -28,12 +28,12 @@ export const EXTENSIONS_CATEGORY = localize2('extensions', "Extensions");
 
 export interface IExtensionsViewPaneContainer extends IViewPaneContainer {
 	readonly searchValue: string | undefined;
-	search(text: string): void;
-	refresh(): Promise<void>;
+	search(text: string): cognidream;
+	refresh(): Promicognidreamognidream>;
 }
 
 export interface IWorkspaceRecommendedExtensionsView extends IView {
-	installWorkspaceRecommendations(): Promise<void>;
+	installWorkspaceRecommendations(): Promicognidreamognidream>;
 }
 
 export const enum ExtensionState {
@@ -121,54 +121,54 @@ export interface IExtensionsNotification {
 	readonly message: string;
 	readonly severity: Severity;
 	readonly extensions: IExtension[];
-	dismiss(): void;
+	dismiss(cognidreamognidream;
 }
 
 export interface IExtensionsWorkbenchService {
 	readonly _serviceBrand: undefined;
 	readonly onChange: Event<IExtension | undefined>;
-	readonly onReset: Event<void>;
-	readonly preferPreReleases: boolean;
-	readonly local: IExtension[];
-	readonly installed: IExtension[];
-	readonly outdated: IExtension[];
-	readonly whenInitialized: Promise<void>;
-	queryLocal(server?: IExtensionManagementServer): Promise<IExtension[]>;
-	queryGallery(token: CancellationToken): Promise<IPager<IExtension>>;
-	queryGallery(options: IQueryOptions, token: CancellationToken): Promise<IPager<IExtension>>;
-	getExtensions(extensionInfos: IExtensionInfo[], token: CancellationToken): Promise<IExtension[]>;
-	getExtensions(extensionInfos: IExtensionInfo[], options: IExtensionQueryOptions, token: CancellationToken): Promise<IExtension[]>;
-	getResourceExtensions(locations: URI[], isWorkspaceScoped: boolean): Promise<IExtension[]>;
-	canInstall(extension: IExtension): Promise<true | IMarkdownString>;
-	install(id: string, installOptions?: InstallExtensionOptions, progressLocation?: ProgressLocation | string): Promise<IExtension>;
-	install(vsix: URI, installOptions?: InstallExtensionOptions, progressLocation?: ProgressLocation | string): Promise<IExtension>;
-	install(extension: IExtension, installOptions?: InstallExtensionOptions, progressLocation?: ProgressLocation | string): Promise<IExtension>;
-	installInServer(extension: IExtension, server: IExtensionManagementServer, installOptions?: InstallOptions): Promise<void>;
-	downloadVSIX(extension: string, prerelease: boolean): Promise<void>;
-	uninstall(extension: IExtension): Promise<void>;
-	togglePreRelease(extension: IExtension): Promise<void>;
-	canSetLanguage(extension: IExtension): boolean;
-	setLanguage(extension: IExtension): Promise<void>;
-	setEnablement(extensions: IExtension | IExtension[], enablementState: EnablementState): Promise<void>;
-	isAutoUpdateEnabledFor(extensionOrPublisher: IExtension | string): boolean;
-	updateAutoUpdateEnablementFor(extensionOrPublisher: IExtension | string, enable: boolean): Promise<void>;
-	shouldRequireConsentToUpdate(extension: IExtension): Promise<string | undefined>;
-	updateAutoUpdateForAllExtensions(value: boolean): Promise<void>;
-	open(extension: IExtension | string, options?: IExtensionEditorOptions): Promise<void>;
-	openSearch(searchValue: string, focus?: boolean): Promise<void>;
-	getAutoUpdateValue(): AutoUpdateConfigurationValue;
-	checkForUpdates(): Promise<void>;
-	getExtensionRuntimeStatus(extension: IExtension): IExtensionRuntimeStatus | undefined;
-	updateAll(): Promise<InstallExtensionResult[]>;
-	updateRunningExtensions(): Promise<void>;
+	readonly onReset: Evecognidreamognidream>;
+    readonly preferPreReleases: boolean;
+    readonly local: IExtension[];
+    readonly installed: IExtension[];
+    readonly outdated: IExtension[];
+    readonly whenInitialized: Promicognidreamognidream >;
+queryLocal(server ?: IExtensionManagementServer): Promise<IExtension[]>;
+queryGallery(token: CancellationToken): Promise<IPager<IExtension>>;
+queryGallery(options: IQueryOptions, token: CancellationToken): Promise<IPager<IExtension>>;
+getExtensions(extensionInfos: IExtensionInfo[], token: CancellationToken): Promise<IExtension[]>;
+getExtensions(extensionInfos: IExtensionInfo[], options: IExtensionQueryOptions, token: CancellationToken): Promise<IExtension[]>;
+getResourceExtensions(locations: URI[], isWorkspaceScoped: boolean): Promise<IExtension[]>;
+canInstall(extension: IExtension): Promise<true | IMarkdownString>;
+install(id: string, installOptions ?: InstallExtensionOptions, progressLocation ?: ProgressLocation | string): Promise<IExtension>;
+install(vsix: URI, installOptions ?: InstallExtensionOptions, progressLocation ?: ProgressLocation | string): Promise<IExtension>;
+install(extension: IExtension, installOptions ?: InstallExtensionOptions, progressLocation ?: ProgressLocation | string): Promise<IExtension>;
+installInServer(extension: IExtension, server: IExtensionManagementServer, installOptions ?: InstallOptions): Promicognidreamognidream >;
+downloadVSIX(extension: string, prerelease: boolean): Promicognidreamognidream >;
+uninstall(extension: IExtension): Promicognidreamognidream >;
+togglePreRelease(extension: IExtension): Promicognidreamognidream >;
+canSetLanguage(extension: IExtension): boolean;
+setLanguage(extension: IExtension): Promicognidreamognidream >;
+setEnablement(extensions: IExtension | IExtension[], enablementState: EnablementState): Promicognidreamognidream >;
+isAutoUpdateEnabledFor(extensionOrPublisher: IExtension | string): boolean;
+updateAutoUpdateEnablementFor(extensionOrPublisher: IExtension | string, enable: boolean): Promicognidreamognidream >;
+shouldRequireConsentToUpdate(extension: IExtension): Promise<string | undefined>;
+updateAutoUpdateForAllExtensions(value: boolean): Promicognidreamognidream >;
+open(extension: IExtension | string, options ?: IExtensionEditorOptions): Promicognidreamognidream >;
+openSearch(searchValue: string, focus ?: boolean): Promicognidreamognidream >;
+getAutoUpdateValue(): AutoUpdateConfigurationValue;
+checkForUpdates(): Promicognidreamognidream >;
+getExtensionRuntimeStatus(extension: IExtension): IExtensionRuntimeStatus | undefined;
+updateAll(): Promise<InstallExtensionResult[]>;
+updateRunningExtensions(): Promicognidreamognidream >;
 
-	readonly onDidChangeExtensionsNotification: Event<IExtensionsNotification | undefined>;
-	getExtensionsNotification(): IExtensionsNotification | undefined;
+    readonly onDidChangeExtensionsNotification: Event<IExtensionsNotification | undefined>;
+getExtensionsNotification(): IExtensionsNotification | undefined;
 
-	// Sync APIs
-	isExtensionIgnoredToSync(extension: IExtension): boolean;
-	toggleExtensionIgnoredToSync(extension: IExtension): Promise<void>;
-	toggleApplyExtensionToAllProfiles(extension: IExtension): Promise<void>;
+// Sync APIs
+isExtensionIgnoredToSync(extension: IExtension): boolean;
+toggleExtensionIgnoredToSync(extension: IExtension): Promicognidreamognidream >;
+toggleApplyExtensionToAllProfiles(extension: IExtension): Promicognidreamognidream >;
 }
 
 export const enum ExtensionEditorTab {
@@ -197,7 +197,7 @@ export interface IExtensionsConfiguration {
 export interface IExtensionContainer extends IDisposable {
 	extension: IExtension | null;
 	updateWhenCounterExtensionChanges?: boolean;
-	update(): void;
+	update(cognidreamognidream;
 }
 
 export interface IExtensionsViewState {
@@ -222,7 +222,7 @@ export class ExtensionContainers extends Disposable {
 		this.containers.forEach(c => c.extension = extension);
 	}
 
-	private update(extension: IExtension | undefined): void {
+	private update(extension: IExtension | undefinedcognidreamognidream {
 		for (const container of this.containers) {
 			if (extension && container.extension) {
 				if (areSameExtensions(container.extension.identifier, extension.identifier)) {
@@ -238,7 +238,7 @@ export class ExtensionContainers extends Disposable {
 				container.update();
 			}
 		}
-	}
+    }
 }
 
 export const WORKSPACE_RECOMMENDATIONS_VIEW_ID = 'workbench.views.extensions.workspaceRecommendations';

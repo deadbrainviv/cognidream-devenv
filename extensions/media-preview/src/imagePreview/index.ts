@@ -32,7 +32,7 @@ export class PreviewManager implements vscode.CustomReadonlyEditorProvider {
 	public async resolveCustomEditor(
 		document: vscode.CustomDocument,
 		webviewEditor: vscode.WebviewPanel,
-	): Promise<void> {
+	): Promise<cognidream> {
 		const preview = new ImagePreview(this.extensionRoot, document.uri, webviewEditor, this.sizeStatusBarEntry, this.binarySizeStatusBarEntry, this.zoomStatusBarEntry);
 		this._previews.add(preview);
 		this.setActivePreview(preview);
@@ -50,7 +50,7 @@ export class PreviewManager implements vscode.CustomReadonlyEditorProvider {
 
 	public get activePreview() { return this._activePreview; }
 
-	private setActivePreview(value: ImagePreview | undefined): void {
+	private setActivePreview(value: ImagePreview | undefined): cognidream {
 		this._activePreview = value;
 	}
 }
@@ -115,7 +115,7 @@ class ImagePreview extends MediaPreview {
 		this.updateState();
 	}
 
-	public override dispose(): void {
+	public override dispose(): cognidream {
 		super.dispose();
 		this.sizeStatusBarEntry.hide(this);
 		this.zoomStatusBarEntry.hide(this);
@@ -155,7 +155,7 @@ class ImagePreview extends MediaPreview {
 			this.zoomStatusBarEntry.hide(this);
 		}
 	}
-	protected override async render(): Promise<void> {
+	protected override async render(): Promise<cognidream> {
 		await super.render();
 		this.webviewEditor.webview.postMessage({ type: 'setActive', value: this.webviewEditor.active });
 	}
@@ -204,7 +204,7 @@ class ImagePreview extends MediaPreview {
 			}
 		}
 
-		// Avoid adding cache busting if there is already a query string
+		// Acognidream adding cache busting if there is already a query string
 		if (resource.query) {
 			return webviewEditor.webview.asWebviewUri(resource).toString();
 		}

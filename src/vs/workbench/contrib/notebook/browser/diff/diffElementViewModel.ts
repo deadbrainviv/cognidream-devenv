@@ -65,7 +65,7 @@ export abstract class DiffElementViewModelBase extends Disposable {
 		this._register(this.editorEventDispatcher.onDidChangeLayout(e => this._layoutInfoEmitter.fire({ outerWidth: true })));
 	}
 
-	abstract layoutChange(): void;
+	abstract layoutChange(): cognidream;
 	abstract getHeight(lineHeight: number): number;
 	abstract get totalHeight(): number;
 }
@@ -73,7 +73,7 @@ export abstract class DiffElementViewModelBase extends Disposable {
 export class DiffElementPlaceholderViewModel extends DiffElementViewModelBase {
 	readonly type: 'placeholder' = 'placeholder';
 	public hiddenCells: DiffElementCellViewModelBase[] = [];
-	protected _unfoldHiddenCells = this._register(new Emitter<void>());
+	protected _unfoldHiddenCells = this._register(new Emittcognidreamognidream > ());
 	onUnfoldHiddenCells = this._unfoldHiddenCells.event;
 
 	public renderOutput: boolean = false;
@@ -95,12 +95,12 @@ export class DiffElementPlaceholderViewModel extends DiffElementViewModelBase {
 	getHeight(_: number): number {
 		return this.totalHeight;
 	}
-	override layoutChange(): void {
+	override layoutChange(cognidreamognidream {
 		//
 	}
-	showHiddenCells() {
-		this._unfoldHiddenCells.fire();
-	}
+    showHiddenCells() {
+	this._unfoldHiddenCells.fire();
+}
 }
 
 
@@ -312,7 +312,7 @@ export abstract class DiffElementCellViewModelBase extends DiffElementViewModelB
 	protected _layoutInfo!: IDiffElementLayoutInfo;
 
 	public displayIconToHideUnmodifiedCells?: boolean;
-	private _hideUnchangedCells = this._register(new Emitter<void>());
+	private _hideUnchangedCells = this._register(new Emittcognidreamognidream > ());
 	public onHideUnchangedCells = this._hideUnchangedCells.event;
 
 	hideUnchangedCells() {
@@ -635,40 +635,40 @@ export abstract class DiffElementCellViewModelBase extends DiffElementViewModelB
 	abstract getCellByUri(cellUri: URI): IGenericCellViewModel;
 	abstract getOutputOffsetInCell(diffSide: DiffSide, index: number): number;
 	abstract getOutputOffsetInContainer(diffSide: DiffSide, index: number): number;
-	abstract updateOutputHeight(diffSide: DiffSide, index: number, height: number): void;
-	abstract getNestedCellViewModel(diffSide: DiffSide): DiffNestedCellViewModel;
+	abstract updateOutputHeight(diffSide: DiffSide, index: number, height: numbercognidreamognidream;
+		abstract getNestedCellViewModel(diffSide: DiffSide): DiffNestedCellViewModel;
 
-	getComputedCellContainerWidth(layoutInfo: NotebookLayoutInfo, diffEditor: boolean, fullWidth: boolean) {
-		if (fullWidth) {
-			return layoutInfo.width - 2 * DIFF_CELL_MARGIN + (diffEditor ? DiffEditorWidget.ENTIRE_DIFF_OVERVIEW_WIDTH : 0) - 2;
-		}
-
-		return (layoutInfo.width - 2 * DIFF_CELL_MARGIN + (diffEditor ? DiffEditorWidget.ENTIRE_DIFF_OVERVIEW_WIDTH : 0)) / 2 - 18 - 2;
+getComputedCellContainerWidth(layoutInfo: NotebookLayoutInfo, diffEditor: boolean, fullWidth: boolean) {
+	if (fullWidth) {
+		return layoutInfo.width - 2 * DIFF_CELL_MARGIN + (diffEditor ? DiffEditorWidget.ENTIRE_DIFF_OVERVIEW_WIDTH : 0) - 2;
 	}
 
-	getOutputEditorViewState(): editorCommon.ICodeEditorViewState | editorCommon.IDiffEditorViewState | null {
-		return this._outputEditorViewState;
-	}
+	return (layoutInfo.width - 2 * DIFF_CELL_MARGIN + (diffEditor ? DiffEditorWidget.ENTIRE_DIFF_OVERVIEW_WIDTH : 0)) / 2 - 18 - 2;
+}
 
-	saveOutputEditorViewState(viewState: editorCommon.ICodeEditorViewState | editorCommon.IDiffEditorViewState | null) {
-		this._outputEditorViewState = viewState;
-	}
+getOutputEditorViewState(): editorCommon.ICodeEditorViewState | editorCommon.IDiffEditorViewState | null {
+	return this._outputEditorViewState;
+}
 
-	getMetadataEditorViewState(): editorCommon.ICodeEditorViewState | editorCommon.IDiffEditorViewState | null {
-		return this._metadataEditorViewState;
-	}
+saveOutputEditorViewState(viewState: editorCommon.ICodeEditorViewState | editorCommon.IDiffEditorViewState | null) {
+	this._outputEditorViewState = viewState;
+}
 
-	saveMetadataEditorViewState(viewState: editorCommon.ICodeEditorViewState | editorCommon.IDiffEditorViewState | null) {
-		this._metadataEditorViewState = viewState;
-	}
+getMetadataEditorViewState(): editorCommon.ICodeEditorViewState | editorCommon.IDiffEditorViewState | null {
+	return this._metadataEditorViewState;
+}
 
-	getSourceEditorViewState(): editorCommon.ICodeEditorViewState | editorCommon.IDiffEditorViewState | null {
-		return this._sourceEditorViewState;
-	}
+saveMetadataEditorViewState(viewState: editorCommon.ICodeEditorViewState | editorCommon.IDiffEditorViewState | null) {
+	this._metadataEditorViewState = viewState;
+}
 
-	saveSpirceEditorViewState(viewState: editorCommon.ICodeEditorViewState | editorCommon.IDiffEditorViewState | null) {
-		this._sourceEditorViewState = viewState;
-	}
+getSourceEditorViewState(): editorCommon.ICodeEditorViewState | editorCommon.IDiffEditorViewState | null {
+	return this._sourceEditorViewState;
+}
+
+saveSpirceEditorViewState(viewState: editorCommon.ICodeEditorViewState | editorCommon.IDiffEditorViewState | null) {
+	this._sourceEditorViewState = viewState;
+}
 }
 
 export class SideBySideDiffElementViewModel extends DiffElementCellViewModelBase {

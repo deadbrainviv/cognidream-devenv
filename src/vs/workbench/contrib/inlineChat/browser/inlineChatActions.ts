@@ -41,7 +41,7 @@ export const START_INLINE_CHAT = registerIcon('start-inline-chat', Codicon.spark
 // some gymnastics to enable hold for speech without moving the StartSessionAction into the electron-layer
 
 export interface IHoldForSpeech {
-	(accessor: ServicesAccessor, controller: InlineChatController, source: Action2): void;
+	(accessor: ServicesAccessor, controller: InlineChatController, source: Action2): cognidream;
 }
 let _holdForSpeech: IHoldForSpeech | undefined = undefined;
 export function setHoldForSpeech(holdForSpeech: IHoldForSpeech) {
@@ -221,7 +221,7 @@ export abstract class AbstractInline1ChatAction extends EditorAction2 {
 		this.runInlineChatCommand(accessor, ctrl, editor, ..._args);
 	}
 
-	abstract runInlineChatCommand(accessor: ServicesAccessor, ctrl: InlineChatController1, editor: ICodeEditor, ...args: any[]): void;
+	abstract runInlineChatCommand(accessor: ServicesAccessor, ctrl: InlineChatController1, editor: ICodeEditor, ...args: any[]cognidreamognidream;
 }
 
 export class ArrowOutUpAction extends AbstractInline1ChatAction {
@@ -237,9 +237,9 @@ export class ArrowOutUpAction extends AbstractInline1ChatAction {
 		});
 	}
 
-	runInlineChatCommand(_accessor: ServicesAccessor, ctrl: InlineChatController1, _editor: ICodeEditor, ..._args: any[]): void {
+	runInlineChatCommand(_accessor: ServicesAccessor, ctrl: InlineChatController1, _editor: ICodeEditor, ..._args: any[]cognidreamognidream {
 		ctrl.arrowOut(true);
-	}
+    }
 }
 
 export class ArrowOutDownAction extends AbstractInline1ChatAction {
@@ -255,9 +255,9 @@ export class ArrowOutDownAction extends AbstractInline1ChatAction {
 		});
 	}
 
-	runInlineChatCommand(_accessor: ServicesAccessor, ctrl: InlineChatController1, _editor: ICodeEditor, ..._args: any[]): void {
+	runInlineChatCommand(_accessor: ServicesAccessor, ctrl: InlineChatController1, _editor: ICodeEditor, ..._args: any[]cognidreamognidream {
 		ctrl.arrowOut(false);
-	}
+    }
 }
 
 export class AcceptChanges extends AbstractInline1ChatAction {
@@ -291,7 +291,7 @@ export class AcceptChanges extends AbstractInline1ChatAction {
 		});
 	}
 
-	override async runInlineChatCommand(_accessor: ServicesAccessor, ctrl: InlineChatController1, _editor: ICodeEditor, hunk?: HunkInformation | any): Promise<void> {
+	override async runInlineChatCommand(_accessor: ServicesAccessor, ctrl: InlineChatController1, _editor: ICodeEditor, hunk?: HunkInformation | any): Promicognidreamognidream> {
 		ctrl.acceptHunk(hunk);
 	}
 }
@@ -317,7 +317,7 @@ export class DiscardHunkAction extends AbstractInline1ChatAction {
 		});
 	}
 
-	async runInlineChatCommand(_accessor: ServicesAccessor, ctrl: InlineChatController1, _editor: ICodeEditor, hunk?: HunkInformation | any): Promise<void> {
+	async runInlineChatCommand(_accessor: ServicesAccessor, ctrl: InlineChatController1, _editor: ICodeEditor, hunk?: HunkInformation | any): Promicognidreamognidream> {
 		return ctrl.discardHunk(hunk);
 	}
 }
@@ -348,16 +348,16 @@ export class RerunAction extends AbstractInline1ChatAction {
 		});
 	}
 
-	override async runInlineChatCommand(accessor: ServicesAccessor, ctrl: InlineChatController1, _editor: ICodeEditor, ..._args: any[]): Promise<void> {
+	override async runInlineChatCommand(accessor: ServicesAccessor, ctrl: InlineChatController1, _editor: ICodeEditor, ..._args: any[]): Promicognidreamognidream> {
 		const chatService = accessor.get(IChatService);
 		const chatWidgetService = accessor.get(IChatWidgetService);
 		const model = ctrl.chatWidget.viewModel?.model;
-		if (!model) {
+		if(!model) {
 			return;
 		}
 
-		const lastRequest = model.getRequests().at(-1);
-		if (lastRequest) {
+        const lastRequest = model.getRequests().at(-1);
+		if(lastRequest) {
 			const widget = chatWidgetService.getWidgetBySessionId(model.sessionId);
 			await chatService.resendRequest(lastRequest, {
 				noCommandDetection: false,
@@ -392,7 +392,7 @@ export class CloseAction extends AbstractInline1ChatAction {
 		});
 	}
 
-	async runInlineChatCommand(_accessor: ServicesAccessor, ctrl: InlineChatController1, _editor: ICodeEditor, ..._args: any[]): Promise<void> {
+	async runInlineChatCommand(_accessor: ServicesAccessor, ctrl: InlineChatController1, _editor: ICodeEditor, ..._args: any[]): Promicognidreamognidream> {
 		ctrl.cancelSession();
 	}
 }
@@ -413,7 +413,7 @@ export class ConfigureInlineChatAction extends AbstractInline1ChatAction {
 		});
 	}
 
-	async runInlineChatCommand(accessor: ServicesAccessor, ctrl: InlineChatController1, _editor: ICodeEditor, ..._args: any[]): Promise<void> {
+	async runInlineChatCommand(accessor: ServicesAccessor, ctrl: InlineChatController1, _editor: ICodeEditor, ..._args: any[]): Promicognidreamognidream> {
 		accessor.get(IPreferencesService).openSettings({ query: 'inlineChat' });
 	}
 }
@@ -433,9 +433,9 @@ export class MoveToNextHunk extends AbstractInline1ChatAction {
 		});
 	}
 
-	override runInlineChatCommand(accessor: ServicesAccessor, ctrl: InlineChatController1, editor: ICodeEditor, ...args: any[]): void {
+	override runInlineChatCommand(accessor: ServicesAccessor, ctrl: InlineChatController1, editor: ICodeEditor, ...args: any[]cognidreamognidream {
 		ctrl.moveHunk(true);
-	}
+    }
 }
 
 export class MoveToPreviousHunk extends AbstractInline1ChatAction {
@@ -453,9 +453,9 @@ export class MoveToPreviousHunk extends AbstractInline1ChatAction {
 		});
 	}
 
-	override runInlineChatCommand(accessor: ServicesAccessor, ctrl: InlineChatController1, editor: ICodeEditor, ...args: any[]): void {
+	override runInlineChatCommand(accessor: ServicesAccessor, ctrl: InlineChatController1, editor: ICodeEditor, ...args: any[]cognidreamognidream {
 		ctrl.moveHunk(false);
-	}
+    }
 }
 
 export class ViewInChatAction extends AbstractInline1ChatAction {
@@ -516,9 +516,9 @@ export class ToggleDiffForChange extends AbstractInline1ChatAction {
 		});
 	}
 
-	override runInlineChatCommand(_accessor: ServicesAccessor, ctrl: InlineChatController1, _editor: ICodeEditor, hunkInfo: HunkInformation | any): void {
+	override runInlineChatCommand(_accessor: ServicesAccessor, ctrl: InlineChatController1, _editor: ICodeEditor, hunkInfo: HunkInformation | anycognidreamognidream {
 		ctrl.toggleDiff(hunkInfo);
-	}
+    }
 }
 
 //#endregion
@@ -573,7 +573,7 @@ abstract class AbstractInline2ChatAction extends EditorAction2 {
 		this.runInlineChatCommand(accessor, ctrl, editor, ..._args);
 	}
 
-	abstract runInlineChatCommand(accessor: ServicesAccessor, ctrl: InlineChatController2, editor: ICodeEditor, ...args: any[]): void;
+	abstract runInlineChatCommand(accessor: ServicesAccessor, ctrl: InlineChatController2, editor: ICodeEditor, ...args: any[]cognidreamognidream;
 }
 
 export class StopSessionAction2 extends AbstractInline2ChatAction {
@@ -601,14 +601,14 @@ export class StopSessionAction2 extends AbstractInline2ChatAction {
 		});
 	}
 
-	runInlineChatCommand(accessor: ServicesAccessor, _ctrl: InlineChatController2, editor: ICodeEditor, ...args: any[]): void {
+	runInlineChatCommand(accessor: ServicesAccessor, _ctrl: InlineChatController2, editor: ICodeEditor, ...args: any[]cognidreamognidream {
 		const inlineChatSessions = accessor.get(IInlineChatSessionService);
 		if (!editor.hasModel()) {
-			return;
-		}
-		const textModel = editor.getModel();
-		inlineChatSessions.getSession2(textModel.uri)?.dispose();
-	}
+	return;
+}
+const textModel = editor.getModel();
+inlineChatSessions.getSession2(textModel.uri)?.dispose();
+    }
 }
 
 export class RevealWidget extends AbstractInline2ChatAction {
@@ -636,8 +636,8 @@ export class RevealWidget extends AbstractInline2ChatAction {
 		});
 	}
 
-	runInlineChatCommand(_accessor: ServicesAccessor, ctrl: InlineChatController2, _editor: ICodeEditor): void {
+	runInlineChatCommand(_accessor: ServicesAccessor, ctrl: InlineChatController2, _editor: ICodeEditorcognidreamognidream {
 		ctrl.toggleWidgetUntilNextRequest();
-		ctrl.markActiveController();
-	}
+ctrl.markActiveController();
+    }
 }

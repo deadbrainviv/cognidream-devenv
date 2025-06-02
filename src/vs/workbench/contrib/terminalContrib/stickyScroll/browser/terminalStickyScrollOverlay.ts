@@ -192,7 +192,7 @@ export class TerminalStickyScrollOverlay extends Disposable {
 		this._element?.classList.toggle(CssClasses.Visible, isVisible);
 	}
 
-	private _refresh(): void {
+	private _refresh(): cognidream {
 		if (this._isRefreshQueued) {
 			return;
 		}
@@ -203,7 +203,7 @@ export class TerminalStickyScrollOverlay extends Disposable {
 		});
 	}
 
-	private _refreshNow(): void {
+	private _refreshNow(cognidreamognidream {
 		const command = this._commandDetection.getCommandForLine(this._xterm.raw.buffer.active.viewportY);
 
 		// The command from viewportY + 1 is used because this one will not be obscured by sticky
@@ -212,289 +212,289 @@ export class TerminalStickyScrollOverlay extends Disposable {
 
 		// No command
 		if (!command) {
-			this._setVisible(false);
-			return;
-		}
+	this._setVisible(false);
+	return;
+}
 
-		// Partial command
-		if (!('marker' in command)) {
-			const partialCommand = this._commandDetection.currentCommand;
-			if (partialCommand?.commandStartMarker && partialCommand.commandExecutedMarker) {
-				this._updateContent(partialCommand, partialCommand.commandStartMarker);
-				return;
-			}
-			this._setVisible(false);
-			return;
-		}
+// Partial command
+if (!('marker' in command)) {
+	const partialCommand = this._commandDetection.currentCommand;
+	if (partialCommand?.commandStartMarker && partialCommand.commandExecutedMarker) {
+		this._updateContent(partialCommand, partialCommand.commandStartMarker);
+		return;
+	}
+	this._setVisible(false);
+	return;
+}
 
-		// If the marker doesn't exist or it was trimmed from scrollback
-		const marker = command.marker;
-		if (!marker || marker.line === -1) {
-			// TODO: It would be nice if we kept the cached command around even if it was trimmed
-			// from scrollback
-			this._setVisible(false);
-			return;
-		}
+// If the marker doesn't exist or it was trimmed from scrollback
+const marker = command.marker;
+if (!marker || marker.line === -1) {
+	// TODO: It would be nice if we kept the cached command around even if it was trimmed
+	// from scrollback
+	this._setVisible(false);
+	return;
+}
 
-		this._updateContent(command, marker);
+this._updateContent(command, marker);
+    }
+
+    private _updateContent(command: ITerminalCommand | ICurrentPartialCommand, startMarker: IMarker) {
+	const xterm = this._xterm.raw;
+	if (!xterm.element?.parentElement || !this._stickyScrollOverlay || !this._serializeAddon) {
+		return;
 	}
 
-	private _updateContent(command: ITerminalCommand | ICurrentPartialCommand, startMarker: IMarker) {
-		const xterm = this._xterm.raw;
-		if (!xterm.element?.parentElement || !this._stickyScrollOverlay || !this._serializeAddon) {
-			return;
-		}
+	// Hide sticky scroll if the prompt has been trimmed from the buffer
+	if (command.promptStartMarker?.line === -1) {
+		this._setVisible(false);
+		return;
+	}
 
-		// Hide sticky scroll if the prompt has been trimmed from the buffer
-		if (command.promptStartMarker?.line === -1) {
-			this._setVisible(false);
-			return;
-		}
+	// Determine sticky scroll line count
+	const buffer = xterm.buffer.active;
+	const promptRowCount = command.getPromptRowCount();
+	const commandRowCount = command.getCommandRowCount();
+	const stickyScrollLineStart = startMarker.line - (promptRowCount - 1);
 
-		// Determine sticky scroll line count
-		const buffer = xterm.buffer.active;
-		const promptRowCount = command.getPromptRowCount();
-		const commandRowCount = command.getCommandRowCount();
-		const stickyScrollLineStart = startMarker.line - (promptRowCount - 1);
+	// Calculate the row offset, this is the number of rows that will be clipped from the top
+	// of the sticky overlay because we do not want to show any content above the bounds of the
+	// original terminal. This is done because it seems like scrolling flickers more when a
+	// partial line can be drawn on the top.
+	const isPartialCommand = !('getOutput' in command);
+	const rowOffset = !isPartialCommand && command.endMarker ? Math.max(buffer.viewportY - command.endMarker.line + 1, 0) : 0;
+	const maxLineCount = Math.min(this._rawMaxLineCount, Math.floor(xterm.rows * Constants.StickyScrollPercentageCap));
+	const stickyScrollLineCount = Math.min(promptRowCount + commandRowCount - 1, maxLineCount) - rowOffset;
+	const isTruncated = stickyScrollLineCount < promptRowCount + commandRowCount - 1;
 
-		// Calculate the row offset, this is the number of rows that will be clipped from the top
-		// of the sticky overlay because we do not want to show any content above the bounds of the
-		// original terminal. This is done because it seems like scrolling flickers more when a
-		// partial line can be drawn on the top.
-		const isPartialCommand = !('getOutput' in command);
-		const rowOffset = !isPartialCommand && command.endMarker ? Math.max(buffer.viewportY - command.endMarker.line + 1, 0) : 0;
-		const maxLineCount = Math.min(this._rawMaxLineCount, Math.floor(xterm.rows * Constants.StickyScrollPercentageCap));
-		const stickyScrollLineCount = Math.min(promptRowCount + commandRowCount - 1, maxLineCount) - rowOffset;
-		const isTruncated = stickyScrollLineCount < promptRowCount + commandRowCount - 1;
+	// Hide sticky scroll if it's currently on a line that contains it
+	if (buffer.viewportY <= stickyScrollLineStart) {
+		this._setVisible(false);
+		return;
+	}
 
-		// Hide sticky scroll if it's currently on a line that contains it
-		if (buffer.viewportY <= stickyScrollLineStart) {
-			this._setVisible(false);
-			return;
-		}
-
-		// Hide sticky scroll for the partial command if it looks like there is a pager like `less`
-		// or `git log` active. This is done by checking if the bottom left cell contains the :
-		// character and the cursor is immediately to its right. This improves the behavior of a
-		// common case where the top of the text being viewport would otherwise be obscured.
-		if (isPartialCommand && buffer.viewportY === buffer.baseY && buffer.cursorY === xterm.rows - 1) {
-			const line = buffer.getLine(buffer.baseY + xterm.rows - 1);
-			if (
-				(buffer.cursorX === 1 && lineStartsWith(line, ':')) ||
-				(buffer.cursorX === 5 && lineStartsWith(line, '(END)'))
-			) {
-				this._setVisible(false);
-				return;
-			}
-		}
-
-		// Get the line content of the command from the terminal
-		const content = this._serializeAddon.serialize({
-			range: {
-				start: stickyScrollLineStart + rowOffset,
-				end: stickyScrollLineStart + rowOffset + Math.max(stickyScrollLineCount - 1, 0)
-			}
-		}) + (isTruncated ? '\x1b[0m …' : '');
-
-		// If a partial command's sticky scroll would show nothing, just hide it. This is another
-		// edge case when using a pager or interactive editor.
-		if (isPartialCommand && removeAnsiEscapeCodes(content).length === 0) {
-			this._setVisible(false);
-			return;
-		}
-
-		// Write content if it differs
+	// Hide sticky scroll for the partial command if it looks like there is a pager like `less`
+	// or `git log` active. This is done by checking if the bottom left cell contains the :
+	// character and the cursor is immediately to its right. This improves the behavior of a
+	// common case where the top of the text being viewport would otherwise be obscured.
+	if (isPartialCommand && buffer.viewportY === buffer.baseY && buffer.cursorY === xterm.rows - 1) {
+		const line = buffer.getLine(buffer.baseY + xterm.rows - 1);
 		if (
-			content && this._currentContent !== content ||
-			this._stickyScrollOverlay.cols !== xterm.cols ||
-			this._stickyScrollOverlay.rows !== stickyScrollLineCount
+			(buffer.cursorX === 1 && lineStartsWith(line, ':')) ||
+			(buffer.cursorX === 5 && lineStartsWith(line, '(END)'))
 		) {
-			this._stickyScrollOverlay.resize(this._stickyScrollOverlay.cols, stickyScrollLineCount);
-			// Clear attrs, reset cursor position, clear right
-			this._stickyScrollOverlay.write('\x1b[0m\x1b[H\x1b[2J');
-			this._stickyScrollOverlay.write(content);
-			this._currentContent = content;
-			// DEBUG: Log to show the command line we know
-			// this._stickyScrollOverlay.write(` [${command?.command}]`);
+			this._setVisible(false);
+			return;
 		}
+	}
 
-		if (content) {
-			this._currentStickyCommand = command;
-			this._setVisible(true);
+	// Get the line content of the command from the terminal
+	const content = this._serializeAddon.serialize({
+		range: {
+			start: stickyScrollLineStart + rowOffset,
+			end: stickyScrollLineStart + rowOffset + Math.max(stickyScrollLineCount - 1, 0)
+		}
+	}) + (isTruncated ? '\x1b[0m …' : '');
 
-			// Position the sticky scroll such that it never overlaps the prompt/output of the
-			// following command. This must happen after setVisible to ensure the element is
-			// initialized.
-			if (this._element) {
-				const termBox = xterm.element.getBoundingClientRect();
-				// Only try reposition if the element is visible, if not a refresh will occur when
-				// it becomes visible
-				if (termBox.height > 0) {
-					const rowHeight = termBox.height / xterm.rows;
-					const overlayHeight = stickyScrollLineCount * rowHeight;
+	// If a partial command's sticky scroll would show nothing, just hide it. This is another
+	// edge case when using a pager or interactive editor.
+	if (isPartialCommand && removeAnsiEscapeCodes(content).length === 0) {
+		this._setVisible(false);
+		return;
+	}
 
-					// Adjust sticky scroll content if it would below the end of the command, obscuring the
-					// following command.
-					let endMarkerOffset = 0;
-					if (!isPartialCommand && command.endMarker && command.endMarker.line !== -1) {
-						if (buffer.viewportY + stickyScrollLineCount > command.endMarker.line) {
-							const diff = buffer.viewportY + stickyScrollLineCount - command.endMarker.line;
-							endMarkerOffset = diff * rowHeight;
-						}
+	// Write content if it differs
+	if (
+		content && this._currentContent !== content ||
+		this._stickyScrollOverlay.cols !== xterm.cols ||
+		this._stickyScrollOverlay.rows !== stickyScrollLineCount
+	) {
+		this._stickyScrollOverlay.resize(this._stickyScrollOverlay.cols, stickyScrollLineCount);
+		// Clear attrs, reset cursor position, clear right
+		this._stickyScrollOverlay.write('\x1b[0m\x1b[H\x1b[2J');
+		this._stickyScrollOverlay.write(content);
+		this._currentContent = content;
+		// DEBUG: Log to show the command line we know
+		// this._stickyScrollOverlay.write(` [${command?.command}]`);
+	}
+
+	if (content) {
+		this._currentStickyCommand = command;
+		this._setVisible(true);
+
+		// Position the sticky scroll such that it never overlaps the prompt/output of the
+		// following command. This must happen after setVisible to ensure the element is
+		// initialized.
+		if (this._element) {
+			const termBox = xterm.element.getBoundingClientRect();
+			// Only try reposition if the element is visible, if not a refresh will occur when
+			// it becomes visible
+			if (termBox.height > 0) {
+				const rowHeight = termBox.height / xterm.rows;
+				const overlayHeight = stickyScrollLineCount * rowHeight;
+
+				// Adjust sticky scroll content if it would below the end of the command, obscuring the
+				// following command.
+				let endMarkerOffset = 0;
+				if (!isPartialCommand && command.endMarker && command.endMarker.line !== -1) {
+					if (buffer.viewportY + stickyScrollLineCount > command.endMarker.line) {
+						const diff = buffer.viewportY + stickyScrollLineCount - command.endMarker.line;
+						endMarkerOffset = diff * rowHeight;
 					}
-
-					this._element.style.bottom = `${termBox.height - overlayHeight + 1 + endMarkerOffset}px`;
 				}
+
+				this._element.style.bottom = `${termBox.height - overlayHeight + 1 + endMarkerOffset}px`;
 			}
-		} else {
-			this._setVisible(false);
 		}
+	} else {
+		this._setVisible(false);
+	}
+}
+
+    private _ensureElement() {
+	if (
+		// The element is already created
+		this._element ||
+		// If the overlay is yet to be created, the terminal cannot be opened so defer to next call
+		!this._stickyScrollOverlay ||
+		// The xterm.js instance isn't opened yet
+		!this._xterm?.raw.element?.parentElement
+	) {
+		return;
 	}
 
-	private _ensureElement() {
-		if (
-			// The element is already created
-			this._element ||
-			// If the overlay is yet to be created, the terminal cannot be opened so defer to next call
-			!this._stickyScrollOverlay ||
-			// The xterm.js instance isn't opened yet
-			!this._xterm?.raw.element?.parentElement
-		) {
+	const overlay = this._stickyScrollOverlay;
+
+	const hoverOverlay = $('.hover-overlay');
+	this._element = $('.terminal-sticky-scroll', undefined, hoverOverlay);
+	this._xterm.raw.element.parentElement.append(this._element);
+	this._register(toDisposable(() => this._element?.remove()));
+
+	// Fill tooltip
+	let hoverTitle = localize('stickyScrollHoverTitle', 'Navigate to Command');
+	const scrollToPreviousCommandKeybinding = this._keybindingService.lookupKeybinding(TerminalCommandId.ScrollToPreviousCommand);
+	if (scrollToPreviousCommandKeybinding) {
+		const label = scrollToPreviousCommandKeybinding.getLabel();
+		if (label) {
+			hoverTitle += '\n' + localize('labelWithKeybinding', "{0} ({1})", terminalStrings.scrollToPreviousCommand.value, label);
+		}
+	}
+	const scrollToNextCommandKeybinding = this._keybindingService.lookupKeybinding(TerminalCommandId.ScrollToNextCommand);
+	if (scrollToNextCommandKeybinding) {
+		const label = scrollToNextCommandKeybinding.getLabel();
+		if (label) {
+			hoverTitle += '\n' + localize('labelWithKeybinding', "{0} ({1})", terminalStrings.scrollToNextCommand.value, label);
+		}
+	}
+	hoverOverlay.title = hoverTitle;
+
+	const scrollBarWidth = (this._xterm.raw as any as { _core: IXtermCore })._core.viewport?.scrollBarWidth;
+	if (scrollBarWidth !== undefined) {
+		this._element.style.right = `${scrollBarWidth}px`;
+	}
+
+	this._stickyScrollOverlay.open(this._element);
+
+	this._xtermAddonLoader.importAddon('ligatures').then(LigaturesAddon => {
+		if (this._store.isDisposed || !this._stickyScrollOverlay) {
 			return;
 		}
+		this._ligaturesAddon = new LigaturesAddon();
+		this._stickyScrollOverlay.loadAddon(this._ligaturesAddon);
+	});
 
-		const overlay = this._stickyScrollOverlay;
-
-		const hoverOverlay = $('.hover-overlay');
-		this._element = $('.terminal-sticky-scroll', undefined, hoverOverlay);
-		this._xterm.raw.element.parentElement.append(this._element);
-		this._register(toDisposable(() => this._element?.remove()));
-
-		// Fill tooltip
-		let hoverTitle = localize('stickyScrollHoverTitle', 'Navigate to Command');
-		const scrollToPreviousCommandKeybinding = this._keybindingService.lookupKeybinding(TerminalCommandId.ScrollToPreviousCommand);
-		if (scrollToPreviousCommandKeybinding) {
-			const label = scrollToPreviousCommandKeybinding.getLabel();
-			if (label) {
-				hoverTitle += '\n' + localize('labelWithKeybinding', "{0} ({1})", terminalStrings.scrollToPreviousCommand.value, label);
-			}
+	// Scroll to the command on click
+	this._register(addStandardDisposableListener(hoverOverlay, 'click', () => {
+		if (this._xterm && this._currentStickyCommand) {
+			this._xterm.markTracker.revealCommand(this._currentStickyCommand);
+			this._instance.focus();
 		}
-		const scrollToNextCommandKeybinding = this._keybindingService.lookupKeybinding(TerminalCommandId.ScrollToNextCommand);
-		if (scrollToNextCommandKeybinding) {
-			const label = scrollToNextCommandKeybinding.getLabel();
-			if (label) {
-				hoverTitle += '\n' + localize('labelWithKeybinding', "{0} ({1})", terminalStrings.scrollToNextCommand.value, label);
-			}
-		}
-		hoverOverlay.title = hoverTitle;
+	}));
 
-		const scrollBarWidth = (this._xterm.raw as any as { _core: IXtermCore })._core.viewport?.scrollBarWidth;
-		if (scrollBarWidth !== undefined) {
-			this._element.style.right = `${scrollBarWidth}px`;
-		}
+	// Forward mouse events to the terminal
+	this._register(addStandardDisposableListener(hoverOverlay, 'wheel', e => this._xterm?.raw.element?.dispatchEvent(new WheelEvent(e.type, e))));
 
-		this._stickyScrollOverlay.open(this._element);
+	// Context menu - stop propagation on mousedown because rightClickBehavior listens on
+	// mousedown, not contextmenu
+	this._register(addDisposableListener(hoverOverlay, 'mousedown', e => {
+		e.stopImmediatePropagation();
+		e.preventDefault();
+	}));
+	this._register(addDisposableListener(hoverOverlay, 'contextmenu', e => {
+		e.stopImmediatePropagation();
+		e.preventDefault();
+		openContextMenu(getWindow(hoverOverlay), e, this._instance, this._contextMenu, this._contextMenuService);
+	}));
 
-		this._xtermAddonLoader.importAddon('ligatures').then(LigaturesAddon => {
-			if (this._store.isDisposed || !this._stickyScrollOverlay) {
-				return;
-			}
-			this._ligaturesAddon = new LigaturesAddon();
-			this._stickyScrollOverlay.loadAddon(this._ligaturesAddon);
-		});
+	// Instead of juggling decorations for hover styles, swap out the theme to indicate the
+	// hover state. This comes with the benefit over other methods of working well with special
+	// decorative characters like powerline symbols.
+	this._register(addStandardDisposableListener(hoverOverlay, 'mouseover', () => overlay.options.theme = this._getTheme(true)));
+	this._register(addStandardDisposableListener(hoverOverlay, 'mouseleave', () => overlay.options.theme = this._getTheme(false)));
+}
 
-		// Scroll to the command on click
-		this._register(addStandardDisposableListener(hoverOverlay, 'click', () => {
-			if (this._xterm && this._currentStickyCommand) {
-				this._xterm.markTracker.revealCommand(this._currentStickyCommand);
-				this._instance.focus();
-			}
-		}));
-
-		// Forward mouse events to the terminal
-		this._register(addStandardDisposableListener(hoverOverlay, 'wheel', e => this._xterm?.raw.element?.dispatchEvent(new WheelEvent(e.type, e))));
-
-		// Context menu - stop propagation on mousedown because rightClickBehavior listens on
-		// mousedown, not contextmenu
-		this._register(addDisposableListener(hoverOverlay, 'mousedown', e => {
-			e.stopImmediatePropagation();
-			e.preventDefault();
-		}));
-		this._register(addDisposableListener(hoverOverlay, 'contextmenu', e => {
-			e.stopImmediatePropagation();
-			e.preventDefault();
-			openContextMenu(getWindow(hoverOverlay), e, this._instance, this._contextMenu, this._contextMenuService);
-		}));
-
-		// Instead of juggling decorations for hover styles, swap out the theme to indicate the
-		// hover state. This comes with the benefit over other methods of working well with special
-		// decorative characters like powerline symbols.
-		this._register(addStandardDisposableListener(hoverOverlay, 'mouseover', () => overlay.options.theme = this._getTheme(true)));
-		this._register(addStandardDisposableListener(hoverOverlay, 'mouseleave', () => overlay.options.theme = this._getTheme(false)));
+@throttle(0)
+private _syncOptions() {
+	if (!this._stickyScrollOverlay) {
+		return;
 	}
+	this._stickyScrollOverlay.resize(this._xterm.raw.cols, this._stickyScrollOverlay.rows);
+	this._stickyScrollOverlay.options = this._getOptions();
+	this._refreshGpuAcceleration();
+}
 
-	@throttle(0)
-	private _syncOptions() {
-		if (!this._stickyScrollOverlay) {
+    private _getOptions(): ITerminalOptions {
+	const o = this._xterm.raw.options;
+	return {
+		cursorInactiveStyle: 'none',
+		scrollback: 0,
+		logLevel: 'off',
+
+		theme: this._getTheme(false),
+		documentOverride: o.documentOverride,
+		fontFamily: o.fontFamily,
+		fontWeight: o.fontWeight,
+		fontWeightBold: o.fontWeightBold,
+		fontSize: o.fontSize,
+		letterSpacing: o.letterSpacing,
+		lineHeight: o.lineHeight,
+		drawBoldTextInBrightColors: o.drawBoldTextInBrightColors,
+		minimumContrastRatio: o.minimumContrastRatio,
+		tabStopWidth: o.tabStopWidth,
+		customGlyphs: o.customGlyphs,
+	};
+}
+
+@throttle(0)
+private async _refreshGpuAcceleration() {
+	if (this._shouldLoadWebgl() && !this._webglAddon) {
+		const WebglAddon = await this._xtermAddonLoader.importAddon('webgl');
+		if (this._store.isDisposed) {
 			return;
 		}
-		this._stickyScrollOverlay.resize(this._xterm.raw.cols, this._stickyScrollOverlay.rows);
-		this._stickyScrollOverlay.options = this._getOptions();
-		this._refreshGpuAcceleration();
+		this._webglAddon = this._register(new WebglAddon());
+		this._stickyScrollOverlay?.loadAddon(this._webglAddon);
+	} else if (!this._shouldLoadWebgl() && this._webglAddon) {
+		this._webglAddon.dispose();
+		this._webglAddon = undefined;
 	}
+}
 
-	private _getOptions(): ITerminalOptions {
-		const o = this._xterm.raw.options;
-		return {
-			cursorInactiveStyle: 'none',
-			scrollback: 0,
-			logLevel: 'off',
+    private _shouldLoadWebgl(): boolean {
+	return this._terminalConfigurationService.config.gpuAcceleration === 'auto' || this._terminalConfigurationService.config.gpuAcceleration === 'on';
+}
 
-			theme: this._getTheme(false),
-			documentOverride: o.documentOverride,
-			fontFamily: o.fontFamily,
-			fontWeight: o.fontWeight,
-			fontWeightBold: o.fontWeightBold,
-			fontSize: o.fontSize,
-			letterSpacing: o.letterSpacing,
-			lineHeight: o.lineHeight,
-			drawBoldTextInBrightColors: o.drawBoldTextInBrightColors,
-			minimumContrastRatio: o.minimumContrastRatio,
-			tabStopWidth: o.tabStopWidth,
-			customGlyphs: o.customGlyphs,
-		};
-	}
-
-	@throttle(0)
-	private async _refreshGpuAcceleration() {
-		if (this._shouldLoadWebgl() && !this._webglAddon) {
-			const WebglAddon = await this._xtermAddonLoader.importAddon('webgl');
-			if (this._store.isDisposed) {
-				return;
-			}
-			this._webglAddon = this._register(new WebglAddon());
-			this._stickyScrollOverlay?.loadAddon(this._webglAddon);
-		} else if (!this._shouldLoadWebgl() && this._webglAddon) {
-			this._webglAddon.dispose();
-			this._webglAddon = undefined;
-		}
-	}
-
-	private _shouldLoadWebgl(): boolean {
-		return this._terminalConfigurationService.config.gpuAcceleration === 'auto' || this._terminalConfigurationService.config.gpuAcceleration === 'on';
-	}
-
-	private _getTheme(isHovering: boolean): ITheme {
-		const theme = this._themeService.getColorTheme();
-		return {
-			...this._xterm.getXtermTheme(),
-			background: isHovering
-				? theme.getColor(terminalStickyScrollHoverBackground)?.toString() ?? this._xtermColorProvider.getBackgroundColor(theme)?.toString()
-				: theme.getColor(terminalStickyScrollBackground)?.toString() ?? this._xtermColorProvider.getBackgroundColor(theme)?.toString(),
-			selectionBackground: undefined,
-			selectionInactiveBackground: undefined
-		};
-	}
+    private _getTheme(isHovering: boolean): ITheme {
+	const theme = this._themeService.getColorTheme();
+	return {
+		...this._xterm.getXtermTheme(),
+		background: isHovering
+			? theme.getColor(terminalStickyScrollHoverBackground)?.toString() ?? this._xtermColorProvider.getBackgroundColor(theme)?.toString()
+			: theme.getColor(terminalStickyScrollBackground)?.toString() ?? this._xtermColorProvider.getBackgroundColor(theme)?.toString(),
+		selectionBackground: undefined,
+		selectionInactiveBackground: undefined
+	};
+}
 }
 
 function lineStartsWith(line: IBufferLine | undefined, text: string): boolean {

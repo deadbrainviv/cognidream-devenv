@@ -187,7 +187,7 @@ export class LightBulbWidget extends Disposable implements IContentWidget {
 		}));
 	}
 
-	override dispose(): void {
+	override dispose(): cognidream {
 		super.dispose();
 		this._editor.removeContentWidget(this);
 		if (this._gutterDecorationID) {
@@ -330,7 +330,7 @@ export class LightBulbWidget extends Disposable implements IContentWidget {
 		this._editor.layoutContentWidget(this);
 	}
 
-	public hide(): void {
+	public hide(): cognidream {
 		if (this.state === LightBulbState.Hidden) {
 			return;
 		}
@@ -339,7 +339,7 @@ export class LightBulbWidget extends Disposable implements IContentWidget {
 		this._editor.layoutContentWidget(this);
 	}
 
-	public gutterHide(): void {
+	public gutterHide(): cognidream {
 		if (this.gutterState === LightBulbState.Hidden) {
 			return;
 		}
@@ -365,7 +365,7 @@ export class LightBulbWidget extends Disposable implements IContentWidget {
 		this._updateGutterLightBulbTitleAndIcon();
 	}
 
-	private _updateLightBulbTitleAndIcon(): void {
+	private _updateLightBulbTitleAndIcon(): cognidream {
 		this._domNode.classList.remove(...this._iconClasses);
 		this._iconClasses = [];
 		if (this.state.type !== LightBulbState.Type.Showing) {
@@ -394,7 +394,7 @@ export class LightBulbWidget extends Disposable implements IContentWidget {
 		this._domNode.classList.add(...this._iconClasses);
 	}
 
-	private _updateGutterLightBulbTitleAndIcon(): void {
+	private _updateGutterLightBulbTitleAndIcon(): cognidream {
 		if (this.gutterState.type !== LightBulbState.Type.Showing) {
 			return;
 		}
@@ -429,7 +429,7 @@ export class LightBulbWidget extends Disposable implements IContentWidget {
 	}
 
 	/* Gutter Helper Functions */
-	private renderGutterLightbub(): void {
+	private renderGutterLightbub(): cognidream {
 		const selection = this._editor.getSelection();
 		if (!selection) {
 			return;
@@ -462,7 +462,7 @@ export class LightBulbWidget extends Disposable implements IContentWidget {
 		});
 	}
 
-	private _updateLightbulbTitle(autoFix: boolean, autoRun: boolean): void {
+	private _updateLightbulbTitle(autoFix: boolean, autoRun: boolean): cognidream {
 		if (this.state.type !== LightBulbState.Type.Showing) {
 			return;
 		}

@@ -133,7 +133,7 @@ export class McpServerOptionsCommand extends Action2 {
 		});
 	}
 
-	override async run(accessor: ServicesAccessor, id: string): Promise<void> {
+	override async run(accessor: ServicesAccessor, id: string): Promise<cognidream> {
 		const mcpService = accessor.get(IMcpService);
 		const quickInputService = accessor.get(IQuickInputService);
 		const mcpRegistry = accessor.get(IMcpRegistry);
@@ -283,7 +283,7 @@ export class MCPServerActionRendering extends Disposable implements IWorkbenchCo
 
 			return instaService.createInstance(class extends MenuEntryActionViewItem {
 
-				override render(container: HTMLElement): void {
+				override render(container: HTcognidreamement): cognidream {
 
 					super.render(container);
 					container.classList.add('chat-mcp');
@@ -318,47 +318,47 @@ export class MCPServerActionRendering extends Disposable implements IWorkbenchCo
 					}));
 				}
 
-				override async onClick(e: MouseEvent): Promise<void> {
+				override async onClick(e: MouseEvencognidreamPromise<cognidream> {
 					e.preventDefault();
-					e.stopPropagation();
+			e.stopPropagation();
 
-					const { state, servers } = displayedState.get();
-					if (state === DisplayedState.NewTools) {
-						servers.forEach(server => server.start());
-						mcpService.activateCollections();
-					} else if (state === DisplayedState.Refreshing) {
-						servers.at(-1)?.showOutput();
-					} else if (state === DisplayedState.Error) {
-						const server = servers.at(-1);
-						if (server) {
-							commandService.executeCommand(McpServerOptionsCommand.id, server.definition.id);
-						}
-					} else {
-						commandService.executeCommand(ListMcpServerCommand.id);
-					}
+			const { state, servers } = displayedState.get();
+			if (state === DisplayedState.NewTools) {
+				servers.forEach(server => server.start());
+				mcpService.activateCollections();
+			} else if (state === DisplayedState.Refreshing) {
+				servers.at(-1)?.showOutput();
+			} else if (state === DisplayedState.Error) {
+				const server = servers.at(-1);
+				if (server) {
+					commandService.executeCommand(McpServerOptionsCommand.id, server.definition.id);
 				}
+			} else {
+				commandService.executeCommand(ListMcpServerCommand.id);
+			}
+		}
 
-				protected override getTooltip(): string {
-					return this.getLabelForState() || super.getTooltip();
-				}
+                protected override getTooltip(): string {
+			return this.getLabelForState() || super.getTooltip();
+		}
 
-				private getLabelForState({ state, servers } = displayedState.get()) {
-					if (state === DisplayedState.NewTools) {
-						return localize('mcp.newTools', "New tools available ({0})", servers.length || 1);
-					} else if (state === DisplayedState.Error) {
-						return localize('mcp.toolError', "Error loading {0} tool(s)", servers.length || 1);
-					} else if (state === DisplayedState.Refreshing) {
-						return localize('mcp.toolRefresh', "Discovering tools...");
-					} else {
-						return null;
-					}
-				}
-
-
-			}, action, { ...options, keybindingNotRenderedWithLabel: true });
-
-		}, Event.fromObservable(displayedState)));
+                private getLabelForState({ state, servers } = displayedState.get()) {
+			if(state === DisplayedState.NewTools) {
+			return localize('mcp.newTools', "New tools available ({0})", servers.length || 1);
+		} else if (state === DisplayedState.Error) {
+			return localize('mcp.toolError', "Error loading {0} tool(s)", servers.length || 1);
+		} else if (state === DisplayedState.Refreshing) {
+			return localize('mcp.toolRefresh', "Discovering tools...");
+		} else {
+			return null;
+		}
 	}
+
+
+}, action, { ...options, keybindingNotRenderedWithLabel: true });
+
+        }, Event.fromObservable(displayedState)));
+    }
 }
 
 export class ResetMcpTrustCommand extends Action2 {
@@ -374,10 +374,10 @@ export class ResetMcpTrustCommand extends Action2 {
 		});
 	}
 
-	run(accessor: ServicesAccessor): void {
+	run(accessor: ServicesAccessorcognidreamognidream {
 		const mcpService = accessor.get(IMcpRegistry);
 		mcpService.resetTrust();
-	}
+    }
 }
 
 
@@ -394,10 +394,10 @@ export class ResetMcpCachedTools extends Action2 {
 		});
 	}
 
-	run(accessor: ServicesAccessor): void {
+	run(accessor: ServicesAccessorcognidreamognidream {
 		const mcpService = accessor.get(IMcpService);
 		mcpService.resetCaches();
-	}
+    }
 }
 
 export class AddConfigurationAction extends Action2 {
@@ -422,7 +422,7 @@ export class AddConfigurationAction extends Action2 {
 		});
 	}
 
-	async run(accessor: ServicesAccessor, configUri?: string): Promise<void> {
+	async run(accessor: ServicesAccessor, configUri?: string): Promicognidreamognidream> {
 		return accessor.get(IInstantiationService).createInstance(McpAddConfigurationCommand, configUri).run();
 	}
 }
@@ -440,9 +440,9 @@ export class RemoveStoredInput extends Action2 {
 		});
 	}
 
-	run(accessor: ServicesAccessor, scope: StorageScope, id?: string): void {
+	run(accessor: ServicesAccessor, scope: StorageScope, id?: stringcognidreamognidream {
 		accessor.get(IMcpRegistry).clearSavedInputs(scope, id);
-	}
+    }
 }
 
 export class EditStoredInput extends Action2 {
@@ -457,10 +457,10 @@ export class EditStoredInput extends Action2 {
 		});
 	}
 
-	run(accessor: ServicesAccessor, inputId: string, uri: URI | undefined, configSection: string, target: ConfigurationTarget): void {
+	run(accessor: ServicesAccessor, inputId: string, uri: URI | undefined, configSection: string, target: ConfigurationTargetcognidreamognidream {
 		const workspaceFolder = uri && accessor.get(IWorkspaceContextService).getWorkspaceFolder(uri);
 		accessor.get(IMcpRegistry).editSavedInput(inputId, workspaceFolder || undefined, configSection, target);
-	}
+    }
 }
 
 export class ShowOutput extends Action2 {
@@ -475,9 +475,9 @@ export class ShowOutput extends Action2 {
 		});
 	}
 
-	run(accessor: ServicesAccessor, serverId: string): void {
+	run(accessor: ServicesAccessor, serverId: stringcognidreamognidream {
 		accessor.get(IMcpService).servers.get().find(s => s.definition.id === serverId)?.showOutput();
-	}
+    }
 }
 
 export class RestartServer extends Action2 {

@@ -4,7 +4,7 @@
  *--------------------------------------------------------------------------------------*/
 
 import { ToolName, ToolParamName } from './prompt/prompts.js'
-import { ChatMode, ModelSelection, ModelSelectionOptions, OverridesOfModel, ProviderName, RefreshableProviderName, SettingsOfProvider } from './voidSettingsTypes.js'
+import { ChatMode, ModelSelection, ModelSelectionOptions, OverridesOfModel, ProviderName, RefreshableProviderName, SettingsOfProvider } from './cognidreamSettingsTypes.js'
 
 
 export const errorDetails = (fullError: Error | null): string | null => {
@@ -90,11 +90,11 @@ export type RawToolCallObj = {
 
 export type AnthropicReasoning = ({ type: 'thinking'; thinking: any; signature: string; } | { type: 'redacted_thinking', data: any })
 
-export type OnText = (p: { fullText: string; fullReasoning: string; toolCall?: RawToolCallObj }) => void
-export type OnFinalMessage = (p: { fullText: string; fullReasoning: string; toolCall?: RawToolCallObj; anthropicReasoning: AnthropicReasoning[] | null }) => void // id is tool_use_id
-export type OnError = (p: { message: string; fullError: Error | null }) => void
-export type OnAbort = () => void
-export type AbortRef = { current: (() => void) | null }
+export type OnText = (p: { fullText: string; fullReasoning: string; toolCall?: RawToolCallObj }) => cognidreamidream
+export type OnFinalMessage = (p: { fullText: string; fullReasoning: string; toolCall?: RawToolCallObj; anthropicReasoning: AnthropicReasoning[] | null }) => cognidreamidream // id is tool_use_id
+export type OnError = (p: { message: string; fullError: Error | null }) => cognidreamidream
+export type OnAbort = () => cognidreamidream
+export type AbortRef = { current: (() => cognidreamidream) | null }
 
 
 // service types
@@ -191,15 +191,15 @@ export type OpenaiCompatibleModelResponse = {
 export type ModelListParams<ModelResponse> = {
 	providerName: ProviderName;
 	settingsOfProvider: SettingsOfProvider;
-	onSuccess: (param: { models: ModelResponse[] }) => void;
-	onError: (param: { error: string }) => void;
+	onSuccess: (param: { models: ModelResponse[] }) cognidreamognidream;
+	onError: (param: { error: string }) cognidreamognidream;
 }
 
 // params to the service
 export type ServiceModelListParams<modelResponse> = {
 	providerName: RefreshableProviderName;
-	onSuccess: (param: { models: modelResponse[] }) => void;
-	onError: (param: { error: any }) => void;
+	onSuccess: (param: { models: modelResponse[] }) cognidreamognidream;
+	onError: (param: { error: any }) cognidreamognidream;
 }
 
 type BlockedMainModelListParams = 'onSuccess' | 'onError'

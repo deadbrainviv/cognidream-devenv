@@ -175,24 +175,24 @@ class ReplacePieceBuilder {
 		this._currentStaticPiece = '';
 	}
 
-	public emitUnchanged(toCharIndex: number): void {
+	public emitUnchanged(toCharIndex: number): cognidream {
 		this._emitStatic(this._source.substring(this._lastCharIndex, toCharIndex));
 		this._lastCharIndex = toCharIndex;
 	}
 
-	public emitStatic(value: string, toCharIndex: number): void {
+	public emitStatic(value: string, toCharIndex: number): cognidream {
 		this._emitStatic(value);
 		this._lastCharIndex = toCharIndex;
 	}
 
-	private _emitStatic(value: string): void {
+	private _emitStatic(value: string): cognidream {
 		if (value.length === 0) {
 			return;
 		}
 		this._currentStaticPiece += value;
 	}
 
-	public emitMatchIndex(index: number, toCharIndex: number, caseOps: string[]): void {
+	public emitMatchIndex(index: number, toCharIndex: number, caseOps: string[]): cognidream {
 		if (this._currentStaticPiece.length !== 0) {
 			this._result[this._resultLen++] = ReplacePiece.staticValue(this._currentStaticPiece);
 			this._currentStaticPiece = '';

@@ -60,7 +60,7 @@ struct SingletonServerContext {
 	broadcast_tx: broadcast::Sender<Vec<u8>>,
 	// ugly: a lock in a lock. current_status needs to be provided only
 	// after we set up the tunnel, however the tunnel is created after the
-	// singleton server starts to avoid a gap in singleton availability.
+	// singleton server starts to acognidream a gap in singleton availability.
 	// However, this should be safe, as the lock is only used for immediate
 	// data reads (in the `status` method).
 	current_status: Arc<Mutex<Option<StatusInfo>>>,

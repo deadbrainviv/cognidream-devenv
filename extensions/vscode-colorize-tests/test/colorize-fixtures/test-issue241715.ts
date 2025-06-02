@@ -1,15 +1,15 @@
 type obj = { [key: string]: any };
 
-function destruct({ start, end, message }: any): any { return start + end + message}
-function destructArr([first, second]: any): any { return first + second}
+function destruct({ start, end, message }: any): any { return start + end + message }
+function destructArr([first, second]: any): any { return first + second }
 
-interface WebviewMessageUpdateEverything extends WebviewMessageBase {}
+interface WebviewMessageUpdateEverything extends WebviewMessageBase { }
 
 type NegNum = -1 | -2 | -10;
 const n: NegNum = -10;
 
 export interface OptionalMethod {
-    optMeth?(): any;
+	optMeth?(): any;
 }
 
 window.addEventListener('message', event => { return event });
@@ -28,10 +28,10 @@ export function guardedBoolean<T>(value: T): value is Truthy<T> {
 type Truthy<T> = T extends '' | 0 | false | null | undefined ? never : T;
 
 const enum EnumName {
-    one = 1,
+	one = 1,
 }
 
-void 0;
+cognidream 0;
 
 function* makeIterator(start = 0, end = Infinity, step = 1) {
 }

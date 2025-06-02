@@ -127,7 +127,7 @@ export class IntellisenseStatus extends Disposable {
 		}
 	}
 
-	private updateState(newState: IntellisenseState.State): void {
+	private updateState(newState: IntellisenseState.State): cognidream {
 		if (this._state === newState) {
 			return;
 		}

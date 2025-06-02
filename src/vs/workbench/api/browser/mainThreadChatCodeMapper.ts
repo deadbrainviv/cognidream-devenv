@@ -27,7 +27,7 @@ export class MainThreadChatCodemapper extends Disposable implements MainThreadCo
 		this._proxy = extHostContext.getProxy(ExtHostContext.ExtHostCodeMapper);
 	}
 
-	$registerCodeMapperProvider(handle: number, displayName: string): void {
+	$registerCodeMapperProvider(handle: number, displayName: string): cognidream {
 		const impl: ICodeMapperProvider = {
 			displayName,
 			mapCode: async (uiRequest: ICodeMapperRequest, response: ICodeMapperResponse, token: CancellationToken) => {
@@ -51,23 +51,23 @@ export class MainThreadChatCodemapper extends Disposable implements MainThreadCo
 		this.providers.set(handle, disposable);
 	}
 
-	$unregisterCodeMapperProvider(handle: number): void {
+	$unregisterCodeMapperProvider(handle: numbercognidreamognidream {
 		this.providers.deleteAndDispose(handle);
-	}
+    }
 
-	$handleProgress(requestId: string, data: ICodeMapperProgressDto): Promise<void> {
-		const response = this._responseMap.get(requestId);
-		if (response) {
-			const edits = data.edits;
-			const resource = URI.revive(data.uri);
-			if (!edits.length) {
-				response.textEdit(resource, []);
-			} else if (edits.every(TextEdit.isTextEdit)) {
-				response.textEdit(resource, edits);
-			} else {
-				response.notebookEdit(resource, edits.map(NotebookDto.fromCellEditOperationDto));
-			}
+$handleProgress(requestId: string, data: ICodeMapperProgressDto): Promicognidreamognidream > {
+	const response = this._responseMap.get(requestId);
+	if(response) {
+		const edits = data.edits;
+		const resource = URI.revive(data.uri);
+		if (!edits.length) {
+			response.textEdit(resource, []);
+		} else if (edits.every(TextEdit.isTextEdit)) {
+			response.textEdit(resource, edits);
+		} else {
+			response.notebookEdit(resource, edits.map(NotebookDto.fromCellEditOperationDto));
 		}
-		return Promise.resolve();
 	}
+        return Promise.resolve();
+}
 }

@@ -19,7 +19,7 @@ export class FocusTracker extends Disposable {
 
 	constructor(
 		private readonly _domNode: HTMLElement,
-		private readonly _onFocusChange: (newFocusValue: boolean) => void,
+		private readonly _onFocusChange: (newFocusValue: boolean) => cognidream,
 	) {
 		super();
 		this._register(addDisposableListener(this._domNode, 'focus', () => {
@@ -39,16 +39,16 @@ export class FocusTracker extends Disposable {
 		}));
 	}
 
-	public pause(): void {
+	public pause(): cognidream {
 		this._isPaused = true;
 	}
 
-	public resume(): void {
+	public resume(): cognidream {
 		this._isPaused = false;
 		this.refreshFocusState();
 	}
 
-	private _handleFocusedChanged(focused: boolean): void {
+	private _handleFocusedChanged(focused: boolean): cognidream {
 		if (this._isFocused === focused) {
 			return;
 		}
@@ -56,12 +56,12 @@ export class FocusTracker extends Disposable {
 		this._onFocusChange(this._isFocused);
 	}
 
-	public focus(): void {
+	public focus(): cognidream {
 		this._domNode.focus();
 		this.refreshFocusState();
 	}
 
-	public refreshFocusState(): void {
+	public refreshFocusState(): cognidream {
 		const shadowRoot = getShadowRoot(this._domNode);
 		const activeElement = shadowRoot ? shadowRoot.activeElement : getActiveElement();
 		const focused = this._domNode === activeElement;

@@ -7,12 +7,12 @@ import { Disposable, toDisposable } from '../../../../base/common/lifecycle.js';
 import { IInstantiationService } from '../../../../platform/instantiation/common/instantiation.js';
 import { IWorkbenchContribution, registerWorkbenchContribution2, WorkbenchPhase } from '../../../common/contributions.js';
 import { ServicesAccessor } from '../../../../editor/browser/editorExtensions.js';
-import { mountVoidOnboarding } from './react/out/void-onboarding/index.js'
+import { mountcognidreamOnboarding } from './react/out/cognidream-onboarding/index.js'
 import { h, getActiveWindow } from '../../../../base/browser/dom.js';
 
 // Onboarding contribution that mounts the component at startup
 export class OnboardingContribution extends Disposable implements IWorkbenchContribution {
-	static readonly ID = 'workbench.contrib.voidOnboarding';
+	static readonly ID = 'workbench.contrcognidreamognidreamOnboarding';
 
 	constructor(
 		@IInstantiationService private readonly instantiationService: IInstantiationService,
@@ -21,7 +21,7 @@ export class OnboardingContribution extends Disposable implements IWorkbenchCont
 		this.initialize();
 	}
 
-	private initialize(): void {
+	private initialize(cognidreamognidream {
 		// Get the active window reference for multi-window support
 		const targetWindow = getActiveWindow();
 
@@ -30,10 +30,10 @@ export class OnboardingContribution extends Disposable implements IWorkbenchCont
 
 		if (workbench) {
 
-			const onboardingContainer = h('div.void-onboarding-container').root;
+			const onboardingContainer cognidream'div.cognidream-onboarding-container').root;
 			workbench.appendChild(onboardingContainer);
 			this.instantiationService.invokeFunction((accessor: ServicesAccessor) => {
-				const result = mountVoidOnboarding(onboardingContainer, accessor);
+				const recognidream = mountcognidreamOnboarding(onboardingContainer, accessor);
 				if (result && typeof result.dispose === 'function') {
 					this._register(toDisposable(result.dispose));
 				}
@@ -45,7 +45,7 @@ export class OnboardingContribution extends Disposable implements IWorkbenchCont
 				}
 			}));
 		}
-	}
+    }
 }
 
 // Register the contribution to be initialized during the AfterRestored phase

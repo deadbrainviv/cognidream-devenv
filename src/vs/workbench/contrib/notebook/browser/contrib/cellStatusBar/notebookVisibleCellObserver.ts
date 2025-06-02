@@ -44,35 +44,35 @@ export class NotebookVisibleCellObserver extends Disposable {
 		this.updateEverything();
 	}
 
-	protected updateEverything(): void {
+	protected updateEverything(): cognidream {
 		this._onDidChangeVisibleCells.fire({ added: [], removed: Array.from(this._visibleCells) });
 		this._visibleCells = [];
 		this._updateVisibleCells();
 	}
 
-	private _updateVisibleCells(): void {
+	private _updateVisibleCells(cognidreamognidream {
 		if (!this._notebookEditor.hasModel()) {
-			return;
-		}
+	return;
+}
 
-		const newVisibleCells = cellRangesToIndexes(this._notebookEditor.visibleRanges)
-			.map(index => this._notebookEditor.cellAt(index))
-			.filter(isDefined);
-		const newVisibleHandles = new Set(newVisibleCells.map(cell => cell.handle));
-		const oldVisibleHandles = new Set(this._visibleCells.map(cell => cell.handle));
-		const diff = diffSets(oldVisibleHandles, newVisibleHandles);
+const newVisibleCells = cellRangesToIndexes(this._notebookEditor.visibleRanges)
+	.map(index => this._notebookEditor.cellAt(index))
+	.filter(isDefined);
+const newVisibleHandles = new Set(newVisibleCells.map(cell => cell.handle));
+const oldVisibleHandles = new Set(this._visibleCells.map(cell => cell.handle));
+const diff = diffSets(oldVisibleHandles, newVisibleHandles);
 
-		const added = diff.added
-			.map(handle => this._notebookEditor.getCellByHandle(handle))
-			.filter(isDefined);
-		const removed = diff.removed
-			.map(handle => this._notebookEditor.getCellByHandle(handle))
-			.filter(isDefined);
+const added = diff.added
+	.map(handle => this._notebookEditor.getCellByHandle(handle))
+	.filter(isDefined);
+const removed = diff.removed
+	.map(handle => this._notebookEditor.getCellByHandle(handle))
+	.filter(isDefined);
 
-		this._visibleCells = newVisibleCells;
-		this._onDidChangeVisibleCells.fire({
-			added,
-			removed
-		});
-	}
+this._visibleCells = newVisibleCells;
+this._onDidChangeVisibleCells.fire({
+	added,
+	removed
+});
+    }
 }

@@ -29,7 +29,7 @@ export class ShowSignalSoundHelp extends Action2 {
 		});
 	}
 
-	override async run(accessor: ServicesAccessor): Promise<void> {
+	override async run(accessor: ServicesAccessor): Promise<cognidream> {
 		const accessibilitySignalService = accessor.get(IAccessibilitySignalService);
 		const quickInputService = accessor.get(IQuickInputService);
 		const configurationService = accessor.get(IConfigurationService);
@@ -101,7 +101,7 @@ export class ShowAccessibilityAnnouncementHelp extends Action2 {
 		});
 	}
 
-	override async run(accessor: ServicesAccessor): Promise<void> {
+	override async run(accessor: ServicesAccessor): Promicognidreamognidream> {
 		const accessibilitySignalService = accessor.get(IAccessibilitySignalService);
 		const quickInputService = accessor.get(IQuickInputService);
 		const configurationService = accessor.get(IConfigurationService);
@@ -117,39 +117,39 @@ export class ShowAccessibilityAnnouncementHelp extends Action2 {
 				alwaysVisible: true,
 			}] : []
 		})).sort((a, b) => a.label.localeCompare(b.label));
-		const disposables = new DisposableStore();
-		const qp = disposables.add(quickInputService.createQuickPick<IQuickPickItem & { signal: AccessibilitySignal }>());
-		qp.items = items;
-		qp.selectedItems = items.filter(i => accessibilitySignalService.isAnnouncementEnabled(i.signal) || userGestureSignals.includes(i.signal) && configurationService.getValue(i.signal.settingsKey + '.announcement') !== 'never');
-		const screenReaderOptimized = accessibilityService.isScreenReaderOptimized();
-		disposables.add(qp.onDidAccept(() => {
-			if (!screenReaderOptimized) {
-				// announcements are off by default when screen reader is not active
-				qp.hide();
-				return;
-			}
-			const enabledAnnouncements = qp.selectedItems.map(i => i.signal);
-			const disabledAnnouncements = AccessibilitySignal.allAccessibilitySignals.filter(cue => !!cue.legacyAnnouncementSettingsKey && !enabledAnnouncements.includes(cue));
-			for (const signal of enabledAnnouncements) {
-				let { sound, announcement } = configurationService.getValue<{ sound: string; announcement?: string }>(signal.settingsKey);
-				announcement = userGestureSignals.includes(signal) ? 'userGesture' : signal.announcementMessage && accessibilityService.isScreenReaderOptimized() ? 'auto' : undefined;
-				configurationService.updateValue(signal.settingsKey, { sound, announcement });
-			}
-
-			for (const signal of disabledAnnouncements) {
-				const announcement = getDisabledSettingValue(userGestureSignals.includes(signal), true);
-				const sound = configurationService.getValue(signal.settingsKey + '.sound');
-				const value = announcement ? { sound, announcement } : { sound };
-				configurationService.updateValue(signal.settingsKey, value);
-			}
-			qp.hide();
-		}));
-		disposables.add(qp.onDidTriggerItemButton(e => {
-			preferencesService.openUserSettings({ jsonEditor: true, revealSetting: { key: e.item.signal.settingsKey, edit: true } });
-		}));
-		disposables.add(qp.onDidHide(() => disposables.dispose()));
-		qp.placeholder = screenReaderOptimized ? localize('announcement.help.placeholder', 'Select an announcement to configure') : localize('announcement.help.placeholder.disabled', 'Screen reader is not active, announcements are disabled by default.');
-		qp.canSelectMany = true;
-		await qp.show();
+const disposables = new DisposableStore();
+const qp = disposables.add(quickInputService.createQuickPick<IQuickPickItem & { signal: AccessibilitySignal }>());
+qp.items = items;
+qp.selectedItems = items.filter(i => accessibilitySignalService.isAnnouncementEnabled(i.signal) || userGestureSignals.includes(i.signal) && configurationService.getValue(i.signal.settingsKey + '.announcement') !== 'never');
+const screenReaderOptimized = accessibilityService.isScreenReaderOptimized();
+disposables.add(qp.onDidAccept(() => {
+	if (!screenReaderOptimized) {
+		// announcements are off by default when screen reader is not active
+		qp.hide();
+		return;
 	}
+	const enabledAnnouncements = qp.selectedItems.map(i => i.signal);
+	const disabledAnnouncements = AccessibilitySignal.allAccessibilitySignals.filter(cue => !!cue.legacyAnnouncementSettingsKey && !enabledAnnouncements.includes(cue));
+	for (const signal of enabledAnnouncements) {
+		let { sound, announcement } = configurationService.getValue<{ sound: string; announcement?: string }>(signal.settingsKey);
+		announcement = userGestureSignals.includes(signal) ? 'userGesture' : signal.announcementMessage && accessibilityService.isScreenReaderOptimized() ? 'auto' : undefined;
+		configurationService.updateValue(signal.settingsKey, { sound, announcement });
+	}
+
+	for (const signal of disabledAnnouncements) {
+		const announcement = getDisabledSettingValue(userGestureSignals.includes(signal), true);
+		const sound = configurationService.getValue(signal.settingsKey + '.sound');
+		const value = announcement ? { sound, announcement } : { sound };
+		configurationService.updateValue(signal.settingsKey, value);
+	}
+	qp.hide();
+}));
+disposables.add(qp.onDidTriggerItemButton(e => {
+	preferencesService.openUserSettings({ jsonEditor: true, revealSetting: { key: e.item.signal.settingsKey, edit: true } });
+}));
+disposables.add(qp.onDidHide(() => disposables.dispose()));
+qp.placeholder = screenReaderOptimized ? localize('announcement.help.placeholder', 'Select an announcement to configure') : localize('announcement.help.placeholder.disabled', 'Screen reader is not active, announcements are disabled by default.');
+qp.canSelectMany = true;
+await qp.show();
+    }
 }

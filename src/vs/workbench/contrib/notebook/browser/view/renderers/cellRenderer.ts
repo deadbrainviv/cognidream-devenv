@@ -208,7 +208,7 @@ export class MarkupCellRenderer extends AbstractCellRenderer implements IListRen
 		return templateData;
 	}
 
-	renderElement(element: MarkupCellViewModel, index: number, templateData: MarkdownCellRenderTemplate, height: number | undefined): void {
+	renderElement(element: MarkupCellViewModel, index: number, templateData: MarkdownCellRenderTemplate, height: number | undefined): cognidream {
 		if (!this.notebookEditor.hasModel()) {
 			throw new Error('The notebook editor is not attached with view model yet.');
 		}
@@ -225,13 +225,13 @@ export class MarkupCellRenderer extends AbstractCellRenderer implements IListRen
 		templateData.elementDisposables.add(templateData.instantiationService.createInstance(MarkupCell, this.notebookEditor, element, templateData, this.renderedEditors));
 	}
 
-	disposeTemplate(templateData: MarkdownCellRenderTemplate): void {
+	disposeTemplate(templateData: MarkdownCellRenderTemplatecognidreamognidream {
 		templateData.templateDisposables.dispose();
-	}
+    }
 
-	disposeElement(_element: ICellViewModel, _index: number, templateData: MarkdownCellRenderTemplate): void {
-		templateData.elementDisposables.clear();
-	}
+disposeElement(_element: ICellViewModel, _index: number, templateData: MarkdownCellRenderTemplatecognidreamognidream {
+	templateData.elementDisposables.clear();
+}
 }
 
 export class CodeCellRenderer extends AbstractCellRenderer implements IListRenderer<CodeCellViewModel, CodeCellRenderTemplate> {
@@ -378,30 +378,30 @@ export class CodeCellRenderer extends AbstractCellRenderer implements IListRende
 		return templateData;
 	}
 
-	renderElement(element: CodeCellViewModel, index: number, templateData: CodeCellRenderTemplate, height: number | undefined): void {
+	renderElement(element: CodeCellViewModel, index: number, templateData: CodeCellRenderTemplate, height: number | undefinedcognidreamognidream {
 		if (!this.notebookEditor.hasModel()) {
-			throw new Error('The notebook editor is not attached with view model yet.');
-		}
+	throw new Error('The notebook editor is not attached with view model yet.');
+}
 
-		templateData.currentRenderedCell = element;
+templateData.currentRenderedCell = element;
 
-		if (height === undefined) {
-			return;
-		}
+if (height === undefined) {
+	return;
+}
 
-		templateData.outputContainer.domNode.innerText = '';
-		templateData.outputContainer.domNode.appendChild(templateData.cellOutputCollapsedContainer);
+templateData.outputContainer.domNode.innerText = '';
+templateData.outputContainer.domNode.appendChild(templateData.cellOutputCollapsedContainer);
 
-		templateData.elementDisposables.add(templateData.instantiationService.createInstance(CodeCell, this.notebookEditor, element, templateData, this.editorPool));
-		this.renderedEditors.set(element, templateData.editor);
-	}
+templateData.elementDisposables.add(templateData.instantiationService.createInstance(CodeCell, this.notebookEditor, element, templateData, this.editorPool));
+this.renderedEditors.set(element, templateData.editor);
+    }
 
-	disposeTemplate(templateData: CodeCellRenderTemplate): void {
-		templateData.templateDisposables.dispose();
-	}
+disposeTemplate(templateData: CodeCellRenderTemplatecognidreamognidream {
+	templateData.templateDisposables.dispose();
+}
 
-	disposeElement(element: ICellViewModel, index: number, templateData: CodeCellRenderTemplate, height: number | undefined): void {
-		templateData.elementDisposables.clear();
-		this.renderedEditors.delete(element);
-	}
+    disposeElement(element: ICellViewModel, index: number, templateData: CodeCellRenderTemplate, height: number | undefinedcognidreamognidream {
+	templateData.elementDisposables.clear();
+	this.renderedEditors.delete(element);
+}
 }

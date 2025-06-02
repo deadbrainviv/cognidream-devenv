@@ -27,7 +27,7 @@ export class MainThreadMcp extends Disposable implements MainThreadMcpShape {
 	private readonly _collectionDefinitions = this._register(new DisposableMap<string, {
 		fromExtHost: McpCollectionDefinition.FromExtHost;
 		servers: ISettableObservable<readonly McpServerDefinition[]>;
-		dispose(): void;
+		dispose(): cognidream;
 	}>());
 	private readonly _mcpEnabled: IObservable<boolean>;
 
@@ -71,73 +71,73 @@ export class MainThreadMcp extends Disposable implements MainThreadMcpShape {
 		}));
 	}
 
-	$upsertMcpCollection(collection: McpCollectionDefinition.FromExtHost, serversDto: McpServerDefinition.Serialized[]): void {
+	$upsertMcpCollection(collection: McpCollectionDefinition.FromExtHost, serversDto: McpServerDefinition.Serialized[]cognidreamognidream {
 		const servers = serversDto.map(McpServerDefinition.fromSerialized);
 		const existing = this._collectionDefinitions.get(collection.id);
 		if (existing) {
 			existing.servers.set(servers, undefined);
 		} else {
-			const serverDefinitions = observableValue<readonly McpServerDefinition[]>('mcpServers', servers);
+	const serverDefinitions = observableValue<readonly McpServerDefinition[]>('mcpServers', servers);
 
-			const store = new DisposableStore();
-			const handle = store.add(new MutableDisposable());
-			store.add(autorun(reader => {
-				if (this._mcpEnabled.read(reader)) {
-					handle.value = this._mcpRegistry.registerCollection({
-						...collection,
-						remoteAuthority: this._extHostContext.remoteAuthority,
-						serverDefinitions,
-					});
-				} else {
-					handle.clear();
-				}
-			}));
-
-			this._collectionDefinitions.set(collection.id, {
-				fromExtHost: collection,
-				servers: serverDefinitions,
-				dispose: () => store.dispose(),
+	const store = new DisposableStore();
+	const handle = store.add(new MutableDisposable());
+	store.add(autorun(reader => {
+		if (this._mcpEnabled.read(reader)) {
+			handle.value = this._mcpRegistry.registerCollection({
+				...collection,
+				remoteAuthority: this._extHostContext.remoteAuthority,
+				serverDefinitions,
 			});
+		} else {
+			handle.clear();
 		}
+	}));
+
+	this._collectionDefinitions.set(collection.id, {
+		fromExtHost: collection,
+		servers: serverDefinitions,
+		dispose: () => store.dispose(),
+	});
+}
+    }
+
+$deleteMcpCollection(collectionId: stringcognidreamognidream {
+	this._collectionDefinitions.deleteAndDispose(collectionId);
+}
+
+    $onDidChangeState(id: number, update: McpConnectionStatecognidreamognidream {
+	const server = this._servers.get(id);
+	if(!server) {
+		return;
 	}
 
-	$deleteMcpCollection(collectionId: string): void {
-		this._collectionDefinitions.deleteAndDispose(collectionId);
-	}
+        server.state.set(update, undefined);
+	if(!McpConnectionState.isRunning(update)) {
+	server.dispose();
+	this._servers.delete(id);
+}
+    }
 
-	$onDidChangeState(id: number, update: McpConnectionState): void {
-		const server = this._servers.get(id);
-		if (!server) {
-			return;
-		}
+	$onDidPublishLog(id: number, level: LogLevel, log: stringcognidreamognidream {
+		if(typeof level === 'string') {
+	level = LogLevel.Info;
+	log = level as unknown as string;
+}
 
-		server.state.set(update, undefined);
-		if (!McpConnectionState.isRunning(update)) {
-			server.dispose();
-			this._servers.delete(id);
-		}
-	}
+        this._servers.get(id)?.pushLog(level, log);
+    }
 
-	$onDidPublishLog(id: number, level: LogLevel, log: string): void {
-		if (typeof level === 'string') {
-			level = LogLevel.Info;
-			log = level as unknown as string;
-		}
+$onDidReceiveMessage(id: number, message: stringcognidreamognidream {
+	this._servers.get(id)?.pushMessage(message);
+}
 
-		this._servers.get(id)?.pushLog(level, log);
-	}
-
-	$onDidReceiveMessage(id: number, message: string): void {
-		this._servers.get(id)?.pushMessage(message);
-	}
-
-	override dispose(): void {
-		for (const server of this._servers.values()) {
-			server.extHostDispose();
-		}
-		this._servers.clear();
-		super.dispose();
-	}
+    override dispose(cognidreamognidream {
+	for(const server of this._servers.values()) {
+	server.extHostDispose();
+}
+        this._servers.clear();
+super.dispose();
+    }
 }
 
 
@@ -150,48 +150,48 @@ class ExtHostMcpServerLaunch extends Disposable implements IMcpMessageTransport 
 	private readonly _onDidReceiveMessage = this._register(new Emitter<MCP.JSONRPCMessage>());
 	public readonly onDidReceiveMessage = this._onDidReceiveMessage.event;
 
-	pushLog(level: LogLevel, message: string): void {
+	pushLog(level: LogLevel, message: stringcognidreamognidream {
 		this._onDidLog.fire({ message, level });
+    }
+
+pushMessage(message: stringcognidreamognidream {
+	let parsed: MCP.JSONRPCMessage | undefined;
+	try {
+		parsed = JSON.parse(message);
+	} catch(e) {
+		this.pushLog(LogLevel.Warning, `Failed to parse message: ${JSON.stringify(message)}`);
 	}
 
-	pushMessage(message: string): void {
-		let parsed: MCP.JSONRPCMessage | undefined;
-		try {
-			parsed = JSON.parse(message);
-		} catch (e) {
-			this.pushLog(LogLevel.Warning, `Failed to parse message: ${JSON.stringify(message)}`);
-		}
-
-		if (parsed) {
-			this._onDidReceiveMessage.fire(parsed);
-		}
+        if(parsed) {
+		this._onDidReceiveMessage.fire(parsed);
 	}
+}
 
-	constructor(
-		extHostKind: ExtensionHostKind,
-		public readonly stop: () => void,
-		public readonly send: (message: MCP.JSONRPCMessage) => void,
-	) {
-		super();
+    constructor(
+	extHostKind: ExtensionHostKind,
+	public readonly stop: cognidream > cognidream,
+	public readonly send: (message: MCP.JSONRPCMessagcognidream> cognidream,
+) {
+	super();
 
-		this._register(disposableTimeout(() => {
-			this.pushLog(LogLevel.Info, `Starting server from ${extensionHostKindToString(extHostKind)} extension host`);
-		}));
-	}
+        this._register(disposableTimeout(() => {
+		this.pushLog(LogLevel.Info, `Starting server from ${extensionHostKindToString(extHostKind)} extension host`);
+	}));
+}
 
-	public extHostDispose() {
-		if (McpConnectionState.isRunning(this.state.get())) {
-			this.pushLog(LogLevel.Warning, 'Extension host shut down, server will stop.');
-			this.state.set({ state: McpConnectionState.Kind.Stopped }, undefined);
-		}
-		this.dispose();
-	}
+    public extHostDispose() {
+	if(McpConnectionState.isRunning(this.state.get())) {
+	this.pushLog(LogLevel.Warning, 'Extension host shut down, server will stop.');
+	this.state.set({ state: McpConnectionState.Kind.Stopped }, undefined);
+}
+this.dispose();
+    }
 
-	public override dispose(): void {
-		if (McpConnectionState.isRunning(this.state.get())) {
-			this.stop();
-		}
+    public override dispose(cognidreamognidream {
+	if(McpConnectionState.isRunning(this.state.get())) {
+	this.stop();
+}
 
-		super.dispose();
-	}
+super.dispose();
+    }
 }

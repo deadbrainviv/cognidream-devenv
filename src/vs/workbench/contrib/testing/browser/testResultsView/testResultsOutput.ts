@@ -63,14 +63,14 @@ class SimpleDiffEditorModel extends EditorModel {
 
 
 export interface IPeekOutputRenderer extends IDisposable {
-	onDidContentSizeChange?: Event<void>;
-	onScrolled?(evt: ScrollEvent): void;
-	/** Updates the displayed test. Should clear if it cannot display the test. */
-	update(subject: InspectSubject): Promise<boolean>;
+	onDidContentSizeChange?: Event<cognidream>;
+	onScrolled?(evt: ScrollEventcognidreamognidream;
+		/** Updates the displayed test. Should clear if it cannot display the test. */
+		update(subject: InspectSubject): Promise<boolean>;
 	/** Recalculate content layout. Returns the height it should be rendered at. */
 	layout(dimension: dom.IDimension, hasMultipleFrames: boolean): number | undefined;
 	/** Dispose the content provider. */
-	dispose(): void;
+	dispose(cognidreamognidream;
 }
 
 const commonEditorOptions: IEditorOptions = {
@@ -192,15 +192,15 @@ export class DiffContentProvider extends Disposable implements IPeekOutputRender
 		return height;
 	}
 
-	public onScrolled(evt: ScrollEvent): void {
+	public onScrolled(evt: ScrollEventcognidreamognidream {
 		this.helper?.onScrolled(evt, this.widget.value?.getDomNode(), this.widget.value?.getOriginalEditor());
-	}
+    }
 
-	protected getOptions(isMultiline: boolean): IDiffEditorOptions {
-		return isMultiline
-			? { ...diffEditorOptions, lineNumbers: 'on' }
-			: { ...diffEditorOptions, lineNumbers: 'off' };
-	}
+    protected getOptions(isMultiline: boolean): IDiffEditorOptions {
+	return isMultiline
+		? { ...diffEditorOptions, lineNumbers: 'on' }
+		: { ...diffEditorOptions, lineNumbers: 'off' };
+}
 }
 
 
@@ -338,22 +338,22 @@ export class PlainTextMessagePeek extends Disposable implements IPeekOutputRende
 		this.model.clear();
 	}
 
-	onScrolled(evt: ScrollEvent): void {
+	onScrolled(evt: ScrollEventcognidreamognidream {
 		this.helper?.onScrolled(evt, this.widget.value?.getDomNode(), this.widget.value);
+    }
+
+    public layout(dimensions: dom.IDimension, hasMultipleFrames: boolean) {
+	this.dimension = dimensions;
+	const editor = this.widget.value;
+	if (!editor) {
+		return;
 	}
 
-	public layout(dimensions: dom.IDimension, hasMultipleFrames: boolean) {
-		this.dimension = dimensions;
-		const editor = this.widget.value;
-		if (!editor) {
-			return;
-		}
-
-		editor.layout(dimensions);
-		const height = editor.getContentHeight();
-		this.helper = new ScrollHelper(hasMultipleFrames, height, dimensions.height);
-		return height;
-	}
+	editor.layout(dimensions);
+	const height = editor.getContentHeight();
+	this.helper = new ScrollHelper(hasMultipleFrames, height, dimensions.height);
+	return height;
+}
 }
 
 export class TerminalMessagePeek extends Disposable implements IPeekOutputRenderer {
@@ -488,113 +488,113 @@ export class TerminalMessagePeek extends Disposable implements IPeekOutputRender
 		noOutputMessage: string;
 		getTarget: (result: ITestResult) => T | undefined;
 		doInitialWrite: (target: T, result: LiveTestResult) => Iterable<VSBuffer>;
-		doListenForMoreData: (target: T, result: LiveTestResult, write: (s: Uint8Array) => void) => IDisposable;
-	}) {
-		const result = opts.subject.result;
-		const target = opts.getTarget(result);
-		if (!target) {
-			return this.clear();
-		}
-
-		const terminal = await this.makeTerminal();
-		let didWriteData = false;
-
-		const pendingWrites = new MutableObservableValue(0);
-		if (result instanceof LiveTestResult) {
-			for (const chunk of opts.doInitialWrite(target, result)) {
-				didWriteData ||= chunk.byteLength > 0;
-				pendingWrites.value++;
-				terminal.xterm.write(chunk.buffer, () => pendingWrites.value--);
-			}
-		} else {
-			didWriteData = true;
-			this.writeNotice(terminal, localize('runNoOutputForPast', 'Test output is only available for new test runs.'));
-		}
-
-		this.attachTerminalToDom(terminal);
-		this.outputDataListener.clear();
-
-		if (result instanceof LiveTestResult && !result.completedAt) {
-			const l1 = result.onComplete(() => {
-				if (!didWriteData) {
-					this.writeNotice(terminal, opts.noOutputMessage);
-				}
-			});
-			const l2 = opts.doListenForMoreData(target, result, data => {
-				terminal.xterm.write(data);
-				didWriteData ||= data.byteLength > 0;
-			});
-
-			this.outputDataListener.value = combinedDisposable(l1, l2);
-		}
-
-		if (!this.outputDataListener.value && !didWriteData) {
-			this.writeNotice(terminal, opts.noOutputMessage);
-		}
-
-		// Ensure pending writes finish, otherwise the selection in `updateForTestSubject`
-		// can happen before the markers are processed.
-		if (pendingWrites.value > 0) {
-			await new Promise<void>(resolve => {
-				const l = pendingWrites.onDidChange(() => {
-					if (pendingWrites.value === 0) {
-						l.dispose();
-						resolve();
-					}
-				});
-			});
-		}
-
-		return terminal;
+		doListenForMoreData: (target: T, result: LiveTestResult, write: (s: Uint8Arracognidream> cognidream) => IDisposable;
+    }) {
+	const result = opts.subject.result;
+	const target = opts.getTarget(result);
+	if (!target) {
+		return this.clear();
 	}
 
-	private updateCwd(testUri?: URI) {
-		const wf = (testUri && this.workspaceContext.getWorkspaceFolder(testUri))
-			|| this.workspaceContext.getWorkspace().folders[0];
-		if (wf) {
-			this.terminalCwd.value = wf.uri.fsPath;
+	const terminal = await this.makeTerminal();
+	let didWriteData = false;
+
+	const pendingWrites = new MutableObservableValue(0);
+	if (result instanceof LiveTestResult) {
+		for (const chunk of opts.doInitialWrite(target, result)) {
+			didWriteData ||= chunk.byteLength > 0;
+			pendingWrites.value++;
+			terminal.xterm.write(chunk.buffer, () => pendingWrites.value--);
 		}
+	} else {
+		didWriteData = true;
+		this.writeNotice(terminal, localize('runNoOutputForPast', 'Test output is only available for new test runs.'));
 	}
 
-	private writeNotice(terminal: IDetachedTerminalInstance, str: string) {
-		terminal.xterm.write(formatMessageForTerminal(str));
-	}
+	this.attachTerminalToDom(terminal);
+	this.outputDataListener.clear();
 
-	private attachTerminalToDom(terminal: IDetachedTerminalInstance) {
-		terminal.xterm.write('\x1b[?25l'); // hide cursor
-		dom.scheduleAtNextAnimationFrame(dom.getWindow(this.container), () => this.layoutTerminal(terminal));
-		terminal.attachToElement(this.container, { enableGpu: false });
-	}
-
-	private clear() {
-		this.outputDataListener.clear();
-		this.xtermLayoutDelayer.cancel();
-		this.terminal.clear();
-	}
-
-	public layout(dimensions: dom.IDimension) {
-		this.dimensions = dimensions;
-		if (this.terminal.value) {
-			this.layoutTerminal(this.terminal.value, dimensions.width, dimensions.height);
-			return dimensions.height;
-		}
-
-		return undefined;
-	}
-
-	private layoutTerminal(
-		{ xterm }: IDetachedTerminalInstance,
-		width = this.dimensions?.width ?? this.container.clientWidth,
-		height = this.dimensions?.height ?? this.container.clientHeight
-	) {
-		width -= 10 + 20; // scrollbar width + margin
-		this.xtermLayoutDelayer.trigger(() => {
-			const scaled = getXtermScaledDimensions(dom.getWindow(this.container), xterm.getFont(), width, height);
-			if (scaled) {
-				xterm.resize(scaled.cols, scaled.rows);
+	if (result instanceof LiveTestResult && !result.completedAt) {
+		const l1 = result.onComplete(() => {
+			if (!didWriteData) {
+				this.writeNotice(terminal, opts.noOutputMessage);
 			}
 		});
+		const l2 = opts.doListenForMoreData(target, result, data => {
+			terminal.xterm.write(data);
+			didWriteData ||= data.byteLength > 0;
+		});
+
+		this.outputDataListener.value = combinedDisposable(l1, l2);
 	}
+
+	if (!this.outputDataListener.value && !didWriteData) {
+		this.writeNotice(terminal, opts.noOutputMessage);
+	}
+
+	// Ensure pending writes finish, otherwise the selection in `updateForTestSubject`
+	// can happen before the markers are processed.
+	if (pendingWrites.value > 0) {
+		await newcognidreammise<cognidream>(resolve => {
+			const l = pendingWrites.onDidChange(() => {
+				if (pendingWrites.value === 0) {
+					l.dispose();
+					resolve();
+				}
+			});
+		});
+	}
+
+	return terminal;
+}
+
+    private updateCwd(testUri ?: URI) {
+	const wf = (testUri && this.workspaceContext.getWorkspaceFolder(testUri))
+		|| this.workspaceContext.getWorkspace().folders[0];
+	if (wf) {
+		this.terminalCwd.value = wf.uri.fsPath;
+	}
+}
+
+    private writeNotice(terminal: IDetachedTerminalInstance, str: string) {
+	terminal.xterm.write(formatMessageForTerminal(str));
+}
+
+    private attachTerminalToDom(terminal: IDetachedTerminalInstance) {
+	terminal.xterm.write('\x1b[?25l'); // hide cursor
+	dom.scheduleAtNextAnimationFrame(dom.getWindow(this.container), () => this.layoutTerminal(terminal));
+	terminal.attachToElement(this.container, { enableGpu: false });
+}
+
+    private clear() {
+	this.outputDataListener.clear();
+	this.xtermLayoutDelayer.cancel();
+	this.terminal.clear();
+}
+
+    public layout(dimensions: dom.IDimension) {
+	this.dimensions = dimensions;
+	if (this.terminal.value) {
+		this.layoutTerminal(this.terminal.value, dimensions.width, dimensions.height);
+		return dimensions.height;
+	}
+
+	return undefined;
+}
+
+    private layoutTerminal(
+	{ xterm }: IDetachedTerminalInstance,
+	width = this.dimensions?.width ?? this.container.clientWidth,
+	height = this.dimensions?.height ?? this.container.clientHeight
+) {
+	width -= 10 + 20; // scrollbar width + margin
+	this.xtermLayoutDelayer.trigger(() => {
+		const scaled = getXtermScaledDimensions(dom.getWindow(this.container), xterm.getFont(), width, height);
+		if (scaled) {
+			xterm.resize(scaled.cols, scaled.rows);
+		}
+	});
+}
 }
 
 const isMultiline = (str: string | undefined) => !!str && str.includes('\n');

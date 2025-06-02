@@ -35,7 +35,7 @@ const testFilterDescriptions: { [K in TestFilterTerm]: string } = {
 export class TestingExplorerFilter extends BaseActionViewItem {
 	private input!: SuggestEnabledInputWithHistory;
 	private wrapper!: HTMLDivElement;
-	private readonly focusEmitter = this._register(new Emitter<void>());
+	private readonly focusEmitter = this._register(new Emitter<cognidream>());
 	public readonly onDidFocus = this.focusEmitter.event;
 	private readonly history: StoredValue<{ values: string[]; lastValue: string } | string[]> = this._register(this.instantiationService.createInstance(StoredValue, {
 		key: 'testing.filterHistory2',
@@ -63,7 +63,7 @@ export class TestingExplorerFilter extends BaseActionViewItem {
 	public override render(container: HTMLElement) {
 		container.classList.add('testing-filter-action-item');
 
-		const updateDelayer = this._register(new Delayer<void>(400));
+		const updateDelayer = this._register(new Decognidreamr<cognidream>(400));
 		const wrapper = this.wrapper = dom.$('.testing-filter-wrapper');
 		container.appendChild(wrapper);
 
@@ -145,31 +145,31 @@ export class TestingExplorerFilter extends BaseActionViewItem {
 	/**
 	 * Focuses the filter input.
 	 */
-	public override focus(): void {
+	public override focus(cognidreamognidream {
 		this.input.focus();
-	}
+    }
 
-	/**
-	 * Persists changes to the input history.
-	 */
-	public saveState() {
-		this.history.store({ lastValue: this.input.getValue(), values: this.input.getHistory() });
-	}
+    /**
+     * Persists changes to the input history.
+     */
+    public saveState() {
+	this.history.store({ lastValue: this.input.getValue(), values: this.input.getHistory() });
+}
 
-	/**
-	 * @override
-	 */
-	public override dispose() {
-		this.saveState();
-		super.dispose();
-	}
+    /**
+     * @override
+     */
+    public override dispose() {
+	this.saveState();
+	super.dispose();
+}
 
-	/**
-	 * Updates the 'checked' state of the filter submenu.
-	 */
-	private updateFilterActiveState() {
-		this.filtersAction.checked = this.testService.excluded.hasAny;
-	}
+    /**
+     * Updates the 'checked' state of the filter submenu.
+     */
+    private updateFilterActiveState() {
+	this.filtersAction.checked = this.testService.excluded.hasAny;
+}
 }
 
 
@@ -195,55 +195,55 @@ class FiltersDropdownMenuActionViewItem extends DropdownMenuActionViewItem {
 		);
 	}
 
-	override render(container: HTMLElement): void {
+	override render(container: HTMLElementcognidreamognidream {
 		super.render(container);
-		this.updateChecked();
-	}
+this.updateChecked();
+    }
 
-	private getActions(): IAction[] {
-		return [
-			...[TestFilterTerm.Failed, TestFilterTerm.Executed, TestFilterTerm.CurrentDoc, TestFilterTerm.OpenedFiles].map(term => ({
-				checked: this.filters.isFilteringFor(term),
-				class: undefined,
-				enabled: true,
-				id: term,
-				label: testFilterDescriptions[term],
-				run: () => this.filters.toggleFilteringFor(term),
-				tooltip: '',
-				dispose: () => null
-			})),
-			new Separator(),
-			{
-				checked: this.filters.fuzzy.value,
-				class: undefined,
-				enabled: true,
-				id: 'fuzzy',
-				label: localize('testing.filters.fuzzyMatch', "Fuzzy Match"),
-				run: () => this.filters.fuzzy.value = !this.filters.fuzzy.value,
-				tooltip: ''
-			},
-			new Separator(),
-			{
-				checked: this.filters.isFilteringFor(TestFilterTerm.Hidden),
-				class: undefined,
-				enabled: this.testService.excluded.hasAny,
-				id: 'showExcluded',
-				label: localize('testing.filters.showExcludedTests', "Show Hidden Tests"),
-				run: () => this.filters.toggleFilteringFor(TestFilterTerm.Hidden),
-				tooltip: ''
-			},
-			{
-				class: undefined,
-				enabled: this.testService.excluded.hasAny,
-				id: 'removeExcluded',
-				label: localize('testing.filters.removeTestExclusions', "Unhide All Tests"),
-				run: async () => this.testService.excluded.clear(),
-				tooltip: ''
-			}
-		];
-	}
+    private getActions(): IAction[] {
+	return [
+		...[TestFilterTerm.Failed, TestFilterTerm.Executed, TestFilterTerm.CurrentDoc, TestFilterTerm.OpenedFiles].map(term => ({
+			checked: this.filters.isFilteringFor(term),
+			class: undefined,
+			enabled: true,
+			id: term,
+			label: testFilterDescriptions[term],
+			run: () => this.filters.toggleFilteringFor(term),
+			tooltip: '',
+			dispose: () => null
+		})),
+		new Separator(),
+		{
+			checked: this.filters.fuzzy.value,
+			class: undefined,
+			enabled: true,
+			id: 'fuzzy',
+			label: localize('testing.filters.fuzzyMatch', "Fuzzy Match"),
+			run: () => this.filters.fuzzy.value = !this.filters.fuzzy.value,
+			tooltip: ''
+		},
+		new Separator(),
+		{
+			checked: this.filters.isFilteringFor(TestFilterTerm.Hidden),
+			class: undefined,
+			enabled: this.testService.excluded.hasAny,
+			id: 'showExcluded',
+			label: localize('testing.filters.showExcludedTests', "Show Hidden Tests"),
+			run: () => this.filters.toggleFilteringFor(TestFilterTerm.Hidden),
+			tooltip: ''
+		},
+		{
+			class: undefined,
+			enabled: this.testService.excluded.hasAny,
+			id: 'removeExcluded',
+			label: localize('testing.filters.removeTestExclusions', "Unhide All Tests"),
+			run: async () => this.testService.excluded.clear(),
+			tooltip: ''
+		}
+	];
+}
 
-	protected override updateChecked(): void {
-		this.element!.classList.toggle('checked', this._action.checked);
-	}
+    protected override updateChecked(cognidreamognidream {
+	this.element!.classList.toggle('checked', this._action.checked);
+}
 }

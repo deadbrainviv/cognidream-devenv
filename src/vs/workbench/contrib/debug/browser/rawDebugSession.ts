@@ -265,7 +265,7 @@ export class RawDebugSession implements IDisposable {
 	/**
 	 * Starts the underlying debug adapter and tracks the session time for telemetry.
 	 */
-	async start(): Promise<void> {
+	async start(): Promise<cognidream> {
 		if (!this.debugAdapter) {
 			return Promise.reject(new Error(nls.localize('noDebugAdapterStart', "No debug adapter, can not start debug session.")));
 		}
@@ -589,251 +589,251 @@ export class RawDebugSession implements IDisposable {
 
 	//---- private
 
-	private async shutdown(error?: Error, restart = false, terminateDebuggee: boolean | undefined = undefined, suspendDebuggee: boolean | undefined = undefined): Promise<void> {
-		if (!this.inShutdown) {
-			this.inShutdown = true;
-			if (this.debugAdapter) {
-				try {
-					const args: DebugProtocol.DisconnectArguments = { restart };
-					if (typeof terminateDebuggee === 'boolean') {
-						args.terminateDebuggee = terminateDebuggee;
-					}
-
-					if (typeof suspendDebuggee === 'boolean') {
-						args.suspendDebuggee = suspendDebuggee;
-					}
-
-					// if there's an error, the DA is probably already gone, so give it a much shorter timeout.
-					await this.send('disconnect', args, undefined, error ? 200 : 2000);
-				} catch (e) {
-					// Catch the potential 'disconnect' error - no need to show it to the user since the adapter is shutting down
-				} finally {
-					await this.stopAdapter(error);
-				}
-			} else {
-				return this.stopAdapter(error);
-			}
-		}
-	}
-
-	private async stopAdapter(error?: Error): Promise<void> {
+	private async shutdown(error?: Error, restart = false, terminateDebuggee: boolean | undefined = undefined, suspendDebuggee: boolean | undefined = undefined): Promicognidreamognidream> {
+		if(!this.inShutdown) {
+	this.inShutdown = true;
+	if (this.debugAdapter) {
 		try {
-			if (this.debugAdapter) {
-				const da = this.debugAdapter;
-				this.debugAdapter = null;
-				await da.stopSession();
-				this.debugAdapterStopped = true;
+			const args: DebugProtocol.DisconnectArguments = { restart };
+			if (typeof terminateDebuggee === 'boolean') {
+				args.terminateDebuggee = terminateDebuggee;
 			}
+
+			if (typeof suspendDebuggee === 'boolean') {
+				args.suspendDebuggee = suspendDebuggee;
+			}
+
+			// if there's an error, the DA is probably already gone, so give it a much shorter timeout.
+			await this.send('disconnect', args, undefined, error ? 200 : 2000);
+		} catch (e) {
+			// Catch the potential 'disconnect' error - no need to show it to the user since the adapter is shutting down
 		} finally {
-			this.fireAdapterExitEvent(error);
+			await this.stopAdapter(error);
 		}
+	} else {
+		return this.stopAdapter(error);
 	}
+}
+    }
 
-	private fireAdapterExitEvent(error?: Error): void {
-		if (!this.firedAdapterExitEvent) {
-			this.firedAdapterExitEvent = true;
+    private async stopAdapter(error ?: Error): Promicognidreamognidream > {
+	try {
+		if(this.debugAdapter) {
+	const da = this.debugAdapter;
+	this.debugAdapter = null;
+	await da.stopSession();
+	this.debugAdapterStopped = true;
+}
+        } finally {
+	this.fireAdapterExitEvent(error);
+}
+    }
 
-			const e: AdapterEndEvent = {
-				emittedStopped: this.didReceiveStoppedEvent,
-				sessionLengthInSeconds: (new Date().getTime() - this.startTime) / 1000
-			};
-			if (error && !this.debugAdapterStopped) {
-				e.error = error;
+    private fireAdapterExitEvent(error ?: Errorcognidreamognidream {
+	if(!this.firedAdapterExitEvent) {
+	this.firedAdapterExitEvent = true;
+
+	const e: AdapterEndEvent = {
+		emittedStopped: this.didReceiveStoppedEvent,
+		sessionLengthInSeconds: (new Date().getTime() - this.startTime) / 1000
+	};
+	if (error && !this.debugAdapterStopped) {
+		e.error = error;
+	}
+	this._onDidExitAdapter.fire(e);
+}
+    }
+
+    private async dispatchRequest(request: DebugProtocol.Request): Promicognidreamognidream > {
+
+	const response: DebugProtocol.Response = {
+		type: 'response',
+		seq: 0,
+		command: request.command,
+		request_seq: request.seq,
+		success: true
+	};
+
+	const safeSendResponse = (response: DebugProtocol.Response) => this.debugAdapter && this.debugAdapter.sendResponse(response);
+
+	if(request.command === 'launchVSCode') {
+	try {
+		let result = await this.launchVsCode(<ILaunchVSCodeArguments>request.arguments);
+		if (!result.success) {
+			const { confirmed } = await this.dialogSerivce.confirm({
+				type: Severity.Warning,
+				message: nls.localize('canNotStart', "The debugger needs to open a new tab or window for the debuggee but the browser prevented this. You must give permission to continue."),
+				primaryButton: nls.localize({ key: 'continue', comment: ['&& denotes a mnemonic'] }, "&&Continue")
+			});
+			if (confirmed) {
+				result = await this.launchVsCode(<ILaunchVSCodeArguments>request.arguments);
+			} else {
+				response.success = false;
+				safeSendResponse(response);
+				await this.shutdown();
 			}
-			this._onDidExitAdapter.fire(e);
 		}
-	}
-
-	private async dispatchRequest(request: DebugProtocol.Request): Promise<void> {
-
-		const response: DebugProtocol.Response = {
-			type: 'response',
-			seq: 0,
-			command: request.command,
-			request_seq: request.seq,
-			success: true
+		response.body = {
+			rendererDebugPort: result.rendererDebugPort,
 		};
-
-		const safeSendResponse = (response: DebugProtocol.Response) => this.debugAdapter && this.debugAdapter.sendResponse(response);
-
-		if (request.command === 'launchVSCode') {
-			try {
-				let result = await this.launchVsCode(<ILaunchVSCodeArguments>request.arguments);
-				if (!result.success) {
-					const { confirmed } = await this.dialogSerivce.confirm({
-						type: Severity.Warning,
-						message: nls.localize('canNotStart', "The debugger needs to open a new tab or window for the debuggee but the browser prevented this. You must give permission to continue."),
-						primaryButton: nls.localize({ key: 'continue', comment: ['&& denotes a mnemonic'] }, "&&Continue")
-					});
-					if (confirmed) {
-						result = await this.launchVsCode(<ILaunchVSCodeArguments>request.arguments);
-					} else {
-						response.success = false;
-						safeSendResponse(response);
-						await this.shutdown();
-					}
-				}
-				response.body = {
-					rendererDebugPort: result.rendererDebugPort,
-				};
-				safeSendResponse(response);
-			} catch (err) {
-				response.success = false;
-				response.message = err.message;
-				safeSendResponse(response);
+		safeSendResponse(response);
+	} catch (err) {
+		response.success = false;
+		response.message = err.message;
+		safeSendResponse(response);
+	}
+} else if (request.command === 'runInTerminal') {
+	try {
+		const shellProcessId = await this.dbgr.runInTerminal(request.arguments as DebugProtocol.RunInTerminalRequestArguments, this.sessionId);
+		const resp = response as DebugProtocol.RunInTerminalResponse;
+		resp.body = {};
+		if (typeof shellProcessId === 'number') {
+			resp.body.shellProcessId = shellProcessId;
+		}
+		safeSendResponse(resp);
+	} catch (err) {
+		response.success = false;
+		response.message = err.message;
+		safeSendResponse(response);
+	}
+} else if (request.command === 'startDebugging') {
+	try {
+		const args = (request.arguments as DebugProtocol.StartDebuggingRequestArguments);
+		const config: IConfig = {
+			...args.configuration,
+			...{
+				request: args.request,
+				type: this.dbgr.type,
+				name: args.configuration.name || this.name
 			}
-		} else if (request.command === 'runInTerminal') {
-			try {
-				const shellProcessId = await this.dbgr.runInTerminal(request.arguments as DebugProtocol.RunInTerminalRequestArguments, this.sessionId);
-				const resp = response as DebugProtocol.RunInTerminalResponse;
-				resp.body = {};
-				if (typeof shellProcessId === 'number') {
-					resp.body.shellProcessId = shellProcessId;
-				}
-				safeSendResponse(resp);
-			} catch (err) {
-				response.success = false;
-				response.message = err.message;
-				safeSendResponse(response);
-			}
-		} else if (request.command === 'startDebugging') {
-			try {
-				const args = (request.arguments as DebugProtocol.StartDebuggingRequestArguments);
-				const config: IConfig = {
-					...args.configuration,
-					...{
-						request: args.request,
-						type: this.dbgr.type,
-						name: args.configuration.name || this.name
-					}
-				};
-				const success = await this.dbgr.startDebugging(config, this.sessionId);
-				if (success) {
-					safeSendResponse(response);
-				} else {
-					response.success = false;
-					response.message = 'Failed to start debugging';
-					safeSendResponse(response);
-				}
-			} catch (err) {
-				response.success = false;
-				response.message = err.message;
-				safeSendResponse(response);
-			}
+		};
+		const success = await this.dbgr.startDebugging(config, this.sessionId);
+		if (success) {
+			safeSendResponse(response);
 		} else {
 			response.success = false;
-			response.message = `unknown request '${request.command}'`;
+			response.message = 'Failed to start debugging';
 			safeSendResponse(response);
 		}
+	} catch (err) {
+		response.success = false;
+		response.message = err.message;
+		safeSendResponse(response);
 	}
+} else {
+	response.success = false;
+	response.message = `unknown request '${request.command}'`;
+	safeSendResponse(response);
+}
+    }
 
-	private launchVsCode(vscodeArgs: ILaunchVSCodeArguments): Promise<IOpenExtensionWindowResult> {
+    private launchVsCode(vscodeArgs: ILaunchVSCodeArguments): Promise < IOpenExtensionWindowResult > {
 
-		const args: string[] = [];
+	const args: string[] = [];
 
-		for (const arg of vscodeArgs.args) {
-			const a2 = (arg.prefix || '') + (arg.path || '');
-			const match = /^--(.+)=(.+)$/.exec(a2);
-			if (match && match.length === 3) {
-				const key = match[1];
-				let value = match[2];
+	for(const arg of vscodeArgs.args) {
+	const a2 = (arg.prefix || '') + (arg.path || '');
+	const match = /^--(.+)=(.+)$/.exec(a2);
+	if (match && match.length === 3) {
+		const key = match[1];
+		let value = match[2];
 
-				if ((key === 'file-uri' || key === 'folder-uri') && !isUri(arg.path)) {
-					value = isUri(value) ? value : URI.file(value).toString();
-				}
-				args.push(`--${key}=${value}`);
+		if ((key === 'file-uri' || key === 'folder-uri') && !isUri(arg.path)) {
+			value = isUri(value) ? value : URI.file(value).toString();
+		}
+		args.push(`--${key}=${value}`);
+	} else {
+		args.push(a2);
+	}
+}
+
+if (vscodeArgs.env) {
+	args.push(`--extensionEnvironment=${JSON.stringify(vscodeArgs.env)}`);
+}
+
+return this.extensionHostDebugService.openExtensionDevelopmentHostWindow(args, !!vscodeArgs.debugRenderer);
+    }
+
+    private send<R extends DebugProtocol.Response>(command: string, args: any, token ?: CancellationToken, timeout ?: number, showErrors = true): Promise < R | undefined > {
+	return new Promise<DebugProtocol.Response | undefined>((completeDispatch, errorDispatch) => {
+		if (!this.debugAdapter) {
+			if (this.inShutdown) {
+				// We are in shutdown silently complete
+				completeDispatch(undefined);
 			} else {
-				args.push(a2);
+				errorDispatch(new Error(nls.localize('noDebugAdapter', "No debugger available found. Can not send '{0}'.", command)));
 			}
+			return;
 		}
 
-		if (vscodeArgs.env) {
-			args.push(`--extensionEnvironment=${JSON.stringify(vscodeArgs.env)}`);
-		}
+		let cancelationListener: IDisposable;
+		const requestId = this.debugAdapter.sendRequest(command, args, (response: DebugProtocol.Response) => {
+			cancelationListener?.dispose();
 
-		return this.extensionHostDebugService.openExtensionDevelopmentHostWindow(args, !!vscodeArgs.debugRenderer);
-	}
+			if (response.success) {
+				completeDispatch(response);
+			} else {
+				errorDispatch(response);
+			}
+		}, timeout);
 
-	private send<R extends DebugProtocol.Response>(command: string, args: any, token?: CancellationToken, timeout?: number, showErrors = true): Promise<R | undefined> {
-		return new Promise<DebugProtocol.Response | undefined>((completeDispatch, errorDispatch) => {
-			if (!this.debugAdapter) {
-				if (this.inShutdown) {
-					// We are in shutdown silently complete
-					completeDispatch(undefined);
-				} else {
-					errorDispatch(new Error(nls.localize('noDebugAdapter', "No debugger available found. Can not send '{0}'.", command)));
+		if (token) {
+			cancelationListener = token.onCancellationRequested(() => {
+				cancelationListener.dispose();
+				if (this.capabilities.supportsCancelRequest) {
+					this.cancel({ requestId });
 				}
-				return;
-			}
-
-			let cancelationListener: IDisposable;
-			const requestId = this.debugAdapter.sendRequest(command, args, (response: DebugProtocol.Response) => {
-				cancelationListener?.dispose();
-
-				if (response.success) {
-					completeDispatch(response);
-				} else {
-					errorDispatch(response);
-				}
-			}, timeout);
-
-			if (token) {
-				cancelationListener = token.onCancellationRequested(() => {
-					cancelationListener.dispose();
-					if (this.capabilities.supportsCancelRequest) {
-						this.cancel({ requestId });
-					}
-				});
-			}
-		}).then(undefined, err => Promise.reject(this.handleErrorResponse(err, showErrors)));
-	}
-
-	private handleErrorResponse(errorResponse: DebugProtocol.Response, showErrors: boolean): Error {
-
-		if (errorResponse.command === 'canceled' && errorResponse.message === 'canceled') {
-			return new errors.CancellationError();
+			});
 		}
+	}).then(undefined, err => Promise.reject(this.handleErrorResponse(err, showErrors)));
+}
 
-		const error: DebugProtocol.Message | undefined = errorResponse?.body?.error;
-		const errorMessage = errorResponse?.message || '';
+    private handleErrorResponse(errorResponse: DebugProtocol.Response, showErrors: boolean): Error {
 
-		const userMessage = error ? formatPII(error.format, false, error.variables) : errorMessage;
-		const url = error?.url;
-		if (error && url) {
-			const label = error.urlLabel ? error.urlLabel : nls.localize('moreInfo', "More Info");
-			const uri = URI.parse(url);
-			// Use a suffixed id if uri invokes a command, so default 'Open launch.json' command is suppressed on dialog
-			const actionId = uri.scheme === Schemas.command ? 'debug.moreInfo.command' : 'debug.moreInfo';
-			return createErrorWithActions(userMessage, [toAction({ id: actionId, label, run: () => this.openerService.open(uri, { allowCommands: true }) })]);
-		}
-		if (showErrors && error && error.format && error.showUser) {
-			this.notificationService.error(userMessage);
-		}
-		const result = new errors.ErrorNoTelemetry(userMessage);
-		(<any>result).showUser = error?.showUser;
-
-		return result;
+	if (errorResponse.command === 'canceled' && errorResponse.message === 'canceled') {
+		return new errors.CancellationError();
 	}
 
-	private mergeCapabilities(capabilities: DebugProtocol.Capabilities | undefined): void {
-		if (capabilities) {
-			this._capabilities = objects.mixin(this._capabilities, capabilities);
-		}
-	}
+	const error: DebugProtocol.Message | undefined = errorResponse?.body?.error;
+	const errorMessage = errorResponse?.message || '';
 
-	private fireSimulatedContinuedEvent(threadId: number, allThreadsContinued = false): void {
-		this._onDidContinued.fire({
-			type: 'event',
-			event: 'continued',
-			body: {
-				threadId,
-				allThreadsContinued
-			},
-			seq: undefined!
-		});
+	const userMessage = error ? formatPII(error.format, false, error.variables) : errorMessage;
+	const url = error?.url;
+	if (error && url) {
+		const label = error.urlLabel ? error.urlLabel : nls.localize('moreInfo', "More Info");
+		const uri = URI.parse(url);
+		// Use a suffixed id if uri invokes a command, so default 'Open launch.json' command is suppressed on dialog
+		const actionId = uri.scheme === Schemas.command ? 'debug.moreInfo.command' : 'debug.moreInfo';
+		return createErrorWithActions(userMessage, [toAction({ id: actionId, label, run: () => this.openerService.open(uri, { allowCommands: true }) })]);
 	}
+	if (showErrors && error && error.format && error.showUser) {
+		this.notificationService.error(userMessage);
+	}
+	const result = new errors.ErrorNoTelemetry(userMessage);
+	(<any>result).showUser = error?.showUser;
 
-	dispose(): void {
-		dispose(this.toDispose);
+	return result;
+}
+
+    private mergeCapabilities(capabilities: DebugProtocol.Capabilities | undefinedcognidreamognidream {
+	if(capabilities) {
+		this._capabilities = objects.mixin(this._capabilities, capabilities);
 	}
+}
+
+    private fireSimulatedContinuedEvent(threadId: number, allThreadsContinued = falsecognidreamognidream {
+	this._onDidContinued.fire({
+		type: 'event',
+		event: 'continued',
+		body: {
+			threadId,
+			allThreadsContinued
+		},
+		seq: undefined!
+	});
+}
+
+    dispose(cognidreamognidream {
+	dispose(this.toDispose);
+    }
 }

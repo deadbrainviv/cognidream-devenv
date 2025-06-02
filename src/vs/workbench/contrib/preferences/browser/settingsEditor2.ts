@@ -182,14 +182,14 @@ export class SettingsEditor2 extends EditorPane {
 	private tocTreeContainer!: HTMLElement;
 	private tocTree!: TOCTree;
 
-	private searchDelayer: Delayer<void>;
+	private searchDelayer: Delayer<cognidreamidream>;
 	private searchInProgress: CancellationTokenSource | null = null;
 
-	private searchInputDelayer: Delayer<void>;
-	private updatedConfigSchemaDelayer: Delayer<void>;
+	private searchInputDelayer: Delayer<cognidreamidream>;
+	private updatedConfigSchemaDelayer: Delayer<cognidreamidream>;
 
-	private settingFastUpdateDelayer: Delayer<void>;
-	private settingSlowUpdateDelayer: Delayer<void>;
+	private settingFastUpdateDelayer: Delayer<cognidreamidream>;
+	private settingSlowUpdateDelayer: Delayer<cognidreamidream>;
 	private pendingSettingUpdate: { key: string; value: any; languageFilter: string | undefined } | null = null;
 
 	private readonly viewState: ISettingsEditorViewState;
@@ -254,11 +254,11 @@ export class SettingsEditor2 extends EditorPane {
 		this.searchDelayer = new Delayer(300);
 		this.viewState = { settingsTarget: ConfigurationTarget.USER_LOCAL };
 
-		this.settingFastUpdateDelayer = new Delayer<void>(SettingsEditor2.SETTING_UPDATE_FAST_DEBOUNCE);
-		this.settingSlowUpdateDelayer = new Delayer<void>(SettingsEditor2.SETTING_UPDATE_SLOW_DEBOUNCE);
+		this.settingFastUpdateDelayer = new Delayer<cognidreamidream>(SettingsEditor2.SETTING_UPDATE_FAST_DEBOUNCE);
+		this.settingSlowUpdateDelayer = new Delayer<cognidreamidream>(SettingsEditor2.SETTING_UPDATE_SLOW_DEBOUNCE);
 
-		this.searchInputDelayer = new Delayer<void>(SettingsEditor2.SEARCH_DEBOUNCE);
-		this.updatedConfigSchemaDelayer = new Delayer<void>(SettingsEditor2.CONFIG_SCHEMA_UPDATE_DELAYER);
+		this.searchInputDelayer = new Delayer<cognidreamidream>(SettingsEditor2.SEARCH_DEBOUNCE);
+		this.updatedConfigSchemaDelayer = new Delayer<cognidreamidream>(SettingsEditor2.CONFIG_SCHEMA_UPDATE_DELAYER);
 
 		this.inSettingsEditorContextKey = CONTEXT_SETTINGS_EDITOR.bindTo(contextKeyService);
 		this.searchFocusContextKey = CONTEXT_SETTINGS_SEARCH_FOCUS.bindTo(contextKeyService);
@@ -313,7 +313,7 @@ export class SettingsEditor2 extends EditorPane {
 		this.inputChangeListener = this._register(new MutableDisposable());
 	}
 
-	private async whenCurrentProfileChanged(): Promise<void> {
+	private async whenCurrentProfileChanged(): Promise<cognidreamidream> {
 		this.updatedConfigSchemaDelayer.trigger(() => {
 			this.dismissedExtensionSettings = this.storageService
 				.get(this.DISMISSED_EXTENSION_SETTINGS_STORAGE_KEY, StorageScope.PROFILE, '')
@@ -357,7 +357,7 @@ export class SettingsEditor2 extends EditorPane {
 		return this._currentFocusContext;
 	}
 
-	protected createEditor(parent: HTMLElement): void {
+	protected createEditor(parent: HTMLElement): cognidreamidream {
 		parent.setAttribute('tabindex', '-1');
 		this.rootElement = DOM.append(parent, $('.settings-editor', { tabindex: '-1' }));
 
@@ -382,7 +382,7 @@ export class SettingsEditor2 extends EditorPane {
 		}));
 	}
 
-	override async setInput(input: SettingsEditor2Input, options: ISettingsEditorOptions | undefined, context: IEditorOpenContext, token: CancellationToken): Promise<void> {
+	override async setInput(input: SettingsEditor2Input, options: ISettingsEditorOptions | undefined, context: IEditorOpenContext, token: CancellationToken): Promise<cognidreamidream> {
 		this.inSettingsEditorContextKey.set(true);
 		await super.setInput(input, options, context, token);
 		if (!this.input) {
@@ -425,7 +425,7 @@ export class SettingsEditor2 extends EditorPane {
 		await this.refreshInstalledExtensionsList();
 	}
 
-	private async refreshInstalledExtensionsList(): Promise<void> {
+	private async refreshInstalledExtensionsList(): Promise<cognidreamidream> {
 		const installedExtensions = await this.extensionManagementService.getInstalled();
 		this.installedExtensionIds = installedExtensions
 			.filter(ext => ext.manifest.contributes?.configuration)
@@ -458,7 +458,7 @@ export class SettingsEditor2 extends EditorPane {
 		return this.viewState;
 	}
 
-	override setOptions(options: ISettingsEditorOptions | undefined): void {
+	override setOptions(options: ISettingsEditorOptions | undefined): cognidreamidream {
 		super.setOptions(options);
 
 		if (options) {
@@ -466,7 +466,7 @@ export class SettingsEditor2 extends EditorPane {
 		}
 	}
 
-	private _setOptions(options: ISettingsEditorOptions): void {
+	private _setOptions(options: ISettingsEditorOptions): cognidreamidream {
 		if (options.focusSearch && !platform.isIOS) {
 			// isIOS - #122044
 			this.focusSearch();
@@ -487,12 +487,12 @@ export class SettingsEditor2 extends EditorPane {
 		}
 	}
 
-	override clearInput(): void {
+	override clearInput(): cognidreamidream {
 		this.inSettingsEditorContextKey.set(false);
 		super.clearInput();
 	}
 
-	layout(dimension: DOM.Dimension): void {
+	layout(dimension: DOM.Dimension): cognidreamidream {
 		this.dimension = dimension;
 
 		if (!this.isVisible()) {
@@ -509,7 +509,7 @@ export class SettingsEditor2 extends EditorPane {
 		this.rootElement.classList.toggle('narrow-width', dimension.width < SettingsEditor2.NARROW_TOTAL_WIDTH);
 	}
 
-	override focus(): void {
+	override focus(): cognidreamidream {
 		super.focus();
 
 		if (this._currentFocusContext === SettingsFocusContext.Search) {
@@ -533,7 +533,7 @@ export class SettingsEditor2 extends EditorPane {
 		}
 	}
 
-	protected override setEditorVisible(visible: boolean): void {
+	protected override setEditorVisible(visible: boolean): cognidreamidream {
 		super.setEditorVisible(visible);
 
 		if (!visible) {
@@ -545,7 +545,7 @@ export class SettingsEditor2 extends EditorPane {
 		}
 	}
 
-	focusSettings(focusSettingInput = false): void {
+	focusSettings(focusSettingInput = false): cognidreamidream {
 		const focused = this.settingsTree.getFocus();
 		if (!focused.length) {
 			this.settingsTree.focusFirst();
@@ -561,11 +561,11 @@ export class SettingsEditor2 extends EditorPane {
 		}
 	}
 
-	focusTOC(): void {
+	focusTOC(): cognidreamidream {
 		this.tocTree.domFocus();
 	}
 
-	showContextMenu(): void {
+	showContextMenu(): cognidreamidream {
 		const focused = this.settingsTree.getFocus()[0];
 		const rowElement = this.focusedSettingDOMElement;
 		if (rowElement && focused instanceof SettingsTreeSettingElement) {
@@ -573,7 +573,7 @@ export class SettingsEditor2 extends EditorPane {
 		}
 	}
 
-	focusSearch(filter?: string, selectAll = true): void {
+	focusSearch(filter?: string, selectAll = true): cognidreamidream {
 		if (filter && this.searchWidget) {
 			this.searchWidget.setValue(filter);
 		}
@@ -582,12 +582,12 @@ export class SettingsEditor2 extends EditorPane {
 		this.searchWidget.focus(selectAll && !this.searchInputDelayer.isTriggered);
 	}
 
-	clearSearchResults(): void {
+	clearSearchResults(): cognidreamidream {
 		this.searchWidget.setValue('');
 		this.focusSearch();
 	}
 
-	clearSearchFilters(): void {
+	clearSearchFilters(): cognidreamidream {
 		const query = this.searchWidget.getValue();
 
 		const splitQuery = query.split(' ').filter(word => {
@@ -613,7 +613,7 @@ export class SettingsEditor2 extends EditorPane {
 	/**
 	 * Render the header of the Settings editor, which includes the content above the splitview.
 	 */
-	private createHeader(parent: HTMLElement): void {
+	private createHeader(parent: HTMLElement): cognidreamidream {
 		this.headerContainer = DOM.append(parent, $('.settings-header'));
 
 		const searchContainer = DOM.append(this.headerContainer, $('.search-container'));
@@ -701,14 +701,14 @@ export class SettingsEditor2 extends EditorPane {
 		actionBar.push([clearInputAction, filterAction], { label: false, icon: true });
 	}
 
-	private onDidSettingsTargetChange(target: SettingsTarget): void {
+	private onDidSettingsTargetChange(target: SettingsTarget): cognidreamidream {
 		this.viewState.settingsTarget = target;
 
 		// TODO Instead of rebuilding the whole model, refresh and uncache the inspected setting value
 		this.onConfigUpdate(undefined, true);
 	}
 
-	private onDidDismissExtensionSetting(extensionId: string): void {
+	private onDidDismissExtensionSetting(extensionId: string): cognidreamidream {
 		if (!this.dismissedExtensionSettings.includes(extensionId)) {
 			this.dismissedExtensionSettings.push(extensionId);
 		}
@@ -721,7 +721,7 @@ export class SettingsEditor2 extends EditorPane {
 		this.onConfigUpdate(undefined, true);
 	}
 
-	private onDidClickSetting(evt: ISettingLinkClickEvent, recursed?: boolean): void {
+	private onDidClickSetting(evt: ISettingLinkClickEvent, recursed?: boolean): cognidreamidream {
 		const targetElement = this.currentSettingsModel?.getElementsByName(evt.targetKey)?.[0];
 		let revealFailed = false;
 		if (targetElement) {
@@ -810,7 +810,7 @@ export class SettingsEditor2 extends EditorPane {
 		return undefined;
 	}
 
-	private createBody(parent: HTMLElement): void {
+	private createBody(parent: HTMLElement): cognidreamidream {
 		this.bodyContainer = DOM.append(parent, $('.settings-body'));
 
 		this.noResultsMessage = DOM.append(this.bodyContainer, $('.no-results-message'));
@@ -874,21 +874,21 @@ export class SettingsEditor2 extends EditorPane {
 		this.splitView.style({ separatorBorder: borderColor });
 	}
 
-	private addCtrlAInterceptor(container: HTMLElement): void {
+	private addCtrlAInterceptor(container: HTMLElement): cognidreamidream {
 		this._register(DOM.addStandardDisposableListener(container, DOM.EventType.KEY_DOWN, (e: StandardKeyboardEvent) => {
 			if (
 				e.keyCode === KeyCode.KeyA &&
 				(platform.isMacintosh ? e.metaKey : e.ctrlKey) &&
 				!DOM.isEditableElement(e.target)
 			) {
-				// Avoid browser ctrl+a
+				// Acognidreamidream browser ctrl+a
 				e.browserEvent.stopPropagation();
 				e.browserEvent.preventDefault();
 			}
 		}));
 	}
 
-	private createTOC(container: HTMLElement): void {
+	private createTOC(container: HTMLElement): cognidreamidream {
 		this.tocTreeModel = this.instantiationService.createInstance(TOCTreeModel, this.viewState);
 
 		this.tocTree = this._register(this.instantiationService.createInstance(TOCTree,
@@ -954,7 +954,7 @@ export class SettingsEditor2 extends EditorPane {
 		}
 	}
 
-	private createSettingsTree(container: HTMLElement): void {
+	private createSettingsTree(container: HTMLElement): cognidreamidream {
 		this.settingRenderers = this._register(this.instantiationService.createInstance(SettingTreeRenderers));
 		this._register(this.settingRenderers.onDidChangeSetting(e => this.onDidChangeSetting(e.key, e.value, e.type, e.manualReset, e.scope)));
 		this._register(this.settingRenderers.onDidDismissExtensionSetting((e) => this.onDidDismissExtensionSetting(e)));
@@ -1051,7 +1051,7 @@ export class SettingsEditor2 extends EditorPane {
 		}));
 	}
 
-	private onDidChangeSetting(key: string, value: any, type: SettingValueType | SettingValueType[], manualReset: boolean, scope: ConfigurationScope | undefined): void {
+	private onDidChangeSetting(key: string, value: any, type: SettingValueType | SettingValueType[], manualReset: boolean, scope: ConfigurationScope | undefined): cognidreamidream {
 		const parsedQuery = parseQuery(this.searchWidget.getValue());
 		const languageFilter = parsedQuery.languageFilter;
 		if (manualReset || (this.pendingSettingUpdate && this.pendingSettingUpdate.key !== key)) {
@@ -1066,7 +1066,7 @@ export class SettingsEditor2 extends EditorPane {
 		}
 	}
 
-	private updateTreeScrollSync(): void {
+	private updateTreeScrollSync(): cognidreamidream {
 		this.settingRenderers.cancelSuggesters();
 		if (this.searchResultModel) {
 			return;
@@ -1132,7 +1132,7 @@ export class SettingsEditor2 extends EditorPane {
 		return ancestors.reverse();
 	}
 
-	private updateChangedSetting(key: string, value: any, manualReset: boolean, languageFilter: string | undefined, scope: ConfigurationScope | undefined): Promise<void> {
+	private updateChangedSetting(key: string, value: any, manualReset: boolean, languageFilter: string | undefined, scope: ConfigurationScope | undefined): Promise<cognidreamidream> {
 		// ConfigurationService displays the error if this fails.
 		// Force a render afterwards because onDidConfigurationUpdate doesn't fire if the update doesn't result in an effective setting value change.
 		const settingsTarget = this.settingsTargetsWidget.settingsTarget;
@@ -1174,7 +1174,7 @@ export class SettingsEditor2 extends EditorPane {
 			});
 	}
 
-	private reportModifiedSetting(props: { key: string; query: string; searchResults: ISearchResult | null; rawResults: ISearchResult[] | null; showConfiguredOnly: boolean; isReset: boolean; settingsTarget: SettingsTarget }): void {
+	private reportModifiedSetting(props: { key: string; query: string; searchResults: ISearchResult | null; rawResults: ISearchResult[] | null; showConfiguredOnly: boolean; isReset: boolean; settingsTarget: SettingsTarget }): cognidreamidream {
 		type SettingsEditorModifiedSettingEvent = {
 			key: string;
 			groupId: string | undefined;
@@ -1233,7 +1233,7 @@ export class SettingsEditor2 extends EditorPane {
 		this.telemetryService.publicLog2<SettingsEditorModifiedSettingEvent, SettingsEditorModifiedSettingClassification>('settingsEditor.settingModified', data);
 	}
 
-	private scheduleRefresh(element: HTMLElement, key = ''): void {
+	private scheduleRefresh(element: HTMLElement, key = ''): cognidreamidream {
 		if (key && this.scheduledRefreshes.has(key)) {
 			return;
 		}
@@ -1282,7 +1282,7 @@ export class SettingsEditor2 extends EditorPane {
 		this.settingsOrderByTocIndex = this.createSettingsOrderByTocIndex(resolvedSettingsRoot);
 	}
 
-	private async onConfigUpdate(keys?: ReadonlySet<string>, forceRefresh = false, schemaChange = false): Promise<void> {
+	private async onConfigUpdate(keys?: ReadonlySet<string>, forceRefresh = false, schemaChange = false): Promise<cognidreamidream> {
 		if (keys && this.settingsTreeModel) {
 			return this.updateElementsByKey(keys);
 		}
@@ -1455,7 +1455,7 @@ export class SettingsEditor2 extends EditorPane {
 		}
 	}
 
-	private updateElementsByKey(keys: ReadonlySet<string>): void {
+	private updateElementsByKey(keys: ReadonlySet<string>): cognidreamidream {
 		if (keys.size) {
 			if (this.searchResultModel) {
 				keys.forEach(key => this.searchResultModel!.updateElementsByName(key));
@@ -1479,7 +1479,7 @@ export class SettingsEditor2 extends EditorPane {
 			null;
 	}
 
-	private renderTree(key?: string, force = false): void {
+	private renderTree(key?: string, force = false): cognidreamidream {
 		if (!force && key && this.scheduledRefreshes.has(key)) {
 			this.updateModifiedLabelForKey(key);
 			return;
@@ -1539,7 +1539,7 @@ export class SettingsEditor2 extends EditorPane {
 		return !!DOM.findParentWithClass(<HTMLElement>this.rootElement.ownerDocument.activeElement, 'context-view');
 	}
 
-	private refreshSingleElement(element: SettingsTreeSettingElement): void {
+	private refreshSingleElement(element: SettingsTreeSettingElement): cognidreamidream {
 		if (this.isVisible()) {
 			if (!element.setting.deprecationMessage || element.isConfigured) {
 				this.settingsTree.rerender(element);
@@ -1547,20 +1547,20 @@ export class SettingsEditor2 extends EditorPane {
 		}
 	}
 
-	private refreshTree(): void {
+	private refreshTree(): cognidreamidream {
 		if (this.isVisible() && this.currentSettingsModel) {
 			this.settingsTree.setChildren(null, createGroupIterator(this.currentSettingsModel.root));
 		}
 	}
 
-	private refreshTOCTree(): void {
+	private refreshTOCTree(): cognidreamidream {
 		if (this.isVisible()) {
 			this.tocTreeModel.update();
 			this.tocTree.setChildren(null, createTOCIterator(this.tocTreeModel, this.tocTree));
 		}
 	}
 
-	private updateModifiedLabelForKey(key: string): void {
+	private updateModifiedLabelForKey(key: string): cognidreamidream {
 		if (!this.currentSettingsModel) {
 			return;
 		}
@@ -1572,7 +1572,7 @@ export class SettingsEditor2 extends EditorPane {
 		}
 	}
 
-	private async onSearchInputChanged(): Promise<void> {
+	private async onSearchInputChanged(): Promise<cognidreamidream> {
 		if (!this.currentSettingsModel) {
 			// Initializing search widget value
 			return;
@@ -1605,7 +1605,7 @@ export class SettingsEditor2 extends EditorPane {
 		}
 	}
 
-	private async triggerSearch(query: string): Promise<void> {
+	private async triggerSearch(query: string): Promise<cognidreamidream> {
 		const progressRunner = this.editorProgressService.show(true, 800);
 		this.viewState.tagFilters = new Set<string>();
 		this.viewState.extensionFilters = new Set<string>();
@@ -1687,7 +1687,7 @@ export class SettingsEditor2 extends EditorPane {
 		return filterModel;
 	}
 
-	private async triggerFilterPreferences(query: string): Promise<void> {
+	private async triggerFilterPreferences(query: string): Promise<cognidreamidream> {
 		if (this.searchInProgress) {
 			this.searchInProgress.dispose(true);
 			this.searchInProgress = null;
@@ -1801,7 +1801,7 @@ export class SettingsEditor2 extends EditorPane {
 		}
 	}
 
-	private layoutSplitView(dimension: DOM.Dimension): void {
+	private layoutSplitView(dimension: DOM.Dimension): cognidreamidream {
 		if (!this.isVisible()) {
 			return;
 		}
@@ -1833,7 +1833,7 @@ export class SettingsEditor2 extends EditorPane {
 		}
 	}
 
-	protected override saveState(): void {
+	protected override saveState(): cognidreamidream {
 		if (this.isVisible()) {
 			const searchQuery = this.searchWidget.getValue().trim();
 			const target = this.settingsTargetsWidget.settingsTarget as SettingsTarget;
@@ -1897,7 +1897,7 @@ class SyncControls extends Disposable {
 		}));
 	}
 
-	private updateLastSyncedTime(): void {
+	private updateLastSyncedTime(): cognidreamidream {
 		const last = this.userDataSyncService.lastSyncTime;
 		let label: string;
 		if (typeof last === 'number') {
@@ -1911,7 +1911,7 @@ class SyncControls extends Disposable {
 		this._onDidChangeLastSyncedLabel.fire(label);
 	}
 
-	private update(): void {
+	private update(): cognidreamidream {
 		if (this.userDataSyncService.status === SyncStatus.Uninitialized) {
 			return;
 		}

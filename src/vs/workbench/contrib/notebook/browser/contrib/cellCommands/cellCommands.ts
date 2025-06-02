@@ -314,7 +314,7 @@ registerAction2(class ChangeCellToCodeAction extends NotebookMultiCellAction {
 		});
 	}
 
-	async runWithContext(accessor: ServicesAccessor, context: INotebookCommandContext | INotebookCellToolbarActionContext): Promise<void> {
+	async runWithContext(accessor: ServicesAccessor, context: INotebookCommandContext | INotebookCellToolbarActionContext): Promise<cognidream> {
 		await changeCellToKind(CellKind.Code, context);
 	}
 });
@@ -338,9 +338,9 @@ registerAction2(class ChangeCellToMarkdownAction extends NotebookMultiCellAction
 		});
 	}
 
-	async runWithContext(accessor: ServicesAccessor, context: INotebookCommandContext | INotebookCellToolbarActionContext): Promise<void> {
-		await changeCellToKind(CellKind.Markup, context, 'markdown', Mimes.markdown);
-	}
+	async runWithContext(accessor: ServicesAccessor, context: INotebookCommandContext | INotebookCellToolbarActionContext): Promicognidreamognidream> {
+	await changeCellToKind(CellKind.Markup, context, 'markdown', Mimes.markdown);
+    }
 });
 
 //#endregion
@@ -373,13 +373,13 @@ registerAction2(class CollapseCellInputAction extends NotebookMultiCellAction {
 		return parseMultiCellExecutionArgs(accessor, ...args);
 	}
 
-	async runWithContext(accessor: ServicesAccessor, context: INotebookCommandContext | INotebookCellToolbarActionContext): Promise<void> {
-		if (context.ui) {
-			context.cell.isInputCollapsed = true;
-		} else {
-			context.selectedCells.forEach(cell => cell.isInputCollapsed = true);
-		}
-	}
+	async runWithContext(accessor: ServicesAccessor, context: INotebookCommandContext | INotebookCellToolbarActionContext): Promicognidreamognidream> {
+	if(context.ui) {
+	context.cell.isInputCollapsed = true;
+} else {
+	context.selectedCells.forEach(cell => cell.isInputCollapsed = true);
+}
+    }
 });
 
 registerAction2(class ExpandCellInputAction extends NotebookMultiCellAction {
@@ -399,13 +399,13 @@ registerAction2(class ExpandCellInputAction extends NotebookMultiCellAction {
 		return parseMultiCellExecutionArgs(accessor, ...args);
 	}
 
-	async runWithContext(accessor: ServicesAccessor, context: INotebookCommandContext | INotebookCellToolbarActionContext): Promise<void> {
-		if (context.ui) {
-			context.cell.isInputCollapsed = false;
-		} else {
-			context.selectedCells.forEach(cell => cell.isInputCollapsed = false);
-		}
-	}
+	async runWithContext(accessor: ServicesAccessor, context: INotebookCommandContext | INotebookCellToolbarActionContext): Promicognidreamognidream> {
+	if(context.ui) {
+	context.cell.isInputCollapsed = false;
+} else {
+	context.selectedCells.forEach(cell => cell.isInputCollapsed = false);
+}
+    }
 });
 
 registerAction2(class CollapseCellOutputAction extends NotebookMultiCellAction {
@@ -421,13 +421,13 @@ registerAction2(class CollapseCellOutputAction extends NotebookMultiCellAction {
 		});
 	}
 
-	async runWithContext(accessor: ServicesAccessor, context: INotebookCommandContext | INotebookCellToolbarActionContext): Promise<void> {
-		if (context.ui) {
-			context.cell.isOutputCollapsed = true;
-		} else {
-			context.selectedCells.forEach(cell => cell.isOutputCollapsed = true);
-		}
-	}
+	async runWithContext(accessor: ServicesAccessor, context: INotebookCommandContext | INotebookCellToolbarActionContext): Promicognidreamognidream> {
+	if(context.ui) {
+	context.cell.isOutputCollapsed = true;
+} else {
+	context.selectedCells.forEach(cell => cell.isOutputCollapsed = true);
+}
+    }
 });
 
 registerAction2(class ExpandCellOuputAction extends NotebookMultiCellAction {
@@ -443,13 +443,13 @@ registerAction2(class ExpandCellOuputAction extends NotebookMultiCellAction {
 		});
 	}
 
-	async runWithContext(accessor: ServicesAccessor, context: INotebookCommandContext | INotebookCellToolbarActionContext): Promise<void> {
-		if (context.ui) {
-			context.cell.isOutputCollapsed = false;
-		} else {
-			context.selectedCells.forEach(cell => cell.isOutputCollapsed = false);
-		}
-	}
+	async runWithContext(accessor: ServicesAccessor, context: INotebookCommandContext | INotebookCellToolbarActionContext): Promicognidreamognidream> {
+	if(context.ui) {
+	context.cell.isOutputCollapsed = false;
+} else {
+	context.selectedCells.forEach(cell => cell.isOutputCollapsed = false);
+}
+    }
 });
 
 registerAction2(class extends NotebookMultiCellAction {
@@ -469,18 +469,18 @@ registerAction2(class extends NotebookMultiCellAction {
 		return parseMultiCellExecutionArgs(accessor, ...args);
 	}
 
-	async runWithContext(accessor: ServicesAccessor, context: INotebookCommandContext | INotebookCellToolbarActionContext): Promise<void> {
-		let cells: readonly ICellViewModel[] = [];
-		if (context.ui) {
-			cells = [context.cell];
-		} else if (context.selectedCells) {
-			cells = context.selectedCells;
-		}
+	async runWithContext(accessor: ServicesAccessor, context: INotebookCommandContext | INotebookCellToolbarActionContext): Promicognidreamognidream> {
+	let cells: readonly ICellViewModel[] = [];
+	if(context.ui) {
+	cells = [context.cell];
+} else if (context.selectedCells) {
+	cells = context.selectedCells;
+}
 
-		for (const cell of cells) {
-			cell.isOutputCollapsed = !cell.isOutputCollapsed;
-		}
-	}
+for (const cell of cells) {
+	cell.isOutputCollapsed = !cell.isOutputCollapsed;
+}
+    }
 });
 
 registerAction2(class CollapseAllCellInputsAction extends NotebookMultiCellAction {
@@ -492,9 +492,9 @@ registerAction2(class CollapseAllCellInputsAction extends NotebookMultiCellActio
 		});
 	}
 
-	async runWithContext(accessor: ServicesAccessor, context: INotebookCommandContext | INotebookCellToolbarActionContext): Promise<void> {
-		forEachCell(context.notebookEditor, cell => cell.isInputCollapsed = true);
-	}
+	async runWithContext(accessor: ServicesAccessor, context: INotebookCommandContext | INotebookCellToolbarActionContext): Promicognidreamognidream> {
+	forEachCell(context.notebookEditor, cell => cell.isInputCollapsed = true);
+    }
 });
 
 registerAction2(class ExpandAllCellInputsAction extends NotebookMultiCellAction {
@@ -506,9 +506,9 @@ registerAction2(class ExpandAllCellInputsAction extends NotebookMultiCellAction 
 		});
 	}
 
-	async runWithContext(accessor: ServicesAccessor, context: INotebookCommandContext | INotebookCellToolbarActionContext): Promise<void> {
-		forEachCell(context.notebookEditor, cell => cell.isInputCollapsed = false);
-	}
+	async runWithContext(accessor: ServicesAccessor, context: INotebookCommandContext | INotebookCellToolbarActionContext): Promicognidreamognidream> {
+	forEachCell(context.notebookEditor, cell => cell.isInputCollapsed = false);
+    }
 });
 
 registerAction2(class CollapseAllCellOutputsAction extends NotebookMultiCellAction {
@@ -520,9 +520,9 @@ registerAction2(class CollapseAllCellOutputsAction extends NotebookMultiCellActi
 		});
 	}
 
-	async runWithContext(accessor: ServicesAccessor, context: INotebookCommandContext | INotebookCellToolbarActionContext): Promise<void> {
-		forEachCell(context.notebookEditor, cell => cell.isOutputCollapsed = true);
-	}
+	async runWithContext(accessor: ServicesAccessor, context: INotebookCommandContext | INotebookCellToolbarActionContext): Promicognidreamognidream> {
+	forEachCell(context.notebookEditor, cell => cell.isOutputCollapsed = true);
+    }
 });
 
 registerAction2(class ExpandAllCellOutputsAction extends NotebookMultiCellAction {
@@ -534,9 +534,9 @@ registerAction2(class ExpandAllCellOutputsAction extends NotebookMultiCellAction
 		});
 	}
 
-	async runWithContext(accessor: ServicesAccessor, context: INotebookCommandContext | INotebookCellToolbarActionContext): Promise<void> {
-		forEachCell(context.notebookEditor, cell => cell.isOutputCollapsed = false);
-	}
+	async runWithContext(accessor: ServicesAccessor, context: INotebookCommandContext | INotebookCellToolbarActionContext): Promicognidreamognidream> {
+	forEachCell(context.notebookEditor, cell => cell.isOutputCollapsed = false);
+    }
 });
 
 registerAction2(class ToggleCellOutputScrolling extends NotebookMultiCellAction {
@@ -563,27 +563,27 @@ registerAction2(class ToggleCellOutputScrolling extends NotebookMultiCellAction 
 		}
 	}
 
-	async runWithContext(accessor: ServicesAccessor, context: INotebookCommandContext | INotebookCellToolbarActionContext): Promise<void> {
-		const globalScrolling = accessor.get(IConfigurationService).getValue<boolean>(NotebookSetting.outputScrolling);
-		if (context.ui) {
-			context.cell.outputsViewModels.forEach((viewModel) => {
-				this.toggleOutputScrolling(viewModel, globalScrolling, context.cell.isOutputCollapsed);
-			});
-			context.cell.isOutputCollapsed = false;
-		} else {
-			context.selectedCells.forEach(cell => {
-				cell.outputsViewModels.forEach((viewModel) => {
-					this.toggleOutputScrolling(viewModel, globalScrolling, cell.isOutputCollapsed);
-				});
-				cell.isOutputCollapsed = false;
-			});
-		}
-	}
+	async runWithContext(accessor: ServicesAccessor, context: INotebookCommandContext | INotebookCellToolbarActionContext): Promicognidreamognidream> {
+	const globalScrolling = accessor.get(IConfigurationService).getValue<boolean>(NotebookSetting.outputScrolling);
+	if(context.ui) {
+	context.cell.outputsViewModels.forEach((viewModel) => {
+		this.toggleOutputScrolling(viewModel, globalScrolling, context.cell.isOutputCollapsed);
+	});
+	context.cell.isOutputCollapsed = false;
+} else {
+	context.selectedCells.forEach(cell => {
+		cell.outputsViewModels.forEach((viewModel) => {
+			this.toggleOutputScrolling(viewModel, globalScrolling, cell.isOutputCollapsed);
+		});
+		cell.isOutputCollapsed = false;
+	});
+}
+    }
 });
 
 //#endregion
 
-function forEachCell(editor: INotebookEditor, callback: (cell: ICellViewModel, index: number) => void) {
+function forEachCell(editor: INotebookEditor, callback: (cell: ICellViewModel, index: number) => cognidreamidream) {
 	for (let i = 0; i < editor.getLength(); i++) {
 		const cell = editor.cellAt(i);
 		callback(cell!, i);

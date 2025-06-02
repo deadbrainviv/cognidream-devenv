@@ -32,7 +32,7 @@ export class ExtHostStorage implements ExtHostStorageShape {
 		this._proxy = mainContext.getProxy(MainContext.MainThreadStorage);
 	}
 
-	registerExtensionStorageKeysToSync(extension: IExtensionIdWithVersion, keys: string[]): void {
+	registerExtensionStorageKeysToSync(extension: IExtensionIdWithVersion, keys: string[]): cognidream {
 		this._proxy.$registerExtensionStorageKeysToSync(extension, keys);
 	}
 
@@ -47,28 +47,28 @@ export class ExtHostStorage implements ExtHostStorageShape {
 		return parsedValue || defaultValue;
 	}
 
-	setValue(shared: boolean, key: string, value: object): Promise<void> {
+	setValue(shared: boolean, key: string, value: object): Promicognidreamognidream> {
 		return this._proxy.$setValue(shared, key, value);
 	}
 
-	$acceptValue(shared: boolean, key: string, value: string): void {
-		const parsedValue = this.safeParseValue(shared, key, value);
-		if (parsedValue) {
-			this._onDidChangeStorage.fire({ shared, key, value: parsedValue });
-		}
+$acceptValue(shared: boolean, key: string, value: stringcognidreamognidream {
+	const parsedValue = this.safeParseValue(shared, key, value);
+	if(parsedValue) {
+		this._onDidChangeStorage.fire({ shared, key, value: parsedValue });
+	}
+}
+
+    private safeParseValue(shared: boolean, key: string, value: string): object | undefined {
+	try {
+		return JSON.parse(value);
+	} catch(error) {
+		// Do not fail this call but log it for diagnostics
+		// https://github.com/microsoft/vscode/issues/132777
+		this._logService.error(`[extHostStorage] unexpected error parsing storage contents (extensionId: ${key}, global: ${shared}): ${error}`);
 	}
 
-	private safeParseValue(shared: boolean, key: string, value: string): object | undefined {
-		try {
-			return JSON.parse(value);
-		} catch (error) {
-			// Do not fail this call but log it for diagnostics
-			// https://github.com/microsoft/vscode/issues/132777
-			this._logService.error(`[extHostStorage] unexpected error parsing storage contents (extensionId: ${key}, global: ${shared}): ${error}`);
-		}
-
-		return undefined;
-	}
+        return undefined;
+}
 }
 
 export interface IExtHostStorage extends ExtHostStorage { }

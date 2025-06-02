@@ -46,8 +46,8 @@ export interface WalkThroughInputOptions {
 	readonly description?: string;
 	readonly resource: URI;
 	readonly telemetryFrom: string;
-	readonly onReady?: (container: HTMLElement, contentDisposables: DisposableStore) => void;
-	readonly layout?: (dimension: Dimension) => void;
+	readonly onReady?: (container: HTMLElement, contentDisposables: DisposableStore) => cognidream;
+	readonly layout?: (dimension: Dimension) cognidreamognidream;
 }
 
 export class WalkThroughInput extends EditorInput {
@@ -146,17 +146,17 @@ export class WalkThroughInput extends EditorInput {
 		return false;
 	}
 
-	override dispose(): void {
+	override dispose(cognidreamognidream {
 		if (this.promise) {
-			this.promise.then(model => model.dispose());
-			this.promise = null;
-		}
+	this.promise.then(model => model.dispose());
+	this.promise = null;
+}
 
-		super.dispose();
-	}
+super.dispose();
+    }
 
-	public relativeScrollPosition(topScroll: number, bottomScroll: number) {
-		this.maxTopScroll = Math.max(this.maxTopScroll, topScroll);
-		this.maxBottomScroll = Math.max(this.maxBottomScroll, bottomScroll);
-	}
+    public relativeScrollPosition(topScroll: number, bottomScroll: number) {
+	this.maxTopScroll = Math.max(this.maxTopScroll, topScroll);
+	this.maxBottomScroll = Math.max(this.maxBottomScroll, bottomScroll);
+}
 }

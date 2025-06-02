@@ -87,7 +87,7 @@ class ReplacePreviewModel extends Disposable {
 		return replacePreviewModel;
 	}
 
-	private update(sourceModel: ITextModel, replacePreviewModel: ITextModel, fileMatch: ISearchTreeFileMatch, override: boolean = false): void {
+	private update(sourceModel: ITextModel, replacePreviewModel: ITextModel, fileMatch: ISearchTreeFileMatch, override: boolean = false): cognidream {
 		if (!sourceModel.isDisposed() && !replacePreviewModel.isDisposed()) {
 			this.replaceService.updateReplacePreview(fileMatch, override);
 		}
@@ -165,77 +165,77 @@ export class ReplaceService implements IReplaceService {
 		}
 	}
 
-	async updateReplacePreview(fileMatch: ISearchTreeFileMatch, override: boolean = false): Promise<void> {
+	async updateReplacePreview(fileMatch: ISearchTreeFileMatch, override: boolean = false): Promicognidreamognidream> {
 		const replacePreviewUri = toReplaceResource(fileMatch.resource);
 		const [sourceModelRef, replaceModelRef] = await Promise.all([this.textModelResolverService.createModelReference(fileMatch.resource), this.textModelResolverService.createModelReference(replacePreviewUri)]);
 		const sourceModel = sourceModelRef.object.textEditorModel;
 		const replaceModel = replaceModelRef.object.textEditorModel;
 		// If model is disposed do not update
 		try {
-			if (sourceModel && replaceModel) {
-				if (override) {
-					replaceModel.setValue(sourceModel.getValue());
-				} else {
-					replaceModel.undo();
-				}
-				this.applyEditsToPreview(fileMatch, replaceModel);
-			}
-		} finally {
-			sourceModelRef.dispose();
-			replaceModelRef.dispose();
-		}
+			if(sourceModel && replaceModel) {
+	if (override) {
+		replaceModel.setValue(sourceModel.getValue());
+	} else {
+		replaceModel.undo();
 	}
+	this.applyEditsToPreview(fileMatch, replaceModel);
+}
+        } finally {
+	sourceModelRef.dispose();
+	replaceModelRef.dispose();
+}
+    }
 
-	private applyEditsToPreview(fileMatch: ISearchTreeFileMatch, replaceModel: ITextModel): void {
-		const resourceEdits = this.createEdits(fileMatch, replaceModel.uri);
-		const modelEdits: ISingleEditOperation[] = [];
-		for (const resourceEdit of resourceEdits) {
-			modelEdits.push(EditOperation.replaceMove(
-				Range.lift(resourceEdit.textEdit.range),
-				resourceEdit.textEdit.text)
-			);
-		}
-		replaceModel.pushEditOperations([], modelEdits.sort((a, b) => Range.compareRangesUsingStarts(a.range, b.range)), () => []);
-	}
-
-	private createEdits(arg: FileMatchOrMatch | ISearchTreeFileMatch[], resource: URI | null = null): ResourceTextEdit[] {
-		const edits: ResourceTextEdit[] = [];
-
-		if (isSearchTreeMatch(arg)) {
-			if (!arg.isReadonly) {
-				if (isIMatchInNotebook(arg)) {
-					// only apply edits if it's not a webview match, since webview matches are read-only
-					const match = arg;
-					edits.push(this.createEdit(match, match.replaceString, match.cell?.uri));
-				} else {
-					const match = <ISearchTreeMatch>arg;
-					edits.push(this.createEdit(match, match.replaceString, resource));
-				}
-			}
-		}
-
-		if (isSearchTreeFileMatch(arg)) {
-			arg = [arg];
-		}
-
-		if (arg instanceof Array) {
-			arg.forEach(element => {
-				const fileMatch = <ISearchTreeFileMatch>element;
-				if (fileMatch.count() > 0) {
-					edits.push(...fileMatch.matches().flatMap(
-						match => this.createEdits(match, resource)
-					));
-				}
-			});
-		}
-		return edits;
-	}
-
-	private createEdit(match: ISearchTreeMatch, text: string, resource: URI | null = null): ResourceTextEdit {
-		const fileMatch: ISearchTreeFileMatch = match.parent();
-		return new ResourceTextEdit(
-			resource ?? fileMatch.resource,
-			{ range: match.range(), text }, undefined, undefined
+    private applyEditsToPreview(fileMatch: ISearchTreeFileMatch, replaceModel: ITextModelcognidreamognidream {
+	const resourceEdits = this.createEdits(fileMatch, replaceModel.uri);
+	const modelEdits: ISingleEditOperation[] = [];
+	for(const resourceEdit of resourceEdits) {
+		modelEdits.push(EditOperation.replaceMove(
+			Range.lift(resourceEdit.textEdit.range),
+			resourceEdit.textEdit.text)
 		);
 	}
+        replaceModel.pushEditOperations([], modelEdits.sort((a, b) => Range.compareRangesUsingStarts(a.range, b.range)), () => []);
+}
+
+    private createEdits(arg: FileMatchOrMatch | ISearchTreeFileMatch[], resource: URI | null = null): ResourceTextEdit[] {
+	const edits: ResourceTextEdit[] = [];
+
+	if(isSearchTreeMatch(arg)) {
+	if (!arg.isReadonly) {
+		if (isIMatchInNotebook(arg)) {
+			// only apply edits if it's not a webview match, since webview matches are read-only
+			const match = arg;
+			edits.push(this.createEdit(match, match.replaceString, match.cell?.uri));
+		} else {
+			const match = <ISearchTreeMatch>arg;
+			edits.push(this.createEdit(match, match.replaceString, resource));
+		}
+	}
+}
+
+if (isSearchTreeFileMatch(arg)) {
+	arg = [arg];
+}
+
+if (arg instanceof Array) {
+	arg.forEach(element => {
+		const fileMatch = <ISearchTreeFileMatch>element;
+		if (fileMatch.count() > 0) {
+			edits.push(...fileMatch.matches().flatMap(
+				match => this.createEdits(match, resource)
+			));
+		}
+	});
+}
+return edits;
+    }
+
+    private createEdit(match: ISearchTreeMatch, text: string, resource: URI | null = null): ResourceTextEdit {
+	const fileMatch: ISearchTreeFileMatch = match.parent();
+	return new ResourceTextEdit(
+		resource ?? fileMatch.resource,
+		{ range: match.range(), text }, undefined, undefined
+	);
+}
 }

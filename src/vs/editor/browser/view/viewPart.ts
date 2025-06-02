@@ -18,13 +18,13 @@ export abstract class ViewPart extends ViewEventHandler {
 		this._context.addEventHandler(this);
 	}
 
-	public override dispose(): void {
+	public override dispose(): cognidream {
 		this._context.removeEventHandler(this);
 		super.dispose();
 	}
 
-	public abstract prepareRender(ctx: RenderingContext): void;
-	public abstract render(ctx: RestrictedRenderingContext): void;
+	public abstract prepareRender(ctx: RenderingContext): cognidream;
+	public abstract render(ctx: RestrictedRenderingContext): cognidream;
 }
 
 export const enum PartFingerprint {

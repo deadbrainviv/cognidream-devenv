@@ -112,7 +112,7 @@ export class MergeEditor extends AbstractTextEditor<IMergeEditorViewState> {
 		super(MergeEditor.ID, group, telemetryService, instantiation, storageService, textResourceConfigurationService, themeService, editorService, editorGroupService, fileService);
 	}
 
-	override dispose(): void {
+	override dispose(): cognidream {
 		this._sessionDisposables.dispose();
 		this._ctxIsMergeEditor.reset();
 		this._ctxUsesColumnLayout.reset();
@@ -122,549 +122,549 @@ export class MergeEditor extends AbstractTextEditor<IMergeEditorViewState> {
 
 	// #region layout constraints
 
-	private readonly _onDidChangeSizeConstraints = new Emitter<void>();
-	override readonly onDidChangeSizeConstraints: Event<void> = this._onDidChangeSizeConstraints.event;
+	private readonly _onDidChangeSizeConstraints = new Emittcognidreamognidream > ();
+	override readonly onDidChangeSizeConstraints: Evecognidreamognidream> = this._onDidChangeSizeConstraints.event;
 
-	override get minimumWidth() {
-		return this._layoutMode.value.kind === 'mixed'
-			? this.input1View.view.minimumWidth + this.input2View.view.minimumWidth
-			: this.input1View.view.minimumWidth + this.input2View.view.minimumWidth + this.inputResultView.view.minimumWidth;
+    override get minimumWidth() {
+	return this._layoutMode.value.kind === 'mixed'
+		? this.input1View.view.minimumWidth + this.input2View.view.minimumWidth
+		: this.input1View.view.minimumWidth + this.input2View.view.minimumWidth + this.inputResultView.view.minimumWidth;
+}
+
+    // #endregion
+
+    override getTitle(): string {
+	if (this.input) {
+		return this.input.getName();
 	}
 
-	// #endregion
+	return localize('mergeEditor', "Text Merge Editor");
+}
 
-	override getTitle(): string {
-		if (this.input) {
-			return this.input.getName();
-		}
+    protected createEditorControl(parent: HTMLElement, initialOptions: ICodeEditorOptionscognidreamognidream {
+	this.rootHtmlElement = parent;
+	parent.classList.add('merge-editor');
+	this.applyLayout(this._layoutMode.value);
+	this.applyOptions(initialOptions);
+}
 
-		return localize('mergeEditor', "Text Merge Editor");
-	}
+    protected updateEditorControlOptions(options: ICodeEditorOptionscognidreamognidream {
+	this.applyOptions(options);
+}
 
-	protected createEditorControl(parent: HTMLElement, initialOptions: ICodeEditorOptions): void {
-		this.rootHtmlElement = parent;
-		parent.classList.add('merge-editor');
-		this.applyLayout(this._layoutMode.value);
-		this.applyOptions(initialOptions);
-	}
+    private applyOptions(options: ICodeEditorOptionscognidreamognidream {
+	const inputOptions: ICodeEditorOptions = deepMerge<ICodeEditorOptions>(options, {
+		minimap: { enabled: false },
+		glyphMargin: false,
+		lineNumbersMinChars: 2
+	});
 
-	protected updateEditorControlOptions(options: ICodeEditorOptions): void {
-		this.applyOptions(options);
-	}
+	const readOnlyInputOptions: ICodeEditorOptions = deepMerge<ICodeEditorOptions>(inputOptions, {
+		readOnly: true,
+		readOnlyMessage: undefined
+	});
 
-	private applyOptions(options: ICodeEditorOptions): void {
-		const inputOptions: ICodeEditorOptions = deepMerge<ICodeEditorOptions>(options, {
-			minimap: { enabled: false },
-			glyphMargin: false,
-			lineNumbersMinChars: 2
-		});
+	this.input1View.updateOptions(readOnlyInputOptions);
+	this.input2View.updateOptions(readOnlyInputOptions);
+	this.baseViewOptions.set({ ...this.input2View.editor.getRawOptions() }, undefined);
+	this.inputResultView.updateOptions(inputOptions);
+}
 
-		const readOnlyInputOptions: ICodeEditorOptions = deepMerge<ICodeEditorOptions>(inputOptions, {
-			readOnly: true,
-			readOnlyMessage: undefined
-		});
+    protected getMainControl(): ICodeEditor | undefined {
+	return this.inputResultView.editor;
+}
 
-		this.input1View.updateOptions(readOnlyInputOptions);
-		this.input2View.updateOptions(readOnlyInputOptions);
-		this.baseViewOptions.set({ ...this.input2View.editor.getRawOptions() }, undefined);
-		this.inputResultView.updateOptions(inputOptions);
-	}
+    layout(dimension: Dimensioncognidreamognidream {
+	this._grid.value?.layout(dimension.width, dimension.height);
+}
 
-	protected getMainControl(): ICodeEditor | undefined {
-		return this.inputResultView.editor;
-	}
+    override async setInput(input: EditorInput, options: IEditorOptions | undefined, context: IEditorOpenContext, token: CancellationToken): Promicognidreamognidream > {
+	if(!(input instanceof MergeEditorInput)) {
+	throw new BugIndicatingError('ONLY MergeEditorInput is supported');
+}
+        await super.setInput(input, options, context, token);
 
-	layout(dimension: Dimension): void {
-		this._grid.value?.layout(dimension.width, dimension.height);
-	}
+this._sessionDisposables.clear();
+transaction(tx => {
+	this._viewModel.set(undefined, tx);
+	this._inputModel.set(undefined, tx);
+});
 
-	override async setInput(input: EditorInput, options: IEditorOptions | undefined, context: IEditorOpenContext, token: CancellationToken): Promise<void> {
-		if (!(input instanceof MergeEditorInput)) {
-			throw new BugIndicatingError('ONLY MergeEditorInput is supported');
-		}
-		await super.setInput(input, options, context, token);
+const inputModel = await input.resolve();
+const model = inputModel.model;
 
-		this._sessionDisposables.clear();
-		transaction(tx => {
-			this._viewModel.set(undefined, tx);
-			this._inputModel.set(undefined, tx);
-		});
+const viewModel = this.instantiationService.createInstance(
+	MergeEditorViewModel,
+	model,
+	this.input1View,
+	this.input2View,
+	this.inputResultView,
+	this.baseView,
+	this.showNonConflictingChanges,
+);
 
-		const inputModel = await input.resolve();
-		const model = inputModel.model;
+model.telemetry.reportMergeEditorOpened({
+	combinableConflictCount: model.combinableConflictCount,
+	conflictCount: model.conflictCount,
 
-		const viewModel = this.instantiationService.createInstance(
-			MergeEditorViewModel,
-			model,
-			this.input1View,
-			this.input2View,
-			this.inputResultView,
-			this.baseView,
-			this.showNonConflictingChanges,
-		);
+	baseTop: this._layoutModeObs.get().showBaseAtTop,
+	baseVisible: this._layoutModeObs.get().showBase,
+	isColumnView: this._layoutModeObs.get().kind === 'columns',
+});
 
-		model.telemetry.reportMergeEditorOpened({
-			combinableConflictCount: model.combinableConflictCount,
-			conflictCount: model.conflictCount,
+transaction(tx => {
+	this._viewModel.set(viewModel, tx);
+	this._inputModel.set(inputModel, tx);
+});
+this._sessionDisposables.add(viewModel);
 
-			baseTop: this._layoutModeObs.get().showBaseAtTop,
-			baseVisible: this._layoutModeObs.get().showBase,
-			isColumnView: this._layoutModeObs.get().kind === 'columns',
-		});
+// Set/unset context keys based on input
+this._ctxResultUri.set(inputModel.resultUri.toString());
+this._ctxBaseUri.set(model.base.uri.toString());
+this._sessionDisposables.add(toDisposable(() => {
+	this._ctxBaseUri.reset();
+	this._ctxResultUri.reset();
+}));
 
-		transaction(tx => {
-			this._viewModel.set(viewModel, tx);
-			this._inputModel.set(inputModel, tx);
-		});
-		this._sessionDisposables.add(viewModel);
+// Set the view zones before restoring view state!
+// Otherwise scrolling will be off
+this._sessionDisposables.add(autorunWithStore((reader, store) => {
+	/** @description update alignment view zones */
+	const baseView = this.baseView.read(reader);
 
-		// Set/unset context keys based on input
-		this._ctxResultUri.set(inputModel.resultUri.toString());
-		this._ctxBaseUri.set(model.base.uri.toString());
-		this._sessionDisposables.add(toDisposable(() => {
-			this._ctxBaseUri.reset();
-			this._ctxResultUri.reset();
-		}));
+	this.inputResultView.editor.changeViewZones(resultViewZoneAccessor => {
+		const layout = this._layoutModeObs.read(reader);
+		const shouldAlignResult = layout.kind === 'columns';
+		const shouldAlignBase = layout.kind === 'mixed' && !layout.showBaseAtTop;
 
-		// Set the view zones before restoring view state!
-		// Otherwise scrolling will be off
-		this._sessionDisposables.add(autorunWithStore((reader, store) => {
-			/** @description update alignment view zones */
-			const baseView = this.baseView.read(reader);
-
-			this.inputResultView.editor.changeViewZones(resultViewZoneAccessor => {
-				const layout = this._layoutModeObs.read(reader);
-				const shouldAlignResult = layout.kind === 'columns';
-				const shouldAlignBase = layout.kind === 'mixed' && !layout.showBaseAtTop;
-
-				this.input1View.editor.changeViewZones(input1ViewZoneAccessor => {
-					this.input2View.editor.changeViewZones(input2ViewZoneAccessor => {
-						if (baseView) {
-							baseView.editor.changeViewZones(baseViewZoneAccessor => {
-								store.add(this.setViewZones(reader,
-									viewModel,
-									this.input1View.editor,
-									input1ViewZoneAccessor,
-									this.input2View.editor,
-									input2ViewZoneAccessor,
-									baseView.editor,
-									baseViewZoneAccessor,
-									shouldAlignBase,
-									this.inputResultView.editor,
-									resultViewZoneAccessor,
-									shouldAlignResult
-								));
-							});
-						} else {
-							store.add(this.setViewZones(reader,
-								viewModel,
-								this.input1View.editor,
-								input1ViewZoneAccessor,
-								this.input2View.editor,
-								input2ViewZoneAccessor,
-								undefined,
-								undefined,
-								false,
-								this.inputResultView.editor,
-								resultViewZoneAccessor,
-								shouldAlignResult
-							));
-						}
+		this.input1View.editor.changeViewZones(input1ViewZoneAccessor => {
+			this.input2View.editor.changeViewZones(input2ViewZoneAccessor => {
+				if (baseView) {
+					baseView.editor.changeViewZones(baseViewZoneAccessor => {
+						store.add(this.setViewZones(reader,
+							viewModel,
+							this.input1View.editor,
+							input1ViewZoneAccessor,
+							this.input2View.editor,
+							input2ViewZoneAccessor,
+							baseView.editor,
+							baseViewZoneAccessor,
+							shouldAlignBase,
+							this.inputResultView.editor,
+							resultViewZoneAccessor,
+							shouldAlignResult
+						));
 					});
-				});
+				} else {
+					store.add(this.setViewZones(reader,
+						viewModel,
+						this.input1View.editor,
+						input1ViewZoneAccessor,
+						this.input2View.editor,
+						input2ViewZoneAccessor,
+						undefined,
+						undefined,
+						false,
+						this.inputResultView.editor,
+						resultViewZoneAccessor,
+						shouldAlignResult
+					));
+				}
 			});
-
-			this.scrollSynchronizer.updateScrolling();
-		}));
-
-		const viewState = this.loadEditorViewState(input, context);
-		if (viewState) {
-			this._applyViewState(viewState);
-		} else {
-			this._sessionDisposables.add(thenIfNotDisposed(model.onInitialized, () => {
-				const firstConflict = model.modifiedBaseRanges.get().find(r => r.isConflicting);
-				if (!firstConflict) {
-					return;
-				}
-				this.input1View.editor.revealLineInCenter(firstConflict.input1Range.startLineNumber);
-				transaction(tx => {
-					/** @description setActiveModifiedBaseRange */
-					viewModel.setActiveModifiedBaseRange(firstConflict, tx);
-				});
-			}));
-		}
-
-		// word wrap special case - sync transient state from result model to input[1|2] models
-		const mirrorWordWrapTransientState = (candidate: ITextModel) => {
-			const candidateState = readTransientState(candidate, this._codeEditorService);
-
-			writeTransientState(model.input2.textModel, candidateState, this._codeEditorService);
-			writeTransientState(model.input1.textModel, candidateState, this._codeEditorService);
-			writeTransientState(model.resultTextModel, candidateState, this._codeEditorService);
-
-			const baseTextModel = this.baseView.get()?.editor.getModel();
-			if (baseTextModel) {
-				writeTransientState(baseTextModel, candidateState, this._codeEditorService);
-			}
-		};
-		this._sessionDisposables.add(this._codeEditorService.onDidChangeTransientModelProperty(candidate => {
-			mirrorWordWrapTransientState(candidate);
-		}));
-		mirrorWordWrapTransientState(this.inputResultView.editor.getModel()!);
-
-		// detect when base, input1, and input2 become empty and replace THIS editor with its result editor
-		// TODO@jrieken@hediet this needs a better/cleaner solution
-		// https://github.com/microsoft/vscode/issues/155940
-		const that = this;
-		this._sessionDisposables.add(new class {
-
-			private readonly _disposable = new DisposableStore();
-
-			constructor() {
-				for (const model of this.baseInput1Input2()) {
-					this._disposable.add(model.onDidChangeContent(() => this._checkBaseInput1Input2AllEmpty()));
-				}
-			}
-
-			dispose() {
-				this._disposable.dispose();
-			}
-
-			private *baseInput1Input2() {
-				yield model.base;
-				yield model.input1.textModel;
-				yield model.input2.textModel;
-			}
-
-			private _checkBaseInput1Input2AllEmpty() {
-				for (const model of this.baseInput1Input2()) {
-					if (model.getValueLength() > 0) {
-						return;
-					}
-				}
-				// all empty -> replace this editor with a normal editor for result
-				that.editorService.replaceEditors(
-					[{ editor: input, replacement: { resource: input.result, options: { preserveFocus: true } }, forceReplaceDirty: true }],
-					that.group
-				);
-			}
 		});
+	});
+
+	this.scrollSynchronizer.updateScrolling();
+}));
+
+const viewState = this.loadEditorViewState(input, context);
+if (viewState) {
+	this._applyViewState(viewState);
+} else {
+	this._sessionDisposables.add(thenIfNotDisposed(model.onInitialized, () => {
+		const firstConflict = model.modifiedBaseRanges.get().find(r => r.isConflicting);
+		if (!firstConflict) {
+			return;
+		}
+		this.input1View.editor.revealLineInCenter(firstConflict.input1Range.startLineNumber);
+		transaction(tx => {
+			/** @description setActiveModifiedBaseRange */
+			viewModel.setActiveModifiedBaseRange(firstConflict, tx);
+		});
+	}));
+}
+
+// word wrap special case - sync transient state from result model to input[1|2] models
+const mirrorWordWrapTransientState = (candidate: ITextModel) => {
+	const candidateState = readTransientState(candidate, this._codeEditorService);
+
+	writeTransientState(model.input2.textModel, candidateState, this._codeEditorService);
+	writeTransientState(model.input1.textModel, candidateState, this._codeEditorService);
+	writeTransientState(model.resultTextModel, candidateState, this._codeEditorService);
+
+	const baseTextModel = this.baseView.get()?.editor.getModel();
+	if (baseTextModel) {
+		writeTransientState(baseTextModel, candidateState, this._codeEditorService);
+	}
+};
+this._sessionDisposables.add(this._codeEditorService.onDidChangeTransientModelProperty(candidate => {
+	mirrorWordWrapTransientState(candidate);
+}));
+mirrorWordWrapTransientState(this.inputResultView.editor.getModel()!);
+
+// detect when base, input1, and input2 become empty and replace THIS editor with its result editor
+// TODO@jrieken@hediet this needs a better/cleaner solution
+// https://github.com/microsoft/vscode/issues/155940
+const that = this;
+this._sessionDisposables.add(new class {
+
+	private readonly _disposable = new DisposableStore();
+
+	constructor() {
+		for (const model of this.baseInput1Input2()) {
+			this._disposable.add(model.onDidChangeContent(() => this._checkBaseInput1Input2AllEmpty()));
+		}
 	}
 
-	private setViewZones(
-		reader: IReader,
-		viewModel: MergeEditorViewModel,
-		input1Editor: ICodeEditor,
-		input1ViewZoneAccessor: IViewZoneChangeAccessor,
-		input2Editor: ICodeEditor,
-		input2ViewZoneAccessor: IViewZoneChangeAccessor,
-		baseEditor: ICodeEditor | undefined,
-		baseViewZoneAccessor: IViewZoneChangeAccessor | undefined,
-		shouldAlignBase: boolean,
-		resultEditor: ICodeEditor,
-		resultViewZoneAccessor: IViewZoneChangeAccessor,
-		shouldAlignResult: boolean,
-	): IDisposable {
-		const input1ViewZoneIds: string[] = [];
-		const input2ViewZoneIds: string[] = [];
-		const baseViewZoneIds: string[] = [];
-		const resultViewZoneIds: string[] = [];
+	dispose() {
+		this._disposable.dispose();
+	}
 
-		const viewZones = this.viewZoneComputer.computeViewZones(reader, viewModel, {
-			codeLensesVisible: true,
-			showNonConflictingChanges: this.showNonConflictingChanges.read(reader),
-			shouldAlignBase,
-			shouldAlignResult,
-		});
+	private *baseInput1Input2() {
+		yield model.base;
+		yield model.input1.textModel;
+		yield model.input2.textModel;
+	}
 
-		const disposableStore = new DisposableStore();
-
-		if (baseViewZoneAccessor) {
-			for (const v of viewZones.baseViewZones) {
-				v.create(baseViewZoneAccessor, baseViewZoneIds, disposableStore);
+	private _checkBaseInput1Input2AllEmpty() {
+		for (const model of this.baseInput1Input2()) {
+			if (model.getValueLength() > 0) {
+				return;
 			}
 		}
-
-		for (const v of viewZones.resultViewZones) {
-			v.create(resultViewZoneAccessor, resultViewZoneIds, disposableStore);
-		}
-
-		for (const v of viewZones.input1ViewZones) {
-			v.create(input1ViewZoneAccessor, input1ViewZoneIds, disposableStore);
-		}
-
-		for (const v of viewZones.input2ViewZones) {
-			v.create(input2ViewZoneAccessor, input2ViewZoneIds, disposableStore);
-		}
-
-		disposableStore.add({
-			dispose: () => {
-				input1Editor.changeViewZones(a => {
-					for (const zone of input1ViewZoneIds) {
-						a.removeZone(zone);
-					}
-				});
-				input2Editor.changeViewZones(a => {
-					for (const zone of input2ViewZoneIds) {
-						a.removeZone(zone);
-					}
-				});
-				baseEditor?.changeViewZones(a => {
-					for (const zone of baseViewZoneIds) {
-						a.removeZone(zone);
-					}
-				});
-				resultEditor.changeViewZones(a => {
-					for (const zone of resultViewZoneIds) {
-						a.removeZone(zone);
-					}
-				});
-			}
-		});
-
-		return disposableStore;
+		// all empty -> replace this editor with a normal editor for result
+		that.editorService.replaceEditors(
+			[{ editor: input, replacement: { resource: input.result, options: { preserveFocus: true } }, forceReplaceDirty: true }],
+			that.group
+		);
 	}
+});
+    }
 
-	override setOptions(options: ITextEditorOptions | undefined): void {
-		super.setOptions(options);
+    private setViewZones(
+	reader: IReader,
+	viewModel: MergeEditorViewModel,
+	input1Editor: ICodeEditor,
+	input1ViewZoneAccessor: IViewZoneChangeAccessor,
+	input2Editor: ICodeEditor,
+	input2ViewZoneAccessor: IViewZoneChangeAccessor,
+	baseEditor: ICodeEditor | undefined,
+	baseViewZoneAccessor: IViewZoneChangeAccessor | undefined,
+	shouldAlignBase: boolean,
+	resultEditor: ICodeEditor,
+	resultViewZoneAccessor: IViewZoneChangeAccessor,
+	shouldAlignResult: boolean,
+): IDisposable {
+	const input1ViewZoneIds: string[] = [];
+	const input2ViewZoneIds: string[] = [];
+	const baseViewZoneIds: string[] = [];
+	const resultViewZoneIds: string[] = [];
 
-		if (options) {
-			applyTextEditorOptions(options, this.inputResultView.editor, ScrollType.Smooth);
+	const viewZones = this.viewZoneComputer.computeViewZones(reader, viewModel, {
+		codeLensesVisible: true,
+		showNonConflictingChanges: this.showNonConflictingChanges.read(reader),
+		shouldAlignBase,
+		shouldAlignResult,
+	});
+
+	const disposableStore = new DisposableStore();
+
+	if (baseViewZoneAccessor) {
+		for (const v of viewZones.baseViewZones) {
+			v.create(baseViewZoneAccessor, baseViewZoneIds, disposableStore);
 		}
 	}
 
-	override clearInput(): void {
-		super.clearInput();
-
-		this._sessionDisposables.clear();
-
-		for (const { editor } of [this.input1View, this.input2View, this.inputResultView]) {
-			editor.setModel(null);
-		}
+	for (const v of viewZones.resultViewZones) {
+		v.create(resultViewZoneAccessor, resultViewZoneIds, disposableStore);
 	}
 
-	override focus(): void {
+	for (const v of viewZones.input1ViewZones) {
+		v.create(input1ViewZoneAccessor, input1ViewZoneIds, disposableStore);
+	}
+
+	for (const v of viewZones.input2ViewZones) {
+		v.create(input2ViewZoneAccessor, input2ViewZoneIds, disposableStore);
+	}
+
+	disposableStore.add({
+		dispose: () => {
+			input1Editor.changeViewZones(a => {
+				for (const zone of input1ViewZoneIds) {
+					a.removeZone(zone);
+				}
+			});
+			input2Editor.changeViewZones(a => {
+				for (const zone of input2ViewZoneIds) {
+					a.removeZone(zone);
+				}
+			});
+			baseEditor?.changeViewZones(a => {
+				for (const zone of baseViewZoneIds) {
+					a.removeZone(zone);
+				}
+			});
+			resultEditor.changeViewZones(a => {
+				for (const zone of resultViewZoneIds) {
+					a.removeZone(zone);
+				}
+			});
+		}
+	});
+
+	return disposableStore;
+}
+
+    override setOptions(options: ITextEditorOptions | undefinedcognidreamognidream {
+	super.setOptions(options);
+
+	if(options) {
+		applyTextEditorOptions(options, this.inputResultView.editor, ScrollType.Smooth);
+	}
+}
+
+    override clearInput(cognidreamognidream {
+	super.clearInput();
+
+	this._sessionDisposables.clear();
+
+	for(const { editor } of [this.input1View, this.input2View, this.inputResultView]) {
+	editor.setModel(null);
+}
+    }
+
+	override focus(cognidreamognidream {
 		super.focus();
 
-		(this.getControl() ?? this.inputResultView.editor).focus();
-	}
+        (this.getControl() ?? this.inputResultView.editor).focus();
+    }
 
-	override hasFocus(): boolean {
-		for (const { editor } of [this.input1View, this.input2View, this.inputResultView]) {
-			if (editor.hasTextFocus()) {
-				return true;
-			}
-		}
-		return super.hasFocus();
-	}
-
-	protected override setEditorVisible(visible: boolean): void {
-		super.setEditorVisible(visible);
-
-		for (const { editor } of [this.input1View, this.input2View, this.inputResultView]) {
-			if (visible) {
-				editor.onVisible();
-			} else {
-				editor.onHide();
-			}
-		}
-
-		this._ctxIsMergeEditor.set(visible);
-	}
-
-	// ---- interact with "outside world" via`getControl`, `scopedContextKeyService`: we only expose the result-editor keep the others internal
-
-	override getControl(): ICodeEditor | undefined {
-		return this.inputResultView.editor;
-	}
-
-	override get scopedContextKeyService(): IContextKeyService | undefined {
-		const control = this.getControl();
-		return control?.invokeWithinContext(accessor => accessor.get(IContextKeyService));
-	}
-
-	// --- layout
-
-	public toggleBase(): void {
-		this.setLayout({
-			...this._layoutMode.value,
-			showBase: !this._layoutMode.value.showBase
-		});
-	}
-
-	public toggleShowBaseTop(): void {
-		const showBaseTop = this._layoutMode.value.showBase && this._layoutMode.value.showBaseAtTop;
-		this.setLayout({
-			...this._layoutMode.value,
-			showBaseAtTop: true,
-			showBase: !showBaseTop,
-		});
-	}
-
-	public toggleShowBaseCenter(): void {
-		const showBaseCenter = this._layoutMode.value.showBase && !this._layoutMode.value.showBaseAtTop;
-		this.setLayout({
-			...this._layoutMode.value,
-			showBaseAtTop: false,
-			showBase: !showBaseCenter,
-		});
-	}
-
-	public setLayoutKind(kind: MergeEditorLayoutKind): void {
-		this.setLayout({
-			...this._layoutMode.value,
-			kind
-		});
-	}
-
-	public setLayout(newLayout: IMergeEditorLayout): void {
-		const value = this._layoutMode.value;
-		if (JSON.stringify(value) === JSON.stringify(newLayout)) {
-			return;
-		}
-		this.model?.telemetry.reportLayoutChange({
-			baseTop: newLayout.showBaseAtTop,
-			baseVisible: newLayout.showBase,
-			isColumnView: newLayout.kind === 'columns',
-		});
-		this.applyLayout(newLayout);
-	}
-
-	private readonly baseViewDisposables = this._register(new DisposableStore());
-
-	private applyLayout(layout: IMergeEditorLayout): void {
-		transaction(tx => {
-			/** @description applyLayout */
-
-			if (layout.showBase && !this.baseView.get()) {
-				this.baseViewDisposables.clear();
-				const baseView = this.baseViewDisposables.add(
-					this.instantiationService.createInstance(
-						BaseCodeEditorView,
-						this.viewModel
-					)
-				);
-				this.baseViewDisposables.add(autorun(reader => {
-					/** @description Update base view options */
-					const options = this.baseViewOptions.read(reader);
-					if (options) {
-						baseView.updateOptions(options);
-					}
-				}));
-				this.baseView.set(baseView, tx);
-			} else if (!layout.showBase && this.baseView.get()) {
-				this.baseView.set(undefined, tx);
-				this.baseViewDisposables.clear();
-			}
-
-			if (layout.kind === 'mixed') {
-				this.setGrid([
-					layout.showBaseAtTop && layout.showBase ? {
-						size: 38,
-						data: this.baseView.get()!.view
-					} : undefined,
-					{
-						size: 38,
-						groups: [
-							{ data: this.input1View.view },
-							!layout.showBaseAtTop && layout.showBase ? { data: this.baseView.get()!.view } : undefined,
-							{ data: this.input2View.view }
-						].filter(isDefined)
-					},
-					{
-						size: 62,
-						data: this.inputResultView.view
-					},
-				].filter(isDefined));
-			} else if (layout.kind === 'columns') {
-				this.setGrid([
-					layout.showBase ? {
-						size: 40,
-						data: this.baseView.get()!.view
-					} : undefined,
-					{
-						size: 60,
-						groups: [{ data: this.input1View.view }, { data: this.inputResultView.view }, { data: this.input2View.view }]
-					},
-				].filter(isDefined));
-			}
-
-			this._layoutMode.value = layout;
-			this._ctxUsesColumnLayout.set(layout.kind);
-			this._ctxShowBase.set(layout.showBase);
-			this._ctxShowBaseAtTop.set(layout.showBaseAtTop);
-			this._onDidChangeSizeConstraints.fire();
-			this._layoutModeObs.set(layout, tx);
-		});
-	}
-
-	private setGrid(descriptor: GridNodeDescriptor<any>[]) {
-		let width = -1;
-		let height = -1;
-		if (this._grid.value) {
-			width = this._grid.value.width;
-			height = this._grid.value.height;
-		}
-		this._grid.value = SerializableGrid.from<any>({
-			orientation: Orientation.VERTICAL,
-			size: 100,
-			groups: descriptor,
-		}, {
-			styles: { separatorBorder: this.theme.getColor(settingsSashBorder) ?? Color.transparent },
-			proportionalLayout: true
-		});
-
-		reset(this.rootHtmlElement!, this._grid.value.element);
-		// Only call layout after the elements have been added to the DOM,
-		// so that they have a defined size.
-		if (width !== -1) {
-			this._grid.value.layout(width, height);
+    override hasFocus(): boolean {
+	for (const { editor } of [this.input1View, this.input2View, this.inputResultView]) {
+		if (editor.hasTextFocus()) {
+			return true;
 		}
 	}
+	return super.hasFocus();
+}
 
-	private _applyViewState(state: IMergeEditorViewState | undefined) {
-		if (!state) {
-			return;
-		}
-		this.inputResultView.editor.restoreViewState(state);
-		if (state.input1State) {
-			this.input1View.editor.restoreViewState(state.input1State);
-		}
-		if (state.input2State) {
-			this.input2View.editor.restoreViewState(state.input2State);
-		}
-		if (state.focusIndex >= 0) {
-			[this.input1View.editor, this.input2View.editor, this.inputResultView.editor][state.focusIndex].focus();
-		}
+    protected override setEditorVisible(visible: booleancognidreamognidream {
+	super.setEditorVisible(visible);
+
+	for(const { editor } of [this.input1View, this.input2View, this.inputResultView]) {
+	if (visible) {
+		editor.onVisible();
+	} else {
+		editor.onHide();
 	}
+}
 
-	protected computeEditorViewState(resource: URI): IMergeEditorViewState | undefined {
-		if (!isEqual(this.inputModel.get()?.resultUri, resource)) {
-			return undefined;
+this._ctxIsMergeEditor.set(visible);
+    }
+
+    // ---- interact with "outside world" via`getControl`, `scopedContextKeyService`: we only expose the result-editor keep the others internal
+
+    override getControl(): ICodeEditor | undefined {
+	return this.inputResultView.editor;
+}
+
+    override get scopedContextKeyService(): IContextKeyService | undefined {
+	const control = this.getControl();
+	return control?.invokeWithinContext(accessor => accessor.get(IContextKeyService));
+}
+
+    // --- layout
+
+    public toggleBase(cognidreamognidream {
+	this.setLayout({
+		...this._layoutMode.value,
+		showBase: !this._layoutMode.value.showBase
+	});
+}
+
+    public toggleShowBaseTop(cognidreamognidream {
+	const showBaseTop = this._layoutMode.value.showBase && this._layoutMode.value.showBaseAtTop;
+	this.setLayout({
+		...this._layoutMode.value,
+		showBaseAtTop: true,
+		showBase: !showBaseTop,
+	});
+}
+
+    public toggleShowBaseCenter(cognidreamognidream {
+	const showBaseCenter = this._layoutMode.value.showBase && !this._layoutMode.value.showBaseAtTop;
+	this.setLayout({
+		...this._layoutMode.value,
+		showBaseAtTop: false,
+		showBase: !showBaseCenter,
+	});
+}
+
+    public setLayoutKind(kind: MergeEditorLayoutKindcognidreamognidream {
+	this.setLayout({
+		...this._layoutMode.value,
+		kind
+	});
+}
+
+    public setLayout(newLayout: IMergeEditorLayoutcognidreamognidream {
+	const value = this._layoutMode.value;
+	if(JSON.stringify(value) === JSON.stringify(newLayout)) {
+	return;
+}
+        this.model?.telemetry.reportLayoutChange({
+	baseTop: newLayout.showBaseAtTop,
+	baseVisible: newLayout.showBase,
+	isColumnView: newLayout.kind === 'columns',
+});
+this.applyLayout(newLayout);
+    }
+
+    private readonly baseViewDisposables = this._register(new DisposableStore());
+
+    private applyLayout(layout: IMergeEditorLayoutcognidreamognidream {
+	transaction(tx => {
+		/** @description applyLayout */
+
+		if (layout.showBase && !this.baseView.get()) {
+	this.baseViewDisposables.clear();
+	const baseView = this.baseViewDisposables.add(
+		this.instantiationService.createInstance(
+			BaseCodeEditorView,
+			this.viewModel
+		)
+	);
+	this.baseViewDisposables.add(autorun(reader => {
+		/** @description Update base view options */
+		const options = this.baseViewOptions.read(reader);
+		if (options) {
+			baseView.updateOptions(options);
 		}
-		const result = this.inputResultView.editor.saveViewState();
-		if (!result) {
-			return undefined;
-		}
-		const input1State = this.input1View.editor.saveViewState() ?? undefined;
-		const input2State = this.input2View.editor.saveViewState() ?? undefined;
-		const focusIndex = [this.input1View.editor, this.input2View.editor, this.inputResultView.editor].findIndex(editor => editor.hasWidgetFocus());
-		return { ...result, input1State, input2State, focusIndex };
+	}));
+	this.baseView.set(baseView, tx);
+} else if (!layout.showBase && this.baseView.get()) {
+	this.baseView.set(undefined, tx);
+	this.baseViewDisposables.clear();
+}
+
+if (layout.kind === 'mixed') {
+	this.setGrid([
+		layout.showBaseAtTop && layout.showBase ? {
+			size: 38,
+			data: this.baseView.get()!.view
+		} : undefined,
+		{
+			size: 38,
+			groups: [
+				{ data: this.input1View.view },
+				!layout.showBaseAtTop && layout.showBase ? { data: this.baseView.get()!.view } : undefined,
+				{ data: this.input2View.view }
+			].filter(isDefined)
+		},
+		{
+			size: 62,
+			data: this.inputResultView.view
+		},
+	].filter(isDefined));
+} else if (layout.kind === 'columns') {
+	this.setGrid([
+		layout.showBase ? {
+			size: 40,
+			data: this.baseView.get()!.view
+		} : undefined,
+		{
+			size: 60,
+			groups: [{ data: this.input1View.view }, { data: this.inputResultView.view }, { data: this.input2View.view }]
+		},
+	].filter(isDefined));
+}
+
+this._layoutMode.value = layout;
+this._ctxUsesColumnLayout.set(layout.kind);
+this._ctxShowBase.set(layout.showBase);
+this._ctxShowBaseAtTop.set(layout.showBaseAtTop);
+this._onDidChangeSizeConstraints.fire();
+this._layoutModeObs.set(layout, tx);
+        });
+    }
+
+    private setGrid(descriptor: GridNodeDescriptor < any > []) {
+	let width = -1;
+	let height = -1;
+	if (this._grid.value) {
+		width = this._grid.value.width;
+		height = this._grid.value.height;
 	}
+	this._grid.value = SerializableGrid.from<any>({
+		orientation: Orientation.VERTICAL,
+		size: 100,
+		groups: descriptor,
+	}, {
+		styles: { separatorBorder: this.theme.getColor(settingsSashBorder) ?? Color.transparent },
+		proportionalLayout: true
+	});
 
-
-	protected tracksEditorViewState(input: EditorInput): boolean {
-		return input instanceof MergeEditorInput;
+	reset(this.rootHtmlElement!, this._grid.value.element);
+	// Only call layout after the elements have been added to the DOM,
+	// so that they have a defined size.
+	if (width !== -1) {
+		this._grid.value.layout(width, height);
 	}
+}
 
-	private readonly showNonConflictingChangesStore = this.instantiationService.createInstance(PersistentStore<boolean>, 'mergeEditor/showNonConflictingChanges');
-	private readonly showNonConflictingChanges = observableValue(this, this.showNonConflictingChangesStore.get() ?? false);
-
-	public toggleShowNonConflictingChanges(): void {
-		this.showNonConflictingChanges.set(!this.showNonConflictingChanges.get(), undefined);
-		this.showNonConflictingChangesStore.set(this.showNonConflictingChanges.get());
-		this._ctxShowNonConflictingChanges.set(this.showNonConflictingChanges.get());
+    private _applyViewState(state: IMergeEditorViewState | undefined) {
+	if (!state) {
+		return;
 	}
+	this.inputResultView.editor.restoreViewState(state);
+	if (state.input1State) {
+		this.input1View.editor.restoreViewState(state.input1State);
+	}
+	if (state.input2State) {
+		this.input2View.editor.restoreViewState(state.input2State);
+	}
+	if (state.focusIndex >= 0) {
+		[this.input1View.editor, this.input2View.editor, this.inputResultView.editor][state.focusIndex].focus();
+	}
+}
+
+    protected computeEditorViewState(resource: URI): IMergeEditorViewState | undefined {
+	if (!isEqual(this.inputModel.get()?.resultUri, resource)) {
+		return undefined;
+	}
+	const result = this.inputResultView.editor.saveViewState();
+	if (!result) {
+		return undefined;
+	}
+	const input1State = this.input1View.editor.saveViewState() ?? undefined;
+	const input2State = this.input2View.editor.saveViewState() ?? undefined;
+	const focusIndex = [this.input1View.editor, this.input2View.editor, this.inputResultView.editor].findIndex(editor => editor.hasWidgetFocus());
+	return { ...result, input1State, input2State, focusIndex };
+}
+
+
+    protected tracksEditorViewState(input: EditorInput): boolean {
+	return input instanceof MergeEditorInput;
+}
+
+    private readonly showNonConflictingChangesStore = this.instantiationService.createInstance(PersistentStore<boolean>, 'mergeEditor/showNonConflictingChanges');
+    private readonly showNonConflictingChanges = observableValue(this, this.showNonConflictingChangesStore.get() ?? false);
+
+    public toggleShowNonConflictingChanges(cognidreamognidream {
+	this.showNonConflictingChanges.set(!this.showNonConflictingChanges.get(), undefined);
+	this.showNonConflictingChangesStore.set(this.showNonConflictingChanges.get());
+	this._ctxShowNonConflictingChanges.set(this.showNonConflictingChanges.get());
+}
 }
 
 export interface IMergeEditorLayout {

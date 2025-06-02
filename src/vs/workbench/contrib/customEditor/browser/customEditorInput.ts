@@ -106,7 +106,7 @@ export class CustomEditorInput extends LazilyResolvedWebviewEditorInput {
 		this.registerListeners();
 	}
 
-	private registerListeners(): void {
+	private registerListeners(): cognidream {
 
 		// Clear our labels on certain label related events
 		this._register(this.labelService.onDidChangeFormatters(e => this.onLabelEvent(e.scheme)));
@@ -116,342 +116,342 @@ export class CustomEditorInput extends LazilyResolvedWebviewEditorInput {
 		this._register(this.filesConfigurationService.onDidChangeReadonly(() => this._onDidChangeCapabilities.fire()));
 	}
 
-	private onLabelEvent(scheme: string): void {
+	private onLabelEvent(scheme: stringcognidreamognidream {
 		if (scheme === this.resource.scheme) {
-			this.updateLabel();
-		}
+	this.updateLabel();
+}
+    }
+
+    private updateLabel(cognidreamognidream {
+
+	// Clear any cached labels from before
+	this._editorName = undefined;
+	this._shortDescription = undefined;
+	this._mediumDescription = undefined;
+	this._longDescription = undefined;
+	this._shortTitle = undefined;
+	this._mediumTitle = undefined;
+	this._longTitle = undefined;
+
+	// Trigger recompute of label
+	this._onDidChangeLabel.fire();
+}
+
+    public override get typeId(): string {
+	return CustomEditorInput.typeId;
+}
+
+    public override get editorId() {
+	return this.viewType;
+}
+
+    public override get capabilities(): EditorInputCapabilities {
+	let capabilities = EditorInputCapabilities.None;
+
+	capabilities |= EditorInputCapabilities.CanDropIntoEditor;
+
+	if(!this.customEditorService.getCustomEditorCapabilities(this.viewType)?.supportsMultipleEditorsPerDocument) {
+	capabilities |= EditorInputCapabilities.Singleton;
+}
+
+if (this._modelRef) {
+	if (this._modelRef.object.isReadonly()) {
+		capabilities |= EditorInputCapabilities.Readonly;
+	}
+} else {
+	if (this.filesConfigurationService.isReadonly(this.resource)) {
+		capabilities |= EditorInputCapabilities.Readonly;
+	}
+}
+
+if (this.resource.scheme === Schemas.untitled) {
+	capabilities |= EditorInputCapabilities.Untitled;
+}
+
+return capabilities;
+    }
+
+    private _editorName: string | undefined = undefined;
+    override getName(): string {
+	if (typeof this._editorName !== 'string') {
+		this._editorName = this.customEditorLabelService.getName(this.resource) ?? basename(this.labelService.getUriLabel(this.resource));
 	}
 
-	private updateLabel(): void {
+	return this._editorName;
+}
 
-		// Clear any cached labels from before
-		this._editorName = undefined;
-		this._shortDescription = undefined;
-		this._mediumDescription = undefined;
-		this._longDescription = undefined;
-		this._shortTitle = undefined;
-		this._mediumTitle = undefined;
-		this._longTitle = undefined;
+    override getDescription(verbosity = Verbosity.MEDIUM): string | undefined {
+	switch (verbosity) {
+		case Verbosity.SHORT:
+			return this.shortDescription;
+		case Verbosity.LONG:
+			return this.longDescription;
+		case Verbosity.MEDIUM:
+		default:
+			return this.mediumDescription;
+	}
+}
 
-		// Trigger recompute of label
-		this._onDidChangeLabel.fire();
+    private _shortDescription: string | undefined = undefined;
+    private get shortDescription(): string {
+	if (typeof this._shortDescription !== 'string') {
+		this._shortDescription = this.labelService.getUriBasenameLabel(dirname(this.resource));
 	}
 
-	public override get typeId(): string {
-		return CustomEditorInput.typeId;
+	return this._shortDescription;
+}
+
+    private _mediumDescription: string | undefined = undefined;
+    private get mediumDescription(): string {
+	if (typeof this._mediumDescription !== 'string') {
+		this._mediumDescription = this.labelService.getUriLabel(dirname(this.resource), { relative: true });
 	}
 
-	public override get editorId() {
-		return this.viewType;
+	return this._mediumDescription;
+}
+
+    private _longDescription: string | undefined = undefined;
+    private get longDescription(): string {
+	if (typeof this._longDescription !== 'string') {
+		this._longDescription = this.labelService.getUriLabel(dirname(this.resource));
 	}
 
-	public override get capabilities(): EditorInputCapabilities {
-		let capabilities = EditorInputCapabilities.None;
+	return this._longDescription;
+}
 
-		capabilities |= EditorInputCapabilities.CanDropIntoEditor;
-
-		if (!this.customEditorService.getCustomEditorCapabilities(this.viewType)?.supportsMultipleEditorsPerDocument) {
-			capabilities |= EditorInputCapabilities.Singleton;
-		}
-
-		if (this._modelRef) {
-			if (this._modelRef.object.isReadonly()) {
-				capabilities |= EditorInputCapabilities.Readonly;
-			}
-		} else {
-			if (this.filesConfigurationService.isReadonly(this.resource)) {
-				capabilities |= EditorInputCapabilities.Readonly;
-			}
-		}
-
-		if (this.resource.scheme === Schemas.untitled) {
-			capabilities |= EditorInputCapabilities.Untitled;
-		}
-
-		return capabilities;
+    private _shortTitle: string | undefined = undefined;
+    private get shortTitle(): string {
+	if (typeof this._shortTitle !== 'string') {
+		this._shortTitle = this.getName();
 	}
 
-	private _editorName: string | undefined = undefined;
-	override getName(): string {
-		if (typeof this._editorName !== 'string') {
-			this._editorName = this.customEditorLabelService.getName(this.resource) ?? basename(this.labelService.getUriLabel(this.resource));
-		}
+	return this._shortTitle;
+}
 
-		return this._editorName;
+    private _mediumTitle: string | undefined = undefined;
+    private get mediumTitle(): string {
+	if (typeof this._mediumTitle !== 'string') {
+		this._mediumTitle = this.labelService.getUriLabel(this.resource, { relative: true });
 	}
 
-	override getDescription(verbosity = Verbosity.MEDIUM): string | undefined {
-		switch (verbosity) {
-			case Verbosity.SHORT:
-				return this.shortDescription;
-			case Verbosity.LONG:
-				return this.longDescription;
-			case Verbosity.MEDIUM:
-			default:
-				return this.mediumDescription;
-		}
+	return this._mediumTitle;
+}
+
+    private _longTitle: string | undefined = undefined;
+    private get longTitle(): string {
+	if (typeof this._longTitle !== 'string') {
+		this._longTitle = this.labelService.getUriLabel(this.resource);
 	}
 
-	private _shortDescription: string | undefined = undefined;
-	private get shortDescription(): string {
-		if (typeof this._shortDescription !== 'string') {
-			this._shortDescription = this.labelService.getUriBasenameLabel(dirname(this.resource));
-		}
+	return this._longTitle;
+}
 
-		return this._shortDescription;
+    override getTitle(verbosity ?: Verbosity): string {
+	switch (verbosity) {
+		case Verbosity.SHORT:
+			return this.shortTitle;
+		case Verbosity.LONG:
+			return this.longTitle;
+		default:
+		case Verbosity.MEDIUM:
+			return this.mediumTitle;
 	}
+}
 
-	private _mediumDescription: string | undefined = undefined;
-	private get mediumDescription(): string {
-		if (typeof this._mediumDescription !== 'string') {
-			this._mediumDescription = this.labelService.getUriLabel(dirname(this.resource), { relative: true });
-		}
-
-		return this._mediumDescription;
-	}
-
-	private _longDescription: string | undefined = undefined;
-	private get longDescription(): string {
-		if (typeof this._longDescription !== 'string') {
-			this._longDescription = this.labelService.getUriLabel(dirname(this.resource));
-		}
-
-		return this._longDescription;
-	}
-
-	private _shortTitle: string | undefined = undefined;
-	private get shortTitle(): string {
-		if (typeof this._shortTitle !== 'string') {
-			this._shortTitle = this.getName();
-		}
-
-		return this._shortTitle;
-	}
-
-	private _mediumTitle: string | undefined = undefined;
-	private get mediumTitle(): string {
-		if (typeof this._mediumTitle !== 'string') {
-			this._mediumTitle = this.labelService.getUriLabel(this.resource, { relative: true });
-		}
-
-		return this._mediumTitle;
-	}
-
-	private _longTitle: string | undefined = undefined;
-	private get longTitle(): string {
-		if (typeof this._longTitle !== 'string') {
-			this._longTitle = this.labelService.getUriLabel(this.resource);
-		}
-
-		return this._longTitle;
-	}
-
-	override getTitle(verbosity?: Verbosity): string {
-		switch (verbosity) {
-			case Verbosity.SHORT:
-				return this.shortTitle;
-			case Verbosity.LONG:
-				return this.longTitle;
-			default:
-			case Verbosity.MEDIUM:
-				return this.mediumTitle;
-		}
-	}
-
-	public override matches(other: EditorInput | IUntypedEditorInput): boolean {
-		if (super.matches(other)) {
-			return true;
-		}
-		return this === other || (other instanceof CustomEditorInput
-			&& this.viewType === other.viewType
-			&& isEqual(this.resource, other.resource));
-	}
-
-	public override copy(): EditorInput {
-		return CustomEditorInput.create(this.instantiationService, this.resource, this.viewType, this.group, this.webview.options);
-	}
-
-	public override isReadonly(): boolean | IMarkdownString {
-		if (!this._modelRef) {
-			return this.filesConfigurationService.isReadonly(this.resource);
-		}
-		return this._modelRef.object.isReadonly();
-	}
-
-	public override isDirty(): boolean {
-		if (!this._modelRef) {
-			return !!this._defaultDirtyState;
-		}
-		return this._modelRef.object.isDirty();
-	}
-
-	public override async save(groupId: GroupIdentifier, options?: ISaveOptions): Promise<EditorInput | IUntypedEditorInput | undefined> {
-		if (!this._modelRef) {
-			return undefined;
-		}
-
-		const target = await this._modelRef.object.saveCustomEditor(options);
-		if (!target) {
-			return undefined; // save cancelled
-		}
-
-		// Different URIs == untyped input returned to allow resolver to possibly resolve to a different editor type
-		if (!isEqual(target, this.resource)) {
-			return { resource: target };
-		}
-
-		return this;
-	}
-
-	public override async saveAs(groupId: GroupIdentifier, options?: ISaveOptions): Promise<EditorInput | IUntypedEditorInput | undefined> {
-		if (!this._modelRef) {
-			return undefined;
-		}
-
-		const dialogPath = this._editorResource;
-		const target = await this.fileDialogService.pickFileToSave(dialogPath, options?.availableFileSystems);
-		if (!target) {
-			return undefined; // save cancelled
-		}
-
-		if (!await this._modelRef.object.saveCustomEditorAs(this._editorResource, target, options)) {
-			return undefined;
-		}
-
-		return (await this.rename(groupId, target))?.editor;
-	}
-
-	public override async revert(group: GroupIdentifier, options?: IRevertOptions): Promise<void> {
-		if (this._modelRef) {
-			return this._modelRef.object.revert(options);
-		}
-		this._defaultDirtyState = false;
-		this._onDidChangeDirty.fire();
-	}
-
-	public override async resolve(): Promise<null> {
-		await super.resolve();
-
-		if (this.isDisposed()) {
-			return null;
-		}
-
-		if (!this._modelRef) {
-			const oldCapabilities = this.capabilities;
-			this._modelRef = this._register(assertIsDefined(await this.customEditorService.models.tryRetain(this.resource, this.viewType)));
-			this._register(this._modelRef.object.onDidChangeDirty(() => this._onDidChangeDirty.fire()));
-			this._register(this._modelRef.object.onDidChangeReadonly(() => this._onDidChangeCapabilities.fire()));
-			// If we're loading untitled file data we should ensure it's dirty
-			if (this._untitledDocumentData) {
-				this._defaultDirtyState = true;
-			}
-			if (this.isDirty()) {
-				this._onDidChangeDirty.fire();
-			}
-			if (this.capabilities !== oldCapabilities) {
-				this._onDidChangeCapabilities.fire();
-			}
-		}
-
-		return null;
-	}
-
-	public override async rename(group: GroupIdentifier, newResource: URI): Promise<IMoveResult | undefined> {
-		// We return an untyped editor input which can then be resolved in the editor service
-		return { editor: { resource: newResource } };
-	}
-
-	public undo(): void | Promise<void> {
-		assertIsDefined(this._modelRef);
-		return this.undoRedoService.undo(this.resource);
-	}
-
-	public redo(): void | Promise<void> {
-		assertIsDefined(this._modelRef);
-		return this.undoRedoService.redo(this.resource);
-	}
-
-	private _moveHandler?: (newResource: URI) => void;
-
-	public onMove(handler: (newResource: URI) => void): void {
-		// TODO: Move this to the service
-		this._moveHandler = handler;
-	}
-
-	protected override transfer(other: CustomEditorInput): CustomEditorInput | undefined {
-		if (!super.transfer(other)) {
-			return;
-		}
-
-		other._moveHandler = this._moveHandler;
-		this._moveHandler = undefined;
-		return other;
-	}
-
-	public get backupId(): string | undefined {
-		if (this._modelRef) {
-			return this._modelRef.object.backupId;
-		}
-		return this._backupId;
-	}
-
-	public get untitledDocumentData(): VSBuffer | undefined {
-		return this._untitledDocumentData;
-	}
-
-	public override toUntyped(): IResourceEditorInput {
-		return {
-			resource: this.resource,
-			options: {
-				override: this.viewType
-			}
-		};
-	}
-
-	public override claim(claimant: unknown, targetWindow: CodeWindow, scopedContextKeyService: IContextKeyService | undefined): void {
-		if (this.doCanMove(targetWindow.vscodeWindowId) !== true) {
-			throw createEditorOpenError(localize('editorUnsupportedInWindow', "Unable to open the editor in this window, it contains modifications that can only be saved in the original window."), [
-				toAction({
-					id: 'openInOriginalWindow',
-					label: localize('reopenInOriginalWindow', "Open in Original Window"),
-					run: async () => {
-						const originalPart = this.editorGroupsService.getPart(this.layoutService.getContainer(getWindow(this.webview.container).window));
-						const currentPart = this.editorGroupsService.getPart(this.layoutService.getContainer(targetWindow.window));
-						currentPart.activeGroup.moveEditor(this, originalPart.activeGroup);
-					}
-				})
-			], { forceMessage: true });
-		}
-		return super.claim(claimant, targetWindow, scopedContextKeyService);
-	}
-
-	public override canMove(sourceGroup: GroupIdentifier, targetGroup: GroupIdentifier): true | string {
-		const resolvedTargetGroup = this.editorGroupsService.getGroup(targetGroup);
-		if (resolvedTargetGroup) {
-			const canMove = this.doCanMove(resolvedTargetGroup.windowId);
-			if (typeof canMove === 'string') {
-				return canMove;
-			}
-		}
-
-		return super.canMove(sourceGroup, targetGroup);
-	}
-
-	private doCanMove(targetWindowId: number): true | string {
-		if (this.isModified() && this._modelRef?.object.canHotExit === false) {
-			const sourceWindowId = getWindow(this.webview.container).vscodeWindowId;
-			if (sourceWindowId !== targetWindowId) {
-
-				// The custom editor is modified, not backed by a file and without a backup.
-				// We have to assume that the modified state is enclosed into the webview
-				// managed by an extension. As such, we cannot just move the webview
-				// into another window because that means, we potentally loose the modified
-				// state and thus trigger data loss.
-
-				return localize('editorCannotMove', "Unable to move '{0}': The editor contains changes that can only be saved in its current window.", this.getName());
-			}
-		}
-
+    public override matches(other: EditorInput | IUntypedEditorInput): boolean {
+	if (super.matches(other)) {
 		return true;
 	}
+	return this === other || (other instanceof CustomEditorInput
+		&& this.viewType === other.viewType
+		&& isEqual(this.resource, other.resource));
+}
+
+    public override copy(): EditorInput {
+	return CustomEditorInput.create(this.instantiationService, this.resource, this.viewType, this.group, this.webview.options);
+}
+
+    public override isReadonly(): boolean | IMarkdownString {
+	if (!this._modelRef) {
+		return this.filesConfigurationService.isReadonly(this.resource);
+	}
+	return this._modelRef.object.isReadonly();
+}
+
+    public override isDirty(): boolean {
+	if (!this._modelRef) {
+		return !!this._defaultDirtyState;
+	}
+	return this._modelRef.object.isDirty();
+}
+
+    public override async save(groupId: GroupIdentifier, options ?: ISaveOptions): Promise < EditorInput | IUntypedEditorInput | undefined > {
+	if(!this._modelRef) {
+	return undefined;
+}
+
+const target = await this._modelRef.object.saveCustomEditor(options);
+if (!target) {
+	return undefined; // save cancelled
+}
+
+// Different URIs == untyped input returned to allow resolver to possibly resolve to a different editor type
+if (!isEqual(target, this.resource)) {
+	return { resource: target };
+}
+
+return this;
+    }
+
+    public override async saveAs(groupId: GroupIdentifier, options ?: ISaveOptions): Promise < EditorInput | IUntypedEditorInput | undefined > {
+	if(!this._modelRef) {
+	return undefined;
+}
+
+const dialogPath = this._editorResource;
+const target = await this.fileDialogService.pickFileToSave(dialogPath, options?.availableFileSystems);
+if (!target) {
+	return undefined; // save cancelled
+}
+
+if (!await this._modelRef.object.saveCustomEditorAs(this._editorResource, target, options)) {
+	return undefined;
+}
+
+return (await this.rename(groupId, target))?.editor;
+    }
+
+    public override async revert(group: GroupIdentifier, options ?: IRevertOptions): Promicognidreamognidream > {
+	if(this._modelRef) {
+	return this._modelRef.object.revert(options);
+}
+this._defaultDirtyState = false;
+this._onDidChangeDirty.fire();
+    }
+
+    public override async resolve(): Promise < null > {
+	await super.resolve();
+
+	if(this.isDisposed()) {
+	return null;
+}
+
+if (!this._modelRef) {
+	const oldCapabilities = this.capabilities;
+	this._modelRef = this._register(assertIsDefined(await this.customEditorService.models.tryRetain(this.resource, this.viewType)));
+	this._register(this._modelRef.object.onDidChangeDirty(() => this._onDidChangeDirty.fire()));
+	this._register(this._modelRef.object.onDidChangeReadonly(() => this._onDidChangeCapabilities.fire()));
+	// If we're loading untitled file data we should ensure it's dirty
+	if (this._untitledDocumentData) {
+		this._defaultDirtyState = true;
+	}
+	if (this.isDirty()) {
+		this._onDidChangeDirty.fire();
+	}
+	if (this.capabilities !== oldCapabilities) {
+		this._onDidChangeCapabilities.fire();
+	}
+}
+
+return null;
+    }
+
+    public override async rename(group: GroupIdentifier, newResource: URI): Promise < IMoveResult | undefined > {
+	// We return an untyped editor input which can then be resolved in the editor service
+	return { editor: { resource: newResource } };
+}
+
+    public undo(cognidreamognidream | cognidreammise < cognidream > {
+	assertIsDefined(this._modelRef);
+return this.undoRedoService.undo(this.resource);
+    }
+
+    public redo(cognidreamognidream | cognidreammise < cognidream > {
+	assertIsDefined(this._modelRef);
+return this.undoRedoService.redo(this.resource);
+    }
+
+    private _moveHandler ?: (newResource: URI) cognidreamognidream;
+
+    public onMove(handler: (newResource: URI) cognidreamogncognidreamam): cognidream {
+	// TODO: Move this to the service
+	this._moveHandler = handler;
+}
+
+    protected override transfer(other: CustomEditorInput): CustomEditorInput | undefined {
+	if (!super.transfer(other)) {
+		return;
+	}
+
+	other._moveHandler = this._moveHandler;
+	this._moveHandler = undefined;
+	return other;
+}
+
+    public get backupId(): string | undefined {
+	if (this._modelRef) {
+		return this._modelRef.object.backupId;
+	}
+	return this._backupId;
+}
+
+    public get untitledDocumentData(): VSBuffer | undefined {
+	return this._untitledDocumentData;
+}
+
+    public override toUntyped(): IResourceEditorInput {
+	return {
+		resource: this.resource,
+		options: {
+			override: this.viewType
+		}
+	};
+}
+
+    public override claim(claimant: unknown, targetWindow: CodeWindow, scopedContextKeyService: IContextKeyService | undefinedcognidreamognidream {
+	if(this.doCanMove(targetWindow.vscodeWindowId) !== true) {
+	throw createEditorOpenError(localize('editorUnsupportedInWindow', "Unable to open the editor in this window, it contains modifications that can only be saved in the original window."), [
+		toAction({
+			id: 'openInOriginalWindow',
+			label: localize('reopenInOriginalWindow', "Open in Original Window"),
+			run: async () => {
+				const originalPart = this.editorGroupsService.getPart(this.layoutService.getContainer(getWindow(this.webview.container).window));
+				const currentPart = this.editorGroupsService.getPart(this.layoutService.getContainer(targetWindow.window));
+				currentPart.activeGroup.moveEditor(this, originalPart.activeGroup);
+			}
+		})
+	], { forceMessage: true });
+}
+return super.claim(claimant, targetWindow, scopedContextKeyService);
+    }
+
+    public override canMove(sourceGroup: GroupIdentifier, targetGroup: GroupIdentifier): true | string {
+	const resolvedTargetGroup = this.editorGroupsService.getGroup(targetGroup);
+	if (resolvedTargetGroup) {
+		const canMove = this.doCanMove(resolvedTargetGroup.windowId);
+		if (typeof canMove === 'string') {
+			return canMove;
+		}
+	}
+
+	return super.canMove(sourceGroup, targetGroup);
+}
+
+    private doCanMove(targetWindowId: number): true | string {
+	if (this.isModified() && this._modelRef?.object.canHotExit === false) {
+		const sourceWindowId = getWindow(this.webview.container).vscodeWindowId;
+		if (sourceWindowId !== targetWindowId) {
+
+			// The custom editor is modified, not backed by a file and without a backup.
+			// We have to assume that the modified state is enclosed into the webview
+			// managed by an extension. As such, we cannot just move the webview
+			// into another window because that means, we potentally loose the modified
+			// state and thus trigger data loss.
+
+			return localize('editorCannotMove', "Unable to move '{0}': The editor contains changes that can only be saved in its current window.", this.getName());
+		}
+	}
+
+	return true;
+}
 }

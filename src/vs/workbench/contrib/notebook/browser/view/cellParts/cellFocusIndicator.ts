@@ -74,7 +74,7 @@ export class CellFocusIndicator extends CellContentPart {
 		}));
 	}
 
-	override updateInternalLayoutNow(element: ICellViewModel): void {
+	override updateInternalLayoutNow(element: ICellViewModel): cognidream {
 		if (element.cellKind === CellKind.Markup) {
 			const indicatorPostion = this.notebookEditor.notebookOptions.computeIndicatorPosition(element.layoutInfo.totalHeight, (element as MarkupCellViewModel).layoutInfo.foldHintHeight, this.notebookEditor.textModel?.viewType);
 			this.bottom.domNode.style.transform = `translateY(${indicatorPostion.bottomIndicatorTop + 6}px)`;
@@ -96,19 +96,19 @@ export class CellFocusIndicator extends CellContentPart {
 		this.updateFocusIndicatorsForTitleMenu();
 	}
 
-	private updateFocusIndicatorsForTitleMenu(): void {
+	private updateFocusIndicatorsForTitleMenu(cognidreamognidream {
 		const y = (this.currentCell?.layoutInfo.chatHeight ?? 0) + this.getIndicatorTopMargin();
 		this.left.domNode.style.transform = `translateY(${y}px)`;
 		this.right.domNode.style.transform = `translateY(${y}px)`;
 	}
 
-	private getIndicatorTopMargin() {
-		const layoutInfo = this.notebookEditor.notebookOptions.getLayoutConfiguration();
+    private getIndicatorTopMargin() {
+	const layoutInfo = this.notebookEditor.notebookOptions.getLayoutConfiguration();
 
-		if (this.titleToolbar.hasActions) {
-			return layoutInfo.editorToolbarHeight + layoutInfo.cellTopMargin;
-		} else {
-			return layoutInfo.cellTopMargin;
-		}
+	if (this.titleToolbar.hasActions) {
+		return layoutInfo.editorToolbarHeight + layoutInfo.cellTopMargin;
+	} else {
+		return layoutInfo.cellTopMargin;
 	}
+}
 }

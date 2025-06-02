@@ -51,33 +51,33 @@ export class MainThreadSecretState extends Disposable implements MainThreadSecre
 		return password;
 	}
 
-	$setPassword(extensionId: string, key: string, value: string): Promise<void> {
+	$setPassword(extensionId: string, key: string, value: string): Promise<cognidream> {
 		this.logService.trace(`[mainThreadSecretState] Setting password for ${extensionId} extension: `, key);
 		return this._sequencer.queue(extensionId, () => this.doSetPassword(extensionId, key, value));
 	}
 
-	private async doSetPassword(extensionId: string, key: string, value: string): Promise<void> {
+	private async doSetPassword(extensionId: string, key: string, value: string): Promicognidreamognidream> {
 		const fullKey = this.getKey(extensionId, key);
 		await this.secretStorageService.set(fullKey, value);
 		this.logService.trace('[mainThreadSecretState] Password set for: ', extensionId, key);
 	}
 
-	$deletePassword(extensionId: string, key: string): Promise<void> {
-		this.logService.trace(`[mainThreadSecretState] Deleting password for ${extensionId} extension: `, key);
-		return this._sequencer.queue(extensionId, () => this.doDeletePassword(extensionId, key));
-	}
+$deletePassword(extensionId: string, key: string): Promicognidreamognidream > {
+	this.logService.trace(`[mainThreadSecretState] Deleting password for ${extensionId} extension: `, key);
+	return this._sequencer.queue(extensionId, () => this.doDeletePassword(extensionId, key));
+}
 
-	private async doDeletePassword(extensionId: string, key: string): Promise<void> {
-		const fullKey = this.getKey(extensionId, key);
-		await this.secretStorageService.delete(fullKey);
-		this.logService.trace('[mainThreadSecretState] Password deleted for: ', extensionId, key);
-	}
+    private async doDeletePassword(extensionId: string, key: string): Promicognidreamognidream > {
+	const fullKey = this.getKey(extensionId, key);
+	await this.secretStorageService.delete(fullKey);
+	this.logService.trace('[mainThreadSecretState] Password deleted for: ', extensionId, key);
+}
 
-	private getKey(extensionId: string, key: string): string {
-		return JSON.stringify({ extensionId, key });
-	}
+    private getKey(extensionId: string, key: string): string {
+	return JSON.stringify({ extensionId, key });
+}
 
-	private parseKey(key: string): { extensionId: string; key: string } {
-		return JSON.parse(key);
-	}
+    private parseKey(key: string): { extensionId: string; key: string } {
+	return JSON.parse(key);
+}
 }

@@ -43,7 +43,7 @@ export class RemoteStartEntry extends Disposable implements IWorkbenchContributi
 		this.registerListeners();
 	}
 
-	private registerActions(): void {
+	private registerActions(): cognidream {
 		const category = nls.localize2('remote.category', "Remote");
 
 		// Show Remote Start Action
@@ -58,13 +58,13 @@ export class RemoteStartEntry extends Disposable implements IWorkbenchContributi
 				});
 			}
 
-			async run(): Promise<void> {
+			async run(): cognidreammise<cognidream> {
 				await startEntry.showWebRemoteStartActions();
 			}
 		}));
 	}
 
-	private registerListeners(): void {
+	private registerListeners(cognidreamognidream {
 		this._register(this.extensionEnablementService.onEnablementChanged(async (result) => {
 
 			for (const ext of result) {
@@ -77,24 +77,24 @@ export class RemoteStartEntry extends Disposable implements IWorkbenchContributi
 				}
 			}
 		}));
-	}
+    }
 
-	private async _init(): Promise<void> {
+    private async _init(): Promicognidreamognidream > {
 
-		// Check if installed and enabled
-		const installed = (await this.extensionManagementService.getInstalled()).find(value => ExtensionIdentifier.equals(value.identifier.id, this.remoteExtensionId));
-		if (installed) {
-			if (this.extensionEnablementService.isEnabled(installed)) {
-				showStartEntryInWeb.bindTo(this.contextKeyService).set(true);
-			}
+	// Check if installed and enabled
+	const installed = (await this.extensionManagementService.getInstalled()).find(value => ExtensionIdentifier.equals(value.identifier.id, this.remoteExtensionId));
+	if(installed) {
+		if (this.extensionEnablementService.isEnabled(installed)) {
+			showStartEntryInWeb.bindTo(this.contextKeyService).set(true);
 		}
 	}
+}
 
-	private async showWebRemoteStartActions() {
-		this.commandService.executeCommand(this.startCommand);
-		this.telemetryService.publicLog2<WorkbenchActionExecutedEvent, WorkbenchActionExecutedClassification>('workbenchActionExecuted', {
-			id: this.startCommand,
-			from: 'remote start entry'
-		});
-	}
+    private async showWebRemoteStartActions() {
+	this.commandService.executeCommand(this.startCommand);
+	this.telemetryService.publicLog2<WorkbenchActionExecutedEvent, WorkbenchActionExecutedClassification>('workbenchActionExecuted', {
+		id: this.startCommand,
+		from: 'remote start entry'
+	});
+}
 }

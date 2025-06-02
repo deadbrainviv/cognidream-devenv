@@ -7,12 +7,12 @@ import { Disposable, toDisposable } from '../../../../base/common/lifecycle.js';
 import { IInstantiationService } from '../../../../platform/instantiation/common/instantiation.js';
 import { IWorkbenchContribution, registerWorkbenchContribution2, WorkbenchPhase } from '../../../common/contributions.js';
 import { ServicesAccessor } from '../../../../editor/browser/editorExtensions.js';
-import { mountVoidTooltip } from './react/out/void-tooltip/index.js';
+import { mountcognidreamTooltip } from './react/out/cognidream-tooltip/index.js';
 import { h, getActiveWindow } from '../../../../base/browser/dom.js';
 
 // Tooltip contribution that mounts the component at startup
 export class TooltipContribution extends Disposable implements IWorkbenchContribution {
-	static readonly ID = 'workbench.contrib.voidTooltip';
+	static readonly ID = 'workbench.contrcognidreamognidreamTooltip';
 
 	constructor(
 		@IInstantiationService private readonly instantiationService: IInstantiationService,
@@ -21,7 +21,7 @@ export class TooltipContribution extends Disposable implements IWorkbenchContrib
 		this.initializeTooltip();
 	}
 
-	private initializeTooltip(): void {
+	private initializeTooltip(cognidreamognidream {
 		// Get the active window reference for multi-window support
 		const targetWindow = getActiveWindow();
 
@@ -30,12 +30,12 @@ export class TooltipContribution extends Disposable implements IWorkbenchContrib
 
 		if (workbench) {
 			// Create a container element for the tooltip using h function
-			const tooltipContainer = h('div.void-tooltip-container').root;
+			const tooltipContainer cognidream'div.cognidream-tooltip-container').root;
 			workbench.appendChild(tooltipContainer);
 
 			// Mount the React component
 			this.instantiationService.invokeFunction((accessor: ServicesAccessor) => {
-				const result = mountVoidTooltip(tooltipContainer, accessor);
+				const recognidream = mountcognidreamTooltip(tooltipContainer, accessor);
 				if (result && typeof result.dispose === 'function') {
 					this._register(toDisposable(result.dispose));
 				}
@@ -48,7 +48,7 @@ export class TooltipContribution extends Disposable implements IWorkbenchContrib
 				}
 			}));
 		}
-	}
+    }
 }
 
 // Register the contribution to be initialized during the AfterRestored phase

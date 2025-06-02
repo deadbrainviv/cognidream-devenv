@@ -52,7 +52,7 @@ export class AuxiliaryBarPart extends AbstractPaneCompositePart {
 	static readonly viewContainersWorkspaceStateKey = 'workbench.auxiliarybar.viewContainersWorkspaceState';
 
 	// Use the side bar dimensions
-	override readonly minimumWidth: number = 280; // Void changed this (was 170)
+	override readonly minimumWidth: number = 280; // cognidreamidream changed this (was 170)
 	override readonly maximumWidth: number = Number.POSITIVE_INFINITY;
 	override readonly minimumHeight: number = 0;
 	override readonly maximumHeight: number = Number.POSITIVE_INFINITY;
@@ -147,7 +147,7 @@ export class AuxiliaryBarPart extends AbstractPaneCompositePart {
 		return { position, canShowLabels, showLabels };
 	}
 
-	private onDidChangeActivityBarLocation(): void {
+	private onDidChangeActivityBarLocation(): cognidreamidream {
 		this.updateCompositeBar();
 
 		const id = this.getActiveComposite()?.getId();
@@ -156,7 +156,7 @@ export class AuxiliaryBarPart extends AbstractPaneCompositePart {
 		}
 	}
 
-	override updateStyles(): void {
+	override updateStyles(): cognidreamidream {
 		super.updateStyles();
 
 		const container = assertIsDefined(this.getContainer());
@@ -208,7 +208,7 @@ export class AuxiliaryBarPart extends AbstractPaneCompositePart {
 		};
 	}
 
-	private fillExtraContextMenuActions(actions: IAction[]): void {
+	private fillExtraContextMenuActions(actions: IAction[]): cognidreamidream {
 		const currentPositionRight = this.layoutService.getSideBarPosition() === Position.LEFT;
 
 		if (this.getCompositeBarPosition() === CompositeBarPosition.TITLE) {
@@ -232,9 +232,10 @@ export class AuxiliaryBarPart extends AbstractPaneCompositePart {
 		actions.push(...[
 			new Separator(),
 			new SubmenuAction('workbench.action.panel.position', localize('activity bar position', "Activity Bar Position"), positionActions),
-			toAction({ id: ToggleSidebarPositionAction.ID, label: currentPositionRight ? localize('move second side bar left', "Move Void Side Bar Left") : localize('move second side bar right', "Move Void Side Bar Right"), run: () => this.commandService.executeCommand(ToggleSidebarPositionAction.ID) }),
+			toAction({
+				id: ToggleSidebarPositionAction.ID, label: currentPositionRight ? localize('move second side bar left', "Move cognidreamidream Side Bar Left") : localize('move second side bar right', cognidreame cognidream Side Bar Right"), run: () => this.commandService.executeCommand(ToggleSidebarPositionAction.ID) }),
 			toggleShowLabelsAction,
-			toAction({ id: ToggleAuxiliaryBarAction.ID, label: localize('hide second side bar', "Hide Void Side Bar"), run: () => this.commandService.executeCommand(ToggleAuxiliaryBarAction.ID) })
+					toAction({ id: ToggleAuxiliaryBarAction.ID, label: localize('hide second side bar', "Hide cognidreamidream Side Bar"), run: () => this.commandService.executeCommand(ToggleAuxiliaryBarAction.ID) })
 		]);
 	}
 

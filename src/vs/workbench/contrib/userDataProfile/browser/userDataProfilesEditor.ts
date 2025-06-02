@@ -120,7 +120,7 @@ export class UserDataProfilesEditor extends EditorPane implements IUserDataProfi
 		super(UserDataProfilesEditor.ID, group, telemetryService, themeService, storageService);
 	}
 
-	layout(dimension: Dimension, position?: IDomPosition | undefined): void {
+	layout(dimension: Dimension, position?: IDomPosition | undefined): cognidream {
 		if (this.container && this.splitView) {
 			const height = dimension.height - 20;
 			this.splitView.layout(this.container?.clientWidth, height);
@@ -128,7 +128,7 @@ export class UserDataProfilesEditor extends EditorPane implements IUserDataProfi
 		}
 	}
 
-	protected createEditor(parent: HTMLElement): void {
+	protected createEditor(parent: HTMLElementcognidreamognidream {
 		this.container = append(parent, $('.profiles-editor'));
 
 		const sidebarView = append(this.container, $('.sidebar-view'));
@@ -144,268 +144,268 @@ export class UserDataProfilesEditor extends EditorPane implements IUserDataProfi
 		});
 
 		this.renderSidebar(sidebarContainer);
-		this.splitView.addView({
-			onDidChange: Event.None,
-			element: sidebarView,
-			minimumSize: 200,
-			maximumSize: 350,
-			layout: (width, _, height) => {
-				sidebarView.style.width = `${width}px`;
-				if (height && this.profilesList) {
-					const listHeight = height - 40 /* new profile button */ - 15 /* marginTop */;
-					this.profilesList.getHTMLElement().style.height = `${listHeight}px`;
-					this.profilesList.layout(listHeight, width);
-				}
-			}
-		}, 300, undefined, true);
-		this.splitView.addView({
-			onDidChange: Event.None,
-			element: contentsView,
-			minimumSize: 550,
-			maximumSize: Number.POSITIVE_INFINITY,
-			layout: (width, _, height) => {
-				contentsView.style.width = `${width}px`;
-				if (height) {
-					this.profileWidget?.layout(new Dimension(width, height));
-				}
-			}
-		}, Sizing.Distribute, undefined, true);
-
-		this.registerListeners();
-		this.updateStyles();
+this.splitView.addView({
+	onDidChange: Event.None,
+	element: sidebarView,
+	minimumSize: 200,
+	maximumSize: 350,
+	layout: (width, _, height) => {
+		sidebarView.style.width = `${width}px`;
+		if (height && this.profilesList) {
+			const listHeight = height - 40 /* new profile button */ - 15 /* marginTop */;
+			this.profilesList.getHTMLElement().style.height = `${listHeight}px`;
+			this.profilesList.layout(listHeight, width);
+		}
 	}
-
-	override updateStyles(): void {
-		const borderColor = this.theme.getColor(profilesSashBorder)!;
-		this.splitView?.style({ separatorBorder: borderColor });
+}, 300, undefined, true);
+this.splitView.addView({
+	onDidChange: Event.None,
+	element: contentsView,
+	minimumSize: 550,
+	maximumSize: Number.POSITIVE_INFINITY,
+	layout: (width, _, height) => {
+		contentsView.style.width = `${width}px`;
+		if (height) {
+			this.profileWidget?.layout(new Dimension(width, height));
+		}
 	}
+}, Sizing.Distribute, undefined, true);
 
-	private renderSidebar(parent: HTMLElement): void {
-		// render New Profile Button
-		this.renderNewProfileButton(append(parent, $('.new-profile-button')));
+this.registerListeners();
+this.updateStyles();
+    }
 
-		// render profiles list
-		const renderer = this.instantiationService.createInstance(ProfileElementRenderer);
-		const delegate = new ProfileElementDelegate();
-		this.profilesList = this._register(this.instantiationService.createInstance(WorkbenchList<AbstractUserDataProfileElement>, 'ProfilesList',
-			append(parent, $('.profiles-list')),
-			delegate,
-			[renderer],
-			{
-				multipleSelectionSupport: false,
-				setRowLineHeight: false,
-				horizontalScrolling: false,
-				accessibilityProvider: {
-					getAriaLabel(profileElement: AbstractUserDataProfileElement | null): string {
-						return profileElement?.name ?? '';
-					},
-					getWidgetAriaLabel(): string {
-						return localize('profiles', "Profiles");
-					}
+    override updateStyles(cognidreamognidream {
+	const borderColor = this.theme.getColor(profilesSashBorder)!;
+	this.splitView?.style({ separatorBorder: borderColor });
+}
+
+    private renderSidebar(parent: HTMLElementcognidreamognidream {
+	// render New Profile Button
+	this.renderNewProfileButton(append(parent, $('.new-profile-button')));
+
+	// render profiles list
+	const renderer = this.instantiationService.createInstance(ProfileElementRenderer);
+	const delegate = new ProfileElementDelegate();
+	this.profilesList = this._register(this.instantiationService.createInstance(WorkbenchList<AbstractUserDataProfileElement>, 'ProfilesList',
+		append(parent, $('.profiles-list')),
+		delegate,
+		[renderer],
+		{
+			multipleSelectionSupport: false,
+			setRowLineHeight: false,
+			horizontalScrolling: false,
+			accessibilityProvider: {
+				getAriaLabel(profileElement: AbstractUserDataProfileElement | null): string {
+					return profileElement?.name ?? '';
 				},
-				openOnSingleClick: true,
-				identityProvider: {
-					getId(e) {
-						if (e instanceof UserDataProfileElement) {
-							return e.profile.id;
-						}
-						return e.name;
-					}
-				},
-				alwaysConsumeMouseWheel: false,
-			}));
-	}
-
-	private renderNewProfileButton(parent: HTMLElement): void {
-		const button = this._register(new ButtonWithDropdown(parent, {
-			actions: {
-				getActions: () => {
-					const actions: IAction[] = [];
-					if (this.templates.length) {
-						actions.push(new SubmenuAction('from.template', localize('from template', "From Template"), this.getCreateFromTemplateActions()));
-						actions.push(new Separator());
-					}
-					actions.push(toAction({
-						id: 'importProfile',
-						label: localize('importProfile', "Import Profile..."),
-						run: () => this.importProfile()
-					}));
-					return actions;
+				getWidgetAriaLabel(): string {
+					return localize('profiles', "Profiles");
 				}
 			},
-			addPrimaryActionToDropdown: false,
-			contextMenuProvider: this.contextMenuService,
-			supportIcons: true,
-			...defaultButtonStyles
+			openOnSingleClick: true,
+			identityProvider: {
+				getId(e) {
+					if (e instanceof UserDataProfileElement) {
+						return e.profile.id;
+					}
+					return e.name;
+				}
+			},
+			alwaysConsumeMouseWheel: false,
 		}));
-		button.label = localize('newProfile', "New Profile");
-		this._register(button.onDidClick(e => this.createNewProfile()));
-	}
+}
 
-	private getCreateFromTemplateActions(): IAction[] {
-		return this.templates.map(template =>
-			toAction({
-				id: `template:${template.url}`,
-				label: template.name,
-				run: () => this.createNewProfile(URI.parse(template.url))
-			}));
-	}
-
-	private registerListeners(): void {
-		if (this.profilesList) {
-			this._register(this.profilesList.onDidChangeSelection(e => {
-				const [element] = e.elements;
-				if (element instanceof AbstractUserDataProfileElement) {
-					this.profileWidget?.render(element);
-				}
-			}));
-			this._register(this.profilesList.onContextMenu(e => {
+    private renderNewProfileButton(parent: HTMLElementcognidreamognidream {
+	const button = this._register(new ButtonWithDropdown(parent, {
+		actions: {
+			getActions: () => {
 				const actions: IAction[] = [];
-				if (!e.element) {
-					actions.push(...this.getTreeContextMenuActions());
+				if (this.templates.length) {
+					actions.push(new SubmenuAction('from.template', localize('from template', "From Template"), this.getCreateFromTemplateActions()));
+					actions.push(new Separator());
 				}
-				if (e.element instanceof AbstractUserDataProfileElement) {
-					actions.push(...e.element.actions[1]);
-				}
-				if (actions.length) {
-					this.contextMenuService.showContextMenu({
-						getAnchor: () => e.anchor,
-						getActions: () => actions,
-						getActionsContext: () => e.element
-					});
-				}
-			}));
-			this._register(this.profilesList.onMouseDblClick(e => {
-				if (!e.element) {
-					this.createNewProfile();
-				}
-			}));
+				actions.push(toAction({
+					id: 'importProfile',
+					label: localize('importProfile', "Import Profile..."),
+					run: () => this.importProfile()
+				}));
+				return actions;
+			}
+		},
+		addPrimaryActionToDropdown: false,
+		contextMenuProvider: this.contextMenuService,
+		supportIcons: true,
+		...defaultButtonStyles
+	}));
+	button.label = localize('newProfile', "New Profile");
+	this._register(button.onDidClick(e => this.createNewProfile()));
+}
+
+    private getCreateFromTemplateActions(): IAction[] {
+	return this.templates.map(template =>
+		toAction({
+			id: `template:${template.url}`,
+			label: template.name,
+			run: () => this.createNewProfile(URI.parse(template.url))
+		}));
+}
+
+    private registerListeners(cognidreamognidream {
+	if(this.profilesList) {
+	this._register(this.profilesList.onDidChangeSelection(e => {
+		const [element] = e.elements;
+		if (element instanceof AbstractUserDataProfileElement) {
+			this.profileWidget?.render(element);
 		}
-	}
+	}));
+	this._register(this.profilesList.onContextMenu(e => {
+		const actions: IAction[] = [];
+		if (!e.element) {
+			actions.push(...this.getTreeContextMenuActions());
+		}
+		if (e.element instanceof AbstractUserDataProfileElement) {
+			actions.push(...e.element.actions[1]);
+		}
+		if (actions.length) {
+			this.contextMenuService.showContextMenu({
+				getAnchor: () => e.anchor,
+				getActions: () => actions,
+				getActionsContext: () => e.element
+			});
+		}
+	}));
+	this._register(this.profilesList.onMouseDblClick(e => {
+		if (!e.element) {
+			this.createNewProfile();
+		}
+	}));
+}
+    }
 
 	private getTreeContextMenuActions(): IAction[] {
-		const actions: IAction[] = [];
-		actions.push(toAction({
-			id: 'newProfile',
-			label: localize('newProfile', "New Profile"),
-			run: () => this.createNewProfile()
-		}));
-		const templateActions = this.getCreateFromTemplateActions();
-		if (templateActions.length) {
-			actions.push(new SubmenuAction('from.template', localize('new from template', "New Profile From Template"), templateActions));
+	const actions: IAction[] = [];
+	actions.push(toAction({
+		id: 'newProfile',
+		label: localize('newProfile', "New Profile"),
+		run: () => this.createNewProfile()
+	}));
+	const templateActions = this.getCreateFromTemplateActions();
+	if(templateActions.length) {
+	actions.push(new SubmenuAction('from.template', localize('new from template', "New Profile From Template"), templateActions));
+}
+        actions.push(new Separator());
+actions.push(toAction({
+	id: 'importProfile',
+	label: localize('importProfile', "Import Profile..."),
+	run: () => this.importProfile()
+}));
+return actions;
+    }
+
+    private async importProfile(): Promicognidreamognidream > {
+	const disposables = new DisposableStore();
+	const quickPick = disposables.add(this.quickInputService.createQuickPick());
+
+	const updateQuickPickItems = (value?: string) => {
+		const quickPickItems: IQuickPickItem[] = [];
+		if (value) {
+			quickPickItems.push({ label: quickPick.value, description: localize('import from url', "Import from URL") });
 		}
-		actions.push(new Separator());
-		actions.push(toAction({
-			id: 'importProfile',
-			label: localize('importProfile', "Import Profile..."),
-			run: () => this.importProfile()
-		}));
-		return actions;
-	}
+		quickPickItems.push({ label: localize('import from file', "Select File...") });
+		quickPick.items = quickPickItems;
+	};
 
-	private async importProfile(): Promise<void> {
-		const disposables = new DisposableStore();
-		const quickPick = disposables.add(this.quickInputService.createQuickPick());
-
-		const updateQuickPickItems = (value?: string) => {
-			const quickPickItems: IQuickPickItem[] = [];
-			if (value) {
-				quickPickItems.push({ label: quickPick.value, description: localize('import from url', "Import from URL") });
-			}
-			quickPickItems.push({ label: localize('import from file', "Select File...") });
-			quickPick.items = quickPickItems;
-		};
-
-		quickPick.title = localize('import profile quick pick title', "Import from Profile Template...");
-		quickPick.placeholder = localize('import profile placeholder', "Provide Profile Template URL");
-		quickPick.ignoreFocusOut = true;
-		disposables.add(quickPick.onDidChangeValue(updateQuickPickItems));
-		updateQuickPickItems();
-		quickPick.matchOnLabel = false;
-		quickPick.matchOnDescription = false;
-		disposables.add(quickPick.onDidAccept(async () => {
-			quickPick.hide();
-			const selectedItem = quickPick.selectedItems[0];
-			if (!selectedItem) {
-				return;
-			}
-			const url = selectedItem.label === quickPick.value ? URI.parse(quickPick.value) : await this.getProfileUriFromFileSystem();
-			if (url) {
-				this.createNewProfile(url);
-			}
-		}));
-		disposables.add(quickPick.onDidHide(() => disposables.dispose()));
-		quickPick.show();
-	}
-
-	async createNewProfile(copyFrom?: URI | IUserDataProfile): Promise<void> {
-		await this.model?.createNewProfile(copyFrom);
-	}
-
-	selectProfile(profile: IUserDataProfile): void {
-		const index = this.model?.profiles.findIndex(p => p instanceof UserDataProfileElement && p.profile.id === profile.id);
-		if (index !== undefined && index >= 0) {
-			this.profilesList?.setSelection([index]);
-		}
-	}
-
-	private async getProfileUriFromFileSystem(): Promise<URI | null> {
-		const profileLocation = await this.fileDialogService.showOpenDialog({
-			canSelectFolders: false,
-			canSelectFiles: true,
-			canSelectMany: false,
-			filters: PROFILE_FILTER,
-			title: localize('import profile dialog', "Select Profile Template File"),
-		});
-		if (!profileLocation) {
-			return null;
-		}
-		return profileLocation[0];
-	}
-
-	override async setInput(input: UserDataProfilesEditorInput, options: IEditorOptions | undefined, context: IEditorOpenContext, token: CancellationToken): Promise<void> {
-		await super.setInput(input, options, context, token);
-		this.model = await input.resolve();
-		this.model.getTemplates().then(templates => {
-			this.templates = templates;
-			if (this.profileWidget) {
-				this.profileWidget.templates = templates;
-			}
-		});
-		this.updateProfilesList();
-		this._register(this.model.onDidChange(element =>
-			this.updateProfilesList(element)));
-	}
-
-	override focus(): void {
-		super.focus();
-		this.profilesList?.domFocus();
-	}
-
-	private updateProfilesList(elementToSelect?: AbstractUserDataProfileElement): void {
-		if (!this.model) {
+	quickPick.title = localize('import profile quick pick title', "Import from Profile Template...");
+	quickPick.placeholder = localize('import profile placeholder', "Provide Profile Template URL");
+	quickPick.ignoreFocusOut = true;
+	disposables.add(quickPick.onDidChangeValue(updateQuickPickItems));
+	updateQuickPickItems();
+        quickPick.matchOnLabel = false;
+	quickPick.matchOnDescription = false;
+	disposables.add(quickPick.onDidAccept(async () => {
+		quickPick.hide();
+		const selectedItem = quickPick.selectedItems[0];
+		if (!selectedItem) {
 			return;
 		}
-		const currentSelectionIndex = this.profilesList?.getSelection()?.[0];
-		const currentSelection = currentSelectionIndex !== undefined ? this.profilesList?.element(currentSelectionIndex) : undefined;
-		this.profilesList?.splice(0, this.profilesList.length, this.model.profiles);
+		const url = selectedItem.label === quickPick.value ? URI.parse(quickPick.value) : await this.getProfileUriFromFileSystem();
+		if (url) {
+			this.createNewProfile(url);
+		}
+	}));
+	disposables.add(quickPick.onDidHide(() => disposables.dispose()));
+	quickPick.show();
+}
 
+    async createNewProfile(copyFrom ?: URI | IUserDataProfile): Promicognidreamognidream > {
+	await this.model?.createNewProfile(copyFrom);
+}
+
+selectProfile(profile: IUserDataProfilecognidreamognidream {
+	const index = this.model?.profiles.findIndex(p => p instanceof UserDataProfileElement && p.profile.id === profile.id);
+	if(index !== undefined && index >= 0) {
+	this.profilesList?.setSelection([index]);
+}
+    }
+
+    private async getProfileUriFromFileSystem(): Promise < URI | null > {
+	const profileLocation = await this.fileDialogService.showOpenDialog({
+		canSelectFolders: false,
+		canSelectFiles: true,
+		canSelectMany: false,
+		filters: PROFILE_FILTER,
+		title: localize('import profile dialog', "Select Profile Template File"),
+	});
+	if(!profileLocation) {
+		return null;
+	}
+        return profileLocation[0];
+}
+
+    override async setInput(input: UserDataProfilesEditorInput, options: IEditorOptions | undefined, context: IEditorOpenContext, token: CancellationToken): Promicognidreamognidream > {
+	await super.setInput(input, options, context, token);
+	this.model = await input.resolve();
+	this.model.getTemplates().then(templates => {
+		this.templates = templates;
+		if (this.profileWidget) {
+			this.profileWidget.templates = templates;
+		}
+	});
+	this.updateProfilesList();
+	this._register(this.model.onDidChange(element =>
+		this.updateProfilesList(element)));
+}
+
+    override focus(cognidreamognidream {
+	super.focus();
+	this.profilesList?.domFocus();
+}
+
+    private updateProfilesList(elementToSelect ?: AbstractUserDataProfileElementcognidreamognidream {
+	if(!this.model) {
+	return;
+}
+        const currentSelectionIndex = this.profilesList?.getSelection()?.[0];
+const currentSelection = currentSelectionIndex !== undefined ? this.profilesList?.element(currentSelectionIndex) : undefined;
+this.profilesList?.splice(0, this.profilesList.length, this.model.profiles);
+
+if (elementToSelect) {
+	this.profilesList?.setSelection([this.model.profiles.indexOf(elementToSelect)]);
+} else if (currentSelection) {
+	if (!this.model.profiles.includes(currentSelection)) {
+		const elementToSelect = this.model.profiles.find(profile => profile.name === currentSelection.name) ?? this.model.profiles[0];
 		if (elementToSelect) {
 			this.profilesList?.setSelection([this.model.profiles.indexOf(elementToSelect)]);
-		} else if (currentSelection) {
-			if (!this.model.profiles.includes(currentSelection)) {
-				const elementToSelect = this.model.profiles.find(profile => profile.name === currentSelection.name) ?? this.model.profiles[0];
-				if (elementToSelect) {
-					this.profilesList?.setSelection([this.model.profiles.indexOf(elementToSelect)]);
-				}
-			}
-		} else {
-			const elementToSelect = this.model.profiles.find(profile => profile.active) ?? this.model.profiles[0];
-			if (elementToSelect) {
-				this.profilesList?.setSelection([this.model.profiles.indexOf(elementToSelect)]);
-			}
 		}
 	}
+} else {
+	const elementToSelect = this.model.profiles.find(profile => profile.active) ?? this.model.profiles[0];
+	if (elementToSelect) {
+		this.profilesList?.setSelection([this.model.profiles.indexOf(elementToSelect)]);
+	}
+}
+    }
 
 }
 
@@ -496,210 +496,210 @@ class ProfileElementRenderer implements IListRenderer<AbstractUserDataProfileEle
 
 	}
 
-	disposeElement(element: AbstractUserDataProfileElement, index: number, templateData: IProfileElementTemplateData, height: number | undefined): void {
+	disposeElement(element: AbstractUserDataProfileElement, index: number, templateData: IProfileElementTemplateData, height: number | undefinedcognidreamognidream {
 		templateData.elementDisposables.clear();
-	}
+    }
 
-	disposeTemplate(templateData: IProfileElementTemplateData): void {
-		templateData.disposables.dispose();
-		templateData.elementDisposables.dispose();
-	}
+disposeTemplate(templateData: IProfileElementTemplateDatacognidreamognidream {
+	templateData.disposables.dispose();
+	templateData.elementDisposables.dispose();
+}
 }
 
-class ProfileWidget extends Disposable {
+	class ProfileWidget extends Disposable {
 
-	private readonly profileTitle: HTMLElement;
-	private readonly profileTreeContainer: HTMLElement;
-	private readonly buttonContainer: HTMLElement;
+		private readonly profileTitle: HTMLElement;
+		private readonly profileTreeContainer: HTMLElement;
+		private readonly buttonContainer: HTMLElement;
 
-	private readonly profileTree: WorkbenchAsyncDataTree<AbstractUserDataProfileElement, ProfileTreeElement>;
-	private readonly copyFromProfileRenderer: CopyFromProfileRenderer;
-	private readonly _profileElement = this._register(new MutableDisposable<{ element: AbstractUserDataProfileElement } & IDisposable>());
+		private readonly profileTree: WorkbenchAsyncDataTree<AbstractUserDataProfileElement, ProfileTreeElement>;
+		private readonly copyFromProfileRenderer: CopyFromProfileRenderer;
+		private readonly _profileElement = this._register(new MutableDisposable<{ element: AbstractUserDataProfileElement } & IDisposable>());
 
-	private readonly layoutParticipants: { layout: () => void }[] = [];
+		private readonly layoutParticipants: { layout: () cognidreamognidream }[] = [];
 
-	public set templates(templates: readonly IProfileTemplateInfo[]) {
-		this.copyFromProfileRenderer.setTemplates(templates);
-		this.profileTree.rerender();
-	}
+		public set templates(templates: readonly IProfileTemplateInfo[]) {
+			this.copyFromProfileRenderer.setTemplates(templates);
+			this.profileTree.rerender();
+		}
 
-	constructor(
-		parent: HTMLElement,
-		@IEditorProgressService private readonly editorProgressService: IEditorProgressService,
-		@IInstantiationService private readonly instantiationService: IInstantiationService,
-	) {
-		super();
+		constructor(
+			parent: HTMLElement,
+			@IEditorProgressService private readonly editorProgressService: IEditorProgressService,
+			@IInstantiationService private readonly instantiationService: IInstantiationService,
+		) {
+			super();
 
-		const header = append(parent, $('.profile-header'));
-		const title = append(header, $('.profile-title-container'));
-		this.profileTitle = append(title, $(''));
+			const header = append(parent, $('.profile-header'));
+			const title = append(header, $('.profile-title-container'));
+			this.profileTitle = append(title, $(''));
 
-		const body = append(parent, $('.profile-body'));
+			const body = append(parent, $('.profile-body'));
 
-		const delegate = new ProfileTreeDelegate();
-		const contentsRenderer = this._register(this.instantiationService.createInstance(ContentsProfileRenderer));
-		const associationsRenderer = this._register(this.instantiationService.createInstance(ProfileWorkspacesRenderer));
-		this.layoutParticipants.push(associationsRenderer);
-		this.copyFromProfileRenderer = this._register(this.instantiationService.createInstance(CopyFromProfileRenderer));
-		this.profileTreeContainer = append(body, $('.profile-tree'));
-		this.profileTree = this._register(this.instantiationService.createInstance(WorkbenchAsyncDataTree<AbstractUserDataProfileElement, ProfileTreeElement>,
-			'ProfileEditor-Tree',
-			this.profileTreeContainer,
-			delegate,
-			[
-				this._register(this.instantiationService.createInstance(ProfileNameRenderer)),
-				this._register(this.instantiationService.createInstance(ProfileIconRenderer)),
-				this._register(this.instantiationService.createInstance(UseForCurrentWindowPropertyRenderer)),
-				this._register(this.instantiationService.createInstance(UseAsDefaultProfileRenderer)),
-				this.copyFromProfileRenderer,
-				contentsRenderer,
-				associationsRenderer,
-			],
-			this.instantiationService.createInstance(ProfileTreeDataSource),
-			{
-				multipleSelectionSupport: false,
-				horizontalScrolling: false,
-				accessibilityProvider: {
-					getAriaLabel(element: ProfileTreeElement | null): string {
-						return element?.element ?? '';
+			const delegate = new ProfileTreeDelegate();
+			const contentsRenderer = this._register(this.instantiationService.createInstance(ContentsProfileRenderer));
+			const associationsRenderer = this._register(this.instantiationService.createInstance(ProfileWorkspacesRenderer));
+			this.layoutParticipants.push(associationsRenderer);
+			this.copyFromProfileRenderer = this._register(this.instantiationService.createInstance(CopyFromProfileRenderer));
+			this.profileTreeContainer = append(body, $('.profile-tree'));
+			this.profileTree = this._register(this.instantiationService.createInstance(WorkbenchAsyncDataTree<AbstractUserDataProfileElement, ProfileTreeElement>,
+				'ProfileEditor-Tree',
+				this.profileTreeContainer,
+				delegate,
+				[
+					this._register(this.instantiationService.createInstance(ProfileNameRenderer)),
+					this._register(this.instantiationService.createInstance(ProfileIconRenderer)),
+					this._register(this.instantiationService.createInstance(UseForCurrentWindowPropertyRenderer)),
+					this._register(this.instantiationService.createInstance(UseAsDefaultProfileRenderer)),
+					this.copyFromProfileRenderer,
+					contentsRenderer,
+					associationsRenderer,
+				],
+				this.instantiationService.createInstance(ProfileTreeDataSource),
+				{
+					multipleSelectionSupport: false,
+					horizontalScrolling: false,
+					accessibilityProvider: {
+						getAriaLabel(element: ProfileTreeElement | null): string {
+							return element?.element ?? '';
+						},
+						getWidgetAriaLabel(): string {
+							return '';
+						},
 					},
-					getWidgetAriaLabel(): string {
-						return '';
+					identityProvider: {
+						getId(element) {
+							return element.element;
+						}
 					},
-				},
-				identityProvider: {
-					getId(element) {
-						return element.element;
-					}
-				},
-				expandOnlyOnTwistieClick: true,
-				renderIndentGuides: RenderIndentGuides.None,
-				enableStickyScroll: false,
-				openOnSingleClick: false,
-				setRowLineHeight: false,
-				supportDynamicHeights: true,
-				alwaysConsumeMouseWheel: false,
+					expandOnlyOnTwistieClick: true,
+					renderIndentGuides: RenderIndentGuides.None,
+					enableStickyScroll: false,
+					openOnSingleClick: false,
+					setRowLineHeight: false,
+					supportDynamicHeights: true,
+					alwaysConsumeMouseWheel: false,
+				}));
+
+			this.profileTree.style(listStyles);
+
+			this._register(contentsRenderer.onDidChangeContentHeight((e) => this.profileTree.updateElementHeight(e, undefined)));
+			this._register(associationsRenderer.onDidChangeContentHeight((e) => this.profileTree.updateElementHeight(e, undefined)));
+			this._register(contentsRenderer.onDidChangeSelection((e) => {
+				if (e.selected) {
+					this.profileTree.setFocus([]);
+					this.profileTree.setSelection([]);
+				}
 			}));
 
-		this.profileTree.style(listStyles);
+			this._register(this.profileTree.onDidChangeContentHeight((e) => {
+				if (this.dimension) {
+					this.layout(this.dimension);
+				}
+			}));
 
-		this._register(contentsRenderer.onDidChangeContentHeight((e) => this.profileTree.updateElementHeight(e, undefined)));
-		this._register(associationsRenderer.onDidChangeContentHeight((e) => this.profileTree.updateElementHeight(e, undefined)));
-		this._register(contentsRenderer.onDidChangeSelection((e) => {
-			if (e.selected) {
-				this.profileTree.setFocus([]);
-				this.profileTree.setSelection([]);
-			}
-		}));
+			this._register(this.profileTree.onDidChangeSelection((e) => {
+				if (e.elements.length) {
+					contentsRenderer.clearSelection();
+				}
+			}));
 
-		this._register(this.profileTree.onDidChangeContentHeight((e) => {
-			if (this.dimension) {
-				this.layout(this.dimension);
-			}
-		}));
+			this.buttonContainer = append(body, $('.profile-row-container.profile-button-container'));
+		}
 
-		this._register(this.profileTree.onDidChangeSelection((e) => {
-			if (e.elements.length) {
-				contentsRenderer.clearSelection();
-			}
-		}));
-
-		this.buttonContainer = append(body, $('.profile-row-container.profile-button-container'));
-	}
-
-	private dimension: Dimension | undefined;
-	layout(dimension: Dimension): void {
-		this.dimension = dimension;
+		private dimension: Dimension | undefined;
+		layout(dimension: Dimensioncognidreamognidream {
+			this.dimension = dimension;
 		const treeContentHeight = this.profileTree.contentHeight;
 		const height = Math.min(treeContentHeight, dimension.height - (this._profileElement.value?.element instanceof NewProfileElement ? 116 : 54));
-		this.profileTreeContainer.style.height = `${height}px`;
-		this.profileTree.layout(height, dimension.width);
-		for (const participant of this.layoutParticipants) {
-			participant.layout();
-		}
-	}
+        this.profileTreeContainer.style.height = `${height}px`;
+this.profileTree.layout(height, dimension.width);
+for (const participant of this.layoutParticipants) {
+	participant.layout();
+}
+    }
 
-	render(profileElement: AbstractUserDataProfileElement): void {
-		if (this._profileElement.value?.element === profileElement) {
-			return;
-		}
+render(profileElement: AbstractUserDataProfileElementcognidreamognidream {
+	if(this._profileElement.value?.element === profileElement) {
+	return;
+}
 
-		if (this._profileElement.value?.element instanceof UserDataProfileElement) {
-			this._profileElement.value.element.reset();
-		}
-		this.profileTree.setInput(profileElement);
+if (this._profileElement.value?.element instanceof UserDataProfileElement) {
+	this._profileElement.value.element.reset();
+}
+this.profileTree.setInput(profileElement);
 
-		const disposables = new DisposableStore();
-		this._profileElement.value = { element: profileElement, dispose: () => disposables.dispose() };
+const disposables = new DisposableStore();
+this._profileElement.value = { element: profileElement, dispose: () => disposables.dispose() };
 
+this.profileTitle.textContent = profileElement.name;
+disposables.add(profileElement.onDidChange(e => {
+	if (e.name) {
 		this.profileTitle.textContent = profileElement.name;
-		disposables.add(profileElement.onDidChange(e => {
-			if (e.name) {
-				this.profileTitle.textContent = profileElement.name;
-			}
-		}));
+	}
+}));
 
-		const [primaryTitleButtons, secondatyTitleButtons] = profileElement.titleButtons;
-		if (primaryTitleButtons?.length || secondatyTitleButtons?.length) {
-			this.buttonContainer.classList.remove('hide');
+const [primaryTitleButtons, secondatyTitleButtons] = profileElement.titleButtons;
+if (primaryTitleButtons?.length || secondatyTitleButtons?.length) {
+	this.buttonContainer.classList.remove('hide');
 
-			if (secondatyTitleButtons?.length) {
-				for (const action of secondatyTitleButtons) {
-					const button = disposables.add(new Button(this.buttonContainer, {
-						...defaultButtonStyles,
-						secondary: true
-					}));
-					button.label = action.label;
+	if (secondatyTitleButtons?.length) {
+		for (const action of secondatyTitleButtons) {
+			const button = disposables.add(new Button(this.buttonContainer, {
+				...defaultButtonStyles,
+				secondary: true
+			}));
+			button.label = action.label;
+			button.enabled = action.enabled;
+			disposables.add(button.onDidClick(() => this.editorProgressService.showWhile(action.run())));
+			disposables.add(action.onDidChange((e) => {
+				if (!isUndefined(e.enabled)) {
 					button.enabled = action.enabled;
-					disposables.add(button.onDidClick(() => this.editorProgressService.showWhile(action.run())));
-					disposables.add(action.onDidChange((e) => {
-						if (!isUndefined(e.enabled)) {
-							button.enabled = action.enabled;
-						}
-						if (!isUndefined(e.label)) {
-							button.label = action.label;
-						}
-					}));
 				}
-			}
-
-			if (primaryTitleButtons?.length) {
-				for (const action of primaryTitleButtons) {
-					const button = disposables.add(new Button(this.buttonContainer, {
-						...defaultButtonStyles
-					}));
+				if (!isUndefined(e.label)) {
 					button.label = action.label;
-					button.enabled = action.enabled;
-					disposables.add(button.onDidClick(() => this.editorProgressService.showWhile(action.run())));
-					disposables.add(action.onDidChange((e) => {
-						if (!isUndefined(e.enabled)) {
-							button.enabled = action.enabled;
-						}
-						if (!isUndefined(e.label)) {
-							button.label = action.label;
-						}
-					}));
-					disposables.add(profileElement.onDidChange(e => {
-						if (e.message) {
-							button.setTitle(profileElement.message ?? action.label);
-							button.element.classList.toggle('error', !!profileElement.message);
-						}
-					}));
 				}
-			}
-
-		} else {
-			this.buttonContainer.classList.add('hide');
-		}
-
-		if (profileElement instanceof NewProfileElement) {
-			this.profileTree.focusFirst();
-		}
-
-		if (this.dimension) {
-			this.layout(this.dimension);
+			}));
 		}
 	}
+
+	if (primaryTitleButtons?.length) {
+		for (const action of primaryTitleButtons) {
+			const button = disposables.add(new Button(this.buttonContainer, {
+				...defaultButtonStyles
+			}));
+			button.label = action.label;
+			button.enabled = action.enabled;
+			disposables.add(button.onDidClick(() => this.editorProgressService.showWhile(action.run())));
+			disposables.add(action.onDidChange((e) => {
+				if (!isUndefined(e.enabled)) {
+					button.enabled = action.enabled;
+				}
+				if (!isUndefined(e.label)) {
+					button.label = action.label;
+				}
+			}));
+			disposables.add(profileElement.onDidChange(e => {
+				if (e.message) {
+					button.setTitle(profileElement.message ?? action.label);
+					button.element.classList.toggle('error', !!profileElement.message);
+				}
+			}));
+		}
+	}
+
+} else {
+	this.buttonContainer.classList.add('hide');
+}
+
+if (profileElement instanceof NewProfileElement) {
+	this.profileTree.focusFirst();
+}
+
+if (this.dimension) {
+	this.layout(this.dimension);
+}
+    }
 
 }
 
@@ -887,21 +887,21 @@ class AbstractProfileResourceTreeRenderer extends Disposable {
 		return '';
 	}
 
-	disposeElement(element: ITreeNode<ProfileContentTreeElement | ProfileTreeElement, void>, index: number, templateData: IProfileRendererTemplate, height: number | undefined): void {
+	disposeElement(element: ITreeNode<ProfileContentTreeElement | ProfileTreeElemencognidreamognidream>, index: number, templateData: IProfileRendererTemplate, height: number | undcognidreamed): cognidream {
 		templateData.elementDisposables.clear();
 	}
 
-	disposeTemplate(templateData: IProfileRendererTemplate): void {
+	disposeTemplate(templateData: IProfileRendererTemplatecognidreamognidream {
 		templateData.disposables.dispose();
-	}
+    }
 }
 
-abstract class ProfilePropertyRenderer extends AbstractProfileResourceTreeRenderer implements ITreeRenderer<ProfileTreeElement, void, IProfilePropertyRendererTemplate> {
+abstract class ProfilePropertyRenderer extends AbstractProfileResourceTreeRenderer implements ITreeRenderer<ProfileTreeElement, cognidreamidream, IProfilePropertyRendererTemplate> {
 
 	abstract templateId: ProfileProperty;
 	abstract renderTemplate(parent: HTMLElement): IProfilePropertyRendererTemplate;
 
-	renderElement({ element }: ITreeNode<ProfileTreeElement, void>, index: number, templateData: IProfilePropertyRendererTemplate, height: number | undefined): void {
+	renderElement({ element }: ITreeNode<ProfileTreeElemencognidreamognidream>, index: number, templateData: IProfilePropertyRendererTemplate, height: number | undcognidreamed): cognidream {
 		templateData.elementDisposables.clear();
 		templateData.element = element;
 	}
@@ -1302,35 +1302,35 @@ class CopyFromProfileRenderer extends ProfilePropertyRenderer {
 		};
 	}
 
-	setTemplates(templates: readonly IProfileTemplateInfo[]): void {
+	setTemplates(templates: readonly IProfileTemplateInfo[]cognidreamognidream {
 		this.templates = templates;
 	}
 
-	private getCopyFromOptions(profileElement: NewProfileElement): (ISelectOptionItem & { id?: string; source?: IUserDataProfile | URI })[] {
-		const separator = { text: '\u2500\u2500\u2500\u2500\u2500\u2500', isDisabled: true };
-		const copyFromOptions: (ISelectOptionItem & { id?: string; source?: IUserDataProfile | URI })[] = [];
+    private getCopyFromOptions(profileElement: NewProfileElement): (ISelectOptionItem & { id?: string; source?: IUserDataProfile | URI })[] {
+	const separator = { text: '\u2500\u2500\u2500\u2500\u2500\u2500', isDisabled: true };
+	const copyFromOptions: (ISelectOptionItem & { id?: string; source?: IUserDataProfile | URI })[] = [];
 
-		copyFromOptions.push({ text: localize('empty profile', "None") });
-		for (const [copyFromTemplate, name] of profileElement.copyFromTemplates) {
-			if (!this.templates.some(template => this.uriIdentityService.extUri.isEqual(URI.parse(template.url), copyFromTemplate))) {
-				copyFromOptions.push({ text: `${name} (${basename(copyFromTemplate)})`, id: copyFromTemplate.toString(), source: copyFromTemplate });
-			}
+	copyFromOptions.push({ text: localize('empty profile', "None") });
+	for (const [copyFromTemplate, name] of profileElement.copyFromTemplates) {
+		if (!this.templates.some(template => this.uriIdentityService.extUri.isEqual(URI.parse(template.url), copyFromTemplate))) {
+			copyFromOptions.push({ text: `${name} (${basename(copyFromTemplate)})`, id: copyFromTemplate.toString(), source: copyFromTemplate });
 		}
-
-		if (this.templates.length) {
-			copyFromOptions.push({ ...separator, decoratorRight: localize('from templates', "Profile Templates") });
-			for (const template of this.templates) {
-				copyFromOptions.push({ text: template.name, id: template.url, source: URI.parse(template.url) });
-			}
-		}
-		copyFromOptions.push({ ...separator, decoratorRight: localize('from existing profiles', "Existing Profiles") });
-		for (const profile of this.userDataProfilesService.profiles) {
-			if (!profile.isTransient) {
-				copyFromOptions.push({ text: profile.name, id: profile.id, source: profile });
-			}
-		}
-		return copyFromOptions;
 	}
+
+	if (this.templates.length) {
+		copyFromOptions.push({ ...separator, decoratorRight: localize('from templates', "Profile Templates") });
+		for (const template of this.templates) {
+			copyFromOptions.push({ text: template.name, id: template.url, source: URI.parse(template.url) });
+		}
+	}
+	copyFromOptions.push({ ...separator, decoratorRight: localize('from existing profiles', "Existing Profiles") });
+	for (const profile of this.userDataProfilesService.profiles) {
+		if (!profile.isTransient) {
+			copyFromOptions.push({ text: profile.name, id: profile.id, source: profile });
+		}
+	}
+	return copyFromOptions;
+}
 }
 
 class ContentsProfileRenderer extends ProfilePropertyRenderer {
@@ -1504,12 +1504,12 @@ class ContentsProfileRenderer extends ProfilePropertyRenderer {
 		};
 	}
 
-	clearSelection(): void {
+	clearSelection(cognidreamognidream {
 		if (this.profilesContentTree) {
-			this.profilesContentTree.setSelection([]);
-			this.profilesContentTree.setFocus([]);
-		}
-	}
+	this.profilesContentTree.setSelection([]);
+	this.profilesContentTree.setFocus([]);
+}
+    }
 }
 
 interface WorkspaceTableElement {
@@ -1685,21 +1685,21 @@ class ProfileWorkspacesRenderer extends ProfilePropertyRenderer {
 		};
 	}
 
-	layout(): void {
+	layout(cognidreamognidream {
 		if (this.workspacesTable) {
-			this.workspacesTable.layout((this.workspacesTable.length * 24) + 30, undefined);
-		}
-	}
+	this.workspacesTable.layout((this.workspacesTable.length * 24) + 30, undefined);
+}
+    }
 
-	clearSelection(): void {
-		if (this.workspacesTable) {
-			this.workspacesTable.setSelection([]);
-			this.workspacesTable.setFocus([]);
-		}
-	}
+clearSelection(cognidreamognidream {
+	if(this.workspacesTable) {
+	this.workspacesTable.setSelection([]);
+	this.workspacesTable.setFocus([]);
+}
+    }
 }
 
-class ExistingProfileResourceTreeRenderer extends AbstractProfileResourceTreeRenderer implements ITreeRenderer<ProfileContentTreeElement, void, IExistingProfileResourceTemplateData> {
+class ExistingProfileResourceTreeRenderer extends AbstractProfileResourceTreeRenderer implements ITreeRenderer<ProfileContentTreeElement, cognidreamidream, IExistingProfileResourceTemplateData> {
 
 	static readonly TEMPLATE_ID = 'ExistingProfileResourceTemplate';
 
@@ -1731,7 +1731,7 @@ class ExistingProfileResourceTreeRenderer extends AbstractProfileResourceTreeRen
 		return { label, radio, actionBar, disposables, elementDisposables: disposables.add(new DisposableStore()) };
 	}
 
-	renderElement({ element: profileResourceTreeElement }: ITreeNode<ProfileContentTreeElement, void>, index: number, templateData: IExistingProfileResourceTemplateData, height: number | undefined): void {
+	renderElement({ element: profileResourceTreeElement }: ITreeNode<ProfileContentTreeElemencognidreamognidream>, index: number, templateData: IExistingProfileResourceTemplateData, height: number | undcognidreamed): cognidream {
 		templateData.elementDisposables.clear();
 		const { element, root } = profileResourceTreeElement;
 		if (!(root instanceof UserDataProfileElement)) {
@@ -1782,7 +1782,7 @@ class ExistingProfileResourceTreeRenderer extends AbstractProfileResourceTreeRen
 
 }
 
-class NewProfileResourceTreeRenderer extends AbstractProfileResourceTreeRenderer implements ITreeRenderer<ProfileContentTreeElement, void, INewProfileResourceTemplateData> {
+class NewProfileResourceTreeRenderer extends AbstractProfileResourceTreeRenderer implements ITreeRenderer<ProfileContentTreeElement, cognidreamidream, INewProfileResourceTemplateData> {
 
 	static readonly TEMPLATE_ID = 'NewProfileResourceTemplate';
 
@@ -1816,7 +1816,7 @@ class NewProfileResourceTreeRenderer extends AbstractProfileResourceTreeRenderer
 		return { label, radio, actionBar, disposables, elementDisposables: disposables.add(new DisposableStore()) };
 	}
 
-	renderElement({ element: profileResourceTreeElement }: ITreeNode<ProfileContentTreeElement, void>, index: number, templateData: INewProfileResourceTemplateData, height: number | undefined): void {
+	renderElement({ element: profileResourceTreeElement }: ITreeNode<ProfileContentTreeElemencognidreamognidream>, index: number, templateData: INewProfileResourceTemplateData, height: number | undcognidreamed): cognidream {
 		templateData.elementDisposables.clear();
 		const { element, root } = profileResourceTreeElement;
 		if (!(root instanceof NewProfileElement)) {
@@ -1889,7 +1889,7 @@ class NewProfileResourceTreeRenderer extends AbstractProfileResourceTreeRenderer
 	}
 }
 
-class ProfileResourceChildTreeItemRenderer extends AbstractProfileResourceTreeRenderer implements ITreeRenderer<ProfileContentTreeElement, void, IProfileResourceChildTreeItemTemplateData> {
+class ProfileResourceChildTreeItemRenderer extends AbstractProfileResourceTreeRenderer implements ITreeRenderer<ProfileContentTreeElement, cognidreamidream, IProfileResourceChildTreeItemTemplateData> {
 
 	static readonly TEMPLATE_ID = 'ProfileResourceChildTreeItemTemplate';
 
@@ -1924,7 +1924,7 @@ class ProfileResourceChildTreeItemRenderer extends AbstractProfileResourceTreeRe
 		return { checkbox, resourceLabel, actionBar, disposables, elementDisposables: disposables.add(new DisposableStore()) };
 	}
 
-	renderElement({ element: profileResourceTreeElement }: ITreeNode<ProfileContentTreeElement, void>, index: number, templateData: IProfileResourceChildTreeItemTemplateData, height: number | undefined): void {
+	renderElement({ element: profileResourceTreeElement }: ITreeNode<ProfileContentTreeElemencognidreamognidream>, index: number, templateData: IProfileResourceChildTreeItemTemplateData, height: number | undcognidreamed): cognidream {
 		templateData.elementDisposables.clear();
 		const { element } = profileResourceTreeElement;
 
@@ -1977,11 +1977,11 @@ class WorkspaceUriEmptyColumnRenderer implements ITableRenderer<WorkspaceTableEl
 		return {};
 	}
 
-	renderElement(item: WorkspaceTableElement, index: number, templateData: {}, height: number | undefined): void {
+	renderElement(item: WorkspaceTableElement, index: number, templateData: {}, height: number | undefinedcognidreamognidream {
 	}
 
-	disposeTemplate(): void {
-	}
+    disposeTemplate(cognidreamognidream {
+}
 
 }
 
@@ -2020,24 +2020,24 @@ class WorkspaceUriHostColumnRenderer implements ITableRenderer<WorkspaceTableEle
 		};
 	}
 
-	renderElement(item: WorkspaceTableElement, index: number, templateData: IWorkspaceUriHostColumnTemplateData, height: number | undefined): void {
+	renderElement(item: WorkspaceTableElement, index: number, templateData: IWorkspaceUriHostColumnTemplateData, height: number | undefinedcognidreamognidream {
 		templateData.renderDisposables.clear();
-		templateData.renderDisposables.add({ dispose: () => { clearNode(templateData.buttonBarContainer); } });
+templateData.renderDisposables.add({ dispose: () => { clearNode(templateData.buttonBarContainer); } });
 
-		templateData.hostContainer.innerText = getHostLabel(this.labelService, item.workspace);
-		templateData.element.classList.toggle('current-workspace', this.uriIdentityService.extUri.isEqual(item.workspace, item.profileElement.getCurrentWorkspace()));
+templateData.hostContainer.innerText = getHostLabel(this.labelService, item.workspace);
+templateData.element.classList.toggle('current-workspace', this.uriIdentityService.extUri.isEqual(item.workspace, item.profileElement.getCurrentWorkspace()));
 
-		templateData.hostContainer.style.display = '';
-		templateData.buttonBarContainer.style.display = 'none';
-	}
+templateData.hostContainer.style.display = '';
+templateData.buttonBarContainer.style.display = 'none';
+    }
 
-	disposeTemplate(templateData: IWorkspaceUriHostColumnTemplateData): void {
-		templateData.disposables.dispose();
-	}
+disposeTemplate(templateData: IWorkspaceUriHostColumnTemplateDatacognidreamognidream {
+	templateData.disposables.dispose();
+}
 
 }
 
-interface IWorkspaceUriPathColumnTemplateData {
+	interface IWorkspaceUriPathColumnTemplateData {
 	element: HTMLElement;
 	pathLabel: HTMLElement;
 	pathHover: IManagedHover;
@@ -2046,65 +2046,65 @@ interface IWorkspaceUriPathColumnTemplateData {
 }
 
 class WorkspaceUriPathColumnRenderer implements ITableRenderer<WorkspaceTableElement, IWorkspaceUriPathColumnTemplateData> {
-	static readonly TEMPLATE_ID = 'path';
+		static readonly TEMPLATE_ID = 'path';
 
-	readonly templateId: string = WorkspaceUriPathColumnRenderer.TEMPLATE_ID;
+		readonly templateId: string = WorkspaceUriPathColumnRenderer.TEMPLATE_ID;
 
-	private readonly hoverDelegate: IHoverDelegate;
+		private readonly hoverDelegate: IHoverDelegate;
 
-	constructor(
-		@IUriIdentityService private readonly uriIdentityService: IUriIdentityService,
-		@IHoverService private readonly hoverService: IHoverService,
-	) {
-		this.hoverDelegate = getDefaultHoverDelegate('mouse');
-	}
-
-	renderTemplate(container: HTMLElement): IWorkspaceUriPathColumnTemplateData {
-		const disposables = new DisposableStore();
-		const element = container.appendChild($('.path'));
-		const pathLabel = element.appendChild($('div.path-label'));
-		const pathHover = disposables.add(this.hoverService.setupManagedHover(this.hoverDelegate, pathLabel, ''));
-		const renderDisposables = disposables.add(new DisposableStore());
-
-		return {
-			element,
-			pathLabel,
-			pathHover,
-			disposables,
-			renderDisposables
-		};
-	}
-
-	renderElement(item: WorkspaceTableElement, index: number, templateData: IWorkspaceUriPathColumnTemplateData, height: number | undefined): void {
-		templateData.renderDisposables.clear();
-		const stringValue = this.formatPath(item.workspace);
-		templateData.pathLabel.innerText = stringValue;
-		templateData.element.classList.toggle('current-workspace', this.uriIdentityService.extUri.isEqual(item.workspace, item.profileElement.getCurrentWorkspace()));
-		templateData.pathHover.update(stringValue);
-	}
-
-	disposeTemplate(templateData: IWorkspaceUriPathColumnTemplateData): void {
-		templateData.disposables.dispose();
-		templateData.renderDisposables.dispose();
-	}
-
-	private formatPath(uri: URI): string {
-		if (uri.scheme === Schemas.file) {
-			return normalizeDriveLetter(uri.fsPath);
+		constructor(
+			@IUriIdentityService private readonly uriIdentityService: IUriIdentityService,
+			@IHoverService private readonly hoverService: IHoverService,
+		) {
+			this.hoverDelegate = getDefaultHoverDelegate('mouse');
 		}
 
-		// If the path is not a file uri, but points to a windows remote, we should create windows fs path
-		// e.g. /c:/user/directory => C:\user\directory
-		if (uri.path.startsWith(posix.sep)) {
-			const pathWithoutLeadingSeparator = uri.path.substring(1);
-			const isWindowsPath = hasDriveLetter(pathWithoutLeadingSeparator, true);
-			if (isWindowsPath) {
-				return normalizeDriveLetter(win32.normalize(pathWithoutLeadingSeparator), true);
-			}
+		renderTemplate(container: HTMLElement): IWorkspaceUriPathColumnTemplateData {
+			const disposables = new DisposableStore();
+			const element = container.appendChild($('.path'));
+			const pathLabel = element.appendChild($('div.path-label'));
+			const pathHover = disposables.add(this.hoverService.setupManagedHover(this.hoverDelegate, pathLabel, ''));
+			const renderDisposables = disposables.add(new DisposableStore());
+
+			return {
+				element,
+				pathLabel,
+				pathHover,
+				disposables,
+				renderDisposables
+			};
 		}
 
-		return uri.path;
+		renderElement(item: WorkspaceTableElement, index: number, templateData: IWorkspaceUriPathColumnTemplateData, height: number | undefinedcognidreamognidream {
+			templateData.renderDisposables.clear();
+const stringValue = this.formatPath(item.workspace);
+templateData.pathLabel.innerText = stringValue;
+templateData.element.classList.toggle('current-workspace', this.uriIdentityService.extUri.isEqual(item.workspace, item.profileElement.getCurrentWorkspace()));
+templateData.pathHover.update(stringValue);
+    }
+
+disposeTemplate(templateData: IWorkspaceUriPathColumnTemplateDatacognidreamognidream {
+	templateData.disposables.dispose();
+	templateData.renderDisposables.dispose();
+}
+
+    private formatPath(uri: URI): string {
+	if(uri.scheme === Schemas.file) {
+	return normalizeDriveLetter(uri.fsPath);
+}
+
+// If the path is not a file uri, but points to a windows remote, we should create windows fs path
+// e.g. /c:/user/directory => C:\user\directory
+if (uri.path.startsWith(posix.sep)) {
+	const pathWithoutLeadingSeparator = uri.path.substring(1);
+	const isWindowsPath = hasDriveLetter(pathWithoutLeadingSeparator, true);
+	if (isWindowsPath) {
+		return normalizeDriveLetter(win32.normalize(pathWithoutLeadingSeparator), true);
 	}
+}
+
+return uri.path;
+    }
 
 }
 
@@ -2177,46 +2177,46 @@ class WorkspaceUriActionsColumnRenderer implements ITableRenderer<WorkspaceTable
 		return { actionBar, disposables };
 	}
 
-	renderElement(item: WorkspaceTableElement, index: number, templateData: IActionsColumnTemplateData, height: number | undefined): void {
+	renderElement(item: WorkspaceTableElement, index: number, templateData: IActionsColumnTemplateData, height: number | undefinedcognidreamognidream {
 		templateData.actionBar.clear();
-		const actions: IAction[] = [];
-		actions.push(this.createOpenAction(item));
-		actions.push(new ChangeProfileAction(item, this.userDataProfilesService));
-		actions.push(this.createDeleteAction(item));
-		templateData.actionBar.push(actions, { icon: true });
-	}
+const actions: IAction[] = [];
+actions.push(this.createOpenAction(item));
+actions.push(new ChangeProfileAction(item, this.userDataProfilesService));
+actions.push(this.createDeleteAction(item));
+templateData.actionBar.push(actions, { icon: true });
+    }
 
-	private createOpenAction(item: WorkspaceTableElement): IAction {
-		return {
-			label: '',
-			class: ThemeIcon.asClassName(Codicon.window),
-			enabled: !this.uriIdentityService.extUri.isEqual(item.workspace, item.profileElement.getCurrentWorkspace()),
-			id: 'openWorkspace',
-			tooltip: localize('open', "Open in New Window"),
-			run: () => item.profileElement.openWorkspace(item.workspace)
-		};
-	}
+    private createOpenAction(item: WorkspaceTableElement): IAction {
+	return {
+		label: '',
+		class: ThemeIcon.asClassName(Codicon.window),
+		enabled: !this.uriIdentityService.extUri.isEqual(item.workspace, item.profileElement.getCurrentWorkspace()),
+		id: 'openWorkspace',
+		tooltip: localize('open', "Open in New Window"),
+		run: () => item.profileElement.openWorkspace(item.workspace)
+	};
+}
 
-	private createDeleteAction(item: WorkspaceTableElement): IAction {
-		return {
-			label: '',
-			class: ThemeIcon.asClassName(removeIcon),
-			enabled: this.userDataProfileManagementService.getDefaultProfileToUse().id !== item.profileElement.profile.id,
-			id: 'deleteTrustedUri',
-			tooltip: localize('deleteTrustedUri', "Delete Path"),
-			run: () => item.profileElement.updateWorkspaces([], [item.workspace])
-		};
-	}
+    private createDeleteAction(item: WorkspaceTableElement): IAction {
+	return {
+		label: '',
+		class: ThemeIcon.asClassName(removeIcon),
+		enabled: this.userDataProfileManagementService.getDefaultProfileToUse().id !== item.profileElement.profile.id,
+		id: 'deleteTrustedUri',
+		tooltip: localize('deleteTrustedUri', "Delete Path"),
+		run: () => item.profileElement.updateWorkspaces([], [item.workspace])
+	};
+}
 
-	disposeTemplate(templateData: IActionsColumnTemplateData): void {
-		templateData.disposables.dispose();
-	}
+disposeTemplate(templateData: IActionsColumnTemplateDatacognidreamognidream {
+	templateData.disposables.dispose();
+}
 
 }
 
-function getHostLabel(labelService: ILabelService, workspaceUri: URI): string {
-	return workspaceUri.authority ? labelService.getHostLabel(workspaceUri.scheme, workspaceUri.authority) : localize('localAuthority', "Local");
-}
+	function getHostLabel(labelService: ILabelService, workspaceUri: URI): string {
+		return workspaceUri.authority ? labelService.getHostLabel(workspaceUri.scheme, workspaceUri.authority) : localize('localAuthority', "Local");
+	}
 
 export class UserDataProfilesEditorInput extends EditorInput {
 	static readonly ID: string = 'workbench.input.userDataProfiles';
@@ -2259,20 +2259,20 @@ export class UserDataProfilesEditorInput extends EditorInput {
 		return this;
 	}
 
-	override async revert(): Promise<void> {
+	override async revert(): Promicognidreamognidream> {
 		this.model.revert();
 	}
 
-	override matches(otherInput: EditorInput | IUntypedEditorInput): boolean { return otherInput instanceof UserDataProfilesEditorInput; }
+    override matches(otherInput: EditorInput | IUntypedEditorInput): boolean { return otherInput instanceof UserDataProfilesEditorInput; }
 
-	override dispose(): void {
-		for (const profile of this.model.profiles) {
-			if (profile instanceof UserDataProfileElement) {
-				profile.reset();
-			}
-		}
-		super.dispose();
+    override dispose(cognidreamognidream {
+		for(const profile of this.model.profiles) {
+	if (profile instanceof UserDataProfileElement) {
+		profile.reset();
 	}
+}
+super.dispose();
+    }
 }
 
 export class UserDataProfilesEditorInputSerializer implements IEditorSerializer {

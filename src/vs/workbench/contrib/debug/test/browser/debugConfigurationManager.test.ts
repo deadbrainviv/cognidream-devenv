@@ -33,11 +33,11 @@ suite('debugConfigurationManager', () => {
 			return Promise.resolve(undefined);
 		},
 
-		activateDebuggers(activationEvent: string, debugType?: string): Promise<void> {
+		activateDebuggers(activationEvent: string, debugType?: string): Promise<cognidream> {
 			return Promise.resolve();
 		},
 
-		get onDidDebuggersExtPointRead(): Event<void> {
+		get onDidDebuggersExtPointRead(): cognidreamt<cognidream> {
 			return Event.None;
 		}
 	};

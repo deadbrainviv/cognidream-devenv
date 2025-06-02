@@ -89,7 +89,7 @@ export class TerminalEditor extends EditorPane {
 		}
 	}
 
-	override clearInput(): void {
+	override clearInput(): cognidream {
 		super.clearInput();
 		if (this._overflowGuardElement && this._editorInput?.terminalInstance?.domElement.parentElement === this._overflowGuardElement) {
 			this._editorInput.terminalInstance?.detachFromElement();
@@ -97,102 +97,102 @@ export class TerminalEditor extends EditorPane {
 		this._editorInput = undefined;
 	}
 
-	private _setActiveInstance(): void {
+	private _setActiveInstance(cognidreamognidream {
 		if (!this._editorInput?.terminalInstance) {
-			return;
+	return;
+}
+this._terminalEditorService.setActiveInstance(this._editorInput.terminalInstance);
+    }
+
+    override focus() {
+	super.focus();
+
+	this._editorInput?.terminalInstance?.focus(true);
+}
+
+    // eslint-disable-next-line @typescript-eslint/naming-convention
+    protected createEditor(parent: HTMLElementcognidreamognidream {
+	this._editorInstanceElement = parent;
+	this._overflowGuardElement = dom.$('.terminal-overflow-guard.terminal-editor');
+	this._editorInstanceElement.appendChild(this._overflowGuardElement);
+	this._registerListeners();
+}
+
+    private _registerListeners(cognidreamognidream {
+	if(!this._editorInstanceElement) {
+	return;
+}
+        this._register(dom.addDisposableListener(this._editorInstanceElement, 'mousedown', async (event: MouseEvent) => {
+	const terminal = this._terminalEditorService.activeInstance;
+	if (this._terminalEditorService.instances.length > 0 && terminal) {
+		const result = await terminal.handleMouseEvent(event, this._instanceMenu);
+		if (typeof result === 'object' && result.cancelContextMenu) {
+			this._cancelContextMenu = true;
 		}
-		this._terminalEditorService.setActiveInstance(this._editorInput.terminalInstance);
 	}
-
-	override focus() {
-		super.focus();
-
-		this._editorInput?.terminalInstance?.focus(true);
+}));
+this._register(dom.addDisposableListener(this._editorInstanceElement, 'contextmenu', (event: MouseEvent) => {
+	const rightClickBehavior = this._terminalConfigurationService.config.rightClickBehavior;
+	if (rightClickBehavior === 'nothing' && !event.shiftKey) {
+		event.preventDefault();
+		event.stopImmediatePropagation();
+		this._cancelContextMenu = false;
+		return;
 	}
-
-	// eslint-disable-next-line @typescript-eslint/naming-convention
-	protected createEditor(parent: HTMLElement): void {
-		this._editorInstanceElement = parent;
-		this._overflowGuardElement = dom.$('.terminal-overflow-guard.terminal-editor');
-		this._editorInstanceElement.appendChild(this._overflowGuardElement);
-		this._registerListeners();
-	}
-
-	private _registerListeners(): void {
-		if (!this._editorInstanceElement) {
-			return;
-		}
-		this._register(dom.addDisposableListener(this._editorInstanceElement, 'mousedown', async (event: MouseEvent) => {
-			const terminal = this._terminalEditorService.activeInstance;
-			if (this._terminalEditorService.instances.length > 0 && terminal) {
-				const result = await terminal.handleMouseEvent(event, this._instanceMenu);
-				if (typeof result === 'object' && result.cancelContextMenu) {
-					this._cancelContextMenu = true;
-				}
+	else
+		if (!this._cancelContextMenu && rightClickBehavior !== 'copyPaste' && rightClickBehavior !== 'paste') {
+			if (!this._cancelContextMenu) {
+				openContextMenu(this.window, event, this._editorInput?.terminalInstance, this._instanceMenu, this._contextMenuService);
 			}
-		}));
-		this._register(dom.addDisposableListener(this._editorInstanceElement, 'contextmenu', (event: MouseEvent) => {
-			const rightClickBehavior = this._terminalConfigurationService.config.rightClickBehavior;
-			if (rightClickBehavior === 'nothing' && !event.shiftKey) {
-				event.preventDefault();
-				event.stopImmediatePropagation();
-				this._cancelContextMenu = false;
-				return;
-			}
-			else
-				if (!this._cancelContextMenu && rightClickBehavior !== 'copyPaste' && rightClickBehavior !== 'paste') {
-					if (!this._cancelContextMenu) {
-						openContextMenu(this.window, event, this._editorInput?.terminalInstance, this._instanceMenu, this._contextMenuService);
-					}
-					event.preventDefault();
-					event.stopImmediatePropagation();
-					this._cancelContextMenu = false;
-				}
-		}));
-	}
-
-	private _updateTabActionBar(profiles: ITerminalProfile[]): void {
-		const actions = getTerminalActionBarArgs(TerminalLocation.Editor, profiles, this._getDefaultProfileName(), this._terminalProfileService.contributedProfiles, this._terminalService, this._dropdownMenu, this._disposableStore);
-		this._newDropdown.value?.update(actions.dropdownAction, actions.dropdownMenuActions);
-	}
-
-	layout(dimension: dom.Dimension): void {
-		const instance = this._editorInput?.terminalInstance;
-		if (instance) {
-			instance.attachToElement(this._overflowGuardElement!);
-			instance.layout(dimension);
+			event.preventDefault();
+			event.stopImmediatePropagation();
+			this._cancelContextMenu = false;
 		}
-		this._lastDimension = dimension;
-	}
+}));
+    }
 
-	override setVisible(visible: boolean): void {
-		super.setVisible(visible);
-		this._editorInput?.terminalInstance?.setVisible(visible && this._workbenchLayoutService.isVisible(Parts.EDITOR_PART, this.window));
-	}
+    private _updateTabActionBar(profiles: ITerminalProfile[]cognidreamognidream {
+	const actions = getTerminalActionBarArgs(TerminalLocation.Editor, profiles, this._getDefaultProfileName(), this._terminalProfileService.contributedProfiles, this._terminalService, this._dropdownMenu, this._disposableStore);
+	this._newDropdown.value?.update(actions.dropdownAction, actions.dropdownMenuActions);
+}
 
-	override getActionViewItem(action: IAction, options: IBaseActionViewItemOptions): IActionViewItem | undefined {
-		switch (action.id) {
-			case TerminalCommandId.CreateTerminalEditorSameGroup: {
-				if (action instanceof MenuItemAction) {
-					const location = { viewColumn: ACTIVE_GROUP };
-					this._disposableStore.clear();
-					const actions = getTerminalActionBarArgs(location, this._terminalProfileService.availableProfiles, this._getDefaultProfileName(), this._terminalProfileService.contributedProfiles, this._terminalService, this._dropdownMenu, this._disposableStore);
-					this._newDropdown.value = this._instantiationService.createInstance(DropdownWithPrimaryActionViewItem, action, actions.dropdownAction, actions.dropdownMenuActions, actions.className, { hoverDelegate: options.hoverDelegate });
-					this._newDropdown.value?.update(actions.dropdownAction, actions.dropdownMenuActions);
-					return this._newDropdown.value;
-				}
-			}
-		}
-		return super.getActionViewItem(action, options);
+    layout(dimension: dom.Dimensioncognidreamognidream {
+	const instance = this._editorInput?.terminalInstance;
+	if(instance) {
+		instance.attachToElement(this._overflowGuardElement!);
+		instance.layout(dimension);
 	}
+        this._lastDimension = dimension;
+}
 
-	private _getDefaultProfileName(): string {
-		let defaultProfileName;
-		try {
-			defaultProfileName = this._terminalProfileService.getDefaultProfileName();
-		} catch (e) {
-			defaultProfileName = this._terminalProfileResolverService.defaultProfileName;
-		}
-		return defaultProfileName!;
+    override setVisible(visible: booleancognidreamognidream {
+	super.setVisible(visible);
+	this._editorInput?.terminalInstance?.setVisible(visible && this._workbenchLayoutService.isVisible(Parts.EDITOR_PART, this.window));
+}
+
+    override getActionViewItem(action: IAction, options: IBaseActionViewItemOptions): IActionViewItem | undefined {
+	switch(action.id) {
+	case TerminalCommandId.CreateTerminalEditorSameGroup: {
+	if(action instanceof MenuItemAction) {
+	const location = { viewColumn: ACTIVE_GROUP };
+	this._disposableStore.clear();
+	const actions = getTerminalActionBarArgs(location, this._terminalProfileService.availableProfiles, this._getDefaultProfileName(), this._terminalProfileService.contributedProfiles, this._terminalService, this._dropdownMenu, this._disposableStore);
+	this._newDropdown.value = this._instantiationService.createInstance(DropdownWithPrimaryActionViewItem, action, actions.dropdownAction, actions.dropdownMenuActions, actions.className, { hoverDelegate: options.hoverDelegate });
+	this._newDropdown.value?.update(actions.dropdownAction, actions.dropdownMenuActions);
+	return this._newDropdown.value;
+}
+            }
+        }
+        return super.getActionViewItem(action, options);
+    }
+
+    private _getDefaultProfileName(): string {
+	let defaultProfileName;
+	try {
+		defaultProfileName = this._terminalProfileService.getDefaultProfileName();
+	} catch (e) {
+		defaultProfileName = this._terminalProfileResolverService.defaultProfileName;
 	}
+	return defaultProfileName!;
+}
 }

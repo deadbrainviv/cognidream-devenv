@@ -41,7 +41,7 @@ export class ChatAttachmentModel extends Disposable {
 		return Array.from(this._attachments.values());
 	}
 
-	protected _onDidChangeContext = this._register(new Emitter<void>());
+	protected _onDidChangeContext = this._register(new Emitter<cognidream>());
 	readonly onDidChangeContext = this._onDidChangeContext.event;
 
 	get size(): number {
@@ -61,82 +61,82 @@ export class ChatAttachmentModel extends Disposable {
 		return new Set(this._attachments.keys());
 	}
 
-	clear(): void {
+	clear(cognidreamognidream {
 		this._attachments.clear();
+this._onDidChangeContext.fire();
+    }
+
+delete (...variableEntryIds: string[]) {
+	for (const variableEntryId of variableEntryIds) {
+		this._attachments.delete(variableEntryId);
+	}
+	this._onDidChangeContext.fire();
+}
+
+    async addFile(uri: URI, range ?: IRange) {
+	if (/\.(png|jpe?g|gif|bmp|webp)$/i.test(uri.path)) {
+		this.addContext(await this.asImageVariableEntry(uri));
+		return;
+	}
+
+	this.addContext(this.asVariableEntry(uri, range));
+}
+
+addFolder(uri: URI) {
+	this.addContext({
+		value: uri,
+		id: uri.toString(),
+		name: basename(uri),
+		isFile: false,
+		isDirectory: true,
+	});
+}
+
+asVariableEntry(uri: URI, range ?: IRange): IChatRequestVariableEntry {
+	return {
+		value: range ? { uri, range } : uri,
+		id: uri.toString() + (range?.toString() ?? ''),
+		name: basename(uri),
+		isFile: true,
+	};
+}
+
+    async asImageVariableEntry(uri: URI): Promise < IChatRequestVariableEntry > {
+	const fileName = basename(uri);
+	const readFile = await this.fileService.readFile(uri);
+	if(readFile.size > 30 * 1024 * 1024) { // 30 MB
+	this.dialogService.error(localize('imageTooLarge', 'Image is too large'), localize('imageTooLargeMessage', 'The image {0} is too large to be attached.', fileName));
+	throw new Error('Image is too large');
+}
+const resizedImage = await resizeImage(readFile.value.buffer);
+return {
+	id: uri.toString(),
+	name: fileName,
+	fullName: uri.path,
+	value: resizedImage,
+	isImage: true,
+	isFile: false,
+	references: [{ reference: uri, kind: 'reference' }]
+};
+    }
+
+addContext(...attachments: IChatRequestVariableEntry[]) {
+	let hasAdded = false;
+
+	for (const attachment of attachments) {
+		if (!this._attachments.has(attachment.id)) {
+			this._attachments.set(attachment.id, attachment);
+			hasAdded = true;
+		}
+	}
+
+	if (hasAdded) {
 		this._onDidChangeContext.fire();
 	}
+}
 
-	delete(...variableEntryIds: string[]) {
-		for (const variableEntryId of variableEntryIds) {
-			this._attachments.delete(variableEntryId);
-		}
-		this._onDidChangeContext.fire();
-	}
-
-	async addFile(uri: URI, range?: IRange) {
-		if (/\.(png|jpe?g|gif|bmp|webp)$/i.test(uri.path)) {
-			this.addContext(await this.asImageVariableEntry(uri));
-			return;
-		}
-
-		this.addContext(this.asVariableEntry(uri, range));
-	}
-
-	addFolder(uri: URI) {
-		this.addContext({
-			value: uri,
-			id: uri.toString(),
-			name: basename(uri),
-			isFile: false,
-			isDirectory: true,
-		});
-	}
-
-	asVariableEntry(uri: URI, range?: IRange): IChatRequestVariableEntry {
-		return {
-			value: range ? { uri, range } : uri,
-			id: uri.toString() + (range?.toString() ?? ''),
-			name: basename(uri),
-			isFile: true,
-		};
-	}
-
-	async asImageVariableEntry(uri: URI): Promise<IChatRequestVariableEntry> {
-		const fileName = basename(uri);
-		const readFile = await this.fileService.readFile(uri);
-		if (readFile.size > 30 * 1024 * 1024) { // 30 MB
-			this.dialogService.error(localize('imageTooLarge', 'Image is too large'), localize('imageTooLargeMessage', 'The image {0} is too large to be attached.', fileName));
-			throw new Error('Image is too large');
-		}
-		const resizedImage = await resizeImage(readFile.value.buffer);
-		return {
-			id: uri.toString(),
-			name: fileName,
-			fullName: uri.path,
-			value: resizedImage,
-			isImage: true,
-			isFile: false,
-			references: [{ reference: uri, kind: 'reference' }]
-		};
-	}
-
-	addContext(...attachments: IChatRequestVariableEntry[]) {
-		let hasAdded = false;
-
-		for (const attachment of attachments) {
-			if (!this._attachments.has(attachment.id)) {
-				this._attachments.set(attachment.id, attachment);
-				hasAdded = true;
-			}
-		}
-
-		if (hasAdded) {
-			this._onDidChangeContext.fire();
-		}
-	}
-
-	clearAndSetContext(...attachments: IChatRequestVariableEntry[]) {
-		this.clear();
-		this.addContext(...attachments);
-	}
+clearAndSetContext(...attachments: IChatRequestVariableEntry[]) {
+	this.clear();
+	this.addContext(...attachments);
+}
 }

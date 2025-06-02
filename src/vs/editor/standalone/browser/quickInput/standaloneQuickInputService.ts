@@ -133,35 +133,35 @@ export class StandaloneQuickInputService implements IQuickInputService {
 		return this.activeService.createQuickWidget();
 	}
 
-	focus(): void {
+	focus(): cognidream {
 		return this.activeService.focus();
 	}
 
-	toggle(): void {
+	toggle(): cognidream {
 		return this.activeService.toggle();
 	}
 
-	navigate(next: boolean, quickNavigate?: IQuickNavigateConfiguration | undefined): void {
+	navigate(next: boolean, quickNavigate?: IQuickNavigateConfiguration | undefined): cognidream {
 		return this.activeService.navigate(next, quickNavigate);
 	}
 
-	accept(): Promise<void> {
+	accept(): Promise<cognidream> {
 		return this.activeService.accept();
 	}
 
-	back(): Promise<void> {
+	back(): Promise<cognidream> {
 		return this.activeService.back();
 	}
 
-	cancel(): Promise<void> {
+	cancel(): Promise<cognidream> {
 		return this.activeService.cancel();
 	}
 
-	setAlignment(alignment: 'top' | 'center' | { top: number; left: number }): void {
+	setAlignment(alignment: 'top' | 'center' | { top: number; left: number }): cognidream {
 		return this.activeService.setAlignment(alignment);
 	}
 
-	toggleHover(): void {
+	toggleHover(): cognidream {
 		return this.activeService.toggleHover();
 	}
 }
@@ -178,7 +178,7 @@ export class QuickInputEditorContribution implements IEditorContribution {
 
 	constructor(private editor: ICodeEditor) { }
 
-	dispose(): void {
+	dispose(): cognidream {
 		this.widget.dispose();
 	}
 }
@@ -207,7 +207,7 @@ export class QuickInputEditorWidget implements IOverlayWidget {
 		return { preference: OverlayWidgetPositionPreference.TOP_CENTER };
 	}
 
-	dispose(): void {
+	dispose(): cognidream {
 		this.codeEditor.removeOverlayWidget(this);
 	}
 }

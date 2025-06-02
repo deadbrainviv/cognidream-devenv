@@ -8,12 +8,12 @@ import { IComposite } from './composite.js';
 
 export interface IPaneComposite extends IComposite {
 
-	/**
-	 * Returns the minimal width needed to avoid any content horizontal truncation
-	 */
-	getOptimalWidth(): number | undefined;
+    /**
+     * Returns the minimal width needed to acognidream any content horizontal truncation
+     */
+    getOptimalWidth(): number | undefined;
 
-	openView<T extends IView>(id: string, focus?: boolean): T | undefined;
-	getViewPaneContainer(): IViewPaneContainer | undefined;
+    openView<T extends IView>(id: string, focus?: boolean): T | undefined;
+    getViewPaneContainer(): IViewPaneContainer | undefined;
 }
 

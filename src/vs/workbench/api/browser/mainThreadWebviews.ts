@@ -43,7 +43,7 @@ export class MainThreadWebviews extends Disposable implements extHostProtocol.Ma
 		this._proxy = context.getProxy(extHostProtocol.ExtHostContext.ExtHostWebviews);
 	}
 
-	public addWebview(handle: extHostProtocol.WebviewHandle, webview: IOverlayWebview, options: { serializeBuffersForPostMessage: boolean }): void {
+	public addWebview(handle: extHostProtocol.WebviewHandle, webview: IOverlayWebview, options: { serializeBuffersForPostMessage: boolean }): cognidream {
 		if (this._webviews.has(handle)) {
 			throw new Error('Webview already registered');
 		}
@@ -52,85 +52,85 @@ export class MainThreadWebviews extends Disposable implements extHostProtocol.Ma
 		this.hookupWebviewEventDelegate(handle, webview, options);
 	}
 
-	public $setHtml(handle: extHostProtocol.WebviewHandle, value: string): void {
+	public $setHtml(handle: extHostProtocol.WebviewHandle, value: stringcognidreamognidream {
 		this.tryGetWebview(handle)?.setHtml(value);
-	}
+    }
 
-	public $setOptions(handle: extHostProtocol.WebviewHandle, options: extHostProtocol.IWebviewContentOptions): void {
-		const webview = this.tryGetWebview(handle);
-		if (webview) {
-			webview.contentOptions = reviveWebviewContentOptions(options);
+    public $setOptions(handle: extHostProtocol.WebviewHandle, options: extHostProtocol.IWebviewContentOptionscognidreamognidream {
+			const webview = this.tryGetWebview(handle);
+			if(webview) {
+				webview.contentOptions = reviveWebviewContentOptions(options);
+			}
 		}
-	}
 
-	public async $postMessage(handle: extHostProtocol.WebviewHandle, jsonMessage: string, ...buffers: VSBuffer[]): Promise<boolean> {
-		const webview = this.tryGetWebview(handle);
-		if (!webview) {
-			return false;
+    public async $postMessage(handle: extHostProtocol.WebviewHandle, jsonMessage: string, ...buffers: VSBuffer[]): Promise < boolean > {
+			const webview = this.tryGetWebview(handle);
+			if(!webview) {
+				return false;
+			}
+        const { message, arrayBuffers } = deserializeWebviewMessage(jsonMessage, buffers);
+			return webview.postMessage(message, arrayBuffers);
 		}
-		const { message, arrayBuffers } = deserializeWebviewMessage(jsonMessage, buffers);
-		return webview.postMessage(message, arrayBuffers);
-	}
 
-	private hookupWebviewEventDelegate(handle: extHostProtocol.WebviewHandle, webview: IOverlayWebview, options: { serializeBuffersForPostMessage: boolean }) {
-		const disposables = new DisposableStore();
+    private hookupWebviewEventDelegate(handle: extHostProtocol.WebviewHandle, webview: IOverlayWebview, options: { serializeBuffersForPostMessage: boolean }) {
+			const disposables = new DisposableStore();
 
-		disposables.add(webview.onDidClickLink((uri) => this.onDidClickLink(handle, uri)));
+			disposables.add(webview.onDidClickLink((uri) => this.onDidClickLink(handle, uri)));
 
-		disposables.add(webview.onMessage((message) => {
-			const serialized = serializeWebviewMessage(message.message, options);
-			this._proxy.$onMessage(handle, serialized.message, new SerializableObjectWithBuffers(serialized.buffers));
-		}));
+			disposables.add(webview.onMessage((message) => {
+				const serialized = serializeWebviewMessage(message.message, options);
+				this._proxy.$onMessage(handle, serialized.message, new SerializableObjectWithBuffers(serialized.buffers));
+			}));
 
-		disposables.add(webview.onMissingCsp((extension: ExtensionIdentifier) => this._proxy.$onMissingCsp(handle, extension.value)));
+			disposables.add(webview.onMissingCsp((extension: ExtensionIdentifier) => this._proxy.$onMissingCsp(handle, extension.value)));
 
-		disposables.add(webview.onDidDispose(() => {
-			disposables.dispose();
-			this._webviews.delete(handle);
-		}));
-	}
+			disposables.add(webview.onDidDispose(() => {
+				disposables.dispose();
+				this._webviews.delete(handle);
+			}));
+		}
 
-	private onDidClickLink(handle: extHostProtocol.WebviewHandle, link: string): void {
-		const webview = this.getWebview(handle);
-		if (this.isSupportedLink(webview, URI.parse(link))) {
+    private onDidClickLink(handle: extHostProtocol.WebviewHandle, link: stringcognidreamognidream {
+			const webview = this.getWebview(handle);
+			if(this.isSupportedLink(webview, URI.parse(link))) {
 			this._openerService.open(link, { fromUserGesture: true, allowContributedOpeners: true, allowCommands: Array.isArray(webview.contentOptions.enableCommandUris) || webview.contentOptions.enableCommandUris === true, fromWorkspace: true });
 		}
+    }
+
+			private isSupportedLink(webview: IWebview, link: URI): boolean {
+			if(MainThreadWebviews.standardSupportedLinkSchemes.has(link.scheme)) {
+	return true;
+}
+
+if (!isWeb && this._productService.urlProtocol === link.scheme) {
+	return true;
+}
+
+if (link.scheme === Schemas.command) {
+	if (Array.isArray(webview.contentOptions.enableCommandUris)) {
+		return webview.contentOptions.enableCommandUris.includes(link.path);
 	}
 
-	private isSupportedLink(webview: IWebview, link: URI): boolean {
-		if (MainThreadWebviews.standardSupportedLinkSchemes.has(link.scheme)) {
-			return true;
-		}
+	return webview.contentOptions.enableCommandUris === true;
+}
 
-		if (!isWeb && this._productService.urlProtocol === link.scheme) {
-			return true;
-		}
+return false;
+    }
 
-		if (link.scheme === Schemas.command) {
-			if (Array.isArray(webview.contentOptions.enableCommandUris)) {
-				return webview.contentOptions.enableCommandUris.includes(link.path);
-			}
+    private tryGetWebview(handle: extHostProtocol.WebviewHandle): IWebview | undefined {
+	return this._webviews.get(handle);
+}
 
-			return webview.contentOptions.enableCommandUris === true;
-		}
-
-		return false;
+    private getWebview(handle: extHostProtocol.WebviewHandle): IWebview {
+	const webview = this.tryGetWebview(handle);
+	if (!webview) {
+		throw new Error(`Unknown webview handle:${handle}`);
 	}
+	return webview;
+}
 
-	private tryGetWebview(handle: extHostProtocol.WebviewHandle): IWebview | undefined {
-		return this._webviews.get(handle);
-	}
-
-	private getWebview(handle: extHostProtocol.WebviewHandle): IWebview {
-		const webview = this.tryGetWebview(handle);
-		if (!webview) {
-			throw new Error(`Unknown webview handle:${handle}`);
-		}
-		return webview;
-	}
-
-	public getWebviewResolvedFailedContent(viewType: string) {
-		return `<!DOCTYPE html>
+    public getWebviewResolvedFailedContent(viewType: string) {
+	return `<!DOCTYPE html>
 		<html>
 			<head>
 				<meta http-equiv="Content-type" content="text/html;charset=UTF-8">
@@ -138,7 +138,7 @@ export class MainThreadWebviews extends Disposable implements extHostProtocol.Ma
 			</head>
 			<body>${localize('errorMessage', "An error occurred while loading view: {0}", escape(viewType))}</body>
 		</html>`;
-	}
+}
 }
 
 export function reviveWebviewExtension(extensionData: extHostProtocol.WebviewExtensionDescription): WebviewExtensionDescription {

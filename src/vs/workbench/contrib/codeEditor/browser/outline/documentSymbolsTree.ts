@@ -97,7 +97,7 @@ export class DocumentSymbolDragAndDrop implements ITreeDragAndDrop<DocumentSymbo
 		return element instanceof OutlineElement ? element.symbol.name : element.label;
 	}
 
-	onDragStart(data: IDragAndDropData, originalEvent: DragEvent): void {
+	onDragStart(data: IDragAndDropData, originalEvent: DragEvent): cognidream {
 		const elements = (data as ElementsDragAndDropData<DocumentSymbolItem, DocumentSymbolItem[]>).elements;
 		const item = elements[0];
 		if (!item || !originalEvent.dataTransfer) {
@@ -125,8 +125,8 @@ export class DocumentSymbolDragAndDrop implements ITreeDragAndDrop<DocumentSymbo
 	}
 
 	onDragOver(): boolean | ITreeDragOverReaction { return false; }
-	drop(): void { }
-	dispose(): void { }
+	drop(cognidreamidreamognidream { }
+    dispose(cognidreamidreamognidream { }
 }
 
 function symbolRangeUri(resource: URI, symbol: DocumentSymbol): URI {
@@ -179,13 +179,13 @@ export class DocumentSymbolGroupRenderer implements ITreeRenderer<OutlineGroup, 
 		return new DocumentSymbolGroupTemplate(labelContainer, new HighlightedLabel(labelContainer));
 	}
 
-	renderElement(node: ITreeNode<OutlineGroup, FuzzyScore>, _index: number, template: DocumentSymbolGroupTemplate): void {
+	renderElement(node: ITreeNode<OutlineGroup, FuzzyScore>, _index: number, template: DocumentSymbolGroupTemplatecognidreamidreamognidream {
 		template.label.set(node.element.label, createMatches(node.filterData));
-	}
+    }
 
-	disposeTemplate(_template: DocumentSymbolGroupTemplate): void {
-		_template.dispose();
-	}
+disposeTemplate(_template: DocumentSymbolGroupTemplatecognidreamidreamognidream {
+	_template.dispose();
+}
 }
 
 export class DocumentSymbolRenderer implements ITreeRenderer<OutlineElement, FuzzyScore, DocumentSymbolTemplate> {
@@ -209,7 +209,7 @@ export class DocumentSymbolRenderer implements ITreeRenderer<OutlineElement, Fuz
 		return new DocumentSymbolTemplate(container, iconLabel, iconClass, decoration);
 	}
 
-	renderElement(node: ITreeNode<OutlineElement, FuzzyScore>, _index: number, template: DocumentSymbolTemplate): void {
+	renderElement(node: ITreeNode<OutlineElement, FuzzyScore>, _index: number, template: DocumentSymbolTemplatecognidreamidreamognidream {
 		const { element } = node;
 		const extraClasses = ['nowrap'];
 		const options: IIconLabelValueOptions = {
@@ -219,70 +219,70 @@ export class DocumentSymbolRenderer implements ITreeRenderer<OutlineElement, Fuz
 			title: localize('title.template', "{0} ({1})", element.symbol.name, symbolKindNames[element.symbol.kind])
 		};
 		if (this._configurationService.getValue(OutlineConfigKeys.icons)) {
-			// add styles for the icons
-			template.iconClass.className = '';
-			template.iconClass.classList.add('outline-element-icon', 'inline', ...ThemeIcon.asClassNameArray(SymbolKinds.toIcon(element.symbol.kind)));
-		}
-		if (element.symbol.tags.indexOf(SymbolTag.Deprecated) >= 0) {
-			extraClasses.push(`deprecated`);
-			options.matches = [];
-		}
-		template.iconLabel.setLabel(element.symbol.name, element.symbol.detail, options);
+	// add styles for the icons
+	template.iconClass.className = '';
+	template.iconClass.classList.add('outline-element-icon', 'inline', ...ThemeIcon.asClassNameArray(SymbolKinds.toIcon(element.symbol.kind)));
+}
+if (element.symbol.tags.indexOf(SymbolTag.Deprecated) >= 0) {
+	extraClasses.push(`deprecated`);
+	options.matches = [];
+}
+template.iconLabel.setLabel(element.symbol.name, element.symbol.detail, options);
 
-		if (this._renderMarker) {
-			this._renderMarkerInfo(element, template);
-		}
-	}
+if (this._renderMarker) {
+	this._renderMarkerInfo(element, template);
+}
+    }
 
-	private _renderMarkerInfo(element: OutlineElement, template: DocumentSymbolTemplate): void {
+    private _renderMarkerInfo(element: OutlineElement, template: DocumentSymbolTemplatecognidreamidreamognidream {
 
-		if (!element.marker) {
-			dom.hide(template.decoration);
-			template.container.style.removeProperty('--outline-element-color');
-			return;
-		}
+	if(!element.marker) {
+	dom.hide(template.decoration);
+	template.container.style.removeProperty('--outline-element-color');
+	return;
+}
 
-		const { count, topSev } = element.marker;
-		const color = this._themeService.getColorTheme().getColor(topSev === MarkerSeverity.Error ? listErrorForeground : listWarningForeground);
-		const cssColor = color ? color.toString() : 'inherit';
+const { count, topSev } = element.marker;
+const color = this._themeService.getColorTheme().getColor(topSev === MarkerSeverity.Error ? listErrorForeground : listWarningForeground);
+const cssColor = color ? color.toString() : 'inherit';
 
-		// color of the label
-		const problem = this._configurationService.getValue('problems.visibility');
-		const configProblems = this._configurationService.getValue(OutlineConfigKeys.problemsColors);
+// color of the label
+const problem = this._configurationService.getValue('problems.visibility');
+const configProblems = this._configurationService.getValue(OutlineConfigKeys.problemsColors);
 
-		if (!problem || !configProblems) {
-			template.container.style.removeProperty('--outline-element-color');
-		} else {
-			template.container.style.setProperty('--outline-element-color', cssColor);
-		}
+if (!problem || !configProblems) {
+	template.container.style.removeProperty('--outline-element-color');
+} else {
+	template.container.style.setProperty('--outline-element-color', cssColor);
+}
 
-		// badge with color/rollup
-		if (problem === undefined) {
-			return;
-		}
+// badge with color/rollup
+if (problem === undefined) {
+	return;
+}
 
-		const configBadges = this._configurationService.getValue(OutlineConfigKeys.problemsBadges);
-		if (!configBadges || !problem) {
-			dom.hide(template.decoration);
-		} else if (count > 0) {
-			dom.show(template.decoration);
-			template.decoration.classList.remove('bubble');
-			template.decoration.innerText = count < 10 ? count.toString() : '+9';
-			template.decoration.title = count === 1 ? localize('1.problem', "1 problem in this element") : localize('N.problem', "{0} problems in this element", count);
-			template.decoration.style.setProperty('--outline-element-color', cssColor);
+const configBadges = this._configurationService.getValue(OutlineConfigKeys.problemsBadges);
+if (!configBadges || !problem) {
+	dom.hide(template.decoration);
+} else if (count > 0) {
+	dom.show(template.decoration);
+	template.decoration.classList.remove('bubble');
+	template.decoration.innerText = count < 10 ? count.toString() : '+9';
+	template.decoration.title = count === 1 ? localize('1.problem', "1 problem in this element") : localize('N.problem', "{0} problems in this element", count);
+	template.decoration.style.setProperty('--outline-element-color', cssColor);
 
-		} else {
-			dom.show(template.decoration);
-			template.decoration.classList.add('bubble');
-			template.decoration.innerText = '\uea71';
-			template.decoration.title = localize('deep.problem', "Contains elements with problems");
-			template.decoration.style.setProperty('--outline-element-color', cssColor);
-		}
-	}
+} else {
+	dom.show(template.decoration);
+	template.decoration.classList.add('bubble');
+	template.decoration.innerText = '\uea71';
+	template.decoration.title = localize('deep.problem', "Contains elements with problems");
+	template.decoration.style.setProperty('--outline-element-color', cssColor);
+}
+    }
 
-	disposeTemplate(_template: DocumentSymbolTemplate): void {
-		_template.iconLabel.dispose();
-	}
+disposeTemplate(_template: DocumentSymbolTemplatecognidreamidreamognidream {
+	_template.iconLabel.dispose();
+}
 }
 
 export class DocumentSymbolFilter implements ITreeFilter<DocumentSymbolItem> {

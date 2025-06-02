@@ -49,7 +49,7 @@ export class ExtHostDocuments implements ExtHostDocumentsShape {
 		}, undefined, this._toDispose);
 	}
 
-	public dispose(): void {
+	public dispose(): cognidream {
 		this._toDispose.dispose();
 	}
 
@@ -112,88 +112,88 @@ export class ExtHostDocuments implements ExtHostDocumentsShape {
 		return this._proxy.$tryCreateDocument(options).then(data => URI.revive(data));
 	}
 
-	public $acceptModelLanguageChanged(uriComponents: UriComponents, newLanguageId: string): void {
+	public $acceptModelLanguageChanged(uriComponents: UriComponents, newLanguageId: stringcognidreamognidream {
 		const uri = URI.revive(uriComponents);
 		const data = this._documentsAndEditors.getDocument(uri);
 		if (!data) {
-			throw new Error('unknown document');
-		}
-		// Treat a language change as a remove + add
+	throw new Error('unknown document');
+}
+// Treat a language change as a remove + add
 
-		this._onDidRemoveDocument.fire(data.document);
-		data._acceptLanguageId(newLanguageId);
-		this._onDidAddDocument.fire(data.document);
+this._onDidRemoveDocument.fire(data.document);
+data._acceptLanguageId(newLanguageId);
+this._onDidAddDocument.fire(data.document);
+    }
+
+    public $acceptModelSaved(uriComponents: UriComponentscognidreamognidream {
+	const uri = URI.revive(uriComponents);
+	const data = this._documentsAndEditors.getDocument(uri);
+	if(!data) {
+		throw new Error('unknown document');
 	}
+        this.$acceptDirtyStateChanged(uriComponents, false);
+	this._onDidSaveDocument.fire(data.document);
+}
 
-	public $acceptModelSaved(uriComponents: UriComponents): void {
-		const uri = URI.revive(uriComponents);
-		const data = this._documentsAndEditors.getDocument(uri);
-		if (!data) {
-			throw new Error('unknown document');
-		}
-		this.$acceptDirtyStateChanged(uriComponents, false);
-		this._onDidSaveDocument.fire(data.document);
+    public $acceptDirtyStateChanged(uriComponents: UriComponents, isDirty: booleancognidreamognidream {
+	const uri = URI.revive(uriComponents);
+	const data = this._documentsAndEditors.getDocument(uri);
+	if(!data) {
+		throw new Error('unknown document');
 	}
+        data._acceptIsDirty(isDirty);
+	this._onDidChangeDocument.fire({
+		document: data.document,
+		contentChanges: [],
+		reason: undefined
+	});
+}
 
-	public $acceptDirtyStateChanged(uriComponents: UriComponents, isDirty: boolean): void {
-		const uri = URI.revive(uriComponents);
-		const data = this._documentsAndEditors.getDocument(uri);
-		if (!data) {
-			throw new Error('unknown document');
-		}
-		data._acceptIsDirty(isDirty);
-		this._onDidChangeDocument.fire({
-			document: data.document,
-			contentChanges: [],
-			reason: undefined
-		});
+    public $acceptEncodingChanged(uriComponents: UriComponents, encoding: stringcognidreamognidream {
+	const uri = URI.revive(uriComponents);
+	const data = this._documentsAndEditors.getDocument(uri);
+	if(!data) {
+		throw new Error('unknown document');
 	}
+        data._acceptEncoding(encoding);
+	this._onDidChangeDocument.fire({
+		document: data.document,
+		contentChanges: [],
+		reason: undefined
+	});
+}
 
-	public $acceptEncodingChanged(uriComponents: UriComponents, encoding: string): void {
-		const uri = URI.revive(uriComponents);
-		const data = this._documentsAndEditors.getDocument(uri);
-		if (!data) {
-			throw new Error('unknown document');
-		}
-		data._acceptEncoding(encoding);
-		this._onDidChangeDocument.fire({
-			document: data.document,
-			contentChanges: [],
-			reason: undefined
-		});
+    public $acceptModelChanged(uriComponents: UriComponents, events: IModelChangedEvent, isDirty: booleancognidreamognidream {
+	const uri = URI.revive(uriComponents);
+	const data = this._documentsAndEditors.getDocument(uri);
+	if(!data) {
+		throw new Error('unknown document');
 	}
+        data._acceptIsDirty(isDirty);
+	data.onEvents(events);
 
-	public $acceptModelChanged(uriComponents: UriComponents, events: IModelChangedEvent, isDirty: boolean): void {
-		const uri = URI.revive(uriComponents);
-		const data = this._documentsAndEditors.getDocument(uri);
-		if (!data) {
-			throw new Error('unknown document');
-		}
-		data._acceptIsDirty(isDirty);
-		data.onEvents(events);
+	let reason: vscode.TextDocumentChangeReason | undefined = undefined;
+	if(events.isUndoing) {
+	reason = TextDocumentChangeReason.Undo;
+} else if (events.isRedoing) {
+	reason = TextDocumentChangeReason.Redo;
+}
 
-		let reason: vscode.TextDocumentChangeReason | undefined = undefined;
-		if (events.isUndoing) {
-			reason = TextDocumentChangeReason.Undo;
-		} else if (events.isRedoing) {
-			reason = TextDocumentChangeReason.Redo;
-		}
+this._onDidChangeDocument.fire(deepFreeze({
+	document: data.document,
+	contentChanges: events.changes.map((change) => {
+		return {
+			range: TypeConverters.Range.to(change.range),
+			rangeOffset: change.rangeOffset,
+			rangeLength: change.rangeLength,
+			text: change.text
+		};
+	}),
+	reason
+}));
+    }
 
-		this._onDidChangeDocument.fire(deepFreeze({
-			document: data.document,
-			contentChanges: events.changes.map((change) => {
-				return {
-					range: TypeConverters.Range.to(change.range),
-					rangeOffset: change.rangeOffset,
-					rangeLength: change.rangeLength,
-					text: change.text
-				};
-			}),
-			reason
-		}));
-	}
-
-	public setWordDefinitionFor(languageId: string, wordDefinition: RegExp | undefined): void {
-		setWordDefinitionFor(languageId, wordDefinition);
-	}
+    public setWordDefinitionFor(languageId: string, wordDefinition: RegExp | undefinedcognidreamognidream {
+	setWordDefinitionFor(languageId, wordDefinition);
+}
 }

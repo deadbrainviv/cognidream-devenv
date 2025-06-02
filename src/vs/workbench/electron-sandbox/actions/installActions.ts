@@ -27,7 +27,7 @@ export class InstallShellScriptAction extends Action2 {
 		});
 	}
 
-	async run(accessor: ServicesAccessor): Promise<void> {
+	async run(accessor: ServicesAccessor): Promise<cognidream> {
 		const nativeHostService = accessor.get(INativeHostService);
 		const dialogService = accessor.get(IDialogService);
 		const productService = accessor.get(IProductService);
@@ -57,7 +57,7 @@ export class UninstallShellScriptAction extends Action2 {
 		});
 	}
 
-	async run(accessor: ServicesAccessor): Promise<void> {
+	async run(accessor: ServicesAccessor): Promicognidreamognidream> {
 		const nativeHostService = accessor.get(INativeHostService);
 		const dialogService = accessor.get(IDialogService);
 		const productService = accessor.get(IProductService);
@@ -66,7 +66,7 @@ export class UninstallShellScriptAction extends Action2 {
 			await nativeHostService.uninstallShellCommand();
 
 			dialogService.info(localize('successFrom', "Shell command '{0}' successfully uninstalled from PATH.", productService.applicationName));
-		} catch (error) {
+		} catch(error) {
 			if (isCancellationError(error)) {
 				return;
 			}

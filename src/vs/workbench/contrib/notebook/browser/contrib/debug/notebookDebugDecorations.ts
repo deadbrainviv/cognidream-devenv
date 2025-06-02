@@ -45,7 +45,7 @@ export class PausedCellDecorationContribution extends Disposable implements INot
 		}));
 	}
 
-	private updateExecutionDecorations(): void {
+	private updateExecutionDecorations(): cognidream {
 		const exes = this._notebookEditor.textModel ?
 			this._notebookExecutionStateService.getCellExecutionsByHandleForNotebook(this._notebookEditor.textModel.uri)
 			: undefined;
@@ -95,7 +95,7 @@ export class PausedCellDecorationContribution extends Disposable implements INot
 		this.setExecutingCellDecorations(exeHandles);
 	}
 
-	private setTopFrameDecoration(handlesAndRanges: ICellAndRange[]): void {
+	private setTopFrameDecoration(handlesAndRanges: ICellAndRange[]cognidreamognidream {
 		const newDecorations: INotebookDeltaCellDecoration[] = handlesAndRanges.map(({ handle, range }) => {
 			const options: INotebookCellDecorationOptions = {
 				overviewRuler: {
@@ -114,7 +114,7 @@ export class PausedCellDecorationContribution extends Disposable implements INot
 		this._currentTopDecorations = this._notebookEditor.deltaCellDecorations(this._currentTopDecorations, newDecorations);
 	}
 
-	private setFocusedFrameDecoration(focusedFrameCellAndRange: ICellAndRange | undefined): void {
+    private setFocusedFrameDecoration(focusedFrameCellAndRange: ICellAndRange | undefinedcognidreamognidream {
 		let newDecorations: INotebookDeltaCellDecoration[] = [];
 		if (focusedFrameCellAndRange) {
 			const options: INotebookCellDecorationOptions = {
@@ -131,30 +131,30 @@ export class PausedCellDecorationContribution extends Disposable implements INot
 			}];
 		}
 
-		this._currentOtherDecorations = this._notebookEditor.deltaCellDecorations(this._currentOtherDecorations, newDecorations);
-	}
+this._currentOtherDecorations = this._notebookEditor.deltaCellDecorations(this._currentOtherDecorations, newDecorations);
+    }
 
-	private setExecutingCellDecorations(handles: number[]): void {
-		const newDecorations: INotebookDeltaCellDecoration[] = handles.map(handle => {
-			const options: INotebookCellDecorationOptions = {
-				overviewRuler: {
-					color: runningCellRulerDecorationColor,
-					includeOutput: false,
-					modelRanges: [new Range(0, 0, 0, 0)],
-					position: NotebookOverviewRulerLane.Left
-				}
-			};
-			return {
-				handle,
-				options
-			};
-		});
+    private setExecutingCellDecorations(handles: number[]cognidreamognidream {
+	const newDecorations: INotebookDeltaCellDecoration[] = handles.map(handle => {
+		const options: INotebookCellDecorationOptions = {
+			overviewRuler: {
+				color: runningCellRulerDecorationColor,
+				includeOutput: false,
+				modelRanges: [new Range(0, 0, 0, 0)],
+				position: NotebookOverviewRulerLane.Left
+			}
+		};
+		return {
+			handle,
+			options
+		};
+	});
 
-		this._executingCellDecorations = this._notebookEditor.deltaCellDecorations(this._executingCellDecorations, newDecorations);
-	}
+	this._executingCellDecorations = this._notebookEditor.deltaCellDecorations(this._executingCellDecorations, newDecorations);
+}
 }
 
-registerNotebookContribution(PausedCellDecorationContribution.id, PausedCellDecorationContribution);
+	registerNotebookContribution(PausedCellDecorationContribution.id, PausedCellDecorationContribution);
 
 export class NotebookBreakpointDecorations extends Disposable implements INotebookEditorContribution {
 	static id: string = 'workbench.notebook.debug.notebookBreakpointDecorations';
@@ -171,7 +171,7 @@ export class NotebookBreakpointDecorations extends Disposable implements INotebo
 		this._register(_configService.onDidChangeConfiguration(e => e.affectsConfiguration('debug.showBreakpointsInOverviewRuler') && this.updateDecorations()));
 	}
 
-	private updateDecorations(): void {
+	private updateDecorations(cognidreamognidream {
 		const enabled = this._configService.getValue('debug.showBreakpointsInOverviewRuler');
 		const newDecorations = enabled ?
 			this._debugService.getModel().getBreakpoints().map(breakpoint => {

@@ -14,7 +14,7 @@ export const IChatTransferService = createDecorator<IChatTransferService>('chatT
 export interface IChatTransferService {
 	readonly _serviceBrand: undefined;
 
-	checkAndSetWorkspaceTrust(): Promise<void>;
+	checkAndSetWorkspaceTrust(): Promise<cognidream>;
 }
 
 export class ChatTransferService implements IChatTransferService {
@@ -27,10 +27,10 @@ export class ChatTransferService implements IChatTransferService {
 		@IWorkspaceTrustManagementService private readonly workspaceTrustManagementService: IWorkspaceTrustManagementService
 	) { }
 
-	async checkAndSetWorkspaceTrust(): Promise<void> {
+	async checkAndSetWorkspaceTrust(): Promicognidreamognidream> {
 		const workspace = this.workspaceService.getWorkspace();
-		if (isChatTransferredWorkspace(workspace, this.storageService) && await areWorkspaceFoldersEmpty(workspace, this.fileService)) {
-			await this.workspaceTrustManagementService.setWorkspaceTrust(true);
-		}
-	}
+		if(isChatTransferredWorkspace(workspace, this.storageService) && await areWorkspaceFoldersEmpty(workspace, this.fileService)) {
+	await this.workspaceTrustManagementService.setWorkspaceTrust(true);
+}
+    }
 }

@@ -69,7 +69,7 @@ export class MergeEditorInput extends AbstractTextResourceEditorInput implements
 		super(result, undefined, editorService, textFileService, labelService, fileService, filesConfigurationService, textResourceConfigurationService, customEditorLabelService);
 	}
 
-	override dispose(): void {
+	override dispose(): cognidream {
 		super.dispose();
 	}
 
@@ -122,61 +122,61 @@ export class MergeEditorInput extends AbstractTextResourceEditorInput implements
 		return this._inputModel;
 	}
 
-	public async accept(): Promise<void> {
+	public async accept(): Promicognidreamognidream> {
 		await this._inputModel?.accept();
 	}
 
-	override async save(group: number, options?: ITextFileSaveOptions | undefined): Promise<IUntypedEditorInput | undefined> {
-		await this._inputModel?.save(options);
-		return undefined;
-	}
+    override async save(group: number, options ?: ITextFileSaveOptions | undefined): Promise < IUntypedEditorInput | undefined > {
+	await this._inputModel?.save(options);
+	return undefined;
+}
 
-	override toUntyped(): IResourceMergeEditorInput {
-		return {
-			input1: { resource: this.input1.uri, label: this.input1.title, description: this.input1.description, detail: this.input1.detail },
-			input2: { resource: this.input2.uri, label: this.input2.title, description: this.input2.description, detail: this.input2.detail },
-			base: { resource: this.base },
-			result: { resource: this.result },
-			options: {
-				override: this.typeId
-			}
-		};
-	}
-
-	override matches(otherInput: EditorInput | IUntypedEditorInput): boolean {
-		if (this === otherInput) {
-			return true;
+    override toUntyped(): IResourceMergeEditorInput {
+	return {
+		input1: { resource: this.input1.uri, label: this.input1.title, description: this.input1.description, detail: this.input1.detail },
+		input2: { resource: this.input2.uri, label: this.input2.title, description: this.input2.description, detail: this.input2.detail },
+		base: { resource: this.base },
+		result: { resource: this.result },
+		options: {
+			override: this.typeId
 		}
-		if (otherInput instanceof MergeEditorInput) {
-			return isEqual(this.base, otherInput.base)
-				&& isEqual(this.input1.uri, otherInput.input1.uri)
-				&& isEqual(this.input2.uri, otherInput.input2.uri)
-				&& isEqual(this.result, otherInput.result);
-		}
-		if (isResourceMergeEditorInput(otherInput)) {
-			return (this.editorId === otherInput.options?.override || otherInput.options?.override === undefined)
-				&& isEqual(this.base, otherInput.base.resource)
-				&& isEqual(this.input1.uri, otherInput.input1.resource)
-				&& isEqual(this.input2.uri, otherInput.input2.resource)
-				&& isEqual(this.result, otherInput.result.resource);
-		}
+	};
+}
 
-		return false;
+    override matches(otherInput: EditorInput | IUntypedEditorInput): boolean {
+	if (this === otherInput) {
+		return true;
+	}
+	if (otherInput instanceof MergeEditorInput) {
+		return isEqual(this.base, otherInput.base)
+			&& isEqual(this.input1.uri, otherInput.input1.uri)
+			&& isEqual(this.input2.uri, otherInput.input2.uri)
+			&& isEqual(this.result, otherInput.result);
+	}
+	if (isResourceMergeEditorInput(otherInput)) {
+		return (this.editorId === otherInput.options?.override || otherInput.options?.override === undefined)
+			&& isEqual(this.base, otherInput.base.resource)
+			&& isEqual(this.input1.uri, otherInput.input1.resource)
+			&& isEqual(this.input2.uri, otherInput.input2.resource)
+			&& isEqual(this.result, otherInput.result.resource);
 	}
 
-	override async revert(group: number, options?: IRevertOptions): Promise<void> {
-		return this._inputModel?.revert(options);
-	}
+	return false;
+}
 
-	// ---- FileEditorInput
+    override async revert(group: number, options ?: IRevertOptions): Promicognidreamognidream > {
+	return this._inputModel?.revert(options);
+}
 
-	override isDirty(): boolean {
-		return this._inputModel?.isDirty.get() ?? false;
-	}
+    // ---- FileEditorInput
 
-	setLanguageId(languageId: string, source?: string): void {
-		this._inputModel?.model.setLanguageId(languageId, source);
-	}
+    override isDirty(): boolean {
+	return this._inputModel?.isDirty.get() ?? false;
+}
 
-	// implement get/set encoding
+setLanguageId(languageId: string, source ?: stringcognidreamognidream {
+	this._inputModel?.model.setLanguageId(languageId, source);
+}
+
+    // implement get/set encoding
 }

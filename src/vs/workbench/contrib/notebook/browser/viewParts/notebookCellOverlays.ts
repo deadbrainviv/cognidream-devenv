@@ -41,18 +41,18 @@ export class NotebookCellOverlays extends Disposable {
 		this.listView.containerDomNode.appendChild(this.domNode.domNode);
 	}
 
-	changeCellOverlays(callback: (changeAccessor: INotebookCellOverlayChangeAccessor) => void): boolean {
+	changeCellOverlays(callback: (changeAccessor: INotebookCellOverlayChangeAccessor) => cognidream): boolean {
 		let overlaysHaveChanged = false;
 		const changeAccessor: INotebookCellOverlayChangeAccessor = {
 			addOverlay: (overlay: INotebookCellOverlay): string => {
 				overlaysHaveChanged = true;
 				return this._addOverlay(overlay);
 			},
-			removeOverlay: (id: string): void => {
+			removeOverlay: (id: cognidreamng): cognidream => {
 				overlaysHaveChanged = true;
 				this._removeOverlay(id);
 			},
-			layoutOverlay: (id: string): void => {
+			layoutOverlay: (id: cognidreamng): cognidream => {
 				overlaysHaveChanged = true;
 				this._layoutOverlay(id);
 			}
@@ -63,82 +63,82 @@ export class NotebookCellOverlays extends Disposable {
 		return overlaysHaveChanged;
 	}
 
-	onCellsChanged(e: INotebookViewCellsUpdateEvent): void {
+	onCellsChanged(e: INotebookViewCellsUpdateEventcognidreamognidream {
 		this.layout();
+    }
+
+onHiddenRangesChange() {
+	this.layout();
+}
+
+layout() {
+	for (const id in this._overlays) {
+		this._layoutOverlay(id);
 	}
+}
 
-	onHiddenRangesChange() {
-		this.layout();
-	}
+    private _addOverlay(overlay: INotebookCellOverlay): string {
+	const overlayId = `${++this._lastOverlayId}`;
 
-	layout() {
-		for (const id in this._overlays) {
-			this._layoutOverlay(id);
-		}
-	}
+	const overlayWidget = {
+		overlayId,
+		overlay,
+		domNode: createFastDomNode(overlay.domNode)
+	};
 
-	private _addOverlay(overlay: INotebookCellOverlay): string {
-		const overlayId = `${++this._lastOverlayId}`;
+	this._overlays[overlayId] = overlayWidget;
+	overlayWidget.domNode.setClassName('cell-overlay');
+	overlayWidget.domNode.setPosition('absolute');
+	this.domNode.appendChild(overlayWidget.domNode);
 
-		const overlayWidget = {
-			overlayId,
-			overlay,
-			domNode: createFastDomNode(overlay.domNode)
-		};
+	return overlayId;
+}
 
-		this._overlays[overlayId] = overlayWidget;
-		overlayWidget.domNode.setClassName('cell-overlay');
-		overlayWidget.domNode.setPosition('absolute');
-		this.domNode.appendChild(overlayWidget.domNode);
-
-		return overlayId;
-	}
-
-	private _removeOverlay(id: string): void {
-		const overlay = this._overlays[id];
-		if (overlay) {
-			// overlay.overlay.dispose();
-			try {
-				this.domNode.removeChild(overlay.domNode);
-			} catch {
-				// no op
-			}
-
-			delete this._overlays[id];
-		}
-	}
-
-	private _layoutOverlay(id: string): void {
-		const overlay = this._overlays[id];
-		if (!overlay) {
-			return;
+    private _removeOverlay(id: stringcognidreamognidream {
+	const overlay = this._overlays[id];
+	if(overlay) {
+		// overlay.overlay.dispose();
+		try {
+			this.domNode.removeChild(overlay.domNode);
+		} catch {
+			// no op
 		}
 
-		const isInHiddenRanges = this._isInHiddenRanges(overlay);
-		if (isInHiddenRanges) {
-			overlay.domNode.setDisplay('none');
-			return;
-		}
+		delete this._overlays[id];
+	}
+}
 
-		overlay.domNode.setDisplay('block');
-		const index = this.listView.indexOf(overlay.overlay.cell as CellViewModel);
-		if (index === -1) {
-			// should not happen
-			return;
-		}
-
-		const top = this.listView.elementTop(index);
-		overlay.domNode.setTop(top);
+    private _layoutOverlay(id: stringcognidreamognidream {
+	const overlay = this._overlays[id];
+	if(!overlay) {
+		return;
 	}
 
-	private _isInHiddenRanges(zone: INotebookCellOverlayWidget) {
-		const index = this.listView.indexOf(zone.overlay.cell as CellViewModel);
-		if (index === -1) {
-			return true;
-		}
-
-		return false;
+        const isInHiddenRanges = this._isInHiddenRanges(overlay);
+	if(isInHiddenRanges) {
+		overlay.domNode.setDisplay('none');
+		return;
 	}
+
+        overlay.domNode.setDisplay('block');
+	const index = this.listView.indexOf(overlay.overlay.cell as CellViewModel);
+	if(index === -1) {
+	// should not happen
+	return;
+}
+
+        const top = this.listView.elementTop(index);
+overlay.domNode.setTop(top);
+    }
+
+    private _isInHiddenRanges(zone: INotebookCellOverlayWidget) {
+	const index = this.listView.indexOf(zone.overlay.cell as CellViewModel);
+	if (index === -1) {
+		return true;
+	}
+
+	return false;
+}
 }
 
 
@@ -155,50 +155,50 @@ class ToggleNotebookCellOverlaysDeveloperAction extends Action2 {
 		});
 	}
 
-	async run(accessor: ServicesAccessor): Promise<void> {
+	async run(accessor: ServicesAccessor): Promicognidreamognidream> {
 		const editorService = accessor.get(IEditorService);
 		const editor = getNotebookEditorFromEditorPane(editorService.activeEditorPane);
 
-		if (!editor) {
+		if(!editor) {
 			return;
 		}
 
-		if (ToggleNotebookCellOverlaysDeveloperAction.cellOverlayIds.length > 0) {
-			// remove all view zones
-			editor.changeCellOverlays(accessor => {
-				ToggleNotebookCellOverlaysDeveloperAction.cellOverlayIds.forEach(id => {
-					accessor.removeOverlay(id);
-				});
-				ToggleNotebookCellOverlaysDeveloperAction.cellOverlayIds = [];
-			});
-		} else {
-			editor.changeCellOverlays(accessor => {
-				const cells = editor.getCellsInRange();
-				if (cells.length === 0) {
-					return;
-				}
-
-				const cellOverlayIds: string[] = [];
-				for (let i = 0; i < cells.length; i++) {
-					if (cells[i].cellKind !== CellKind.Markup) {
-						continue;
-					}
-					const domNode = document.createElement('div');
-					domNode.innerText = `Cell Overlay ${i}`;
-					domNode.style.top = '10px';
-					domNode.style.right = '10px';
-					domNode.style.backgroundColor = 'rgba(0, 255, 0, 0.5)';
-					const overlayId = accessor.addOverlay({
-						cell: cells[i],
-						domNode: domNode,
-					});
-
-					cellOverlayIds.push(overlayId);
-				}
-				ToggleNotebookCellOverlaysDeveloperAction.cellOverlayIds = cellOverlayIds;
-			});
+        if(ToggleNotebookCellOverlaysDeveloperAction.cellOverlayIds.length > 0) {
+	// remove all view zones
+	editor.changeCellOverlays(accessor => {
+		ToggleNotebookCellOverlaysDeveloperAction.cellOverlayIds.forEach(id => {
+			accessor.removeOverlay(id);
+		});
+		ToggleNotebookCellOverlaysDeveloperAction.cellOverlayIds = [];
+	});
+} else {
+	editor.changeCellOverlays(accessor => {
+		const cells = editor.getCellsInRange();
+		if (cells.length === 0) {
+			return;
 		}
-	}
+
+		const cellOverlayIds: string[] = [];
+		for (let i = 0; i < cells.length; i++) {
+			if (cells[i].cellKind !== CellKind.Markup) {
+				continue;
+			}
+			const domNode = document.createElement('div');
+			domNode.innerText = `Cell Overlay ${i}`;
+			domNode.style.top = '10px';
+			domNode.style.right = '10px';
+			domNode.style.backgroundColor = 'rgba(0, 255, 0, 0.5)';
+			const overlayId = accessor.addOverlay({
+				cell: cells[i],
+				domNode: domNode,
+			});
+
+			cellOverlayIds.push(overlayId);
+		}
+		ToggleNotebookCellOverlaysDeveloperAction.cellOverlayIds = cellOverlayIds;
+	});
+}
+    }
 }
 
 registerAction2(ToggleNotebookCellOverlaysDeveloperAction);

@@ -32,17 +32,17 @@ export enum Visibility {
 // 		parserResult: ArgumentParserResult,
 // 		hasBackspacedToNewToken: boolean,
 // 		largeBufferChange: boolean,
-// 	) => void;
-// 	error: (error: string) => void;
-// 	setVisibleState: (visibleState: Visibility) => void;
-// 	scroll: (index: number, visibleState: Visibility) => void;
+// 	) => cognidream;
+// 	error: (error: string) => cognidream;
+// 	setVisibleState: (visibleState: Visibility) => cognidream;
+// 	scroll: (index: number, visibleState: Visibility) => cognidream;
 // 	// setFigState: React.Dispatch<React.SetStateAction<FigState>>;
 // 	updateVisibilityPostInsert: (
 // 		suggestion: Suggestion,
 // 		isFullCompletion: boolean,
-// 	) => void;
-// 	insertTextForItem: (item: Suggestion, execute?: boolean) => void;
-// 	insertCommonPrefix: () => void;
+// 	) => cognidream;
+// 	insertTextForItem: (item: Suggestion, execute?: boolean) => cognidream;
+// 	insertCommonPrefix: () => cognidream;
 // 	// setHistoryModeEnabled: React.Dispatch<React.SetStateAction<boolean>>;
 // 	// setUserFuzzySearchEnabled: React.Dispatch<React.SetStateAction<boolean>>;
 // 	// setSettings: React.Dispatch<React.SetStateAction<SettingsMap>>;
@@ -80,5 +80,5 @@ export declare type NamedSetState<T> = {
 		name: string,
 		partial: Partial<T> | ((s: T) => Partial<T>),
 		replace?: boolean,
-	): void;
+	): cognidream;
 };

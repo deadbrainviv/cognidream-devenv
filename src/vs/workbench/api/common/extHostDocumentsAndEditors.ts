@@ -55,142 +55,142 @@ export class ExtHostDocumentsAndEditors implements ExtHostDocumentsAndEditorsSha
 		@ILogService private readonly _logService: ILogService
 	) { }
 
-	$acceptDocumentsAndEditorsDelta(delta: IDocumentsAndEditorsDelta): void {
+	$acceptDocumentsAndEditorsDelta(delta: IDocumentsAndEditorsDelta): cognidream {
 		this.acceptDocumentsAndEditorsDelta(delta);
 	}
 
-	acceptDocumentsAndEditorsDelta(delta: IDocumentsAndEditorsDelta): void {
+	acceptDocumentsAndEditorsDelta(delta: IDocumentsAndEditorsDeltacognidreamognidream {
 
 		const removedDocuments: ExtHostDocumentData[] = [];
 		const addedDocuments: ExtHostDocumentData[] = [];
 		const removedEditors: ExtHostTextEditor[] = [];
 
 		if (delta.removedDocuments) {
-			for (const uriComponent of delta.removedDocuments) {
-				const uri = URI.revive(uriComponent);
-				const data = this._documents.get(uri);
-				if (data?.unref()) {
-					this._documents.delete(uri);
-					removedDocuments.push(data.value);
-				}
+	for (const uriComponent of delta.removedDocuments) {
+		const uri = URI.revive(uriComponent);
+		const data = this._documents.get(uri);
+		if (data?.unref()) {
+			this._documents.delete(uri);
+			removedDocuments.push(data.value);
+		}
+	}
+}
+
+if (delta.addedDocuments) {
+	for (const data of delta.addedDocuments) {
+		const resource = URI.revive(data.uri);
+		let ref = this._documents.get(resource);
+
+		// double check -> only notebook cell documents should be
+		// referenced/opened more than once...
+		if (ref) {
+			if (resource.scheme !== Schemas.vscodeNotebookCell && resource.scheme !== Schemas.vscodeInteractiveInput) {
+				throw new Error(`document '${resource} already exists!'`);
 			}
 		}
-
-		if (delta.addedDocuments) {
-			for (const data of delta.addedDocuments) {
-				const resource = URI.revive(data.uri);
-				let ref = this._documents.get(resource);
-
-				// double check -> only notebook cell documents should be
-				// referenced/opened more than once...
-				if (ref) {
-					if (resource.scheme !== Schemas.vscodeNotebookCell && resource.scheme !== Schemas.vscodeInteractiveInput) {
-						throw new Error(`document '${resource} already exists!'`);
-					}
-				}
-				if (!ref) {
-					ref = new Reference(new ExtHostDocumentData(
-						this._extHostRpc.getProxy(MainContext.MainThreadDocuments),
-						resource,
-						data.lines,
-						data.EOL,
-						data.versionId,
-						data.languageId,
-						data.isDirty,
-						data.encoding
-					));
-					this._documents.set(resource, ref);
-					addedDocuments.push(ref.value);
-				}
-
-				ref.ref();
-			}
+		if (!ref) {
+			ref = new Reference(new ExtHostDocumentData(
+				this._extHostRpc.getProxy(MainContext.MainThreadDocuments),
+				resource,
+				data.lines,
+				data.EOL,
+				data.versionId,
+				data.languageId,
+				data.isDirty,
+				data.encoding
+			));
+			this._documents.set(resource, ref);
+			addedDocuments.push(ref.value);
 		}
 
-		if (delta.removedEditors) {
-			for (const id of delta.removedEditors) {
-				const editor = this._editors.get(id);
-				this._editors.delete(id);
-				if (editor) {
-					removedEditors.push(editor);
-				}
-			}
-		}
+		ref.ref();
+	}
+}
 
-		if (delta.addedEditors) {
-			for (const data of delta.addedEditors) {
-				const resource = URI.revive(data.documentUri);
-				assert.ok(this._documents.has(resource), `document '${resource}' does not exist`);
-				assert.ok(!this._editors.has(data.id), `editor '${data.id}' already exists!`);
-
-				const documentData = this._documents.get(resource)!.value;
-				const editor = new ExtHostTextEditor(
-					data.id,
-					this._extHostRpc.getProxy(MainContext.MainThreadTextEditors),
-					this._logService,
-					new Lazy(() => documentData.document),
-					data.selections.map(typeConverters.Selection.to),
-					data.options,
-					data.visibleRanges.map(range => typeConverters.Range.to(range)),
-					typeof data.editorPosition === 'number' ? typeConverters.ViewColumn.to(data.editorPosition) : undefined
-				);
-				this._editors.set(data.id, editor);
-			}
-		}
-
-		if (delta.newActiveEditor !== undefined) {
-			assert.ok(delta.newActiveEditor === null || this._editors.has(delta.newActiveEditor), `active editor '${delta.newActiveEditor}' does not exist`);
-			this._activeEditorId = delta.newActiveEditor;
-		}
-
-		dispose(removedDocuments);
-		dispose(removedEditors);
-
-		// now that the internal state is complete, fire events
-		if (delta.removedDocuments) {
-			this._onDidRemoveDocuments.fire(removedDocuments);
-		}
-		if (delta.addedDocuments) {
-			this._onDidAddDocuments.fire(addedDocuments);
-		}
-
-		if (delta.removedEditors || delta.addedEditors) {
-			this._onDidChangeVisibleTextEditors.fire(this.allEditors().map(editor => editor.value));
-		}
-		if (delta.newActiveEditor !== undefined) {
-			this._onDidChangeActiveTextEditor.fire(this.activeEditor());
+if (delta.removedEditors) {
+	for (const id of delta.removedEditors) {
+		const editor = this._editors.get(id);
+		this._editors.delete(id);
+		if (editor) {
+			removedEditors.push(editor);
 		}
 	}
+}
 
-	getDocument(uri: URI): ExtHostDocumentData | undefined {
-		return this._documents.get(uri)?.value;
-	}
+if (delta.addedEditors) {
+	for (const data of delta.addedEditors) {
+		const resource = URI.revive(data.documentUri);
+		assert.ok(this._documents.has(resource), `document '${resource}' does not exist`);
+		assert.ok(!this._editors.has(data.id), `editor '${data.id}' already exists!`);
 
-	allDocuments(): Iterable<ExtHostDocumentData> {
-		return Iterable.map(this._documents.values(), ref => ref.value);
+		const documentData = this._documents.get(resource)!.value;
+		const editor = new ExtHostTextEditor(
+			data.id,
+			this._extHostRpc.getProxy(MainContext.MainThreadTextEditors),
+			this._logService,
+			new Lazy(() => documentData.document),
+			data.selections.map(typeConverters.Selection.to),
+			data.options,
+			data.visibleRanges.map(range => typeConverters.Range.to(range)),
+			typeof data.editorPosition === 'number' ? typeConverters.ViewColumn.to(data.editorPosition) : undefined
+		);
+		this._editors.set(data.id, editor);
 	}
+}
 
-	getEditor(id: string): ExtHostTextEditor | undefined {
-		return this._editors.get(id);
-	}
+if (delta.newActiveEditor !== undefined) {
+	assert.ok(delta.newActiveEditor === null || this._editors.has(delta.newActiveEditor), `active editor '${delta.newActiveEditor}' does not exist`);
+	this._activeEditorId = delta.newActiveEditor;
+}
 
-	activeEditor(): vscode.TextEditor | undefined;
-	activeEditor(internal: true): ExtHostTextEditor | undefined;
-	activeEditor(internal?: true): vscode.TextEditor | ExtHostTextEditor | undefined {
-		if (!this._activeEditorId) {
-			return undefined;
-		}
-		const editor = this._editors.get(this._activeEditorId);
-		if (internal) {
-			return editor;
-		} else {
-			return editor?.value;
-		}
-	}
+dispose(removedDocuments);
+dispose(removedEditors);
 
-	allEditors(): ExtHostTextEditor[] {
-		return [...this._editors.values()];
+// now that the internal state is complete, fire events
+if (delta.removedDocuments) {
+	this._onDidRemoveDocuments.fire(removedDocuments);
+}
+if (delta.addedDocuments) {
+	this._onDidAddDocuments.fire(addedDocuments);
+}
+
+if (delta.removedEditors || delta.addedEditors) {
+	this._onDidChangeVisibleTextEditors.fire(this.allEditors().map(editor => editor.value));
+}
+if (delta.newActiveEditor !== undefined) {
+	this._onDidChangeActiveTextEditor.fire(this.activeEditor());
+}
+    }
+
+getDocument(uri: URI): ExtHostDocumentData | undefined {
+	return this._documents.get(uri)?.value;
+}
+
+allDocuments(): Iterable < ExtHostDocumentData > {
+	return Iterable.map(this._documents.values(), ref => ref.value);
+}
+
+getEditor(id: string): ExtHostTextEditor | undefined {
+	return this._editors.get(id);
+}
+
+activeEditor(): vscode.TextEditor | undefined;
+activeEditor(internal: true): ExtHostTextEditor | undefined;
+activeEditor(internal ?: true): vscode.TextEditor | ExtHostTextEditor | undefined {
+	if (!this._activeEditorId) {
+		return undefined;
 	}
+	const editor = this._editors.get(this._activeEditorId);
+	if (internal) {
+		return editor;
+	} else {
+		return editor?.value;
+	}
+}
+
+allEditors(): ExtHostTextEditor[] {
+	return [...this._editors.values()];
+}
 }
 
 export interface IExtHostDocumentsAndEditors extends ExtHostDocumentsAndEditors { }

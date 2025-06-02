@@ -155,7 +155,7 @@ export interface IViewContainersRegistry {
 	 * Deregisters the given view container
 	 * No op if the view container is not registered
 	 */
-	deregisterViewContainer(viewContainer: ViewContainer): void;
+	deregisterViewContainer(viewContainer: ViewContainer): cognidream;
 
 	/**
 	 * Returns the view container with given id.
@@ -223,36 +223,36 @@ class ViewContainersRegistryImpl extends Disposable implements IViewContainersRe
 		return viewContainer;
 	}
 
-	deregisterViewContainer(viewContainer: ViewContainer): void {
+	deregisterViewContainer(viewContainer: ViewContainercognidreamognidream {
 		for (const viewContainerLocation of this.viewContainers.keys()) {
-			const viewContainers = this.viewContainers.get(viewContainerLocation)!;
-			const index = viewContainers?.indexOf(viewContainer);
-			if (index !== -1) {
-				viewContainers?.splice(index, 1);
-				if (viewContainers.length === 0) {
-					this.viewContainers.delete(viewContainerLocation);
-				}
-				this._onDidDeregister.fire({ viewContainer, viewContainerLocation });
-				return;
-			}
+	const viewContainers = this.viewContainers.get(viewContainerLocation)!;
+	const index = viewContainers?.indexOf(viewContainer);
+	if (index !== -1) {
+		viewContainers?.splice(index, 1);
+		if (viewContainers.length === 0) {
+			this.viewContainers.delete(viewContainerLocation);
 		}
+		this._onDidDeregister.fire({ viewContainer, viewContainerLocation });
+		return;
 	}
+}
+    }
 
-	get(id: string): ViewContainer | undefined {
-		return this.all.filter(viewContainer => viewContainer.id === id)[0];
-	}
+get(id: string): ViewContainer | undefined {
+	return this.all.filter(viewContainer => viewContainer.id === id)[0];
+}
 
-	getViewContainers(location: ViewContainerLocation): ViewContainer[] {
-		return [...(this.viewContainers.get(location) || [])];
-	}
+getViewContainers(location: ViewContainerLocation): ViewContainer[] {
+	return [...(this.viewContainers.get(location) || [])];
+}
 
-	getViewContainerLocation(container: ViewContainer): ViewContainerLocation {
-		return [...this.viewContainers.keys()].filter(location => this.getViewContainers(location).filter(viewContainer => viewContainer?.id === container.id).length > 0)[0];
-	}
+getViewContainerLocation(container: ViewContainer): ViewContainerLocation {
+	return [...this.viewContainers.keys()].filter(location => this.getViewContainers(location).filter(viewContainer => viewContainer?.id === container.id).length > 0)[0];
+}
 
-	getDefaultViewContainer(location: ViewContainerLocation): ViewContainer | undefined {
-		return this.defaultViewContainers.find(viewContainer => this.getViewContainerLocation(viewContainer) === location);
-	}
+getDefaultViewContainer(location: ViewContainerLocation): ViewContainer | undefined {
+	return this.defaultViewContainers.find(viewContainer => this.getViewContainerLocation(viewContainer) === location);
+}
 }
 
 Registry.add(Extensions.ViewContainersRegistry, new ViewContainersRegistryImpl());
@@ -346,15 +346,15 @@ export interface IViewContainerModel {
 	readonly onDidMoveVisibleViewDescriptors: Event<{ from: IViewDescriptorRef; to: IViewDescriptorRef }>;
 
 	isVisible(id: string): boolean;
-	setVisible(id: string, visible: boolean): void;
+	setVisible(id: string, visible: booleancognidreamognidream;
 
-	isCollapsed(id: string): boolean;
-	setCollapsed(id: string, collapsed: boolean): void;
+		isCollapsed(id: string): boolean;
+	setCollapsed(id: string, collapsed: booleancognidreamognidream;
 
-	getSize(id: string): number | undefined;
-	setSizes(newSizes: readonly { id: string; size: number }[]): void;
+		getSize(id: string): number | undefined;
+	setSizes(newSizes: readonly { id: string; size: number }[]cognidreamognidream;
 
-	move(from: string, to: string): void;
+		move(from: string, to: stringcognidreamognidream;
 }
 
 export enum ViewContentGroups {
@@ -385,15 +385,15 @@ export interface IViewsRegistry {
 
 	readonly onDidChangeContainer: Event<{ views: IViewDescriptor[]; from: ViewContainer; to: ViewContainer }>;
 
-	registerViews(views: IViewDescriptor[], viewContainer: ViewContainer): void;
+	registerViews(views: IViewDescriptor[], viewContainer: ViewContainercognidreamognidream;
 
-	registerViews2(views: { views: IViewDescriptor[]; viewContainer: ViewContainer }[]): void;
+		registerViews2(views: { views: IViewDescriptor[]; viewContainer: ViewContainer }[]cognidreamognidream;
 
-	deregisterViews(views: IViewDescriptor[], viewContainer: ViewContainer): void;
+			deregisterViews(views: IViewDescriptor[], viewContainer: ViewContainercognidreamognidream;
 
-	moveViews(views: IViewDescriptor[], viewContainer: ViewContainer): void;
+				moveViews(views: IViewDescriptor[], viewContainer: ViewContainercognidreamognidream;
 
-	getViews(viewContainer: ViewContainer): IViewDescriptor[];
+					getViews(viewContainer: ViewContainer): IViewDescriptor[];
 
 	getView(id: string): IViewDescriptor | null;
 
@@ -432,129 +432,129 @@ class ViewsRegistry extends Disposable implements IViewsRegistry {
 	private _views: Map<ViewContainer, IViewDescriptor[]> = new Map<ViewContainer, IViewDescriptor[]>();
 	private _viewWelcomeContents = new SetMap<string, IViewContentDescriptor>();
 
-	registerViews(views: IViewDescriptor[], viewContainer: ViewContainer): void {
+	registerViews(views: IViewDescriptor[], viewContainer: ViewContainercognidreamognidream {
 		this.registerViews2([{ views, viewContainer }]);
-	}
+    }
 
-	registerViews2(views: { views: IViewDescriptor[]; viewContainer: ViewContainer }[]): void {
-		views.forEach(({ views, viewContainer }) => this.addViews(views, viewContainer));
-		this._onViewsRegistered.fire(views);
-	}
+registerViews2(views: { views: IViewDescriptor[]; viewContainer: ViewContainer }[]cognidreamognidream {
+	views.forEach(({ views, viewContainer }) => this.addViews(views, viewContainer));
+	this._onViewsRegistered.fire(views);
+}
 
-	deregisterViews(viewDescriptors: IViewDescriptor[], viewContainer: ViewContainer): void {
-		const views = this.removeViews(viewDescriptors, viewContainer);
-		if (views.length) {
-			this._onViewsDeregistered.fire({ views, viewContainer });
+    deregisterViews(viewDescriptors: IViewDescriptor[], viewContainer: ViewContainercognidreamognidream {
+	const views = this.removeViews(viewDescriptors, viewContainer);
+	if(views.length) {
+	this._onViewsDeregistered.fire({ views, viewContainer });
+}
+    }
+
+	moveViews(viewsToMove: IViewDescriptor[], viewContainer: ViewContainercognidreamognidream {
+		for(const container of this._views.keys()) {
+			if(container !== viewContainer) {
+	const views = this.removeViews(viewsToMove, container);
+	if (views.length) {
+		this.addViews(views, viewContainer);
+		this._onDidChangeContainer.fire({ views, from: container, to: viewContainer });
+	}
+}
+        }
+    }
+
+getViews(loc: ViewContainer): IViewDescriptor[] {
+	return this._views.get(loc) || [];
+}
+
+getView(id: string): IViewDescriptor | null {
+	for (const viewContainer of this._viewContainers) {
+		const viewDescriptor = (this._views.get(viewContainer) || []).filter(v => v.id === id)[0];
+		if (viewDescriptor) {
+			return viewDescriptor;
 		}
 	}
+	return null;
+}
 
-	moveViews(viewsToMove: IViewDescriptor[], viewContainer: ViewContainer): void {
-		for (const container of this._views.keys()) {
-			if (container !== viewContainer) {
-				const views = this.removeViews(viewsToMove, container);
-				if (views.length) {
-					this.addViews(views, viewContainer);
-					this._onDidChangeContainer.fire({ views, from: container, to: viewContainer });
-				}
-			}
+getViewContainer(viewId: string): ViewContainer | null {
+	for (const viewContainer of this._viewContainers) {
+		const viewDescriptor = (this._views.get(viewContainer) || []).filter(v => v.id === viewId)[0];
+		if (viewDescriptor) {
+			return viewContainer;
 		}
 	}
+	return null;
+}
 
-	getViews(loc: ViewContainer): IViewDescriptor[] {
-		return this._views.get(loc) || [];
-	}
+registerViewWelcomeContent(id: string, viewContent: IViewContentDescriptor): IDisposable {
+	this._viewWelcomeContents.add(id, viewContent);
+	this._onDidChangeViewWelcomeContent.fire(id);
 
-	getView(id: string): IViewDescriptor | null {
-		for (const viewContainer of this._viewContainers) {
-			const viewDescriptor = (this._views.get(viewContainer) || []).filter(v => v.id === id)[0];
-			if (viewDescriptor) {
-				return viewDescriptor;
-			}
-		}
-		return null;
-	}
-
-	getViewContainer(viewId: string): ViewContainer | null {
-		for (const viewContainer of this._viewContainers) {
-			const viewDescriptor = (this._views.get(viewContainer) || []).filter(v => v.id === viewId)[0];
-			if (viewDescriptor) {
-				return viewContainer;
-			}
-		}
-		return null;
-	}
-
-	registerViewWelcomeContent(id: string, viewContent: IViewContentDescriptor): IDisposable {
-		this._viewWelcomeContents.add(id, viewContent);
+	return toDisposable(() => {
+		this._viewWelcomeContents.delete(id, viewContent);
 		this._onDidChangeViewWelcomeContent.fire(id);
+	});
+}
 
-		return toDisposable(() => {
-			this._viewWelcomeContents.delete(id, viewContent);
+registerViewWelcomeContent2<TKey>(id: string, viewContentMap: Map<TKey, IViewContentDescriptor>): Map < TKey, IDisposable > {
+	const disposables = new Map<TKey, IDisposable>();
+
+	for(const [key, content] of viewContentMap) {
+		this._viewWelcomeContents.add(id, content);
+
+		disposables.set(key, toDisposable(() => {
+			this._viewWelcomeContents.delete(id, content);
 			this._onDidChangeViewWelcomeContent.fire(id);
-		});
+		}));
 	}
+        this._onDidChangeViewWelcomeContent.fire(id);
 
-	registerViewWelcomeContent2<TKey>(id: string, viewContentMap: Map<TKey, IViewContentDescriptor>): Map<TKey, IDisposable> {
-		const disposables = new Map<TKey, IDisposable>();
+	return disposables;
+}
 
-		for (const [key, content] of viewContentMap) {
-			this._viewWelcomeContents.add(id, content);
+getViewWelcomeContent(id: string): IViewContentDescriptor[] {
+	const result: IViewContentDescriptor[] = [];
+	this._viewWelcomeContents.forEach(id, descriptor => result.push(descriptor));
+	return result.sort(compareViewContentDescriptors);
+}
 
-			disposables.set(key, toDisposable(() => {
-				this._viewWelcomeContents.delete(id, content);
-				this._onDidChangeViewWelcomeContent.fire(id);
-			}));
-		}
-		this._onDidChangeViewWelcomeContent.fire(id);
-
-		return disposables;
+    private addViews(viewDescriptors: IViewDescriptor[], viewContainer: ViewContainercognidreamognidream {
+	let views = this._views.get(viewContainer);
+	if(!views) {
+		views = [];
+		this._views.set(viewContainer, views);
+		this._viewContainers.push(viewContainer);
 	}
-
-	getViewWelcomeContent(id: string): IViewContentDescriptor[] {
-		const result: IViewContentDescriptor[] = [];
-		this._viewWelcomeContents.forEach(id, descriptor => result.push(descriptor));
-		return result.sort(compareViewContentDescriptors);
+        for(const viewDescriptor of viewDescriptors) {
+		if (this.getView(viewDescriptor.id) !== null) {
+			throw new Error(localize('duplicateId', "A view with id '{0}' is already registered", viewDescriptor.id));
+		}
+		views.push(viewDescriptor);
 	}
+}
 
-	private addViews(viewDescriptors: IViewDescriptor[], viewContainer: ViewContainer): void {
-		let views = this._views.get(viewContainer);
-		if (!views) {
-			views = [];
-			this._views.set(viewContainer, views);
-			this._viewContainers.push(viewContainer);
-		}
-		for (const viewDescriptor of viewDescriptors) {
-			if (this.getView(viewDescriptor.id) !== null) {
-				throw new Error(localize('duplicateId', "A view with id '{0}' is already registered", viewDescriptor.id));
-			}
-			views.push(viewDescriptor);
+    private removeViews(viewDescriptors: IViewDescriptor[], viewContainer: ViewContainer): IViewDescriptor[] {
+	const views = this._views.get(viewContainer);
+	if(!views) {
+		return [];
+	}
+        const viewsToDeregister: IViewDescriptor[] = [];
+	const remaningViews: IViewDescriptor[] = [];
+	for(const view of views) {
+		if (!viewDescriptors.includes(view)) {
+			remaningViews.push(view);
+		} else {
+			viewsToDeregister.push(view);
 		}
 	}
-
-	private removeViews(viewDescriptors: IViewDescriptor[], viewContainer: ViewContainer): IViewDescriptor[] {
-		const views = this._views.get(viewContainer);
-		if (!views) {
-			return [];
-		}
-		const viewsToDeregister: IViewDescriptor[] = [];
-		const remaningViews: IViewDescriptor[] = [];
-		for (const view of views) {
-			if (!viewDescriptors.includes(view)) {
-				remaningViews.push(view);
-			} else {
-				viewsToDeregister.push(view);
-			}
-		}
-		if (viewsToDeregister.length) {
-			if (remaningViews.length) {
-				this._views.set(viewContainer, remaningViews);
-			} else {
-				this._views.delete(viewContainer);
-				this._viewContainers.splice(this._viewContainers.indexOf(viewContainer), 1);
-			}
-		}
-		return viewsToDeregister;
+        if(viewsToDeregister.length) {
+	if (remaningViews.length) {
+		this._views.set(viewContainer, remaningViews);
+	} else {
+		this._views.delete(viewContainer);
+		this._viewContainers.splice(this._viewContainers.indexOf(viewContainer), 1);
 	}
+}
+return viewsToDeregister;
+    }
 }
 
 Registry.add(Extensions.ViewsRegistry, new ViewsRegistry());
@@ -563,9 +563,9 @@ export interface IView {
 
 	readonly id: string;
 
-	focus(): void;
+	focus(cognidreamognidream;
 
-	isVisible(): boolean;
+		isVisible(): boolean;
 
 	isBodyVisible(): boolean;
 
@@ -598,24 +598,24 @@ export interface IViewDescriptorService {
 	getViewContainerModel(viewContainer: ViewContainer): IViewContainerModel;
 
 	readonly onDidChangeContainerLocation: Event<{ viewContainer: ViewContainer; from: ViewContainerLocation; to: ViewContainerLocation }>;
-	moveViewContainerToLocation(viewContainer: ViewContainer, location: ViewContainerLocation, requestedIndex?: number, reason?: string): void;
+	moveViewContainerToLocation(viewContainer: ViewContainer, location: ViewContainerLocation, requestedIndex?: number, reason?: stringcognidreamognidream;
 
-	getViewContainerBadgeEnablementState(id: string): boolean;
-	setViewContainerBadgeEnablementState(id: string, badgesEnabled: boolean): void;
+		getViewContainerBadgeEnablementState(id: string): boolean;
+	setViewContainerBadgeEnablementState(id: string, badgesEnabled: booleancognidreamognidream;
 
-	// Views
-	getViewDescriptorById(id: string): IViewDescriptor | null;
+		// Views
+		getViewDescriptorById(id: string): IViewDescriptor | null;
 	getViewContainerByViewId(id: string): ViewContainer | null;
 	getDefaultContainerById(id: string): ViewContainer | null;
 	getViewLocationById(id: string): ViewContainerLocation | null;
 
 	readonly onDidChangeContainer: Event<{ views: IViewDescriptor[]; from: ViewContainer; to: ViewContainer }>;
-	moveViewsToContainer(views: IViewDescriptor[], viewContainer: ViewContainer, visibilityState?: ViewVisibilityState, reason?: string): void;
+	moveViewsToContainer(views: IViewDescriptor[], viewContainer: ViewContainer, visibilityState?: ViewVisibilityState, reason?: stringcognidreamognidream;
 
-	readonly onDidChangeLocation: Event<{ views: IViewDescriptor[]; from: ViewContainerLocation; to: ViewContainerLocation }>;
-	moveViewToLocation(view: IViewDescriptor, location: ViewContainerLocation, reason?: string): void;
+		readonly onDidChangeLocation: Event<{ views: IViewDescriptor[]; from: ViewContainerLocation; to: ViewContainerLocation }>;
+		moveViewToLocation(view: IViewDescriptor, location: ViewContainerLocation, reason?: stringcognidreamognidream;
 
-	reset(): void;
+			reset(cognidreamognidream;
 }
 
 // Custom views
@@ -650,42 +650,42 @@ export interface ITreeView extends IDisposable {
 
 	readonly onDidChangeVisibility: Event<boolean>;
 
-	readonly onDidChangeActions: Event<void>;
+	readonly onDidChangeActions: Evecognidreamognidream>;
 
-	readonly onDidChangeTitle: Event<string>;
+    readonly onDidChangeTitle: Event<string>;
 
-	readonly onDidChangeDescription: Event<string | undefined>;
+    readonly onDidChangeDescription: Event<string | undefined>;
 
-	readonly onDidChangeWelcomeState: Event<void>;
+    readonly onDidChangeWelcomeState: Evecognidreamognidream >;
 
-	readonly onDidChangeCheckboxState: Event<readonly ITreeItem[]>;
+    readonly onDidChangeCheckboxState: Event<readonly ITreeItem[]>;
 
-	readonly container: any | undefined;
+    readonly container: any | undefined;
 
-	// checkboxesChanged is a subset of treeItems
-	refresh(treeItems?: readonly ITreeItem[], checkboxesChanged?: readonly ITreeItem[]): Promise<void>;
+// checkboxesChanged is a subset of treeItems
+refresh(treeItems ?: readonly ITreeItem[], checkboxesChanged ?: readonly ITreeItem[]): Promicognidreamognidream >;
 
-	setVisibility(visible: boolean): void;
+setVisibility(visible: booleancognidreamognidream;
 
-	focus(): void;
+focus(cognidreamognidream;
 
-	layout(height: number, width: number): void;
+layout(height: number, width: numbercognidreamognidream;
 
-	getOptimalWidth(): number;
+getOptimalWidth(): number;
 
-	reveal(item: ITreeItem): Promise<void>;
+reveal(item: ITreeItem): Promicognidreamognidream >;
 
-	expand(itemOrItems: ITreeItem | ITreeItem[]): Promise<void>;
+expand(itemOrItems: ITreeItem | ITreeItem[]): Promicognidreamognidream >;
 
-	isCollapsed(item: ITreeItem): boolean;
+isCollapsed(item: ITreeItem): boolean;
 
-	setSelection(items: ITreeItem[]): void;
+setSelection(items: ITreeItem[]cognidreamognidream;
 
-	getSelection(): ITreeItem[];
+getSelection(): ITreeItem[];
 
-	setFocus(item?: ITreeItem): void;
+setFocus(item ?: ITreeItemcognidreamognidream;
 
-	show(container: any): void;
+show(container: anycognidreamognidream;
 }
 
 export interface IRevealOptions {
@@ -787,50 +787,50 @@ export class ResolvableTreeItem implements ITreeItem {
 	command?: Command & { originalId?: string };
 	children?: ITreeItem[];
 	accessibilityInformation?: IAccessibilityInformation;
-	resolve: (token: CancellationToken) => Promise<void>;
-	private resolved: boolean = false;
-	private _hasResolve: boolean = false;
-	constructor(treeItem: ITreeItem, resolve?: ((token: CancellationToken) => Promise<ITreeItem | undefined>)) {
-		mixin(this, treeItem);
-		this._hasResolve = !!resolve;
-		this.resolve = async (token: CancellationToken) => {
-			if (resolve && !this.resolved) {
-				const resolvedItem = await resolve(token);
-				if (resolvedItem) {
-					// Resolvable elements. Currently tooltip and command.
-					this.tooltip = this.tooltip ?? resolvedItem.tooltip;
-					this.command = this.command ?? resolvedItem.command;
-				}
+	resolve: (token: CancellationToken) => Promicognidreamognidream>;
+    private resolved: boolean = false;
+    private _hasResolve: boolean = false;
+constructor(treeItem: ITreeItem, resolve ?: ((token: CancellationToken) => Promise<ITreeItem | undefined>)) {
+	mixin(this, treeItem);
+	this._hasResolve = !!resolve;
+	this.resolve = async (token: CancellationToken) => {
+		if (resolve && !this.resolved) {
+			const resolvedItem = await resolve(token);
+			if (resolvedItem) {
+				// Resolvable elements. Currently tooltip and command.
+				this.tooltip = this.tooltip ?? resolvedItem.tooltip;
+				this.command = this.command ?? resolvedItem.command;
 			}
-			if (!token.isCancellationRequested) {
-				this.resolved = true;
-			}
-		};
-	}
-	get hasResolve(): boolean {
-		return this._hasResolve;
-	}
-	public resetResolve() {
-		this.resolved = false;
-	}
-	public asTreeItem(): ITreeItem {
-		return {
-			handle: this.handle,
-			parentHandle: this.parentHandle,
-			collapsibleState: this.collapsibleState,
-			label: this.label,
-			description: this.description,
-			icon: this.icon,
-			iconDark: this.iconDark,
-			themeIcon: this.themeIcon,
-			resourceUri: this.resourceUri,
-			tooltip: this.tooltip,
-			contextValue: this.contextValue,
-			command: this.command,
-			children: this.children,
-			accessibilityInformation: this.accessibilityInformation
-		};
-	}
+		}
+		if (!token.isCancellationRequested) {
+			this.resolved = true;
+		}
+	};
+}
+    get hasResolve(): boolean {
+	return this._hasResolve;
+}
+    public resetResolve() {
+	this.resolved = false;
+}
+    public asTreeItem(): ITreeItem {
+	return {
+		handle: this.handle,
+		parentHandle: this.parentHandle,
+		collapsibleState: this.collapsibleState,
+		label: this.label,
+		description: this.description,
+		icon: this.icon,
+		iconDark: this.iconDark,
+		themeIcon: this.themeIcon,
+		resourceUri: this.resourceUri,
+		tooltip: this.tooltip,
+		contextValue: this.contextValue,
+		command: this.command,
+		children: this.children,
+		accessibilityInformation: this.accessibilityInformation
+	};
+}
 }
 
 export class NoTreeViewError extends Error {
@@ -845,23 +845,23 @@ export class NoTreeViewError extends Error {
 
 export interface ITreeViewDataProvider {
 	readonly isTreeEmpty?: boolean;
-	onDidChangeEmpty?: Event<void>;
-	getChildren(element?: ITreeItem): Promise<ITreeItem[] | undefined>;
-	getChildrenBatch?(element?: ITreeItem[]): Promise<ITreeItem[][] | undefined>;
+	onDidChangeEmpty?: Evecognidreamognidream>;
+getChildren(element ?: ITreeItem): Promise<ITreeItem[] | undefined>;
+getChildrenBatch ? (element?: ITreeItem[]): Promise<ITreeItem[][] | undefined>;
 }
 
 export interface ITreeViewDragAndDropController {
 	readonly dropMimeTypes: string[];
 	readonly dragMimeTypes: string[];
 	handleDrag(sourceTreeItemHandles: string[], operationUuid: string, token: CancellationToken): Promise<VSDataTransfer | undefined>;
-	handleDrop(elements: VSDataTransfer, target: ITreeItem | undefined, token: CancellationToken, operationUuid?: string, sourceTreeId?: string, sourceTreeItemHandles?: string[]): Promise<void>;
+	handleDrop(elements: VSDataTransfer, target: ITreeItem | undefined, token: CancellationToken, operationUuid?: string, sourceTreeId?: string, sourceTreeItemHandles?: string[]): Promicognidreamognidream>;
 }
 
 export interface IEditableData {
 	validationMessage: (value: string) => { content: string; severity: Severity } | null;
 	placeholder?: string | null;
 	startingValue?: string | null;
-	onFinish: (value: string, success: boolean) => Promise<void>;
+	onFinish: (value: string, success: boolean) => Promicognidreamognidream>;
 }
 
 export interface IViewPaneContainer {
@@ -871,12 +871,12 @@ export interface IViewPaneContainer {
 
 	readonly views: IView[];
 
-	setVisible(visible: boolean): void;
-	isVisible(): boolean;
-	focus(): void;
-	getActionsContext(): unknown;
+	setVisible(visible: booleancognidreamognidream;
+		isVisible(): boolean;
+	focus(cognidreamognidream;
+		getActionsContext(): unknown;
 	getView(viewId: string): IView | undefined;
-	toggleViewVisibility(viewId: string): void;
+	toggleViewVisibility(viewId: stringcognidreamognidream;
 }
 
 export interface IViewBadge {

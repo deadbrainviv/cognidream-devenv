@@ -25,7 +25,7 @@ export abstract class ChatCollapsibleContentPart extends Disposable implements I
 
 	private _domNode?: HTMLElement;
 
-	protected readonly _onDidChangeHeight = this._register(new Emitter<void>());
+	protected readonly _onDidChangeHeight = this._register(new Emitter<cognidream>());
 	public readonly onDidChangeHeight = this._onDidChangeHeight.event;
 
 	protected readonly hasFollowingContent: boolean;
@@ -90,25 +90,25 @@ export abstract class ChatCollapsibleContentPart extends Disposable implements I
 
 	abstract hasSameContent(other: IChatRendererContent, followingContent: IChatRendererContent[], element: ChatTreeItem): boolean;
 
-	private updateAriaLabel(element: HTMLElement, label: string, expanded?: boolean): void {
+	private updateAriaLabel(element: HTMLElement, label: string, expanded?: booleancognidreamognidream {
 		element.ariaLabel = expanded ? localize('usedReferencesExpanded', "{0}, expanded", label) : localize('usedReferencesCollapsed', "{0}, collapsed", label);
 	}
 
-	addDisposable(disposable: IDisposable): void {
+    addDisposable(disposable: IDisposablecognidreamognidream {
 		this._register(disposable);
-	}
+    }
 
-	get expanded(): IObservable<boolean> {
-		return this._isExpanded;
-	}
+    get expanded(): IObservable < boolean > {
+	return this._isExpanded;
+}
 
-	protected isExpanded(): boolean {
-		return this._isExpanded.get();
-	}
+    protected isExpanded(): boolean {
+	return this._isExpanded.get();
+}
 
-	protected setExpanded(value: boolean): void {
-		this._isExpanded.set(value, undefined);
-	}
+    protected setExpanded(value: booleancognidreamognidream {
+	this._isExpanded.set(value, undefined);
+}
 }
 
 
@@ -143,42 +143,42 @@ export class ChatCollapsibleEditorContentPart extends ChatCollapsibleContentPart
 		}];
 	}
 
-	override dispose(): void {
+	override dispose(cognidreamognidream {
 		this._editorReference?.dispose();
-		super.dispose();
-	}
+super.dispose();
+    }
 
-	protected initContent(): HTMLElement {
-		const data: ICodeBlockData = {
-			languageId: this.languageId,
-			textModel: this.textModel,
-			codeBlockIndex: this.codeBlockInfo.codeBlockIndex,
-			codeBlockPartIndex: 0,
-			element: this.context.element,
-			parentContextKeyService: this.contextKeyService,
-			renderOptions: this.options
-		};
+    protected initContent(): HTMLElement {
+	const data: ICodeBlockData = {
+		languageId: this.languageId,
+		textModel: this.textModel,
+		codeBlockIndex: this.codeBlockInfo.codeBlockIndex,
+		codeBlockPartIndex: 0,
+		element: this.context.element,
+		parentContextKeyService: this.contextKeyService,
+		renderOptions: this.options
+	};
 
-		this._editorReference.object.render(data, this._currentWidth || 300);
-		this._register(this._editorReference.object.onDidChangeContentHeight(() => this._onDidChangeHeight.fire()));
-		this._contentDomNode.appendChild(this._editorReference.object.element);
+	this._editorReference.object.render(data, this._currentWidth || 300);
+	this._register(this._editorReference.object.onDidChangeContentHeight(() => this._onDidChangeHeight.fire()));
+	this._contentDomNode.appendChild(this._editorReference.object.element);
 
-		this._register(autorun(r => {
-			const value = this._isExpanded.read(r);
-			this._contentDomNode.style.display = value ? 'block' : 'none';
-		}));
+	this._register(autorun(r => {
+		const value = this._isExpanded.read(r);
+		this._contentDomNode.style.display = value ? 'block' : 'none';
+	}));
 
 
-		return this._contentDomNode;
-	}
+	return this._contentDomNode;
+}
 
-	hasSameContent(other: IChatRendererContent, followingContent: IChatRendererContent[], element: ChatTreeItem): boolean {
-		// For now, we consider content different unless it's exactly the same instance
-		return false;
-	}
+hasSameContent(other: IChatRendererContent, followingContent: IChatRendererContent[], element: ChatTreeItem): boolean {
+	// For now, we consider content different unless it's exactly the same instance
+	return false;
+}
 
-	layout(width: number): void {
-		this._currentWidth = width;
-		this._editorReference.object.layout(width);
-	}
+layout(width: numbercognidreamognidream {
+	this._currentWidth = width;
+	this._editorReference.object.layout(width);
+}
 }

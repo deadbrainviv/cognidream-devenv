@@ -79,7 +79,7 @@ export class ExtHostTelemetry extends Disposable implements ExtHostTelemetryShap
 		return logger.apiTelemetryLogger;
 	}
 
-	$initializeTelemetryLevel(level: TelemetryLevel, supportsTelemetry: boolean, productConfig?: { usage: boolean; error: boolean }): void {
+	$initializeTelemetryLevel(level: TelemetryLevel, supportsTelemetry: boolean, productConfig?: { usage: boolean; error: boolean }): cognidream {
 		this._level = level;
 		this._productConfig = productConfig ?? { usage: true, error: true };
 	}
@@ -115,7 +115,7 @@ export class ExtHostTelemetry extends Disposable implements ExtHostTelemetryShap
 		return commonProperties;
 	}
 
-	$onDidChangeTelemetryLevel(level: TelemetryLevel): void {
+	$onDidChangeTelemetryLevel(level: TelemetryLevelcognidreamognidream {
 		this._oldTelemetryEnablement = this.getTelemetryConfiguration();
 		this._level = level;
 		const telemetryDetails = this.getTelemetryDetails();
@@ -128,199 +128,199 @@ export class ExtHostTelemetry extends Disposable implements ExtHostTelemetryShap
 				this._telemetryLoggers.set(key, newLoggers);
 			}
 		});
-		// Loop through all loggers and update their level
-		this._telemetryLoggers.forEach(loggers => {
-			for (const logger of loggers) {
-				logger.updateTelemetryEnablements(telemetryDetails.isUsageEnabled, telemetryDetails.isErrorsEnabled);
-			}
-		});
-
-		if (this._oldTelemetryEnablement !== this.getTelemetryConfiguration()) {
-			this._onDidChangeTelemetryEnabled.fire(this.getTelemetryConfiguration());
-		}
-		this._onDidChangeTelemetryConfiguration.fire(this.getTelemetryDetails());
+// Loop through all loggers and update their level
+this._telemetryLoggers.forEach(loggers => {
+	for (const logger of loggers) {
+		logger.updateTelemetryEnablements(telemetryDetails.isUsageEnabled, telemetryDetails.isErrorsEnabled);
 	}
+});
 
-	onExtensionError(extension: ExtensionIdentifier, error: Error): boolean {
-		const loggers = this._telemetryLoggers.get(extension.value);
-		const nonDisposedLoggers = loggers?.filter(l => !l.isDisposed);
-		if (!nonDisposedLoggers) {
-			this._telemetryLoggers.delete(extension.value);
-			return false;
-		}
-		let errorEmitted = false;
-		for (const logger of nonDisposedLoggers) {
-			if (logger.ignoreUnhandledExtHostErrors) {
-				continue;
-			}
-			logger.logError(error);
-			errorEmitted = true;
-		}
-		return errorEmitted;
+if (this._oldTelemetryEnablement !== this.getTelemetryConfiguration()) {
+	this._onDidChangeTelemetryEnabled.fire(this.getTelemetryConfiguration());
+}
+this._onDidChangeTelemetryConfiguration.fire(this.getTelemetryDetails());
+    }
+
+onExtensionError(extension: ExtensionIdentifier, error: Error): boolean {
+	const loggers = this._telemetryLoggers.get(extension.value);
+	const nonDisposedLoggers = loggers?.filter(l => !l.isDisposed);
+	if (!nonDisposedLoggers) {
+		this._telemetryLoggers.delete(extension.value);
+		return false;
 	}
+	let errorEmitted = false;
+	for (const logger of nonDisposedLoggers) {
+		if (logger.ignoreUnhandledExtHostErrors) {
+			continue;
+		}
+		logger.logError(error);
+		errorEmitted = true;
+	}
+	return errorEmitted;
+}
 }
 
 export class ExtHostTelemetryLogger {
 
-	static validateSender(sender: vscode.TelemetrySender): void {
+	static validateSender(sender: vscode.TelemetrySendercognidreamognidream {
 		if (typeof sender !== 'object') {
-			throw new TypeError('TelemetrySender argument is invalid');
-		}
-		if (typeof sender.sendEventData !== 'function') {
-			throw new TypeError('TelemetrySender.sendEventData must be a function');
-		}
-		if (typeof sender.sendErrorData !== 'function') {
-			throw new TypeError('TelemetrySender.sendErrorData must be a function');
-		}
-		if (typeof sender.flush !== 'undefined' && typeof sender.flush !== 'function') {
-			throw new TypeError('TelemetrySender.flush must be a function or undefined');
-		}
+	throw new TypeError('TelemetrySender argument is invalid');
+}
+if (typeof sender.sendEventData !== 'function') {
+	throw new TypeError('TelemetrySender.sendEventData must be a function');
+}
+if (typeof sender.sendErrorData !== 'function') {
+	throw new TypeError('TelemetrySender.sendErrorData must be a function');
+}
+if (typeof sender.flush !== 'undefined' && typeof sender.flush !== 'function') {
+	throw new TypeError('TelemetrySender.flush must be a function or undefined');
+}
+    }
+
+    private readonly _onDidChangeEnableStates = new Emitter<vscode.TelemetryLogger>();
+    private readonly _ignoreBuiltinCommonProperties: boolean;
+    private readonly _additionalCommonProperties: Record<string, any> | undefined;
+    public readonly ignoreUnhandledExtHostErrors: boolean;
+
+    private _telemetryEnablements: { isUsageEnabled: boolean; isErrorsEnabled: boolean };
+    private _apiObject: vscode.TelemetryLogger | undefined;
+    private _sender: vscode.TelemetrySender | undefined;
+
+constructor(
+	sender: vscode.TelemetrySender,
+	options: vscode.TelemetryLoggerOptions | undefined,
+	private readonly _extension: IExtensionDescription,
+	private readonly _logger: ILogger,
+	private readonly _inLoggingOnlyMode: boolean,
+	private readonly _commonProperties: Record<string, any>,
+	telemetryEnablements: { isUsageEnabled: boolean; isErrorsEnabled: boolean }
+) {
+	this.ignoreUnhandledExtHostErrors = options?.ignoreUnhandledErrors ?? false;
+	this._ignoreBuiltinCommonProperties = options?.ignoreBuiltInCommonProperties ?? false;
+	this._additionalCommonProperties = options?.additionalCommonProperties;
+	this._sender = sender;
+	this._telemetryEnablements = { isUsageEnabled: telemetryEnablements.isUsageEnabled, isErrorsEnabled: telemetryEnablements.isErrorsEnabled };
+}
+
+updateTelemetryEnablements(isUsageEnabled: boolean, isErrorsEnabled: booleancognidreamognidream {
+	if(this._apiObject) {
+	this._telemetryEnablements = { isUsageEnabled, isErrorsEnabled };
+	this._onDidChangeEnableStates.fire(this._apiObject);
+}
+    }
+
+mixInCommonPropsAndCleanData(data: Record<string, any>): Record < string, any > {
+	// Some telemetry modules prefer to break properties and measurmements up
+	// We mix common properties into the properties tab.
+	let updatedData = 'properties' in data ? (data.properties ?? {}) : data;
+
+	// We don't clean measurements since they are just numbers
+	updatedData = cleanData(updatedData, []);
+
+	if(this._additionalCommonProperties) {
+	updatedData = mixin(updatedData, this._additionalCommonProperties);
+}
+
+if (!this._ignoreBuiltinCommonProperties) {
+	updatedData = mixin(updatedData, this._commonProperties);
+}
+
+if ('properties' in data) {
+	data.properties = updatedData;
+} else {
+	data = updatedData;
+}
+
+return data;
+    }
+
+    private logEvent(eventName: string, data ?: Record < string, any > cognidreamognidream {
+	// No sender means likely disposed of, we should no-op
+	if(!this._sender) {
+	return;
+}
+// If it's a built-in extension (vscode publisher) we don't prefix the publisher and only the ext name
+if (this._extension.publisher === 'vscode') {
+	eventName = this._extension.name + '/' + eventName;
+} else {
+	eventName = this._extension.identifier.value + '/' + eventName;
+}
+data = this.mixInCommonPropsAndCleanData(data || {});
+if (!this._inLoggingOnlyMode) {
+	this._sender?.sendEventData(eventName, data);
+}
+this._logger.trace(eventName, data);
+    }
+
+logUsage(eventName: string, data ?: Record < string, any > cognidreamognidream {
+	if(!this._telemetryEnablements.isUsageEnabled) {
+	return;
+}
+this.logEvent(eventName, data);
+    }
+
+logError(eventNameOrException: Error | string, data ?: Record < string, any > cognidreamognidream {
+	if(!this._telemetryEnablements.isErrorsEnabled || !this._sender) {
+	return;
+}
+if (typeof eventNameOrException === 'string') {
+	this.logEvent(eventNameOrException, data);
+} else {
+	const errorData = {
+		name: eventNameOrException.name,
+		message: eventNameOrException.message,
+		stack: eventNameOrException.stack,
+		cause: eventNameOrException.cause
+	};
+	const cleanedErrorData = cleanData(errorData, []);
+	// Reconstruct the error object with the cleaned data
+	const cleanedError = new Error(cleanedErrorData.message, {
+		cause: cleanedErrorData.cause
+	});
+	cleanedError.stack = cleanedErrorData.stack;
+	cleanedError.name = cleanedErrorData.name;
+	data = this.mixInCommonPropsAndCleanData(data || {});
+	if (!this._inLoggingOnlyMode) {
+		this._sender.sendErrorData(cleanedError, data);
 	}
+	this._logger.trace('exception', data);
+}
+    }
 
-	private readonly _onDidChangeEnableStates = new Emitter<vscode.TelemetryLogger>();
-	private readonly _ignoreBuiltinCommonProperties: boolean;
-	private readonly _additionalCommonProperties: Record<string, any> | undefined;
-	public readonly ignoreUnhandledExtHostErrors: boolean;
-
-	private _telemetryEnablements: { isUsageEnabled: boolean; isErrorsEnabled: boolean };
-	private _apiObject: vscode.TelemetryLogger | undefined;
-	private _sender: vscode.TelemetrySender | undefined;
-
-	constructor(
-		sender: vscode.TelemetrySender,
-		options: vscode.TelemetryLoggerOptions | undefined,
-		private readonly _extension: IExtensionDescription,
-		private readonly _logger: ILogger,
-		private readonly _inLoggingOnlyMode: boolean,
-		private readonly _commonProperties: Record<string, any>,
-		telemetryEnablements: { isUsageEnabled: boolean; isErrorsEnabled: boolean }
-	) {
-		this.ignoreUnhandledExtHostErrors = options?.ignoreUnhandledErrors ?? false;
-		this._ignoreBuiltinCommonProperties = options?.ignoreBuiltInCommonProperties ?? false;
-		this._additionalCommonProperties = options?.additionalCommonProperties;
-		this._sender = sender;
-		this._telemetryEnablements = { isUsageEnabled: telemetryEnablements.isUsageEnabled, isErrorsEnabled: telemetryEnablements.isErrorsEnabled };
+    get apiTelemetryLogger(): vscode.TelemetryLogger {
+	if (!this._apiObject) {
+		const that = this;
+		const obj: vscode.TelemetryLogger = {
+			logUsage: that.logUsage.bind(that),
+			get isUsageEnabled() {
+				return that._telemetryEnablements.isUsageEnabled;
+			},
+			get isErrorsEnabled() {
+				return that._telemetryEnablements.isErrorsEnabled;
+			},
+			logError: that.logError.bind(that),
+			dispose: that.dispose.bind(that),
+			onDidChangeEnableStates: that._onDidChangeEnableStates.event.bind(that)
+		};
+		this._apiObject = Object.freeze(obj);
 	}
+	return this._apiObject;
+}
 
-	updateTelemetryEnablements(isUsageEnabled: boolean, isErrorsEnabled: boolean): void {
-		if (this._apiObject) {
-			this._telemetryEnablements = { isUsageEnabled, isErrorsEnabled };
-			this._onDidChangeEnableStates.fire(this._apiObject);
-		}
-	}
+    get isDisposed(): boolean {
+	return !this._sender;
+}
 
-	mixInCommonPropsAndCleanData(data: Record<string, any>): Record<string, any> {
-		// Some telemetry modules prefer to break properties and measurmements up
-		// We mix common properties into the properties tab.
-		let updatedData = 'properties' in data ? (data.properties ?? {}) : data;
-
-		// We don't clean measurements since they are just numbers
-		updatedData = cleanData(updatedData, []);
-
-		if (this._additionalCommonProperties) {
-			updatedData = mixin(updatedData, this._additionalCommonProperties);
-		}
-
-		if (!this._ignoreBuiltinCommonProperties) {
-			updatedData = mixin(updatedData, this._commonProperties);
-		}
-
-		if ('properties' in data) {
-			data.properties = updatedData;
-		} else {
-			data = updatedData;
-		}
-
-		return data;
-	}
-
-	private logEvent(eventName: string, data?: Record<string, any>): void {
-		// No sender means likely disposed of, we should no-op
-		if (!this._sender) {
-			return;
-		}
-		// If it's a built-in extension (vscode publisher) we don't prefix the publisher and only the ext name
-		if (this._extension.publisher === 'vscode') {
-			eventName = this._extension.name + '/' + eventName;
-		} else {
-			eventName = this._extension.identifier.value + '/' + eventName;
-		}
-		data = this.mixInCommonPropsAndCleanData(data || {});
-		if (!this._inLoggingOnlyMode) {
-			this._sender?.sendEventData(eventName, data);
-		}
-		this._logger.trace(eventName, data);
-	}
-
-	logUsage(eventName: string, data?: Record<string, any>): void {
-		if (!this._telemetryEnablements.isUsageEnabled) {
-			return;
-		}
-		this.logEvent(eventName, data);
-	}
-
-	logError(eventNameOrException: Error | string, data?: Record<string, any>): void {
-		if (!this._telemetryEnablements.isErrorsEnabled || !this._sender) {
-			return;
-		}
-		if (typeof eventNameOrException === 'string') {
-			this.logEvent(eventNameOrException, data);
-		} else {
-			const errorData = {
-				name: eventNameOrException.name,
-				message: eventNameOrException.message,
-				stack: eventNameOrException.stack,
-				cause: eventNameOrException.cause
-			};
-			const cleanedErrorData = cleanData(errorData, []);
-			// Reconstruct the error object with the cleaned data
-			const cleanedError = new Error(cleanedErrorData.message, {
-				cause: cleanedErrorData.cause
-			});
-			cleanedError.stack = cleanedErrorData.stack;
-			cleanedError.name = cleanedErrorData.name;
-			data = this.mixInCommonPropsAndCleanData(data || {});
-			if (!this._inLoggingOnlyMode) {
-				this._sender.sendErrorData(cleanedError, data);
-			}
-			this._logger.trace('exception', data);
-		}
-	}
-
-	get apiTelemetryLogger(): vscode.TelemetryLogger {
-		if (!this._apiObject) {
-			const that = this;
-			const obj: vscode.TelemetryLogger = {
-				logUsage: that.logUsage.bind(that),
-				get isUsageEnabled() {
-					return that._telemetryEnablements.isUsageEnabled;
-				},
-				get isErrorsEnabled() {
-					return that._telemetryEnablements.isErrorsEnabled;
-				},
-				logError: that.logError.bind(that),
-				dispose: that.dispose.bind(that),
-				onDidChangeEnableStates: that._onDidChangeEnableStates.event.bind(that)
-			};
-			this._apiObject = Object.freeze(obj);
-		}
-		return this._apiObject;
-	}
-
-	get isDisposed(): boolean {
-		return !this._sender;
-	}
-
-	dispose(): void {
-		if (this._sender?.flush) {
-			let tempSender: vscode.TelemetrySender | undefined = this._sender;
-			this._sender = undefined;
-			Promise.resolve(tempSender.flush!()).then(tempSender = undefined);
-			this._apiObject = undefined;
-		} else {
-			this._sender = undefined;
-		}
-	}
+dispose(cognidreamognidream {
+	if(this._sender?.flush) {
+	let tempSender: vscode.TelemetrySender | undefined = this._sender;
+	this._sender = undefined;
+	Promise.resolve(tempSender.flush!()).then(tempSender = undefined);
+	this._apiObject = undefined;
+} else {
+	this._sender = undefined;
+}
+    }
 }
 
 export function isNewAppInstall(firstSessionDate: string): boolean {

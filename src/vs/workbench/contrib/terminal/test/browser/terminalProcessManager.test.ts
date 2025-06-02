@@ -22,7 +22,7 @@ class TestTerminalChildProcess implements ITerminalChildProcess {
 		readonly shouldPersist: boolean
 	) {
 	}
-	updateProperty(property: any, value: any): Promise<void> {
+	updateProperty(property: any, value: any): Promise<cognidream> {
 		throw new Error('Method not implemented.');
 	}
 
@@ -37,105 +37,105 @@ class TestTerminalChildProcess implements ITerminalChildProcess {
 	onProcessTitleChanged = Event.None;
 	onProcessShellTypeChanged = Event.None;
 	async start(): Promise<undefined> { return undefined; }
-	shutdown(immediate: boolean): void { }
-	input(data: string): void { }
-	resize(cols: number, rows: number): void { }
-	clearBuffer(): void { }
-	acknowledgeDataEvent(charCount: number): void { }
-	async setUnicodeVersion(version: '6' | '11'): Promise<void> { }
-	async getInitialCwd(): Promise<string> { return ''; }
-	async getCwd(): Promise<string> { return ''; }
-	async processBinary(data: string): Promise<void> { }
-	refreshProperty(property: any): Promise<any> { return Promise.resolve(''); }
+	shutdown(immediate: booleancognidreamognidream { }
+    input(data: stringcognidreamognidream { }
+    resize(cols: number, rows: numbercognidreamognidream { }
+    clearBuffer(cognidreamognidream { }
+acknowledgeDataEvent(charCount: numbercognidreamognidream {}
+    async setUnicodeVersion(version: '6' | '11'): Promicognidreamognidream > {}
+    async getInitialCwd(): Promise < string > { return ''; }
+    async getCwd(): Promise < string > { return ''; }
+    async processBinary(data: string): Promicognidreamognidream > {}
+    refreshProperty(property: any): Promise < any > { return Promise.resolve(''); }
 }
 
-class TestTerminalInstanceService implements Partial<ITerminalInstanceService> {
-	getBackend() {
-		return {
-			onPtyHostExit: Event.None,
-			onPtyHostUnresponsive: Event.None,
-			onPtyHostResponsive: Event.None,
-			onPtyHostRestart: Event.None,
-			onDidMoveWindowInstance: Event.None,
-			onDidRequestDetach: Event.None,
-			createProcess: (
-				shellLaunchConfig: any,
-				cwd: string,
-				cols: number,
-				rows: number,
-				unicodeVersion: '6' | '11',
-				env: any,
-				windowsEnableConpty: boolean,
-				shouldPersist: boolean
-			) => new TestTerminalChildProcess(shouldPersist),
-			getLatency: () => Promise.resolve([])
-		} as any;
+	class TestTerminalInstanceService implements Partial<ITerminalInstanceService> {
+		getBackend() {
+			return {
+				onPtyHostExit: Event.None,
+				onPtyHostUnresponsive: Event.None,
+				onPtyHostResponsive: Event.None,
+				onPtyHostRestart: Event.None,
+				onDidMoveWindowInstance: Event.None,
+				onDidRequestDetach: Event.None,
+				createProcess: (
+					shellLaunchConfig: any,
+					cwd: string,
+					cols: number,
+					rows: number,
+					unicodeVersion: '6' | '11',
+					env: any,
+					windowsEnableConpty: boolean,
+					shouldPersist: boolean
+				) => new TestTerminalChildProcess(shouldPersist),
+				getLatency: () => Promise.resolve([])
+			} as any;
+		}
 	}
-}
 
 suite('Workbench - TerminalProcessManager', () => {
-	let manager: TerminalProcessManager;
+		let manager: TerminalProcessManager;
 
-	const store = ensureNoDisposablesAreLeakedInTestSuite();
+		const store = ensureNoDisposablesAreLeakedInTestSuite();
 
-	setup(async () => {
-		const instantiationService = workbenchInstantiationService(undefined, store);
-		const configurationService = instantiationService.get(IConfigurationService) as TestConfigurationService;
-		await configurationService.setUserConfiguration('editor', { fontFamily: 'foo' });
-		await configurationService.setUserConfiguration('terminal', {
-			integrated: {
-				fontFamily: 'bar',
-				enablePersistentSessions: true,
-				shellIntegration: {
-					enabled: false
+		setup(async () => {
+			const instantiationService = workbenchInstantiationService(undefined, store);
+			const configurationService = instantiationService.get(IConfigurationService) as TestConfigurationService;
+			await configurationService.setUserConfiguration('editor', { fontFamily: 'foo' });
+			await configurationService.setUserConfiguration('terminal', {
+				integrated: {
+					fontFamily: 'bar',
+					enablePersistentSessions: true,
+					shellIntegration: {
+						enabled: false
+					}
 				}
-			}
-		});
-		configurationService.onDidChangeConfigurationEmitter.fire({
-			affectsConfiguration: () => true,
-		} as any);
-		instantiationService.stub(ITerminalInstanceService, new TestTerminalInstanceService());
+			});
+			configurationService.onDidChangeConfigurationEmitter.fire({
+				affectsConfiguration: () => true,
+			} as any);
+			instantiationService.stub(ITerminalInstanceService, new TestTerminalInstanceService());
 
-		manager = store.add(instantiationService.createInstance(TerminalProcessManager, 1, undefined, undefined, undefined));
+			manager = store.add(instantiationService.createInstance(TerminalProcessManager, 1, undefined, undefined, undefined));
+		});
+
+		suite('process persistence', () => {
+			suite('local', () => {
+				test('regular terminal should persist', async () => {
+					const p = await manager.createProcess({
+					}, 1, 1, false);
+					strictEqual(p, undefined);
+					strictEqual(manager.shouldPersist, true);
+				});
+				test('task terminal should not persist', async () => {
+					const p = await manager.createProcess({
+						isFeatureTerminal: true
+					}, 1, 1, false);
+					strictEqual(p, undefined);
+					strictEqual(manager.shouldPersist, false);
+				});
+			});
+			suite('remote', () => {
+				const remoteCwd = URI.from({
+					scheme: Schemas.vscodeRemote,
+					path: 'test/cwd'
+				});
+
+				test('regular terminal should persist', async () => {
+					const p = await manager.createProcess({
+						cwd: remoteCwd
+					}, 1, 1, false);
+					strictEqual(p, undefined);
+					strictEqual(manager.shouldPersist, true);
+				});
+				test('task terminal should not persist', async () => {
+					const p = await manager.createProcess({
+						isFeatureTerminal: true,
+						cwd: remoteCwd
+					}, 1, 1, false);
+					strictEqual(p, undefined);
+					strictEqual(manager.shouldPersist, false);
+				});
+			});
+		});
 	});
-
-	suite('process persistence', () => {
-		suite('local', () => {
-			test('regular terminal should persist', async () => {
-				const p = await manager.createProcess({
-				}, 1, 1, false);
-				strictEqual(p, undefined);
-				strictEqual(manager.shouldPersist, true);
-			});
-			test('task terminal should not persist', async () => {
-				const p = await manager.createProcess({
-					isFeatureTerminal: true
-				}, 1, 1, false);
-				strictEqual(p, undefined);
-				strictEqual(manager.shouldPersist, false);
-			});
-		});
-		suite('remote', () => {
-			const remoteCwd = URI.from({
-				scheme: Schemas.vscodeRemote,
-				path: 'test/cwd'
-			});
-
-			test('regular terminal should persist', async () => {
-				const p = await manager.createProcess({
-					cwd: remoteCwd
-				}, 1, 1, false);
-				strictEqual(p, undefined);
-				strictEqual(manager.shouldPersist, true);
-			});
-			test('task terminal should not persist', async () => {
-				const p = await manager.createProcess({
-					isFeatureTerminal: true,
-					cwd: remoteCwd
-				}, 1, 1, false);
-				strictEqual(p, undefined);
-				strictEqual(manager.shouldPersist, false);
-			});
-		});
-	});
-});

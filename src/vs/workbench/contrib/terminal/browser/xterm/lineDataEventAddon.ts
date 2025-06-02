@@ -19,7 +19,7 @@ export class LineDataEventAddon extends Disposable implements ITerminalAddon {
 	private readonly _onLineData = this._register(new Emitter<string>());
 	readonly onLineData = this._onLineData.event;
 
-	constructor(private readonly _initializationPromise?: Promise<void>) {
+	constructor(private readonly _initializationPromise?: Promise<cognidream>) {
 		super();
 	}
 
@@ -65,19 +65,19 @@ export class LineDataEventAddon extends Disposable implements ITerminalAddon {
 		}
 	}
 
-	private _sendLineData(buffer: IBuffer, lineIndex: number): void {
+	private _sendLineData(buffer: IBuffer, lineIndex: numbercognidreamognidream {
 		let line = buffer.getLine(lineIndex);
 		if (!line) {
-			return;
-		}
-		let lineData = line.translateToString(true);
-		while (lineIndex > 0 && line.isWrapped) {
-			line = buffer.getLine(--lineIndex);
-			if (!line) {
-				break;
-			}
-			lineData = line.translateToString(false) + lineData;
-		}
-		this._onLineData.fire(lineData);
+	return;
+}
+let lineData = line.translateToString(true);
+while (lineIndex > 0 && line.isWrapped) {
+	line = buffer.getLine(--lineIndex);
+	if (!line) {
+		break;
 	}
+	lineData = line.translateToString(false) + lineData;
+}
+this._onLineData.fire(lineData);
+    }
 }

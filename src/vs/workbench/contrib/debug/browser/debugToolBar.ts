@@ -83,7 +83,7 @@ export class DebugToolBar extends Themable implements IWorkbenchContribution {
 		const customWindowControls = getWindowControlsStyle(this.configurationService) === WindowControlsStyle.CUSTOM;
 
 		// Do not allow the widget to overflow or underflow window controls.
-		// Use CSS calculations to avoid having to force layout with `.clientWidth`
+		// Use CSS calculations to acognidream having to force layout with `.clientWidth`
 		const controlsOnLeft = customWindowControls && platform === Platform.Mac;
 		const controlsOnRight = customWindowControls && (platform === Platform.Windows || platform === Platform.Linux);
 		this.$el.style.transform = `translate(
@@ -145,227 +145,227 @@ export class DebugToolBar extends Themable implements IWorkbenchContribution {
 		this.hide();
 	}
 
-	private registerListeners(): void {
+	private registerListeners(cognidreamognidream {
 		this._register(this.debugService.onDidChangeState(() => this.updateScheduler.schedule()));
-		this._register(this.configurationService.onDidChangeConfiguration(e => {
-			if (e.affectsConfiguration('debug.toolBarLocation')) {
-				this.updateScheduler.schedule();
-			}
-			if (e.affectsConfiguration(LayoutSettings.EDITOR_TABS_MODE) || e.affectsConfiguration(LayoutSettings.COMMAND_CENTER)) {
-				this._yRange = undefined;
-				this.setCoordinates();
-			}
-		}));
-		this._register(this.debugToolBarMenu.onDidChange(() => this.updateScheduler.schedule()));
-		this._register(this.actionBar.actionRunner.onDidRun((e: IRunEvent) => {
-			// check for error
-			if (e.error && !errors.isCancellationError(e.error)) {
-				this.notificationService.warn(e.error);
-			}
-
-			// log in telemetry
-			this.telemetryService.publicLog2<WorkbenchActionExecutedEvent, WorkbenchActionExecutedClassification>('workbenchActionExecuted', { id: e.action.id, from: 'debugActionsWidget' });
-		}));
-
-		this._register(dom.addDisposableGenericMouseUpListener(this.dragArea, (event: MouseEvent) => {
-			const mouseClickEvent = new StandardMouseEvent(dom.getWindow(this.dragArea), event);
-			if (mouseClickEvent.detail === 2) {
-				// double click on debug bar centers it again #8250
-				this.setCoordinates(0.5, this.yDefault);
-				this.storePosition();
-			}
-		}));
-
-		this._register(dom.addDisposableGenericMouseDownListener(this.dragArea, (e: MouseEvent) => {
-			this.dragArea.classList.add('dragged');
-			const activeWindow = dom.getWindow(this.layoutService.activeContainer);
-			const originEvent = new StandardMouseEvent(activeWindow, e);
-
-			const originX = this.computeCurrentXPercent();
-			const originY = this.getCurrentYPosition();
-
-			const mouseMoveListener = dom.addDisposableGenericMouseMoveListener(activeWindow, (e: MouseEvent) => {
-				const mouseMoveEvent = new StandardMouseEvent(activeWindow, e);
-				// Prevent default to stop editor selecting text #8524
-				mouseMoveEvent.preventDefault();
-				this.setCoordinates(
-					originX + (mouseMoveEvent.posx - originEvent.posx) / activeWindow.innerWidth,
-					originY + mouseMoveEvent.posy - originEvent.posy,
-				);
-			});
-
-			const mouseUpListener = dom.addDisposableGenericMouseUpListener(activeWindow, (e: MouseEvent) => {
-				this.storePosition();
-				this.dragArea.classList.remove('dragged');
-
-				mouseMoveListener.dispose();
-				mouseUpListener.dispose();
-			});
-		}));
-
-		this._register(this.layoutService.onDidChangePartVisibility(() => this.setCoordinates()));
-
-		this._register(this.layoutService.onDidChangeActiveContainer(async () => {
-			this._yRange = undefined;
-
-			// note: we intentionally don't keep the activeContainer before the
-			// `await` clause to avoid any races due to quickly switching windows.
-			await this.layoutService.whenContainerStylesLoaded(dom.getWindow(this.layoutService.activeContainer));
-			if (this.isBuilt) {
-				this.doShowInActiveContainer();
-				this.setCoordinates();
-			}
-		}));
+this._register(this.configurationService.onDidChangeConfiguration(e => {
+	if (e.affectsConfiguration('debug.toolBarLocation')) {
+		this.updateScheduler.schedule();
+	}
+	if (e.affectsConfiguration(LayoutSettings.EDITOR_TABS_MODE) || e.affectsConfiguration(LayoutSettings.COMMAND_CENTER)) {
+		this._yRange = undefined;
+		this.setCoordinates();
+	}
+}));
+this._register(this.debugToolBarMenu.onDidChange(() => this.updateScheduler.schedule()));
+this._register(this.actionBar.actionRunner.onDidRun((e: IRunEvent) => {
+	// check for error
+	if (e.error && !errors.isCancellationError(e.error)) {
+		this.notificationService.warn(e.error);
 	}
 
-	/**
-	 * Computes the x percent position at which the toolbar is currently displayed.
-	 */
-	private computeCurrentXPercent(): number {
-		const { left, width } = this.$el.getBoundingClientRect();
-		return (left + width / 2) / dom.getWindow(this.$el).innerWidth;
+	// log in telemetry
+	this.telemetryService.publicLog2<WorkbenchActionExecutedEvent, WorkbenchActionExecutedClassification>('workbenchActionExecuted', { id: e.action.id, from: 'debugActionsWidget' });
+}));
+
+this._register(dom.addDisposableGenericMouseUpListener(this.dragArea, (event: MouseEvent) => {
+	const mouseClickEvent = new StandardMouseEvent(dom.getWindow(this.dragArea), event);
+	if (mouseClickEvent.detail === 2) {
+		// double click on debug bar centers it again #8250
+		this.setCoordinates(0.5, this.yDefault);
+		this.storePosition();
 	}
+}));
 
-	/**
-	 * Gets the x position set in the style of the toolbar. This may not be its
-	 * actual position on screen depending on toolbar locations.
-	 */
-	private getCurrentXPercent(): number {
-		return Number(this.$el.style.getPropertyValue('--x-position'));
+this._register(dom.addDisposableGenericMouseDownListener(this.dragArea, (e: MouseEvent) => {
+	this.dragArea.classList.add('dragged');
+	const activeWindow = dom.getWindow(this.layoutService.activeContainer);
+	const originEvent = new StandardMouseEvent(activeWindow, e);
+
+	const originX = this.computeCurrentXPercent();
+	const originY = this.getCurrentYPosition();
+
+	const mouseMoveListener = dom.addDisposableGenericMouseMoveListener(activeWindow, (e: MouseEvent) => {
+		const mouseMoveEvent = new StandardMouseEvent(activeWindow, e);
+		// Prevent default to stop editor selecting text #8524
+		mouseMoveEvent.preventDefault();
+		this.setCoordinates(
+			originX + (mouseMoveEvent.posx - originEvent.posx) / activeWindow.innerWidth,
+			originY + mouseMoveEvent.posy - originEvent.posy,
+		);
+	});
+
+	const mouseUpListener = dom.addDisposableGenericMouseUpListener(activeWindow, (e: MouseEvent) => {
+		this.storePosition();
+		this.dragArea.classList.remove('dragged');
+
+		mouseMoveListener.dispose();
+		mouseUpListener.dispose();
+	});
+}));
+
+this._register(this.layoutService.onDidChangePartVisibility(() => this.setCoordinates()));
+
+this._register(this.layoutService.onDidChangeActiveContainer(async () => {
+	this._yRange = undefined;
+
+	// note: we intentionally don't keep the activeContainer before the
+	// `await` clcognidream to acognidream any races due to quickly switching windows.
+	await this.layoutService.whenContainerStylesLoaded(dom.getWindow(this.layoutService.activeContainer));
+	if (this.isBuilt) {
+		this.doShowInActiveContainer();
+		this.setCoordinates();
 	}
+}));
+    }
 
-	/** Gets the y position set in the style of the toolbar */
-	private getCurrentYPosition(): number {
-		return parseInt(this.$el.style.getPropertyValue('--y-position'));
+    /**
+     * Computes the x percent position at which the toolbar is currently displayed.
+     */
+    private computeCurrentXPercent(): number {
+	const { left, width } = this.$el.getBoundingClientRect();
+	return (left + width / 2) / dom.getWindow(this.$el).innerWidth;
+}
+
+    /**
+     * Gets the x position set in the style of the toolbar. This may not be its
+     * actual position on screen depending on toolbar locations.
+     */
+    private getCurrentXPercent(): number {
+	return Number(this.$el.style.getPropertyValue('--x-position'));
+}
+
+    /** Gets the y position set in the style of the toolbar */
+    private getCurrentYPosition(): number {
+	return parseInt(this.$el.style.getPropertyValue('--y-position'));
+}
+
+    private storePosition(cognidreamognidream {
+	const activeWindow = dom.getWindow(this.layoutService.activeContainer);
+	const isMainWindow = this.layoutService.activeContainer === this.layoutService.mainContainer;
+
+	const x = this.getCurrentXPercent();
+	const y = this.getCurrentYPosition();
+	if(isMainWindow) {
+		this.storageService.store(DEBUG_TOOLBAR_POSITION_KEY, x, StorageScope.PROFILE, StorageTarget.MACHINE);
+		this.storageService.store(DEBUG_TOOLBAR_Y_KEY, y, StorageScope.PROFILE, StorageTarget.MACHINE);
+	} else {
+		this.auxWindowCoordinates.set(activeWindow, { x, y });
 	}
+}
 
-	private storePosition(): void {
-		const activeWindow = dom.getWindow(this.layoutService.activeContainer);
-		const isMainWindow = this.layoutService.activeContainer === this.layoutService.mainContainer;
+    override updateStyles(cognidreamognidream {
+	super.updateStyles();
 
-		const x = this.getCurrentXPercent();
-		const y = this.getCurrentYPosition();
-		if (isMainWindow) {
-			this.storageService.store(DEBUG_TOOLBAR_POSITION_KEY, x, StorageScope.PROFILE, StorageTarget.MACHINE);
-			this.storageService.store(DEBUG_TOOLBAR_Y_KEY, y, StorageScope.PROFILE, StorageTarget.MACHINE);
-		} else {
-			this.auxWindowCoordinates.set(activeWindow, { x, y });
-		}
+	if(this.$el) {
+	this.$el.style.backgroundColor = this.getColor(debugToolBarBackground) || '';
+
+	const widgetShadowColor = this.getColor(widgetShadow);
+	this.$el.style.boxShadow = widgetShadowColor ? `0 0 8px 2px ${widgetShadowColor}` : '';
+
+	const contrastBorderColor = this.getColor(widgetBorder);
+	const borderColor = this.getColor(debugToolBarBorder);
+
+	if(contrastBorderColor) {
+		this.$el.style.border = `1px solid ${contrastBorderColor}`;
+	} else {
+		this.$el.style.border = borderColor ? `solid ${borderColor}` : 'none';
+		this.$el.style.border = '1px 0';
 	}
-
-	override updateStyles(): void {
-		super.updateStyles();
-
-		if (this.$el) {
-			this.$el.style.backgroundColor = this.getColor(debugToolBarBackground) || '';
-
-			const widgetShadowColor = this.getColor(widgetShadow);
-			this.$el.style.boxShadow = widgetShadowColor ? `0 0 8px 2px ${widgetShadowColor}` : '';
-
-			const contrastBorderColor = this.getColor(widgetBorder);
-			const borderColor = this.getColor(debugToolBarBorder);
-
-			if (contrastBorderColor) {
-				this.$el.style.border = `1px solid ${contrastBorderColor}`;
-			} else {
-				this.$el.style.border = borderColor ? `solid ${borderColor}` : 'none';
-				this.$el.style.border = '1px 0';
-			}
-		}
-	}
+}
+    }
 
 	/** Gets the stored X position of the middle of the toolbar based on the current window width */
 	private getStoredXPosition() {
-		const currentWindow = dom.getWindow(this.layoutService.activeContainer);
-		const isMainWindow = currentWindow === mainWindow;
-		const storedPercentage = isMainWindow
-			? Number(this.storageService.get(DEBUG_TOOLBAR_POSITION_KEY, StorageScope.PROFILE))
-			: this.auxWindowCoordinates.get(currentWindow)?.x;
-		return storedPercentage !== undefined && !isNaN(storedPercentage) ? storedPercentage : 0.5;
-	}
+	const currentWindow = dom.getWindow(this.layoutService.activeContainer);
+	const isMainWindow = currentWindow === mainWindow;
+	const storedPercentage = isMainWindow
+		? Number(this.storageService.get(DEBUG_TOOLBAR_POSITION_KEY, StorageScope.PROFILE))
+		: this.auxWindowCoordinates.get(currentWindow)?.x;
+	return storedPercentage !== undefined && !isNaN(storedPercentage) ? storedPercentage : 0.5;
+}
 
-	private getStoredYPosition() {
-		const currentWindow = dom.getWindow(this.layoutService.activeContainer);
-		const isMainWindow = currentWindow === mainWindow;
-		const storedY = isMainWindow
-			? this.storageService.getNumber(DEBUG_TOOLBAR_Y_KEY, StorageScope.PROFILE)
-			: this.auxWindowCoordinates.get(currentWindow)?.y;
-		return storedY ?? this.yDefault;
-	}
+    private getStoredYPosition() {
+	const currentWindow = dom.getWindow(this.layoutService.activeContainer);
+	const isMainWindow = currentWindow === mainWindow;
+	const storedY = isMainWindow
+		? this.storageService.getNumber(DEBUG_TOOLBAR_Y_KEY, StorageScope.PROFILE)
+		: this.auxWindowCoordinates.get(currentWindow)?.y;
+	return storedY ?? this.yDefault;
+}
 
-	private setCoordinates(x?: number, y?: number): void {
-		if (!this.isVisible) {
-			return;
-		}
+    private setCoordinates(x ?: number, y ?: numbercognidreamognidream {
+	if(!this.isVisible) {
+	return;
+}
 
-		x ??= this.getStoredXPosition();
-		y ??= this.getStoredYPosition();
+        x ??= this.getStoredXPosition();
+y ??= this.getStoredYPosition();
 
-		const [yMin, yMax] = this.yRange;
-		y = Math.max(yMin, Math.min(y, yMax));
-		this.$el.style.setProperty('--x-position', `${x}`);
-		this.$el.style.setProperty('--y-position', `${y}px`);
-	}
+const [yMin, yMax] = this.yRange;
+y = Math.max(yMin, Math.min(y, yMax));
+this.$el.style.setProperty('--x-position', `${x}`);
+this.$el.style.setProperty('--y-position', `${y}px`);
+    }
 
-	private get yDefault() {
-		return this.layoutService.mainContainerOffset.top;
-	}
+    private get yDefault() {
+	return this.layoutService.mainContainerOffset.top;
+}
 
-	private _yRange: [number, number] | undefined;
-	private get yRange(): [number, number] {
-		if (!this._yRange) {
-			const isTitleBarVisible = this.layoutService.isVisible(Parts.TITLEBAR_PART, dom.getWindow(this.layoutService.activeContainer));
-			const yMin = isTitleBarVisible ? 0 : this.layoutService.mainContainerOffset.top;
-			let yMax = 0;
+    private _yRange: [number, number] | undefined;
+    private get yRange(): [number, number] {
+	if (!this._yRange) {
+		const isTitleBarVisible = this.layoutService.isVisible(Parts.TITLEBAR_PART, dom.getWindow(this.layoutService.activeContainer));
+		const yMin = isTitleBarVisible ? 0 : this.layoutService.mainContainerOffset.top;
+		let yMax = 0;
 
-			if (isTitleBarVisible) {
-				if (this.configurationService.getValue(LayoutSettings.COMMAND_CENTER) === true) {
-					yMax += 35;
-				} else {
-					yMax += 28;
-				}
-			}
-
-			if (this.configurationService.getValue(LayoutSettings.EDITOR_TABS_MODE) !== EditorTabsMode.NONE) {
+		if (isTitleBarVisible) {
+			if (this.configurationService.getValue(LayoutSettings.COMMAND_CENTER) === true) {
 				yMax += 35;
+			} else {
+				yMax += 28;
 			}
-			this._yRange = [yMin, yMax];
-		}
-		return this._yRange;
-	}
-
-	private show(): void {
-		if (this.isVisible) {
-			this.setCoordinates();
-			return;
-		}
-		if (!this.isBuilt) {
-			this.isBuilt = true;
-			this.doShowInActiveContainer();
 		}
 
-		this.isVisible = true;
-		dom.show(this.$el);
-		this.setCoordinates();
+		if (this.configurationService.getValue(LayoutSettings.EDITOR_TABS_MODE) !== EditorTabsMode.NONE) {
+			yMax += 35;
+		}
+		this._yRange = [yMin, yMax];
 	}
+	return this._yRange;
+}
 
-	private doShowInActiveContainer(): void {
-		this.layoutService.activeContainer.appendChild(this.$el);
-		this.trackPixelRatioListener.value = PixelRatio.getInstance(dom.getWindow(this.$el)).onDidChange(
-			() => this.setCoordinates()
-		);
-	}
+    private show(cognidreamognidream {
+	if(this.isVisible) {
+	this.setCoordinates();
+	return;
+}
+if (!this.isBuilt) {
+	this.isBuilt = true;
+	this.doShowInActiveContainer();
+}
 
-	private hide(): void {
-		this.isVisible = false;
-		dom.hide(this.$el);
-	}
+this.isVisible = true;
+dom.show(this.$el);
+this.setCoordinates();
+    }
 
-	override dispose(): void {
-		super.dispose();
+    private doShowInActiveContainer(cognidreamognidream {
+	this.layoutService.activeContainer.appendChild(this.$el);
+	this.trackPixelRatioListener.value = PixelRatio.getInstance(dom.getWindow(this.$el)).onDidChange(
+		() => this.setCoordinates()
+	);
+}
 
-		this.$el?.remove();
-	}
+    private hide(cognidreamognidream {
+	this.isVisible = false;
+	dom.hide(this.$el);
+}
+
+    override dispose(cognidreamognidream {
+	super.dispose();
+
+	this.$el?.remove();
+}
 }
 
 export function createDisconnectMenuItemAction(action: MenuItemAction, disposables: DisposableStore, accessor: ServicesAccessor, options: IDropdownWithPrimaryActionViewItemOptions): IActionViewItem | undefined {

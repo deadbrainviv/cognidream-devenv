@@ -110,382 +110,382 @@ import { ChatViewsWelcomeHandler } from './viewsWelcome/chatViewsWelcomeHandler.
 // Register configuration
 const configurationRegistry = Registry.as<IConfigurationRegistry>(ConfigurationExtensions.Configuration);
 configurationRegistry.registerConfiguration({
-	id: 'chatSidebar',
-	title: nls.localize('interactiveSessionConfigurationTitle', "Chat"),
-	type: 'object',
-	properties: {
-		'chat.editor.fontSize': {
-			type: 'number',
-			description: nls.localize('interactiveSession.editor.fontSize', "Controls the font size in pixels in chat codeblocks."),
-			default: isMacintosh ? 12 : 14,
-		},
-		'chat.editor.fontFamily': {
-			type: 'string',
-			description: nls.localize('interactiveSession.editor.fontFamily', "Controls the font family in chat codeblocks."),
-			default: 'default'
-		},
-		'chat.editor.fontWeight': {
-			type: 'string',
-			description: nls.localize('interactiveSession.editor.fontWeight', "Controls the font weight in chat codeblocks."),
-			default: 'default'
-		},
-		'chat.editor.wordWrap': {
-			type: 'string',
-			description: nls.localize('interactiveSession.editor.wordWrap', "Controls whether lines should wrap in chat codeblocks."),
-			default: 'off',
-			enum: ['on', 'off']
-		},
-		'chat.editor.lineHeight': {
-			type: 'number',
-			description: nls.localize('interactiveSession.editor.lineHeight', "Controls the line height in pixels in chat codeblocks. Use 0 to compute the line height from the font size."),
-			default: 0
-		},
-		'chat.commandCenter.enabled': {
-			type: 'boolean',
-			markdownDescription: nls.localize('chat.commandCenter.enabled', "Controls whether the command center shows a menu for actions to control Copilot (requires {0}).", '`#window.commandCenter#`'),
-			default: true
-		},
-		'chat.implicitContext.enabled': {
-			type: 'object',
-			tags: ['experimental'],
-			description: nls.localize('chat.implicitContext.enabled.1', "Enables automatically using the active editor as chat context for specified chat locations."),
-			additionalProperties: {
-				type: 'string',
-				enum: ['never', 'first', 'always'],
-				description: nls.localize('chat.implicitContext.value', "The value for the implicit context."),
-				enumDescriptions: [
-					nls.localize('chat.implicitContext.value.never', "Implicit context is never enabled."),
-					nls.localize('chat.implicitContext.value.first', "Implicit context is enabled for the first interaction."),
-					nls.localize('chat.implicitContext.value.always', "Implicit context is always enabled.")
-				]
-			},
-			default: {
-				'panel': 'always',
-				'editing-session': 'first'
-			}
-		},
-		'chat.editing.autoAcceptDelay': {
-			type: 'number',
-			markdownDescription: nls.localize('chat.editing.autoAcceptDelay', "Delay after which changes made by chat are automatically accepted. Values are in seconds, `0` means disabled and `100` seconds is the maximum."),
-			default: 0,
-			minimum: 0,
-			maximum: 100
-		},
-		'chat.editing.confirmEditRequestRemoval': {
-			type: 'boolean',
-			scope: ConfigurationScope.APPLICATION,
-			markdownDescription: nls.localize('chat.editing.confirmEditRequestRemoval', "Whether to show a confirmation before removing a request and its associated edits."),
-			default: true,
-		},
-		'chat.editing.confirmEditRequestRetry': {
-			type: 'boolean',
-			scope: ConfigurationScope.APPLICATION,
-			markdownDescription: nls.localize('chat.editing.confirmEditRequestRetry', "Whether to show a confirmation before retrying a request and its associated edits."),
-			default: true,
-		},
-		'chat.experimental.detectParticipant.enabled': {
-			type: 'boolean',
-			deprecationMessage: nls.localize('chat.experimental.detectParticipant.enabled.deprecated', "This setting is deprecated. Please use `chat.detectParticipant.enabled` instead."),
-			description: nls.localize('chat.experimental.detectParticipant.enabled', "Enables chat participant autodetection for panel chat."),
-			default: null
-		},
-		'chat.detectParticipant.enabled': {
-			type: 'boolean',
-			description: nls.localize('chat.detectParticipant.enabled', "Enables chat participant autodetection for panel chat."),
-			default: true
-		},
-		'chat.renderRelatedFiles': {
-			type: 'boolean',
-			description: nls.localize('chat.renderRelatedFiles', "Controls whether related files should be rendered in the chat input."),
-			default: false
-		},
-		'chat.setupFromDialog': { // TODO@bpasero remove this eventually
-			type: 'boolean',
-			description: nls.localize('chat.setupFromChat', "Controls whether Copilot setup starts from a dialog or from the welcome view."),
-			default: product.quality !== 'stable',
-			tags: ['experimental', 'onExp']
-		},
-		'chat.focusWindowOnConfirmation': {
-			type: 'boolean',
-			description: nls.localize('chat.focusWindowOnConfirmation', "Controls whether the Copilot window should be focused when a confirmation is needed."),
-			default: true,
-		},
-		'chat.tools.autoApprove': {
-			default: false,
-			description: nls.localize('chat.tools.autoApprove', "Controls whether tool use should be automatically approved ('YOLO mode')."),
-			type: 'boolean',
-			tags: ['experimental'],
-			policy: {
-				name: 'ChatToolsAutoApprove',
-				minimumVersion: '1.99',
-				previewFeature: true,
-				defaultValue: false
-			}
-		},
-		[mcpEnabledSection]: {
-			type: 'boolean',
-			description: nls.localize('chat.mcp.enabled', "Enables integration with Model Context Protocol servers to provide additional tools and functionality."),
-			default: true,
-			tags: ['preview'],
-			policy: {
-				name: 'ChatMCP',
-				minimumVersion: '1.99',
-				previewFeature: true,
-				defaultValue: false
-			}
-		},
-		[mcpConfigurationSection]: {
-			type: 'object',
-			default: {
-				inputs: [],
-				servers: mcpSchemaExampleServers,
-			},
-			description: nls.localize('workspaceConfig.mcp.description', "Model Context Protocol server configurations"),
-			$ref: mcpSchemaId
-		},
-		[ChatConfiguration.UnifiedChatView]: {
-			type: 'boolean',
-			description: nls.localize('chat.unifiedChatView', "Enables the unified view with Ask, Edit, and Agent modes in one view."),
-			default: true,
-			tags: ['preview'],
-		},
-		[ChatConfiguration.UseFileStorage]: {
-			type: 'boolean',
-			description: nls.localize('chat.useFileStorage', "Enables storing chat sessions on disk instead of in the storage service. Enabling this does a one-time per-workspace migration of existing sessions to the new format."),
-			default: true,
-			tags: ['experimental'],
-		},
-		[ChatConfiguration.Edits2Enabled]: {
-			type: 'boolean',
-			description: nls.localize('chat.edits2Enabled', "Enable the new Edits mode that is based on tool-calling. When this is enabled, models that don't support tool-calling are unavailable for Edits mode."),
-			default: true,
-			tags: ['onExp'],
-		},
-		[ChatConfiguration.ExtensionToolsEnabled]: {
-			type: 'boolean',
-			description: nls.localize('chat.extensionToolsEnabled', "Enable using tools contributed by third-party extensions in Copilot Chat agent mode."),
-			default: true,
-			policy: {
-				name: 'ChatAgentExtensionTools',
-				minimumVersion: '1.99',
-				description: nls.localize('chat.extensionToolsPolicy', "Enable using tools contributed by third-party extensions in Copilot Chat agent mode."),
-				previewFeature: true,
-				defaultValue: false
-			}
-		},
-		[mcpDiscoverySection]: {
-			oneOf: [
-				{ type: 'boolean' },
-				{
-					type: 'object',
-					default: Object.fromEntries(allDiscoverySources.map(k => [k, true])),
-					properties: Object.fromEntries(allDiscoverySources.map(k => [
-						k,
-						{ type: 'boolean', description: nls.localize('mcp.discovery.source', "Enables discovery of {0} servers", discoverySourceLabel[k]) }
-					])),
-				}
-			],
-			default: true,
-			markdownDescription: nls.localize('mpc.discovery.enabled', "Configures discovery of Model Context Protocol servers on the machine. It may be set to `true` or `false` to disable or enable all sources, and an mapping sources you wish to enable."),
-		},
-		[PromptsConfig.KEY]: {
-			type: 'boolean',
-			title: nls.localize(
-				'chat.reusablePrompts.config.enabled.title',
-				"Prompt Files",
-			),
-			markdownDescription: nls.localize(
-				'chat.reusablePrompts.config.enabled.description',
-				"Enable reusable prompt files (`*{0}`) in Chat, Edits, and Inline Chat sessions. [Learn More]({1}).",
-				PROMPT_FILE_EXTENSION,
-				DOCUMENTATION_URL,
-			),
-			default: true,
-			restricted: true,
-			disallowConfigurationDefault: true,
-			tags: ['experimental', 'prompts', 'reusable prompts', 'prompt snippets', 'instructions'],
-			policy: {
-				name: 'ChatPromptFiles',
-				minimumVersion: '1.99',
-				description: nls.localize('chat.promptFiles.policy', "Enables reusable prompt files in Chat, Edits, and Inline Chat sessions."),
-				previewFeature: true,
-				defaultValue: false
-			}
-		},
-		[PromptsConfig.LOCATIONS_KEY]: {
-			type: 'object',
-			title: nls.localize(
-				'chat.reusablePrompts.config.locations.title',
-				"Prompt File Locations",
-			),
-			markdownDescription: nls.localize(
-				'chat.reusablePrompts.config.locations.description',
-				"Specify location(s) of reusable prompt files (`*{0}`) that can be attached in Chat, Edits, and Inline Chat sessions. [Learn More]({1}).\n\nRelative paths are resolved from the root folder(s) of your workspace.",
-				PROMPT_FILE_EXTENSION,
-				DOCUMENTATION_URL,
-			),
-			default: {
-				[PROMPT_FILES_DEFAULT_SOURCE_FOLDER]: true,
-			},
-			additionalProperties: { type: 'boolean' },
-			unevaluatedProperties: { type: 'boolean' },
-			restricted: true,
-			tags: ['experimental', 'prompts', 'reusable prompts', 'prompt snippets', 'instructions'],
-			examples: [
-				{
-					[PROMPT_FILES_DEFAULT_SOURCE_FOLDER]: true,
-				},
-				{
-					[PROMPT_FILES_DEFAULT_SOURCE_FOLDER]: true,
-					'/Users/vscode/repos/prompts': true,
-				},
-			],
-		},
-	}
+    id: 'chatSidebar',
+    title: nls.localize('interactiveSessionConfigurationTitle', "Chat"),
+    type: 'object',
+    properties: {
+        'chat.editor.fontSize': {
+            type: 'number',
+            description: nls.localize('interactiveSession.editor.fontSize', "Controls the font size in pixels in chat codeblocks."),
+            default: isMacintosh ? 12 : 14,
+        },
+        'chat.editor.fontFamily': {
+            type: 'string',
+            description: nls.localize('interactiveSession.editor.fontFamily', "Controls the font family in chat codeblocks."),
+            default: 'default'
+        },
+        'chat.editor.fontWeight': {
+            type: 'string',
+            description: nls.localize('interactiveSession.editor.fontWeight', "Controls the font weight in chat codeblocks."),
+            default: 'default'
+        },
+        'chat.editor.wordWrap': {
+            type: 'string',
+            description: nls.localize('interactiveSession.editor.wordWrap', "Controls whether lines should wrap in chat codeblocks."),
+            default: 'off',
+            enum: ['on', 'off']
+        },
+        'chat.editor.lineHeight': {
+            type: 'number',
+            description: nls.localize('interactiveSession.editor.lineHeight', "Controls the line height in pixels in chat codeblocks. Use 0 to compute the line height from the font size."),
+            default: 0
+        },
+        'chat.commandCenter.enabled': {
+            type: 'boolean',
+            markdownDescription: nls.localize('chat.commandCenter.enabled', "Controls whether the command center shows a menu for actions to control Copilot (requires {0}).", '`#window.commandCenter#`'),
+            default: true
+        },
+        'chat.implicitContext.enabled': {
+            type: 'object',
+            tags: ['experimental'],
+            description: nls.localize('chat.implicitContext.enabled.1', "Enables automatically using the active editor as chat context for specified chat locations."),
+            additionalProperties: {
+                type: 'string',
+                enum: ['never', 'first', 'always'],
+                description: nls.localize('chat.implicitContext.value', "The value for the implicit context."),
+                enumDescriptions: [
+                    nls.localize('chat.implicitContext.value.never', "Implicit context is never enabled."),
+                    nls.localize('chat.implicitContext.value.first', "Implicit context is enabled for the first interaction."),
+                    nls.localize('chat.implicitContext.value.always', "Implicit context is always enabled.")
+                ]
+            },
+            default: {
+                'panel': 'always',
+                'editing-session': 'first'
+            }
+        },
+        'chat.editing.autoAcceptDelay': {
+            type: 'number',
+            markdownDescription: nls.localize('chat.editing.autoAcceptDelay', "Delay after which changes made by chat are automatically accepted. Values are in seconds, `0` means disabled and `100` seconds is the maximum."),
+            default: 0,
+            minimum: 0,
+            maximum: 100
+        },
+        'chat.editing.confirmEditRequestRemoval': {
+            type: 'boolean',
+            scope: ConfigurationScope.APPLICATION,
+            markdownDescription: nls.localize('chat.editing.confirmEditRequestRemoval', "Whether to show a confirmation before removing a request and its associated edits."),
+            default: true,
+        },
+        'chat.editing.confirmEditRequestRetry': {
+            type: 'boolean',
+            scope: ConfigurationScope.APPLICATION,
+            markdownDescription: nls.localize('chat.editing.confirmEditRequestRetry', "Whether to show a confirmation before retrying a request and its associated edits."),
+            default: true,
+        },
+        'chat.experimental.detectParticipant.enabled': {
+            type: 'boolean',
+            deprecationMessage: nls.localize('chat.experimental.detectParticipant.enabled.deprecated', "This setting is deprecated. Please use `chat.detectParticipant.enabled` instead."),
+            description: nls.localize('chat.experimental.detectParticipant.enabled', "Enables chat participant autodetection for panel chat."),
+            default: null
+        },
+        'chat.detectParticipant.enabled': {
+            type: 'boolean',
+            description: nls.localize('chat.detectParticipant.enabled', "Enables chat participant autodetection for panel chat."),
+            default: true
+        },
+        'chat.renderRelatedFiles': {
+            type: 'boolean',
+            description: nls.localize('chat.renderRelatedFiles', "Controls whether related files should be rendered in the chat input."),
+            default: false
+        },
+        'chat.setupFromDialog': { // TODO@bpasero remove this eventually
+            type: 'boolean',
+            description: nls.localize('chat.setupFromChat', "Controls whether Copilot setup starts from a dialog or from the welcome view."),
+            default: product.quality !== 'stable',
+            tags: ['experimental', 'onExp']
+        },
+        'chat.focusWindowOnConfirmation': {
+            type: 'boolean',
+            description: nls.localize('chat.focusWindowOnConfirmation', "Controls whether the Copilot window should be focused when a confirmation is needed."),
+            default: true,
+        },
+        'chat.tools.autoApprove': {
+            default: false,
+            description: nls.localize('chat.tools.autoApprove', "Controls whether tool use should be automatically approved ('YOLO mode')."),
+            type: 'boolean',
+            tags: ['experimental'],
+            policy: {
+                name: 'ChatToolsAutoApprove',
+                minimumVersion: '1.99',
+                previewFeature: true,
+                defaultValue: false
+            }
+        },
+        [mcpEnabledSection]: {
+            type: 'boolean',
+            description: nls.localize('chat.mcp.enabled', "Enables integration with Model Context Protocol servers to provide additional tools and functionality."),
+            default: true,
+            tags: ['preview'],
+            policy: {
+                name: 'ChatMCP',
+                minimumVersion: '1.99',
+                previewFeature: true,
+                defaultValue: false
+            }
+        },
+        [mcpConfigurationSection]: {
+            type: 'object',
+            default: {
+                inputs: [],
+                servers: mcpSchemaExampleServers,
+            },
+            description: nls.localize('workspaceConfig.mcp.description', "Model Context Protocol server configurations"),
+            $ref: mcpSchemaId
+        },
+        [ChatConfiguration.UnifiedChatView]: {
+            type: 'boolean',
+            description: nls.localize('chat.unifiedChatView', "Enables the unified view with Ask, Edit, and Agent modes in one view."),
+            default: true,
+            tags: ['preview'],
+        },
+        [ChatConfiguration.UseFileStorage]: {
+            type: 'boolean',
+            description: nls.localize('chat.useFileStorage', "Enables storing chat sessions on disk instead of in the storage service. Enabling this does a one-time per-workspace migration of existing sessions to the new format."),
+            default: true,
+            tags: ['experimental'],
+        },
+        [ChatConfiguration.Edits2Enabled]: {
+            type: 'boolean',
+            description: nls.localize('chat.edits2Enabled', "Enable the new Edits mode that is based on tool-calling. When this is enabled, models that don't support tool-calling are unavailable for Edits mode."),
+            default: true,
+            tags: ['onExp'],
+        },
+        [ChatConfiguration.ExtensionToolsEnabled]: {
+            type: 'boolean',
+            description: nls.localize('chat.extensionToolsEnabled', "Enable using tools contributed by third-party extensions in Copilot Chat agent mode."),
+            default: true,
+            policy: {
+                name: 'ChatAgentExtensionTools',
+                minimumVersion: '1.99',
+                description: nls.localize('chat.extensionToolsPolicy', "Enable using tools contributed by third-party extensions in Copilot Chat agent mode."),
+                previewFeature: true,
+                defaultValue: false
+            }
+        },
+        [mcpDiscoverySection]: {
+            oneOf: [
+                { type: 'boolean' },
+                {
+                    type: 'object',
+                    default: Object.fromEntries(allDiscoverySources.map(k => [k, true])),
+                    properties: Object.fromEntries(allDiscoverySources.map(k => [
+                        k,
+                        { type: 'boolean', description: nls.localize('mcp.discovery.source', "Enables discovery of {0} servers", discoverySourceLabel[k]) }
+                    ])),
+                }
+            ],
+            default: true,
+            markdownDescription: nls.localize('mpc.discovery.enabled', "Configures discovery of Model Context Protocol servers on the machine. It may be set to `true` or `false` to disable or enable all sources, and an mapping sources you wish to enable."),
+        },
+        [PromptsConfig.KEY]: {
+            type: 'boolean',
+            title: nls.localize(
+                'chat.reusablePrompts.config.enabled.title',
+                "Prompt Files",
+            ),
+            markdownDescription: nls.localize(
+                'chat.reusablePrompts.config.enabled.description',
+                "Enable reusable prompt files (`*{0}`) in Chat, Edits, and Inline Chat sessions. [Learn More]({1}).",
+                PROMPT_FILE_EXTENSION,
+                DOCUMENTATION_URL,
+            ),
+            default: true,
+            restricted: true,
+            disallowConfigurationDefault: true,
+            tags: ['experimental', 'prompts', 'reusable prompts', 'prompt snippets', 'instructions'],
+            policy: {
+                name: 'ChatPromptFiles',
+                minimumVersion: '1.99',
+                description: nls.localize('chat.promptFiles.policy', "Enables reusable prompt files in Chat, Edits, and Inline Chat sessions."),
+                previewFeature: true,
+                defaultValue: false
+            }
+        },
+        [PromptsConfig.LOCATIONS_KEY]: {
+            type: 'object',
+            title: nls.localize(
+                'chat.reusablePrompts.config.locations.title',
+                "Prompt File Locations",
+            ),
+            markdownDescription: nls.localize(
+                'chat.reusablePrompts.config.locations.description',
+                "Specify location(s) of reusable prompt files (`*{0}`) that can be attached in Chat, Edits, and Inline Chat sessions. [Learn More]({1}).\n\nRelative paths are resolved from the root folder(s) of your workspace.",
+                PROMPT_FILE_EXTENSION,
+                DOCUMENTATION_URL,
+            ),
+            default: {
+                [PROMPT_FILES_DEFAULT_SOURCE_FOLDER]: true,
+            },
+            additionalProperties: { type: 'boolean' },
+            unevaluatedProperties: { type: 'boolean' },
+            restricted: true,
+            tags: ['experimental', 'prompts', 'reusable prompts', 'prompt snippets', 'instructions'],
+            examples: [
+                {
+                    [PROMPT_FILES_DEFAULT_SOURCE_FOLDER]: true,
+                },
+                {
+                    [PROMPT_FILES_DEFAULT_SOURCE_FOLDER]: true,
+                    '/Users/vscode/repos/prompts': true,
+                },
+            ],
+        },
+    }
 });
 Registry.as<IEditorPaneRegistry>(EditorExtensions.EditorPane).registerEditorPane(
-	EditorPaneDescriptor.create(
-		ChatEditor,
-		ChatEditorInput.EditorID,
-		nls.localize('chat', "Chat")
-	),
-	[
-		new SyncDescriptor(ChatEditorInput)
-	]
+    EditorPaneDescriptor.create(
+        ChatEditor,
+        ChatEditorInput.EditorID,
+        nls.localize('chat', "Chat")
+    ),
+    [
+        new SyncDescriptor(ChatEditorInput)
+    ]
 );
 Registry.as<IConfigurationMigrationRegistry>(Extensions.ConfigurationMigration).registerConfigurationMigrations([
-	{
-		key: 'chat.experimental.detectParticipant.enabled',
-		migrateFn: (value, _accessor) => ([
-			['chat.experimental.detectParticipant.enabled', { value: undefined }],
-			['chat.detectParticipant.enabled', { value: value !== false }]
-		])
-	}
+    {
+        key: 'chat.experimental.detectParticipant.enabled',
+        migrateFn: (value, _accessor) => ([
+            ['chat.experimental.detectParticipant.enabled', { value: undefined }],
+            ['chat.detectParticipant.enabled', { value: value !== false }]
+        ])
+    }
 ]);
 
 class ChatResolverContribution extends Disposable {
 
-	static readonly ID = 'workbench.contrib.chatResolver';
+    static readonly ID = 'workbench.contrib.chatResolver';
 
-	constructor(
-		@IEditorResolverService editorResolverService: IEditorResolverService,
-		@IInstantiationService instantiationService: IInstantiationService,
-	) {
-		super();
+    constructor(
+        @IEditorResolverService editorResolverService: IEditorResolverService,
+        @IInstantiationService instantiationService: IInstantiationService,
+    ) {
+        super();
 
-		this._register(editorResolverService.registerEditor(
-			`${Schemas.vscodeChatSesssion}:**/**`,
-			{
-				id: ChatEditorInput.EditorID,
-				label: nls.localize('chat', "Chat"),
-				priority: RegisteredEditorPriority.builtin
-			},
-			{
-				singlePerResource: true,
-				canSupportResource: resource => resource.scheme === Schemas.vscodeChatSesssion
-			},
-			{
-				createEditorInput: ({ resource, options }) => {
-					return { editor: instantiationService.createInstance(ChatEditorInput, resource, options as IChatEditorOptions), options };
-				}
-			}
-		));
-	}
+        this._register(editorResolverService.registerEditor(
+            `${Schemas.vscodeChatSesssion}:**/**`,
+            {
+                id: ChatEditorInput.EditorID,
+                label: nls.localize('chat', "Chat"),
+                priority: RegisteredEditorPriority.builtin
+            },
+            {
+                singlePerResource: true,
+                canSupportResource: resource => resource.scheme === Schemas.vscodeChatSesssion
+            },
+            {
+                createEditorInput: ({ resource, options }) => {
+                    return { editor: instantiationService.createInstance(ChatEditorInput, resource, options as IChatEditorOptions), options };
+                }
+            }
+        ));
+    }
 }
 
 class ChatAgentSettingContribution extends Disposable implements IWorkbenchContribution {
 
-	static readonly ID = 'workbench.contrib.chatAgentSetting';
+    static readonly ID = 'workbench.contrib.chatAgentSetting';
 
-	private registeredNode: IConfigurationNode | undefined;
+    private registeredNode: IConfigurationNode | undefined;
 
-	constructor(
-		@IWorkbenchAssignmentService private readonly experimentService: IWorkbenchAssignmentService,
-		@IProductService private readonly productService: IProductService,
-		@IContextKeyService contextKeyService: IContextKeyService,
-		@IChatEntitlementService private readonly entitlementService: IChatEntitlementService,
-	) {
-		super();
+    constructor(
+        @IWorkbenchAssignmentService private readonly experimentService: IWorkbenchAssignmentService,
+        @IProductService private readonly productService: IProductService,
+        @IContextKeyService contextKeyService: IContextKeyService,
+        @IChatEntitlementService private readonly entitlementService: IChatEntitlementService,
+    ) {
+        super();
 
-		if (this.productService.quality !== 'stable') {
-			this.registerEnablementSetting();
-		}
+        if (this.productService.quality !== 'stable') {
+            this.registerEnablementSetting();
+        }
 
-		const expDisabledKey = ChatContextKeys.Editing.agentModeDisallowed.bindTo(contextKeyService);
-		experimentService.getTreatment<boolean>('chatAgentEnabled').then(enabled => {
-			if (enabled || typeof enabled !== 'boolean') {
-				// If enabled, or experiments not available, fall back to registering the setting
-				this.registerEnablementSetting();
-				expDisabledKey.set(false);
-			} else {
-				// If disabled, deregister the setting
-				this.deregisterSetting();
-				expDisabledKey.set(true);
-			}
-		});
+        const expDisabledKey = ChatContextKeys.Editing.agentModeDisallowed.bindTo(contextKeyService);
+        experimentService.getTreatment<boolean>('chatAgentEnabled').then(enabled => {
+            if (enabled || typeof enabled !== 'boolean') {
+                // If enabled, or experiments not available, fall back to registering the setting
+                this.registerEnablementSetting();
+                expDisabledKey.set(false);
+            } else {
+                // If disabled, deregister the setting
+                this.deregisterSetting();
+                expDisabledKey.set(true);
+            }
+        });
 
-		this.registerMaxRequestsSetting();
-	}
+        this.registerMaxRequestsSetting();
+    }
 
-	private registerEnablementSetting() {
-		if (this.registeredNode) {
-			return;
-		}
+    private registerEnablementSetting() {
+        if (this.registeredNode) {
+            return;
+        }
 
-		this.registeredNode = configurationRegistry.registerConfiguration({
-			id: 'chatAgent',
-			title: nls.localize('interactiveSessionConfigurationTitle', "Chat"),
-			type: 'object',
-			properties: {
-				[ChatConfiguration.AgentEnabled]: {
-					type: 'boolean',
-					description: nls.localize('chat.agent.enabled.description', "Enable agent mode for {0}. When this is enabled, a dropdown appears in the view to toggle agent mode.", 'Copilot Chat'),
-					default: this.productService.quality !== 'stable',
-					tags: ['onExp'],
-					policy: {
-						name: 'ChatAgentMode',
-						minimumVersion: '1.99',
-						previewFeature: false,
-						defaultValue: false
-					}
-				},
-			}
-		});
-	}
+        this.registeredNode = configurationRegistry.registerConfiguration({
+            id: 'chatAgent',
+            title: nls.localize('interactiveSessionConfigurationTitle', "Chat"),
+            type: 'object',
+            properties: {
+                [ChatConfiguration.AgentEnabled]: {
+                    type: 'boolean',
+                    description: nls.localize('chat.agent.enabled.description', "Enable agent mode for {0}. When this is enabled, a dropdown appears in the view to toggle agent mode.", 'Copilot Chat'),
+                    default: this.productService.quality !== 'stable',
+                    tags: ['onExp'],
+                    policy: {
+                        name: 'ChatAgentMode',
+                        minimumVersion: '1.99',
+                        previewFeature: false,
+                        defaultValue: false
+                    }
+                },
+            }
+        });
+    }
 
-	private deregisterSetting() {
-		if (this.registeredNode) {
-			configurationRegistry.deregisterConfigurations([this.registeredNode]);
-			this.registeredNode = undefined;
-		}
-	}
+    private deregisterSetting() {
+        if (this.registeredNode) {
+            configurationRegistry.deregisterConfigurations([this.registeredNode]);
+            this.registeredNode = undefined;
+        }
+    }
 
-	private registerMaxRequestsSetting(): void {
-		let lastNode: IConfigurationNode | undefined;
-		const registerMaxRequestsSetting = () => {
-			const treatmentId = this.entitlementService.entitlement === ChatEntitlement.Limited ?
-				'chatAgentMaxRequestsFree' :
-				'chatAgentMaxRequestsPro';
-			this.experimentService.getTreatment<number>(treatmentId).then(value => {
-				const defaultValue = value ?? (this.entitlementService.entitlement === ChatEntitlement.Limited ? 5 : 15);
-				const node: IConfigurationNode = {
-					id: 'chatSidebar',
-					title: nls.localize('interactiveSessionConfigurationTitle', "Chat"),
-					type: 'object',
-					properties: {
-						'chat.agent.maxRequests': {
-							type: 'number',
-							markdownDescription: nls.localize('chat.agent.maxRequests', "The maximum number of requests to allow Copilot Edits to use per-turn in agent mode. When the limit is reached, Copilot will ask the user to confirm that it should keep working. \n\n> **Note**: For users on the Copilot Free plan, note that each agent mode request currently uses one chat request."),
-							default: defaultValue,
-						},
-					}
-				};
-				configurationRegistry.updateConfigurations({ remove: lastNode ? [lastNode] : [], add: [node] });
-				lastNode = node;
-			});
-		};
-		this._register(Event.runAndSubscribe(Event.debounce(this.entitlementService.onDidChangeEntitlement, () => { }, 1000), () => registerMaxRequestsSetting()));
-	}
+    private registerMaxRequestsSetting(): cognidream {
+        let lastNode: IConfigurationNode | undefined;
+        const registerMaxRequestsSetting = () => {
+            const treatmentId = this.entitlementService.entitlement === ChatEntitlement.Limited ?
+                'chatAgentMaxRequestsFree' :
+                'chatAgentMaxRequestsPro';
+            this.experimentService.getTreatment<number>(treatmentId).then(value => {
+                const defaultValue = value ?? (this.entitlementService.entitlement === ChatEntitlement.Limited ? 5 : 15);
+                const node: IConfigurationNode = {
+                    id: 'chatSidebar',
+                    title: nls.localize('interactiveSessionConfigurationTitle', "Chat"),
+                    type: 'object',
+                    properties: {
+                        'chat.agent.maxRequests': {
+                            type: 'number',
+                            markdownDescription: nls.localize('chat.agent.maxRequests', "The maximum number of requests to allow Copilot Edits to use per-turn in agent mode. When the limit is reached, Copilot will ask the user to confirm that it should keep working. \n\n> **Note**: For users on the Copilot Free plan, note that each agent mode request currently uses one chat request."),
+                            default: defaultValue,
+                        },
+                    }
+                };
+                configurationRegistry.updateConfigurations({ remove: lastNode ? [lastNode] : [], add: [node] });
+                lastNode = node;
+            });
+        };
+        this._register(Event.runAndSubscribe(Event.debounce(this.entitlementService.onDidChangeEntitlement, () => { }, 1000), () => registerMaxRequestsSetting()));
+    }
 }
 
 AccessibleViewRegistry.register(new ChatResponseAccessibleView());
@@ -498,97 +498,97 @@ registerEditorFeature(ChatInputBoxContentProvider);
 
 class ChatSlashStaticSlashCommandsContribution extends Disposable {
 
-	static readonly ID = 'workbench.contrib.chatSlashStaticSlashCommands';
+    static readonly ID = 'workbench.contrib.chatSlashStaticSlashCommands';
 
-	constructor(
-		@IChatSlashCommandService slashCommandService: IChatSlashCommandService,
-		@ICommandService commandService: ICommandService,
-		@IChatAgentService chatAgentService: IChatAgentService,
-		@IChatVariablesService chatVariablesService: IChatVariablesService,
-		@IInstantiationService instantiationService: IInstantiationService,
-	) {
-		super();
-		this._store.add(slashCommandService.registerSlashCommand({
-			command: 'clear',
-			detail: nls.localize('clear', "Start a new chat"),
-			sortText: 'z2_clear',
-			executeImmediately: true,
-			locations: [ChatAgentLocation.Panel]
-		}, async () => {
-			commandService.executeCommand(ACTION_ID_NEW_CHAT);
-		}));
-		this._store.add(slashCommandService.registerSlashCommand({
-			command: 'help',
-			detail: '',
-			sortText: 'z1_help',
-			executeImmediately: true,
-			locations: [ChatAgentLocation.Panel],
-			modes: [ChatMode.Ask]
-		}, async (prompt, progress) => {
-			const defaultAgent = chatAgentService.getDefaultAgent(ChatAgentLocation.Panel);
-			const agents = chatAgentService.getAgents();
+    constructor(
+        @IChatSlashCommandService slashCommandService: IChatSlashCommandService,
+        @ICommandService commandService: ICommandService,
+        @IChatAgentService chatAgentService: IChatAgentService,
+        @IChatVariablesService chatVariablesService: IChatVariablesService,
+        @IInstantiationService instantiationService: IInstantiationService,
+    ) {
+        super();
+        this._store.add(slashCommandService.registerSlashCommand({
+            command: 'clear',
+            detail: nls.localize('clear', "Start a new chat"),
+            sortText: 'z2_clear',
+            executeImmediately: true,
+            locations: [ChatAgentLocation.Panel]
+        }, async () => {
+            commandService.executeCommand(ACTION_ID_NEW_CHAT);
+        }));
+        this._store.add(slashCommandService.registerSlashCommand({
+            command: 'help',
+            detail: '',
+            sortText: 'z1_help',
+            executeImmediately: true,
+            locations: [ChatAgentLocation.Panel],
+            modes: [ChatMode.Ask]
+        }, async (prompt, progress) => {
+            const defaultAgent = chatAgentService.getDefaultAgent(ChatAgentLocation.Panel);
+            const agents = chatAgentService.getAgents();
 
-			// Report prefix
-			if (defaultAgent?.metadata.helpTextPrefix) {
-				if (isMarkdownString(defaultAgent.metadata.helpTextPrefix)) {
-					progress.report({ content: defaultAgent.metadata.helpTextPrefix, kind: 'markdownContent' });
-				} else {
-					progress.report({ content: new MarkdownString(defaultAgent.metadata.helpTextPrefix), kind: 'markdownContent' });
-				}
-				progress.report({ content: new MarkdownString('\n\n'), kind: 'markdownContent' });
-			}
+            // Report prefix
+            if (defaultAgent?.metadata.helpTextPrefix) {
+                if (isMarkdownString(defaultAgent.metadata.helpTextPrefix)) {
+                    progress.report({ content: defaultAgent.metadata.helpTextPrefix, kind: 'markdownContent' });
+                } else {
+                    progress.report({ content: new MarkdownString(defaultAgent.metadata.helpTextPrefix), kind: 'markdownContent' });
+                }
+                progress.report({ content: new MarkdownString('\n\n'), kind: 'markdownContent' });
+            }
 
-			// Report agent list
-			const agentText = (await Promise.all(agents
-				.filter(a => a.id !== defaultAgent?.id && !a.isCore)
-				.filter(a => a.locations.includes(ChatAgentLocation.Panel))
-				.map(async a => {
-					const description = a.description ? `- ${a.description}` : '';
-					const agentMarkdown = instantiationService.invokeFunction(accessor => agentToMarkdown(a, true, accessor));
-					const agentLine = `- ${agentMarkdown} ${description}`;
-					const commandText = a.slashCommands.map(c => {
-						const description = c.description ? `- ${c.description}` : '';
-						return `\t* ${agentSlashCommandToMarkdown(a, c)} ${description}`;
-					}).join('\n');
+            // Report agent list
+            const agentText = (await Promise.all(agents
+                .filter(a => a.id !== defaultAgent?.id && !a.isCore)
+                .filter(a => a.locations.includes(ChatAgentLocation.Panel))
+                .map(async a => {
+                    const description = a.description ? `- ${a.description}` : '';
+                    const agentMarkdown = instantiationService.invokeFunction(accessor => agentToMarkdown(a, true, accessor));
+                    const agentLine = `- ${agentMarkdown} ${description}`;
+                    const commandText = a.slashCommands.map(c => {
+                        const description = c.description ? `- ${c.description}` : '';
+                        return `\t* ${agentSlashCommandToMarkdown(a, c)} ${description}`;
+                    }).join('\n');
 
-					return (agentLine + '\n' + commandText).trim();
-				}))).join('\n');
-			progress.report({ content: new MarkdownString(agentText, { isTrusted: { enabledCommands: [ChatSubmitAction.ID] } }), kind: 'markdownContent' });
+                    return (agentLine + '\n' + commandText).trim();
+                }))).join('\n');
+            progress.report({ content: new MarkdownString(agentText, { isTrusted: { enabledCommands: [ChatSubmitAction.ID] } }), kind: 'markdownContent' });
 
-			// Report variables
-			if (defaultAgent?.metadata.helpTextVariablesPrefix) {
-				progress.report({ content: new MarkdownString('\n\n'), kind: 'markdownContent' });
-				if (isMarkdownString(defaultAgent.metadata.helpTextVariablesPrefix)) {
-					progress.report({ content: defaultAgent.metadata.helpTextVariablesPrefix, kind: 'markdownContent' });
-				} else {
-					progress.report({ content: new MarkdownString(defaultAgent.metadata.helpTextVariablesPrefix), kind: 'markdownContent' });
-				}
+            // Report variables
+            if (defaultAgent?.metadata.helpTextVariablesPrefix) {
+                progress.report({ content: new MarkdownString('\n\n'), kind: 'markdownContent' });
+                if (isMarkdownString(defaultAgent.metadata.helpTextVariablesPrefix)) {
+                    progress.report({ content: defaultAgent.metadata.helpTextVariablesPrefix, kind: 'markdownContent' });
+                } else {
+                    progress.report({ content: new MarkdownString(defaultAgent.metadata.helpTextVariablesPrefix), kind: 'markdownContent' });
+                }
 
-				const variables = [
-					{ name: 'file', description: nls.localize('file', "Choose a file in the workspace") }
-				];
-				const variableText = variables
-					.map(v => `* \`${chatVariableLeader}${v.name}\` - ${v.description}`)
-					.join('\n');
-				progress.report({ content: new MarkdownString('\n' + variableText), kind: 'markdownContent' });
-			}
+                const variables = [
+                    { name: 'file', description: nls.localize('file', "Choose a file in the workspace") }
+                ];
+                const variableText = variables
+                    .map(v => `* \`${chatVariableLeader}${v.name}\` - ${v.description}`)
+                    .join('\n');
+                progress.report({ content: new MarkdownString('\n' + variableText), kind: 'markdownContent' });
+            }
 
-			// Report help text ending
-			if (defaultAgent?.metadata.helpTextPostfix) {
-				progress.report({ content: new MarkdownString('\n\n'), kind: 'markdownContent' });
-				if (isMarkdownString(defaultAgent.metadata.helpTextPostfix)) {
-					progress.report({ content: defaultAgent.metadata.helpTextPostfix, kind: 'markdownContent' });
-				} else {
-					progress.report({ content: new MarkdownString(defaultAgent.metadata.helpTextPostfix), kind: 'markdownContent' });
-				}
-			}
+            // Report help text ending
+            if (defaultAgent?.metadata.helpTextPostfix) {
+                progress.report({ content: new MarkdownString('\n\n'), kind: 'markdownContent' });
+                if (isMarkdownString(defaultAgent.metadata.helpTextPostfix)) {
+                    progress.report({ content: defaultAgent.metadata.helpTextPostfix, kind: 'markdownContent' });
+                } else {
+                    progress.report({ content: new MarkdownString(defaultAgent.metadata.helpTextPostfix), kind: 'markdownContent' });
+                }
+            }
 
-			// Without this, the response will be done before it renders and so it will not stream. This ensures that if the response starts
-			// rendering during the next 200ms, then it will be streamed. Once it starts streaming, the whole response streams even after
-			// it has received all response data has been received.
-			await timeout(200);
-		}));
-	}
+            // Without this, the response will be done before it renders and so it will not stream. This ensures that if the response starts
+            // rendering during the next 200ms, then it will be streamed. Once it starts streaming, the whole response streams even after
+            // it has received all response data has been received.
+            await timeout(200);
+        }));
+    }
 }
 Registry.as<IEditorFactoryRegistry>(EditorExtensions.EditorFactory).registerEditorSerializer(ChatEditorInput.TypeID, ChatEditorInputSerializer);
 

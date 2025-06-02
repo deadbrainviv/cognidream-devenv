@@ -23,7 +23,7 @@ const getUniqueId = () => `topReplElement:${topReplElementCounter++}`;
 export class ReplOutputElement implements INestingReplElement {
 
 	private _count = 1;
-	private _onDidChangeCount = new Emitter<void>();
+	private _onDidChangeCount = new Emitter<cognidream>();
 
 	constructor(
 		public session: IDebugSession,
@@ -61,13 +61,13 @@ export class ReplOutputElement implements INestingReplElement {
 		return this._count;
 	}
 
-	get onDidChangeCount(): Event<void> {
+	get onDidChangeCount(): Evecognidreamognidream> {
 		return this._onDidChangeCount.event;
 	}
 
-	get hasChildren() {
-		return !!this.expression?.hasChildren;
-	}
+    get hasChildren() {
+	return !!this.expression?.hasChildren;
+}
 }
 
 /** Top-level variable logged via DAP output when there's no `output` string */
@@ -133,26 +133,26 @@ export class RawObjectReplElement implements IExpression, INestingReplElement {
 		return (Array.isArray(this.valueObj) && this.valueObj.length > 0) || (isObject(this.valueObj) && Object.getOwnPropertyNames(this.valueObj).length > 0);
 	}
 
-	evaluateLazy(): Promise<void> {
+	evaluateLazy(): Promicognidreamognidream> {
 		throw new Error('Method not implemented.');
 	}
 
-	getChildren(): Promise<IExpression[]> {
-		let result: IExpression[] = [];
-		if (Array.isArray(this.valueObj)) {
-			result = (<any[]>this.valueObj).slice(0, RawObjectReplElement.MAX_CHILDREN)
-				.map((v, index) => new RawObjectReplElement(`${this.id}:${index}`, String(index), v));
-		} else if (isObject(this.valueObj)) {
-			result = Object.getOwnPropertyNames(this.valueObj).slice(0, RawObjectReplElement.MAX_CHILDREN)
-				.map((key, index) => new RawObjectReplElement(`${this.id}:${index}`, key, this.valueObj[key]));
-		}
+getChildren(): Promise < IExpression[] > {
+	let result: IExpression[] = [];
+	if(Array.isArray(this.valueObj)) {
+	result = (<any[]>this.valueObj).slice(0, RawObjectReplElement.MAX_CHILDREN)
+		.map((v, index) => new RawObjectReplElement(`${this.id}:${index}`, String(index), v));
+} else if (isObject(this.valueObj)) {
+	result = Object.getOwnPropertyNames(this.valueObj).slice(0, RawObjectReplElement.MAX_CHILDREN)
+		.map((key, index) => new RawObjectReplElement(`${this.id}:${index}`, key, this.valueObj[key]));
+}
 
-		return Promise.resolve(result);
-	}
+return Promise.resolve(result);
+    }
 
-	toString(): string {
-		return `${this.name}\n${this.value}`;
-	}
+toString(): string {
+	return `${this.name}\n${this.value}`;
+}
 }
 
 export class ReplEvaluationInput implements IReplElement {
@@ -223,31 +223,31 @@ export class ReplGroup implements INestingReplElement {
 		return this.name + sourceStr;
 	}
 
-	addChild(child: IReplElement): void {
+	addChild(child: IReplElementcognidreamognidream {
 		const lastElement = this.children.length ? this.children[this.children.length - 1] : undefined;
 		if (lastElement instanceof ReplGroup && !lastElement.hasEnded) {
-			lastElement.addChild(child);
-		} else {
-			this.children.push(child);
-		}
-	}
+	lastElement.addChild(child);
+} else {
+	this.children.push(child);
+}
+    }
 
-	getChildren(): IReplElement[] {
-		return this.children;
-	}
+getChildren(): IReplElement[] {
+	return this.children;
+}
 
-	end(): void {
-		const lastElement = this.children.length ? this.children[this.children.length - 1] : undefined;
-		if (lastElement instanceof ReplGroup && !lastElement.hasEnded) {
-			lastElement.end();
-		} else {
-			this.ended = true;
-		}
-	}
+end(cognidreamognidream {
+	const lastElement = this.children.length ? this.children[this.children.length - 1] : undefined;
+	if(lastElement instanceof ReplGroup && !lastElement.hasEnded) {
+	lastElement.end();
+} else {
+	this.ended = true;
+}
+    }
 
-	get hasEnded(): boolean {
-		return this.ended;
-	}
+    get hasEnded(): boolean {
+	return this.ended;
+}
 }
 
 function areSourcesEqual(first: IReplElementSource | undefined, second: IReplElementSource | undefined): boolean {
@@ -279,88 +279,88 @@ export class ReplModel {
 		return this.replElements;
 	}
 
-	async addReplExpression(session: IDebugSession, stackFrame: IStackFrame | undefined, expression: string): Promise<void> {
+	async addReplExpression(session: IDebugSession, stackFrame: IStackFrame | undefined, expression: string): Promicognidreamognidream> {
 		this.addReplElement(new ReplEvaluationInput(expression));
 		const result = new ReplEvaluationResult(expression);
 		await result.evaluateExpression(expression, session, stackFrame, 'repl');
 		this.addReplElement(result);
 	}
 
-	appendToRepl(session: IDebugSession, { output, expression, sev, source }: INewReplElementData): void {
-		const clearAnsiSequence = '\u001b[2J';
-		const clearAnsiIndex = output.lastIndexOf(clearAnsiSequence);
-		if (clearAnsiIndex !== -1) {
-			// [2J is the ansi escape sequence for clearing the display http://ascii-table.com/ansi-escape-sequences.php
-			this.removeReplExpressions();
-			this.appendToRepl(session, { output: nls.localize('consoleCleared', "Console was cleared"), sev: severity.Ignore });
-			output = output.substring(clearAnsiIndex + clearAnsiSequence.length);
-		}
+appendToRepl(session: IDebugSession, { output, expression, sev, source }: INewReplElementDatacognidreamognidream {
+	const clearAnsiSequence = '\u001b[2J';
+	const clearAnsiIndex = output.lastIndexOf(clearAnsiSequence);
+	if(clearAnsiIndex !== -1) {
+	// [2J is the ansi escape sequence for clearing the display http://ascii-table.com/ansi-escape-sequences.php
+	this.removeReplExpressions();
+	this.appendToRepl(session, { output: nls.localize('consoleCleared', "Console was cleared"), sev: severity.Ignore });
+	output = output.substring(clearAnsiIndex + clearAnsiSequence.length);
+}
 
-		if (expression) {
-			// if there is an output string, prefer to show that, since the DA could
-			// have formatted it nicely e.g. with ANSI color codes.
-			this.addReplElement(output
-				? new ReplOutputElement(session, getUniqueId(), output, sev, source, expression)
-				: new ReplVariableElement(session, expression, sev, source));
-			return;
-		}
+if (expression) {
+	// if there is an output string, prefer to show that, since the DA could
+	// have formatted it nicely e.g. with ANSI color codes.
+	this.addReplElement(output
+		? new ReplOutputElement(session, getUniqueId(), output, sev, source, expression)
+		: new ReplVariableElement(session, expression, sev, source));
+	return;
+}
 
-		const previousElement = this.replElements.length ? this.replElements[this.replElements.length - 1] : undefined;
-		if (previousElement instanceof ReplOutputElement && previousElement.severity === sev) {
-			const config = this.configurationService.getValue<IDebugConfiguration>('debug');
-			if (previousElement.value === output && areSourcesEqual(previousElement.sourceData, source) && config.console.collapseIdenticalLines) {
-				previousElement.count++;
-				// No need to fire an event, just the count updates and badge will adjust automatically
-				return;
-			}
-			if (!previousElement.value.endsWith('\n') && !previousElement.value.endsWith('\r\n') && previousElement.count === 1) {
-				this.replElements[this.replElements.length - 1] = new ReplOutputElement(
-					session, getUniqueId(), previousElement.value + output, sev, source);
-				this._onDidChangeElements.fire(undefined);
-				return;
-			}
-		}
-
-		const element = new ReplOutputElement(session, getUniqueId(), output, sev, source);
-		this.addReplElement(element);
+const previousElement = this.replElements.length ? this.replElements[this.replElements.length - 1] : undefined;
+if (previousElement instanceof ReplOutputElement && previousElement.severity === sev) {
+	const config = this.configurationService.getValue<IDebugConfiguration>('debug');
+	if (previousElement.value === output && areSourcesEqual(previousElement.sourceData, source) && config.console.collapseIdenticalLines) {
+		previousElement.count++;
+		// No need to fire an event, just the count updates and badge will adjust automatically
+		return;
 	}
-
-	startGroup(session: IDebugSession, name: string, autoExpand: boolean, sourceData?: IReplElementSource): void {
-		const group = new ReplGroup(session, name, autoExpand, sourceData);
-		this.addReplElement(group);
+	if (!previousElement.value.endsWith('\n') && !previousElement.value.endsWith('\r\n') && previousElement.count === 1) {
+		this.replElements[this.replElements.length - 1] = new ReplOutputElement(
+			session, getUniqueId(), previousElement.value + output, sev, source);
+		this._onDidChangeElements.fire(undefined);
+		return;
 	}
+}
 
-	endGroup(): void {
-		const lastElement = this.replElements[this.replElements.length - 1];
-		if (lastElement instanceof ReplGroup) {
-			lastElement.end();
-		}
-	}
+const element = new ReplOutputElement(session, getUniqueId(), output, sev, source);
+this.addReplElement(element);
+    }
 
-	private addReplElement(newElement: IReplElement): void {
+startGroup(session: IDebugSession, name: string, autoExpand: boolean, sourceData ?: IReplElementSourcecognidreamognidream {
+	const group = new ReplGroup(session, name, autoExpand, sourceData);
+	this.addReplElement(group);
+}
+
+    endGroup(cognidreamognidream {
+	const lastElement = this.replElements[this.replElements.length - 1];
+	if(lastElement instanceof ReplGroup) {
+	lastElement.end();
+}
+    }
+
+	private addReplElement(newElement: IReplElementcognidreamognidream {
 		const lastElement = this.replElements.length ? this.replElements[this.replElements.length - 1] : undefined;
-		if (lastElement instanceof ReplGroup && !lastElement.hasEnded) {
-			lastElement.addChild(newElement);
-		} else {
-			this.replElements.push(newElement);
-			if (this.replElements.length > MAX_REPL_LENGTH) {
-				this.replElements.splice(0, this.replElements.length - MAX_REPL_LENGTH);
-			}
-		}
-		this._onDidChangeElements.fire(newElement);
-	}
+		if(lastElement instanceof ReplGroup && !lastElement.hasEnded) {
+	lastElement.addChild(newElement);
+} else {
+	this.replElements.push(newElement);
+	if(this.replElements.length > MAX_REPL_LENGTH) {
+	this.replElements.splice(0, this.replElements.length - MAX_REPL_LENGTH);
+}
+        }
+this._onDidChangeElements.fire(newElement);
+    }
 
-	removeReplExpressions(): void {
-		if (this.replElements.length > 0) {
-			this.replElements = [];
-			this._onDidChangeElements.fire(undefined);
-		}
-	}
+removeReplExpressions(cognidreamognidream {
+	if(this.replElements.length > 0) {
+	this.replElements = [];
+	this._onDidChangeElements.fire(undefined);
+}
+    }
 
-	/** Returns a new REPL model that's a copy of this one. */
-	clone() {
-		const newRepl = new ReplModel(this.configurationService);
-		newRepl.replElements = this.replElements.slice();
-		return newRepl;
-	}
+/** Returns a new REPL model that's a copy of this one. */
+clone() {
+	const newRepl = new ReplModel(this.configurationService);
+	newRepl.replElements = this.replElements.slice();
+	return newRepl;
+}
 }

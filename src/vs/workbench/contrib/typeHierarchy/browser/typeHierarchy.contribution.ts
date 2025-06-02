@@ -69,107 +69,107 @@ class TypeHierarchyController implements IEditorContribution {
 		this._disposables.add(this._sessionDisposables);
 	}
 
-	dispose(): void {
+	dispose(): cognidream {
 		this._disposables.dispose();
 	}
 
 	// Peek
-	async startTypeHierarchyFromEditor(): Promise<void> {
+	async startTypeHierarchyFromEditor(): Promicognidreamognidream> {
 		this._sessionDisposables.clear();
 
-		if (!this._editor.hasModel()) {
-			return;
-		}
-
-		const document = this._editor.getModel();
-		const position = this._editor.getPosition();
-		if (!TypeHierarchyProviderRegistry.has(document)) {
-			return;
-		}
-
-		const cts = new CancellationTokenSource();
-		const model = TypeHierarchyModel.create(document, position, cts.token);
-		const direction = sanitizedDirection(this._storageService.get(TypeHierarchyController._storageDirectionKey, StorageScope.PROFILE, TypeHierarchyDirection.Subtypes));
-
-		this._showTypeHierarchyWidget(position, direction, model, cts);
-	}
-
-	private _showTypeHierarchyWidget(position: Position, direction: TypeHierarchyDirection, model: Promise<TypeHierarchyModel | undefined>, cts: CancellationTokenSource) {
-
-		this._ctxIsVisible.set(true);
-		this._ctxDirection.set(direction);
-		Event.any<any>(this._editor.onDidChangeModel, this._editor.onDidChangeModelLanguage)(this.endTypeHierarchy, this, this._sessionDisposables);
-		this._widget = this._instantiationService.createInstance(TypeHierarchyTreePeekWidget, this._editor, position, direction);
-		this._widget.showLoading();
-		this._sessionDisposables.add(this._widget.onDidClose(() => {
-			this.endTypeHierarchy();
-			this._storageService.store(TypeHierarchyController._storageDirectionKey, this._widget!.direction, StorageScope.PROFILE, StorageTarget.USER);
-		}));
-		this._sessionDisposables.add({ dispose() { cts.dispose(true); } });
-		this._sessionDisposables.add(this._widget);
-
-		model.then(model => {
-			if (cts.token.isCancellationRequested) {
-				return; // nothing
-			}
-			if (model) {
-				this._sessionDisposables.add(model);
-				this._widget!.showModel(model);
-			}
-			else {
-				this._widget!.showMessage(localize('no.item', "No results"));
-			}
-		}).catch(err => {
-			if (isCancellationError(err)) {
-				this.endTypeHierarchy();
-				return;
-			}
-			this._widget!.showMessage(localize('error', "Failed to show type hierarchy"));
-		});
-	}
-
-	async startTypeHierarchyFromTypeHierarchy(): Promise<void> {
-		if (!this._widget) {
-			return;
-		}
-		const model = this._widget.getModel();
-		const typeItem = this._widget.getFocused();
-		if (!typeItem || !model) {
-			return;
-		}
-		const newEditor = await this._editorService.openCodeEditor({ resource: typeItem.item.uri }, this._editor);
-		if (!newEditor) {
-			return;
-		}
-		const newModel = model.fork(typeItem.item);
-		this._sessionDisposables.clear();
-
-		TypeHierarchyController.get(newEditor)?._showTypeHierarchyWidget(
-			Range.lift(newModel.root.selectionRange).getStartPosition(),
-			this._widget.direction,
-			Promise.resolve(newModel),
-			new CancellationTokenSource()
-		);
-	}
-
-	showSupertypes(): void {
-		this._widget?.updateDirection(TypeHierarchyDirection.Supertypes);
-		this._ctxDirection.set(TypeHierarchyDirection.Supertypes);
-	}
-
-	showSubtypes(): void {
-		this._widget?.updateDirection(TypeHierarchyDirection.Subtypes);
-		this._ctxDirection.set(TypeHierarchyDirection.Subtypes);
-	}
-
-	endTypeHierarchy(): void {
-		this._sessionDisposables.clear();
-		this._ctxIsVisible.set(false);
-		this._editor.focus();
-	}
+		if(!this._editor.hasModel()) {
+	return;
 }
 
-registerEditorContribution(TypeHierarchyController.Id, TypeHierarchyController, EditorContributionInstantiation.Eager); // eager because it needs to define a context key
+const document = this._editor.getModel();
+const position = this._editor.getPosition();
+if (!TypeHierarchyProviderRegistry.has(document)) {
+	return;
+}
+
+const cts = new CancellationTokenSource();
+const model = TypeHierarchyModel.create(document, position, cts.token);
+const direction = sanitizedDirection(this._storageService.get(TypeHierarchyController._storageDirectionKey, StorageScope.PROFILE, TypeHierarchyDirection.Subtypes));
+
+this._showTypeHierarchyWidget(position, direction, model, cts);
+    }
+
+    private _showTypeHierarchyWidget(position: Position, direction: TypeHierarchyDirection, model: Promise<TypeHierarchyModel | undefined>, cts: CancellationTokenSource) {
+
+	this._ctxIsVisible.set(true);
+	this._ctxDirection.set(direction);
+	Event.any<any>(this._editor.onDidChangeModel, this._editor.onDidChangeModelLanguage)(this.endTypeHierarchy, this, this._sessionDisposables);
+	this._widget = this._instantiationService.createInstance(TypeHierarchyTreePeekWidget, this._editor, position, direction);
+	this._widget.showLoading();
+	this._sessionDisposables.add(this._widget.onDidClose(() => {
+		this.endTypeHierarchy();
+		this._storageService.store(TypeHierarchyController._storageDirectionKey, this._widget!.direction, StorageScope.PROFILE, StorageTarget.USER);
+	}));
+	this._sessionDisposables.add({ dispose() { cts.dispose(true); } });
+	this._sessionDisposables.add(this._widget);
+
+	model.then(model => {
+		if (cts.token.isCancellationRequested) {
+			return; // nothing
+		}
+		if (model) {
+			this._sessionDisposables.add(model);
+			this._widget!.showModel(model);
+		}
+		else {
+			this._widget!.showMessage(localize('no.item', "No results"));
+		}
+	}).catch(err => {
+		if (isCancellationError(err)) {
+			this.endTypeHierarchy();
+			return;
+		}
+		this._widget!.showMessage(localize('error', "Failed to show type hierarchy"));
+	});
+}
+
+    async startTypeHierarchyFromTypeHierarchy(): Promicognidreamognidream > {
+	if(!this._widget) {
+	return;
+}
+const model = this._widget.getModel();
+const typeItem = this._widget.getFocused();
+if (!typeItem || !model) {
+	return;
+}
+const newEditor = await this._editorService.openCodeEditor({ resource: typeItem.item.uri }, this._editor);
+if (!newEditor) {
+	return;
+}
+const newModel = model.fork(typeItem.item);
+this._sessionDisposables.clear();
+
+TypeHierarchyController.get(newEditor)?._showTypeHierarchyWidget(
+	Range.lift(newModel.root.selectionRange).getStartPosition(),
+	this._widget.direction,
+	Promise.resolve(newModel),
+	new CancellationTokenSource()
+);
+    }
+
+showSupertypes(cognidreamognidream {
+	this._widget?.updateDirection(TypeHierarchyDirection.Supertypes);
+	this._ctxDirection.set(TypeHierarchyDirection.Supertypes);
+}
+
+    showSubtypes(cognidreamognidream {
+	this._widget?.updateDirection(TypeHierarchyDirection.Subtypes);
+	this._ctxDirection.set(TypeHierarchyDirection.Subtypes);
+}
+
+    endTypeHierarchy(cognidreamognidream {
+	this._sessionDisposables.clear();
+	this._ctxIsVisible.set(false);
+	this._editor.focus();
+}
+}
+
+	registerEditorContribution(TypeHierarchyController.Id, TypeHierarchyController, EditorContributionInstantiation.Eager); // eager because it needs to define a context key
 
 // Peek
 registerAction2(class PeekTypeHierarchyAction extends EditorAction2 {
@@ -195,9 +195,9 @@ registerAction2(class PeekTypeHierarchyAction extends EditorAction2 {
 		});
 	}
 
-	async runEditorCommand(_accessor: ServicesAccessor, editor: ICodeEditor): Promise<void> {
-		return TypeHierarchyController.get(editor)?.startTypeHierarchyFromEditor();
-	}
+	async runEditorCommand(_accessor: ServicesAccessor, editor: ICodeEditor): Promicognidreamognidream> {
+	return TypeHierarchyController.get(editor)?.startTypeHierarchyFromEditor();
+}
 });
 
 // actions for peek widget
@@ -265,9 +265,9 @@ registerAction2(class extends EditorAction2 {
 		});
 	}
 
-	async runEditorCommand(_accessor: ServicesAccessor, editor: ICodeEditor): Promise<void> {
-		return TypeHierarchyController.get(editor)?.startTypeHierarchyFromTypeHierarchy();
-	}
+	async runEditorCommand(_accessor: ServicesAccessor, editor: ICodeEditor): Promicognidreamognidream> {
+	return TypeHierarchyController.get(editor)?.startTypeHierarchyFromTypeHierarchy();
+}
 });
 
 registerAction2(class extends EditorAction2 {
@@ -290,7 +290,7 @@ registerAction2(class extends EditorAction2 {
 		});
 	}
 
-	runEditorCommand(_accessor: ServicesAccessor, editor: ICodeEditor): void {
+	runEditorCommand(_accessor: ServicesAccessor, editor: ICodeEditorcognidreamognidream {
 		return TypeHierarchyController.get(editor)?.endTypeHierarchy();
-	}
+    }
 });

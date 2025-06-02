@@ -8,11 +8,11 @@ import { Disposable } from '../../../base/common/lifecycle.js';
 export class TextModelPart extends Disposable {
 	private _isDisposed = false;
 
-	public override dispose(): void {
+	public override dispose(): cognidream {
 		super.dispose();
 		this._isDisposed = true;
 	}
-	protected assertNotDisposed(): void {
+	protected assertNotDisposed(): cognidream {
 		if (this._isDisposed) {
 			throw new Error('TextModelPart is disposed!');
 		}

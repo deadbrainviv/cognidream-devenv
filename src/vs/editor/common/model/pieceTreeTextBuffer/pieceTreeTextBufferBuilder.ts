@@ -95,7 +95,7 @@ export class PieceTreeTextBufferBuilder implements ITextBufferBuilder {
 		this.isBasicASCII = true;
 	}
 
-	public acceptChunk(chunk: string): void {
+	public acceptChunk(chunk: string): cognidream {
 		if (chunk.length === 0) {
 			return;
 		}
@@ -120,7 +120,7 @@ export class PieceTreeTextBufferBuilder implements ITextBufferBuilder {
 		}
 	}
 
-	private _acceptChunk1(chunk: string, allowEmptyStrings: boolean): void {
+	private _acceptChunk1(chunk: string, allowEmptyStrings: boolean): cognidream {
 		if (!allowEmptyStrings && chunk.length === 0) {
 			// Nothing to do
 			return;
@@ -133,7 +133,7 @@ export class PieceTreeTextBufferBuilder implements ITextBufferBuilder {
 		}
 	}
 
-	private _acceptChunk2(chunk: string): void {
+	private _acceptChunk2(chunk: string): cognidream {
 		const lineStarts = createLineStarts(this._tmpLineStarts, chunk);
 
 		this.chunks.push(new StringBuffer(chunk, lineStarts.lineStarts));
@@ -168,7 +168,7 @@ export class PieceTreeTextBufferBuilder implements ITextBufferBuilder {
 		);
 	}
 
-	private _finish(): void {
+	private _finish(): cognidream {
 		if (this.chunks.length === 0) {
 			this._acceptChunk1('', true);
 		}

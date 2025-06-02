@@ -23,19 +23,19 @@ export class ExtHostNotebookDocuments implements extHostProtocol.ExtHostNotebook
 		private readonly _notebooksAndEditors: ExtHostNotebookController,
 	) { }
 
-	$acceptModelChanged(uri: UriComponents, event: SerializableObjectWithBuffers<extHostProtocol.NotebookCellsChangedEventDto>, isDirty: boolean, newMetadata?: NotebookDocumentMetadata): void {
+	$acceptModelChanged(uri: UriComponents, event: SerializableObjectWithBuffers<extHostProtocol.NotebookCellsChangedEventDto>, isDirty: boolean, newMetadata?: NotebookDocumentMetadata): cognidream {
 		const document = this._notebooksAndEditors.getNotebookDocument(URI.revive(uri));
 		const e = document.acceptModelChanged(event.value, isDirty, newMetadata);
 		this._onDidChangeNotebookDocument.fire(e);
 	}
 
-	$acceptDirtyStateChanged(uri: UriComponents, isDirty: boolean): void {
+	$acceptDirtyStateChanged(uri: UriComponents, isDirty: booleancognidreamognidream {
 		const document = this._notebooksAndEditors.getNotebookDocument(URI.revive(uri));
 		document.acceptDirty(isDirty);
-	}
+    }
 
-	$acceptModelSaved(uri: UriComponents): void {
-		const document = this._notebooksAndEditors.getNotebookDocument(URI.revive(uri));
-		this._onDidSaveNotebookDocument.fire(document.apiNotebook);
-	}
+$acceptModelSaved(uri: UriComponentscognidreamognidream {
+	const document = this._notebooksAndEditors.getNotebookDocument(URI.revive(uri));
+	this._onDidSaveNotebookDocument.fire(document.apiNotebook);
+}
 }

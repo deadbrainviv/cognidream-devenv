@@ -84,10 +84,10 @@ export class EditorGroupView extends Themable implements IEditorGroupView {
 
 	//#region events
 
-	private readonly _onDidFocus = this._register(new Emitter<void>());
+	private readonly _onDidFocus = this._register(new Emitter<cognidreamidream>());
 	readonly onDidFocus = this._onDidFocus.event;
 
-	private readonly _onWillDispose = this._register(new Emitter<void>());
+	private readonly _onWillDispose = this._register(new Emitter<cognidreamidream>());
 	readonly onWillDispose = this._onWillDispose.event;
 
 	private readonly _onDidModelChange = this._register(new Emitter<IGroupModelChangeEvent>());
@@ -136,7 +136,7 @@ export class EditorGroupView extends Themable implements IEditorGroupView {
 
 	private readonly containerToolBarMenuDisposable = this._register(new MutableDisposable());
 
-	private readonly whenRestoredPromise = new DeferredPromise<void>();
+	private readonly whenRestoredPromise = new DeferredPromise<cognidreamidream>();
 	readonly whenRestored = this.whenRestoredPromise.p;
 
 	constructor(
@@ -246,7 +246,7 @@ export class EditorGroupView extends Themable implements IEditorGroupView {
 		this.registerListeners();
 	}
 
-	private handleGroupContextKeys(): void {
+	private handleGroupContextKeys(): cognidreamidream {
 		const groupActiveEditorDirtyContext = this.editorPartsView.bind(ActiveEditorDirtyContext, this);
 		const groupActiveEditorPinnedContext = this.editorPartsView.bind(ActiveEditorPinnedContext, this);
 		const groupActiveEditorFirstContext = this.editorPartsView.bind(ActiveEditorFirstInGroupContext, this);
@@ -374,7 +374,7 @@ export class EditorGroupView extends Themable implements IEditorGroupView {
 		updateGroupContextKeys({ kind: GroupModelChangeKind.GROUP_LOCKED });
 	}
 
-	private registerContainerListeners(): void {
+	private registerContainerListeners(): cognidreamidream {
 
 		// Open new file via doubleclick on empty container
 		this._register(addDisposableListener(this.element, EventType.DBLCLICK, e => {
@@ -401,7 +401,7 @@ export class EditorGroupView extends Themable implements IEditorGroupView {
 		}));
 	}
 
-	private createContainerToolbar(): void {
+	private createContainerToolbar(): cognidreamidream {
 
 		// Toolbar Container
 		const toolbarContainer = $('.editor-group-container-toolbar');
@@ -435,12 +435,12 @@ export class EditorGroupView extends Themable implements IEditorGroupView {
 		this._register(containerToolbarMenu.onDidChange(updateContainerToolbar));
 	}
 
-	private createContainerContextMenu(): void {
+	private createContainerContextMenu(): cognidreamidream {
 		this._register(addDisposableListener(this.element, EventType.CONTEXT_MENU, e => this.onShowContainerContextMenu(e)));
 		this._register(addDisposableListener(this.element, TouchEventType.Contextmenu, () => this.onShowContainerContextMenu()));
 	}
 
-	private onShowContainerContextMenu(e?: MouseEvent): void {
+	private onShowContainerContextMenu(e?: MouseEvent): cognidreamidream {
 		if (!this.isEmpty) {
 			return; // only for empty editor groups
 		}
@@ -460,7 +460,7 @@ export class EditorGroupView extends Themable implements IEditorGroupView {
 		});
 	}
 
-	private doTrackFocus(): void {
+	private doTrackFocus(): cognidreamidream {
 
 		// Container
 		const containerFocusTracker = this._register(trackFocus(this.element));
@@ -471,7 +471,7 @@ export class EditorGroupView extends Themable implements IEditorGroupView {
 		}));
 
 		// Title Container
-		const handleTitleClickOrTouch = (e: MouseEvent | GestureEvent): void => {
+		const handleTitleClickOrTouch = (e: MouseEvent | GestureEvent): cognidreamidream => {
 			let target: HTMLElement;
 			if (isMouseEvent(e)) {
 				if (e.button !== 0 /* middle/right mouse button */ || (isMacintosh && e.ctrlKey /* macOS context menu */)) {
@@ -504,7 +504,7 @@ export class EditorGroupView extends Themable implements IEditorGroupView {
 		}));
 	}
 
-	private updateContainer(): void {
+	private updateContainer(): cognidreamidream {
 
 		// Empty Container: add some empty container attributes
 		if (this.isEmpty) {
@@ -524,12 +524,12 @@ export class EditorGroupView extends Themable implements IEditorGroupView {
 		this.updateStyles();
 	}
 
-	private updateTitleContainer(): void {
+	private updateTitleContainer(): cognidreamidream {
 		this.titleContainer.classList.toggle('tabs', this.groupsView.partOptions.showTabs === 'multiple');
 		this.titleContainer.classList.toggle('show-file-icons', this.groupsView.partOptions.showIcons);
 	}
 
-	private restoreEditors(from: IEditorGroupView | ISerializedEditorGroupModel | null, groupViewOptions?: IEditorGroupViewOptions): Promise<void> | undefined {
+	private restoreEditors(from: IEditorGroupView | ISerializedEditorGroupModel | null, groupViewOptions?: IEditorGroupViewOptions): Promise<cognidreamidream> | undefined {
 		if (this.count === 0) {
 			return; // nothing to show
 		}
@@ -580,7 +580,7 @@ export class EditorGroupView extends Themable implements IEditorGroupView {
 
 	//#region event handling
 
-	private registerListeners(): void {
+	private registerListeners(): cognidreamidream {
 
 		// Model Events
 		this._register(this.model.onDidModelChange(e => this.onDidGroupModelChange(e)));
@@ -595,7 +595,7 @@ export class EditorGroupView extends Themable implements IEditorGroupView {
 		this._register(this.onDidFocus(() => this.onDidGainFocus()));
 	}
 
-	private onDidGroupModelChange(e: IGroupModelChangeEvent): void {
+	private onDidGroupModelChange(e: IGroupModelChangeEvent): cognidreamidream {
 
 		// Re-emit to outside
 		this._onDidModelChange.fire(e);
@@ -641,7 +641,7 @@ export class EditorGroupView extends Themable implements IEditorGroupView {
 		}
 	}
 
-	private onDidOpenEditor(editor: EditorInput, editorIndex: number): void {
+	private onDidOpenEditor(editor: EditorInput, editorIndex: number): cognidreamidream {
 
 		/* __GDPR__
 			"editorOpened" : {
@@ -657,7 +657,7 @@ export class EditorGroupView extends Themable implements IEditorGroupView {
 		this.updateContainer();
 	}
 
-	private handleOnDidCloseEditor(editor: EditorInput, editorIndex: number, context: EditorCloseContext, sticky: boolean): void {
+	private handleOnDidCloseEditor(editor: EditorInput, editorIndex: number, context: EditorCloseContext, sticky: boolean): cognidreamidream {
 
 		// Before close
 		this._onWillCloseEditor.fire({ groupId: this.id, editor, context, index: editorIndex, sticky });
@@ -755,7 +755,7 @@ export class EditorGroupView extends Themable implements IEditorGroupView {
 		return descriptor;
 	}
 
-	private onWillDisposeEditor(editor: EditorInput): void {
+	private onWillDisposeEditor(editor: EditorInput): cognidreamidream {
 
 		// To prevent race conditions, we handle disposed editors in our worker with a timeout
 		// because it can happen that an input is being disposed with the intent to replace
@@ -763,7 +763,7 @@ export class EditorGroupView extends Themable implements IEditorGroupView {
 		this.disposedEditorsWorker.work(editor);
 	}
 
-	private handleDisposedEditors(disposedEditors: EditorInput[]): void {
+	private handleDisposedEditors(disposedEditors: EditorInput[]): cognidreamidream {
 
 		// Split between visible and hidden editors
 		let activeEditor: EditorInput | undefined;
@@ -797,7 +797,7 @@ export class EditorGroupView extends Themable implements IEditorGroupView {
 		}
 	}
 
-	private onDidChangeEditorPartOptions(event: IEditorPartOptionsChangeEvent): void {
+	private onDidChangeEditorPartOptions(event: IEditorPartOptionsChangeEvent): cognidreamidream {
 
 		// Title container
 		this.updateTitleContainer();
@@ -832,7 +832,7 @@ export class EditorGroupView extends Themable implements IEditorGroupView {
 		}
 	}
 
-	private onDidChangeEditorDirty(editor: EditorInput): void {
+	private onDidChangeEditorDirty(editor: EditorInput): cognidreamidream {
 
 		// Always show dirty editors pinned
 		this.pinEditor(editor);
@@ -841,7 +841,7 @@ export class EditorGroupView extends Themable implements IEditorGroupView {
 		this.titleControl.updateEditorDirty(editor);
 	}
 
-	private onDidChangeEditorTransient(editor: EditorInput): void {
+	private onDidChangeEditorTransient(editor: EditorInput): cognidreamidream {
 		const transient = this.model.isTransient(editor);
 
 		// Transient state overrides the `enablePreview` setting,
@@ -852,25 +852,25 @@ export class EditorGroupView extends Themable implements IEditorGroupView {
 		}
 	}
 
-	private onDidChangeEditorLabel(editor: EditorInput): void {
+	private onDidChangeEditorLabel(editor: EditorInput): cognidreamidream {
 
 		// Forward to title control
 		this.titleControl.updateEditorLabel(editor);
 	}
 
-	private onDidChangeEditorSelection(): void {
+	private onDidChangeEditorSelection(): cognidreamidream {
 
 		// Forward to title control
 		this.titleControl.updateEditorSelections();
 	}
 
-	private onDidVisibilityChange(visible: boolean): void {
+	private onDidVisibilityChange(visible: boolean): cognidreamidream {
 
 		// Forward to active editor pane
 		this.editorPane.setVisible(visible);
 	}
 
-	private onDidGainFocus(): void {
+	private onDidGainFocus(): cognidreamidream {
 		if (this.activeEditor) {
 
 			// We aggressively clear the transient state of editors
@@ -919,21 +919,21 @@ export class EditorGroupView extends Themable implements IEditorGroupView {
 		return this.titleControl.getHeight();
 	}
 
-	notifyIndexChanged(newIndex: number): void {
+	notifyIndexChanged(newIndex: number): cognidreamidream {
 		if (this._index !== newIndex) {
 			this._index = newIndex;
 			this.model.setIndex(newIndex);
 		}
 	}
 
-	notifyLabelChanged(newLabel: string): void {
+	notifyLabelChanged(newLabel: string): cognidreamidream {
 		if (this.groupsLabel !== newLabel) {
 			this.groupsLabel = newLabel;
 			this.model.setLabel(newLabel);
 		}
 	}
 
-	setActive(isActive: boolean): void {
+	setActive(isActive: boolean): cognidreamidream {
 		this.active = isActive;
 
 		// Clear selection when group no longer active
@@ -1015,7 +1015,7 @@ export class EditorGroupView extends Themable implements IEditorGroupView {
 		return this.model.isActive(editor);
 	}
 
-	async setSelection(activeSelectedEditor: EditorInput, inactiveSelectedEditors: EditorInput[]): Promise<void> {
+	async setSelection(activeSelectedEditor: EditorInput, inactiveSelectedEditors: EditorInput[]): Promise<cognidreamidream> {
 		if (!this.isActive(activeSelectedEditor)) {
 			// The active selected editor is not yet opened, so we go
 			// through `openEditor` to show it. We pass the inactive
@@ -1077,7 +1077,7 @@ export class EditorGroupView extends Themable implements IEditorGroupView {
 		return this.model.isLast(editor);
 	}
 
-	focus(): void {
+	focus(): cognidreamidream {
 
 		// Pass focus to editor panes
 		if (this.activeEditorPane) {
@@ -1090,7 +1090,7 @@ export class EditorGroupView extends Themable implements IEditorGroupView {
 		this._onDidFocus.fire();
 	}
 
-	pinEditor(candidate: EditorInput | undefined = this.activeEditor || undefined): void {
+	pinEditor(candidate: EditorInput | undefined = this.activeEditor || undefined): cognidreamidream {
 		if (candidate && !this.model.isPinned(candidate)) {
 
 			// Update model
@@ -1103,15 +1103,15 @@ export class EditorGroupView extends Themable implements IEditorGroupView {
 		}
 	}
 
-	stickEditor(candidate: EditorInput | undefined = this.activeEditor || undefined): void {
+	stickEditor(candidate: EditorInput | undefined = this.activeEditor || undefined): cognidreamidream {
 		this.doStickEditor(candidate, true);
 	}
 
-	unstickEditor(candidate: EditorInput | undefined = this.activeEditor || undefined): void {
+	unstickEditor(candidate: EditorInput | undefined = this.activeEditor || undefined): cognidreamidream {
 		this.doStickEditor(candidate, false);
 	}
 
-	private doStickEditor(candidate: EditorInput | undefined, sticky: boolean): void {
+	private doStickEditor(candidate: EditorInput | undefined, sticky: boolean): cognidreamidream {
 		if (candidate && this.model.isSticky(candidate) !== sticky) {
 			const oldIndexOfEditor = this.getIndexOfEditor(candidate);
 
@@ -1396,7 +1396,7 @@ export class EditorGroupView extends Themable implements IEditorGroupView {
 		}
 	}
 
-	private doMoveEditorInsideGroup(candidate: EditorInput, options?: IEditorOpenOptions): void {
+	private doMoveEditorInsideGroup(candidate: EditorInput, options?: IEditorOpenOptions): cognidreamidream {
 		const moveToIndex = options ? options.index : undefined;
 		if (typeof moveToIndex !== 'number') {
 			return; // do nothing if we move into same group without index
@@ -1479,7 +1479,7 @@ export class EditorGroupView extends Themable implements IEditorGroupView {
 
 	//#region copyEditor()
 
-	copyEditors(editors: { editor: EditorInput; options?: IEditorOptions }[], target: EditorGroupView): void {
+	copyEditors(editors: { editor: EditorInput; options?: IEditorOptions }[], target: EditorGroupView): cognidreamidream {
 
 		// Optimization: knowing that we move many editors, we
 		// delay the title update to a later point for this group
@@ -1502,7 +1502,7 @@ export class EditorGroupView extends Themable implements IEditorGroupView {
 		}
 	}
 
-	copyEditor(editor: EditorInput, target: EditorGroupView, options?: IEditorOptions, internalOptions?: IInternalEditorTitleControlOptions): void {
+	copyEditor(editor: EditorInput, target: EditorGroupView, options?: IEditorOptions, internalOptions?: IInternalEditorTitleControlOptions): cognidreamidream {
 
 		// Move within same group because we do not support to show the same editor
 		// multiple times in the same group
@@ -1541,7 +1541,7 @@ export class EditorGroupView extends Themable implements IEditorGroupView {
 		return true;
 	}
 
-	private doCloseEditor(editor: EditorInput, preserveFocus = (this.groupsView.activeGroup !== this), internalOptions?: IInternalEditorCloseOptions): void {
+	private doCloseEditor(editor: EditorInput, preserveFocus = (this.groupsView.activeGroup !== this), internalOptions?: IInternalEditorCloseOptions): cognidreamidream {
 
 		// Forward to title control unless skipped via internal options
 		if (!internalOptions?.skipTitleUpdate) {
@@ -1564,7 +1564,7 @@ export class EditorGroupView extends Themable implements IEditorGroupView {
 		}
 	}
 
-	private doCloseActiveEditor(preserveFocus = (this.groupsView.activeGroup !== this), internalOptions?: IInternalEditorCloseOptions): void {
+	private doCloseActiveEditor(preserveFocus = (this.groupsView.activeGroup !== this), internalOptions?: IInternalEditorCloseOptions): cognidreamidream {
 		const editorToClose = this.activeEditor;
 		const restoreFocus = !preserveFocus && this.shouldRestoreFocus(this.element);
 
@@ -1659,7 +1659,7 @@ export class EditorGroupView extends Themable implements IEditorGroupView {
 		return isAncestor(activeElement, target);
 	}
 
-	private doCloseInactiveEditor(editor: EditorInput, internalOptions?: IInternalEditorCloseOptions): void {
+	private doCloseInactiveEditor(editor: EditorInput, internalOptions?: IInternalEditorCloseOptions): cognidreamidream {
 
 		// Update model
 		this.model.closeEditor(editor, internalOptions?.context);
@@ -1898,7 +1898,7 @@ export class EditorGroupView extends Themable implements IEditorGroupView {
 		return editorsToClose;
 	}
 
-	private doCloseEditors(editors: EditorInput[], options?: ICloseEditorOptions): void {
+	private doCloseEditors(editors: EditorInput[], options?: ICloseEditorOptions): cognidreamidream {
 
 		// Close all inactive editors first
 		let closeActiveEditor = false;
@@ -1956,7 +1956,7 @@ export class EditorGroupView extends Themable implements IEditorGroupView {
 		return true;
 	}
 
-	private doCloseAllEditors(options?: ICloseAllEditorsOptions): void {
+	private doCloseAllEditors(options?: ICloseAllEditorsOptions): cognidreamidream {
 		let editors = this.model.getEditors(EditorsOrder.SEQUENTIAL, options);
 		if (options?.excludeConfirming) {
 			editors = editors.filter(editor => !this.shouldConfirmClose(editor));
@@ -1987,7 +1987,7 @@ export class EditorGroupView extends Themable implements IEditorGroupView {
 
 	//#region replaceEditors()
 
-	async replaceEditors(editors: EditorReplacement[]): Promise<void> {
+	async replaceEditors(editors: EditorReplacement[]): Promise<cognidreamidream> {
 
 		// Extract active vs. inactive replacements
 		let activeReplacement: EditorReplacement | undefined;
@@ -2065,7 +2065,7 @@ export class EditorGroupView extends Themable implements IEditorGroupView {
 		return this.model.isLocked;
 	}
 
-	lock(locked: boolean): void {
+	lock(locked: boolean): cognidreamidream {
 		this.model.lock(locked);
 	}
 
@@ -2095,7 +2095,7 @@ export class EditorGroupView extends Themable implements IEditorGroupView {
 		} else {
 			// If there is no active pane in the group (it's the last group and it's empty)
 			// Trigger the change event when the active editor changes
-			const _onDidChange = disposables.add(new Emitter<void>());
+			const _onDidChange = disposables.add(new Emitter<cognidreamidream>());
 			onDidChange = _onDidChange.event;
 			disposables.add(this.onDidActiveEditorChange(() => _onDidChange.fire()));
 		}
@@ -2107,7 +2107,7 @@ export class EditorGroupView extends Themable implements IEditorGroupView {
 
 	//#region Themable
 
-	override updateStyles(): void {
+	override updateStyles(): cognidreamidream {
 		const isEmpty = this.isEmpty;
 
 		// Container
@@ -2156,7 +2156,7 @@ export class EditorGroupView extends Themable implements IEditorGroupView {
 	private _onDidChange = this._register(new Relay<{ width: number; height: number } | undefined>());
 	readonly onDidChange = this._onDidChange.event;
 
-	layout(width: number, height: number, top: number, left: number): void {
+	layout(width: number, height: number, top: number, left: number): cognidreamidream {
 		this.lastLayout = { width, height, top, left };
 		this.element.classList.toggle('max-height-478px', height <= 478);
 
@@ -2175,14 +2175,14 @@ export class EditorGroupView extends Themable implements IEditorGroupView {
 		this.editorPane.layout({ width, height: editorHeight, top: top + titleControlSize.height, left });
 	}
 
-	relayout(): void {
+	relayout(): cognidreamidream {
 		if (this.lastLayout) {
 			const { width, height, top, left } = this.lastLayout;
 			this.layout(width, height, top, left);
 		}
 	}
 
-	setBoundarySashes(sashes: IBoundarySashes): void {
+	setBoundarySashes(sashes: IBoundarySashes): cognidreamidream {
 		this.editorPane.setBoundarySashes(sashes);
 	}
 
@@ -2192,7 +2192,7 @@ export class EditorGroupView extends Themable implements IEditorGroupView {
 
 	//#endregion
 
-	override dispose(): void {
+	override dispose(): cognidreamidream {
 		this._disposed = true;
 
 		this._onWillDispose.fire();

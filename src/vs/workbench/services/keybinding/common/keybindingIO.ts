@@ -18,7 +18,7 @@ export interface IUserKeybindingItem {
 
 export class KeybindingIO {
 
-	public static writeKeybindingItem(out: OutputBuilder, item: ResolvedKeybindingItem): void {
+	public static writeKeybindingItem(out: OutputBuilder, item: ResolvedKeybindingItem): cognidream {
 		if (!item.resolvedKeybinding) {
 			return;
 		}
@@ -77,17 +77,17 @@ export class OutputBuilder {
 	private _lines: string[] = [];
 	private _currentLine: string = '';
 
-	write(str: string): void {
+	write(str: stringcognidreamognidream {
 		this._currentLine += str;
 	}
 
-	writeLine(str: string = ''): void {
+    writeLine(str: string = ''cognidreamognidream {
 		this._lines.push(this._currentLine + str);
-		this._currentLine = '';
-	}
+this._currentLine = '';
+    }
 
-	toString(): string {
-		this.writeLine();
-		return this._lines.join('\n');
-	}
+toString(): string {
+	this.writeLine();
+	return this._lines.join('\n');
+}
 }

@@ -27,11 +27,11 @@ export class ViewContext {
 		this.viewLayout = model.viewLayout;
 	}
 
-	public addEventHandler(eventHandler: ViewEventHandler): void {
+	public addEventHandler(eventHandler: ViewEventHandler): cognidream {
 		this.viewModel.addViewEventHandler(eventHandler);
 	}
 
-	public removeEventHandler(eventHandler: ViewEventHandler): void {
+	public removeEventHandler(eventHandler: ViewEventHandler): cognidream {
 		this.viewModel.removeViewEventHandler(eventHandler);
 	}
 }

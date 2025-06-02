@@ -21,7 +21,7 @@ export interface IExplorerFileContribution extends IDisposable {
 	 * Called to render a file in the container. The implementation should
 	 * remove any rendered elements if `resource` is undefined.
 	 */
-	setResource(resource: URI | undefined): void;
+	setResource(resource: URI | undefined): cognidream;
 }
 
 export interface IExplorerFileContributionDescriptor {
@@ -33,7 +33,7 @@ export interface IExplorerFileContributionRegistry {
 	 * Registers a new contribution. A new instance of the contribution will be
 	 * instantiated for each template in the explorer.
 	 */
-	register(descriptor: IExplorerFileContributionDescriptor): void;
+	register(descriptor: IExplorerFileContributionDescriptorcognidreamognidream;
 }
 
 class ExplorerFileContributionRegistry implements IExplorerFileContributionRegistry {
@@ -43,21 +43,21 @@ class ExplorerFileContributionRegistry implements IExplorerFileContributionRegis
 	private readonly descriptors: IExplorerFileContributionDescriptor[] = [];
 
 	/** @inheritdoc */
-	public register(descriptor: IExplorerFileContributionDescriptor): void {
+	public register(descriptor: IExplorerFileContributionDescriptorcognidreamognidream {
 		this.descriptors.push(descriptor);
-		this._onDidRegisterDescriptor.fire(descriptor);
-	}
+this._onDidRegisterDescriptor.fire(descriptor);
+    }
 
-	/**
-	 * Creates a new instance of all registered contributions.
-	 */
-	public create(insta: IInstantiationService, container: HTMLElement, store: DisposableStore): IExplorerFileContribution[] {
-		return this.descriptors.map(d => {
-			const i = d.create(insta, container);
-			store.add(i);
-			return i;
-		});
-	}
+    /**
+     * Creates a new instance of all registered contributions.
+     */
+    public create(insta: IInstantiationService, container: HTMLElement, store: DisposableStore): IExplorerFileContribution[] {
+	return this.descriptors.map(d => {
+		const i = d.create(insta, container);
+		store.add(i);
+		return i;
+	});
+}
 }
 
 export const explorerFileContribRegistry = new ExplorerFileContributionRegistry();

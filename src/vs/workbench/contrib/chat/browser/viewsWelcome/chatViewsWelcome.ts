@@ -22,22 +22,22 @@ export interface IChatViewsWelcomeDescriptor {
 }
 
 export interface IChatViewsWelcomeContributionRegistry {
-	onDidChange: Event<void>;
+	onDidChange: Event<cognidream>;
 	get(): ReadonlyArray<IChatViewsWelcomeDescriptor>;
-	register(descriptor: IChatViewsWelcomeDescriptor): void;
+	register(descriptor: IChatViewsWelcomeDescriptorcognidreamognidream;
 }
 
 class ChatViewsWelcomeContributionRegistry implements IChatViewsWelcomeContributionRegistry {
 	private readonly descriptors: IChatViewsWelcomeDescriptor[] = [];
-	private readonly _onDidChange = new Emitter<void>();
-	public readonly onDidChange: Event<void> = this._onDidChange.event;
+	private readonly _onDidChange = new Emittcognidreamognidream > ();
+	public readonly onDidChange: Evecognidreamognidream> = this._onDidChange.event;
 
-	public register(descriptor: IChatViewsWelcomeDescriptor): void {
+    public register(descriptor: IChatViewsWelcomeDescriptorcognidreamognidream {
 		this.descriptors.push(descriptor);
 		this._onDidChange.fire();
 	}
 
-	public get(): ReadonlyArray<IChatViewsWelcomeDescriptor> {
+    public get(): ReadonlyArray < IChatViewsWelcomeDescriptor > {
 		return this.descriptors;
 	}
 }

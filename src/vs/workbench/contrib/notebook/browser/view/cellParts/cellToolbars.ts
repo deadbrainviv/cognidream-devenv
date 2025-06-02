@@ -78,7 +78,7 @@ export class BetweenCellToolbar extends CellOverlayPart {
 		return betweenCellToolbar;
 	}
 
-	override didRenderCell(element: ICellViewModel): void {
+	override didRenderCell(element: ICellViewModel): cognidream {
 		const betweenCellToolbar = this._initialize();
 		if (this._notebookEditor.hasModel()) {
 			betweenCellToolbar.context = {
@@ -100,7 +100,7 @@ export class BetweenCellToolbar extends CellOverlayPart {
 
 
 export interface ICssClassDelegate {
-	toggle: (className: string, force?: boolean) => void;
+	toggle: (className: string, force?: boolean) cognidreamognidream;
 }
 
 interface CellTitleToolbarModel {
@@ -118,156 +118,156 @@ interface CellTitleToolbarView {
 export class CellTitleToolbarPart extends CellOverlayPart {
 	private _model: CellTitleToolbarModel | undefined;
 	private _view: CellTitleToolbarView | undefined;
-	private readonly _onDidUpdateActions: Emitter<void> = this._register(new Emitter<void>());
-	readonly onDidUpdateActions: Event<void> = this._onDidUpdateActions.event;
+	private readonly _onDidUpdateActions: Emittcognidreamognidream> = this._register(newcognidreamtter<cognidream>());
+    readonly onDidUpdateActions: Evecognidreamognidream > = this._onDidUpdateActions.event;
 
-	get hasActions(): boolean {
-		if (!this._model) {
-			return false;
-		}
-
-		return this._model.actions.primary.length
-			+ this._model.actions.secondary.length
-			+ this._model.deleteActions.primary.length
-			+ this._model.deleteActions.secondary.length
-			> 0;
+    get hasActions(): boolean {
+	if (!this._model) {
+		return false;
 	}
 
-	constructor(
-		private readonly toolbarContainer: HTMLElement,
-		private readonly _rootClassDelegate: ICssClassDelegate,
-		private readonly toolbarId: MenuId,
-		private readonly deleteToolbarId: MenuId,
-		private readonly _notebookEditor: INotebookEditorDelegate,
-		@IContextKeyService private readonly contextKeyService: IContextKeyService,
-		@IMenuService private readonly menuService: IMenuService,
-		@IInstantiationService private readonly instantiationService: IInstantiationService,
-	) {
-		super();
-	}
+	return this._model.actions.primary.length
+		+ this._model.actions.secondary.length
+		+ this._model.deleteActions.primary.length
+		+ this._model.deleteActions.secondary.length
+		> 0;
+}
 
-	private _initializeModel(): CellTitleToolbarModel {
-		if (this._model) {
-			return this._model;
-		}
+constructor(
+	private readonly toolbarContainer: HTMLElement,
+	private readonly _rootClassDelegate: ICssClassDelegate,
+	private readonly toolbarId: MenuId,
+	private readonly deleteToolbarId: MenuId,
+	private readonly _notebookEditor: INotebookEditorDelegate,
+	@IContextKeyService private readonly contextKeyService: IContextKeyService,
+	@IMenuService private readonly menuService: IMenuService,
+	@IInstantiationService private readonly instantiationService: IInstantiationService,
+) {
+	super();
+}
 
-		const titleMenu = this._register(this.menuService.createMenu(this.toolbarId, this.contextKeyService));
-		const deleteMenu = this._register(this.menuService.createMenu(this.deleteToolbarId, this.contextKeyService));
-		const actions = getCellToolbarActions(titleMenu);
-		const deleteActions = getCellToolbarActions(deleteMenu);
-
-		this._model = {
-			titleMenu,
-			actions,
-			deleteMenu,
-			deleteActions
-		};
-
+    private _initializeModel(): CellTitleToolbarModel {
+	if (this._model) {
 		return this._model;
 	}
 
-	private _initialize(model: CellTitleToolbarModel, element: ICellViewModel): CellTitleToolbarView {
-		if (this._view) {
-			return this._view;
-		}
-		const hoverDelegate = this._register(createInstantHoverDelegate());
-		const toolbar = this._register(this.instantiationService.createInstance(WorkbenchToolBar, this.toolbarContainer, {
-			actionViewItemProvider: (action, options) => {
-				return createActionViewItem(this.instantiationService, action, options);
-			},
-			renderDropdownAsChildElement: true,
-			hoverDelegate
-		}));
+	const titleMenu = this._register(this.menuService.createMenu(this.toolbarId, this.contextKeyService));
+	const deleteMenu = this._register(this.menuService.createMenu(this.deleteToolbarId, this.contextKeyService));
+	const actions = getCellToolbarActions(titleMenu);
+	const deleteActions = getCellToolbarActions(deleteMenu);
 
-		const deleteToolbar = this._register(this.instantiationService.invokeFunction(accessor => createDeleteToolbar(accessor, this.toolbarContainer, hoverDelegate, 'cell-delete-toolbar')));
-		if (model.deleteActions.primary.length !== 0 || model.deleteActions.secondary.length !== 0) {
-			deleteToolbar.setActions(model.deleteActions.primary, model.deleteActions.secondary);
-		}
+	this._model = {
+		titleMenu,
+		actions,
+		deleteMenu,
+		deleteActions
+	};
 
-		this.setupChangeListeners(toolbar, model.titleMenu, model.actions);
-		this.setupChangeListeners(deleteToolbar, model.deleteMenu, model.deleteActions);
+	return this._model;
+}
 
-		this._view = {
-			toolbar,
-			deleteToolbar
-		};
-
+    private _initialize(model: CellTitleToolbarModel, element: ICellViewModel): CellTitleToolbarView {
+	if (this._view) {
 		return this._view;
 	}
+	const hoverDelegate = this._register(createInstantHoverDelegate());
+	const toolbar = this._register(this.instantiationService.createInstance(WorkbenchToolBar, this.toolbarContainer, {
+		actionViewItemProvider: (action, options) => {
+			return createActionViewItem(this.instantiationService, action, options);
+		},
+		renderDropdownAsChildElement: true,
+		hoverDelegate
+	}));
 
-	override prepareRenderCell(element: ICellViewModel): void {
-		this._initializeModel();
+	const deleteToolbar = this._register(this.instantiationService.invokeFunction(accessor => createDeleteToolbar(accessor, this.toolbarContainer, hoverDelegate, 'cell-delete-toolbar')));
+	if (model.deleteActions.primary.length !== 0 || model.deleteActions.secondary.length !== 0) {
+		deleteToolbar.setActions(model.deleteActions.primary, model.deleteActions.secondary);
 	}
 
-	override didRenderCell(element: ICellViewModel): void {
-		const model = this._initializeModel();
-		const view = this._initialize(model, element);
-		this.cellDisposables.add(registerCellToolbarStickyScroll(this._notebookEditor, element, this.toolbarContainer, { extraOffset: 4, min: -14 }));
+	this.setupChangeListeners(toolbar, model.titleMenu, model.actions);
+	this.setupChangeListeners(deleteToolbar, model.deleteMenu, model.deleteActions);
 
-		if (this._notebookEditor.hasModel()) {
-			const toolbarContext: INotebookCellActionContext & { source?: string; $mid: number } = {
-				ui: true,
-				cell: element,
-				notebookEditor: this._notebookEditor,
-				source: 'cellToolbar',
-				$mid: MarshalledId.NotebookCellActionContext
-			};
+	this._view = {
+		toolbar,
+		deleteToolbar
+	};
 
-			this.updateContext(view, toolbarContext);
-		}
-	}
+	return this._view;
+}
 
-	private updateContext(view: CellTitleToolbarView, toolbarContext: INotebookCellActionContext) {
-		view.toolbar.context = toolbarContext;
-		view.deleteToolbar.context = toolbarContext;
-	}
+    override prepareRenderCell(element: ICellViewModelcognidreamognidream {
+	this._initializeModel();
+}
 
-	private setupChangeListeners(toolbar: ToolBar, menu: IMenu, initActions: { primary: IAction[]; secondary: IAction[] }): void {
-		// #103926
-		let dropdownIsVisible = false;
-		let deferredUpdate: (() => void) | undefined;
+    override didRenderCell(element: ICellViewModelcognidreamognidream {
+	const model = this._initializeModel();
+	const view = this._initialize(model, element);
+	this.cellDisposables.add(registerCellToolbarStickyScroll(this._notebookEditor, element, this.toolbarContainer, { extraOffset: 4, min: -14 }));
 
-		this.updateActions(toolbar, initActions);
-		this._register(menu.onDidChange(() => {
-			if (dropdownIsVisible) {
-				const actions = getCellToolbarActions(menu);
-				deferredUpdate = () => this.updateActions(toolbar, actions);
-				return;
-			}
+	if(this._notebookEditor.hasModel()) {
+		const toolbarContext: INotebookCellActionContext & { source?: string; $mid: number } = {
+	ui: true,
+	cell: element,
+	notebookEditor: this._notebookEditor,
+	source: 'cellToolbar',
+	$mid: MarshalledId.NotebookCellActionContext
+};
 
+this.updateContext(view, toolbarContext);
+        }
+    }
+
+    private updateContext(view: CellTitleToolbarView, toolbarContext: INotebookCellActionContext) {
+	view.toolbar.context = toolbarContext;
+	view.deleteToolbar.context = toolbarContext;
+}
+
+    private setupChangeListeners(toolbar: ToolBar, menu: IMenu, initActions: { primary: IAction[]; secondary: IAction[] }cognidreamognidream {
+	// #103926
+	let dropdownIsVisible = false;
+	let deferredUpdate: (cognidream > cognidream) | undefined;
+
+	this.updateActions(toolbar, initActions);
+	this._register(menu.onDidChange(() => {
+		if (dropdownIsVisible) {
 			const actions = getCellToolbarActions(menu);
-			this.updateActions(toolbar, actions);
-		}));
-		this._rootClassDelegate.toggle('cell-toolbar-dropdown-active', false);
-		this._register(toolbar.onDidChangeDropdownVisibility(visible => {
-			dropdownIsVisible = visible;
-			this._rootClassDelegate.toggle('cell-toolbar-dropdown-active', visible);
-
-			if (deferredUpdate && !visible) {
-				disposableTimeout(() => {
-					deferredUpdate?.();
-				}, 0, this._store);
-
-				deferredUpdate = undefined;
-			}
-		}));
-	}
-
-	private updateActions(toolbar: ToolBar, actions: { primary: IAction[]; secondary: IAction[] }) {
-		const hadFocus = DOM.isAncestorOfActiveElement(toolbar.getElement());
-		toolbar.setActions(actions.primary, actions.secondary);
-		if (hadFocus) {
-			this._notebookEditor.focus();
+			deferredUpdate = () => this.updateActions(toolbar, actions);
+			return;
 		}
 
-		if (actions.primary.length || actions.secondary.length) {
-			this._rootClassDelegate.toggle('cell-has-toolbar-actions', true);
-			this._onDidUpdateActions.fire();
-		} else {
-			this._rootClassDelegate.toggle('cell-has-toolbar-actions', false);
-			this._onDidUpdateActions.fire();
+		const actions = getCellToolbarActions(menu);
+		this.updateActions(toolbar, actions);
+	}));
+	this._rootClassDelegate.toggle('cell-toolbar-dropdown-active', false);
+	this._register(toolbar.onDidChangeDropdownVisibility(visible => {
+		dropdownIsVisible = visible;
+		this._rootClassDelegate.toggle('cell-toolbar-dropdown-active', visible);
+
+		if (deferredUpdate && !visible) {
+			disposableTimeout(() => {
+				deferredUpdate?.();
+			}, 0, this._store);
+
+			deferredUpdate = undefined;
 		}
+	}));
+}
+
+    private updateActions(toolbar: ToolBar, actions: { primary: IAction[]; secondary: IAction[] }) {
+	const hadFocus = DOM.isAncestorOfActiveElement(toolbar.getElement());
+	toolbar.setActions(actions.primary, actions.secondary);
+	if(hadFocus) {
+		this._notebookEditor.focus();
 	}
+
+        if(actions.primary.length || actions.secondary.length) {
+	this._rootClassDelegate.toggle('cell-has-toolbar-actions', true);
+	this._onDidUpdateActions.fire();
+} else {
+	this._rootClassDelegate.toggle('cell-has-toolbar-actions', false);
+	this._onDidUpdateActions.fire();
+}
+    }
 }
 
 function getCellToolbarActions(menu: IMenu): PrimaryAndSecondaryActions {

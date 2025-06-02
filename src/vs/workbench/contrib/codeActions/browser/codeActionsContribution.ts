@@ -112,7 +112,7 @@ export const notebookEditorConfiguration = Object.freeze<IConfigurationNode>({
 
 export class CodeActionsContribution extends Disposable implements IWorkbenchContribution {
 
-	private readonly _onDidChangeSchemaContributions = this._register(new Emitter<void>());
+	private readonly _onDidChangeSchemaContributions = this._register(new Emitter<cognidream>());
 
 	private _allProvidedCodeActionKinds: HierarchicalKind[] = [];
 
@@ -148,7 +148,7 @@ export class CodeActionsContribution extends Disposable implements IWorkbenchCon
 		return Array.from(out.values());
 	}
 
-	private updateConfigurationSchema(allProvidedKinds: Iterable<HierarchicalKind>): void {
+	private updateConfigurationSchema(allProvidedKinds: Iterable<HierarchicalKind>cognidreamognidream {
 		const properties: IJSONSchemaMap = { ...codeActionsOnSaveSchema.properties };
 		const notebookProperties: IJSONSchemaMap = { ...notebookCodeActionsOnSaveSchema.properties };
 		for (const codeActionKind of allProvidedKinds) {
@@ -157,54 +157,54 @@ export class CodeActionsContribution extends Disposable implements IWorkbenchCon
 				notebookProperties[codeActionKind.value] = createNotebookCodeActionsAutoSave(nls.localize('codeActionsOnSave.generic', "Controls whether '{0}' actions should be run on file save.", codeActionKind.value));
 			}
 		}
-		codeActionsOnSaveSchema.properties = properties;
-		notebookCodeActionsOnSaveSchema.properties = notebookProperties;
+codeActionsOnSaveSchema.properties = properties;
+notebookCodeActionsOnSaveSchema.properties = notebookProperties;
 
-		Registry.as<IConfigurationRegistry>(Extensions.Configuration)
-			.notifyConfigurationSchemaUpdated(editorConfiguration);
-	}
+Registry.as<IConfigurationRegistry>(Extensions.Configuration)
+	.notifyConfigurationSchemaUpdated(editorConfiguration);
+    }
 
-	private getKeybindingSchemaAdditions(): IJSONSchema[] {
-		const conditionalSchema = (command: string, kinds: readonly string[]): IJSONSchema => {
-			return {
-				if: {
-					required: ['command'],
-					properties: {
-						'command': { const: command }
-					}
-				},
-				then: {
-					properties: {
-						'args': {
-							required: ['kind'],
-							properties: {
-								'kind': {
-									anyOf: [
-										{ enum: Array.from(kinds) },
-										{ type: 'string' },
-									]
-								}
+    private getKeybindingSchemaAdditions(): IJSONSchema[] {
+	const conditionalSchema = (command: string, kinds: readonly string[]): IJSONSchema => {
+		return {
+			if: {
+				required: ['command'],
+				properties: {
+					'command': { const: command }
+				}
+			},
+			then: {
+				properties: {
+					'args': {
+						required: ['kind'],
+						properties: {
+							'kind': {
+								anyOf: [
+									{ enum: Array.from(kinds) },
+									{ type: 'string' },
+								]
 							}
 						}
 					}
 				}
-			};
-		};
-
-		const filterProvidedKinds = (ofKind: HierarchicalKind): string[] => {
-			const out = new Set<string>();
-			for (const providedKind of this._allProvidedCodeActionKinds) {
-				if (ofKind.contains(providedKind)) {
-					out.add(providedKind.value);
-				}
 			}
-			return Array.from(out);
 		};
+	};
 
-		return [
-			conditionalSchema(codeActionCommandId, filterProvidedKinds(HierarchicalKind.Empty)),
-			conditionalSchema(refactorCommandId, filterProvidedKinds(CodeActionKind.Refactor)),
-			conditionalSchema(sourceActionCommandId, filterProvidedKinds(CodeActionKind.Source)),
-		];
-	}
+	const filterProvidedKinds = (ofKind: HierarchicalKind): string[] => {
+		const out = new Set<string>();
+		for (const providedKind of this._allProvidedCodeActionKinds) {
+			if (ofKind.contains(providedKind)) {
+				out.add(providedKind.value);
+			}
+		}
+		return Array.from(out);
+	};
+
+	return [
+		conditionalSchema(codeActionCommandId, filterProvidedKinds(HierarchicalKind.Empty)),
+		conditionalSchema(refactorCommandId, filterProvidedKinds(CodeActionKind.Refactor)),
+		conditionalSchema(sourceActionCommandId, filterProvidedKinds(CodeActionKind.Source)),
+	];
+}
 }

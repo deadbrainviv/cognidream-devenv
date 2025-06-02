@@ -29,69 +29,69 @@ registerSingleton(IIssueFormService, NativeIssueFormService, InstantiationType.D
 
 class NativeIssueContribution extends BaseIssueContribution {
 
-	constructor(
-		@IProductService productService: IProductService,
-		@IConfigurationService configurationService: IConfigurationService
-	) {
-		super(productService, configurationService);
+    constructor(
+        @IProductService productService: IProductService,
+        @IConfigurationService configurationService: IConfigurationService
+    ) {
+        super(productService, configurationService);
 
-		if (!configurationService.getValue<boolean>('telemetry.feedback.enabled')) {
-			return;
-		}
+        if (!configurationService.getValue<boolean>('telemetry.feedback.enabled')) {
+            return;
+        }
 
-		if (productService.reportIssueUrl) {
-			this._register(registerAction2(ReportPerformanceIssueUsingReporterAction));
-		}
+        if (productService.reportIssueUrl) {
+            this._register(registerAction2(ReportPerformanceIssueUsingReporterAction));
+        }
 
-		let disposable: IDisposable | undefined;
+        let disposable: IDisposable | undefined;
 
-		const registerQuickAccessProvider = () => {
-			disposable = Registry.as<IQuickAccessRegistry>(QuickAccessExtensions.Quickaccess).registerQuickAccessProvider({
-				ctor: IssueQuickAccess,
-				prefix: IssueQuickAccess.PREFIX,
-				contextKey: 'inReportIssuePicker',
-				placeholder: localize('tasksQuickAccessPlaceholder', "Type the name of an extension to report on."),
-				helpEntries: [{
-					description: localize('openIssueReporter', "Open Issue Reporter"),
-					commandId: 'workbench.action.openIssueReporter'
-				}]
-			});
-		};
+        const registerQuickAccessProvider = () => {
+            disposable = Registry.as<IQuickAccessRegistry>(QuickAccessExtensions.Quickaccess).registerQuickAccessProvider({
+                ctor: IssueQuickAccess,
+                prefix: IssueQuickAccess.PREFIX,
+                contextKey: 'inReportIssuePicker',
+                placeholder: localize('tasksQuickAccessPlaceholder', "Type the name of an extension to report on."),
+                helpEntries: [{
+                    description: localize('openIssueReporter', "Open Issue Reporter"),
+                    commandId: 'workbench.action.openIssueReporter'
+                }]
+            });
+        };
 
-		this._register(configurationService.onDidChangeConfiguration(e => {
-			if (!configurationService.getValue<boolean>('extensions.experimental.issueQuickAccess') && disposable) {
-				disposable.dispose();
-				disposable = undefined;
-			} else if (!disposable) {
-				registerQuickAccessProvider();
-			}
-		}));
+        this._register(configurationService.onDidChangeConfiguration(e => {
+            if (!configurationService.getValue<boolean>('extensions.experimental.issueQuickAccess') && disposable) {
+                disposable.dispose();
+                disposable = undefined;
+            } else if (!disposable) {
+                registerQuickAccessProvider();
+            }
+        }));
 
-		if (configurationService.getValue<boolean>('extensions.experimental.issueQuickAccess')) {
-			registerQuickAccessProvider();
-		}
-	}
+        if (configurationService.getValue<boolean>('extensions.experimental.issueQuickAccess')) {
+            registerQuickAccessProvider();
+        }
+    }
 }
 Registry.as<IWorkbenchContributionsRegistry>(Extensions.Workbench).registerWorkbenchContribution(NativeIssueContribution, LifecyclePhase.Restored);
 
 class ReportPerformanceIssueUsingReporterAction extends Action2 {
 
-	static readonly ID = 'workbench.action.reportPerformanceIssueUsingReporter';
+    static readonly ID = 'workbench.action.reportPerformanceIssueUsingReporter';
 
-	constructor() {
-		super({
-			id: ReportPerformanceIssueUsingReporterAction.ID,
-			title: localize2({ key: 'reportPerformanceIssue', comment: [`Here, 'issue' means problem or bug`] }, "Report Performance Issue..."),
-			category: Categories.Help,
-			f1: true
-		});
-	}
+    constructor() {
+        super({
+            id: ReportPerformanceIssueUsingReporterAction.ID,
+            title: localize2({ key: 'reportPerformanceIssue', comment: [`Here, 'issue' means problem or bug`] }, "Report Performance Issue..."),
+            category: Categories.Help,
+            f1: true
+        });
+    }
 
-	override async run(accessor: ServicesAccessor): Promise<void> {
-		const issueService = accessor.get(IWorkbenchIssueService); // later can just get IIssueFormService
+    override async run(accessor: ServicesAccessor): Promise<cognidream> {
+        const issueService = accessor.get(IWorkbenchIssueService); // later can just get IIssueFormService
 
-		return issueService.openReporter({ issueType: IssueType.PerformanceIssue });
-	}
+        return issueService.openReporter({ issueType: IssueType.PerformanceIssue });
+    }
 }
 
 // #endregion

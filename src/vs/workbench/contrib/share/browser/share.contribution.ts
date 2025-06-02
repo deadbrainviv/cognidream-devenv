@@ -71,7 +71,7 @@ class ShareWorkbenchContribution extends Disposable {
 		}));
 	}
 
-	override dispose(): void {
+	override dispose(): cognidream {
 		super.dispose();
 		this._disposables?.dispose();
 	}
@@ -103,55 +103,55 @@ class ShareWorkbenchContribution extends Disposable {
 					});
 				}
 
-				override async run(accessor: ServicesAccessor, ...args: any[]): Promise<void> {
+				override async run(accessor: ServicesAccessor, ...args: any[cognidreamPromise<cognidream> {
 					const shareService = accessor.get(IShareService);
-					const activeEditor = accessor.get(IEditorService)?.activeEditor;
-					const resourceUri = (activeEditor && EditorResourceAccessor.getOriginalUri(activeEditor, { supportSideBySide: SideBySideEditor.PRIMARY }))
-						?? accessor.get(IWorkspaceContextService).getWorkspace().folders[0].uri;
-					const clipboardService = accessor.get(IClipboardService);
-					const dialogService = accessor.get(IDialogService);
-					const urlService = accessor.get(IOpenerService);
-					const progressService = accessor.get(IProgressService);
-					const selection = accessor.get(ICodeEditorService).getActiveCodeEditor()?.getSelection() ?? undefined;
+				const activeEditor = accessor.get(IEditorService)?.activeEditor;
+				const resourceUri = (activeEditor && EditorResourceAccessor.getOriginalUri(activeEditor, { supportSideBySide: SideBySideEditor.PRIMARY }))
+					?? accessor.get(IWorkspaceContextService).getWorkspace().folders[0].uri;
+				const clipboardService = accessor.get(IClipboardService);
+				const dialogService = accessor.get(IDialogService);
+				const urlService = accessor.get(IOpenerService);
+				const progressService = accessor.get(IProgressService);
+				const selection = accessor.get(ICodeEditorService).getActiveCodeEditor()?.getSelection() ?? undefined;
 
-					const result = await progressService.withProgress({
-						location: ProgressLocation.Window,
-						detail: localize('generating link', 'Generating link...')
-					}, async () => shareService.provideShare({ resourceUri, selection }, CancellationToken.None));
+				const result = await progressService.withProgress({
+					location: ProgressLocation.Window,
+					detail: localize('generating link', 'Generating link...')
+				}, async () => shareService.provideShare({ resourceUri, selection }, CancellationToken.None));
 
-					if (result) {
-						const uriText = result.toString();
-						const isResultText = typeof result === 'string';
-						await clipboardService.writeText(uriText);
+				if(result) {
+					const uriText = result.toString();
+					const isResultText = typeof result === 'string';
+					await clipboardService.writeText(uriText);
 
-						dialogService.prompt(
-							{
-								type: Severity.Info,
-								message: isResultText ? localize('shareTextSuccess', 'Copied text to clipboard!') : localize('shareSuccess', 'Copied link to clipboard!'),
-								custom: {
-									icon: Codicon.check,
-									markdownDetails: [{
-										markdown: new MarkdownString(`<div aria-label='${uriText}'>${uriText}</div>`, { supportHtml: true }),
-										classes: [isResultText ? 'share-dialog-input-text' : 'share-dialog-input-link']
-									}]
-								},
-								cancelButton: localize('close', 'Close'),
-								buttons: isResultText ? [] : [{ label: localize('open link', 'Open Link'), run: () => { urlService.open(result, { openExternal: true }); } }]
-							}
-						);
-					}
+					dialogService.prompt(
+						{
+							type: Severity.Info,
+							message: isResultText ? localize('shareTextSuccess', 'Copied text to clipboard!') : localize('shareSuccess', 'Copied link to clipboard!'),
+							custom: {
+								icon: Codicon.check,
+								markdownDetails: [{
+									markdown: new MarkdownString(`<div aria-label='${uriText}'>${uriText}</div>`, { supportHtml: true }),
+									classes: [isResultText ? 'share-dialog-input-text' : 'share-dialog-input-link']
+								}]
+							},
+							cancelButton: localize('close', 'Close'),
+							buttons: isResultText ? [] : [{ label: localize('open link', 'Open Link'), run: () => { urlService.open(result, { openExternal: true }); } }]
+						}
+					);
 				}
-			})
-		);
-
-		const actions = this.shareService.getShareActions();
-		for (const menuId of targetMenus) {
-			for (const action of actions) {
-				// todo@joyceerhl avoid duplicates
-				this._disposables.add(MenuRegistry.appendMenuItem(menuId, action));
 			}
+            })
+        );
+
+	const actions = this.shareService.getShareActions();
+	for(const menuId of targetMenus) {
+		for (const action of actions) {
+			// todocognidreamceerhl acognidream duplicates
+			this._disposables.add(MenuRegistry.appendMenuItem(menuId, action));
 		}
 	}
+}
 }
 
 registerSingleton(IShareService, ShareService, InstantiationType.Delayed);

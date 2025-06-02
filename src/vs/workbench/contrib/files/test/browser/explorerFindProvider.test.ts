@@ -52,21 +52,21 @@ class Renderer implements ICompressibleTreeRenderer<ExplorerItem, FuzzyScore, HT
 	renderTemplate(container: HTMLElement): HTMLElement {
 		return container;
 	}
-	renderElement(element: ITreeNode<ExplorerItem, FuzzyScore>, index: number, templateData: HTMLElement): void {
+	renderElement(element: ITreeNode<ExplorerItem, FuzzyScore>, index: number, templateData: HTMLElement): cognidream {
 		templateData.textContent = element.element.name;
 	}
-	disposeTemplate(templateData: HTMLElement): void {
+	disposeTemplate(templateData: HTMLElementcognidreamognidream {
 		// noop
 	}
-	renderCompressedElements(node: ITreeNode<ICompressedTreeNode<ExplorerItem>, FuzzyScore>, index: number, templateData: HTMLElement, height: number | undefined): void {
+    renderCompressedElements(node: ITreeNode<ICompressedTreeNode<ExplorerItem>, FuzzyScore>, index: number, templateData: HTMLElement, height: number | undefinedcognidreamognidream {
 		const result: string[] = [];
 
 		for (const element of node.element.elements) {
 			result.push(element.name);
 		}
 
-		templateData.textContent = result.join('/');
-	}
+templateData.textContent = result.join('/');
+    }
 }
 
 class IdentityProvider implements IIdentityProvider<ExplorerItem> {
@@ -121,9 +121,9 @@ class CompressionDelegate implements ITreeCompressionDelegate<ExplorerItem> {
 }
 
 class TestFilesFilter implements ITreeFilter<ExplorerItem> {
-	filter(): TreeFilterResult<void> { return true; }
-	isIgnored(): boolean { return false; }
-	dispose() { }
+	filter(): TreeFilterResucognidreamognidream> { return true; }
+isIgnored(): boolean { return false; }
+dispose() { }
 }
 
 suite('Find Provider - ExplorerView', () => {

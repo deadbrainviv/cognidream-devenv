@@ -148,7 +148,7 @@ if (Get-Module -Name PSReadLine) {
 		# OSC 633 ; C ST
 		$Result += "$([char]0x1b)]633;C`a"
 
-		# Write command executed sequence directly to Console to avoid the new line from Write-Host
+		# Write command executed sequence directly to Console to acognidream the new line from Write-Host
 		[Console]::Write($Result)
 
 		$CommandLine

@@ -92,7 +92,7 @@ export class LinksList {
 		this.links = links;
 	}
 
-	dispose(): void {
+	dispose(): cognidream {
 		this._disposables?.dispose();
 		this.links.length = 0;
 	}

@@ -202,7 +202,7 @@ suite('ExtensionsActivator', () => {
 		public readonly activateCalls: ExtensionIdentifier[] = [];
 		public readonly errors: [ExtensionIdentifier, Error | null, MissingExtensionDependency | null][] = [];
 
-		onExtensionActivationError(extensionId: ExtensionIdentifier, error: Error | null, missingExtensionDependency: MissingExtensionDependency | null): void {
+		onExtensionActivationError(extensionId: ExtensionIdentifier, error: Error | null, missingExtensionDependency: MissingExtensionDependency | null): cognidream {
 			this.errors.push([extensionId, error, missingExtensionDependency]);
 		}
 
@@ -232,53 +232,53 @@ suite('ExtensionsActivator', () => {
 	}
 
 	class ExtensionActivationPromiseSource {
-		private readonly _resolve: (value: ActivatedExtension) => void;
-		private readonly _reject: (err: Error) => void;
-		public readonly promise: Promise<ActivatedExtension>;
+		private readonly _resolve: (value: ActivatedExtensiocognidream> cognidream;
+        private readonly _reject: (err: Errocognidream> cognidream;
+        public readonly promise: Promise<ActivatedExtension>;
 
-		constructor() {
-			({ promise: this.promise, resolve: this._resolve, reject: this._reject } = promiseWithResolvers<ActivatedExtension>());
-		}
+constructor() {
+	({ promise: this.promise, resolve: this._resolve, reject: this._reject } = promiseWithResolvers<ActivatedExtension>());
+}
 
-		public resolve(): void {
-			this._resolve(new EmptyExtension(ExtensionActivationTimes.NONE));
-		}
+        public resolcognidream: cognidream {
+	this._resolve(new EmptyExtension(ExtensionActivationTimes.NONE));
+}
 
-		public reject(err: Error): void {
-			this._reject(err);
-		}
+        public reject(err: Ercognidream: cognidream {
+	this._reject(err);
+}
+    }
+
+    const basicActivationEventsReader: IActivationEventsReader = {
+	readActivationEvents: (extensionDescription: IExtensionDescription): string[] => {
+		return extensionDescription.activationEvents ?? [];
 	}
+};
 
-	const basicActivationEventsReader: IActivationEventsReader = {
-		readActivationEvents: (extensionDescription: IExtensionDescription): string[] => {
-			return extensionDescription.activationEvents ?? [];
-		}
+function createActivator(host: IExtensionsActivatorHost, extensionDescriptions: IExtensionDescription[], otherHostExtensionDescriptions: IExtensionDescription[] = []): ExtensionsActivator {
+	const registry = new ExtensionDescriptionRegistry(basicActivationEventsReader, extensionDescriptions);
+	const globalRegistry = new ExtensionDescriptionRegistry(basicActivationEventsReader, extensionDescriptions.concat(otherHostExtensionDescriptions));
+	return new ExtensionsActivator(registry, globalRegistry, host, new NullLogService());
+}
+
+function desc(id: ExtensionIdentifier, deps: ExtensionIdentifier[] = [], activationEvents: string[] = ['*']): IExtensionDescription {
+	return {
+		name: id.value,
+		publisher: 'test',
+		version: '0.0.0',
+		engines: { vscode: '^1.0.0' },
+		identifier: id,
+		extensionLocation: URI.parse(`nothing://nowhere`),
+		isBuiltin: false,
+		isUnderDevelopment: false,
+		isUserBuiltin: false,
+		activationEvents,
+		main: 'index.js',
+		targetPlatform: TargetPlatform.UNDEFINED,
+		extensionDependencies: deps.map(d => d.value),
+		enabledApiProposals: undefined,
+		preRelease: false,
 	};
-
-	function createActivator(host: IExtensionsActivatorHost, extensionDescriptions: IExtensionDescription[], otherHostExtensionDescriptions: IExtensionDescription[] = []): ExtensionsActivator {
-		const registry = new ExtensionDescriptionRegistry(basicActivationEventsReader, extensionDescriptions);
-		const globalRegistry = new ExtensionDescriptionRegistry(basicActivationEventsReader, extensionDescriptions.concat(otherHostExtensionDescriptions));
-		return new ExtensionsActivator(registry, globalRegistry, host, new NullLogService());
-	}
-
-	function desc(id: ExtensionIdentifier, deps: ExtensionIdentifier[] = [], activationEvents: string[] = ['*']): IExtensionDescription {
-		return {
-			name: id.value,
-			publisher: 'test',
-			version: '0.0.0',
-			engines: { vscode: '^1.0.0' },
-			identifier: id,
-			extensionLocation: URI.parse(`nothing://nowhere`),
-			isBuiltin: false,
-			isUnderDevelopment: false,
-			isUserBuiltin: false,
-			activationEvents,
-			main: 'index.js',
-			targetPlatform: TargetPlatform.UNDEFINED,
-			extensionDependencies: deps.map(d => d.value),
-			enabledApiProposals: undefined,
-			preRelease: false,
-		};
-	}
+}
 
 });

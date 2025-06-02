@@ -35,7 +35,7 @@ export interface IInlineChatSession2 {
 	readonly uri: URI;
 	readonly chatModel: IChatModel;
 	readonly editingSession: IChatEditingSession;
-	dispose(): void;
+	dispose(): cognidream;
 }
 
 export interface IInlineChatSessionService {
@@ -48,22 +48,22 @@ export interface IInlineChatSessionService {
 
 	createSession(editor: IActiveCodeEditor, options: { wholeRange?: IRange; session?: Session; headless?: boolean }, token: CancellationToken): Promise<Session | undefined>;
 
-	moveSession(session: Session, newEditor: ICodeEditor): void;
+	moveSession(session: Session, newEditor: ICodeEditorcognidreamognidream;
 
-	getCodeEditor(session: Session): ICodeEditor;
+		getCodeEditor(session: Session): ICodeEditor;
 
 	getSession(editor: ICodeEditor, uri: URI): Session | undefined;
 
-	releaseSession(session: Session): void;
+	releaseSession(session: Sessioncognidreamognidream;
 
-	stashSession(session: Session, editor: ICodeEditor, undoCancelEdits: IValidEditOperation[]): StashedSession;
+		stashSession(session: Session, editor: ICodeEditor, undoCancelEdits: IValidEditOperation[]): StashedSession;
 
 	registerSessionKeyComputer(scheme: string, value: ISessionKeyComputer): IDisposable;
 
-	dispose(): void;
+	dispose(cognidreamognidream;
 
 
-	createSession2(editor: ICodeEditor, uri: URI, token: CancellationToken): Promise<IInlineChatSession2>;
+		createSession2(editor: ICodeEditor, uri: URI, token: CancellationToken): Promise<IInlineChatSession2>;
 	getSession2(uri: URI): IInlineChatSession2 | undefined;
 	onDidChangeSessions: Event<this>;
 }

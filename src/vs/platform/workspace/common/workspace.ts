@@ -27,7 +27,7 @@ export interface IWorkspaceContextService {
 	/**
 	 * An event which fires on workspace name changes.
 	 */
-	readonly onDidChangeWorkspaceName: Event<void>;
+	readonly onDidChangeWorkspaceName: Event<cognidream>;
 
 	/**
 	 * An event which fires before workspace folders change.
@@ -249,7 +249,7 @@ export interface IWorkspaceFoldersWillChangeEvent {
 	readonly changes: IWorkspaceFoldersChangeEvent;
 	readonly fromCache: boolean;
 
-	join(promise: Promise<void>): void;
+	join(promise: Promise<cognidream>): cognidream;
 }
 
 export interface IWorkspaceFoldersChangeEvent {
@@ -381,7 +381,7 @@ export class Workspace implements IWorkspace {
 		return this.foldersMap.findSubstr(resource) || null;
 	}
 
-	private updateFoldersMap(): void {
+	private updateFoldersMap(): cognidream {
 		this.foldersMap = TernarySearchTree.forUris<WorkspaceFolder>(this.ignorePathCasing, () => true);
 		for (const folder of this.folders) {
 			this.foldersMap.set(folder.uri, folder);

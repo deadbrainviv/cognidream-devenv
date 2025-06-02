@@ -20,7 +20,7 @@ export class MenuHiddenStatesReset extends Action2 {
 		});
 	}
 
-	run(accessor: ServicesAccessor): void {
+	run(accessor: ServicesAccessor): cognidreamidream {
 		accessor.get(IMenuService).resetHiddenStates();
 		accessor.get(ILogService).info('did RESET all menu hidden states');
 	}

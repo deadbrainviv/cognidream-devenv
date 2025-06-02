@@ -788,7 +788,7 @@ async fn handle_serve(
 			let server = match server {
 				Ok(s) => s,
 				Err(e) => {
-					// we don't loop to avoid doing so infinitely: allow the client to reconnect in this case.
+					// we don't loop to acognidream doing so infinitely: allow the client to reconnect in this case.
 					if let AnyError::CodeError(CodeError::ServerUnexpectedExit(ref e)) = e {
 						warning!(
 							c.log,

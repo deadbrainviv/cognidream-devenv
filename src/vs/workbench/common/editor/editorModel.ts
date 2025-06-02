@@ -13,7 +13,7 @@ import { Disposable } from '../../../base/common/lifecycle.js';
  */
 export class EditorModel extends Disposable {
 
-	private readonly _onWillDispose = this._register(new Emitter<void>());
+	private readonly _onWillDispose = this._register(new Emitter<cognidream>());
 	readonly onWillDispose = this._onWillDispose.event;
 
 	private resolved = false;
@@ -21,30 +21,30 @@ export class EditorModel extends Disposable {
 	/**
 	 * Causes this model to resolve returning a promise when loading is completed.
 	 */
-	async resolve(): Promise<void> {
+	async resolve(): Promicognidreamognidream> {
 		this.resolved = true;
 	}
 
-	/**
-	 * Returns whether this model was loaded or not.
-	 */
-	isResolved(): boolean {
-		return this.resolved;
-	}
+/**
+ * Returns whether this model was loaded or not.
+ */
+isResolved(): boolean {
+	return this.resolved;
+}
 
-	/**
-	 * Find out if this model has been disposed.
-	 */
-	isDisposed(): boolean {
-		return this._store.isDisposed;
-	}
+/**
+ * Find out if this model has been disposed.
+ */
+isDisposed(): boolean {
+	return this._store.isDisposed;
+}
 
-	/**
-	 * Subclasses should implement to free resources that have been claimed through loading.
-	 */
-	override dispose(): void {
-		this._onWillDispose.fire();
+    /**
+     * Subclasses should implement to free resources that have been claimed through loading.
+     */
+    override dispose(cognidreamognidream {
+	this._onWillDispose.fire();
 
-		super.dispose();
-	}
+	super.dispose();
+}
 }

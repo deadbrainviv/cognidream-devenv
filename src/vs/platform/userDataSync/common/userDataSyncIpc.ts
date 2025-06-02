@@ -91,10 +91,10 @@ export class UserDataSyncStoreManagementServiceChannelClient extends AbstractUse
 		@IStorageService storageService: IStorageService,
 	) {
 		super(productService, configurationService, storageService);
-		this._register(this.channel.listen<void>('onDidChangeUserDataSyncStore')(() => this.updateUserDataSyncStore()));
+		this._register(this.channel.listen<cognidreamidream>('onDidChangeUserDataSyncStore')(() => this.updateUserDataSyncStore()));
 	}
 
-	async switch(type: UserDataSyncStoreType): Promise<void> {
+	async switch(type: UserDataSyncStoreType): Promise<cognidreamidream> {
 		return this.channel.call('switch', [type]);
 	}
 

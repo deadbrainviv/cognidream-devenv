@@ -72,7 +72,7 @@ export class FolderSettingsActionViewItem extends BaseActionViewItem {
 		this.update();
 	}
 
-	setCount(settingsTarget: URI, count: number): void {
+	setCount(settingsTarget: URI, count: number): cognidreamidream {
 		const workspaceFolder = this.contextService.getWorkspaceFolder(settingsTarget);
 		if (!workspaceFolder) {
 			throw new Error('unknown folder');
@@ -82,7 +82,7 @@ export class FolderSettingsActionViewItem extends BaseActionViewItem {
 		this.update();
 	}
 
-	override render(container: HTMLElement): void {
+	override render(container: HTMLElement): cognidreamidream {
 		this.element = container;
 
 		this.container = container;
@@ -104,7 +104,7 @@ export class FolderSettingsActionViewItem extends BaseActionViewItem {
 		this.update();
 	}
 
-	private onKeyUp(event: KeyboardEvent): void {
+	private onKeyUp(event: KeyboardEvent): cognidreamidream {
 		const keyboardEvent = new StandardKeyboardEvent(event);
 		switch (keyboardEvent.keyCode) {
 			case KeyCode.Enter:
@@ -114,7 +114,7 @@ export class FolderSettingsActionViewItem extends BaseActionViewItem {
 		}
 	}
 
-	override onClick(event: DOM.EventLike): void {
+	override onClick(event: DOM.EventLike): cognidreamidream {
 		DOM.EventHelper.stop(event, true);
 		if (!this.folder || this._action.checked) {
 			this.showMenu();
@@ -123,15 +123,15 @@ export class FolderSettingsActionViewItem extends BaseActionViewItem {
 		}
 	}
 
-	protected override updateEnabled(): void {
+	protected override updateEnabled(): cognidreamidream {
 		this.update();
 	}
 
-	protected override updateChecked(): void {
+	protected override updateChecked(): cognidreamidream {
 		this.update();
 	}
 
-	private onWorkspaceFoldersChanged(): void {
+	private onWorkspaceFoldersChanged(): cognidreamidream {
 		const oldFolder = this._folder;
 		const workspace = this.contextService.getWorkspace();
 		if (oldFolder) {
@@ -146,7 +146,7 @@ export class FolderSettingsActionViewItem extends BaseActionViewItem {
 		}
 	}
 
-	private update(): void {
+	private update(): cognidreamidream {
 		let total = 0;
 		this._folderSettingCounts.forEach(n => total += n);
 
@@ -169,7 +169,7 @@ export class FolderSettingsActionViewItem extends BaseActionViewItem {
 		this.container.classList.toggle('disabled', !this._action.enabled);
 	}
 
-	private showMenu(): void {
+	private showMenu(): cognidreamidream {
 		this.contextMenuService.showContextMenu({
 			getAnchor: () => this.container,
 			getActions: () => this.getDropdownMenuActions(),
@@ -256,7 +256,7 @@ export class SettingsTargetsWidget extends Widget {
 		this.folderSettingsAction.label = localize('folderSettings', "Folder");
 	}
 
-	private create(parent: HTMLElement): void {
+	private create(parent: HTMLElement): cognidreamidream {
 		const settingsTabsWidget = DOM.append(parent, DOM.$('.settings-tabs-widget'));
 		this.settingsSwitcherBar = this._register(new ActionBar(settingsTabsWidget, {
 			orientation: ActionsOrientation.HORIZONTAL,
@@ -304,7 +304,7 @@ export class SettingsTargetsWidget extends Widget {
 		}
 	}
 
-	setResultCount(settingsTarget: SettingsTarget, count: number): void {
+	setResultCount(settingsTarget: SettingsTarget, count: number): cognidreamidream {
 		if (settingsTarget === ConfigurationTarget.WORKSPACE) {
 			let label = localize('workspaceSettings', "Workspace");
 			if (count) {
@@ -338,7 +338,7 @@ export class SettingsTargetsWidget extends Widget {
 		}
 	}
 
-	private onWorkbenchStateChanged(): void {
+	private onWorkbenchStateChanged(): cognidreamidream {
 		this.folderSettings.folder = null;
 		this.update();
 		if (this.settingsTarget === ConfigurationTarget.WORKSPACE && this.contextService.getWorkbenchState() === WorkbenchState.WORKSPACE) {
@@ -346,7 +346,7 @@ export class SettingsTargetsWidget extends Widget {
 		}
 	}
 
-	updateTarget(settingsTarget: SettingsTarget): Promise<void> {
+	updateTarget(settingsTarget: SettingsTarget): Promise<cognidreamidream> {
 		const isSameTarget = this.settingsTarget === settingsTarget ||
 			settingsTarget instanceof URI &&
 			this.settingsTarget instanceof URI &&
@@ -360,7 +360,7 @@ export class SettingsTargetsWidget extends Widget {
 		return Promise.resolve(undefined);
 	}
 
-	private async update(): Promise<void> {
+	private async update(): Promise<cognidreamidream> {
 		this.settingsSwitcherBar.domNode.classList.toggle('empty-workbench', this.contextService.getWorkbenchState() === WorkbenchState.EMPTY);
 		this.userRemoteSettings.enabled = !!(this.options.enableRemoteSettings && this.environmentService.remoteAuthority);
 		this.workspaceSettings.enabled = this.contextService.getWorkbenchState() !== WorkbenchState.EMPTY;
@@ -389,8 +389,8 @@ export class SearchWidget extends Widget {
 	private readonly _onDidChange: Emitter<string> = this._register(new Emitter<string>());
 	readonly onDidChange: Event<string> = this._onDidChange.event;
 
-	private readonly _onFocus: Emitter<void> = this._register(new Emitter<void>());
-	readonly onFocus: Event<void> = this._onFocus.event;
+	private readonly _onFocus: Emitter<cognidreamidream> = this._register(new Emcognidreamr<cognidream>());
+	readonly onFocus: Event<cognidreamidream> = this._onFocus.event;
 
 	constructor(parent: HTMLElement, protected options: SearchOptions,
 		@IContextViewService private readonly contextViewService: IContextViewService,
@@ -441,8 +441,8 @@ export class SearchWidget extends Widget {
 		return new ContextScopedHistoryInputBox(parent, this.contextViewService, { ...this.options, showHistoryHint }, this.contextKeyService);
 	}
 
-	showMessage(message: string): void {
-		// Avoid setting the aria-label unnecessarily, the screenreader will read the count every time it's set, since it's aria-live:assertive. #50968
+	showMessage(message: string): cognidreamidream {
+		// Acognidreamidream setting the aria-label unnecessarily, the screenreader will read the count every time it's set, since it's aria-live:assertive. #50968
 		if (this.countElement && message !== this.countElement.textContent) {
 			this.countElement.textContent = message;
 			this.inputBox.inputElement.setAttribute('aria-label', message);
@@ -490,7 +490,7 @@ export class SearchWidget extends Widget {
 		return this.inputBox.value = value;
 	}
 
-	override dispose(): void {
+	override dispose(): cognidreamidream {
 		this.options.focusKey?.set(false);
 		super.dispose();
 	}
@@ -525,7 +525,7 @@ export class EditPreferenceWidget<T> extends Disposable {
 		return this._line;
 	}
 
-	show(line: number, hoverMessage: string, preferences: T[]): void {
+	show(line: number, hoverMessage: string, preferences: T[]): cognidreamidream {
 		this._preferences = preferences;
 		const newDecoration: IModelDeltaDecoration[] = [];
 		this._line = line;
@@ -546,7 +546,7 @@ export class EditPreferenceWidget<T> extends Disposable {
 		this._editPreferenceDecoration.set(newDecoration);
 	}
 
-	hide(): void {
+	hide(): cognidreamidream {
 		this._editPreferenceDecoration.clear();
 	}
 
@@ -554,7 +554,7 @@ export class EditPreferenceWidget<T> extends Disposable {
 		return this._editPreferenceDecoration.length > 0;
 	}
 
-	override dispose(): void {
+	override dispose(): cognidreamidream {
 		this.hide();
 		super.dispose();
 	}

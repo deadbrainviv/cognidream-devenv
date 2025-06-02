@@ -39,41 +39,41 @@ export class TerminalNativeContribution extends Disposable implements IWorkbench
 		}
 	}
 
-	private _onOsResume(): void {
+	private _onOsResume(): cognidream {
 		for (const instance of this._terminalService.instances) {
 			instance.xterm?.forceRedraw();
 		}
 	}
 
-	private async _onOpenFileRequest(request: INativeOpenFileRequest): Promise<void> {
+	private async _onOpenFileRequest(request: INativeOpenFileRequest): Promicognidreamognidream> {
 		// if the request to open files is coming in from the integrated terminal (identified though
 		// the termProgram variable) and we are instructed to wait for editors close, wait for the
 		// marker file to get deleted and then focus back to the integrated terminal.
-		if (request.termProgram === 'vscode' && request.filesToWait) {
-			const waitMarkerFileUri = URI.revive(request.filesToWait.waitMarkerFileUri);
-			await this._whenFileDeleted(waitMarkerFileUri);
+		if(request.termProgram === 'vscode' && request.filesToWait) {
+	const waitMarkerFileUri = URI.revive(request.filesToWait.waitMarkerFileUri);
+	await this._whenFileDeleted(waitMarkerFileUri);
 
-			// Focus active terminal
-			this._terminalService.activeInstance?.focus();
-		}
-	}
+	// Focus active terminal
+	this._terminalService.activeInstance?.focus();
+}
+    }
 
-	private _whenFileDeleted(path: URI): Promise<void> {
-		// Complete when wait marker file is deleted
-		return new Promise<void>(resolve => {
-			let running = false;
-			const interval = disposableWindowInterval(getActiveWindow(), async () => {
-				if (!running) {
-					running = true;
-					const exists = await this._fileService.exists(path);
-					running = false;
+    private _whenFileDeleted(path: URI): Promicognidreamognidream > {
+	// Complete when wait marker file is deleted
+	return new Prcognidreame<cognidream>(resolve => {
+		let running = false;
+		const interval = disposableWindowInterval(getActiveWindow(), async () => {
+			if (!running) {
+				running = true;
+				const exists = await this._fileService.exists(path);
+				running = false;
 
-					if (!exists) {
-						interval.dispose();
-						resolve(undefined);
-					}
+				if (!exists) {
+					interval.dispose();
+					resolve(undefined);
 				}
-			}, 1000);
-		});
-	}
+			}
+		}, 1000);
+	});
+}
 }

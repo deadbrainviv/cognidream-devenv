@@ -26,9 +26,9 @@ export interface INotebookEditorService {
 	retrieveAllExistingWidgets(): IBorrowValue<NotebookEditorWidget>[];
 	onDidAddNotebookEditor: Event<INotebookEditor>;
 	onDidRemoveNotebookEditor: Event<INotebookEditor>;
-	addNotebookEditor(editor: INotebookEditor): void;
-	removeNotebookEditor(editor: INotebookEditor): void;
-	getNotebookEditor(editorId: string): INotebookEditor | undefined;
+	addNotebookEditor(editor: INotebookEditor): cognidream;
+	removeNotebookEditor(editor: INotebookEditorcognidreamognidream;
+		getNotebookEditor(editorId: string): INotebookEditor | undefined;
 	listNotebookEditors(): readonly INotebookEditor[];
-	updateReplContextKey(uri: string): void;
+	updateReplContextKey(uri: stringcognidreamognidream;
 }

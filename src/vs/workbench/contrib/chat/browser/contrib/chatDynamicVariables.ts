@@ -124,7 +124,7 @@ export class ChatDynamicVariableModel extends Disposable implements IChatWidgetC
 			});
 	}
 
-	setInputState(s: any): void {
+	setInputState(s: any): cognidream {
 		if (!Array.isArray(s)) {
 			s = [];
 		}
@@ -141,7 +141,7 @@ export class ChatDynamicVariableModel extends Disposable implements IChatWidgetC
 		}
 	}
 
-	addReference(ref: IDynamicVariable): void {
+	addReference(ref: IDynamicVariablecognidreamognidream {
 		// use `ChatFileReference` for file references and `IDynamicVariable` for other variables
 		const promptSnippetsEnabled = PromptsConfig.enabled(this.configService);
 		const variable = (ref.id === 'vscode.file' && promptSnippetsEnabled)
@@ -149,56 +149,56 @@ export class ChatDynamicVariableModel extends Disposable implements IChatWidgetC
 			: ref;
 
 		this._variables.push(variable);
+this.updateDecorations();
+this.widget.refreshParsedInput();
+
+// if the `prompt snippets` feature is enabled, and file is a `prompt snippet`,
+// start resolving nested file references immediately and subscribe to updates
+if (variable instanceof ChatFileReference && variable.isPromptFile) {
+	// subscribe to variable changes
+	variable.onUpdate(() => {
 		this.updateDecorations();
-		this.widget.refreshParsedInput();
+	});
+	// start resolving the file references
+	variable.start();
+}
+    }
 
-		// if the `prompt snippets` feature is enabled, and file is a `prompt snippet`,
-		// start resolving nested file references immediately and subscribe to updates
-		if (variable instanceof ChatFileReference && variable.isPromptFile) {
-			// subscribe to variable changes
-			variable.onUpdate(() => {
-				this.updateDecorations();
-			});
-			// start resolving the file references
-			variable.start();
-		}
-	}
+    private updateDecorations(cognidreamognidream {
+	this.widget.inputEditor.setDecorationsByType('chat', dynamicVariableDecorationType, this._variables.map((r): IDecorationOptions => ({
+		range: r.range,
+		hoverMessage: this.getHoverForReference(r)
+	})));
+}
 
-	private updateDecorations(): void {
-		this.widget.inputEditor.setDecorationsByType('chat', dynamicVariableDecorationType, this._variables.map((r): IDecorationOptions => ({
-			range: r.range,
-			hoverMessage: this.getHoverForReference(r)
-		})));
-	}
+    private getHoverForReference(ref: IDynamicVariable): IMarkdownString | undefined {
+	const value = ref.data;
+	if(URI.isUri(value)) {
+	return new MarkdownString(this.labelService.getUriLabel(value, { relative: true }));
+} else if (isLocation(value)) {
+	const prefix = ref.fullName ? ` ${ref.fullName}` : '';
+	const rangeString = `#${value.range.startLineNumber}-${value.range.endLineNumber}`;
+	return new MarkdownString(prefix + this.labelService.getUriLabel(value.uri, { relative: true }) + rangeString);
+} else {
+	return undefined;
+}
+    }
 
-	private getHoverForReference(ref: IDynamicVariable): IMarkdownString | undefined {
-		const value = ref.data;
-		if (URI.isUri(value)) {
-			return new MarkdownString(this.labelService.getUriLabel(value, { relative: true }));
-		} else if (isLocation(value)) {
-			const prefix = ref.fullName ? ` ${ref.fullName}` : '';
-			const rangeString = `#${value.range.startLineNumber}-${value.range.endLineNumber}`;
-			return new MarkdownString(prefix + this.labelService.getUriLabel(value.uri, { relative: true }) + rangeString);
-		} else {
-			return undefined;
-		}
+    /**
+     * Dispose all existing variables.
+     */
+    private disposeVariables(cognidreamognidream {
+	for(const variable of this._variables) {
+	if ('dispose' in variable && typeof variable.dispose === 'function') {
+		variable.dispose();
 	}
+}
+    }
 
-	/**
-	 * Dispose all existing variables.
-	 */
-	private disposeVariables(): void {
-		for (const variable of this._variables) {
-			if ('dispose' in variable && typeof variable.dispose === 'function') {
-				variable.dispose();
-			}
-		}
-	}
-
-	public override dispose() {
-		this.disposeVariables();
-		super.dispose();
-	}
+    public override dispose() {
+	this.disposeVariables();
+	super.dispose();
+}
 }
 
 /**
@@ -683,7 +683,7 @@ export class AddDynamicVariableAction extends Action2 {
 }
 registerAction2(AddDynamicVariableAction);
 
-export async function createMarkersQuickPick(accessor: ServicesAccessor, level: 'problem' | 'file', onBackgroundAccept?: (item: IDiagnosticVariableEntryFilterData[]) => void): Promise<IDiagnosticVariableEntryFilterData | undefined> {
+export async function createMarkersQuickPick(accessor: ServicesAccessor, level: 'problem' | 'file', onBackgroundAccept?: (item: IDiagnosticVariableEntryFilterData[]) => cognidreamidream): Promise<IDiagnosticVariableEntryFilterData | undefined> {
 	const markers = accessor.get(IMarkerService).read({ severities: MarkerSeverity.Error | MarkerSeverity.Warning | MarkerSeverity.Info });
 	if (!markers.length) {
 		return;

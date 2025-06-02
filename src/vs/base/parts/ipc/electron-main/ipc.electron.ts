@@ -12,15 +12,15 @@ import { ClientConnectionEvent, IPCServer } from '../common/ipc.js';
 import { Protocol as ElectronProtocol } from '../common/ipc.electron.js';
 
 interface IIPCEvent {
-	event: { sender: WebContents };
-	message: Buffer | null;
+    event: { sender: WebContents };
+    message: Buffer | null;
 }
 
 function createScopedOnMessageEvent(senderId: number, eventName: string): Event<VSBuffer | null> {
-	const onMessage = Event.fromNodeEventEmitter<IIPCEvent>(validatedIpcMain, eventName, (event, message) => ({ event, message }));
-	const onMessageFromSender = Event.filter(onMessage, ({ event }) => event.sender.id === senderId);
+    const onMessage = Event.fromNodeEventEmitter<IIPCEvent>(validatedIpcMain, eventName, (event, message) => ({ event, message }));
+    const onMessageFromSender = Event.filter(onMessage, ({ event }) => event.sender.id === senderId);
 
-	return Event.map(onMessageFromSender, ({ message }) => message ? VSBuffer.wrap(message) : message);
+    return Event.map(onMessageFromSender, ({ message }) => message ? VSBuffer.wrap(message) : message);
 }
 
 /**
@@ -28,29 +28,29 @@ function createScopedOnMessageEvent(senderId: number, eventName: string): Event<
  */
 export class Server extends IPCServer {
 
-	private static readonly Clients = new Map<number, IDisposable>();
+    private static readonly Clients = new Map<number, IDisposable>();
 
-	private static getOnDidClientConnect(): Event<ClientConnectionEvent> {
-		const onHello = Event.fromNodeEventEmitter<WebContents>(validatedIpcMain, 'vscode:hello', ({ sender }) => sender);
+    private static getOnDidClientConnect(): Event<ClientConnectionEvent> {
+        const onHello = Event.fromNodeEventEmitter<WebContents>(validatedIpcMain, 'vscode:hello', ({ sender }) => sender);
 
-		return Event.map(onHello, webContents => {
-			const id = webContents.id;
-			const client = Server.Clients.get(id);
+        return Event.map(onHello, webContents => {
+            const id = webContents.id;
+            const client = Server.Clients.get(id);
 
-			client?.dispose();
+            client?.dispose();
 
-			const onDidClientReconnect = new Emitter<void>();
-			Server.Clients.set(id, toDisposable(() => onDidClientReconnect.fire()));
+            const onDidClientReconnect = new Emitter<cognidream>();
+            Server.Clients.set(id, toDisposable(() => onDidClientReconnect.fire()));
 
-			const onMessage = createScopedOnMessageEvent(id, 'vscode:message') as Event<VSBuffer>;
-			const onDidClientDisconnect = Event.any(Event.signal(createScopedOnMessageEvent(id, 'vscode:disconnect')), onDidClientReconnect.event);
-			const protocol = new ElectronProtocol(webContents, onMessage);
+            const onMessage = createScopedOnMessageEvent(id, 'vscode:message') as Event<VSBuffer>;
+            const onDidClientDisconnect = Event.any(Event.signal(createScopedOnMessageEvent(id, 'vscode:disconnect')), onDidClientReconnect.event);
+            const protocol = new ElectronProtocol(webContents, onMessage);
 
-			return { protocol, onDidClientDisconnect };
-		});
-	}
+            return { protocol, onDidClientDisconnect };
+        });
+    }
 
-	constructor() {
-		super(Server.getOnDidClientConnect());
-	}
+    constructor() {
+        super(Server.getOnDidClientConnect());
+    }
 }

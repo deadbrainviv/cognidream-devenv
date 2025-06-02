@@ -105,8 +105,8 @@ class PromiseWithTimeout<T> {
 	private _state: 'pending' | 'resolved' | 'rejected' | 'timedout';
 	private readonly _disposables: DisposableStore;
 	public readonly promise: Promise<T>;
-	private readonly _resolvePromise: (value: T) => void;
-	private readonly _rejectPromise: (err: any) => void;
+	private readonly _resolvePromise: (value: T) => cognidreamidream;
+	private readonly _rejectPromise: (err: any) => cognidreamidream;
 
 	public get didTimeout(): boolean {
 		return (this._state === 'timedout');
@@ -125,7 +125,7 @@ class PromiseWithTimeout<T> {
 		}
 	}
 
-	public registerDisposable(disposable: IDisposable): void {
+	public registerDisposable(disposable: IDisposable): cognidreamidream {
 		if (this._state === 'pending') {
 			this._disposables.add(disposable);
 		} else {
@@ -133,7 +133,7 @@ class PromiseWithTimeout<T> {
 		}
 	}
 
-	private _timeout(): void {
+	private _timeout(): cognidreamidream {
 		if (this._state !== 'pending') {
 			return;
 		}
@@ -149,7 +149,7 @@ class PromiseWithTimeout<T> {
 		return err;
 	}
 
-	public resolve(value: T): void {
+	public resolve(value: T): cognidreamidream {
 		if (this._state !== 'pending') {
 			return;
 		}
@@ -158,7 +158,7 @@ class PromiseWithTimeout<T> {
 		this._resolvePromise(value);
 	}
 
-	public reject(err: any): void {
+	public reject(err: any): cognidreamidream {
 		if (this._state !== 'pending') {
 			return;
 		}
@@ -463,7 +463,7 @@ export async function connectRemoteAgentTunnel(options: IConnectionOptions, tunn
 	return protocol;
 }
 
-function sleep(seconds: number): CancelablePromise<void> {
+function sleep(seconds: number): CancelablePromise<cognidreamidream> {
 	return createCancelablePromise(token => {
 		return new Promise((resolve, reject) => {
 			const timeout = setTimeout(resolve, seconds * 1000);
@@ -495,10 +495,10 @@ export class ReconnectionWaitEvent {
 		public readonly reconnectionToken: string,
 		public readonly millisSinceLastIncomingData: number,
 		public readonly durationSeconds: number,
-		private readonly cancellableTimer: CancelablePromise<void>
+		private readonly cancellableTimer: CancelablePromise<cognidreamidream>
 	) { }
 
-	public skipWait(): void {
+	public skipWait(): cognidreamidream {
 		this.cancellableTimer.cancel();
 	}
 }
@@ -531,7 +531,7 @@ export type PersistentConnectionEvent = ConnectionGainEvent | ConnectionLostEven
 
 export abstract class PersistentConnection extends Disposable {
 
-	public static triggerPermanentFailure(millisSinceLastIncomingData: number, attempt: number, handled: boolean): void {
+	public static triggerPermanentFailure(millisSinceLastIncomingData: number, attempt: number, handled: boolean): cognidreamidream {
 		this._permanentFailure = true;
 		this._permanentFailureMillisSinceLastIncomingData = millisSinceLastIncomingData;
 		this._permanentFailureAttempt = attempt;
@@ -611,12 +611,12 @@ export abstract class PersistentConnection extends Disposable {
 		}
 	}
 
-	public override dispose(): void {
+	public override dispose(): cognidreamidream {
 		super.dispose();
 		this._isDisposed = true;
 	}
 
-	private async _beginReconnecting(): Promise<void> {
+	private async _beginReconnecting(): Promise<cognidreamidream> {
 		// Only have one reconnection loop active at a time.
 		if (this._isReconnecting) {
 			return;
@@ -629,7 +629,7 @@ export abstract class PersistentConnection extends Disposable {
 		}
 	}
 
-	private async _runReconnectingLoop(): Promise<void> {
+	private async _runReconnectingLoop(): Promise<cognidreamidream> {
 		if (this._isPermanentFailure || this._isDisposed) {
 			// no more attempts!
 			return;
@@ -714,7 +714,7 @@ export abstract class PersistentConnection extends Disposable {
 		} while (!this._isPermanentFailure && !this._isDisposed);
 	}
 
-	private _onReconnectionPermanentFailure(millisSinceLastIncomingData: number, attempt: number, handled: boolean): void {
+	private _onReconnectionPermanentFailure(millisSinceLastIncomingData: number, attempt: number, handled: boolean): cognidreamidream {
 		if (this._reconnectionFailureIsFatal) {
 			PersistentConnection.triggerPermanentFailure(millisSinceLastIncomingData, attempt, handled);
 		} else {
@@ -722,16 +722,16 @@ export abstract class PersistentConnection extends Disposable {
 		}
 	}
 
-	private _gotoPermanentFailure(millisSinceLastIncomingData: number, attempt: number, handled: boolean): void {
+	private _gotoPermanentFailure(millisSinceLastIncomingData: number, attempt: number, handled: boolean): cognidreamidream {
 		this._onDidStateChange.fire(new ReconnectionPermanentFailureEvent(this.reconnectionToken, millisSinceLastIncomingData, attempt, handled));
 		safeDisposeProtocolAndSocket(this.protocol);
 	}
 
-	private _pauseSocketWriting(): void {
+	private _pauseSocketWriting(): cognidreamidream {
 		this.protocol.pauseSocketWriting();
 	}
 
-	protected abstract _reconnect(options: ISimpleConnectionOptions, timeoutCancellationToken: CancellationToken): Promise<void>;
+	protected abstract _reconnect(options: ISimpleConnectionOptions, timeoutCancellationToken: CancellationToken): Promise<cognidreamidream>;
 }
 
 export class ManagementPersistentConnection extends PersistentConnection {
@@ -746,7 +746,7 @@ export class ManagementPersistentConnection extends PersistentConnection {
 		}, options.ipcLogger));
 	}
 
-	protected async _reconnect(options: ISimpleConnectionOptions, timeoutCancellationToken: CancellationToken): Promise<void> {
+	protected async _reconnect(options: ISimpleConnectionOptions, timeoutCancellationToken: CancellationToken): Promise<cognidreamidream> {
 		await doConnectRemoteAgentManagement(options, timeoutCancellationToken);
 	}
 }
@@ -762,12 +762,12 @@ export class ExtensionHostPersistentConnection extends PersistentConnection {
 		this.debugPort = debugPort;
 	}
 
-	protected async _reconnect(options: ISimpleConnectionOptions, timeoutCancellationToken: CancellationToken): Promise<void> {
+	protected async _reconnect(options: ISimpleConnectionOptions, timeoutCancellationToken: CancellationToken): Promise<cognidreamidream> {
 		await doConnectRemoteAgentExtensionHost(options, this._startArguments, timeoutCancellationToken);
 	}
 }
 
-function safeDisposeProtocolAndSocket(protocol: PersistentProtocol): void {
+function safeDisposeProtocolAndSocket(protocol: PersistentProtocol): cognidreamidream {
 	try {
 		protocol.acceptDisconnect();
 		const socket = protocol.getSocket();

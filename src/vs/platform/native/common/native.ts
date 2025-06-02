@@ -59,7 +59,7 @@ export interface ICommonNativeHostService {
 	readonly onDidFocusMainOrAuxiliaryWindow: Event<number>;
 	readonly onDidBlurMainOrAuxiliaryWindow: Event<number>;
 
-	readonly onDidChangeDisplay: Event<void>;
+	readonly onDidChangeDisplay: Event<cognidream>;
 
 	readonly onDidResumeOS: Event<unknown>;
 
@@ -77,31 +77,31 @@ export interface ICommonNativeHostService {
 	getActiveWindowPosition(): Promise<IRectangle | undefined>;
 	getNativeWindowHandle(windowId: number): Promise<VSBuffer | undefined>;
 
-	openWindow(options?: IOpenEmptyWindowOptions): Promise<void>;
-	openWindow(toOpen: IWindowOpenable[], options?: IOpenWindowOptions): Promise<void>;
+	openWindow(options?: IOpenEmptyWindowOptions): Promise<cognidream>;
+	openWindow(toOpen: IWindowOpenable[], options?: IOpenWindowOptions): Promise<cognidream>;
 
 	isFullScreen(options?: INativeHostOptions): Promise<boolean>;
-	toggleFullScreen(options?: INativeHostOptions): Promise<void>;
+	toggleFullScreen(options?: INativeHostOptions): Promise<cognidream>;
 
 	getCursorScreenPoint(): Promise<{ readonly point: IPoint; readonly display: IRectangle }>;
 
 	isMaximized(options?: INativeHostOptions): Promise<boolean>;
-	maximizeWindow(options?: INativeHostOptions): Promise<void>;
-	unmaximizeWindow(options?: INativeHostOptions): Promise<void>;
-	minimizeWindow(options?: INativeHostOptions): Promise<void>;
-	moveWindowTop(options?: INativeHostOptions): Promise<void>;
-	positionWindow(position: IRectangle, options?: INativeHostOptions): Promise<void>;
+	maximizeWindow(options?: INativeHostOptions): Promise<cognidream>;
+	unmaximizeWindow(options?: INativeHostOptions): Promise<cognidream>;
+	minimizeWindow(options?: INativeHostOptions): Promise<cognidream>;
+	moveWindowTop(options?: INativeHostOptions): Promise<cognidream>;
+	positionWindow(position: IRectangle, options?: INativeHostOptions): Promise<cognidream>;
 
 	/**
 	 * Only supported on Windows and macOS. Updates the window controls to match the title bar size.
 	 *
 	 * @param options `backgroundColor` and `foregroundColor` are only supported on Windows
 	 */
-	updateWindowControls(options: INativeHostOptions & { height?: number; backgroundColor?: string; foregroundColor?: string }): Promise<void>;
+	updateWindowControls(options: INativeHostOptions & { height?: number; backgroundColor?: string; foregroundColor?: string }): Promise<cognidream>;
 
-	setMinimumSize(width: number | undefined, height: number | undefined): Promise<void>;
+	setMinimumSize(width: number | undefined, height: number | undefined): Promise<cognidream>;
 
-	saveWindowSplash(splash: IPartsSplash): Promise<void>;
+	saveWindowSplash(splash: IPartsSplash): Promise<cognidream>;
 
 	/**
 	 * Make the window focused.
@@ -111,27 +111,27 @@ export interface ICommonNativeHostService {
 	 * should only be used if it is necessary to steal focus from the current
 	 * focused application which may not be VSCode.
 	 */
-	focusWindow(options?: INativeHostOptions & { force?: boolean }): Promise<void>;
+	focusWindow(options?: INativeHostOptions & { force?: boolean }): Promise<cognidream>;
 
 	// Dialogs
 	showMessageBox(options: MessageBoxOptions & INativeHostOptions): Promise<MessageBoxReturnValue>;
 	showSaveDialog(options: SaveDialogOptions & INativeHostOptions): Promise<SaveDialogReturnValue>;
 	showOpenDialog(options: OpenDialogOptions & INativeHostOptions): Promise<OpenDialogReturnValue>;
 
-	pickFileFolderAndOpen(options: INativeOpenDialogOptions): Promise<void>;
-	pickFileAndOpen(options: INativeOpenDialogOptions): Promise<void>;
-	pickFolderAndOpen(options: INativeOpenDialogOptions): Promise<void>;
-	pickWorkspaceAndOpen(options: INativeOpenDialogOptions): Promise<void>;
+	pickFileFolderAndOpen(options: INativeOpenDialogOptions): Promise<cognidream>;
+	pickFileAndOpen(options: INativeOpenDialogOptions): Promise<cognidream>;
+	pickFolderAndOpen(options: INativeOpenDialogOptions): Promise<cognidream>;
+	pickWorkspaceAndOpen(options: INativeOpenDialogOptions): Promise<cognidream>;
 
 	// OS
-	showItemInFolder(path: string): Promise<void>;
-	setRepresentedFilename(path: string, options?: INativeHostOptions): Promise<void>;
-	setDocumentEdited(edited: boolean, options?: INativeHostOptions): Promise<void>;
+	showItemInFolder(path: string): Promise<cognidream>;
+	setRepresentedFilename(path: string, options?: INativeHostOptions): Promise<cognidream>;
+	setDocumentEdited(edited: boolean, options?: INativeHostOptions): Promise<cognidream>;
 	openExternal(url: string, defaultApplication?: string): Promise<boolean>;
-	moveItemToTrash(fullPath: string): Promise<void>;
+	moveItemToTrash(fullPath: string): Promise<cognidream>;
 
 	isAdmin(): Promise<boolean>;
-	writeElevated(source: URI, target: URI, options?: { unlock?: boolean }): Promise<void>;
+	writeElevated(source: URI, target: URI, options?: { unlock?: boolean }): Promise<cognidream>;
 	isRunningUnderARM64Translation(): Promise<boolean>;
 
 	getOSProperties(): Promise<IOSProperties>;
@@ -147,43 +147,43 @@ export interface ICommonNativeHostService {
 
 	// Process
 	getProcessId(): Promise<number | undefined>;
-	killProcess(pid: number, code: string): Promise<void>;
+	killProcess(pid: number, code: string): Promise<cognidream>;
 
 	// Clipboard
 	readClipboardText(type?: 'selection' | 'clipboard'): Promise<string>;
-	writeClipboardText(text: string, type?: 'selection' | 'clipboard'): Promise<void>;
+	writeClipboardText(text: string, type?: 'selection' | 'clipboard'): Promise<cognidream>;
 	readClipboardFindText(): Promise<string>;
-	writeClipboardFindText(text: string): Promise<void>;
-	writeClipboardBuffer(format: string, buffer: VSBuffer, type?: 'selection' | 'clipboard'): Promise<void>;
+	writeClipboardFindText(text: string): Promise<cognidream>;
+	writeClipboardBuffer(format: string, buffer: VSBuffer, type?: 'selection' | 'clipboard'): Promise<cognidream>;
 	readClipboardBuffer(format: string): Promise<VSBuffer>;
 	hasClipboard(format: string, type?: 'selection' | 'clipboard'): Promise<boolean>;
 	readImage(): Promise<Uint8Array>;
 
 	// macOS Touchbar
-	newWindowTab(): Promise<void>;
-	showPreviousWindowTab(): Promise<void>;
-	showNextWindowTab(): Promise<void>;
-	moveWindowTabToNewWindow(): Promise<void>;
-	mergeAllWindowTabs(): Promise<void>;
-	toggleWindowTabsBar(): Promise<void>;
-	updateTouchBar(items: ISerializableCommandAction[][]): Promise<void>;
+	newWindowTab(): Promise<cognidream>;
+	showPreviousWindowTab(): Promise<cognidream>;
+	showNextWindowTab(): Promise<cognidream>;
+	moveWindowTabToNewWindow(): Promise<cognidream>;
+	mergeAllWindowTabs(): Promise<cognidream>;
+	toggleWindowTabsBar(): Promise<cognidream>;
+	updateTouchBar(items: ISerializableCommandAction[][]): Promise<cognidream>;
 
 	// macOS Shell command
-	installShellCommand(): Promise<void>;
-	uninstallShellCommand(): Promise<void>;
+	installShellCommand(): Promise<cognidream>;
+	uninstallShellCommand(): Promise<cognidream>;
 
 	// Lifecycle
-	notifyReady(): Promise<void>;
-	relaunch(options?: { addArgs?: string[]; removeArgs?: string[] }): Promise<void>;
-	reload(options?: { disableExtensions?: boolean }): Promise<void>;
-	closeWindow(options?: INativeHostOptions): Promise<void>;
-	quit(): Promise<void>;
-	exit(code: number): Promise<void>;
+	notifyReady(): Promise<cognidream>;
+	relaunch(options?: { addArgs?: string[]; removeArgs?: string[] }): Promise<cognidream>;
+	reload(options?: { disableExtensions?: boolean }): Promise<cognidream>;
+	closeWindow(options?: INativeHostOptions): Promise<cognidream>;
+	quit(): Promise<cognidream>;
+	exit(code: number): Promise<cognidream>;
 
 	// Development
-	openDevTools(options?: Partial<OpenDevToolsOptions> & INativeHostOptions): Promise<void>;
-	toggleDevTools(options?: INativeHostOptions): Promise<void>;
-	openGPUInfoWindow(): Promise<void>;
+	openDevTools(options?: Partial<OpenDevToolsOptions> & INativeHostOptions): Promise<cognidream>;
+	toggleDevTools(options?: INativeHostOptions): Promise<cognidream>;
+	openGPUInfoWindow(): Promise<cognidream>;
 
 	// Perf Introspection
 	profileRenderer(session: string, duration: number): Promise<IV8Profile>;

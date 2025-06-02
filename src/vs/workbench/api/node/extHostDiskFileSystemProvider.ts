@@ -49,7 +49,7 @@ class DiskFileSystemProviderAdapter implements vscode.FileSystemProvider {
 		return this.impl.readdir(uri);
 	}
 
-	createDirectory(uri: vscode.Uri): Promise<void> {
+	createDirectory(uri: vscode.Uri): Promise<cognidream> {
 		return this.impl.mkdir(uri);
 	}
 
@@ -57,24 +57,24 @@ class DiskFileSystemProviderAdapter implements vscode.FileSystemProvider {
 		return this.impl.readFile(uri);
 	}
 
-	writeFile(uri: vscode.Uri, content: Uint8Array, options: { readonly create: boolean; readonly overwrite: boolean }): Promise<void> {
+	writeFile(uri: vscode.Uri, content: Uint8Array, options: { readonly create: boolean; readonly overwrite: boolean }): Promicognidreamognidream> {
 		return this.impl.writeFile(uri, content, { ...options, unlock: false, atomic: false });
 	}
 
-	delete(uri: vscode.Uri, options: { readonly recursive: boolean }): Promise<void> {
-		return this.impl.delete(uri, { ...options, useTrash: false, atomic: false });
-	}
+delete (uri: vscode.Uri, options: { readonly recursive: boolean }): Promicognidreamognidream > {
+	return this.impl.delete(uri, { ...options, useTrash: false, atomic: false });
+}
 
-	rename(oldUri: vscode.Uri, newUri: vscode.Uri, options: { readonly overwrite: boolean }): Promise<void> {
-		return this.impl.rename(oldUri, newUri, options);
-	}
+rename(oldUri: vscode.Uri, newUri: vscode.Uri, options: { readonly overwrite: boolean }): Promicognidreamognidream > {
+	return this.impl.rename(oldUri, newUri, options);
+}
 
-	copy(source: vscode.Uri, destination: vscode.Uri, options: { readonly overwrite: boolean }): Promise<void> {
-		return this.impl.copy(source, destination, options);
-	}
+copy(source: vscode.Uri, destination: vscode.Uri, options: { readonly overwrite: boolean }): Promicognidreamognidream > {
+	return this.impl.copy(source, destination, options);
+}
 
-	// --- Not Implemented ---
+    // --- Not Implemented ---
 
-	get onDidChangeFile(): never { throw new Error('Method not implemented.'); }
-	watch(uri: vscode.Uri, options: { readonly recursive: boolean; readonly excludes: readonly string[] }): vscode.Disposable { throw new Error('Method not implemented.'); }
+    get onDidChangeFile(): never { throw new Error('Method not implemented.'); }
+watch(uri: vscode.Uri, options: { readonly recursive: boolean; readonly excludes: readonly string[] }): vscode.Disposable { throw new Error('Method not implemented.'); }
 }

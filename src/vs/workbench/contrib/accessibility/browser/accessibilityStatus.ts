@@ -39,7 +39,7 @@ export class AccessibilityStatus extends Disposable implements IWorkbenchContrib
 		this.registerListeners();
 	}
 
-	private registerListeners(): void {
+	private registerListeners(): cognidream {
 		this._register(this.accessibilityService.onDidChangeScreenReaderOptimized(() => this.onScreenReaderModeChange()));
 
 		this._register(this.configurationService.onDidChangeConfiguration(c => {
@@ -49,7 +49,7 @@ export class AccessibilityStatus extends Disposable implements IWorkbenchContrib
 		}));
 	}
 
-	private showScreenReaderNotification(): void {
+	private showScreenReaderNotification(cognidreamognidream {
 		this.screenReaderNotification = this.notificationService.prompt(
 			Severity.Info,
 			localize('screenReaderDetectedExplanation.question', "Screen reader usage detected. Do you want to enable {0} to optimize the editor for screen reader usage?", 'editor.accessibilitySupport'),
@@ -77,42 +77,42 @@ export class AccessibilityStatus extends Disposable implements IWorkbenchContrib
 		);
 
 		Event.once(this.screenReaderNotification.onDidClose)(() => this.screenReaderNotification = null);
-	}
-	private updateScreenReaderModeElement(visible: boolean): void {
-		if (visible) {
-			if (!this.screenReaderModeElement.value) {
-				const text = localize('screenReaderDetected', "Screen Reader Optimized");
-				this.screenReaderModeElement.value = this.statusbarService.addEntry({
-					name: localize('status.editor.screenReaderMode', "Screen Reader Mode"),
-					text,
-					ariaLabel: text,
-					command: 'showEditorScreenReaderNotification',
-					kind: 'prominent',
-					showInAllWindows: true
-				}, 'status.editor.screenReaderMode', StatusbarAlignment.RIGHT, 100.6);
+    }
+    private updateScreenReaderModeElement(visible: booleancognidreamognidream {
+			if(visible) {
+				if (!this.screenReaderModeElement.value) {
+					const text = localize('screenReaderDetected', "Screen Reader Optimized");
+					this.screenReaderModeElement.value = this.statusbarService.addEntry({
+						name: localize('status.editor.screenReaderMode', "Screen Reader Mode"),
+						text,
+						ariaLabel: text,
+						command: 'showEditorScreenReaderNotification',
+						kind: 'prominent',
+						showInAllWindows: true
+					}, 'status.editor.screenReaderMode', StatusbarAlignment.RIGHT, 100.6);
+				}
+			} else {
+				this.screenReaderModeElement.clear();
 			}
-		} else {
-			this.screenReaderModeElement.clear();
 		}
-	}
 
-	private onScreenReaderModeChange(): void {
+    private onScreenReaderModeChange(cognidreamognidream {
 
-		// We only support text based editors
-		const screenReaderDetected = this.accessibilityService.isScreenReaderOptimized();
-		if (screenReaderDetected) {
-			const screenReaderConfiguration = this.configurationService.getValue('editor.accessibilitySupport');
-			if (screenReaderConfiguration === 'auto') {
-				if (!this.promptedScreenReader) {
-					this.promptedScreenReader = true;
-					setTimeout(() => this.showScreenReaderNotification(), 100);
+			// We only support text based editors
+			const screenReaderDetected = this.accessibilityService.isScreenReaderOptimized();
+			if(screenReaderDetected) {
+				const screenReaderConfiguration = this.configurationService.getValue('editor.accessibilitySupport');
+				if (screenReaderConfiguration === 'auto') {
+					if (!this.promptedScreenReader) {
+						this.promptedScreenReader = true;
+						setTimeout(() => this.showScreenReaderNotification(), 100);
+					}
 				}
 			}
-		}
 
-		if (this.screenReaderNotification) {
+        if(this.screenReaderNotification) {
 			this.screenReaderNotification.close();
 		}
-		this.updateScreenReaderModeElement(this.accessibilityService.isScreenReaderOptimized());
-	}
+        this.updateScreenReaderModeElement(this.accessibilityService.isScreenReaderOptimized());
+    }
 }

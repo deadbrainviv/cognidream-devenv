@@ -642,7 +642,7 @@ export class PredictionStats extends Disposable {
 	private readonly _stats: [latency: number, correct: boolean][] = [];
 	private _index = 0;
 	private readonly _addedAtTime = new WeakMap<IPrediction, number>();
-	private readonly _changeEmitter = new Emitter<void>();
+	private readonly _changeEmitter = new Emitter<cognidream>();
 	readonly onChange = this._changeEmitter.event;
 
 	/**
@@ -971,70 +971,70 @@ export class PredictionTimeline {
 	 * after this one will only be displayed after the give prediction matches
 	 * pty output/
 	 */
-	addBoundary(): void;
-	addBoundary(buffer: IBuffer, prediction: IPrediction): boolean;
-	addBoundary(buffer?: IBuffer, prediction?: IPrediction) {
-		let applied = false;
-		if (buffer && prediction) {
-			// We apply the prediction so that it's matched against, but wrapped
-			// in a tentativeboundary so that it doesn't affect the physical cursor.
-			// Then we apply it specifically to the tentative cursor.
-			applied = this.addPrediction(buffer, new TentativeBoundary(prediction));
-			prediction.apply(buffer, this.tentativeCursor(buffer));
+	addBoundary(cognidreamognidream;
+		addBoundary(buffer: IBuffer, prediction: IPrediction): boolean;
+addBoundary(buffer ?: IBuffer, prediction ?: IPrediction) {
+	let applied = false;
+	if (buffer && prediction) {
+		// We apply the prediction so that it's matched against, but wrapped
+		// in a tentativeboundary so that it doesn't affect the physical cursor.
+		// Then we apply it specifically to the tentative cursor.
+		applied = this.addPrediction(buffer, new TentativeBoundary(prediction));
+		prediction.apply(buffer, this.tentativeCursor(buffer));
+	}
+	this._currentGen++;
+	return applied;
+}
+
+/**
+ * Peeks the last prediction written.
+ */
+peekEnd(): IPrediction | undefined {
+	return this._expected[this._expected.length - 1]?.p;
+}
+
+/**
+ * Peeks the first pending prediction.
+ */
+peekStart(): IPrediction | undefined {
+	return this._expected[0]?.p;
+}
+
+/**
+ * Current position of the cursor in the terminal.
+ */
+physicalCursor(buffer: IBuffer) {
+	if (!this._physicalCursor) {
+		if (this._showPredictions) {
+			flushOutput(this.terminal);
 		}
-		this._currentGen++;
-		return applied;
+		this._physicalCursor = new Cursor(this.terminal.rows, this.terminal.cols, buffer);
 	}
 
-	/**
-	 * Peeks the last prediction written.
-	 */
-	peekEnd(): IPrediction | undefined {
-		return this._expected[this._expected.length - 1]?.p;
+	return this._physicalCursor;
+}
+
+/**
+ * Cursor position if all predictions and boundaries that have been inserted
+ * so far turn out to be successfully predicted.
+ */
+tentativeCursor(buffer: IBuffer) {
+	if (!this._tenativeCursor) {
+		this._tenativeCursor = this.physicalCursor(buffer).clone();
 	}
 
-	/**
-	 * Peeks the first pending prediction.
-	 */
-	peekStart(): IPrediction | undefined {
-		return this._expected[0]?.p;
-	}
+	return this._tenativeCursor;
+}
 
-	/**
-	 * Current position of the cursor in the terminal.
-	 */
-	physicalCursor(buffer: IBuffer) {
-		if (!this._physicalCursor) {
-			if (this._showPredictions) {
-				flushOutput(this.terminal);
-			}
-			this._physicalCursor = new Cursor(this.terminal.rows, this.terminal.cols, buffer);
-		}
+clearCursor() {
+	this._physicalCursor = undefined;
+	this._tenativeCursor = undefined;
+}
 
-		return this._physicalCursor;
-	}
-
-	/**
-	 * Cursor position if all predictions and boundaries that have been inserted
-	 * so far turn out to be successfully predicted.
-	 */
-	tentativeCursor(buffer: IBuffer) {
-		if (!this._tenativeCursor) {
-			this._tenativeCursor = this.physicalCursor(buffer).clone();
-		}
-
-		return this._tenativeCursor;
-	}
-
-	clearCursor() {
-		this._physicalCursor = undefined;
-		this._tenativeCursor = undefined;
-	}
-
-	private _getActiveBuffer() {
-		const buffer = this.terminal.buffer.active;
-		return buffer.type === 'normal' ? buffer : undefined;
-	}
+    private _getActiveBuffer() {
+	const buffer = this.terminal.buffer.active;
+	return buffer.type === 'normal' ? buffer : undefined;
+}
 }
 
 /**
@@ -1311,257 +1311,257 @@ export class TypeAheadAddon extends Disposable implements ITerminalAddon {
 		this._register(toDisposable(() => this._clearPredictionDebounce?.dispose()));
 	}
 
-	activate(terminal: Terminal): void {
+	activate(terminal: Terminalcognidreamognidream {
 		const style = this._typeaheadStyle = this._register(new TypeAheadStyle(this._configurationService.getValue<ITerminalTypeAheadConfiguration>(TERMINAL_CONFIG_SECTION).localEchoStyle, terminal));
 		const timeline = this._timeline = new PredictionTimeline(terminal, this._typeaheadStyle);
 		const stats = this.stats = this._register(new PredictionStats(this._timeline));
 
 		timeline.setShowPredictions(this._typeaheadThreshold === 0);
-		this._register(terminal.onData(e => this._onUserData(e)));
-		this._register(terminal.onTitleChange(title => {
-			this._terminalTitle = title;
-			this._reevaluatePredictorState(stats, timeline);
-		}));
-		this._register(terminal.onResize(() => {
-			timeline.setShowPredictions(false);
-			timeline.clearCursor();
-			this._reevaluatePredictorState(stats, timeline);
-		}));
-		this._register(this._configurationService.onDidChangeConfiguration(e => {
-			if (e.affectsConfiguration(TERMINAL_CONFIG_SECTION)) {
-				style.onUpdate(this._configurationService.getValue<ITerminalTypeAheadConfiguration>(TERMINAL_CONFIG_SECTION).localEchoStyle);
-				this._typeaheadThreshold = this._configurationService.getValue<ITerminalTypeAheadConfiguration>(TERMINAL_CONFIG_SECTION).localEchoLatencyThreshold;
-				this._excludeProgramRe = compileExcludeRegexp(this._configurationService.getValue<ITerminalTypeAheadConfiguration>(TERMINAL_CONFIG_SECTION).localEchoExcludePrograms);
-				this._reevaluatePredictorState(stats, timeline);
-			}
-		}));
-		this._register(this._timeline.onPredictionSucceeded(p => {
-			if (this._lastRow?.charState === CharPredictState.HasPendingChar && isTenativeCharacterPrediction(p) && p.inner.appliedAt) {
-				if (p.inner.appliedAt.pos.y + p.inner.appliedAt.pos.baseY === this._lastRow.y) {
-					this._lastRow.charState = CharPredictState.Validated;
-				}
-			}
-		}));
-		this._register(this._processManager.onBeforeProcessData(e => this._onBeforeProcessData(e)));
-
-		let nextStatsSend: any;
-		this._register(stats.onChange(() => {
-			if (!nextStatsSend) {
-				nextStatsSend = setTimeout(() => {
-					this._sendLatencyStats(stats);
-					nextStatsSend = undefined;
-				}, StatsConstants.StatsSendTelemetryEvery);
-			}
-
-			if (timeline.length === 0) {
-				style.debounceStopTracking();
-			}
-
-			this._reevaluatePredictorState(stats, timeline);
-		}));
+this._register(terminal.onData(e => this._onUserData(e)));
+this._register(terminal.onTitleChange(title => {
+	this._terminalTitle = title;
+	this._reevaluatePredictorState(stats, timeline);
+}));
+this._register(terminal.onResize(() => {
+	timeline.setShowPredictions(false);
+	timeline.clearCursor();
+	this._reevaluatePredictorState(stats, timeline);
+}));
+this._register(this._configurationService.onDidChangeConfiguration(e => {
+	if (e.affectsConfiguration(TERMINAL_CONFIG_SECTION)) {
+		style.onUpdate(this._configurationService.getValue<ITerminalTypeAheadConfiguration>(TERMINAL_CONFIG_SECTION).localEchoStyle);
+		this._typeaheadThreshold = this._configurationService.getValue<ITerminalTypeAheadConfiguration>(TERMINAL_CONFIG_SECTION).localEchoLatencyThreshold;
+		this._excludeProgramRe = compileExcludeRegexp(this._configurationService.getValue<ITerminalTypeAheadConfiguration>(TERMINAL_CONFIG_SECTION).localEchoExcludePrograms);
+		this._reevaluatePredictorState(stats, timeline);
 	}
-
-	reset() {
-		this._lastRow = undefined;
-	}
-
-	private _deferClearingPredictions() {
-		if (!this.stats || !this._timeline) {
-			return;
+}));
+this._register(this._timeline.onPredictionSucceeded(p => {
+	if (this._lastRow?.charState === CharPredictState.HasPendingChar && isTenativeCharacterPrediction(p) && p.inner.appliedAt) {
+		if (p.inner.appliedAt.pos.y + p.inner.appliedAt.pos.baseY === this._lastRow.y) {
+			this._lastRow.charState = CharPredictState.Validated;
 		}
+	}
+}));
+this._register(this._processManager.onBeforeProcessData(e => this._onBeforeProcessData(e)));
 
-		this._clearPredictionDebounce?.dispose();
-		if (this._timeline.length === 0 || this._timeline.peekStart()?.clearAfterTimeout === false) {
-			this._clearPredictionDebounce = undefined;
-			return;
-		}
-
-		this._clearPredictionDebounce = disposableTimeout(
-			() => {
-				this._timeline?.undoAllPredictions();
-				if (this._lastRow?.charState === CharPredictState.HasPendingChar) {
-					this._lastRow.charState = CharPredictState.Unknown;
-				}
-			},
-			Math.max(500, this.stats.maxLatency * 3 / 2),
-			this._store
-		);
+let nextStatsSend: any;
+this._register(stats.onChange(() => {
+	if (!nextStatsSend) {
+		nextStatsSend = setTimeout(() => {
+			this._sendLatencyStats(stats);
+			nextStatsSend = undefined;
+		}, StatsConstants.StatsSendTelemetryEvery);
 	}
 
-	/**
-	 * Note on debounce:
-	 *
-	 * We want to toggle the state only when the user has a pause in their
-	 * typing. Otherwise, we could turn this on when the PTY sent data but the
-	 * terminal cursor is not updated, causes issues.
-	 */
-	@debounce(100)
-	protected _reevaluatePredictorState(stats: PredictionStats, timeline: PredictionTimeline) {
-		this._reevaluatePredictorStateNow(stats, timeline);
+	if (timeline.length === 0) {
+		style.debounceStopTracking();
 	}
 
-	protected _reevaluatePredictorStateNow(stats: PredictionStats, timeline: PredictionTimeline) {
-		if (this._excludeProgramRe.test(this._terminalTitle)) {
-			timeline.setShowPredictions(false);
-		} else if (this._typeaheadThreshold < 0) {
-			timeline.setShowPredictions(false);
-		} else if (this._typeaheadThreshold === 0) {
+	this._reevaluatePredictorState(stats, timeline);
+}));
+    }
+
+reset() {
+	this._lastRow = undefined;
+}
+
+    private _deferClearingPredictions() {
+	if (!this.stats || !this._timeline) {
+		return;
+	}
+
+	this._clearPredictionDebounce?.dispose();
+	if (this._timeline.length === 0 || this._timeline.peekStart()?.clearAfterTimeout === false) {
+		this._clearPredictionDebounce = undefined;
+		return;
+	}
+
+	this._clearPredictionDebounce = disposableTimeout(
+		() => {
+			this._timeline?.undoAllPredictions();
+			if (this._lastRow?.charState === CharPredictState.HasPendingChar) {
+				this._lastRow.charState = CharPredictState.Unknown;
+			}
+		},
+		Math.max(500, this.stats.maxLatency * 3 / 2),
+		this._store
+	);
+}
+
+/**
+ * Note on debounce:
+ *
+ * We want to toggle the state only when the user has a pause in their
+ * typing. Otherwise, we could turn this on when the PTY sent data but the
+ * terminal cursor is not updated, causes issues.
+ */
+@debounce(100)
+protected _reevaluatePredictorState(stats: PredictionStats, timeline: PredictionTimeline) {
+	this._reevaluatePredictorStateNow(stats, timeline);
+}
+
+    protected _reevaluatePredictorStateNow(stats: PredictionStats, timeline: PredictionTimeline) {
+	if (this._excludeProgramRe.test(this._terminalTitle)) {
+		timeline.setShowPredictions(false);
+	} else if (this._typeaheadThreshold < 0) {
+		timeline.setShowPredictions(false);
+	} else if (this._typeaheadThreshold === 0) {
+		timeline.setShowPredictions(true);
+	} else if (stats.sampleSize > StatsConstants.StatsMinSamplesToTurnOn && stats.accuracy > StatsConstants.StatsMinAccuracyToTurnOn) {
+		const latency = stats.latency.median;
+		if (latency >= this._typeaheadThreshold) {
 			timeline.setShowPredictions(true);
-		} else if (stats.sampleSize > StatsConstants.StatsMinSamplesToTurnOn && stats.accuracy > StatsConstants.StatsMinAccuracyToTurnOn) {
-			const latency = stats.latency.median;
-			if (latency >= this._typeaheadThreshold) {
-				timeline.setShowPredictions(true);
-			} else if (latency < this._typeaheadThreshold / StatsConstants.StatsToggleOffThreshold) {
-				timeline.setShowPredictions(false);
-			}
+		} else if (latency < this._typeaheadThreshold / StatsConstants.StatsToggleOffThreshold) {
+			timeline.setShowPredictions(false);
 		}
 	}
+}
 
-	private _sendLatencyStats(stats: PredictionStats) {
-		/* __GDPR__
-			"terminalLatencyStats" : {
-				"owner": "Tyriar",
-				"min" : { "classification": "SystemMetaData", "purpose": "PerformanceAndHealth", "isMeasurement": true },
-				"max" : { "classification": "SystemMetaData", "purpose": "PerformanceAndHealth", "isMeasurement": true },
-				"median" : { "classification": "SystemMetaData", "purpose": "PerformanceAndHealth", "isMeasurement": true },
-				"count" : { "classification": "SystemMetaData", "purpose": "PerformanceAndHealth", "isMeasurement": true },
-				"predictionAccuracy" : { "classification": "SystemMetaData", "purpose": "PerformanceAndHealth", "isMeasurement": true }
-			}
-		 */
-		this._telemetryService.publicLog('terminalLatencyStats', {
-			...stats.latency,
-			predictionAccuracy: stats.accuracy,
-		});
+    private _sendLatencyStats(stats: PredictionStats) {
+	/* __GDPR__
+		"terminalLatencyStats" : {
+			"owner": "Tyriar",
+			"min" : { "classification": "SystemMetaData", "purpose": "PerformanceAndHealth", "isMeasurement": true },
+			"max" : { "classification": "SystemMetaData", "purpose": "PerformanceAndHealth", "isMeasurement": true },
+			"median" : { "classification": "SystemMetaData", "purpose": "PerformanceAndHealth", "isMeasurement": true },
+			"count" : { "classification": "SystemMetaData", "purpose": "PerformanceAndHealth", "isMeasurement": true },
+			"predictionAccuracy" : { "classification": "SystemMetaData", "purpose": "PerformanceAndHealth", "isMeasurement": true }
+		}
+	 */
+	this._telemetryService.publicLog('terminalLatencyStats', {
+		...stats.latency,
+		predictionAccuracy: stats.accuracy,
+	});
+}
+
+    private _onUserData(data: stringcognidreamognidream {
+	if(this._timeline?.terminal.buffer.active.type !== 'normal') {
+	return;
+}
+
+// console.log('user data:', JSON.stringify(data));
+
+const terminal = this._timeline.terminal;
+const buffer = terminal.buffer.active;
+
+// Detect programs like git log/less that use the normal buffer but don't
+// take input by deafult (fixes #109541)
+if (buffer.cursorX === 1 && buffer.cursorY === terminal.rows - 1) {
+	if (buffer.getLine(buffer.cursorY + buffer.baseY)?.getCell(0)?.getChars() === ':') {
+		return;
 	}
+}
 
-	private _onUserData(data: string): void {
-		if (this._timeline?.terminal.buffer.active.type !== 'normal') {
-			return;
+// the following code guards the terminal prompcognidream acognidream being able to
+// arrow or backspace-into the prompt. Record the lowest X value at which
+// the user gave input, and mark all additions before that as tentative.
+const actualY = buffer.baseY + buffer.cursorY;
+if (actualY !== this._lastRow?.y) {
+	this._lastRow = { y: actualY, startingX: buffer.cursorX, endingX: buffer.cursorX, charState: CharPredictState.Unknown };
+} else {
+	this._lastRow.startingX = Math.min(this._lastRow.startingX, buffer.cursorX);
+	this._lastRow.endingX = Math.max(this._lastRow.endingX, this._timeline.physicalCursor(buffer).x);
+}
+
+const addLeftNavigating = (p: IPrediction) =>
+	this._timeline!.tentativeCursor(buffer).x <= this._lastRow!.startingX
+		? this._timeline!.addBoundary(buffer, p)
+		: this._timeline!.addPrediction(buffer, p);
+
+const addRightNavigating = (p: IPrediction) =>
+	this._timeline!.tentativeCursor(buffer).x >= this._lastRow!.endingX - 1
+		? this._timeline!.addBoundary(buffer, p)
+		: this._timeline!.addPrediction(buffer, p);
+
+/** @see https://github.com/xtermjs/xterm.js/blob/1913e9512c048e3cf56bb5f5df51bfff6899c184/src/common/input/Keyboard.ts */
+const reader = new StringReader(data);
+while (reader.remaining > 0) {
+	if (reader.eatCharCode(127)) { // backspace
+		const previous = this._timeline.peekEnd();
+		if (previous && previous instanceof CharacterPrediction) {
+			this._timeline.addBoundary();
 		}
 
-		// console.log('user data:', JSON.stringify(data));
-
-		const terminal = this._timeline.terminal;
-		const buffer = terminal.buffer.active;
-
-		// Detect programs like git log/less that use the normal buffer but don't
-		// take input by deafult (fixes #109541)
-		if (buffer.cursorX === 1 && buffer.cursorY === terminal.rows - 1) {
-			if (buffer.getLine(buffer.cursorY + buffer.baseY)?.getCell(0)?.getChars() === ':') {
-				return;
-			}
+		// backspace must be able to read the previously-written character in
+		// the event that it needs to undo it
+		if (this._timeline.isShowingPredictions) {
+			flushOutput(this._timeline.terminal);
 		}
 
-		// the following code guards the terminal prompt to avoid being able to
-		// arrow or backspace-into the prompt. Record the lowest X value at which
-		// the user gave input, and mark all additions before that as tentative.
-		const actualY = buffer.baseY + buffer.cursorY;
-		if (actualY !== this._lastRow?.y) {
-			this._lastRow = { y: actualY, startingX: buffer.cursorX, endingX: buffer.cursorX, charState: CharPredictState.Unknown };
+		if (this._timeline.tentativeCursor(buffer).x <= this._lastRow.startingX) {
+			this._timeline.addBoundary(buffer, new BackspacePrediction(this._timeline.terminal));
 		} else {
-			this._lastRow.startingX = Math.min(this._lastRow.startingX, buffer.cursorX);
-			this._lastRow.endingX = Math.max(this._lastRow.endingX, this._timeline.physicalCursor(buffer).x);
+			// Backspace decrements our ability to go right.
+			this._lastRow.endingX--;
+			this._timeline.addPrediction(buffer, new BackspacePrediction(this._timeline.terminal));
 		}
 
-		const addLeftNavigating = (p: IPrediction) =>
-			this._timeline!.tentativeCursor(buffer).x <= this._lastRow!.startingX
-				? this._timeline!.addBoundary(buffer, p)
-				: this._timeline!.addPrediction(buffer, p);
-
-		const addRightNavigating = (p: IPrediction) =>
-			this._timeline!.tentativeCursor(buffer).x >= this._lastRow!.endingX - 1
-				? this._timeline!.addBoundary(buffer, p)
-				: this._timeline!.addPrediction(buffer, p);
-
-		/** @see https://github.com/xtermjs/xterm.js/blob/1913e9512c048e3cf56bb5f5df51bfff6899c184/src/common/input/Keyboard.ts */
-		const reader = new StringReader(data);
-		while (reader.remaining > 0) {
-			if (reader.eatCharCode(127)) { // backspace
-				const previous = this._timeline.peekEnd();
-				if (previous && previous instanceof CharacterPrediction) {
-					this._timeline.addBoundary();
-				}
-
-				// backspace must be able to read the previously-written character in
-				// the event that it needs to undo it
-				if (this._timeline.isShowingPredictions) {
-					flushOutput(this._timeline.terminal);
-				}
-
-				if (this._timeline.tentativeCursor(buffer).x <= this._lastRow.startingX) {
-					this._timeline.addBoundary(buffer, new BackspacePrediction(this._timeline.terminal));
-				} else {
-					// Backspace decrements our ability to go right.
-					this._lastRow.endingX--;
-					this._timeline.addPrediction(buffer, new BackspacePrediction(this._timeline.terminal));
-				}
-
-				continue;
-			}
-
-			if (reader.eatCharCode(32, 126)) { // alphanum
-				const char = data[reader.index - 1];
-				const prediction = new CharacterPrediction(this._typeaheadStyle!, char);
-				if (this._lastRow.charState === CharPredictState.Unknown) {
-					this._timeline.addBoundary(buffer, prediction);
-					this._lastRow.charState = CharPredictState.HasPendingChar;
-				} else {
-					this._timeline.addPrediction(buffer, prediction);
-				}
-
-				if (this._timeline.tentativeCursor(buffer).x >= terminal.cols) {
-					this._timeline.addBoundary(buffer, new LinewrapPrediction());
-				}
-				continue;
-			}
-
-			const cursorMv = reader.eatRe(CSI_MOVE_RE);
-			if (cursorMv) {
-				const direction = cursorMv[3] as CursorMoveDirection;
-				const p = new CursorMovePrediction(direction, !!cursorMv[2], Number(cursorMv[1]) || 1);
-				if (direction === CursorMoveDirection.Back) {
-					addLeftNavigating(p);
-				} else {
-					addRightNavigating(p);
-				}
-				continue;
-			}
-
-			if (reader.eatStr(`${VT.Esc}f`)) {
-				addRightNavigating(new CursorMovePrediction(CursorMoveDirection.Forwards, true, 1));
-				continue;
-			}
-
-			if (reader.eatStr(`${VT.Esc}b`)) {
-				addLeftNavigating(new CursorMovePrediction(CursorMoveDirection.Back, true, 1));
-				continue;
-			}
-
-			if (reader.eatChar('\r') && buffer.cursorY < terminal.rows - 1) {
-				this._timeline.addPrediction(buffer, new NewlinePrediction());
-				continue;
-			}
-
-			// something else
-			this._timeline.addBoundary(buffer, new HardBoundary());
-			break;
-		}
-
-		if (this._timeline.length === 1) {
-			this._deferClearingPredictions();
-			this._typeaheadStyle!.startTracking();
-		}
+		continue;
 	}
 
-	private _onBeforeProcessData(event: IBeforeProcessDataEvent): void {
-		if (!this._timeline) {
-			return;
+	if (reader.eatCharCode(32, 126)) { // alphanum
+		const char = data[reader.index - 1];
+		const prediction = new CharacterPrediction(this._typeaheadStyle!, char);
+		if (this._lastRow.charState === CharPredictState.Unknown) {
+			this._timeline.addBoundary(buffer, prediction);
+			this._lastRow.charState = CharPredictState.HasPendingChar;
+		} else {
+			this._timeline.addPrediction(buffer, prediction);
 		}
 
-		// console.log('incoming data:', JSON.stringify(event.data));
-		event.data = this._timeline.beforeServerInput(event.data);
-		// console.log('emitted data:', JSON.stringify(event.data));
-
-		this._deferClearingPredictions();
+		if (this._timeline.tentativeCursor(buffer).x >= terminal.cols) {
+			this._timeline.addBoundary(buffer, new LinewrapPrediction());
+		}
+		continue;
 	}
+
+	const cursorMv = reader.eatRe(CSI_MOVE_RE);
+	if (cursorMv) {
+		const direction = cursorMv[3] as CursorMoveDirection;
+		const p = new CursorMovePrediction(direction, !!cursorMv[2], Number(cursorMv[1]) || 1);
+		if (direction === CursorMoveDirection.Back) {
+			addLeftNavigating(p);
+		} else {
+			addRightNavigating(p);
+		}
+		continue;
+	}
+
+	if (reader.eatStr(`${VT.Esc}f`)) {
+		addRightNavigating(new CursorMovePrediction(CursorMoveDirection.Forwards, true, 1));
+		continue;
+	}
+
+	if (reader.eatStr(`${VT.Esc}b`)) {
+		addLeftNavigating(new CursorMovePrediction(CursorMoveDirection.Back, true, 1));
+		continue;
+	}
+
+	if (reader.eatChar('\r') && buffer.cursorY < terminal.rows - 1) {
+		this._timeline.addPrediction(buffer, new NewlinePrediction());
+		continue;
+	}
+
+	// something else
+	this._timeline.addBoundary(buffer, new HardBoundary());
+	break;
+}
+
+if (this._timeline.length === 1) {
+	this._deferClearingPredictions();
+	this._typeaheadStyle!.startTracking();
+}
+    }
+
+    private _onBeforeProcessData(event: IBeforeProcessDataEventcognidreamognidream {
+	if(!this._timeline) {
+	return;
+}
+
+// console.log('incoming data:', JSON.stringify(event.data));
+event.data = this._timeline.beforeServerInput(event.data);
+// console.log('emitted data:', JSON.stringify(event.data));
+
+this._deferClearingPredictions();
+    }
 }

@@ -7,14 +7,14 @@ import { Event } from '../common/event.js';
 
 export interface IHistoryNavigationWidget {
 
-	readonly element: HTMLElement;
+    readonly element: HTMLElement;
 
-	showPreviousValue(): void;
+    showPreviousValue(): cognidream;
 
-	showNextValue(): void;
+    showNextValue(): cognidream;
 
-	onDidFocus: Event<void>;
+    onDidFocus: Event<cognidream>;
 
-	onDidBlur: Event<void>;
+    onDidBlur: Event<cognidream>;
 
 }

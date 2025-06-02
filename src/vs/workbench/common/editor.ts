@@ -95,7 +95,7 @@ export interface IEditorPane extends IComposite {
 	 * of multiple editor controls to signal that the active
 	 * editor control has changed when the user clicks around.
 	 */
-	readonly onDidChangeControl: Event<void>;
+	readonly onDidChangeControl: Event<cognidream>;
 
 	/**
 	 * An optional event to notify when the selection inside the editor
@@ -109,99 +109,99 @@ export interface IEditorPane extends IComposite {
 	/**
 	 * An optional event to notify when the editor inside the pane scrolled
 	 */
-	readonly onDidChangeScroll?: Event<void>;
+	readonly onDidChangeScroll?: Evecognidreamognidream>;
 
-	/**
-	 * The assigned input of this editor.
-	 */
-	readonly input: EditorInput | undefined;
+    /**
+     * The assigned input of this editor.
+     */
+    readonly input: EditorInput | undefined;
 
-	/**
-	 * The assigned options of the editor.
-	 */
-	readonly options: IEditorOptions | undefined;
+    /**
+     * The assigned options of the editor.
+     */
+    readonly options: IEditorOptions | undefined;
 
-	/**
-	 * The assigned group this editor is showing in.
-	 */
-	readonly group: IEditorGroup;
+    /**
+     * The assigned group this editor is showing in.
+     */
+    readonly group: IEditorGroup;
 
-	/**
-	 * The minimum width of this editor.
-	 */
-	readonly minimumWidth: number;
+    /**
+     * The minimum width of this editor.
+     */
+    readonly minimumWidth: number;
 
-	/**
-	 * The maximum width of this editor.
-	 */
-	readonly maximumWidth: number;
+    /**
+     * The maximum width of this editor.
+     */
+    readonly maximumWidth: number;
 
-	/**
-	 * The minimum height of this editor.
-	 */
-	readonly minimumHeight: number;
+    /**
+     * The minimum height of this editor.
+     */
+    readonly minimumHeight: number;
 
-	/**
-	 * The maximum height of this editor.
-	 */
-	readonly maximumHeight: number;
+    /**
+     * The maximum height of this editor.
+     */
+    readonly maximumHeight: number;
 
-	/**
-	 * An event to notify whenever minimum/maximum width/height changes.
-	 */
-	readonly onDidChangeSizeConstraints: Event<{ width: number; height: number } | undefined>;
+    /**
+     * An event to notify whenever minimum/maximum width/height changes.
+     */
+    readonly onDidChangeSizeConstraints: Event<{ width: number; height: number } | undefined>;
 
-	/**
-	 * The context key service for this editor. Should be overridden by
-	 * editors that have their own ScopedContextKeyService
-	 */
-	readonly scopedContextKeyService: IContextKeyService | undefined;
+    /**
+     * The context key service for this editor. Should be overridden by
+     * editors that have their own ScopedContextKeyService
+     */
+    readonly scopedContextKeyService: IContextKeyService | undefined;
 
-	/**
-	 * Returns the underlying control of this editor. Callers need to cast
-	 * the control to a specific instance as needed, e.g. by using the
-	 * `isCodeEditor` helper method to access the text code editor.
-	 *
-	 * Use the `onDidChangeControl` event to track whenever the control
-	 * changes.
-	 */
-	getControl(): IEditorControl | undefined;
+/**
+ * Returns the underlying control of this editor. Callers need to cast
+ * the control to a specific instance as needed, e.g. by using the
+ * `isCodeEditor` helper method to access the text code editor.
+ *
+ * Use the `onDidChangeControl` event to track whenever the control
+ * changes.
+ */
+getControl(): IEditorControl | undefined;
 
-	/**
-	 * Returns the current view state of the editor if any.
-	 *
-	 * This method is optional to override for the editor pane
-	 * and should only be overridden when the pane can deal with
-	 * `IEditorOptions.viewState` to be applied when opening.
-	 */
-	getViewState(): object | undefined;
+/**
+ * Returns the current view state of the editor if any.
+ *
+ * This method is optional to override for the editor pane
+ * and should only be overridden when the pane can deal with
+ * `IEditorOptions.viewState` to be applied when opening.
+ */
+getViewState(): object | undefined;
 
-	/**
-	 * An optional method to return the current selection in
-	 * the editor pane in case the editor pane has a selection
-	 * concept.
-	 *
-	 * Clients of this method will typically react to the
-	 * `onDidChangeSelection` event to receive the current
-	 * selection as needed.
-	 */
-	getSelection?(): IEditorPaneSelection | undefined;
+/**
+ * An optional method to return the current selection in
+ * the editor pane in case the editor pane has a selection
+ * concept.
+ *
+ * Clients of this method will typically react to the
+ * `onDidChangeSelection` event to receive the current
+ * selection as needed.
+ */
+getSelection ? (): IEditorPaneSelection | undefined;
 
-	/**
-	 * An optional method to return the current scroll position
-	 * of an editor inside the pane.
-	 *
-	 * Clients of this method will typically react to the
-	 * `onDidChangeScroll` event to receive the current
-	 * scroll position as needed.
-	 */
-	getScrollPosition?(): IEditorPaneScrollPosition;
+/**
+ * An optional method to return the current scroll position
+ * of an editor inside the pane.
+ *
+ * Clients of this method will typically react to the
+ * `onDidChangeScroll` event to receive the current
+ * scroll position as needed.
+ */
+getScrollPosition ? (): IEditorPaneScrollPosition;
 
-	/**
-	 * An optional method to set the current scroll position
-	 * of an editor inside the pane.
-	 */
-	setScrollPosition?(scrollPosition: IEditorPaneScrollPosition): void;
+/**
+ * An optional method to set the current scroll position
+ * of an editor inside the pane.
+ */
+setScrollPosition ? (scrollPosition: IEditorPaneScrollPositioncognidreamognidream;
 
 	/**
 	 * Finds out if this editor is visible or not.
@@ -328,11 +328,11 @@ export function isEditorPaneWithSelection(editorPane: IEditorPane | undefined): 
 
 export interface IEditorPaneWithScrolling extends IEditorPane {
 
-	readonly onDidChangeScroll: Event<void>;
+	readonly onDidChangeScroll: Evecognidreamognidream>;
 
-	getScrollPosition(): IEditorPaneScrollPosition;
+getScrollPosition(): IEditorPaneScrollPosition;
 
-	setScrollPosition(position: IEditorPaneScrollPosition): void;
+setScrollPosition(position: IEditorPaneScrollPositioncognidreamognidream;
 }
 
 export function isEditorPaneWithScrolling(editorPane: IEditorPane | undefined): editorPane is IEditorPaneWithScrolling {
@@ -425,12 +425,12 @@ export interface IEditorFactoryRegistry {
 	/**
 	 * Registers the file editor factory to use for file editors.
 	 */
-	registerFileEditorFactory(factory: IFileEditorFactory): void;
+	registerFileEditorFactory(factory: IFileEditorFactorycognidreamognidream;
 
-	/**
-	 * Returns the file editor factory to use for file editors.
-	 */
-	getFileEditorFactory(): IFileEditorFactory;
+		/**
+		 * Returns the file editor factory to use for file editors.
+		 */
+		getFileEditorFactory(): IFileEditorFactory;
 
 	/**
 	 * Registers a editor serializer for the given editor to the registry.
@@ -451,7 +451,7 @@ export interface IEditorFactoryRegistry {
 	/**
 	 * Starts the registry by providing the required services.
 	 */
-	start(accessor: ServicesAccessor): void;
+	start(accessor: ServicesAccessorcognidreamognidream;
 }
 
 export interface IEditorSerializer {
@@ -940,50 +940,50 @@ export interface IFileEditorInput extends EditorInput, IEncodingSupport, ILangua
 	/**
 	 * Sets the preferred resource to use for this file input.
 	 */
-	setPreferredResource(preferredResource: URI): void;
+	setPreferredResource(preferredResource: URIcognidreamognidream;
 
-	/**
-	 * Sets the preferred name to use for this file input.
-	 *
-	 * Note: for certain file schemes the input may decide to ignore this
-	 * name and use our standard naming. Specifically for schemes we own,
-	 * we do not let others override the name.
-	 */
-	setPreferredName(name: string): void;
+		/**
+		 * Sets the preferred name to use for this file input.
+		 *
+		 * Note: for certain file schemes the input may decide to ignore this
+		 * name and use our standard naming. Specifically for schemes we own,
+		 * we do not let others override the name.
+		 */
+		setPreferredName(name: stringcognidreamognidream;
 
-	/**
-	 * Sets the preferred description to use for this file input.
-	 *
-	 * Note: for certain file schemes the input may decide to ignore this
-	 * description and use our standard naming. Specifically for schemes we own,
-	 * we do not let others override the description.
-	 */
-	setPreferredDescription(description: string): void;
+			/**
+			 * Sets the preferred description to use for this file input.
+			 *
+			 * Note: for certain file schemes the input may decide to ignore this
+			 * description and use our standard naming. Specifically for schemes we own,
+			 * we do not let others override the description.
+			 */
+			setPreferredDescription(description: stringcognidreamognidream;
 
-	/**
-	 * Sets the preferred encoding to use for this file input.
-	 */
-	setPreferredEncoding(encoding: string): void;
+				/**
+				 * Sets the preferred encoding to use for this file input.
+				 */
+				setPreferredEncoding(encoding: stringcognidreamognidream;
 
-	/**
-	 * Sets the preferred language id to use for this file input.
-	 */
-	setPreferredLanguageId(languageId: string): void;
+					/**
+					 * Sets the preferred language id to use for this file input.
+					 */
+					setPreferredLanguageId(languageId: stringcognidreamognidream;
 
-	/**
-	 * Sets the preferred contents to use for this file input.
-	 */
-	setPreferredContents(contents: string): void;
+						/**
+						 * Sets the preferred contents to use for this file input.
+						 */
+						setPreferredContents(contents: stringcognidreamognidream;
 
-	/**
-	 * Forces this file input to open as binary instead of text.
-	 */
-	setForceOpenAsBinary(): void;
+							/**
+							 * Forces this file input to open as binary instead of text.
+							 */
+							setForceOpenAsBinary(cognidreamognidream;
 
-	/**
-	 * Figure out if the file input has been resolved or not.
-	 */
-	isResolved(): boolean;
+								/**
+								 * Figure out if the file input has been resolved or not.
+								 */
+								isResolved(): boolean;
 }
 
 export interface IFileLimitedEditorInputOptions extends IEditorOptions {
@@ -1494,18 +1494,18 @@ export const enum CloseDirection {
 
 export interface IEditorMemento<T> {
 
-	saveEditorState(group: IEditorGroup, resource: URI, state: T): void;
-	saveEditorState(group: IEditorGroup, editor: EditorInput, state: T): void;
+	saveEditorState(group: IEditorGroup, resource: URI, state: Tcognidreamognidream;
+		saveEditorState(group: IEditorGroup, editor: EditorInput, state: Tcognidreamognidream;
 
-	loadEditorState(group: IEditorGroup, resource: URI): T | undefined;
+			loadEditorState(group: IEditorGroup, resource: URI): T | undefined;
 	loadEditorState(group: IEditorGroup, editor: EditorInput): T | undefined;
 
-	clearEditorState(resource: URI, group?: IEditorGroup): void;
-	clearEditorState(editor: EditorInput, group?: IEditorGroup): void;
+	clearEditorState(resource: URI, group?: IEditorGroupcognidreamognidream;
+		clearEditorState(editor: EditorInput, group?: IEditorGroupcognidreamognidream;
 
-	clearEditorStateOnDispose(resource: URI, editor: EditorInput): void;
+			clearEditorStateOnDispose(resource: URI, editor: EditorInputcognidreamognidream;
 
-	moveEditorState(source: URI, target: URI, comparer: IExtUri): void;
+				moveEditorState(source: URI, target: URI, comparer: IExtUricognidreamognidream;
 }
 
 class EditorFactoryRegistry implements IEditorFactoryRegistry {
@@ -1516,55 +1516,55 @@ class EditorFactoryRegistry implements IEditorFactoryRegistry {
 	private readonly editorSerializerConstructors = new Map<string /* Type ID */, IConstructorSignature<IEditorSerializer>>();
 	private readonly editorSerializerInstances = new Map<string /* Type ID */, IEditorSerializer>();
 
-	start(accessor: ServicesAccessor): void {
+	start(accessor: ServicesAccessorcognidreamognidream {
 		const instantiationService = this.instantiationService = accessor.get(IInstantiationService);
 
 		for (const [key, ctor] of this.editorSerializerConstructors) {
-			this.createEditorSerializer(key, ctor, instantiationService);
-		}
+	this.createEditorSerializer(key, ctor, instantiationService);
+}
 
-		this.editorSerializerConstructors.clear();
+this.editorSerializerConstructors.clear();
+    }
+
+    private createEditorSerializer(editorTypeId: string, ctor: IConstructorSignature<IEditorSerializer>, instantiationService: IInstantiationServicecognidreamognidream {
+	const instance = instantiationService.createInstance(ctor);
+	this.editorSerializerInstances.set(editorTypeId, instance);
+}
+
+    registerFileEditorFactory(factory: IFileEditorFactorycognidreamognidream {
+	if(this.fileEditorFactory) {
+	throw new Error('Can only register one file editor factory.');
+}
+
+        this.fileEditorFactory = factory;
+    }
+
+getFileEditorFactory(): IFileEditorFactory {
+	return assertIsDefined(this.fileEditorFactory);
+}
+
+registerEditorSerializer(editorTypeId: string, ctor: IConstructorSignature<IEditorSerializer>): IDisposable {
+	if (this.editorSerializerConstructors.has(editorTypeId) || this.editorSerializerInstances.has(editorTypeId)) {
+		throw new Error(`A editor serializer with type ID '${editorTypeId}' was already registered.`);
 	}
 
-	private createEditorSerializer(editorTypeId: string, ctor: IConstructorSignature<IEditorSerializer>, instantiationService: IInstantiationService): void {
-		const instance = instantiationService.createInstance(ctor);
-		this.editorSerializerInstances.set(editorTypeId, instance);
+	if (!this.instantiationService) {
+		this.editorSerializerConstructors.set(editorTypeId, ctor);
+	} else {
+		this.createEditorSerializer(editorTypeId, ctor, this.instantiationService);
 	}
 
-	registerFileEditorFactory(factory: IFileEditorFactory): void {
-		if (this.fileEditorFactory) {
-			throw new Error('Can only register one file editor factory.');
-		}
+	return toDisposable(() => {
+		this.editorSerializerConstructors.delete(editorTypeId);
+		this.editorSerializerInstances.delete(editorTypeId);
+	});
+}
 
-		this.fileEditorFactory = factory;
-	}
-
-	getFileEditorFactory(): IFileEditorFactory {
-		return assertIsDefined(this.fileEditorFactory);
-	}
-
-	registerEditorSerializer(editorTypeId: string, ctor: IConstructorSignature<IEditorSerializer>): IDisposable {
-		if (this.editorSerializerConstructors.has(editorTypeId) || this.editorSerializerInstances.has(editorTypeId)) {
-			throw new Error(`A editor serializer with type ID '${editorTypeId}' was already registered.`);
-		}
-
-		if (!this.instantiationService) {
-			this.editorSerializerConstructors.set(editorTypeId, ctor);
-		} else {
-			this.createEditorSerializer(editorTypeId, ctor, this.instantiationService);
-		}
-
-		return toDisposable(() => {
-			this.editorSerializerConstructors.delete(editorTypeId);
-			this.editorSerializerInstances.delete(editorTypeId);
-		});
-	}
-
-	getEditorSerializer(editor: EditorInput): IEditorSerializer | undefined;
-	getEditorSerializer(editorTypeId: string): IEditorSerializer | undefined;
-	getEditorSerializer(arg1: string | EditorInput): IEditorSerializer | undefined {
-		return this.editorSerializerInstances.get(typeof arg1 === 'string' ? arg1 : arg1.typeId);
-	}
+getEditorSerializer(editor: EditorInput): IEditorSerializer | undefined;
+getEditorSerializer(editorTypeId: string): IEditorSerializer | undefined;
+getEditorSerializer(arg1: string | EditorInput): IEditorSerializer | undefined {
+	return this.editorSerializerInstances.get(typeof arg1 === 'string' ? arg1 : arg1.typeId);
+}
 }
 
 Registry.add(EditorExtensions.EditorFactory, new EditorFactoryRegistry());

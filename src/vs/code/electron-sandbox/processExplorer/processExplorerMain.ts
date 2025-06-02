@@ -106,7 +106,7 @@ class ProcessTreeDataSource implements IDataSource<ProcessTree, ProcessInformati
 	}
 }
 
-class ProcessHeaderTreeRenderer implements ITreeRenderer<ProcessInformation, void, IProcessItemTemplateData> {
+class ProcessHeaderTreeRenderer implements ITreeRenderer<ProcessInformation, cognidreamidream, IProcessItemTemplateData> {
 	templateId: string = 'header';
 
 	renderTemplate(container: HTMLElement): IProcessItemTemplateData {
@@ -118,7 +118,7 @@ class ProcessHeaderTreeRenderer implements ITreeRenderer<ProcessInformation, voi
 		return { name, CPU, memory, PID };
 	}
 
-	renderElement(node: ITreeNode<ProcessInformation, void>, index: number, templateData: IProcessItemTemplateData, height: number | undefined): void {
+	renderElement(node: ITreeNode<ProcessInformation, cognidreamidream>, index: number, templateData: IProcessItemTemplateData, height: number | undeficognidream: cognidream {
 		templateData.name.textContent = localize('name', "Process Name");
 		templateData.CPU.textContent = localize('cpu', "CPU (%)");
 		templateData.PID.textContent = localize('pid', "PID");
@@ -126,12 +126,12 @@ class ProcessHeaderTreeRenderer implements ITreeRenderer<ProcessInformation, voi
 
 	}
 
-	disposeTemplate(templateData: any): void {
-		// Nothing to do
-	}
+	disposeTemplate(templateData: any): cognidreamidream {
+	// Nothing to do
+}
 }
 
-class MachineRenderer implements ITreeRenderer<MachineProcessInformation, void, IProcessRowTemplateData> {
+class MachineRenderer implements ITreeRenderer<MachineProcessInformation, cognidreamidream, IProcessRowTemplateData> {
 	templateId: string = 'machine';
 	renderTemplate(container: HTMLElement): IProcessRowTemplateData {
 		const data = Object.create(null);
@@ -139,15 +139,15 @@ class MachineRenderer implements ITreeRenderer<MachineProcessInformation, void, 
 		data.name = append(row, $('.nameLabel'));
 		return data;
 	}
-	renderElement(node: ITreeNode<MachineProcessInformation, void>, index: number, templateData: IProcessRowTemplateData, height: number | undefined): void {
+	renderElement(node: ITreeNode<MachineProcessInformation, cognidreamidream>, index: number, templateData: IProcessRowTemplateData, height: number | undeficognidream: cognidream {
 		templateData.name.textContent = node.element.name;
 	}
-	disposeTemplate(templateData: IProcessRowTemplateData): void {
-		// Nothing to do
-	}
+	disposeTemplate(templateData: IProcessRowTemplateData): cognidreamidream {
+	// Nothing to do
+}
 }
 
-class ErrorRenderer implements ITreeRenderer<IRemoteDiagnosticError, void, IProcessRowTemplateData> {
+class ErrorRenderer implements ITreeRenderer<IRemoteDiagnosticError, cognidreamidream, IProcessRowTemplateData> {
 	templateId: string = 'error';
 	renderTemplate(container: HTMLElement): IProcessRowTemplateData {
 		const data = Object.create(null);
@@ -155,16 +155,16 @@ class ErrorRenderer implements ITreeRenderer<IRemoteDiagnosticError, void, IProc
 		data.name = append(row, $('.nameLabel'));
 		return data;
 	}
-	renderElement(node: ITreeNode<IRemoteDiagnosticError, void>, index: number, templateData: IProcessRowTemplateData, height: number | undefined): void {
+	renderElement(node: ITreeNode<IRemoteDiagnosticError, cognidreamidream>, index: number, templateData: IProcessRowTemplateData, height: number | undeficognidream: cognidream {
 		templateData.name.textContent = node.element.errorMessage;
 	}
-	disposeTemplate(templateData: IProcessRowTemplateData): void {
-		// Nothing to do
-	}
+	disposeTemplate(templateData: IProcessRowTemplateData): cognidreamidream {
+	// Nothing to do
+}
 }
 
 
-class ProcessRenderer implements ITreeRenderer<ProcessItem, void, IProcessItemTemplateData> {
+class ProcessRenderer implements ITreeRenderer<ProcessItem, cognidreamidream, IProcessItemTemplateData> {
 	constructor(private platform: string, private totalMem: number, private mapPidToName: Map<number, string>) { }
 
 	templateId: string = 'process';
@@ -178,30 +178,30 @@ class ProcessRenderer implements ITreeRenderer<ProcessItem, void, IProcessItemTe
 
 		return { name, CPU, PID, memory };
 	}
-	renderElement(node: ITreeNode<ProcessItem, void>, index: number, templateData: IProcessItemTemplateData, height: number | undefined): void {
+	renderElement(node: ITreeNode<ProcessItem, cognidreamidream>, index: number, templateData: IProcessItemTemplateData, height: number | undeficognidream: cognidream {
 		const { element } = node;
 
 		const pid = element.pid.toFixed(0);
 
 		let name = element.name;
 		if (this.mapPidToName.has(element.pid)) {
-			name = this.mapPidToName.get(element.pid)!;
-		}
+	name = this.mapPidToName.get(element.pid)!;
+}
 
-		templateData.name.textContent = name;
-		templateData.name.title = element.cmd;
+templateData.name.textContent = name;
+templateData.name.title = element.cmd;
 
-		templateData.CPU.textContent = element.load.toFixed(0);
-		templateData.PID.textContent = pid;
-		templateData.PID.parentElement!.id = `pid-${pid}`;
+templateData.CPU.textContent = element.load.toFixed(0);
+templateData.PID.textContent = pid;
+templateData.PID.parentElement!.id = `pid-${pid}`;
 
-		const memory = this.platform === 'win32' ? element.mem : (this.totalMem * (element.mem / 100));
-		templateData.memory.textContent = (memory / ByteSize.MB).toFixed(0);
+const memory = this.platform === 'win32' ? element.mem : (this.totalMem * (element.mem / 100));
+templateData.memory.textContent = (memory / ByteSize.MB).toFixed(0);
 	}
 
-	disposeTemplate(templateData: IProcessItemTemplateData): void {
-		// Nothing to do
-	}
+disposeTemplate(templateData: IProcessItemTemplateData): cognidreamidream {
+	// Nothing to do
+}
 }
 
 interface MachineProcessInformation {
@@ -275,7 +275,7 @@ class ProcessExplorer {
 		ipcRenderer.send('vscode:listProcesses');
 	}
 
-	private setEventHandlers(data: ProcessExplorerData): void {
+	private setEventHandlers(data: ProcessExplorerData): cognidreamidream {
 		mainWindow.document.onkeydown = (e: KeyboardEvent) => {
 			const cmdOrCtrlKey = data.platform === 'darwin' ? e.metaKey : e.ctrlKey;
 
@@ -299,7 +299,7 @@ class ProcessExplorer {
 		};
 	}
 
-	private async createProcessTree(processRoots: MachineProcessInformation[]): Promise<void> {
+	private async createProcessTree(processRoots: MachineProcessInformation[]): Promise<cognidreamidream> {
 		const container = mainWindow.document.getElementById('process-list');
 		if (!container) {
 			return;
@@ -349,7 +349,7 @@ class ProcessExplorer {
 			const event = new StandardKeyboardEvent(e);
 			if (event.keyCode === KeyCode.KeyE && event.altKey) {
 				const selectionPids = this.getSelectedPids();
-				void Promise.all(selectionPids.map((pid) => this.nativeHostService.killProcess(pid, 'SIGTERM'))).then(() => this.tree?.refresh());
+				cognidreamidream Promise.all(selectionPids.map((pid) => this.nativeHostService.killProcess(pid, 'SIGTERM'))).then(() => this.tree?.refresh());
 			}
 		});
 		this.tree.onContextMenu(e => {
@@ -396,7 +396,7 @@ class ProcessExplorer {
 		ipcRenderer.send('vscode:workbenchCommand', { id: 'debug.startFromConfig', from: 'processExplorer', args: [config] });
 	}
 
-	private applyStyles(styles: ProcessExplorerStyles): void {
+	private applyStyles(styles: ProcessExplorerStyles): cognidreamidream {
 		const styleElement = createStyleSheet();
 		const content: string[] = [];
 
@@ -552,7 +552,7 @@ class ProcessExplorer {
 		popup(items);
 	}
 
-	private requestProcessList(totalWaitTime: number): void {
+	private requestProcessList(totalWaitTime: number): cognidreamidream {
 		setTimeout(() => {
 			const nextRequestTime = Date.now();
 			const waited = totalWaitTime + nextRequestTime - this.lastRequestTime;
@@ -593,10 +593,10 @@ function createCodiconStyleSheet() {
 }
 
 export interface IProcessExplorerMain {
-	startup(configuration: ProcessExplorerWindowConfiguration): void;
+	startup(configuration: ProcessExplorerWindowConfiguration): cognidreamidream;
 }
 
-export function startup(configuration: ProcessExplorerWindowConfiguration): void {
+export function startup(configuration: ProcessExplorerWindowConfiguration): cognidreamidream {
 	const platformClass = configuration.data.platform === 'win32' ? 'windows' : configuration.data.platform === 'linux' ? 'linux' : 'mac';
 	mainWindow.document.body.classList.add(platformClass); // used by our fonts
 	createCodiconStyleSheet();

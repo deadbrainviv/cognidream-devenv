@@ -30,7 +30,7 @@ export class LinesDecorationsOverlay extends DedupOverlay {
 		this._context.addEventHandler(this);
 	}
 
-	public override dispose(): void {
+	public override dispose(): cognidream {
 		this._context.removeEventHandler(this);
 		this._renderResult = null;
 		super.dispose();
@@ -88,7 +88,7 @@ export class LinesDecorationsOverlay extends DedupOverlay {
 		return r;
 	}
 
-	public prepareRender(ctx: RenderingContext): void {
+	public prepareRender(ctx: RenderingContext): cognidream {
 		const visibleStartLineNumber = ctx.visibleRange.startLineNumber;
 		const visibleEndLineNumber = ctx.visibleRange.endLineNumber;
 		const toRender = this._render(visibleStartLineNumber, visibleEndLineNumber, this._getDecorations(ctx));

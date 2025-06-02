@@ -27,7 +27,7 @@ export abstract class TextSearchHeadingImpl<QueryType extends ITextSearchQuery> 
 
 	protected _query: QueryType | null = null;
 	private _rangeHighlightDecorations: RangeHighlightDecorations;
-	private disposePastResults: () => Promise<void> = () => Promise.resolve();
+	private disposePastResults: () => Promise<cognidream> = () => Promise.resolve();
 
 	protected _folderMatches: ISearchTreeFolderMatchWorkspaceRoot[] = [];
 	protected _otherFilesMatch: ISearchTreeFolderMatch | null = null;
@@ -82,7 +82,7 @@ export abstract class TextSearchHeadingImpl<QueryType extends ITextSearchQuery> 
 		return folderMatch;
 	}
 
-	add(allRaw: IFileMatch[], searchInstanceID: string, silent: boolean = false): void {
+	add(allRaw: IFileMatch[], searchInstanceID: string, silent: boolean = falsecognidreamognidream {
 		// Split up raw into a list per folder so we can do a batch add per folder.
 
 		const { byFolder, other } = this.groupFilesByFolder(allRaw);
@@ -96,173 +96,173 @@ export abstract class TextSearchHeadingImpl<QueryType extends ITextSearchQuery> 
 			folderMatch?.addFileMatch(raw, silent, searchInstanceID);
 		});
 
-		if (!this.isAIContributed) {
-			this._otherFilesMatch?.addFileMatch(other, silent, searchInstanceID);
-		}
-		this.disposePastResults();
+if (!this.isAIContributed) {
+	this._otherFilesMatch?.addFileMatch(other, silent, searchInstanceID);
+}
+this.disposePastResults();
+    }
+
+remove(matches: ISearchTreeFileMatch | ISearchTreeFolderMatch | (ISearchTreeFileMatch | ISearchTreeFolderMatch)[], ai = falsecognidreamognidream {
+	if(!Array.isArray(matches)) {
+	matches = [matches];
+}
+
+matches.forEach(m => {
+	if (isSearchTreeFolderMatch(m)) {
+		m.clear();
+	}
+});
+
+const fileMatches: ISearchTreeFileMatch[] = matches.filter(m => isSearchTreeFileMatch(m)) as ISearchTreeFileMatch[];
+
+const { byFolder, other } = this.groupFilesByFolder(fileMatches);
+byFolder.forEach(matches => {
+	if (!matches.length) {
+		return;
 	}
 
-	remove(matches: ISearchTreeFileMatch | ISearchTreeFolderMatch | (ISearchTreeFileMatch | ISearchTreeFolderMatch)[], ai = false): void {
-		if (!Array.isArray(matches)) {
-			matches = [matches];
-		}
+	this.getFolderMatch(matches[0].resource)?.remove(matches);
+});
 
-		matches.forEach(m => {
-			if (isSearchTreeFolderMatch(m)) {
-				m.clear();
-			}
-		});
+if (other.length) {
+	this.getFolderMatch(other[0].resource)?.remove(<ISearchTreeFileMatch[]>other);
+}
+    }
 
-		const fileMatches: ISearchTreeFileMatch[] = matches.filter(m => isSearchTreeFileMatch(m)) as ISearchTreeFileMatch[];
+groupFilesByFolder<FileMatch extends IFileMatch>(fileMatches: FileMatch[]): { byFolder: ResourceMap<FileMatch[]>; other: FileMatch[] } {
+	const rawPerFolder = new ResourceMap<FileMatch[]>();
+	const otherFileMatches: FileMatch[] = [];
+	this._folderMatches.forEach(fm => rawPerFolder.set(fm.resource, []));
 
-		const { byFolder, other } = this.groupFilesByFolder(fileMatches);
-		byFolder.forEach(matches => {
-			if (!matches.length) {
-				return;
-			}
-
-			this.getFolderMatch(matches[0].resource)?.remove(matches);
-		});
-
-		if (other.length) {
-			this.getFolderMatch(other[0].resource)?.remove(<ISearchTreeFileMatch[]>other);
-		}
-	}
-
-	groupFilesByFolder<FileMatch extends IFileMatch>(fileMatches: FileMatch[]): { byFolder: ResourceMap<FileMatch[]>; other: FileMatch[] } {
-		const rawPerFolder = new ResourceMap<FileMatch[]>();
-		const otherFileMatches: FileMatch[] = [];
-		this._folderMatches.forEach(fm => rawPerFolder.set(fm.resource, []));
-
-		fileMatches.forEach(rawFileMatch => {
-			const folderMatch = this.getFolderMatch(rawFileMatch.resource);
-			if (!folderMatch) {
-				// foldermatch was previously removed by user or disposed for some reason
-				return;
-			}
-
-			const resource = folderMatch.resource;
-			if (resource) {
-				rawPerFolder.get(resource)!.push(rawFileMatch);
-			} else {
-				otherFileMatches.push(rawFileMatch);
-			}
-		});
-
-		return {
-			byFolder: rawPerFolder,
-			other: otherFileMatches
-		};
-	}
-	isEmpty(): boolean {
-		return this.folderMatches().every((folderMatch) => folderMatch.isEmpty());
-	}
-
-	findFolderSubstr(resource: URI) {
-		return this._folderMatchesMap.findSubstr(resource);
-	}
-
-	abstract query: QueryType | null;
-
-	protected clearQuery(): void {
-		// When updating the query we could change the roots, so keep a reference to them to clean up when we trigger `disposePastResults`
-		const oldFolderMatches = this.folderMatches();
-		this.disposePastResults = async () => {
-			oldFolderMatches.forEach(match => match.clear());
-			oldFolderMatches.forEach(match => match.dispose());
-			this._isDirty = false;
-		};
-
-		this.cachedSearchComplete = undefined;
-
-		this._rangeHighlightDecorations.removeHighlightRange();
-		this._folderMatchesMap = TernarySearchTree.forUris<ISearchTreeFolderMatchWithResource>(key => this.uriIdentityService.extUri.ignorePathCasing(key));
-	}
-
-	folderMatches(): ISearchTreeFolderMatch[] {
-		return this._otherFilesMatch && this._allowOtherResults ?
-			[
-				...this._folderMatches,
-				this._otherFilesMatch,
-			] :
-			this._folderMatches;
-	}
-
-	private disposeMatches(): void {
-		this.folderMatches().forEach(folderMatch => folderMatch.dispose());
-
-		this._folderMatches = [];
-
-		this._folderMatchesMap = TernarySearchTree.forUris<ISearchTreeFolderMatchWithResource>(key => this.uriIdentityService.extUri.ignorePathCasing(key));
-
-		this._rangeHighlightDecorations.removeHighlightRange();
-	}
-
-	matches(): ISearchTreeFileMatch[] {
-		const matches: ISearchTreeFileMatch[][] = [];
-		this.folderMatches().forEach(folderMatch => {
-			matches.push(folderMatch.allDownstreamFileMatches());
-		});
-
-		return (<ISearchTreeFileMatch[]>[]).concat(...matches);
-	}
-
-	get showHighlights(): boolean {
-		return this._showHighlights;
-	}
-
-	toggleHighlights(value: boolean): void {
-		if (this._showHighlights === value) {
+	fileMatches.forEach(rawFileMatch => {
+		const folderMatch = this.getFolderMatch(rawFileMatch.resource);
+		if (!folderMatch) {
+			// foldermatch was previously removed by user or disposed for some reason
 			return;
 		}
-		this._showHighlights = value;
-		let selectedMatch: ISearchTreeMatch | null = null;
-		this.matches().forEach((fileMatch: ISearchTreeFileMatch) => {
-			fileMatch.updateHighlights();
-			if (isNotebookFileMatch(fileMatch)) {
-				fileMatch.updateNotebookHighlights();
-			}
-			if (!selectedMatch) {
-				selectedMatch = fileMatch.getSelectedMatch();
-			}
-		});
-		if (this._showHighlights && selectedMatch) {
-			// TS?
-			this._rangeHighlightDecorations.highlightRange(
-				(<ISearchTreeMatch>selectedMatch).parent().resource,
-				(<ISearchTreeMatch>selectedMatch).range()
-			);
+
+		const resource = folderMatch.resource;
+		if (resource) {
+			rawPerFolder.get(resource)!.push(rawFileMatch);
 		} else {
-			this._rangeHighlightDecorations.removeHighlightRange();
+			otherFileMatches.push(rawFileMatch);
 		}
-	}
+	});
 
-	get rangeHighlightDecorations(): RangeHighlightDecorations {
-		return this._rangeHighlightDecorations;
-	}
+	return {
+		byFolder: rawPerFolder,
+		other: otherFileMatches
+	};
+}
+isEmpty(): boolean {
+	return this.folderMatches().every((folderMatch) => folderMatch.isEmpty());
+}
 
-	fileCount(): number {
-		return this.folderMatches().reduce<number>((prev, match) => prev + match.recursiveFileCount(), 0);
-	}
+findFolderSubstr(resource: URI) {
+	return this._folderMatchesMap.findSubstr(resource);
+}
 
-	count(): number {
-		return this.matches().reduce<number>((prev, match) => prev + match.count(), 0);
-	}
+    abstract query: QueryType | null;
 
-	clear(clearAll: boolean = true): void {
-		this.cachedSearchComplete = undefined;
-		this.folderMatches().forEach((folderMatch) => folderMatch.clear(clearAll));
-		this.disposeMatches();
-		this._folderMatches = [];
-		this._otherFilesMatch = null;
-	}
+    protected clearQuery(cognidreamognidream {
+	// When updating the query we could change the roots, so keep a reference to them to clean up when we trigger `disposePastResults`
+	const oldFolderMatches = this.folderMatches();
+	this.disposePastResults = async () => {
+		oldFolderMatches.forEach(match => match.clear());
+		oldFolderMatches.forEach(match => match.dispose());
+		this._isDirty = false;
+	};
 
-	override async dispose(): Promise<void> {
-		this._rangeHighlightDecorations.dispose();
-		this.disposeMatches();
-		super.dispose();
-		await this.disposePastResults();
+	this.cachedSearchComplete = undefined;
+
+	this._rangeHighlightDecorations.removeHighlightRange();
+	this._folderMatchesMap = TernarySearchTree.forUris<ISearchTreeFolderMatchWithResource>(key => this.uriIdentityService.extUri.ignorePathCasing(key));
+}
+
+    folderMatches(): ISearchTreeFolderMatch[] {
+	return this._otherFilesMatch && this._allowOtherResults ?
+		[
+			...this._folderMatches,
+			this._otherFilesMatch,
+		] :
+		this._folderMatches;
+}
+
+    private disposeMatches(cognidreamognidream {
+	this.folderMatches().forEach(folderMatch => folderMatch.dispose());
+
+	this._folderMatches = [];
+
+	this._folderMatchesMap = TernarySearchTree.forUris<ISearchTreeFolderMatchWithResource>(key => this.uriIdentityService.extUri.ignorePathCasing(key));
+
+	this._rangeHighlightDecorations.removeHighlightRange();
+}
+
+    matches(): ISearchTreeFileMatch[] {
+	const matches: ISearchTreeFileMatch[][] = [];
+	this.folderMatches().forEach(folderMatch => {
+		matches.push(folderMatch.allDownstreamFileMatches());
+	});
+
+	return(<ISearchTreeFileMatch[]> []).concat(...matches);
+    }
+
+    get showHighlights(): boolean {
+	return this._showHighlights;
+}
+
+toggleHighlights(value: booleancognidreamognidream {
+	if(this._showHighlights === value) {
+	return;
+}
+this._showHighlights = value;
+let selectedMatch: ISearchTreeMatch | null = null;
+this.matches().forEach((fileMatch: ISearchTreeFileMatch) => {
+	fileMatch.updateHighlights();
+	if (isNotebookFileMatch(fileMatch)) {
+		fileMatch.updateNotebookHighlights();
 	}
+	if (!selectedMatch) {
+		selectedMatch = fileMatch.getSelectedMatch();
+	}
+});
+if (this._showHighlights && selectedMatch) {
+	// TS?
+	this._rangeHighlightDecorations.highlightRange(
+		(<ISearchTreeMatch>selectedMatch).parent().resource,
+		(<ISearchTreeMatch>selectedMatch).range()
+	);
+} else {
+	this._rangeHighlightDecorations.removeHighlightRange();
+}
+    }
+
+    get rangeHighlightDecorations(): RangeHighlightDecorations {
+	return this._rangeHighlightDecorations;
+}
+
+fileCount(): number {
+	return this.folderMatches().reduce<number>((prev, match) => prev + match.recursiveFileCount(), 0);
+}
+
+count(): number {
+	return this.matches().reduce<number>((prev, match) => prev + match.count(), 0);
+}
+
+clear(clearAll: boolean = truecognidreamognidream {
+	this.cachedSearchComplete = undefined;
+	this.folderMatches().forEach((folderMatch) => folderMatch.clear(clearAll));
+	this.disposeMatches();
+	this._folderMatches = [];
+	this._otherFilesMatch = null;
+}
+
+    override async dispose(): Promicognidreamognidream > {
+	this._rangeHighlightDecorations.dispose();
+	this.disposeMatches();
+	super.dispose();
+	await this.disposePastResults();
+}
 }
 
 export class PlainTextSearchHeadingImpl extends TextSearchHeadingImpl<ITextQuery> implements IPlainTextSearchHeading {

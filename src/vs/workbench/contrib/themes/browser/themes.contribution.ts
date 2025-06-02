@@ -60,10 +60,10 @@ class MarketplaceThemesPicker {
 
 	private _searchOngoing: boolean = false;
 	private _searchError: string | undefined = undefined;
-	private readonly _onDidChange = new Emitter<void>();
+	private readonly _onDidChange = new Emitter<cognidream>();
 
 	private _tokenSource: CancellationTokenSource | undefined;
-	private readonly _queryDelayer = new ThrottledDelayer<void>(200);
+	private readonly _queryDelayer = new ThrottledDelaycognidreamognidream > (200);
 
 	constructor(
 		private readonly getMarketplaceColorThemes: (publisher: string, name: string, version: string) => Promise<IWorkbenchTheme[]>,
@@ -105,7 +105,7 @@ class MarketplaceThemesPicker {
 		});
 	}
 
-	private async doSearch(value: string, token: CancellationToken): Promise<void> {
+	private async doSearch(value: string, token: CancellationToken): Promicognidreamognidream> {
 		this._searchOngoing = true;
 		this._onDidChange.fire();
 		try {
@@ -113,169 +113,169 @@ class MarketplaceThemesPicker {
 
 			const options = { text: `${this.marketplaceQuery} ${value}`, pageSize: 20 };
 			const pager = await this.extensionGalleryService.query(options, token);
-			for (let i = 0; i < pager.total && i < 1; i++) { // loading multiple pages is turned of for now to avoid flickering
-				if (token.isCancellationRequested) {
-					break;
-				}
-
-				const nThemes = this._marketplaceThemes.length;
-				const gallery = i === 0 ? pager.firstPage : await pager.getPage(i, token);
-
-				const promises: Promise<IWorkbenchTheme[]>[] = [];
-				const promisesGalleries = [];
-				for (let i = 0; i < gallery.length; i++) {
-					if (token.isCancellationRequested) {
-						break;
-					}
-					const ext = gallery[i];
-					if (!installedExtensions.has(ext.identifier.id) && !this._marketplaceExtensions.has(ext.identifier.id)) {
-						this._marketplaceExtensions.add(ext.identifier.id);
-						promises.push(this.getMarketplaceColorThemes(ext.publisher, ext.name, ext.version));
-						promisesGalleries.push(ext);
-					}
-				}
-				const allThemes = await Promise.all(promises);
-				for (let i = 0; i < allThemes.length; i++) {
-					const ext = promisesGalleries[i];
-					for (const theme of allThemes[i]) {
-						this._marketplaceThemes.push({ id: theme.id, theme: theme, label: theme.label, description: `${ext.displayName} · ${ext.publisherDisplayName}`, galleryExtension: ext, buttons: [configureButton] });
-					}
-				}
-
-				if (nThemes !== this._marketplaceThemes.length) {
-					this._marketplaceThemes.sort((t1, t2) => t1.label.localeCompare(t2.label));
-					this._onDidChange.fire();
-				}
-			}
-		} catch (e) {
-			if (!isCancellationError(e)) {
-				this.logService.error(`Error while searching for themes:`, e);
-				this._searchError = 'message' in e ? e.message : String(e);
-			}
-		} finally {
-			this._searchOngoing = false;
-			this._onDidChange.fire();
-		}
-
+			for(let i = 0; i <pager.total && i < 1; i++) { // loading multiple pages is turned of forcognidream to acognidream flickering
+	if (token.isCancellationRequested) {
+		break;
 	}
 
-	public openQuickPick(value: string, currentTheme: IWorkbenchTheme | undefined, selectTheme: (theme: IWorkbenchTheme | undefined, applyTheme: boolean) => void): Promise<PickerResult> {
-		let result: PickerResult | undefined = undefined;
-		const disposables = new DisposableStore();
-		return new Promise<PickerResult>((s, _) => {
-			const quickpick = disposables.add(this.quickInputService.createQuickPick<ThemeItem>());
-			quickpick.items = [];
-			quickpick.sortByLabel = false;
-			quickpick.matchOnDescription = true;
-			quickpick.buttons = [this.quickInputService.backButton];
-			quickpick.title = 'Marketplace Themes';
-			quickpick.placeholder = localize('themes.selectMarketplaceTheme', "Type to Search More. Select to Install. Up/Down Keys to Preview");
-			quickpick.canSelectMany = false;
-			disposables.add(quickpick.onDidChangeValue(() => this.trigger(quickpick.value)));
-			disposables.add(quickpick.onDidAccept(async _ => {
-				const themeItem = quickpick.selectedItems[0];
-				if (themeItem?.galleryExtension) {
-					result = 'selected';
-					quickpick.hide();
-					const success = await this.installExtension(themeItem.galleryExtension);
-					if (success) {
-						selectTheme(themeItem.theme, true);
-					} else {
-						selectTheme(currentTheme, true);
-					}
-				}
-			}));
+	const nThemes = this._marketplaceThemes.length;
+	const gallery = i === 0 ? pager.firstPage : await pager.getPage(i, token);
 
-			disposables.add(quickpick.onDidTriggerItemButton(e => {
-				if (isItem(e.item)) {
-					const extensionId = e.item.theme?.extensionData?.extensionId;
-					if (extensionId) {
-						this.extensionsWorkbenchService.openSearch(`@id:${extensionId}`);
-					} else {
-						this.extensionsWorkbenchService.openSearch(`${this.marketplaceQuery} ${quickpick.value}`);
-					}
-				}
-			}));
-			disposables.add(quickpick.onDidChangeActive(themes => {
-				if (result === undefined) {
-					selectTheme(themes[0]?.theme, false);
-				}
-			}));
+	const promises: Promise<IWorkbenchTheme[]>[] = [];
+	const promisesGalleries = [];
+	for (let i = 0; i < gallery.length; i++) {
+		if (token.isCancellationRequested) {
+			break;
+		}
+		const ext = gallery[i];
+		if (!installedExtensions.has(ext.identifier.id) && !this._marketplaceExtensions.has(ext.identifier.id)) {
+			this._marketplaceExtensions.add(ext.identifier.id);
+			promises.push(this.getMarketplaceColorThemes(ext.publisher, ext.name, ext.version));
+			promisesGalleries.push(ext);
+		}
+	}
+	const allThemes = await Promise.all(promises);
+	for (let i = 0; i < allThemes.length; i++) {
+		const ext = promisesGalleries[i];
+		for (const theme of allThemes[i]) {
+			this._marketplaceThemes.push({ id: theme.id, theme: theme, label: theme.label, description: `${ext.displayName} · ${ext.publisherDisplayName}`, galleryExtension: ext, buttons: [configureButton] });
+		}
+	}
 
-			disposables.add(quickpick.onDidHide(() => {
-				if (result === undefined) {
+	if (nThemes !== this._marketplaceThemes.length) {
+		this._marketplaceThemes.sort((t1, t2) => t1.label.localeCompare(t2.label));
+		this._onDidChange.fire();
+	}
+}
+        } catch (e) {
+	if (!isCancellationError(e)) {
+		this.logService.error(`Error while searching for themes:`, e);
+		this._searchError = 'message' in e ? e.message : String(e);
+	}
+} finally {
+	this._searchOngoing = false;
+	this._onDidChange.fire();
+}
+
+    }
+
+    public openQuickPick(value: string, currentTheme: IWorkbenchTheme | undefined, selectTheme: (theme: IWorkbenchTheme | undefined, applyTheme: boolean) cognidreamognidream): Promise < PickerResult > {
+	let result: PickerResult | undefined = undefined;
+	const disposables = new DisposableStore();
+	return new Promise<PickerResult>((s, _) => {
+		const quickpick = disposables.add(this.quickInputService.createQuickPick<ThemeItem>());
+		quickpick.items = [];
+		quickpick.sortByLabel = false;
+		quickpick.matchOnDescription = true;
+		quickpick.buttons = [this.quickInputService.backButton];
+		quickpick.title = 'Marketplace Themes';
+		quickpick.placeholder = localize('themes.selectMarketplaceTheme', "Type to Search More. Select to Install. Up/Down Keys to Preview");
+		quickpick.canSelectMany = false;
+		disposables.add(quickpick.onDidChangeValue(() => this.trigger(quickpick.value)));
+		disposables.add(quickpick.onDidAccept(async _ => {
+			const themeItem = quickpick.selectedItems[0];
+			if (themeItem?.galleryExtension) {
+				result = 'selected';
+				quickpick.hide();
+				const success = await this.installExtension(themeItem.galleryExtension);
+				if (success) {
+					selectTheme(themeItem.theme, true);
+				} else {
 					selectTheme(currentTheme, true);
-					result = 'cancelled';
-
 				}
-				s(result);
-			}));
+			}
+		}));
 
-			disposables.add(quickpick.onDidTriggerButton(e => {
-				if (e === this.quickInputService.backButton) {
-					result = 'back';
-					quickpick.hide();
+		disposables.add(quickpick.onDidTriggerItemButton(e => {
+			if (isItem(e.item)) {
+				const extensionId = e.item.theme?.extensionData?.extensionId;
+				if (extensionId) {
+					this.extensionsWorkbenchService.openSearch(`@id:${extensionId}`);
+				} else {
+					this.extensionsWorkbenchService.openSearch(`${this.marketplaceQuery} ${quickpick.value}`);
 				}
-			}));
+			}
+		}));
+		disposables.add(quickpick.onDidChangeActive(themes => {
+			if (result === undefined) {
+				selectTheme(themes[0]?.theme, false);
+			}
+		}));
 
-			disposables.add(this.onDidChange(() => {
-				let items = this.themes;
-				if (this._searchOngoing) {
-					items = items.concat({ label: '$(loading~spin) Searching for themes...', id: undefined, alwaysShow: true });
-				} else if (items.length === 0 && this._searchError) {
-					items = [{ label: `$(error) ${localize('search.error', 'Error while searching for themes: {0}', this._searchError)}`, id: undefined, alwaysShow: true }];
-				}
-				const activeItemId = quickpick.activeItems[0]?.id;
-				const newActiveItem = activeItemId ? items.find(i => isItem(i) && i.id === activeItemId) : undefined;
+		disposables.add(quickpick.onDidHide(() => {
+			if (result === undefined) {
+				selectTheme(currentTheme, true);
+				result = 'cancelled';
 
-				quickpick.items = items;
-				if (newActiveItem) {
-					quickpick.activeItems = [newActiveItem as ThemeItem];
-				}
-			}));
-			this.trigger(value);
-			quickpick.show();
-		}).finally(() => {
-			disposables.dispose();
-		});
+			}
+			s(result);
+		}));
+
+		disposables.add(quickpick.onDidTriggerButton(e => {
+			if (e === this.quickInputService.backButton) {
+				result = 'back';
+				quickpick.hide();
+			}
+		}));
+
+		disposables.add(this.onDidChange(() => {
+			let items = this.themes;
+			if (this._searchOngoing) {
+				items = items.concat({ label: '$(loading~spin) Searching for themes...', id: undefined, alwaysShow: true });
+			} else if (items.length === 0 && this._searchError) {
+				items = [{ label: `$(error) ${localize('search.error', 'Error while searching for themes: {0}', this._searchError)}`, id: undefined, alwaysShow: true }];
+			}
+			const activeItemId = quickpick.activeItems[0]?.id;
+			const newActiveItem = activeItemId ? items.find(i => isItem(i) && i.id === activeItemId) : undefined;
+
+			quickpick.items = items;
+			if (newActiveItem) {
+				quickpick.activeItems = [newActiveItem as ThemeItem];
+			}
+		}));
+		this.trigger(value);
+		quickpick.show();
+	}).finally(() => {
+		disposables.dispose();
+	});
+}
+
+    private async installExtension(galleryExtension: IGalleryExtension) {
+	this.extensionsWorkbenchService.openSearch(`@id:${galleryExtension.identifier.id}`);
+	const result = await this.dialogService.confirm({
+		message: localize('installExtension.confirm', "This will install extension '{0}' published by '{1}'. Do you want to continue?", galleryExtension.displayName, galleryExtension.publisherDisplayName),
+		primaryButton: localize('installExtension.button.ok', "OK")
+	});
+	if (!result.confirmed) {
+		return false;
 	}
-
-	private async installExtension(galleryExtension: IGalleryExtension) {
-		this.extensionsWorkbenchService.openSearch(`@id:${galleryExtension.identifier.id}`);
-		const result = await this.dialogService.confirm({
-			message: localize('installExtension.confirm', "This will install extension '{0}' published by '{1}'. Do you want to continue?", galleryExtension.displayName, galleryExtension.publisherDisplayName),
-			primaryButton: localize('installExtension.button.ok', "OK")
-		});
-		if (!result.confirmed) {
-			return false;
-		}
-		try {
-			await this.progressService.withProgress({
-				location: ProgressLocation.Notification,
-				title: localize('installing extensions', "Installing Extension {0}...", galleryExtension.displayName)
-			}, async () => {
-				await this.extensionManagementService.installFromGallery(galleryExtension, {
-					// Setting this to false is how you get the extension to be synced with Settings Sync (if enabled).
-					isMachineScoped: false,
-				});
+	try {
+		await this.progressService.withProgress({
+			location: ProgressLocation.Notification,
+			title: localize('installing extensions', "Installing Extension {0}...", galleryExtension.displayName)
+		}, async () => {
+			await this.extensionManagementService.installFromGallery(galleryExtension, {
+				// Setting this to false is how you get the extension to be synced with Settings Sync (if enabled).
+				isMachineScoped: false,
 			});
-			return true;
-		} catch (e) {
-			this.logService.error(`Problem installing extension ${galleryExtension.identifier.id}`, e);
-			return false;
-		}
+		});
+		return true;
+	} catch (e) {
+		this.logService.error(`Problem installing extension ${galleryExtension.identifier.id}`, e);
+		return false;
 	}
+}
 
 
-	public dispose() {
-		if (this._tokenSource) {
-			this._tokenSource.cancel();
-			this._tokenSource = undefined;
-		}
-		this._queryDelayer.dispose();
-		this._marketplaceExtensions.clear();
-		this._marketplaceThemes.length = 0;
+    public dispose() {
+	if (this._tokenSource) {
+		this._tokenSource.cancel();
+		this._tokenSource = undefined;
 	}
+	this._queryDelayer.dispose();
+	this._marketplaceExtensions.clear();
+	this._marketplaceThemes.length = 0;
+}
 }
 
 interface InstalledThemesPickerOptions {
@@ -286,7 +286,7 @@ interface InstalledThemesPickerOptions {
 	readonly title?: string;
 	readonly description?: string;
 	readonly toggles?: IQuickInputToggle[];
-	readonly onToggle?: (toggle: IQuickInputToggle, quickInput: IQuickPick<ThemeItem, { useSeparators: boolean }>) => Promise<void>;
+	readonly onToggle?: (toggle: IQuickInputToggle, quickInput: IQuickPick<ThemeItem, { useSeparators: boolean }>) => Promicognidreamognidream>;
 }
 
 class InstalledThemesPicker {
@@ -334,7 +334,7 @@ class InstalledThemesPicker {
 
 		const pickInstalledThemes = (activeItemId: string | undefined) => {
 			const disposables = new DisposableStore();
-			return new Promise<void>((s, _) => {
+			return newcognidreammise<cognidream>((s, _) => {
 				let isCompleted = false;
 				const autoFocusIndex = picks.findIndex(p => isItem(p) && p.id === activeItemId);
 				const quickpick = disposables.add(this.quickInputService.createQuickPick<ThemeItem>({ useSeparators: true }));

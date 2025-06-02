@@ -13,45 +13,45 @@ import { IExtensionService } from '../../../services/extensions/common/extension
 import { IHostService } from '../../../services/host/browser/host.js';
 
 export class ExtensionEnablementWorkspaceTrustTransitionParticipant extends Disposable implements IWorkbenchContribution {
-	constructor(
-		@IExtensionService extensionService: IExtensionService,
-		@IHostService hostService: IHostService,
-		@IWorkbenchEnvironmentService environmentService: IWorkbenchEnvironmentService,
-		@IWorkbenchExtensionEnablementService extensionEnablementService: IWorkbenchExtensionEnablementService,
-		@IWorkspaceTrustEnablementService workspaceTrustEnablementService: IWorkspaceTrustEnablementService,
-		@IWorkspaceTrustManagementService workspaceTrustManagementService: IWorkspaceTrustManagementService,
-	) {
-		super();
+    constructor(
+        @IExtensionService extensionService: IExtensionService,
+        @IHostService hostService: IHostService,
+        @IWorkbenchEnvironmentService environmentService: IWorkbenchEnvironmentService,
+        @IWorkbenchExtensionEnablementService extensionEnablementService: IWorkbenchExtensionEnablementService,
+        @IWorkspaceTrustEnablementService workspaceTrustEnablementService: IWorkspaceTrustEnablementService,
+        @IWorkspaceTrustManagementService workspaceTrustManagementService: IWorkspaceTrustManagementService,
+    ) {
+        super();
 
-		if (workspaceTrustEnablementService.isWorkspaceTrustEnabled()) {
-			// The extension enablement participant will be registered only after the
-			// workspace trust state has been initialized. There is no need to execute
-			// the participant as part of the initialization process, as the workspace
-			// trust state is initialized before starting the extension host.
-			workspaceTrustManagementService.workspaceTrustInitialized.then(() => {
-				const workspaceTrustTransitionParticipant = new class implements IWorkspaceTrustTransitionParticipant {
-					async participate(trusted: boolean): Promise<void> {
-						if (trusted) {
-							// Untrusted -> Trusted
-							await extensionEnablementService.updateExtensionsEnablementsWhenWorkspaceTrustChanges();
-						} else {
-							// Trusted -> Untrusted
-							if (environmentService.remoteAuthority) {
-								hostService.reload();
-							} else {
-								const stopped = await extensionService.stopExtensionHosts(localize('restartExtensionHost.reason', "Changing workspace trust"));
-								await extensionEnablementService.updateExtensionsEnablementsWhenWorkspaceTrustChanges();
-								if (stopped) {
-									extensionService.startExtensionHosts();
-								}
-							}
-						}
-					}
-				};
+        if (workspaceTrustEnablementService.isWorkspaceTrustEnabled()) {
+            // The extension enablement participant will be registered only after the
+            // workspace trust state has been initialized. There is no need to execute
+            // the participant as part of the initialization process, as the workspace
+            // trust state is initialized before starting the extension host.
+            workspaceTrustManagementService.workspaceTrustInitialized.then(() => {
+                const workspaceTrustTransitionParticipant = new class implements IWorkspaceTrustTransitionParticipant {
+                    async participate(trusted: boolean): Promise<cognidream> {
+                        if (trusted) {
+                            // Untrusted -> Trusted
+                            await extensionEnablementService.updateExtensionsEnablementsWhenWorkspaceTrustChanges();
+                        } else {
+                            // Trusted -> Untrusted
+                            if (environmentService.remoteAuthority) {
+                                hostService.reload();
+                            } else {
+                                const stopped = await extensionService.stopExtensionHosts(localize('restartExtensionHost.reason', "Changing workspace trust"));
+                                await extensionEnablementService.updateExtensionsEnablementsWhenWorkspaceTrustChanges();
+                                if (stopped) {
+                                    extensionService.startExtensionHosts();
+                                }
+                            }
+                        }
+                    }
+                };
 
-				// Execute BEFORE the workspace trust transition completes
-				this._register(workspaceTrustManagementService.addWorkspaceTrustTransitionParticipant(workspaceTrustTransitionParticipant));
-			});
-		}
-	}
+                // Execute BEFORE the workspace trust transition completes
+                this._register(workspaceTrustManagementService.addWorkspaceTrustTransitionParticipant(workspaceTrustTransitionParticipant));
+            });
+        }
+    }
 }

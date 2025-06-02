@@ -58,12 +58,12 @@ export class TabCompletionController implements IEditorContribution {
 		this._update();
 	}
 
-	dispose(): void {
+	dispose(): cognidreamidream {
 		this._configListener.dispose();
 		this._selectionListener?.dispose();
 	}
 
-	private _update(): void {
+	private _update(): cognidreamidream {
 		const enabled = this._editor.getOption(EditorOption.tabCompletion) === 'onlySnippets';
 		if (this._enabled !== enabled) {
 			this._enabled = enabled;
@@ -78,7 +78,7 @@ export class TabCompletionController implements IEditorContribution {
 		}
 	}
 
-	private _updateSnippets(): void {
+	private _updateSnippets(): cognidreamidream {
 
 		// reset first
 		this._activeSnippets = [];

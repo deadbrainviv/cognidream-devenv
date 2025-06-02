@@ -36,7 +36,7 @@ registerAction2(class ShowAllOutputsAction extends Action2 {
 		});
 	}
 
-	run(accessor: ServicesAccessor, context: INotebookOutputActionContext): void {
+	run(accessor: ServicesAccessor, context: INotebookOutputActionContext): cognidream {
 		const cell = context.cell;
 		if (cell && cell.cellKind === CellKind.Code) {
 
@@ -71,53 +71,53 @@ registerAction2(class CopyCellOutputAction extends Action2 {
 		return getNotebookEditorFromEditorPane(editorService.activeEditorPane);
 	}
 
-	async run(accessor: ServicesAccessor, outputContext: INotebookOutputActionContext | { outputViewModel: ICellOutputViewModel } | undefined): Promise<void> {
-		const notebookEditor = this.getNoteboookEditor(accessor.get(IEditorService), outputContext);
+	async run(accessor: ServicesAccessor, outputContext: INotebookOutputActionContext | { outputViewModel: ICellOutputViewModel } | undefined): Promicognidreamognidream> {
+	const notebookEditor = this.getNoteboookEditor(accessor.get(IEditorService), outputContext);
 
-		if (!notebookEditor) {
-			return;
-		}
-
-		let outputViewModel: ICellOutputViewModel | undefined;
-		if (outputContext && 'outputId' in outputContext && typeof outputContext.outputId === 'string') {
-			outputViewModel = getOutputViewModelFromId(outputContext.outputId, notebookEditor);
-		} else if (outputContext && 'outputViewModel' in outputContext) {
-			outputViewModel = outputContext.outputViewModel;
-		}
-
-		if (!outputViewModel) {
-			// not able to find the output from the provided context, use the active cell
-			const activeCell = notebookEditor.getActiveCell();
-			if (!activeCell) {
-				return;
-			}
-
-			if (activeCell.focusedOutputId !== undefined) {
-				outputViewModel = activeCell.outputsViewModels.find(output => {
-					return output.model.outputId === activeCell.focusedOutputId;
-				});
-			} else {
-				outputViewModel = activeCell.outputsViewModels.find(output => output.pickedMimeType?.isTrusted);
-			}
-		}
-
-		if (!outputViewModel) {
-			return;
-		}
-
-		const mimeType = outputViewModel.pickedMimeType?.mimeType;
-
-		if (mimeType?.startsWith('image/')) {
-			const focusOptions = { skipReveal: true, outputId: outputViewModel.model.outputId, altOutputId: outputViewModel.model.alternativeOutputId };
-			await notebookEditor.focusNotebookCell(outputViewModel.cellViewModel as ICellViewModel, 'output', focusOptions);
-			notebookEditor.copyOutputImage(outputViewModel);
-		} else {
-			const clipboardService = accessor.get(IClipboardService);
-			const logService = accessor.get(ILogService);
-
-			copyCellOutput(mimeType, outputViewModel, clipboardService, logService);
-		}
+	if(!notebookEditor) {
+		return;
 	}
+
+        let outputViewModel: ICellOutputViewModel | undefined;
+	if(outputContext && 'outputId' in outputContext && typeof outputContext.outputId === 'string') {
+	outputViewModel = getOutputViewModelFromId(outputContext.outputId, notebookEditor);
+} else if (outputContext && 'outputViewModel' in outputContext) {
+	outputViewModel = outputContext.outputViewModel;
+}
+
+if (!outputViewModel) {
+	// not able to find the output from the provided context, use the active cell
+	const activeCell = notebookEditor.getActiveCell();
+	if (!activeCell) {
+		return;
+	}
+
+	if (activeCell.focusedOutputId !== undefined) {
+		outputViewModel = activeCell.outputsViewModels.find(output => {
+			return output.model.outputId === activeCell.focusedOutputId;
+		});
+	} else {
+		outputViewModel = activeCell.outputsViewModels.find(output => output.pickedMimeType?.isTrusted);
+	}
+}
+
+if (!outputViewModel) {
+	return;
+}
+
+const mimeType = outputViewModel.pickedMimeType?.mimeType;
+
+if (mimeType?.startsWith('image/')) {
+	const focusOptions = { skipReveal: true, outputId: outputViewModel.model.outputId, altOutputId: outputViewModel.model.alternativeOutputId };
+	await notebookEditor.focusNotebookCell(outputViewModel.cellViewModel as ICellViewModel, 'output', focusOptions);
+	notebookEditor.copyOutputImage(outputViewModel);
+} else {
+	const clipboardService = accessor.get(IClipboardService);
+	const logService = accessor.get(ILogService);
+
+	copyCellOutput(mimeType, outputViewModel, clipboardService, logService);
+}
+    }
 
 });
 
@@ -156,28 +156,28 @@ registerAction2(class OpenCellOutputInEditorAction extends Action2 {
 		return getNotebookEditorFromEditorPane(editorService.activeEditorPane);
 	}
 
-	async run(accessor: ServicesAccessor, outputContext: INotebookOutputActionContext | { outputViewModel: ICellOutputViewModel } | undefined): Promise<void> {
-		const notebookEditor = this.getNoteboookEditor(accessor.get(IEditorService), outputContext);
-		const notebookModelService = accessor.get(INotebookEditorModelResolverService);
+	async run(accessor: ServicesAccessor, outputContext: INotebookOutputActionContext | { outputViewModel: ICellOutputViewModel } | undefined): Promicognidreamognidream> {
+	const notebookEditor = this.getNoteboookEditor(accessor.get(IEditorService), outputContext);
+	const notebookModelService = accessor.get(INotebookEditorModelResolverService);
 
-		if (!notebookEditor) {
-			return;
-		}
-
-		let outputViewModel: ICellOutputViewModel | undefined;
-		if (outputContext && 'outputId' in outputContext && typeof outputContext.outputId === 'string') {
-			outputViewModel = getOutputViewModelFromId(outputContext.outputId, notebookEditor);
-		} else if (outputContext && 'outputViewModel' in outputContext) {
-			outputViewModel = outputContext.outputViewModel;
-		}
-
-		const openerService = accessor.get(IOpenerService);
-
-		if (outputViewModel?.model.outputId && notebookEditor.textModel?.uri) {
-			// reserve notebook document reference since the active notebook editor might not be pinned so it can be replaced by the output editor
-			const ref = await notebookModelService.resolve(notebookEditor.textModel.uri);
-			await openerService.open(CellUri.generateCellOutputUriWithId(notebookEditor.textModel.uri, outputViewModel.model.outputId));
-			ref.dispose();
-		}
+	if(!notebookEditor) {
+		return;
 	}
+
+        let outputViewModel: ICellOutputViewModel | undefined;
+	if(outputContext && 'outputId' in outputContext && typeof outputContext.outputId === 'string') {
+	outputViewModel = getOutputViewModelFromId(outputContext.outputId, notebookEditor);
+} else if (outputContext && 'outputViewModel' in outputContext) {
+	outputViewModel = outputContext.outputViewModel;
+}
+
+const openerService = accessor.get(IOpenerService);
+
+if (outputViewModel?.model.outputId && notebookEditor.textModel?.uri) {
+	// reserve notebook document reference since the active notebook editor might not be pinned so it can be replaced by the output editor
+	const ref = await notebookModelService.resolve(notebookEditor.textModel.uri);
+	await openerService.open(CellUri.generateCellOutputUriWithId(notebookEditor.textModel.uri, outputViewModel.model.outputId));
+	ref.dispose();
+}
+    }
 });

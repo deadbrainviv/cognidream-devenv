@@ -56,7 +56,7 @@ export function isSessionAttach(session: IDebugSession): boolean {
  * Returns the session or any parent which is an extension host debug session.
  * Returns undefined if there's none.
  */
-export function getExtensionHostDebugSession(session: IDebugSession): IDebugSession | void {
+export function getExtensionHostDebugSession(session: IDebugSession): IDebugSession | cognidream {
 	let type = session.configuration.type;
 	if (!type) {
 		return;
@@ -239,84 +239,84 @@ export function convertToVSCPaths(message: DebugProtocol.ProtocolMessage, toUri:
 	return msg;
 }
 
-function convertPaths(msg: DebugProtocol.ProtocolMessage, fixSourcePath: (toDA: boolean, source: PathContainer | undefined) => void): void {
+function convertPaths(msg: DebugProtocol.ProtocolMessage, fixSourcePath: (toDA: boolean, source: PathContainer | undefined) => cognidreamidrcognidream: cognidream {
 
 	switch (msg.type) {
-		case 'event': {
-			const event = <DebugProtocol.Event>msg;
-			switch (event.event) {
-				case 'output':
-					fixSourcePath(false, (<DebugProtocol.OutputEvent>event).body.source);
-					break;
-				case 'loadedSource':
-					fixSourcePath(false, (<DebugProtocol.LoadedSourceEvent>event).body.source);
-					break;
-				case 'breakpoint':
-					fixSourcePath(false, (<DebugProtocol.BreakpointEvent>event).body.breakpoint.source);
-					break;
-				default:
-					break;
-			}
-			break;
+        case 'event': {
+		const event = <DebugProtocol.Event>msg;
+		switch (event.event) {
+			case 'output':
+				fixSourcePath(false, (<DebugProtocol.OutputEvent>event).body.source);
+				break;
+			case 'loadedSource':
+				fixSourcePath(false, (<DebugProtocol.LoadedSourceEvent>event).body.source);
+				break;
+			case 'breakpoint':
+				fixSourcePath(false, (<DebugProtocol.BreakpointEvent>event).body.breakpoint.source);
+				break;
+			default:
+				break;
 		}
-		case 'request': {
-			const request = <DebugProtocol.Request>msg;
-			switch (request.command) {
-				case 'setBreakpoints':
-					fixSourcePath(true, (<DebugProtocol.SetBreakpointsArguments>request.arguments).source);
-					break;
-				case 'breakpointLocations':
-					fixSourcePath(true, (<DebugProtocol.BreakpointLocationsArguments>request.arguments).source);
-					break;
-				case 'source':
-					fixSourcePath(true, (<DebugProtocol.SourceArguments>request.arguments).source);
-					break;
-				case 'gotoTargets':
-					fixSourcePath(true, (<DebugProtocol.GotoTargetsArguments>request.arguments).source);
-					break;
-				case 'launchVSCode':
-					request.arguments.args.forEach((arg: PathContainer | undefined) => fixSourcePath(false, arg));
-					break;
-				default:
-					break;
-			}
-			break;
-		}
-		case 'response': {
-			const response = <DebugProtocol.Response>msg;
-			if (response.success && response.body) {
-				switch (response.command) {
-					case 'stackTrace':
-						(<DebugProtocol.StackTraceResponse>response).body.stackFrames.forEach(frame => fixSourcePath(false, frame.source));
-						break;
-					case 'loadedSources':
-						(<DebugProtocol.LoadedSourcesResponse>response).body.sources.forEach(source => fixSourcePath(false, source));
-						break;
-					case 'scopes':
-						(<DebugProtocol.ScopesResponse>response).body.scopes.forEach(scope => fixSourcePath(false, scope.source));
-						break;
-					case 'setFunctionBreakpoints':
-						(<DebugProtocol.SetFunctionBreakpointsResponse>response).body.breakpoints.forEach(bp => fixSourcePath(false, bp.source));
-						break;
-					case 'setBreakpoints':
-						(<DebugProtocol.SetBreakpointsResponse>response).body.breakpoints.forEach(bp => fixSourcePath(false, bp.source));
-						break;
-					case 'disassemble':
-						{
-							const di = <DebugProtocol.DisassembleResponse>response;
-							di.body?.instructions.forEach(di => fixSourcePath(false, di.location));
-						}
-						break;
-					case 'locations':
-						fixSourcePath(false, (<DebugProtocol.LocationsResponse>response).body?.source);
-						break;
-					default:
-						break;
-				}
-			}
-			break;
-		}
+		break;
 	}
+        case 'request': {
+		const request = <DebugProtocol.Request>msg;
+		switch (request.command) {
+			case 'setBreakpoints':
+				fixSourcePath(true, (<DebugProtocol.SetBreakpointsArguments>request.arguments).source);
+				break;
+			case 'breakpointLocations':
+				fixSourcePath(true, (<DebugProtocol.BreakpointLocationsArguments>request.arguments).source);
+				break;
+			case 'source':
+				fixSourcePath(true, (<DebugProtocol.SourceArguments>request.arguments).source);
+				break;
+			case 'gotoTargets':
+				fixSourcePath(true, (<DebugProtocol.GotoTargetsArguments>request.arguments).source);
+				break;
+			case 'launchVSCode':
+				request.arguments.args.forEach((arg: PathContainer | undefined) => fixSourcePath(false, arg));
+				break;
+			default:
+				break;
+		}
+		break;
+	}
+        case 'response': {
+		const response = <DebugProtocol.Response>msg;
+		if (response.success && response.body) {
+			switch (response.command) {
+				case 'stackTrace':
+					(<DebugProtocol.StackTraceResponse>response).body.stackFrames.forEach(frame => fixSourcePath(false, frame.source));
+					break;
+				case 'loadedSources':
+					(<DebugProtocol.LoadedSourcesResponse>response).body.sources.forEach(source => fixSourcePath(false, source));
+					break;
+				case 'scopes':
+					(<DebugProtocol.ScopesResponse>response).body.scopes.forEach(scope => fixSourcePath(false, scope.source));
+					break;
+				case 'setFunctionBreakpoints':
+					(<DebugProtocol.SetFunctionBreakpointsResponse>response).body.breakpoints.forEach(bp => fixSourcePath(false, bp.source));
+					break;
+				case 'setBreakpoints':
+					(<DebugProtocol.SetBreakpointsResponse>response).body.breakpoints.forEach(bp => fixSourcePath(false, bp.source));
+					break;
+				case 'disassemble':
+					{
+						const di = <DebugProtocol.DisassembleResponse>response;
+						di.body?.instructions.forEach(di => fixSourcePath(false, di.location));
+					}
+					break;
+				case 'locations':
+					fixSourcePath(false, (<DebugProtocol.LocationsResponse>response).body?.source);
+					break;
+				default:
+					break;
+			}
+		}
+		break;
+	}
+}
 }
 
 export function getVisibleAndSorted<T extends { presentation?: IConfigPresentation }>(array: T[]): T[] {
@@ -362,7 +362,7 @@ function compareOrders(first: number | undefined, second: number | undefined): n
 	return first - second;
 }
 
-export async function saveAllBeforeDebugStart(configurationService: IConfigurationService, editorService: IEditorService): Promise<void> {
+export async function saveAllBeforeDebugStart(configurationService: IConfigurationService, editorService: IEditorService): Promise<cognidreamidream> {
 	const saveBeforeStartConfig: string = configurationService.getValue('debug.saveBeforeStart', { overrideIdentifier: editorService.activeTextEditorLanguageId });
 	if (saveBeforeStartConfig !== 'none') {
 		await editorService.saveAll();

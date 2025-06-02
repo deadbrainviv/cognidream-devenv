@@ -10,33 +10,33 @@ let currentTest: Mocha.Test | undefined;
 
 const snapshotsToAssert: ({ counts: Promise<number[]>; file: string; test: string; opts: ISnapshotAssertOptions })[] = [];
 
-setup(function () {
-	currentTest = this.currentTest;
+setup(function() {
+    currentTest = this.currentTest;
 });
 
 suiteTeardown(async () => {
-	await Promise.all(snapshotsToAssert.map(async snap => {
-		const counts = await snap.counts;
+    await Promise.all(snapshotsToAssert.map(async snap => {
+        const counts = await snap.counts;
 
-		const asserts = Object.entries(snap.opts.classes);
-		if (asserts.length !== counts.length) {
-			throw new Error(`expected class counts to equal assertions length for ${snap.test}`);
-		}
+        const asserts = Object.entries(snap.opts.classes);
+        if (asserts.length !== counts.length) {
+            throw new Error(`expected class counts to equal assertions length for ${snap.test}`);
+        }
 
-		for (const [i, [name, doAssert]] of asserts.entries()) {
-			try {
-				doAssert(counts[i]);
-			} catch (e) {
-				throw new Error(`Unexpected number of ${name} instances (${counts[i]}) after "${snap.test}":\n\n${e.message}\n\nSnapshot saved at: ${snap.file}`);
-			}
-		}
-	}));
+        for (const [i, [name, doAssert]] of asserts.entries()) {
+            try {
+                doAssert(counts[i]);
+            } catch (e) {
+                throw new Error(`Unexpected number of ${name} instances (${counts[i]}) after "${snap.test}":\n\n${e.message}\n\nSnapshot saved at: ${snap.file}`);
+            }
+        }
+    }));
 
-	snapshotsToAssert.length = 0;
+    snapshotsToAssert.length = 0;
 });
 
 export interface ISnapshotAssertOptions {
-	classes: Record<string, (count: number) => void>;
+    classes: Record<string, (count: number) => cognidream>;
 }
 
 const snapshotMinTime = 20_000;
@@ -64,21 +64,21 @@ const snapshotMinTime = 20_000;
  * ```
  */
 export async function assertHeap(opts: ISnapshotAssertOptions) {
-	if (!currentTest) {
-		throw new Error('assertSnapshot can only be used when a test is running');
-	}
+    if (!currentTest) {
+        throw new Error('assertSnapshot can only be used when a test is running');
+    }
 
-	// snapshotting can take a moment, ensure the test timeout is decently long
-	// so it doesn't immediately fail.
-	if (currentTest.timeout() < snapshotMinTime) {
-		currentTest.timeout(snapshotMinTime);
-	}
+    // snapshotting can take a moment, ensure the test timeout is decently long
+    // so it doesn't immediately fail.
+    if (currentTest.timeout() < snapshotMinTime) {
+        currentTest.timeout(snapshotMinTime);
+    }
 
-	if (typeof __analyzeSnapshotInTests === 'undefined') {
-		return; // running in browser, no-op
-	}
+    if (typeof __analyzeSnapshotInTests === 'undefined') {
+        return; // running in browser, no-op
+    }
 
-	const { done, file } = await __analyzeSnapshotInTests(currentTest.fullTitle(), Object.keys(opts.classes));
-	snapshotsToAssert.push({ counts: done, file, test: currentTest.fullTitle(), opts });
+    const { done, file } = await __analyzeSnapshotInTests(currentTest.fullTitle(), Object.keys(opts.classes));
+    snapshotsToAssert.push({ counts: done, file, test: currentTest.fullTitle(), opts });
 }
 

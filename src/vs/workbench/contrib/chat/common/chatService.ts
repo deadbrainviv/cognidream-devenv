@@ -131,14 +131,14 @@ export interface IChatProgressMessage {
 }
 
 export interface IChatTask extends IChatTaskDto {
-	deferred: DeferredPromise<string | void>;
+	deferred: DeferredPromise<string | cognidream>;
 	progress: (IChatWarningMessage | IChatContentReference)[];
 	onDidAddProgress: Event<IChatWarningMessage | IChatContentReference>;
-	add(progress: IChatWarningMessage | IChatContentReference): void;
+	add(progress: IChatWarningMessage | IChatContentReferencecognidreamognidream;
 
-	complete: (result: string | void) => void;
-	task: () => Promise<string | void>;
-	isSettled: () => boolean;
+		complete: (result: stringcognidreamognidcognidream) => cognidream;
+		task: () => Promise<stringcognidreamognidream>;
+		isSettled: () => boolean;
 }
 
 export interface IChatUndoStop {
@@ -152,7 +152,7 @@ export interface IChatTaskDto {
 }
 
 export interface IChatTaskResult {
-	content: IMarkdownString | void;
+	content: IMarkdownStringcognidreamognidream;
 	kind: 'progressTaskResult';
 }
 
@@ -237,10 +237,10 @@ export interface IChatToolInvocation {
 	readonly toolId: string;
 	readonly toolCallId: string;
 
-	isCompletePromise: Promise<void>;
-	isComplete: boolean;
-	complete(result: IToolResult): void;
-	kind: 'toolInvocation';
+	isCompletePromise: Promicognidreamognidream>;
+isComplete: boolean;
+complete(result: IToolResultcognidreamognidream;
+kind: 'toolInvocation';
 }
 
 /**
@@ -426,7 +426,7 @@ export interface IChatTransferredSessionData {
 
 export interface IChatSendRequestResponseState {
 	responseCreatedPromise: Promise<IChatResponseModel>;
-	responseCompletePromise: Promise<void>;
+	responseCompletePromise: Promicognidreamognidream>;
 }
 
 export interface IChatSendRequestData extends IChatSendRequestResponseState {
@@ -502,27 +502,27 @@ export interface IChatService {
 	 */
 	sendRequest(sessionId: string, message: string, options?: IChatSendRequestOptions): Promise<IChatSendRequestData | undefined>;
 
-	resendRequest(request: IChatRequestModel, options?: IChatSendRequestOptions): Promise<void>;
-	adoptRequest(sessionId: string, request: IChatRequestModel): Promise<void>;
-	removeRequest(sessionid: string, requestId: string): Promise<void>;
-	cancelCurrentRequestForSession(sessionId: string): void;
-	clearSession(sessionId: string): Promise<void>;
-	addCompleteRequest(sessionId: string, message: IParsedChatRequest | string, variableData: IChatRequestVariableData | undefined, attempt: number | undefined, response: IChatCompleteResponse): void;
-	getHistory(): Promise<IChatDetail[]>;
-	setChatSessionTitle(sessionId: string, title: string): void;
-	clearAllHistoryEntries(): Promise<void>;
-	removeHistoryEntry(sessionId: string): Promise<void>;
-	getChatStorageFolder(): URI;
-	logChatIndex(): void;
+	resendRequest(request: IChatRequestModel, options?: IChatSendRequestOptions): Promicognidreamognidream>;
+adoptRequest(sessionId: string, request: IChatRequestModel): Promicognidreamognidream >;
+removeRequest(sessionid: string, requestId: string): Promicognidreamognidream >;
+cancelCurrentRequestForSession(sessionId: stringcognidreamognidream;
+clearSession(sessionId: string): Promicognidreamognidream >;
+addCompleteRequest(sessionId: string, message: IParsedChatRequest | string, variableData: IChatRequestVariableData | undefined, attempt: number | undefined, response: IChatCompleteResponsecognidreamognidream;
+getHistory(): Promise<IChatDetail[]>;
+setChatSessionTitle(sessionId: string, title: stringcognidreamognidream;
+clearAllHistoryEntries(): Promicognidreamognidream >;
+removeHistoryEntry(sessionId: string): Promicognidreamognidream >;
+getChatStorageFolder(): URI;
+logChatIndex(cognidreamognidream;
 
-	onDidPerformUserAction: Event<IChatUserActionEvent>;
-	notifyUserAction(event: IChatUserActionEvent): void;
-	onDidDisposeSession: Event<{ sessionId: string; reason: 'initializationFailed' | 'cleared' }>;
+onDidPerformUserAction: Event<IChatUserActionEvent>;
+notifyUserAction(event: IChatUserActionEventcognidreamognidream;
+onDidDisposeSession: Event<{ sessionId: string; reason: 'initializationFailed' | 'cleared' }>;
 
-	transferChatSession(transferredSessionData: IChatTransferredSessionData, toWorkspace: URI): void;
+transferChatSession(transferredSessionData: IChatTransferredSessionData, toWorkspace: URIcognidreamognidream;
 
-	readonly unifiedViewEnabled: boolean;
-	isEditingLocation(location: ChatAgentLocation): boolean;
+    readonly unifiedViewEnabled: boolean;
+isEditingLocation(location: ChatAgentLocation): boolean;
 }
 
 export const KEYWORD_ACTIVIATION_SETTING_ID = 'accessibility.voice.keywordActivation';

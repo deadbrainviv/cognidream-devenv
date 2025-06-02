@@ -68,7 +68,7 @@ export class DefaultFormatter extends Disposable implements IWorkbenchContributi
 		this._updateConfigValues();
 	}
 
-	private async _updateConfigValues(): Promise<void> {
+	private async _updateConfigValues(): Promise<cognidream> {
 		await this._extensionService.whenInstalledExtensionsRegistered();
 		let extensions = [...this._extensionService.extensions];
 
@@ -334,19 +334,19 @@ registerEditorAction(class FormatDocumentMultipleAction extends EditorAction {
 		});
 	}
 
-	async run(accessor: ServicesAccessor, editor: ICodeEditor, args: any): Promise<void> {
-		if (!editor.hasModel()) {
-			return;
-		}
-		const instaService = accessor.get(IInstantiationService);
-		const languageFeaturesService = accessor.get(ILanguageFeaturesService);
-		const model = editor.getModel();
-		const provider = getRealAndSyntheticDocumentFormattersOrdered(languageFeaturesService.documentFormattingEditProvider, languageFeaturesService.documentRangeFormattingEditProvider, model);
-		const pick = await instaService.invokeFunction(showFormatterPick, model, provider);
-		if (typeof pick === 'number') {
-			await instaService.invokeFunction(formatDocumentWithProvider, provider[pick], editor, FormattingMode.Explicit, CancellationToken.None);
-		}
-	}
+	async run(accessor: ServicesAccessor, editor: ICodeEditor, args: any): Promicognidreamognidream> {
+	if(!editor.hasModel()) {
+	return;
+}
+const instaService = accessor.get(IInstantiationService);
+const languageFeaturesService = accessor.get(ILanguageFeaturesService);
+const model = editor.getModel();
+const provider = getRealAndSyntheticDocumentFormattersOrdered(languageFeaturesService.documentFormattingEditProvider, languageFeaturesService.documentRangeFormattingEditProvider, model);
+const pick = await instaService.invokeFunction(showFormatterPick, model, provider);
+if (typeof pick === 'number') {
+	await instaService.invokeFunction(formatDocumentWithProvider, provider[pick], editor, FormattingMode.Explicit, CancellationToken.None);
+}
+    }
 });
 
 registerEditorAction(class FormatSelectionMultipleAction extends EditorAction {
@@ -365,23 +365,23 @@ registerEditorAction(class FormatSelectionMultipleAction extends EditorAction {
 		});
 	}
 
-	async run(accessor: ServicesAccessor, editor: ICodeEditor): Promise<void> {
-		if (!editor.hasModel()) {
-			return;
-		}
-		const instaService = accessor.get(IInstantiationService);
-		const languageFeaturesService = accessor.get(ILanguageFeaturesService);
+	async run(accessor: ServicesAccessor, editor: ICodeEditor): Promicognidreamognidream> {
+	if(!editor.hasModel()) {
+	return;
+}
+const instaService = accessor.get(IInstantiationService);
+const languageFeaturesService = accessor.get(ILanguageFeaturesService);
 
-		const model = editor.getModel();
-		let range: Range = editor.getSelection();
-		if (range.isEmpty()) {
-			range = new Range(range.startLineNumber, 1, range.startLineNumber, model.getLineMaxColumn(range.startLineNumber));
-		}
+const model = editor.getModel();
+let range: Range = editor.getSelection();
+if (range.isEmpty()) {
+	range = new Range(range.startLineNumber, 1, range.startLineNumber, model.getLineMaxColumn(range.startLineNumber));
+}
 
-		const provider = languageFeaturesService.documentRangeFormattingEditProvider.ordered(model);
-		const pick = await instaService.invokeFunction(showFormatterPick, model, provider);
-		if (typeof pick === 'number') {
-			await instaService.invokeFunction(formatDocumentRangesWithProvider, provider[pick], editor, range, CancellationToken.None, true);
-		}
-	}
+const provider = languageFeaturesService.documentRangeFormattingEditProvider.ordered(model);
+const pick = await instaService.invokeFunction(showFormatterPick, model, provider);
+if (typeof pick === 'number') {
+	await instaService.invokeFunction(formatDocumentRangesWithProvider, provider[pick], editor, range, CancellationToken.None, true);
+}
+    }
 });

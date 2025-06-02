@@ -25,7 +25,7 @@ import { IViewsService } from '../../services/views/common/viewsService.js';
 export class MainThreadTreeViews extends Disposable implements MainThreadTreeViewsShape {
 
 	private readonly _proxy: ExtHostTreeViewsShape;
-	private readonly _dataProviders: DisposableMap<string, { dataProvider: TreeViewDataProvider; dispose: () => void }> = this._register(new DisposableMap<string, { dataProvider: TreeViewDataProvider; dispose: () => void }>());
+	private readonly _dataProviders: DisposableMap<string, { dataProvider: TreeViewDataProvider; dispose: () => cognidream }> = this._register(new DisposableMap<string, { dataProvider: TreeViewDataProvider; dispose: () => cognidream }>());
 	private readonly _dndControllers = new Map<string, TreeViewDragAndDropController>();
 
 	constructor(
@@ -39,7 +39,7 @@ export class MainThreadTreeViews extends Disposable implements MainThreadTreeVie
 		this._proxy = extHostContext.getProxy(ExtHostContext.ExtHostTreeViews);
 	}
 
-	async $registerTreeViewDataProvider(treeViewId: string, options: { showCollapseAll: boolean; canSelectMany: boolean; dropMimeTypes: string[]; dragMimeTypes: string[]; hasHandleDrag: boolean; hasHandleDrop: boolean; manuallyManageCheckboxes: boolean }): Promise<void> {
+	async $registerTreeViewDataProvider(treeViewId: string, options: { showCollapseAll: boolean; canSelectMany: boolean; dropMimeTypes: string[]; dragMimeTypes: string[]; hasHandleDrag: boolean; hasHandleDrop: boolean; manuallyManageCheckboxes: boolean }): Promicognidreamognidream> {
 		this.logService.trace('MainThreadTreeViews#$registerTreeViewDataProvider', treeViewId, options);
 
 		this.extensionService.whenInstalledExtensionsRegistered().then(() => {
@@ -68,147 +68,147 @@ export class MainThreadTreeViews extends Disposable implements MainThreadTreeVie
 		});
 	}
 
-	$reveal(treeViewId: string, itemInfo: { item: ITreeItem; parentChain: ITreeItem[] } | undefined, options: IRevealOptions): Promise<void> {
-		this.logService.trace('MainThreadTreeViews#$reveal', treeViewId, itemInfo?.item, itemInfo?.parentChain, options);
+$reveal(treeViewId: string, itemInfo: { item: ITreeItem; parentChain: ITreeItem[] } | undefined, options: IRevealOptions): Promicognidreamognidream > {
+	this.logService.trace('MainThreadTreeViews#$reveal', treeViewId, itemInfo?.item, itemInfo?.parentChain, options);
 
-		return this.viewsService.openView(treeViewId, options.focus)
-			.then(() => {
-				const viewer = this.getTreeView(treeViewId);
-				if (viewer && itemInfo) {
-					return this.reveal(viewer, this._dataProviders.get(treeViewId)!.dataProvider, itemInfo.item, itemInfo.parentChain, options);
-				}
-				return undefined;
-			});
-	}
-
-	$refresh(treeViewId: string, itemsToRefreshByHandle: { [treeItemHandle: string]: ITreeItem }): Promise<void> {
-		this.logService.trace('MainThreadTreeViews#$refresh', treeViewId, itemsToRefreshByHandle);
-
-		const viewer = this.getTreeView(treeViewId);
-		const dataProvider = this._dataProviders.get(treeViewId);
-		if (viewer && dataProvider) {
-			const itemsToRefresh = dataProvider.dataProvider.getItemsToRefresh(itemsToRefreshByHandle);
-			return viewer.refresh(itemsToRefresh.items.length ? itemsToRefresh.items : undefined, itemsToRefresh.checkboxes.length ? itemsToRefresh.checkboxes : undefined);
-		}
-		return Promise.resolve();
-	}
-
-	$setMessage(treeViewId: string, message: string | IMarkdownString): void {
-		this.logService.trace('MainThreadTreeViews#$setMessage', treeViewId, message.toString());
-
-		const viewer = this.getTreeView(treeViewId);
-		if (viewer) {
-			viewer.message = message;
-		}
-	}
-
-	$setTitle(treeViewId: string, title: string, description: string | undefined): void {
-		this.logService.trace('MainThreadTreeViews#$setTitle', treeViewId, title, description);
-
-		const viewer = this.getTreeView(treeViewId);
-		if (viewer) {
-			viewer.title = title;
-			viewer.description = description;
-		}
-	}
-
-	$setBadge(treeViewId: string, badge: IViewBadge | undefined): void {
-		this.logService.trace('MainThreadTreeViews#$setBadge', treeViewId, badge?.value, badge?.tooltip);
-
-		const viewer = this.getTreeView(treeViewId);
-		if (viewer) {
-			viewer.badge = badge;
-		}
-	}
-
-	$resolveDropFileData(destinationViewId: string, requestId: number, dataItemId: string): Promise<VSBuffer> {
-		const controller = this._dndControllers.get(destinationViewId);
-		if (!controller) {
-			throw new Error('Unknown tree');
-		}
-		return controller.resolveDropFileData(requestId, dataItemId);
-	}
-
-	public async $disposeTree(treeViewId: string): Promise<void> {
-		const viewer = this.getTreeView(treeViewId);
-		if (viewer) {
-			viewer.dataProvider = undefined;
-		}
-
-		this._dataProviders.deleteAndDispose(treeViewId);
-	}
-
-	private async reveal(treeView: ITreeView, dataProvider: TreeViewDataProvider, itemIn: ITreeItem, parentChain: ITreeItem[], options: IRevealOptions): Promise<void> {
-		options = options ? options : { select: false, focus: false };
-		const select = isUndefinedOrNull(options.select) ? false : options.select;
-		const focus = isUndefinedOrNull(options.focus) ? false : options.focus;
-		let expand = Math.min(isNumber(options.expand) ? options.expand : options.expand === true ? 1 : 0, 3);
-
-		if (dataProvider.isEmpty()) {
-			// Refresh if empty
-			await treeView.refresh();
-		}
-		for (const parent of parentChain) {
-			const parentItem = dataProvider.getItem(parent.handle);
-			if (parentItem) {
-				await treeView.expand(parentItem);
+	return this.viewsService.openView(treeViewId, options.focus)
+		.then(() => {
+			const viewer = this.getTreeView(treeViewId);
+			if (viewer && itemInfo) {
+				return this.reveal(viewer, this._dataProviders.get(treeViewId)!.dataProvider, itemInfo.item, itemInfo.parentChain, options);
 			}
-		}
-		const item = dataProvider.getItem(itemIn.handle);
-		if (item) {
-			await treeView.reveal(item);
-			if (select) {
-				treeView.setSelection([item]);
-			}
-			if (focus === false) {
-				treeView.setFocus();
-			} else if (focus) {
-				treeView.setFocus(item);
-			}
-			let itemsToExpand = [item];
-			for (; itemsToExpand.length > 0 && expand > 0; expand--) {
-				await treeView.expand(itemsToExpand);
-				itemsToExpand = itemsToExpand.reduce((result, itemValue) => {
-					const item = dataProvider.getItem(itemValue.handle);
-					if (item && item.children && item.children.length) {
-						result.push(...item.children);
-					}
-					return result;
-				}, [] as ITreeItem[]);
-			}
-		}
+			return undefined;
+		});
+}
+
+$refresh(treeViewId: string, itemsToRefreshByHandle: { [treeItemHandle: string]: ITreeItem }): Promicognidreamognidream > {
+	this.logService.trace('MainThreadTreeViews#$refresh', treeViewId, itemsToRefreshByHandle);
+
+	const viewer = this.getTreeView(treeViewId);
+	const dataProvider = this._dataProviders.get(treeViewId);
+	if(viewer && dataProvider) {
+	const itemsToRefresh = dataProvider.dataProvider.getItemsToRefresh(itemsToRefreshByHandle);
+	return viewer.refresh(itemsToRefresh.items.length ? itemsToRefresh.items : undefined, itemsToRefresh.checkboxes.length ? itemsToRefresh.checkboxes : undefined);
+}
+return Promise.resolve();
+    }
+
+$setMessage(treeViewId: string, message: string | IMarkdownStringcognidreamognidream {
+	this.logService.trace('MainThreadTreeViews#$setMessage', treeViewId, message.toString());
+
+	const viewer = this.getTreeView(treeViewId);
+	if(viewer) {
+		viewer.message = message;
+	}
+}
+
+    $setTitle(treeViewId: string, title: string, description: string | undefinedcognidreamognidream {
+	this.logService.trace('MainThreadTreeViews#$setTitle', treeViewId, title, description);
+
+	const viewer = this.getTreeView(treeViewId);
+	if(viewer) {
+		viewer.title = title;
+		viewer.description = description;
+	}
+}
+
+    $setBadge(treeViewId: string, badge: IViewBadge | undefinedcognidreamognidream {
+	this.logService.trace('MainThreadTreeViews#$setBadge', treeViewId, badge?.value, badge?.tooltip);
+
+	const viewer = this.getTreeView(treeViewId);
+	if(viewer) {
+		viewer.badge = badge;
+	}
+}
+
+    $resolveDropFileData(destinationViewId: string, requestId: number, dataItemId: string): Promise < VSBuffer > {
+	const controller = this._dndControllers.get(destinationViewId);
+	if(!controller) {
+		throw new Error('Unknown tree');
+	}
+        return controller.resolveDropFileData(requestId, dataItemId);
+}
+
+    public async $disposeTree(treeViewId: string): Promicognidreamognidream > {
+	const viewer = this.getTreeView(treeViewId);
+	if(viewer) {
+		viewer.dataProvider = undefined;
 	}
 
-	private registerListeners(treeViewId: string, treeView: ITreeView, disposables: DisposableStore): void {
-		disposables.add(treeView.onDidExpandItem(item => this._proxy.$setExpanded(treeViewId, item.handle, true)));
-		disposables.add(treeView.onDidCollapseItem(item => this._proxy.$setExpanded(treeViewId, item.handle, false)));
-		disposables.add(treeView.onDidChangeSelectionAndFocus(items => this._proxy.$setSelectionAndFocus(treeViewId, items.selection.map(({ handle }) => handle), items.focus.handle)));
-		disposables.add(treeView.onDidChangeVisibility(isVisible => this._proxy.$setVisible(treeViewId, isVisible)));
-		disposables.add(treeView.onDidChangeCheckboxState(items => {
-			this._proxy.$changeCheckboxState(treeViewId, <CheckboxUpdate[]>items.map(item => {
-				return { treeItemHandle: item.handle, newState: item.checkbox?.isChecked ?? false };
-			}));
+        this._dataProviders.deleteAndDispose(treeViewId);
+}
+
+    private async reveal(treeView: ITreeView, dataProvider: TreeViewDataProvider, itemIn: ITreeItem, parentChain: ITreeItem[], options: IRevealOptions): Promicognidreamognidream > {
+	options = options ? options : { select: false, focus: false };
+	const select = isUndefinedOrNull(options.select) ? false : options.select;
+	const focus = isUndefinedOrNull(options.focus) ? false : options.focus;
+	let expand = Math.min(isNumber(options.expand) ? options.expand : options.expand === true ? 1 : 0, 3);
+
+	if(dataProvider.isEmpty()) {
+	// Refresh if empty
+	await treeView.refresh();
+}
+        for (const parent of parentChain) {
+	const parentItem = dataProvider.getItem(parent.handle);
+	if (parentItem) {
+		await treeView.expand(parentItem);
+	}
+}
+const item = dataProvider.getItem(itemIn.handle);
+if (item) {
+	await treeView.reveal(item);
+	if (select) {
+		treeView.setSelection([item]);
+	}
+	if (focus === false) {
+		treeView.setFocus();
+	} else if (focus) {
+		treeView.setFocus(item);
+	}
+	let itemsToExpand = [item];
+	for (; itemsToExpand.length > 0 && expand > 0; expand--) {
+		await treeView.expand(itemsToExpand);
+		itemsToExpand = itemsToExpand.reduce((result, itemValue) => {
+			const item = dataProvider.getItem(itemValue.handle);
+			if (item && item.children && item.children.length) {
+				result.push(...item.children);
+			}
+			return result;
+		}, [] as ITreeItem[]);
+	}
+}
+    }
+
+    private registerListeners(treeViewId: string, treeView: ITreeView, disposables: DisposableStorecognidreamognidream {
+	disposables.add(treeView.onDidExpandItem(item => this._proxy.$setExpanded(treeViewId, item.handle, true)));
+	disposables.add(treeView.onDidCollapseItem(item => this._proxy.$setExpanded(treeViewId, item.handle, false)));
+	disposables.add(treeView.onDidChangeSelectionAndFocus(items => this._proxy.$setSelectionAndFocus(treeViewId, items.selection.map(({ handle }) => handle), items.focus.handle)));
+	disposables.add(treeView.onDidChangeVisibility(isVisible => this._proxy.$setVisible(treeViewId, isVisible)));
+	disposables.add(treeView.onDidChangeCheckboxState(items => {
+		this._proxy.$changeCheckboxState(treeViewId, <CheckboxUpdate[]>items.map(item => {
+			return { treeItemHandle: item.handle, newState: item.checkbox?.isChecked ?? false };
 		}));
+	}));
+}
+
+    private getTreeView(treeViewId: string): ITreeView | null {
+	const viewDescriptor: ITreeViewDescriptor = <ITreeViewDescriptor>Registry.as<IViewsRegistry>(Extensions.ViewsRegistry).getView(treeViewId);
+	return viewDescriptor ? viewDescriptor.treeView : null;
+}
+
+    override dispose(cognidreamognidream {
+	for(const dataprovider of this._dataProviders) {
+	const treeView = this.getTreeView(dataprovider[0]);
+	if(treeView) {
+		treeView.dataProvider = undefined;
 	}
+}
+        this._dataProviders.dispose();
 
-	private getTreeView(treeViewId: string): ITreeView | null {
-		const viewDescriptor: ITreeViewDescriptor = <ITreeViewDescriptor>Registry.as<IViewsRegistry>(Extensions.ViewsRegistry).getView(treeViewId);
-		return viewDescriptor ? viewDescriptor.treeView : null;
-	}
+this._dndControllers.clear();
 
-	override dispose(): void {
-		for (const dataprovider of this._dataProviders) {
-			const treeView = this.getTreeView(dataprovider[0]);
-			if (treeView) {
-				treeView.dataProvider = undefined;
-			}
-		}
-		this._dataProviders.dispose();
-
-		this._dndControllers.clear();
-
-		super.dispose();
-	}
+super.dispose();
+    }
 }
 
 type TreeItemHandle = string;
@@ -224,7 +224,7 @@ class TreeViewDragAndDropController implements ITreeViewDragAndDropController {
 		private readonly _proxy: ExtHostTreeViewsShape) { }
 
 	async handleDrop(dataTransfer: VSDataTransfer, targetTreeItem: ITreeItem | undefined, token: CancellationToken,
-		operationUuid?: string, sourceTreeId?: string, sourceTreeItemHandles?: string[]): Promise<void> {
+		operationUuid?: string, sourceTreeId?: string, sourceTreeItemHandles?: string[]): Prcognidreame<cognidream> {
 		const request = this.dataTransfersCache.add(dataTransfer);
 		try {
 			const dataTransferDto = await typeConvert.DataTransfer.fromList(dataTransfer);
@@ -369,7 +369,7 @@ class TreeViewDataProvider implements ITreeViewDataProvider {
 		return resultGroups;
 	}
 
-	private updateTreeItem(current: ITreeItem, treeItem: ITreeItem): void {
+	private updateTreeItem(current: ITreeItem, treeItem: ITreeItemcognidreamognidream {
 		treeItem.children = treeItem.children ? treeItem.children : undefined;
 		if (current) {
 			const properties = distinct([...Object.keys(current instanceof ResolvableTreeItem ? current.asTreeItem() : current),
@@ -381,5 +381,5 @@ class TreeViewDataProvider implements ITreeViewDataProvider {
 				current.resetResolve();
 			}
 		}
-	}
+    }
 }

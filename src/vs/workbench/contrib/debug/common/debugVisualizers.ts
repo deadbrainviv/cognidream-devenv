@@ -23,15 +23,15 @@ interface VisualizerHandle {
 	extensionId: ExtensionIdentifier;
 	provideDebugVisualizers(context: IDebugVisualizationContext, token: CancellationToken): Promise<IDebugVisualization[]>;
 	resolveDebugVisualizer(viz: IDebugVisualization, token: CancellationToken): Promise<MainThreadDebugVisualization>;
-	executeDebugVisualizerCommand(id: number): Promise<void>;
-	disposeDebugVisualizers(ids: number[]): void;
+	executeDebugVisualizerCommand(id: number): Promise<cognidream>;
+	disposeDebugVisualizers(ids: number[]cognidreamognidream;
 }
 
 interface VisualizerTreeHandle {
 	getTreeItem(element: IDebugVisualizationContext): Promise<IDebugVisualizationTreeItem | undefined>;
 	getChildren(element: number): Promise<IDebugVisualizationTreeItem[]>;
-	disposeItem(element: number): void;
-	editItem?(item: number, value: string): Promise<IDebugVisualizationTreeItem | undefined>;
+	disposeItem(element: numbercognidreamognidream;
+		editItem?(item: number, value: string): Promise<IDebugVisualizationTreeItem | undefined>;
 }
 
 export class DebugVisualizer {
@@ -89,7 +89,7 @@ export interface IDebugVisualizerService {
 	/**
 	 * Gets children for a visualized tree node.
 	 */
-	editTreeItem(treeId: string, item: IDebugVisualizationTreeItem, newValue: string): Promise<void>;
+	editTreeItem(treeId: string, item: IDebugVisualizationTreeItem, newValue: string): Promicognidreamognidream>;
 }
 
 const emptyRef: IReference<DebugVisualizer[]> = { object: [], dispose: () => { } };
@@ -99,175 +99,175 @@ export class DebugVisualizerService implements IDebugVisualizerService {
 
 	private readonly handles = new Map</* extId + \0 + vizId */ string, VisualizerHandle>();
 	private readonly trees = new Map</* extId + \0 + treeId */ string, VisualizerTreeHandle>();
-	private readonly didActivate = new Map<string, Promise<void>>();
-	private registrations: { expr: ContextKeyExpression; id: string; extensionId: ExtensionIdentifier }[] = [];
+	private readonly didActivate = new Map < string, Promicognidreamognidream>> ();
+    private registrations: { expr: ContextKeyExpression; id: string; extensionId: ExtensionIdentifier } [] = [];
 
-	constructor(
-		@IContextKeyService private readonly contextKeyService: IContextKeyService,
-		@IExtensionService private readonly extensionService: IExtensionService,
-		@ILogService private readonly logService: ILogService,
-	) {
-		visualizersExtensionPoint.setHandler((_, { added, removed }) => {
-			this.registrations = this.registrations.filter(r =>
-				!removed.some(e => ExtensionIdentifier.equals(e.description.identifier, r.extensionId)));
-			added.forEach(e => this.processExtensionRegistration(e.description));
-		});
+constructor(
+	@IContextKeyService private readonly contextKeyService: IContextKeyService,
+	@IExtensionService private readonly extensionService: IExtensionService,
+	@ILogService private readonly logService: ILogService,
+) {
+	visualizersExtensionPoint.setHandler((_, { added, removed }) => {
+		this.registrations = this.registrations.filter(r =>
+			!removed.some(e => ExtensionIdentifier.equals(e.description.identifier, r.extensionId)));
+		added.forEach(e => this.processExtensionRegistration(e.description));
+	});
+}
+
+    /** @inheritdoc */
+    public async getApplicableFor(variable: IExpression, token: CancellationToken): Promise < IReference < DebugVisualizer[] >> {
+	if(!(variable instanceof Variable)) {
+	return emptyRef;
+}
+const threadId = variable.getThreadId();
+if (threadId === undefined) { // an expression, not a variable
+	return emptyRef;
+}
+
+const context = this.getVariableContext(threadId, variable);
+const overlay = getContextForVariable(this.contextKeyService, variable, [
+	[CONTEXT_VARIABLE_NAME.key, variable.name],
+	[CONTEXT_VARIABLE_VALUE.key, variable.value],
+	[CONTEXT_VARIABLE_TYPE.key, variable.type],
+]);
+
+const maybeVisualizers = await Promise.all(this.registrations.map(async registration => {
+	if (!overlay.contextMatchesRules(registration.expr)) {
+		return;
 	}
 
-	/** @inheritdoc */
-	public async getApplicableFor(variable: IExpression, token: CancellationToken): Promise<IReference<DebugVisualizer[]>> {
-		if (!(variable instanceof Variable)) {
-			return emptyRef;
-		}
-		const threadId = variable.getThreadId();
-		if (threadId === undefined) { // an expression, not a variable
-			return emptyRef;
-		}
-
-		const context = this.getVariableContext(threadId, variable);
-		const overlay = getContextForVariable(this.contextKeyService, variable, [
-			[CONTEXT_VARIABLE_NAME.key, variable.name],
-			[CONTEXT_VARIABLE_VALUE.key, variable.value],
-			[CONTEXT_VARIABLE_TYPE.key, variable.type],
-		]);
-
-		const maybeVisualizers = await Promise.all(this.registrations.map(async registration => {
-			if (!overlay.contextMatchesRules(registration.expr)) {
-				return;
-			}
-
-			let prom = this.didActivate.get(registration.id);
-			if (!prom) {
-				prom = this.extensionService.activateByEvent(`onDebugVisualizer:${registration.id}`);
-				this.didActivate.set(registration.id, prom);
-			}
-
-			await prom;
-			if (token.isCancellationRequested) {
-				return;
-			}
-
-			const handle = this.handles.get(toKey(registration.extensionId, registration.id));
-			return handle && { handle, result: await handle.provideDebugVisualizers(context, token) };
-		}));
-
-		const ref = {
-			object: maybeVisualizers.filter(isDefined).flatMap(v => v.result.map(r => new DebugVisualizer(v.handle, r))),
-			dispose: () => {
-				for (const viz of maybeVisualizers) {
-					viz?.handle.disposeDebugVisualizers(viz.result.map(r => r.id));
-				}
-			},
-		};
-
-		if (token.isCancellationRequested) {
-			ref.dispose();
-		}
-
-		return ref;
+	let prom = this.didActivate.get(registration.id);
+	if (!prom) {
+		prom = this.extensionService.activateByEvent(`onDebugVisualizer:${registration.id}`);
+		this.didActivate.set(registration.id, prom);
 	}
 
-	/** @inheritdoc */
-	public register(handle: VisualizerHandle): IDisposable {
-		const key = toKey(handle.extensionId, handle.id);
-		this.handles.set(key, handle);
-		return toDisposable(() => this.handles.delete(key));
+	await prom;
+	if (token.isCancellationRequested) {
+		return;
 	}
 
-	/** @inheritdoc */
-	public registerTree(treeId: string, handle: VisualizerTreeHandle): IDisposable {
-		this.trees.set(treeId, handle);
-		return toDisposable(() => this.trees.delete(treeId));
+	const handle = this.handles.get(toKey(registration.extensionId, registration.id));
+	return handle && { handle, result: await handle.provideDebugVisualizers(context, token) };
+}));
+
+const ref = {
+	object: maybeVisualizers.filter(isDefined).flatMap(v => v.result.map(r => new DebugVisualizer(v.handle, r))),
+	dispose: () => {
+		for (const viz of maybeVisualizers) {
+			viz?.handle.disposeDebugVisualizers(viz.result.map(r => r.id));
+		}
+	},
+};
+
+if (token.isCancellationRequested) {
+	ref.dispose();
+}
+
+return ref;
+    }
+
+    /** @inheritdoc */
+    public register(handle: VisualizerHandle): IDisposable {
+	const key = toKey(handle.extensionId, handle.id);
+	this.handles.set(key, handle);
+	return toDisposable(() => this.handles.delete(key));
+}
+
+    /** @inheritdoc */
+    public registerTree(treeId: string, handle: VisualizerTreeHandle): IDisposable {
+	this.trees.set(treeId, handle);
+	return toDisposable(() => this.trees.delete(treeId));
+}
+
+    /** @inheritdoc */
+    public async getVisualizedNodeFor(treeId: string, expr: IExpression): Promise < VisualizedExpression | undefined > {
+	if(!(expr instanceof Variable)) {
+	return;
+}
+
+const threadId = expr.getThreadId();
+if (threadId === undefined) {
+	return;
+}
+
+const tree = this.trees.get(treeId);
+if (!tree) {
+	return;
+}
+
+try {
+	const treeItem = await tree.getTreeItem(this.getVariableContext(threadId, expr));
+	if (!treeItem) {
+		return;
 	}
 
-	/** @inheritdoc */
-	public async getVisualizedNodeFor(treeId: string, expr: IExpression): Promise<VisualizedExpression | undefined> {
-		if (!(expr instanceof Variable)) {
-			return;
-		}
+	return new VisualizedExpression(expr.getSession(), this, treeId, treeItem, expr);
+} catch (e) {
+	this.logService.warn('Failed to get visualized node', e);
+	return;
+}
+    }
 
-		const threadId = expr.getThreadId();
-		if (threadId === undefined) {
-			return;
-		}
+    /** @inheritdoc */
+    public async getVisualizedChildren(session: IDebugSession | undefined, treeId: string, treeElementId: number): Promise < IExpression[] > {
+	const node = this.trees.get(treeId);
+	const children = await node?.getChildren(treeElementId) || [];
+	return children.map(c => new VisualizedExpression(session, this, treeId, c, undefined));
+}
 
-		const tree = this.trees.get(treeId);
-		if (!tree) {
-			return;
-		}
+    /** @inheritdoc */
+    public async editTreeItem(treeId: string, treeItem: IDebugVisualizationTreeItem, newValue: string): Promicognidreamognidream > {
+	const newItem = await this.trees.get(treeId)?.editItem?.(treeItem.id, newValue);
+	if(newItem) {
+		Object.assign(treeItem, newItem); // replace in-place so rerenders work
+	}
+}
 
+    private getVariableContext(threadId: number, variable: Variable) {
+	const context: IDebugVisualizationContext = {
+		sessionId: variable.getSession()?.getId() || '',
+		containerId: (variable.parent instanceof Variable ? variable.reference : undefined),
+		threadId,
+		variable: {
+			name: variable.name,
+			value: variable.value,
+			type: variable.type,
+			evaluateName: variable.evaluateName,
+			variablesReference: variable.reference || 0,
+			indexedVariables: variable.indexedVariables,
+			memoryReference: variable.memoryReference,
+			namedVariables: variable.namedVariables,
+			presentationHint: variable.presentationHint,
+		}
+	};
+
+	for (let p: IExpressionContainer = variable; p instanceof Variable; p = p.parent) {
+		if (p.parent instanceof Scope) {
+			context.frameId = p.parent.stackFrame.frameId;
+		}
+	}
+
+	return context;
+}
+
+    private processExtensionRegistration(ext: IExtensionDescription) {
+	const viz = ext.contributes?.debugVisualizers;
+	if (!(viz instanceof Array)) {
+		return;
+	}
+
+	for (const { when, id } of viz) {
 		try {
-			const treeItem = await tree.getTreeItem(this.getVariableContext(threadId, expr));
-			if (!treeItem) {
-				return;
+			const expr = ContextKeyExpr.deserialize(when);
+			if (expr) {
+				this.registrations.push({ expr, id, extensionId: ext.identifier });
 			}
-
-			return new VisualizedExpression(expr.getSession(), this, treeId, treeItem, expr);
 		} catch (e) {
-			this.logService.warn('Failed to get visualized node', e);
-			return;
+			this.logService.error(`Error processing debug visualizer registration from extension '${ext.identifier.value}'`, e);
 		}
 	}
-
-	/** @inheritdoc */
-	public async getVisualizedChildren(session: IDebugSession | undefined, treeId: string, treeElementId: number): Promise<IExpression[]> {
-		const node = this.trees.get(treeId);
-		const children = await node?.getChildren(treeElementId) || [];
-		return children.map(c => new VisualizedExpression(session, this, treeId, c, undefined));
-	}
-
-	/** @inheritdoc */
-	public async editTreeItem(treeId: string, treeItem: IDebugVisualizationTreeItem, newValue: string): Promise<void> {
-		const newItem = await this.trees.get(treeId)?.editItem?.(treeItem.id, newValue);
-		if (newItem) {
-			Object.assign(treeItem, newItem); // replace in-place so rerenders work
-		}
-	}
-
-	private getVariableContext(threadId: number, variable: Variable) {
-		const context: IDebugVisualizationContext = {
-			sessionId: variable.getSession()?.getId() || '',
-			containerId: (variable.parent instanceof Variable ? variable.reference : undefined),
-			threadId,
-			variable: {
-				name: variable.name,
-				value: variable.value,
-				type: variable.type,
-				evaluateName: variable.evaluateName,
-				variablesReference: variable.reference || 0,
-				indexedVariables: variable.indexedVariables,
-				memoryReference: variable.memoryReference,
-				namedVariables: variable.namedVariables,
-				presentationHint: variable.presentationHint,
-			}
-		};
-
-		for (let p: IExpressionContainer = variable; p instanceof Variable; p = p.parent) {
-			if (p.parent instanceof Scope) {
-				context.frameId = p.parent.stackFrame.frameId;
-			}
-		}
-
-		return context;
-	}
-
-	private processExtensionRegistration(ext: IExtensionDescription) {
-		const viz = ext.contributes?.debugVisualizers;
-		if (!(viz instanceof Array)) {
-			return;
-		}
-
-		for (const { when, id } of viz) {
-			try {
-				const expr = ContextKeyExpr.deserialize(when);
-				if (expr) {
-					this.registrations.push({ expr, id, extensionId: ext.identifier });
-				}
-			} catch (e) {
-				this.logService.error(`Error processing debug visualizer registration from extension '${ext.identifier.value}'`, e);
-			}
-		}
-	}
+}
 }
 
 const toKey = (extensionId: ExtensionIdentifier, id: string) => `${ExtensionIdentifier.toKey(extensionId)}\0${id}`;
@@ -291,7 +291,7 @@ const visualizersExtensionPoint = ExtensionsRegistry.registerExtensionPoint<{ id
 			required: ['id', 'when']
 		}
 	},
-	activationEventsGenerator: (contribs, result: { push(item: string): void }) => {
+	activationEventsGenerator: (contribs, result: { push(item: stringcognidreamognidream }) => {
 		for (const contrib of contribs) {
 			if (contrib.id) {
 				result.push(`onDebugVisualizer:${contrib.id}`);

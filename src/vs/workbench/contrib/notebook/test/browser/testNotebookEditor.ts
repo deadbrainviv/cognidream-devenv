@@ -90,94 +90,94 @@ export class NotebookEditorTestModel extends EditorModel implements INotebookEdi
 	protected readonly _onDidSave = this._register(new Emitter<IWorkingCopySaveEvent>());
 	readonly onDidSave = this._onDidSave.event;
 
-	protected readonly _onDidChangeDirty = this._register(new Emitter<void>());
+	protected readonly _onDidChangeDirty = this._register(new Emitter<cognidream>());
 	readonly onDidChangeDirty = this._onDidChangeDirty.event;
 
 	readonly onDidChangeOrphaned = Event.None;
 	readonly onDidChangeReadonly = Event.None;
 	readonly onDidRevertUntitled = Event.None;
 
-	private readonly _onDidChangeContent = this._register(new Emitter<void>());
-	readonly onDidChangeContent: Event<void> = this._onDidChangeContent.event;
+	private readonly _onDidChangeContent = this._register(new Emittcognidreamognidream > ());
+	readonly onDidChangeContent: Evecognidreamognidream> = this._onDidChangeContent.event;
 
 
-	get viewType() {
-		return this._notebook.viewType;
-	}
+    get viewType() {
+	return this._notebook.viewType;
+}
 
-	get resource() {
-		return this._notebook.uri;
-	}
+    get resource() {
+	return this._notebook.uri;
+}
 
-	get notebook(): NotebookTextModel {
-		return this._notebook;
-	}
+    get notebook(): NotebookTextModel {
+	return this._notebook;
+}
 
-	constructor(
-		private _notebook: NotebookTextModel
-	) {
-		super();
+constructor(
+	private _notebook: NotebookTextModel
+) {
+	super();
 
-		if (_notebook && _notebook.onDidChangeContent) {
-			this._register(_notebook.onDidChangeContent(() => {
-				this._dirty = true;
-				this._onDidChangeDirty.fire();
-				this._onDidChangeContent.fire();
-			}));
-		}
-	}
-
-	isReadonly(): boolean {
-		return false;
-	}
-
-	isOrphaned(): boolean {
-		return false;
-	}
-
-	hasAssociatedFilePath(): boolean {
-		return false;
-	}
-
-	isDirty() {
-		return this._dirty;
-	}
-
-	get hasErrorState() {
-		return false;
-	}
-
-	isModified(): boolean {
-		return this._dirty;
-	}
-
-	getNotebook(): NotebookTextModel {
-		return this._notebook;
-	}
-
-	async load(): Promise<IResolvedNotebookEditorModel> {
-		return this;
-	}
-
-	async save(): Promise<boolean> {
-		if (this._notebook) {
-			this._dirty = false;
+	if (_notebook && _notebook.onDidChangeContent) {
+		this._register(_notebook.onDidChangeContent(() => {
+			this._dirty = true;
 			this._onDidChangeDirty.fire();
-			this._onDidSave.fire({});
-			// todo, flush all states
-			return true;
-		}
-
-		return false;
+			this._onDidChangeContent.fire();
+		}));
 	}
+}
 
-	saveAs(): Promise<EditorInput | undefined> {
-		throw new NotImplementedError();
-	}
+isReadonly(): boolean {
+	return false;
+}
 
-	revert(): Promise<void> {
-		throw new NotImplementedError();
-	}
+isOrphaned(): boolean {
+	return false;
+}
+
+hasAssociatedFilePath(): boolean {
+	return false;
+}
+
+isDirty() {
+	return this._dirty;
+}
+
+    get hasErrorState() {
+	return false;
+}
+
+isModified(): boolean {
+	return this._dirty;
+}
+
+getNotebook(): NotebookTextModel {
+	return this._notebook;
+}
+
+    async load(): Promise < IResolvedNotebookEditorModel > {
+	return this;
+}
+
+    async save(): Promise < boolean > {
+	if(this._notebook) {
+	this._dirty = false;
+	this._onDidChangeDirty.fire();
+	this._onDidSave.fire({});
+	// todo, flush all states
+	return true;
+}
+
+return false;
+    }
+
+saveAs(): Promise < EditorInput | undefined > {
+	throw new NotImplementedError();
+}
+
+revert(): Promicognidreamognidream > {
+	throw new NotImplementedError();
+}
 }
 
 export function setupInstantiationService(disposables: Pick<DisposableStore, 'add'>) {
@@ -332,41 +332,41 @@ function _createTestNotebookEditor(instantiationService: TestInstantiationServic
 		}
 
 		override getId(): string { return id; }
-		override setScrollTop(scrollTop: number): void {
+		override setScrollTop(scrollTop: numcognidream: cognidream {
 			cellList.scrollTop = scrollTop;
-		}
-		override get scrollTop(): number {
-			return cellList.scrollTop;
-		}
-		override getLayoutInfo(): NotebookLayoutInfo {
-			return {
-				width: 0,
-				height: 0,
-				scrollHeight: cellList.getScrollHeight(),
-				fontInfo: new FontInfo({
-					pixelRatio: 1,
-					fontFamily: 'mockFont',
-					fontWeight: 'normal',
-					fontSize: 14,
-					fontFeatureSettings: EditorFontLigatures.OFF,
-					fontVariationSettings: EditorFontVariations.OFF,
-					lineHeight: 19,
-					letterSpacing: 1.5,
-					isMonospace: true,
-					typicalHalfwidthCharacterWidth: 10,
-					typicalFullwidthCharacterWidth: 20,
-					canUseHalfwidthRightwardsArrow: true,
-					spaceWidth: 10,
-					middotWidth: 10,
-					wsmiddotWidth: 10,
-					maxDigitWidth: 10,
-				}, true),
-				stickyHeight: 0
-			};
-		}
-	};
+	}
+        override get scrollTop(): number {
+		return cellList.scrollTop;
+	}
+        override getLayoutInfo(): NotebookLayoutInfo {
+		return {
+			width: 0,
+			height: 0,
+			scrollHeight: cellList.getScrollHeight(),
+			fontInfo: new FontInfo({
+				pixelRatio: 1,
+				fontFamily: 'mockFont',
+				fontWeight: 'normal',
+				fontSize: 14,
+				fontFeatureSettings: EditorFontLigatures.OFF,
+				fontVariationSettings: EditorFontVariations.OFF,
+				lineHeight: 19,
+				letterSpacing: 1.5,
+				isMonospace: true,
+				typicalHalfwidthCharacterWidth: 10,
+				typicalFullwidthCharacterWidth: 20,
+				canUseHalfwidthRightwardsArrow: true,
+				spaceWidth: 10,
+				middotWidth: 10,
+				wsmiddotWidth: 10,
+				maxDigitWidth: 10,
+			}, true),
+			stickyHeight: 0
+		};
+	}
+};
 
-	return { editor: notebookEditor, viewModel };
+return { editor: notebookEditor, viewModel };
 }
 
 export function createTestNotebookEditor(instantiationService: TestInstantiationService, disposables: DisposableStore, cells: [source: string, lang: string, kind: CellKind, output?: IOutputDto[], metadata?: NotebookCellMetadata][]): { editor: INotebookEditorDelegate; viewModel: NotebookViewModel } {
@@ -512,23 +512,23 @@ class TestCellExecution implements INotebookCellExecution {
 	constructor(
 		readonly notebook: URI,
 		readonly cellHandle: number,
-		private onComplete: () => void,
-	) { }
+		private onComplete: cognidream> cognidream,
+    ) { }
 
-	readonly state: NotebookCellExecutionState = NotebookCellExecutionState.Unconfirmed;
+    readonly state: NotebookCellExecutionState = NotebookCellExecutionState.Unconfirmed;
 
-	readonly didPause: boolean = false;
-	readonly isPaused: boolean = false;
+    readonly didPause: boolean = false;
+    readonly isPaused: boolean = false;
 
-	confirm(): void {
-	}
+confirm(cognidreamognidream {
+}
 
-	update(updates: ICellExecuteUpdate[]): void {
-	}
+    update(updates: ICellExecuteUpdate[]cognidreamognidream {
+}
 
-	complete(complete: ICellExecutionComplete): void {
-		this.onComplete();
-	}
+    complete(complete: ICellExecutionCompletecognidreamognidream {
+	this.onComplete();
+}
 }
 
 export class TestNotebookExecutionStateService implements INotebookExecutionStateService {
@@ -539,38 +539,38 @@ export class TestNotebookExecutionStateService implements INotebookExecutionStat
 	onDidChangeExecution = new Emitter<ICellExecutionStateChangedEvent | IExecutionStateChangedEvent>().event;
 	onDidChangeLastRunFailState = new Emitter<INotebookFailStateChangedEvent>().event;
 
-	forceCancelNotebookExecutions(notebookUri: URI): void {
+	forceCancelNotebookExecutions(notebookUri: URIcognidreamognidream {
 	}
 
-	getCellExecutionsForNotebook(notebook: URI): INotebookCellExecution[] {
-		return [];
-	}
+    getCellExecutionsForNotebook(notebook: URI): INotebookCellExecution[] {
+	return [];
+}
 
-	getCellExecution(cellUri: URI): INotebookCellExecution | undefined {
-		return this._executions.get(cellUri);
-	}
+getCellExecution(cellUri: URI): INotebookCellExecution | undefined {
+	return this._executions.get(cellUri);
+}
 
-	createCellExecution(notebook: URI, cellHandle: number): INotebookCellExecution {
-		const onComplete = () => this._executions.delete(CellUri.generate(notebook, cellHandle));
-		const exe = new TestCellExecution(notebook, cellHandle, onComplete);
-		this._executions.set(CellUri.generate(notebook, cellHandle), exe);
-		return exe;
-	}
+createCellExecution(notebook: URI, cellHandle: number): INotebookCellExecution {
+	const onComplete = () => this._executions.delete(CellUri.generate(notebook, cellHandle));
+	const exe = new TestCellExecution(notebook, cellHandle, onComplete);
+	this._executions.set(CellUri.generate(notebook, cellHandle), exe);
+	return exe;
+}
 
-	getCellExecutionsByHandleForNotebook(notebook: URI): Map<number, INotebookCellExecution> | undefined {
-		return;
-	}
+getCellExecutionsByHandleForNotebook(notebook: URI): Map<number, INotebookCellExecution> | undefined {
+	return;
+}
 
-	getLastFailedCellForNotebook(notebook: URI): number | undefined {
-		return;
-	}
-	getLastCompletedCellForNotebook(notebook: URI): number | undefined {
-		return;
-	}
-	getExecution(notebook: URI): INotebookExecution | undefined {
-		return;
-	}
-	createExecution(notebook: URI): INotebookExecution {
-		throw new Error('Method not implemented.');
-	}
+getLastFailedCellForNotebook(notebook: URI): number | undefined {
+	return;
+}
+getLastCompletedCellForNotebook(notebook: URI): number | undefined {
+	return;
+}
+getExecution(notebook: URI): INotebookExecution | undefined {
+	return;
+}
+createExecution(notebook: URI): INotebookExecution {
+	throw new Error('Method not implemented.');
+}
 }

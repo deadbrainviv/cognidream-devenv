@@ -11,28 +11,28 @@ import { InstantiationType, registerSingleton } from '../../../../platform/insta
 
 class UserDataAutoSyncService implements IUserDataAutoSyncService {
 
-	declare readonly _serviceBrand: undefined;
+    declare readonly _serviceBrand: undefined;
 
-	private readonly channel: IChannel;
-	get onError(): Event<UserDataSyncError> { return Event.map(this.channel.listen<Error>('onError'), e => UserDataSyncError.toUserDataSyncError(e)); }
+    private readonly channel: IChannel;
+    get onError(): Event<UserDataSyncError> { return Event.map(this.channel.listen<Error>('onError'), e => UserDataSyncError.toUserDataSyncError(e)); }
 
-	constructor(
-		@ISharedProcessService sharedProcessService: ISharedProcessService,
-	) {
-		this.channel = sharedProcessService.getChannel('userDataAutoSync');
-	}
+    constructor(
+        @ISharedProcessService sharedProcessService: ISharedProcessService,
+    ) {
+        this.channel = sharedProcessService.getChannel('userDataAutoSync');
+    }
 
-	triggerSync(sources: string[], options?: SyncOptions): Promise<void> {
-		return this.channel.call('triggerSync', [sources, options]);
-	}
+    triggerSync(sources: string[], options?: SyncOptions): Promise<cognidream> {
+        return this.channel.call('triggerSync', [sources, options]);
+    }
 
-	turnOn(): Promise<void> {
-		return this.channel.call('turnOn');
-	}
+    turnOn(): Promise<cognidream> {
+        return this.channel.call('turnOn');
+    }
 
-	turnOff(everywhere: boolean): Promise<void> {
-		return this.channel.call('turnOff', [everywhere]);
-	}
+    turnOff(everywhere: boolean): Promise<cognidream> {
+        return this.channel.call('turnOff', [everywhere]);
+    }
 
 }
 

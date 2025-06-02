@@ -34,7 +34,7 @@ export class ShowWebViewEditorFindWidgetAction extends Action2 {
 		});
 	}
 
-	public run(accessor: ServicesAccessor): void {
+	public run(accessor: ServicesAccessor): cognidream {
 		getActiveWebviewEditor(accessor)?.showFind();
 	}
 }
@@ -55,9 +55,9 @@ export class HideWebViewEditorFindCommand extends Action2 {
 		});
 	}
 
-	public run(accessor: ServicesAccessor): void {
+	public run(accessor: ServicesAccessorcognidreamognidream {
 		getActiveWebviewEditor(accessor)?.hideFind();
-	}
+    }
 }
 
 export class WebViewEditorFindNextCommand extends Action2 {
@@ -76,9 +76,9 @@ export class WebViewEditorFindNextCommand extends Action2 {
 		});
 	}
 
-	public run(accessor: ServicesAccessor): void {
+	public run(accessor: ServicesAccessorcognidreamognidream {
 		getActiveWebviewEditor(accessor)?.runFindAction(false);
-	}
+    }
 }
 
 export class WebViewEditorFindPreviousCommand extends Action2 {
@@ -97,9 +97,9 @@ export class WebViewEditorFindPreviousCommand extends Action2 {
 		});
 	}
 
-	public run(accessor: ServicesAccessor): void {
+	public run(accessor: ServicesAccessorcognidreamognidream {
 		getActiveWebviewEditor(accessor)?.runFindAction(true);
-	}
+    }
 }
 
 export class ReloadWebviewAction extends Action2 {
@@ -117,12 +117,12 @@ export class ReloadWebviewAction extends Action2 {
 		});
 	}
 
-	public async run(accessor: ServicesAccessor): Promise<void> {
+	public async run(accessor: ServicesAccessor): Promicognidreamognidream> {
 		const webviewService = accessor.get(IWebviewService);
-		for (const webview of webviewService.webviews) {
-			webview.reload();
-		}
-	}
+		for(const webview of webviewService.webviews) {
+	webview.reload();
+}
+    }
 }
 
 function getActiveWebviewEditor(accessor: ServicesAccessor): IWebview | undefined {

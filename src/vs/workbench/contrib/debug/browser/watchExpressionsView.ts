@@ -88,7 +88,7 @@ export class WatchExpressionsView extends ViewPane implements IDebugViewWithVari
 		this.expressionRenderer = instantiationService.createInstance(DebugExpressionRenderer);
 	}
 
-	protected override renderBody(container: HTMLElement): void {
+	protected override renderBody(container: HTMLElement): cognidream {
 		super.renderBody(container);
 
 		this.element.classList.add('debug-pane');
@@ -189,96 +189,96 @@ export class WatchExpressionsView extends ViewPane implements IDebugViewWithVari
 		}));
 	}
 
-	protected override layoutBody(height: number, width: number): void {
+	protected override layoutBody(height: number, width: numbercognidreamognidream {
 		super.layoutBody(height, width);
-		this.tree.layout(height, width);
-	}
+this.tree.layout(height, width);
+    }
 
-	override focus(): void {
-		super.focus();
-		this.tree.domFocus();
-	}
-
-	collapseAll(): void {
-		this.tree.collapseAll();
-	}
-
-	private onMouseDblClick(e: ITreeMouseEvent<IExpression>): void {
-		if ((e.browserEvent.target as HTMLElement).className.indexOf('twistie') >= 0) {
-			// Ignore double click events on twistie
-			return;
-		}
-
-		const element = e.element;
-		// double click on primitive value: open input box to be able to select and copy value.
-		const selectedExpression = this.debugService.getViewModel().getSelectedExpression();
-		if ((element instanceof Expression && element !== selectedExpression?.expression) || (element instanceof VisualizedExpression && element.treeItem.canEdit)) {
-			this.debugService.getViewModel().setSelectedExpression(element, false);
-		} else if (!element) {
-			// Double click in watch panel triggers to add a new watch expression
-			this.debugService.addWatchExpression();
-		}
-	}
-
-	private onContextMenu(e: ITreeContextMenuEvent<IExpression>): void {
-		const element = e.element;
-		const selection = this.tree.getSelection();
-
-		this.watchItemType.set(element instanceof Expression ? 'expression' : element instanceof Variable ? 'variable' : undefined);
-		const attributes = element instanceof Variable ? element.presentationHint?.attributes : undefined;
-		this.variableReadonly.set(!!attributes && attributes.indexOf('readOnly') >= 0 || !!element?.presentationHint?.lazy);
-		const actions = getFlatContextMenuActions(this.menu.getActions({ arg: element, shouldForwardArgs: true }));
-		this.contextMenuService.showContextMenu({
-			getAnchor: () => e.anchor,
-			getActions: () => actions,
-			getActionsContext: () => element && selection.includes(element) ? selection : element ? [element] : [],
-		});
-	}
+    override focus(cognidreamognidream {
+	super.focus();
+	this.tree.domFocus();
 }
 
-class WatchExpressionsDelegate implements IListVirtualDelegate<IExpression> {
-
-	getHeight(_element: IExpression): number {
-		return 22;
-	}
-
-	getTemplateId(element: IExpression): string {
-		if (element instanceof Expression) {
-			return WatchExpressionsRenderer.ID;
-		}
-
-		if (element instanceof VisualizedExpression) {
-			return VisualizedVariableRenderer.ID;
-		}
-
-		// Variable
-		return VariablesRenderer.ID;
-	}
+    collapseAll(cognidreamognidream {
+	this.tree.collapseAll();
 }
+
+    private onMouseDblClick(e: ITreeMouseEvent < IExpression > cognidreamognidream {
+	if((e.browserEvent.target as HTMLElement).className.indexOf('twistie') >= 0) {
+	// Ignore double click events on twistie
+	return;
+}
+
+        const element = e.element;
+// double click on primitive value: open input box to be able to select and copy value.
+const selectedExpression = this.debugService.getViewModel().getSelectedExpression();
+if ((element instanceof Expression && element !== selectedExpression?.expression) || (element instanceof VisualizedExpression && element.treeItem.canEdit)) {
+	this.debugService.getViewModel().setSelectedExpression(element, false);
+} else if (!element) {
+	// Double click in watch panel triggers to add a new watch expression
+	this.debugService.addWatchExpression();
+}
+    }
+
+    private onContextMenu(e: ITreeContextMenuEvent < IExpression > cognidreamognidream {
+	const element = e.element;
+	const selection = this.tree.getSelection();
+
+	this.watchItemType.set(element instanceof Expression ? 'expression' : element instanceof Variable ? 'variable' : undefined);
+	const attributes = element instanceof Variable ? element.presentationHint?.attributes : undefined;
+	this.variableReadonly.set(!!attributes && attributes.indexOf('readOnly') >= 0 || !!element?.presentationHint?.lazy);
+	const actions = getFlatContextMenuActions(this.menu.getActions({ arg: element, shouldForwardArgs: true }));
+	this.contextMenuService.showContextMenu({
+		getAnchor: () => e.anchor,
+		getActions: () => actions,
+		getActionsContext: () => element && selection.includes(element) ? selection : element ? [element] : [],
+	});
+}
+}
+
+	class WatchExpressionsDelegate implements IListVirtualDelegate<IExpression> {
+
+		getHeight(_element: IExpression): number {
+			return 22;
+		}
+
+		getTemplateId(element: IExpression): string {
+			if (element instanceof Expression) {
+				return WatchExpressionsRenderer.ID;
+			}
+
+			if (element instanceof VisualizedExpression) {
+				return VisualizedVariableRenderer.ID;
+			}
+
+			// Variable
+			return VariablesRenderer.ID;
+		}
+	}
 
 function isDebugService(element: any): element is IDebugService {
-	return typeof element.getConfigurationManager === 'function';
-}
+		return typeof element.getConfigurationManager === 'function';
+	}
 
 class WatchExpressionsDataSource extends AbstractExpressionDataSource<IDebugService, IExpression> {
 
-	public override hasChildren(element: IExpression | IDebugService): boolean {
-		return isDebugService(element) || element.hasChildren;
-	}
-
-	protected override doGetChildren(element: IDebugService | IExpression): Promise<Array<IExpression>> {
-		if (isDebugService(element)) {
-			const debugService = element as IDebugService;
-			const watchExpressions = debugService.getModel().getWatchExpressions();
-			const viewModel = debugService.getViewModel();
-			return Promise.all(watchExpressions.map(we => !!we.name && !useCachedEvaluation
-				? we.evaluate(viewModel.focusedSession!, viewModel.focusedStackFrame!, 'watch').then(() => we)
-				: Promise.resolve(we)));
+		public override hasChildren(element: IExpression | IDebugService): boolean {
+			return isDebugService(element) || element.hasChildren;
 		}
 
-		return element.getChildren();
+		protected override doGetChildren(element: IDebugService | IExpression): Promise<Array<IExpression>> {
+			if (isDebugService(element)) {
+				const debugService = element as IDebugService;
+				const watchExpressions = debugService.getModel().getWatchExpressions();
+				const viewModel = debugService.getViewModel();
+				return Promise.all(watchExpressions.map(we => !!we.name && !useCachedEvaluation
+					? we.evaluate(viewModel.focusedSession!, viewModel.focusedStackFrame!, 'watch').then(() => we)
+					: Promise.resolve(we)));
+			}
+
+			return element.getChildren();
+		}
 	}
-}
 
 
 export class WatchExpressionsRenderer extends AbstractExpressionsRenderer {
@@ -301,95 +301,95 @@ export class WatchExpressionsRenderer extends AbstractExpressionsRenderer {
 		return WatchExpressionsRenderer.ID;
 	}
 
-	public override renderElement(node: ITreeNode<IExpression, FuzzyScore>, index: number, data: IExpressionTemplateData): void {
+	public override renderElement(node: ITreeNode<IExpression, FuzzyScore>, index: number, data: IExpressionTemplateDatacognidreamognidream {
 		data.elementDisposable.clear();
-		data.elementDisposable.add(this.configurationService.onDidChangeConfiguration(e => {
-			if (e.affectsConfiguration('debug.showVariableTypes')) {
-				super.renderExpressionElement(node.element, node, data);
-			}
-		}));
+data.elementDisposable.add(this.configurationService.onDidChangeConfiguration(e => {
+	if (e.affectsConfiguration('debug.showVariableTypes')) {
 		super.renderExpressionElement(node.element, node, data);
 	}
+}));
+super.renderExpressionElement(node.element, node, data);
+    }
 
-	protected renderExpression(expression: IExpression, data: IExpressionTemplateData, highlights: IHighlight[]): void {
-		let text: string;
-		data.type.textContent = '';
-		const showType = this.configurationService.getValue<IDebugConfiguration>('debug').showVariableTypes;
-		if (showType && expression.type) {
-			text = typeof expression.value === 'string' ? `${expression.name}: ` : expression.name;
-			//render type
-			data.type.textContent = expression.type + ' =';
-		} else {
-			text = typeof expression.value === 'string' ? `${expression.name} =` : expression.name;
-		}
+    protected renderExpression(expression: IExpression, data: IExpressionTemplateData, highlights: IHighlight[]cognidreamognidream {
+	let text: string;
+	data.type.textContent = '';
+	const showType = this.configurationService.getValue<IDebugConfiguration>('debug').showVariableTypes;
+	if(showType && expression.type) {
+	text = typeof expression.value === 'string' ? `${expression.name}: ` : expression.name;
+	//render type
+	data.type.textContent = expression.type + ' =';
+} else {
+	text = typeof expression.value === 'string' ? `${expression.name} =` : expression.name;
+}
 
-		let title: string;
-		if (expression.type) {
-			if (showType) {
-				title = `${expression.name}`;
-			} else {
-				title = expression.type === expression.value ?
-					expression.type :
-					`${expression.type}`;
-			}
-		} else {
-			title = expression.value;
-		}
-
-		data.label.set(text, highlights, title);
-		data.elementDisposable.add(this.expressionRenderer.renderValue(data.value, expression, {
-			showChanged: true,
-			maxValueLength: MAX_VALUE_RENDER_LENGTH_IN_VIEWLET,
-			colorize: true,
-			session: expression.getSession(),
-		}));
+let title: string;
+if (expression.type) {
+	if (showType) {
+		title = `${expression.name}`;
+	} else {
+		title = expression.type === expression.value ?
+			expression.type :
+			`${expression.type}`;
 	}
+} else {
+	title = expression.value;
+}
 
-	protected getInputBoxOptions(expression: IExpression, settingValue: boolean): IInputBoxOptions {
-		if (settingValue) {
-			return {
-				initialValue: expression.value,
-				ariaLabel: localize('typeNewValue', "Type new value"),
-				onFinish: async (value: string, success: boolean) => {
-					if (success && value) {
-						const focusedFrame = this.debugService.getViewModel().focusedStackFrame;
-						if (focusedFrame && (expression instanceof Variable || expression instanceof Expression)) {
-							await expression.setExpression(value, focusedFrame);
-							this.debugService.getViewModel().updateViews();
-						}
-					}
-				}
-			};
-		}
+data.label.set(text, highlights, title);
+data.elementDisposable.add(this.expressionRenderer.renderValue(data.value, expression, {
+	showChanged: true,
+	maxValueLength: MAX_VALUE_RENDER_LENGTH_IN_VIEWLET,
+	colorize: true,
+	session: expression.getSession(),
+}));
+    }
 
+    protected getInputBoxOptions(expression: IExpression, settingValue: boolean): IInputBoxOptions {
+	if (settingValue) {
 		return {
-			initialValue: expression.name ? expression.name : '',
-			ariaLabel: localize('watchExpressionInputAriaLabel', "Type watch expression"),
-			placeholder: localize('watchExpressionPlaceholder', "Expression to watch"),
-			onFinish: (value: string, success: boolean) => {
+			initialValue: expression.value,
+			ariaLabel: localize('typeNewValue', "Type new value"),
+			onFinish: async (value: string, success: boolean) => {
 				if (success && value) {
-					this.debugService.renameWatchExpression(expression.getId(), value);
-					ignoreViewUpdates = true;
-					this.debugService.getViewModel().updateViews();
-					ignoreViewUpdates = false;
-				} else if (!expression.name) {
-					this.debugService.removeWatchExpressions(expression.getId());
+					const focusedFrame = this.debugService.getViewModel().focusedStackFrame;
+					if (focusedFrame && (expression instanceof Variable || expression instanceof Expression)) {
+						await expression.setExpression(value, focusedFrame);
+						this.debugService.getViewModel().updateViews();
+					}
 				}
 			}
 		};
 	}
 
-	protected override renderActionBar(actionBar: ActionBar, expression: IExpression) {
-		const contextKeyService = getContextForWatchExpressionMenu(this.contextKeyService, expression);
-		const context = expression;
-		const menu = this.menuService.getMenuActions(MenuId.DebugWatchContext, contextKeyService, { arg: context, shouldForwardArgs: false });
+	return {
+		initialValue: expression.name ? expression.name : '',
+		ariaLabel: localize('watchExpressionInputAriaLabel', "Type watch expression"),
+		placeholder: localize('watchExpressionPlaceholder', "Expression to watch"),
+		onFinish: (value: string, success: boolean) => {
+			if (success && value) {
+				this.debugService.renameWatchExpression(expression.getId(), value);
+				ignoreViewUpdates = true;
+				this.debugService.getViewModel().updateViews();
+				ignoreViewUpdates = false;
+			} else if (!expression.name) {
+				this.debugService.removeWatchExpressions(expression.getId());
+			}
+		}
+	};
+}
 
-		const { primary } = getContextMenuActions(menu, 'inline');
+    protected override renderActionBar(actionBar: ActionBar, expression: IExpression) {
+	const contextKeyService = getContextForWatchExpressionMenu(this.contextKeyService, expression);
+	const context = expression;
+	const menu = this.menuService.getMenuActions(MenuId.DebugWatchContext, contextKeyService, { arg: context, shouldForwardArgs: false });
 
-		actionBar.clear();
-		actionBar.context = context;
-		actionBar.push(primary, { icon: true, label: false });
-	}
+	const { primary } = getContextMenuActions(menu, 'inline');
+
+	actionBar.clear();
+	actionBar.context = context;
+	actionBar.push(primary, { icon: true, label: false });
+}
 }
 
 /**
@@ -468,64 +468,64 @@ class WatchExpressionsDragAndDrop implements ITreeDragAndDrop<IExpression> {
 		return undefined;
 	}
 
-	drop(data: IDragAndDropData, targetElement: IExpression, targetIndex: number | undefined, targetSector: ListViewTargetSector | undefined, originalEvent: DragEvent): void {
+	drop(data: IDragAndDropData, targetElement: IExpression, targetIndex: number | undefined, targetSector: ListViewTargetSector | undefined, originalEvent: DragEventcognidreamognidream {
 		if (!(data instanceof ElementsDragAndDropData)) {
-			return;
-		}
-
-		const draggedElement = (data as ElementsDragAndDropData<IExpression>).elements[0];
-		if (!(draggedElement instanceof Expression)) {
-			throw new Error('Invalid dragged element');
-		}
-
-		const watches = this.debugService.getModel().getWatchExpressions();
-		const sourcePosition = watches.indexOf(draggedElement);
-
-		let targetPosition;
-		if (targetElement instanceof Expression) {
-			targetPosition = watches.indexOf(targetElement);
-
-			switch (targetSector) {
-				case ListViewTargetSector.BOTTOM:
-				case ListViewTargetSector.CENTER_BOTTOM:
-					targetPosition++; break;
-			}
-
-			if (sourcePosition < targetPosition) {
-				targetPosition--;
-			}
-		} else {
-			targetPosition = watches.length - 1;
-		}
-
-		this.debugService.moveWatchExpression(draggedElement.getId(), targetPosition);
-	}
-
-	dispose(): void { }
+	return;
 }
 
-registerAction2(class Collapse extends ViewAction<WatchExpressionsView> {
-	constructor() {
-		super({
-			id: 'watch.collapse',
-			viewId: WATCH_VIEW_ID,
-			title: localize('collapse', "Collapse All"),
-			f1: false,
-			icon: Codicon.collapseAll,
-			precondition: CONTEXT_WATCH_EXPRESSIONS_EXIST,
-			menu: {
-				id: MenuId.ViewTitle,
-				order: 30,
-				group: 'navigation',
-				when: ContextKeyExpr.equals('view', WATCH_VIEW_ID)
-			}
-		});
+const draggedElement = (data as ElementsDragAndDropData<IExpression>).elements[0];
+if (!(draggedElement instanceof Expression)) {
+	throw new Error('Invalid dragged element');
+}
+
+const watches = this.debugService.getModel().getWatchExpressions();
+const sourcePosition = watches.indexOf(draggedElement);
+
+let targetPosition;
+if (targetElement instanceof Expression) {
+	targetPosition = watches.indexOf(targetElement);
+
+	switch (targetSector) {
+		case ListViewTargetSector.BOTTOM:
+		case ListViewTargetSector.CENTER_BOTTOM:
+			targetPosition++; break;
 	}
 
-	runInView(_accessor: ServicesAccessor, view: WatchExpressionsView) {
-		view.collapseAll();
+	if (sourcePosition < targetPosition) {
+		targetPosition--;
 	}
-});
+} else {
+	targetPosition = watches.length - 1;
+}
+
+this.debugService.moveWatchExpression(draggedElement.getId(), targetPosition);
+    }
+
+dispose(cognidreamognidream {}
+}
+
+	registerAction2(class Collapse extends ViewAction<WatchExpressionsView> {
+		constructor() {
+			super({
+				id: 'watch.collapse',
+				viewId: WATCH_VIEW_ID,
+				title: localize('collapse', "Collapse All"),
+				f1: false,
+				icon: Codicon.collapseAll,
+				precondition: CONTEXT_WATCH_EXPRESSIONS_EXIST,
+				menu: {
+					id: MenuId.ViewTitle,
+					order: 30,
+					group: 'navigation',
+					when: ContextKeyExpr.equals('view', WATCH_VIEW_ID)
+				}
+			});
+		}
+
+		runInView(_accessor: ServicesAccessor, view: WatchExpressionsView) {
+			view.collapseAll();
+		}
+	});
 
 export const ADD_WATCH_ID = 'workbench.debug.viewlet.action.addWatchExpression'; // Use old and long id for backwards compatibility
 export const ADD_WATCH_LABEL = localize('addWatchExpression', "Add Expression");
@@ -545,10 +545,10 @@ registerAction2(class AddWatchExpressionAction extends Action2 {
 		});
 	}
 
-	run(accessor: ServicesAccessor): void {
+	run(accessor: ServicesAccessorcognidreamognidream {
 		const debugService = accessor.get(IDebugService);
-		debugService.addWatchExpression();
-	}
+        debugService.addWatchExpression();
+}
 });
 
 export const REMOVE_WATCH_EXPRESSIONS_COMMAND_ID = 'workbench.debug.viewlet.action.removeAllWatchExpressions';
@@ -570,10 +570,10 @@ registerAction2(class RemoveAllWatchExpressionsAction extends Action2 {
 		});
 	}
 
-	run(accessor: ServicesAccessor): void {
+	run(accessor: ServicesAccessorcognidreamognidream {
 		const debugService = accessor.get(IDebugService);
-		debugService.removeWatchExpressions();
-	}
+        debugService.removeWatchExpressions();
+}
 });
 
 registerAction2(class CopyExpression extends ViewAction<WatchExpressionsView> {
@@ -601,13 +601,13 @@ registerAction2(class CopyExpression extends ViewAction<WatchExpressionsView> {
 		});
 	}
 
-	runInView(accessor: ServicesAccessor, view: WatchExpressionsView, value?: IExpression): void {
+	runInView(accessor: ServicesAccessor, view: WatchExpressionsView, value?: IExpressioncognidreamognidream {
 		const clipboardService = accessor.get(IClipboardService);
-		if (!value) {
-			value = view.treeSelection.at(-1);
-		}
-		if (value) {
-			clipboardService.writeText(value.name);
-		}
+	if(!value) {
+		value = view.treeSelection.at(-1);
 	}
+	if(value) {
+		clipboardService.writeText(value.name);
+	}
+}
 });

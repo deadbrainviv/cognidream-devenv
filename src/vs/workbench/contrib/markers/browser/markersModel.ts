@@ -165,7 +165,7 @@ export class MarkersModel {
 		this.resourcesByUri = new Map<string, ResourceMarkers>();
 	}
 
-	reset(): void {
+	reset(): cognidream {
 		const removed = new Set<ResourceMarkers>();
 		for (const resourceMarker of this.resourcesByUri.values()) {
 			removed.add(resourceMarker);
@@ -184,73 +184,73 @@ export class MarkersModel {
 		return this.resourcesByUri.get(extUri.getComparisonKey(resource, true)) ?? null;
 	}
 
-	setResourceMarkers(resourcesMarkers: [URI, IMarker[]][]): void {
+	setResourceMarkers(resourcesMarkers: [URI, IMarker[]][]cognidreamognidream {
 		const change: MarkerChangesEvent = { added: new Set(), removed: new Set(), updated: new Set() };
 		for (const [resource, rawMarkers] of resourcesMarkers) {
 
-			if (unsupportedSchemas.has(resource.scheme)) {
-				continue;
+	if (unsupportedSchemas.has(resource.scheme)) {
+		continue;
+	}
+
+	const key = extUri.getComparisonKey(resource, true);
+	let resourceMarkers = this.resourcesByUri.get(key);
+
+	if (isNonEmptyArray(rawMarkers)) {
+		// update, add
+		if (!resourceMarkers) {
+			const resourceMarkersId = this.id(resource.toString());
+			resourceMarkers = new ResourceMarkers(resourceMarkersId, resource.with({ fragment: null }));
+			this.resourcesByUri.set(key, resourceMarkers);
+			change.added.add(resourceMarkers);
+		} else {
+			change.updated.add(resourceMarkers);
+		}
+		const markersCountByKey = new Map<string, number>();
+		const markers = rawMarkers.map((rawMarker) => {
+			const key = IMarkerData.makeKey(rawMarker);
+			const index = markersCountByKey.get(key) || 0;
+			markersCountByKey.set(key, index + 1);
+
+			const markerId = this.id(resourceMarkers!.id, key, index, rawMarker.resource.toString());
+
+			let relatedInformation: RelatedInformation[] | undefined = undefined;
+			if (rawMarker.relatedInformation) {
+				relatedInformation = rawMarker.relatedInformation.map((r, index) => new RelatedInformation(this.id(markerId, r.resource.toString(), r.startLineNumber, r.startColumn, r.endLineNumber, r.endColumn, index), rawMarker, r));
 			}
 
-			const key = extUri.getComparisonKey(resource, true);
-			let resourceMarkers = this.resourcesByUri.get(key);
+			return new Marker(markerId, rawMarker, relatedInformation);
+		});
 
-			if (isNonEmptyArray(rawMarkers)) {
-				// update, add
-				if (!resourceMarkers) {
-					const resourceMarkersId = this.id(resource.toString());
-					resourceMarkers = new ResourceMarkers(resourceMarkersId, resource.with({ fragment: null }));
-					this.resourcesByUri.set(key, resourceMarkers);
-					change.added.add(resourceMarkers);
-				} else {
-					change.updated.add(resourceMarkers);
-				}
-				const markersCountByKey = new Map<string, number>();
-				const markers = rawMarkers.map((rawMarker) => {
-					const key = IMarkerData.makeKey(rawMarker);
-					const index = markersCountByKey.get(key) || 0;
-					markersCountByKey.set(key, index + 1);
+		this._total -= resourceMarkers.total;
+		resourceMarkers.set(resource, markers);
+		this._total += resourceMarkers.total;
 
-					const markerId = this.id(resourceMarkers!.id, key, index, rawMarker.resource.toString());
-
-					let relatedInformation: RelatedInformation[] | undefined = undefined;
-					if (rawMarker.relatedInformation) {
-						relatedInformation = rawMarker.relatedInformation.map((r, index) => new RelatedInformation(this.id(markerId, r.resource.toString(), r.startLineNumber, r.startColumn, r.endLineNumber, r.endColumn, index), rawMarker, r));
-					}
-
-					return new Marker(markerId, rawMarker, relatedInformation);
-				});
-
-				this._total -= resourceMarkers.total;
-				resourceMarkers.set(resource, markers);
-				this._total += resourceMarkers.total;
-
-			} else if (resourceMarkers) {
-				// clear
-				this._total -= resourceMarkers.total;
-				resourceMarkers.delete(resource);
-				this._total += resourceMarkers.total;
-				if (resourceMarkers.total === 0) {
-					this.resourcesByUri.delete(key);
-					change.removed.add(resourceMarkers);
-				} else {
-					change.updated.add(resourceMarkers);
-				}
-			}
-		}
-
-		this.cachedSortedResources = undefined;
-		if (change.added.size || change.removed.size || change.updated.size) {
-			this._onDidChange.fire(change);
+	} else if (resourceMarkers) {
+		// clear
+		this._total -= resourceMarkers.total;
+		resourceMarkers.delete(resource);
+		this._total += resourceMarkers.total;
+		if (resourceMarkers.total === 0) {
+			this.resourcesByUri.delete(key);
+			change.removed.add(resourceMarkers);
+		} else {
+			change.updated.add(resourceMarkers);
 		}
 	}
+}
 
-	private id(...values: (string | number)[]): string {
-		return `${hash(values)}`;
-	}
+this.cachedSortedResources = undefined;
+if (change.added.size || change.removed.size || change.updated.size) {
+	this._onDidChange.fire(change);
+}
+    }
 
-	dispose(): void {
-		this._onDidChange.dispose();
-		this.resourcesByUri.clear();
-	}
+    private id(...values: (string | number)[]): string {
+	return `${hash(values)}`;
+}
+
+dispose(cognidreamognidream {
+	this._onDidChange.dispose();
+	this.resourcesByUri.clear();
+}
 }

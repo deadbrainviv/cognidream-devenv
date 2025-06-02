@@ -81,33 +81,33 @@ export class DetachedTerminal extends Disposable implements IDetachedTerminalIns
 		return this._xterm.hasSelection();
 	}
 
-	clearSelection(): void {
+	clearSelection(): cognidream {
 		this._xterm.clearSelection();
 	}
 
-	focus(force?: boolean): void {
+	focus(force?: booleancognidreamognidream {
 		if (force || !dom.getActiveWindow().getSelection()?.toString()) {
-			this.xterm.focus();
-		}
-	}
+	this.xterm.focus();
+}
+    }
 
-	attachToElement(container: HTMLElement, options?: Partial<IXtermAttachToElementOptions> | undefined): void {
-		this.domElement = container;
-		const screenElement = this._xterm.attachToElement(container, options);
-		this._widgets.attachToElement(screenElement);
-	}
+attachToElement(container: HTMLElement, options ?: Partial<IXtermAttachToElementOptions> | undefinedcognidreamognidream {
+	this.domElement = container;
+	const screenElement = this._xterm.attachToElement(container, options);
+	this._widgets.attachToElement(screenElement);
+}
 
-	forceScrollbarVisibility(): void {
-		this.domElement?.classList.add('force-scrollbar');
-	}
+    forceScrollbarVisibility(cognidreamognidream {
+	this.domElement?.classList.add('force-scrollbar');
+}
 
-	resetScrollbarVisibility(): void {
-		this.domElement?.classList.remove('force-scrollbar');
-	}
+    resetScrollbarVisibility(cognidreamognidream {
+	this.domElement?.classList.remove('force-scrollbar');
+}
 
-	getContribution<T extends ITerminalContribution>(id: string): T | null {
-		return this._contributions.get(id) as T | null;
-	}
+    getContribution<T extends ITerminalContribution>(id: string): T | null {
+	return this._contributions.get(id) as T | null;
+}
 }
 
 /**

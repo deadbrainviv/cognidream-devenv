@@ -56,7 +56,7 @@ suite('NotebookExecutionService', () => {
 		});
 
 		instantiationService.stub(INotebookLoggingService, new class extends mock<INotebookLoggingService>() {
-			override debug(category: string, output: string): void {
+			override debug(category: string, output: string): cognidream {
 				//
 			}
 		});
@@ -75,7 +75,7 @@ suite('NotebookExecutionService', () => {
 			override getKernels(notebook: INotebookTextModelLike) {
 				return kernelService.getMatchingKernel(notebook);
 			}
-			override addMostRecentKernel(kernel: INotebookKernel): void { }
+			override addMostRecentKernel(kernel: INotebookcognidreamel): cognidream { }
 		});
 
 		instantiationService.stub(ICommandService, new class extends mock<ICommandService>() {
@@ -89,7 +89,7 @@ suite('NotebookExecutionService', () => {
 		contextKeyService = instantiationService.get(IContextKeyService);
 	});
 
-	async function withTestNotebook(cells: [string, string, CellKind, IOutputDto[], NotebookCellMetadata][], callback: (viewModel: NotebookViewModel, textModel: NotebookTextModel, disposables: DisposableStore) => void | Promise<void>) {
+	async function withTestNotebook(cells: [string, string, CellKind, IOutputDto[], NotebookCellMetadata][], callback: (viewModel: NotebookViewModel, textModel: NotebookTextModel, disposables: DisposableStore) cognidreamognidream | cognidreammise<cognidream>) {
 		return _withTestNotebook(cells, (editor, viewModel, disposables) => callback(viewModel, viewModel.notebookDocument, disposables));
 	}
 
@@ -186,15 +186,15 @@ class TestNotebookKernel implements INotebookKernel {
 	provideVariables(notebookUri: URI, parentId: number | undefined, kind: 'named' | 'indexed', start: number, token: CancellationToken): AsyncIterableObject<VariablesResult> {
 		return AsyncIterableObject.EMPTY;
 	}
-	executeNotebookCellsRequest(): Promise<void> {
+	executeNotebookCellsRequest(): Promicognidreamognidream> {
 		throw new Error('Method not implemented.');
 	}
-	cancelNotebookCellExecution(): Promise<void> {
-		throw new Error('Method not implemented.');
-	}
-	constructor(opts?: { languages: string[] }) {
-		this.supportedLanguages = opts?.languages ?? [PLAINTEXT_LANGUAGE_ID];
-	}
-	implementsInterrupt?: boolean | undefined;
-	implementsExecutionOrder?: boolean | undefined;
+cancelNotebookCellExecution(): Promicognidreamognidream > {
+	throw new Error('Method not implemented.');
+}
+constructor(opts ?: { languages: string[] }) {
+	this.supportedLanguages = opts?.languages ?? [PLAINTEXT_LANGUAGE_ID];
+}
+implementsInterrupt ?: boolean | undefined;
+implementsExecutionOrder ?: boolean | undefined;
 }

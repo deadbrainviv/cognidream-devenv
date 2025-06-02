@@ -147,7 +147,7 @@ registerAction2(class extends Action2 {
 		});
 	}
 
-	override run(accessor: ServicesAccessor, subject: InspectSubject): void {
+	override run(accessor: ServicesAccessor, subject: InspectSubject): cognidream {
 		runInLast(accessor, TestRunProfileBitset.Run, subject);
 	}
 });
@@ -166,9 +166,9 @@ registerAction2(class extends Action2 {
 		});
 	}
 
-	override run(accessor: ServicesAccessor, subject: InspectSubject): void {
+	override run(accessor: ServicesAccessor, subject: InspectSubjectcognidreamognidream {
 		runInLast(accessor, TestRunProfileBitset.Debug, subject);
-	}
+    }
 });
 
 export class TestResultsViewContent extends Disposable {
@@ -176,7 +176,7 @@ export class TestResultsViewContent extends Disposable {
 
 	private readonly didReveal = this._register(new Emitter<{ subject: InspectSubject; preserveFocus: boolean }>());
 	private readonly currentSubjectStore = this._register(new DisposableStore());
-	private readonly onCloseEmitter = this._register(new Relay<void>());
+	private readonly onCloseEmitter = this._register(new Relcognidreamognidream > ());
 	private followupWidget!: FollowupActionWidget;
 	private messageContextKeyService!: IContextKeyService;
 	private contextKeyTestMessage!: IContextKey<string>;
@@ -231,7 +231,7 @@ export class TestResultsViewContent extends Disposable {
 		super();
 	}
 
-	public fillBody(containerElement: HTMLElement): void {
+	public fillBody(containerElement: HTMLElementcognidreamognidream {
 		const initialSpitWidth = TestResultsViewContent.lastSplitWidth;
 		this.splitView = new SplitView(containerElement, { orientation: Orientation.HORIZONTAL });
 
@@ -280,182 +280,182 @@ export class TestResultsViewContent extends Disposable {
 			},
 		}, Sizing.Distribute);
 
-		this.splitView.addView({
-			onDidChange: Event.None,
-			element: treeContainer,
-			minimumSize: 100,
-			maximumSize: Number.MAX_VALUE,
-			layout: width => {
-				if (this.dimension) {
-					tree.layout(this.dimension.height, width);
-				}
-			},
-		}, Sizing.Distribute);
-
-
-		this.splitView.setViewVisible(SubView.History, historyVisible.value);
-		this._register(historyVisible.onDidChange(visible => {
-			this.splitView.setViewVisible(SubView.History, visible);
-		}));
-
-		if (initialSpitWidth) {
-			queueMicrotask(() => this.splitView.resizeView(0, initialSpitWidth));
+this.splitView.addView({
+	onDidChange: Event.None,
+	element: treeContainer,
+	minimumSize: 100,
+	maximumSize: Number.MAX_VALUE,
+	layout: width => {
+		if (this.dimension) {
+			tree.layout(this.dimension.height, width);
 		}
+	},
+}, Sizing.Distribute);
+
+
+this.splitView.setViewVisible(SubView.History, historyVisible.value);
+this._register(historyVisible.onDidChange(visible => {
+	this.splitView.setViewVisible(SubView.History, visible);
+}));
+
+if (initialSpitWidth) {
+	queueMicrotask(() => this.splitView.resizeView(0, initialSpitWidth));
+}
+    }
+
+    /**
+     * Shows a message in-place without showing or changing the peek location.
+     * This is mostly used if peeking a message without a location.
+     */
+    public reveal(opts: {
+	subject: InspectSubject;
+	preserveFocus: boolean;
+}) {
+	this.didReveal.fire(opts);
+
+	if (this.current && equalsSubject(this.current, opts.subject)) {
+		return Promise.resolve();
 	}
 
-	/**
-	 * Shows a message in-place without showing or changing the peek location.
-	 * This is mostly used if peeking a message without a location.
-	 */
-	public reveal(opts: {
-		subject: InspectSubject;
-		preserveFocus: boolean;
-	}) {
-		this.didReveal.fire(opts);
+	this.current = opts.subject;
+	return this.contentProvidersUpdateLimiter.queue(async () => {
+		this.currentSubjectStore.clear();
+		const callFrames = this.getCallFrames(opts.subject) || [];
+		const topFrame = await this.prepareTopFrame(opts.subject, callFrames);
+		this.setCallStackFrames(topFrame, callFrames);
 
-		if (this.current && equalsSubject(this.current, opts.subject)) {
-			return Promise.resolve();
-		}
+		this.followupWidget.show(opts.subject);
+		this.populateFloatingClick(opts.subject);
+	});
+}
 
-		this.current = opts.subject;
-		return this.contentProvidersUpdateLimiter.queue(async () => {
-			this.currentSubjectStore.clear();
-			const callFrames = this.getCallFrames(opts.subject) || [];
-			const topFrame = await this.prepareTopFrame(opts.subject, callFrames);
-			this.setCallStackFrames(topFrame, callFrames);
+    private setCallStackFrames(messageFrame: AnyStackFrame, stack: ITestMessageStackFrame[]) {
+	this.callStackWidget.setFrames([messageFrame, ...stack.map(frame => new CallStackFrame(
+		frame.label,
+		frame.uri,
+		frame.position?.lineNumber,
+		frame.position?.column,
+	))]);
+}
 
-			this.followupWidget.show(opts.subject);
-			this.populateFloatingClick(opts.subject);
-		});
+    /**
+     * Collapses all displayed stack frames.
+     */
+    public collapseStack() {
+	this.callStackWidget.collapseAll();
+}
+
+    private getCallFrames(subject: InspectSubject) {
+	if (!(subject instanceof MessageSubject)) {
+		return undefined;
+	}
+	const frames = subject.stack;
+	if (!frames?.length || !this.editor) {
+		return frames;
 	}
 
-	private setCallStackFrames(messageFrame: AnyStackFrame, stack: ITestMessageStackFrame[]) {
-		this.callStackWidget.setFrames([messageFrame, ...stack.map(frame => new CallStackFrame(
-			frame.label,
-			frame.uri,
-			frame.position?.lineNumber,
-			frame.position?.column,
-		))]);
-	}
+	// If the test extension just sets the top frame as the same location
+	// where the message is displayed, in the case of a peek in an editor,
+	// don't show it again because it's just a duplicate
+	const topFrame = frames[0];
+	const peekLocation = subject.revealLocation;
+	const isTopFrameSame = peekLocation && topFrame.position && topFrame.uri
+		&& topFrame.position.lineNumber === peekLocation.range.startLineNumber
+		&& topFrame.position.column === peekLocation.range.startColumn
+		&& this.uriIdentityService.extUri.isEqual(topFrame.uri, peekLocation.uri);
 
-	/**
-	 * Collapses all displayed stack frames.
-	 */
-	public collapseStack() {
-		this.callStackWidget.collapseAll();
-	}
+	return isTopFrameSame ? frames.slice(1) : frames;
+}
 
-	private getCallFrames(subject: InspectSubject) {
-		if (!(subject instanceof MessageSubject)) {
-			return undefined;
-		}
-		const frames = subject.stack;
-		if (!frames?.length || !this.editor) {
-			return frames;
-		}
+    private async prepareTopFrame(subject: InspectSubject, callFrames: ITestMessageStackFrame[]) {
+	// ensure the messageContainer is in the DOM so renderers can calculate the
+	// dimensions before it's rendered in the list.
+	this.messageContainer.style.visibility = 'hidden';
+	this.stackContainer.appendChild(this.messageContainer);
 
-		// If the test extension just sets the top frame as the same location
-		// where the message is displayed, in the case of a peek in an editor,
-		// don't show it again because it's just a duplicate
-		const topFrame = frames[0];
-		const peekLocation = subject.revealLocation;
-		const isTopFrameSame = peekLocation && topFrame.position && topFrame.uri
-			&& topFrame.position.lineNumber === peekLocation.range.startLineNumber
-			&& topFrame.position.column === peekLocation.range.startColumn
-			&& this.uriIdentityService.extUri.isEqual(topFrame.uri, peekLocation.uri);
+	const topFrame = this.currentTopFrame = this.instantiationService.createInstance(MessageStackFrame, this.messageContainer, this.followupWidget, subject);
 
-		return isTopFrameSame ? frames.slice(1) : frames;
-	}
+	const hasMultipleFrames = callFrames.length > 0;
+	topFrame.showHeader.set(hasMultipleFrames, undefined);
 
-	private async prepareTopFrame(subject: InspectSubject, callFrames: ITestMessageStackFrame[]) {
-		// ensure the messageContainer is in the DOM so renderers can calculate the
-		// dimensions before it's rendered in the list.
-		this.messageContainer.style.visibility = 'hidden';
-		this.stackContainer.appendChild(this.messageContainer);
-
-		const topFrame = this.currentTopFrame = this.instantiationService.createInstance(MessageStackFrame, this.messageContainer, this.followupWidget, subject);
-
-		const hasMultipleFrames = callFrames.length > 0;
-		topFrame.showHeader.set(hasMultipleFrames, undefined);
-
-		const provider = await findAsync(this.contentProviders, p => p.update(subject));
-		if (provider) {
-			const width = this.splitView.getViewSize(SubView.Diff);
-			if (width !== -1 && this.dimension) {
-				topFrame.height.set(provider.layout({ width, height: this.dimension?.height }, hasMultipleFrames)!, undefined);
-			}
-
-			if (provider.onScrolled) {
-				this.currentSubjectStore.add(this.callStackWidget.onDidScroll(evt => {
-					provider.onScrolled!(evt);
-				}));
-			}
-
-			if (provider.onDidContentSizeChange) {
-				this.currentSubjectStore.add(provider.onDidContentSizeChange(() => {
-					if (this.dimension && !this.isDoingLayoutUpdate) {
-						this.isDoingLayoutUpdate = true;
-						topFrame.height.set(provider.layout(this.dimension, hasMultipleFrames)!, undefined);
-						this.isDoingLayoutUpdate = false;
-					}
-				}));
-			}
+	const provider = await findAsync(this.contentProviders, p => p.update(subject));
+	if (provider) {
+		const width = this.splitView.getViewSize(SubView.Diff);
+		if (width !== -1 && this.dimension) {
+			topFrame.height.set(provider.layout({ width, height: this.dimension?.height }, hasMultipleFrames)!, undefined);
 		}
 
-		return topFrame;
-	}
-
-	private layoutContentWidgets(dimension: dom.Dimension, width = this.splitView.getViewSize(SubView.Diff)) {
-		this.isDoingLayoutUpdate = true;
-		for (const provider of this.contentProviders) {
-			const frameHeight = provider.layout({ height: dimension.height, width }, !!this.currentTopFrame?.showHeader.get());
-			if (frameHeight) {
-				this.currentTopFrame?.height.set(frameHeight, undefined);
-			}
-		}
-		this.isDoingLayoutUpdate = false;
-	}
-
-	private populateFloatingClick(subject: InspectSubject) {
-		if (!(subject instanceof MessageSubject)) {
-			return;
+		if (provider.onScrolled) {
+			this.currentSubjectStore.add(this.callStackWidget.onDidScroll(evt => {
+				provider.onScrolled!(evt);
+			}));
 		}
 
-		this.currentSubjectStore.add(toDisposable(() => {
-			this.contextKeyResultOutdated.reset();
-			this.contextKeyTestMessage.reset();
-		}));
-
-		this.contextKeyTestMessage.set(subject.contextValue || '');
-		if (subject.result instanceof LiveTestResult) {
-			this.contextKeyResultOutdated.set(subject.result.getStateById(subject.test.extId)?.retired ?? false);
-			this.currentSubjectStore.add(subject.result.onChange(ev => {
-				if (ev.item.item.extId === subject.test.extId) {
-					this.contextKeyResultOutdated.set(ev.item.retired ?? false);
+		if (provider.onDidContentSizeChange) {
+			this.currentSubjectStore.add(provider.onDidContentSizeChange(() => {
+				if (this.dimension && !this.isDoingLayoutUpdate) {
+					this.isDoingLayoutUpdate = true;
+					topFrame.height.set(provider.layout(this.dimension, hasMultipleFrames)!, undefined);
+					this.isDoingLayoutUpdate = false;
 				}
 			}));
-		} else {
-			this.contextKeyResultOutdated.set(true);
 		}
+	}
 
-		const instaService = this.currentSubjectStore.add(this.instantiationService
-			.createChild(new ServiceCollection([IContextKeyService, this.messageContextKeyService])));
+	return topFrame;
+}
 
-		this.currentSubjectStore.add(instaService.createInstance(FloatingClickMenu, {
-			container: this.messageContainer,
-			menuId: MenuId.TestMessageContent,
-			getActionArg: () => (subject as MessageSubject).context,
+    private layoutContentWidgets(dimension: dom.Dimension, width = this.splitView.getViewSize(SubView.Diff)) {
+	this.isDoingLayoutUpdate = true;
+	for (const provider of this.contentProviders) {
+		const frameHeight = provider.layout({ height: dimension.height, width }, !!this.currentTopFrame?.showHeader.get());
+		if (frameHeight) {
+			this.currentTopFrame?.height.set(frameHeight, undefined);
+		}
+	}
+	this.isDoingLayoutUpdate = false;
+}
+
+    private populateFloatingClick(subject: InspectSubject) {
+	if (!(subject instanceof MessageSubject)) {
+		return;
+	}
+
+	this.currentSubjectStore.add(toDisposable(() => {
+		this.contextKeyResultOutdated.reset();
+		this.contextKeyTestMessage.reset();
+	}));
+
+	this.contextKeyTestMessage.set(subject.contextValue || '');
+	if (subject.result instanceof LiveTestResult) {
+		this.contextKeyResultOutdated.set(subject.result.getStateById(subject.test.extId)?.retired ?? false);
+		this.currentSubjectStore.add(subject.result.onChange(ev => {
+			if (ev.item.item.extId === subject.test.extId) {
+				this.contextKeyResultOutdated.set(ev.item.retired ?? false);
+			}
 		}));
+	} else {
+		this.contextKeyResultOutdated.set(true);
 	}
 
-	public onLayoutBody(height: number, width: number) {
-		this.dimension = new dom.Dimension(width, height);
-		this.splitView.layout(width);
-	}
+	const instaService = this.currentSubjectStore.add(this.instantiationService
+		.createChild(new ServiceCollection([IContextKeyService, this.messageContextKeyService])));
 
-	public onWidth(width: number) {
-		this.splitView.layout(width);
-	}
+	this.currentSubjectStore.add(instaService.createInstance(FloatingClickMenu, {
+		container: this.messageContainer,
+		menuId: MenuId.TestMessageContent,
+		getActionArg: () => (subject as MessageSubject).context,
+	}));
+}
+
+    public onLayoutBody(height: number, width: number) {
+	this.dimension = new dom.Dimension(width, height);
+	this.splitView.layout(width);
+}
+
+    public onWidth(width: number) {
+	this.splitView.layout(width);
+}
 }
 
 const FOLLOWUP_ANIMATION_MIN_TIME = 500;
@@ -463,7 +463,7 @@ const FOLLOWUP_ANIMATION_MIN_TIME = 500;
 class FollowupActionWidget extends Disposable {
 	private readonly el = dom.h('div.testing-followup-action', []);
 	private readonly visibleStore = this._register(new DisposableStore());
-	private readonly onCloseEmitter = this._register(new Emitter<void>());
+	private readonly onCloseEmitter = this._register(new Emittcognidreamognidream > ());
 	public readonly onClose = this.onCloseEmitter.event;
 
 	public get domNode() {
@@ -544,7 +544,7 @@ class FollowupActionWidget extends Disposable {
 		return link;
 	}
 
-	private makeLink(onClick: () => void) {
+	private makeLink(onClick: () cognidreamognidream) {
 		const link = document.createElement('a');
 		link.tabIndex = 0;
 		this.visibleStore.add(dom.addDisposableListener(link, 'click', onClick));

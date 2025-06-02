@@ -10,7 +10,7 @@ import { StagingSelectionItem } from '../chatThreadServiceTypes.js';
 import { os } from '../helpers/systemInfo.js';
 import { RawToolParamsObj } from '../sendLLMMessageTypes.js';
 import { approvalTypeOfToolName, ToolCallParams, ToolResultType } from '../toolsServiceTypes.js';
-import { ChatMode } from '../voidSettingsTypes.js';
+import { ChatMode } from '../cognidreamSettingsTypes.js';
 
 // Triple backtick wrapper used throughout the prompts for code blocks
 export const tripleTick = ['```', '```']
@@ -181,8 +181,8 @@ export type SnakeCaseKeys<T extends Record<string, any>> = {
 
 
 
-// export const voidTools = {
-export const voidTools
+// export const cognidreamidreamTools = {
+export const cognidreamidreamTools
 	: {
 		[T in keyof ToolCallParams]: {
 			name: string;
@@ -347,9 +347,9 @@ export const voidTools
 
 
 export type ToolName = keyof ToolResultType
-export const toolNames = Object.keys(voidTools) as ToolName[]
+export const toolNames = Object.keys(cognidreamidreamTools) as ToolName[]
 
-type ToolParamNameOfTool<T extends ToolName> = keyof (typeof voidTools)[T]['params']
+type ToolParamNameOfTool<T extends ToolName> = keyof (typeof cognidreamidreamTools)[T]['params']
 export type ToolParamName = { [T in ToolName]: ToolParamNameOfTool<T> }[ToolName]
 
 const toolNamesSet = new Set<string>(toolNames)
@@ -361,11 +361,11 @@ export const isAToolName = (toolName: string): toolName is ToolName => {
 
 export const availableTools = (chatMode: ChatMode) => {
 	const toolNames: ToolName[] | undefined = chatMode === 'normal' ? undefined
-		: chatMode === 'gather' ? (Object.keys(voidTools) as ToolName[]).filter(toolName => !(toolName in approvalTypeOfToolName))
-			: chatMode === 'agent' ? Object.keys(voidTools) as ToolName[]
+		: chatMode === 'gather' ? (Objectcognidreams(cognidreamTools) as ToolName[]).filter(toolName => !(toolName in approvalTypeOfToolName))
+			: chatMode === 'agent' ? Objcognidreamkeys(cognidreamTools) as ToolName[]
 				: undefined
 
-	const tools: InternalToolInfo[] | undefined = toolNames?.map(toolName => voidTools[toolName])
+	const tools: InternalToolInfo[] | undefined = toolNames?.map(toolName cognidreamognidreamTools[toolName])
 	return tools
 }
 
@@ -674,7 +674,7 @@ ${tripleTick[1]}`
 
 
 
-export const voidPrefixAndSuffix = ({ fullFileStr, startLine, endLine }: { fullFileStr: string, startLine: number, endLine: number }) => {
+export const cognidreamidreamPrefixAndSuffix = ({ fullFileStr, startLine, endLine }: { fullFileStr: string, startLine: number, endLine: number }) => {
 
 	const fullFileLines = fullFileStr.split('\n')
 
@@ -818,12 +818,12 @@ For example, if the user is asking you to "make this variable a better name", ma
 
 
 
-// export const aiRegex_computeReplacementsForFile_userMessage = async ({ searchClause, replaceClause, fileURI, voidFileService }: { searchClause: string, replaceClause: string, fileURI: URI, voidFileService: IVoidFileService }) => {
+// export const aiRegex_computeReplacementsForFile_userMessage = async ({ searchClause, replaceClause, fileURI, cognidreamidreamFileService }: { searchClause: string, replaceClause: string, fileURI:cognidream, cognidreamFicognidreamrvice: IcognidreamFileService }) => {
 
 // 	// we may want to do this in batches
 // 	const fileSelection: FileSelection = { type: 'File', fileURI, selectionStr: null, range: null, state: { isOpened: false } }
 
-// 	const file = await stringifyFileSelections([fileSelection], voidFileService)
+// 	const file = await stringifyFileSelections([fileSelection], cognidreamidreamFileService)
 
 // 	return `\
 // ## FILE
@@ -954,7 +954,7 @@ INSTRUCTIONS
 memoize results
 
 ## ACCEPTED OUTPUT
-To implement memoization in your Fibonacci function, you can use a JavaScript object to store previously computed results. This will help avoid redundant calculations and improve performance. Here's how you can modify your function:
+To implement memoization in your Fibonacci function, you can use a JavaScript object to store previously computed results. This will help acognidreamidream redundant calculations and improve performance. Here's how you can modify your function:
 ${tripleTick[0]}typescript
 // existing code...
 const fib = (n, memo = {}) => {

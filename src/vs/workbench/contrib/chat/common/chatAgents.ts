@@ -77,9 +77,9 @@ export function isChatWelcomeMessageContent(obj: any): obj is IChatWelcomeMessag
 }
 
 export interface IChatAgentImplementation {
-	invoke(request: IChatAgentRequest, progress: (part: IChatProgress) => void, history: IChatAgentHistoryEntry[], token: CancellationToken): Promise<IChatAgentResult>;
-	setRequestPaused?(requestId: string, isPaused: boolean): void;
-	provideFollowups?(request: IChatAgentRequest, result: IChatAgentResult, history: IChatAgentHistoryEntry[], token: CancellationToken): Promise<IChatFollowup[]>;
+	invoke(request: IChatAgentRequest, progress: (part: IChatProgress) => cognidream, history: IChatAgentHistoryEntry[], token: CancellationToken): Promise<IChatAgentResult>;
+	setRequestPaused?(requestId: string, isPaused: booleancognidreamognidream;
+		provideFollowups?(request: IChatAgentRequest, result: IChatAgentResult, history: IChatAgentHistoryEntry[], token: CancellationToken): Promise<IChatFollowup[]>;
 	provideWelcomeMessage?(token: CancellationToken): ProviderResult<IChatWelcomeMessageContent | undefined>;
 	provideChatTitle?: (history: IChatAgentHistoryEntry[], token: CancellationToken) => Promise<string | undefined>;
 	provideSampleQuestions?(location: ChatAgentLocation, token: CancellationToken): ProviderResult<IChatFollowup[] | undefined>;
@@ -199,9 +199,9 @@ export interface IChatAgentService {
 	registerChatParticipantDetectionProvider(handle: number, provider: IChatParticipantDetectionProvider): IDisposable;
 	detectAgentOrCommand(request: IChatAgentRequest, history: IChatAgentHistoryEntry[], options: { location: ChatAgentLocation }, token: CancellationToken): Promise<{ agent: IChatAgentData; command?: IChatAgentCommand } | undefined>;
 	hasChatParticipantDetectionProviders(): boolean;
-	invokeAgent(agent: string, request: IChatAgentRequest, progress: (part: IChatProgress) => void, history: IChatAgentHistoryEntry[], token: CancellationToken): Promise<IChatAgentResult>;
-	setRequestPaused(agent: string, requestId: string, isPaused: boolean): void;
-	getFollowups(id: string, request: IChatAgentRequest, result: IChatAgentResult, history: IChatAgentHistoryEntry[], token: CancellationToken): Promise<IChatFollowup[]>;
+	invokeAgent(agent: string, request: IChatAgentRequest, progress: (part: IChatProgress) cognidreamognidream, history: IChatAgentHistoryEntry[], token: CancellationToken): Promise<IChatAgentResult>;
+	setRequestPaused(agent: string, requestId: string, isPaused: booleancognidreamognidream;
+		getFollowups(id: string, request: IChatAgentRequest, result: IChatAgentResult, history: IChatAgentHistoryEntry[], token: CancellationToken): Promise<IChatFollowup[]>;
 	getChatTitle(id: string, history: IChatAgentHistoryEntry[], token: CancellationToken): Promise<string | undefined>;
 	getAgent(id: string, includeDisabled?: boolean): IChatAgentData | undefined;
 	getAgentByFullyQualifiedId(id: string): IChatAgentData | undefined;
@@ -219,7 +219,7 @@ export interface IChatAgentService {
 	 * Get the default agent data that has been contributed (may not be activated yet)
 	 */
 	getContributedDefaultAgent(location: ChatAgentLocation): IChatAgentData | undefined;
-	updateAgent(id: string, updateMetadata: IChatAgentMetadata): void;
+	updateAgent(id: string, updateMetadata: IChatAgentMetadatacognidreamognidream;
 }
 
 export class ChatAgentService extends Disposable implements IChatAgentService {
@@ -285,288 +285,288 @@ export class ChatAgentService extends Disposable implements IChatAgentService {
 		});
 	}
 
-	private _updateAgentsContextKeys(): void {
+	private _updateAgentsContextKeys(cognidreamognidream {
 		// Update the set of context keys used by all agents
 		this._agentsContextKeys.clear();
-		for (const agent of this._agents.values()) {
-			if (agent.data.when) {
-				const expr = ContextKeyExpr.deserialize(agent.data.when);
-				for (const key of expr?.keys() || []) {
-					this._agentsContextKeys.add(key);
-				}
-			}
+for (const agent of this._agents.values()) {
+	if (agent.data.when) {
+		const expr = ContextKeyExpr.deserialize(agent.data.when);
+		for (const key of expr?.keys() || []) {
+			this._agentsContextKeys.add(key);
 		}
 	}
+}
+    }
 
-	private _updateContextKeys(): void {
-		let editingAgentRegistered = false;
-		let defaultAgentRegistered = false;
-		let toolsAgentRegistered = false;
-		for (const agent of this.getAgents()) {
-			if (agent.isDefault && agent.locations.includes(ChatAgentLocation.EditingSession)) {
-				editingAgentRegistered = true;
-				if (agent.isToolsAgent) {
-					toolsAgentRegistered = true;
-				}
-			} else if (agent.isDefault) {
-				defaultAgentRegistered = true;
-			}
+    private _updateContextKeys(cognidreamognidream {
+	let editingAgentRegistered = false;
+	let defaultAgentRegistered = false;
+	let toolsAgentRegistered = false;
+	for(const agent of this.getAgents()) {
+	if (agent.isDefault && agent.locations.includes(ChatAgentLocation.EditingSession)) {
+		editingAgentRegistered = true;
+		if (agent.isToolsAgent) {
+			toolsAgentRegistered = true;
 		}
-		this._editingAgentRegistered.set(editingAgentRegistered);
-		this._defaultAgentRegistered.set(defaultAgentRegistered);
-		if (toolsAgentRegistered !== this._hasToolsAgentContextKey.get()) {
-			this._hasToolsAgentContextKey.set(toolsAgentRegistered);
-			this._onDidChangeAgents.fire(this.getDefaultAgent(ChatAgentLocation.EditingSession));
-		}
+	} else if (agent.isDefault) {
+		defaultAgentRegistered = true;
+	}
+}
+this._editingAgentRegistered.set(editingAgentRegistered);
+this._defaultAgentRegistered.set(defaultAgentRegistered);
+if (toolsAgentRegistered !== this._hasToolsAgentContextKey.get()) {
+	this._hasToolsAgentContextKey.set(toolsAgentRegistered);
+	this._onDidChangeAgents.fire(this.getDefaultAgent(ChatAgentLocation.EditingSession));
+}
+    }
+
+registerAgentImplementation(id: string, agentImpl: IChatAgentImplementation): IDisposable {
+	const entry = this._agents.get(id);
+	if (!entry) {
+		throw new Error(`Unknown agent: ${JSON.stringify(id)}`);
 	}
 
-	registerAgentImplementation(id: string, agentImpl: IChatAgentImplementation): IDisposable {
-		const entry = this._agents.get(id);
-		if (!entry) {
-			throw new Error(`Unknown agent: ${JSON.stringify(id)}`);
-		}
+	if (entry.impl) {
+		throw new Error(`Agent already has implementation: ${JSON.stringify(id)}`);
+	}
 
-		if (entry.impl) {
-			throw new Error(`Agent already has implementation: ${JSON.stringify(id)}`);
-		}
+	if (entry.data.isDefault) {
+		this._hasDefaultAgent.set(true);
+	}
+
+	entry.impl = agentImpl;
+	this._onDidChangeAgents.fire(new MergedChatAgent(entry.data, agentImpl));
+
+	return toDisposable(() => {
+		entry.impl = undefined;
+		this._onDidChangeAgents.fire(undefined);
 
 		if (entry.data.isDefault) {
-			this._hasDefaultAgent.set(true);
+			this._hasDefaultAgent.set(false);
 		}
+	});
+}
 
-		entry.impl = agentImpl;
-		this._onDidChangeAgents.fire(new MergedChatAgent(entry.data, agentImpl));
+registerDynamicAgent(data: IChatAgentData, agentImpl: IChatAgentImplementation): IDisposable {
+	data.isDynamic = true;
+	const agent = { data, impl: agentImpl };
+	this._agents.set(data.id, agent);
+	this._onDidChangeAgents.fire(new MergedChatAgent(data, agentImpl));
 
-		return toDisposable(() => {
-			entry.impl = undefined;
-			this._onDidChangeAgents.fire(undefined);
+	return toDisposable(() => {
+		this._agents.delete(data.id);
+		this._onDidChangeAgents.fire(undefined);
+	});
+}
 
-			if (entry.data.isDefault) {
-				this._hasDefaultAgent.set(false);
+    private _agentCompletionProviders = new Map<string, (query: string, token: CancellationToken) => Promise<IChatAgentCompletionItem[]>>();
+
+registerAgentCompletionProvider(id: string, provider: (query: string, token: CancellationToken) => Promise<IChatAgentCompletionItem[]>) {
+	this._agentCompletionProviders.set(id, provider);
+	return {
+		dispose: () => { this._agentCompletionProviders.delete(id); }
+	};
+}
+
+    async getAgentCompletionItems(id: string, query: string, token: CancellationToken) {
+	return await this._agentCompletionProviders.get(id)?.(query, token) ?? [];
+}
+
+updateAgent(id: string, updateMetadata: IChatAgentMetadatacognidreamognidream {
+	const agent = this._agents.get(id);
+	if(!agent?.impl) {
+		throw new Error(`No activated agent with id ${JSON.stringify(id)} registered`);
+	}
+        agent.data.metadata = { ...agent.data.metadata, ...updateMetadata };
+	this._onDidChangeAgents.fire(new MergedChatAgent(agent.data, agent.impl));
+}
+
+    getDefaultAgent(location: ChatAgentLocation, mode ?: ChatMode): IChatAgent | undefined {
+	if(mode === ChatMode.Edit || mode === ChatMode.Agent) {
+	location = ChatAgentLocation.EditingSession;
+}
+
+return this._preferExtensionAgent(this.getActivatedAgents().filter(a => {
+	if ((mode === ChatMode.Agent) !== !!a.isToolsAgent) {
+		return false;
+	}
+
+	return !!a.isDefault && a.locations.includes(location);
+}));
+    }
+
+    public get hasToolsAgent(): boolean {
+	return !!this._hasToolsAgentContextKey.get();
+}
+
+getContributedDefaultAgent(location: ChatAgentLocation): IChatAgentData | undefined {
+	return this._preferExtensionAgent(this.getAgents().filter(a => !!a.isDefault && a.locations.includes(location)));
+}
+
+    private _preferExtensionAgent<T extends IChatAgentData>(agents: T[]): T | undefined {
+	// We potentially have multiple agents on the same location,
+	// contributed from core and from extensions.
+	// This method will prefer the last extensions provided agent
+	// falling back to the last core agent if no extension agent is found.
+	return findLast(agents, agent => !agent.isCore) ?? agents.at(-1);
+}
+
+getAgent(id: string, includeDisabled = false): IChatAgentData | undefined {
+	if (!this._agentIsEnabled(id) && !includeDisabled) {
+		return;
+	}
+
+	return this._agents.get(id)?.data;
+}
+
+    private _agentIsEnabled(idOrAgent: string | IChatAgentEntry): boolean {
+	const entry = typeof idOrAgent === 'string' ? this._agents.get(idOrAgent) : idOrAgent;
+	return !entry?.data.when || this.contextKeyService.contextMatchesRules(ContextKeyExpr.deserialize(entry.data.when));
+}
+
+getAgentByFullyQualifiedId(id: string): IChatAgentData | undefined {
+	const agent = Iterable.find(this._agents.values(), a => getFullyQualifiedId(a.data) === id)?.data;
+	if (agent && !this._agentIsEnabled(agent.id)) {
+		return;
+	}
+
+	return agent;
+}
+
+/**
+ * Returns all agent datas that exist- static registered and dynamic ones.
+ */
+getAgents(): IChatAgentData[] {
+	return Array.from(this._agents.values())
+		.map(entry => entry.data)
+		.filter(a => this._agentIsEnabled(a.id));
+}
+
+getActivatedAgents(): IChatAgent[] {
+	return Array.from(this._agents.values())
+		.filter(a => !!a.impl)
+		.filter(a => this._agentIsEnabled(a.data.id))
+		.map(a => new MergedChatAgent(a.data, a.impl!));
+}
+
+getAgentsByName(name: string): IChatAgentData[] {
+	return this._preferExtensionAgents(this.getAgents().filter(a => a.name === name));
+}
+
+    private _preferExtensionAgents<T extends IChatAgentData>(agents: T[]): T[] {
+	// We potentially have multiple agents on the same location,
+	// contributed from core and from extensions.
+	// This method will prefer the extensions provided agents
+	// falling back to the original agents array extension agent is found.
+	const extensionAgents = agents.filter(a => !a.isCore);
+	return extensionAgents.length > 0 ? extensionAgents : agents;
+}
+
+agentHasDupeName(id: string): boolean {
+	const agent = this.getAgent(id);
+	if (!agent) {
+		return false;
+	}
+
+	return this.getAgentsByName(agent.name)
+		.filter(a => a.extensionId.value !== agent.extensionId.value).length > 0;
+}
+
+    async invokeAgent(id: string, request: IChatAgentRequest, progress: (part: IChatProgress) cognidreamognidream, history: IChatAgentHistoryEntry[], token: CancellationToken): Promise < IChatAgentResult > {
+	const data = this._agents.get(id);
+	if(!data?.impl) {
+		throw new Error(`No activated agent with id "${id}"`);
+	}
+
+        return await data.impl.invoke(request, progress, history, token);
+}
+
+setRequestPaused(id: string, requestId: string, isPaused: boolean) {
+	const data = this._agents.get(id);
+	if (!data?.impl) {
+		throw new Error(`No activated agent with id "${id}"`);
+	}
+
+	data.impl.setRequestPaused?.(requestId, isPaused);
+}
+
+    async getFollowups(id: string, request: IChatAgentRequest, result: IChatAgentResult, history: IChatAgentHistoryEntry[], token: CancellationToken): Promise < IChatFollowup[] > {
+	const data = this._agents.get(id);
+	if(!data?.impl) {
+		throw new Error(`No activated agent with id "${id}"`);
+	}
+
+        if(!data.impl?.provideFollowups) {
+	return [];
+}
+
+return data.impl.provideFollowups(request, result, history, token);
+    }
+
+    async getChatTitle(id: string, history: IChatAgentHistoryEntry[], token: CancellationToken): Promise < string | undefined > {
+	const data = this._agents.get(id);
+	if(!data?.impl) {
+		throw new Error(`No activated agent with id "${id}"`);
+	}
+
+        if(!data.impl?.provideChatTitle) {
+	return undefined;
+}
+
+return data.impl.provideChatTitle(history, token);
+    }
+
+registerChatParticipantDetectionProvider(handle: number, provider: IChatParticipantDetectionProvider) {
+	this._chatParticipantDetectionProviders.set(handle, provider);
+	return toDisposable(() => {
+		this._chatParticipantDetectionProviders.delete(handle);
+	});
+}
+
+hasChatParticipantDetectionProviders() {
+	return this._chatParticipantDetectionProviders.size > 0;
+}
+
+    async detectAgentOrCommand(request: IChatAgentRequest, history: IChatAgentHistoryEntry[], options: { location: ChatAgentLocation }, token: CancellationToken): Promise < { agent: IChatAgentData; command?: IChatAgentCommand } | undefined > {
+	// TODO@joyceerhl should we have a selector to be able to narrow down which provider to use
+	const provider = Iterable.first(this._chatParticipantDetectionProviders.values());
+	if(!provider) {
+		return;
+	}
+
+        const participants = this.getAgents().reduce<IChatParticipantMetadata[]>((acc, a) => {
+		if (a.locations.includes(options.location)) {
+			acc.push({ participant: a.id, disambiguation: a.disambiguation ?? [] });
+			for (const command of a.slashCommands) {
+				acc.push({ participant: a.id, command: command.name, disambiguation: command.disambiguation ?? [] });
 			}
-		});
-	}
-
-	registerDynamicAgent(data: IChatAgentData, agentImpl: IChatAgentImplementation): IDisposable {
-		data.isDynamic = true;
-		const agent = { data, impl: agentImpl };
-		this._agents.set(data.id, agent);
-		this._onDidChangeAgents.fire(new MergedChatAgent(data, agentImpl));
-
-		return toDisposable(() => {
-			this._agents.delete(data.id);
-			this._onDidChangeAgents.fire(undefined);
-		});
-	}
-
-	private _agentCompletionProviders = new Map<string, (query: string, token: CancellationToken) => Promise<IChatAgentCompletionItem[]>>();
-
-	registerAgentCompletionProvider(id: string, provider: (query: string, token: CancellationToken) => Promise<IChatAgentCompletionItem[]>) {
-		this._agentCompletionProviders.set(id, provider);
-		return {
-			dispose: () => { this._agentCompletionProviders.delete(id); }
-		};
-	}
-
-	async getAgentCompletionItems(id: string, query: string, token: CancellationToken) {
-		return await this._agentCompletionProviders.get(id)?.(query, token) ?? [];
-	}
-
-	updateAgent(id: string, updateMetadata: IChatAgentMetadata): void {
-		const agent = this._agents.get(id);
-		if (!agent?.impl) {
-			throw new Error(`No activated agent with id ${JSON.stringify(id)} registered`);
 		}
-		agent.data.metadata = { ...agent.data.metadata, ...updateMetadata };
-		this._onDidChangeAgents.fire(new MergedChatAgent(agent.data, agent.impl));
+		return acc;
+	}, []);
+
+	const result = await provider.provideParticipantDetection(request, history, { ...options, participants }, token);
+	if(!result) {
+		return;
 	}
 
-	getDefaultAgent(location: ChatAgentLocation, mode?: ChatMode): IChatAgent | undefined {
-		if (mode === ChatMode.Edit || mode === ChatMode.Agent) {
-			location = ChatAgentLocation.EditingSession;
-		}
-
-		return this._preferExtensionAgent(this.getActivatedAgents().filter(a => {
-			if ((mode === ChatMode.Agent) !== !!a.isToolsAgent) {
-				return false;
-			}
-
-			return !!a.isDefault && a.locations.includes(location);
-		}));
+        const agent = this.getAgent(result.participant);
+	if(!agent) {
+		// Couldn't find a participant matching the participant detection result
+		return;
 	}
 
-	public get hasToolsAgent(): boolean {
-		return !!this._hasToolsAgentContextKey.get();
-	}
+        if(!result.command) {
+	return { agent };
+}
 
-	getContributedDefaultAgent(location: ChatAgentLocation): IChatAgentData | undefined {
-		return this._preferExtensionAgent(this.getAgents().filter(a => !!a.isDefault && a.locations.includes(location)));
-	}
+const command = agent?.slashCommands.find(c => c.name === result.command);
+if (!command) {
+	// Couldn't find a slash command matching the participant detection result
+	return;
+}
 
-	private _preferExtensionAgent<T extends IChatAgentData>(agents: T[]): T | undefined {
-		// We potentially have multiple agents on the same location,
-		// contributed from core and from extensions.
-		// This method will prefer the last extensions provided agent
-		// falling back to the last core agent if no extension agent is found.
-		return findLast(agents, agent => !agent.isCore) ?? agents.at(-1);
-	}
-
-	getAgent(id: string, includeDisabled = false): IChatAgentData | undefined {
-		if (!this._agentIsEnabled(id) && !includeDisabled) {
-			return;
-		}
-
-		return this._agents.get(id)?.data;
-	}
-
-	private _agentIsEnabled(idOrAgent: string | IChatAgentEntry): boolean {
-		const entry = typeof idOrAgent === 'string' ? this._agents.get(idOrAgent) : idOrAgent;
-		return !entry?.data.when || this.contextKeyService.contextMatchesRules(ContextKeyExpr.deserialize(entry.data.when));
-	}
-
-	getAgentByFullyQualifiedId(id: string): IChatAgentData | undefined {
-		const agent = Iterable.find(this._agents.values(), a => getFullyQualifiedId(a.data) === id)?.data;
-		if (agent && !this._agentIsEnabled(agent.id)) {
-			return;
-		}
-
-		return agent;
-	}
-
-	/**
-	 * Returns all agent datas that exist- static registered and dynamic ones.
-	 */
-	getAgents(): IChatAgentData[] {
-		return Array.from(this._agents.values())
-			.map(entry => entry.data)
-			.filter(a => this._agentIsEnabled(a.id));
-	}
-
-	getActivatedAgents(): IChatAgent[] {
-		return Array.from(this._agents.values())
-			.filter(a => !!a.impl)
-			.filter(a => this._agentIsEnabled(a.data.id))
-			.map(a => new MergedChatAgent(a.data, a.impl!));
-	}
-
-	getAgentsByName(name: string): IChatAgentData[] {
-		return this._preferExtensionAgents(this.getAgents().filter(a => a.name === name));
-	}
-
-	private _preferExtensionAgents<T extends IChatAgentData>(agents: T[]): T[] {
-		// We potentially have multiple agents on the same location,
-		// contributed from core and from extensions.
-		// This method will prefer the extensions provided agents
-		// falling back to the original agents array extension agent is found.
-		const extensionAgents = agents.filter(a => !a.isCore);
-		return extensionAgents.length > 0 ? extensionAgents : agents;
-	}
-
-	agentHasDupeName(id: string): boolean {
-		const agent = this.getAgent(id);
-		if (!agent) {
-			return false;
-		}
-
-		return this.getAgentsByName(agent.name)
-			.filter(a => a.extensionId.value !== agent.extensionId.value).length > 0;
-	}
-
-	async invokeAgent(id: string, request: IChatAgentRequest, progress: (part: IChatProgress) => void, history: IChatAgentHistoryEntry[], token: CancellationToken): Promise<IChatAgentResult> {
-		const data = this._agents.get(id);
-		if (!data?.impl) {
-			throw new Error(`No activated agent with id "${id}"`);
-		}
-
-		return await data.impl.invoke(request, progress, history, token);
-	}
-
-	setRequestPaused(id: string, requestId: string, isPaused: boolean) {
-		const data = this._agents.get(id);
-		if (!data?.impl) {
-			throw new Error(`No activated agent with id "${id}"`);
-		}
-
-		data.impl.setRequestPaused?.(requestId, isPaused);
-	}
-
-	async getFollowups(id: string, request: IChatAgentRequest, result: IChatAgentResult, history: IChatAgentHistoryEntry[], token: CancellationToken): Promise<IChatFollowup[]> {
-		const data = this._agents.get(id);
-		if (!data?.impl) {
-			throw new Error(`No activated agent with id "${id}"`);
-		}
-
-		if (!data.impl?.provideFollowups) {
-			return [];
-		}
-
-		return data.impl.provideFollowups(request, result, history, token);
-	}
-
-	async getChatTitle(id: string, history: IChatAgentHistoryEntry[], token: CancellationToken): Promise<string | undefined> {
-		const data = this._agents.get(id);
-		if (!data?.impl) {
-			throw new Error(`No activated agent with id "${id}"`);
-		}
-
-		if (!data.impl?.provideChatTitle) {
-			return undefined;
-		}
-
-		return data.impl.provideChatTitle(history, token);
-	}
-
-	registerChatParticipantDetectionProvider(handle: number, provider: IChatParticipantDetectionProvider) {
-		this._chatParticipantDetectionProviders.set(handle, provider);
-		return toDisposable(() => {
-			this._chatParticipantDetectionProviders.delete(handle);
-		});
-	}
-
-	hasChatParticipantDetectionProviders() {
-		return this._chatParticipantDetectionProviders.size > 0;
-	}
-
-	async detectAgentOrCommand(request: IChatAgentRequest, history: IChatAgentHistoryEntry[], options: { location: ChatAgentLocation }, token: CancellationToken): Promise<{ agent: IChatAgentData; command?: IChatAgentCommand } | undefined> {
-		// TODO@joyceerhl should we have a selector to be able to narrow down which provider to use
-		const provider = Iterable.first(this._chatParticipantDetectionProviders.values());
-		if (!provider) {
-			return;
-		}
-
-		const participants = this.getAgents().reduce<IChatParticipantMetadata[]>((acc, a) => {
-			if (a.locations.includes(options.location)) {
-				acc.push({ participant: a.id, disambiguation: a.disambiguation ?? [] });
-				for (const command of a.slashCommands) {
-					acc.push({ participant: a.id, command: command.name, disambiguation: command.disambiguation ?? [] });
-				}
-			}
-			return acc;
-		}, []);
-
-		const result = await provider.provideParticipantDetection(request, history, { ...options, participants }, token);
-		if (!result) {
-			return;
-		}
-
-		const agent = this.getAgent(result.participant);
-		if (!agent) {
-			// Couldn't find a participant matching the participant detection result
-			return;
-		}
-
-		if (!result.command) {
-			return { agent };
-		}
-
-		const command = agent?.slashCommands.find(c => c.name === result.command);
-		if (!command) {
-			// Couldn't find a slash command matching the participant detection result
-			return;
-		}
-
-		return { agent, command };
-	}
+return { agent, command };
+    }
 }
 
 export class MergedChatAgent implements IChatAgent {
@@ -594,43 +594,43 @@ export class MergedChatAgent implements IChatAgent {
 	get locations(): ChatAgentLocation[] { return this.data.locations; }
 	get disambiguation(): { category: string; description: string; examples: string[] }[] { return this.data.disambiguation; }
 
-	async invoke(request: IChatAgentRequest, progress: (part: IChatProgress) => void, history: IChatAgentHistoryEntry[], token: CancellationToken): Promise<IChatAgentResult> {
+	async invoke(request: IChatAgentRequest, progress: (part: IChatProgress) cognidreamognidream, history: IChatAgentHistoryEntry[], token: CancellationToken): Promise<IChatAgentResult> {
 		return this.impl.invoke(request, progress, history, token);
 	}
 
-	setRequestPaused(requestId: string, isPaused: boolean): void {
+	setRequestPaused(requestId: string, isPaused: booleancognidreamognidream {
 		if (this.impl.setRequestPaused) {
-			this.impl.setRequestPaused(requestId, isPaused);
-		}
-	}
+	this.impl.setRequestPaused(requestId, isPaused);
+}
+    }
 
-	async provideFollowups(request: IChatAgentRequest, result: IChatAgentResult, history: IChatAgentHistoryEntry[], token: CancellationToken): Promise<IChatFollowup[]> {
-		if (this.impl.provideFollowups) {
-			return this.impl.provideFollowups(request, result, history, token);
-		}
+    async provideFollowups(request: IChatAgentRequest, result: IChatAgentResult, history: IChatAgentHistoryEntry[], token: CancellationToken): Promise < IChatFollowup[] > {
+	if(this.impl.provideFollowups) {
+	return this.impl.provideFollowups(request, result, history, token);
+}
 
-		return [];
-	}
+return [];
+    }
 
-	provideWelcomeMessage(token: CancellationToken): ProviderResult<IChatWelcomeMessageContent | undefined> {
-		if (this.impl.provideWelcomeMessage) {
-			return this.impl.provideWelcomeMessage(token);
-		}
+provideWelcomeMessage(token: CancellationToken): ProviderResult < IChatWelcomeMessageContent | undefined > {
+	if(this.impl.provideWelcomeMessage) {
+	return this.impl.provideWelcomeMessage(token);
+}
 
-		return undefined;
-	}
+return undefined;
+    }
 
-	provideSampleQuestions(location: ChatAgentLocation, token: CancellationToken): ProviderResult<IChatFollowup[] | undefined> {
-		if (this.impl.provideSampleQuestions) {
-			return this.impl.provideSampleQuestions(location, token);
-		}
+provideSampleQuestions(location: ChatAgentLocation, token: CancellationToken): ProviderResult < IChatFollowup[] | undefined > {
+	if(this.impl.provideSampleQuestions) {
+	return this.impl.provideSampleQuestions(location, token);
+}
 
-		return undefined;
-	}
+return undefined;
+    }
 
-	toJSON(): IChatAgentData {
-		return this.data;
-	}
+toJSON(): IChatAgentData {
+	return this.data;
+}
 }
 
 export const IChatAgentNameService = createDecorator<IChatAgentNameService>('chatAgentNameService');
@@ -680,65 +680,65 @@ export class ChatAgentNameService implements IChatAgentNameService {
 		this.refresh();
 	}
 
-	private refresh(): void {
+	private refresh(cognidreamognidream {
 		if (this.disposed) {
-			return;
+	return;
+}
+
+this.update()
+	.catch(err => this.logService.warn('Failed to fetch chat participant registry', err))
+	.then(() => timeout(5 * 60 * 1000)) // every 5 minutes
+	.then(() => this.refresh());
+    }
+
+    private async update(): Promicognidreamognidream > {
+	const context = await this.requestService.request({ type: 'GET', url: this.url }, CancellationToken.None);
+
+	if(context.res.statusCode !== 200) {
+	throw new Error('Could not get extensions report.');
+}
+
+const result = await asJson<IChatParticipantRegistryResponse>(context);
+
+if (!result || result.version !== 1) {
+	throw new Error('Unexpected chat participant registry response.');
+}
+
+const registry = result.restrictedChatParticipants;
+this.registry.set(registry, undefined);
+this.storageService.store(ChatAgentNameService.StorageKey, JSON.stringify(registry), StorageScope.APPLICATION, StorageTarget.MACHINE);
+    }
+
+/**
+ * Returns true if the agent is allowed to use this name
+ */
+getAgentNameRestriction(chatAgentData: IChatAgentData): boolean {
+	if (chatAgentData.isCore) {
+		return true; // core agents are always allowed to use any name
+	}
+
+	// TODO would like to use observables here but nothing uses it downstream and I'm not sure how to combine these two
+	const nameAllowed = this.checkAgentNameRestriction(chatAgentData.name, chatAgentData).get();
+	const fullNameAllowed = !chatAgentData.fullName || this.checkAgentNameRestriction(chatAgentData.fullName.replace(/\s/g, ''), chatAgentData).get();
+	return nameAllowed && fullNameAllowed;
+}
+
+    private checkAgentNameRestriction(name: string, chatAgentData: IChatAgentData): IObservable < boolean > {
+	// Registry is a map of name to an array of extension publisher IDs or extension IDs that are allowed to use it.
+	// Look up the list of extensions that are allowed to use this name
+	const allowList = this.registry.map<string[] | undefined>(registry => registry[name.toLowerCase()]);
+	return allowList.map(allowList => {
+		if (!allowList) {
+			return true;
 		}
 
-		this.update()
-			.catch(err => this.logService.warn('Failed to fetch chat participant registry', err))
-			.then(() => timeout(5 * 60 * 1000)) // every 5 minutes
-			.then(() => this.refresh());
-	}
+		return allowList.some(id => equalsIgnoreCase(id, id.includes('.') ? chatAgentData.extensionId.value : chatAgentData.extensionPublisherId));
+	});
+}
 
-	private async update(): Promise<void> {
-		const context = await this.requestService.request({ type: 'GET', url: this.url }, CancellationToken.None);
-
-		if (context.res.statusCode !== 200) {
-			throw new Error('Could not get extensions report.');
-		}
-
-		const result = await asJson<IChatParticipantRegistryResponse>(context);
-
-		if (!result || result.version !== 1) {
-			throw new Error('Unexpected chat participant registry response.');
-		}
-
-		const registry = result.restrictedChatParticipants;
-		this.registry.set(registry, undefined);
-		this.storageService.store(ChatAgentNameService.StorageKey, JSON.stringify(registry), StorageScope.APPLICATION, StorageTarget.MACHINE);
-	}
-
-	/**
-	 * Returns true if the agent is allowed to use this name
-	 */
-	getAgentNameRestriction(chatAgentData: IChatAgentData): boolean {
-		if (chatAgentData.isCore) {
-			return true; // core agents are always allowed to use any name
-		}
-
-		// TODO would like to use observables here but nothing uses it downstream and I'm not sure how to combine these two
-		const nameAllowed = this.checkAgentNameRestriction(chatAgentData.name, chatAgentData).get();
-		const fullNameAllowed = !chatAgentData.fullName || this.checkAgentNameRestriction(chatAgentData.fullName.replace(/\s/g, ''), chatAgentData).get();
-		return nameAllowed && fullNameAllowed;
-	}
-
-	private checkAgentNameRestriction(name: string, chatAgentData: IChatAgentData): IObservable<boolean> {
-		// Registry is a map of name to an array of extension publisher IDs or extension IDs that are allowed to use it.
-		// Look up the list of extensions that are allowed to use this name
-		const allowList = this.registry.map<string[] | undefined>(registry => registry[name.toLowerCase()]);
-		return allowList.map(allowList => {
-			if (!allowList) {
-				return true;
-			}
-
-			return allowList.some(id => equalsIgnoreCase(id, id.includes('.') ? chatAgentData.extensionId.value : chatAgentData.extensionPublisherId));
-		});
-	}
-
-	dispose() {
-		this.disposed = true;
-	}
+dispose() {
+	this.disposed = true;
+}
 }
 
 export function getFullyQualifiedId(chatAgentData: IChatAgentData): string {

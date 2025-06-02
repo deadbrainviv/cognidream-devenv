@@ -181,7 +181,7 @@ export class MergeEditorViewModel extends Disposable {
 		}
 	);
 
-	public setActiveModifiedBaseRange(range: ModifiedBaseRange | undefined, tx: ITransaction): void {
+	public setActiveModifiedBaseRange(range: ModifiedBaseRange | undefined, tx: ITransaction): cognidream {
 		this.manuallySetActiveModifiedBaseRange.set({ range, counter: this.counter++ }, tx);
 	}
 
@@ -190,105 +190,105 @@ export class MergeEditorViewModel extends Disposable {
 		state: ModifiedBaseRangeState,
 		tx: ITransaction,
 		inputNumber: InputNumber,
-	): void {
-		this.manuallySetActiveModifiedBaseRange.set({ range: baseRange, counter: this.counter++ }, tx);
-		this.model.setState(baseRange, state, inputNumber, tx);
-		this.lastFocusedEditor.clearCache(tx);
+		cognidreamognidream {
+			this.manuallySetActiveModifiedBaseRange.set({ range: baseRange, counter: this.counter++ }, tx);
+this.model.setState(baseRange, state, inputNumber, tx);
+this.lastFocusedEditor.clearCache(tx);
+    }
+
+    private goToConflict(getModifiedBaseRange: (editor: CodeEditorView, curLineNumber: number) => ModifiedBaseRange | undefinedcognidreamognidream {
+	let editor = this.lastFocusedEditor.get().view;
+	if(!editor) {
+		editor = this.resultCodeEditorView;
+	}
+        const curLineNumber = editor.editor.getPosition()?.lineNumber;
+	if(curLineNumber === undefined) {
+	return;
+}
+const modifiedBaseRange = getModifiedBaseRange(editor, curLineNumber);
+if (modifiedBaseRange) {
+	const range = this.getRangeOfModifiedBaseRange(editor, modifiedBaseRange, undefined);
+	editor.editor.focus();
+
+	let startLineNumber = range.startLineNumber;
+	let endLineNumberExclusive = range.endLineNumberExclusive;
+	if (range.startLineNumber > editor.editor.getModel()!.getLineCount()) {
+		transaction(tx => {
+			this.setActiveModifiedBaseRange(modifiedBaseRange, tx);
+		});
+		startLineNumber = endLineNumberExclusive = editor.editor.getModel()!.getLineCount();
 	}
 
-	private goToConflict(getModifiedBaseRange: (editor: CodeEditorView, curLineNumber: number) => ModifiedBaseRange | undefined): void {
-		let editor = this.lastFocusedEditor.get().view;
-		if (!editor) {
-			editor = this.resultCodeEditorView;
-		}
-		const curLineNumber = editor.editor.getPosition()?.lineNumber;
-		if (curLineNumber === undefined) {
-			return;
-		}
-		const modifiedBaseRange = getModifiedBaseRange(editor, curLineNumber);
-		if (modifiedBaseRange) {
-			const range = this.getRangeOfModifiedBaseRange(editor, modifiedBaseRange, undefined);
-			editor.editor.focus();
+	editor.editor.setPosition({
+		lineNumber: startLineNumber,
+		column: editor.editor.getModel()!.getLineFirstNonWhitespaceColumn(startLineNumber),
+	});
+	editor.editor.revealLinesNearTop(startLineNumber, endLineNumberExclusive, ScrollType.Smooth);
+}
+    }
 
-			let startLineNumber = range.startLineNumber;
-			let endLineNumberExclusive = range.endLineNumberExclusive;
-			if (range.startLineNumber > editor.editor.getModel()!.getLineCount()) {
-				transaction(tx => {
-					this.setActiveModifiedBaseRange(modifiedBaseRange, tx);
-				});
-				startLineNumber = endLineNumberExclusive = editor.editor.getModel()!.getLineCount();
-			}
-
-			editor.editor.setPosition({
-				lineNumber: startLineNumber,
-				column: editor.editor.getModel()!.getLineFirstNonWhitespaceColumn(startLineNumber),
-			});
-			editor.editor.revealLinesNearTop(startLineNumber, endLineNumberExclusive, ScrollType.Smooth);
-		}
-	}
-
-	public goToNextModifiedBaseRange(predicate: (m: ModifiedBaseRange) => boolean): void {
-		this.goToConflict(
-			(e, l) =>
-				this.model.modifiedBaseRanges
-					.get()
-					.find(
-						(r) =>
-							predicate(r) &&
-							this.getRangeOfModifiedBaseRange(e, r, undefined).startLineNumber > l
-					) ||
-				this.model.modifiedBaseRanges
-					.get()
-					.find((r) => predicate(r))
-		);
-	}
-
-	public goToPreviousModifiedBaseRange(predicate: (m: ModifiedBaseRange) => boolean): void {
-		this.goToConflict(
-			(e, l) =>
-				findLast(
-					this.model.modifiedBaseRanges.get(),
+    public goToNextModifiedBaseRange(predicate: (m: ModifiedBaseRange) => booleancognidreamognidream {
+	this.goToConflict(
+		(e, l) =>
+			this.model.modifiedBaseRanges
+				.get()
+				.find(
 					(r) =>
 						predicate(r) &&
-						this.getRangeOfModifiedBaseRange(e, r, undefined).endLineNumberExclusive < l
+						this.getRangeOfModifiedBaseRange(e, r, undefined).startLineNumber > l
 				) ||
-				findLast(
-					this.model.modifiedBaseRanges.get(),
-					(r) => predicate(r)
-				)
+			this.model.modifiedBaseRanges
+				.get()
+				.find((r) => predicate(r))
+	);
+}
+
+    public goToPreviousModifiedBaseRange(predicate: (m: ModifiedBaseRange) => booleancognidreamognidream {
+	this.goToConflict(
+		(e, l) =>
+			findLast(
+				this.model.modifiedBaseRanges.get(),
+				(r) =>
+					predicate(r) &&
+					this.getRangeOfModifiedBaseRange(e, r, undefined).endLineNumberExclusive < l
+			) ||
+			findLast(
+				this.model.modifiedBaseRanges.get(),
+				(r) => predicate(r)
+			)
+	);
+}
+
+    public toggleActiveConflict(inputNumber: 1 | 2cognidreamognidream {
+	const activeModifiedBaseRange = this.activeModifiedBaseRange.get();
+	if(!activeModifiedBaseRange) {
+		this.notificationService.error(localize('noConflictMessage', "There is currently no conflict focused that can be toggled."));
+		return;
+	}
+        transaction(tx => {
+		/** @description Toggle Active Conflict */
+		this.setState(
+			activeModifiedBaseRange,
+			this.model.getState(activeModifiedBaseRange).get().toggle(inputNumber),
+			tx,
+			inputNumber,
 		);
-	}
+});
+    }
 
-	public toggleActiveConflict(inputNumber: 1 | 2): void {
-		const activeModifiedBaseRange = this.activeModifiedBaseRange.get();
-		if (!activeModifiedBaseRange) {
-			this.notificationService.error(localize('noConflictMessage', "There is currently no conflict focused that can be toggled."));
-			return;
-		}
-		transaction(tx => {
-			/** @description Toggle Active Conflict */
-			this.setState(
-				activeModifiedBaseRange,
-				this.model.getState(activeModifiedBaseRange).get().toggle(inputNumber),
-				tx,
-				inputNumber,
-			);
-		});
-	}
-
-	public acceptAll(inputNumber: 1 | 2): void {
-		transaction(tx => {
-			/** @description Toggle Active Conflict */
-			for (const range of this.model.modifiedBaseRanges.get()) {
-				this.setState(
-					range,
-					this.model.getState(range).get().withInputValue(inputNumber, true),
-					tx,
-					inputNumber
-				);
-			}
-		});
-	}
+    public acceptAll(inputNumber: 1 | 2cognidreamognidream {
+	transaction(tx => {
+		/** @description Toggle Active Conflict */
+		for (const range of this.model.modifiedBaseRanges.get()) {
+	this.setState(
+		range,
+		this.model.getState(range).get().withInputValue(inputNumber, true),
+		tx,
+		inputNumber
+	);
+}
+        });
+    }
 }
 
 class AttachedHistory extends Disposable {
@@ -334,12 +334,12 @@ class AttachedHistory extends Disposable {
 	 * Pushes an history item that is tied to the last text edit (or an extension of it).
 	 * When the last text edit is undone/redone, so is is this history item.
 	 */
-	public pushAttachedHistoryElement(element: IAttachedHistoryElement): void {
+	public pushAttachedHistoryElement(element: IAttachedHistoryElementcognidreamognidream {
 		this.attachedHistory.push({ altId: this.model.getAlternativeVersionId(), element });
-	}
+    }
 }
 
 interface IAttachedHistoryElement {
-	undo(): void;
-	redo(): void;
+	undo(cognidreamognidream;
+		redo(cognidreamognidream;
 }

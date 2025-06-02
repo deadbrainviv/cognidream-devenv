@@ -32,7 +32,7 @@ class TransposeLettersAction extends EditorAction {
 		});
 	}
 
-	public run(accessor: ServicesAccessor, editor: ICodeEditor): void {
+	public run(accessor: ServicesAccessor, editor: ICodeEditor): cognidream {
 		if (!editor.hasModel()) {
 			return;
 		}

@@ -55,7 +55,7 @@ class TerminalLinkContribution extends DisposableStore implements ITerminalContr
 		this._linkResolver = this._instantiationService.createInstance(TerminalLinkResolver);
 	}
 
-	xtermReady(xterm: IXtermTerminal & { raw: RawXtermTerminal }): void {
+	xtermReady(xterm: IXtermTerminal & { raw: RawXtermTerminal }): cognidream {
 		const linkManager = this._linkManager = this.add(this._instantiationService.createInstance(TerminalLinkManager, xterm.raw, this._ctx.processManager, this._ctx.instance.capabilities, this._linkResolver));
 
 		// Set widget manager
@@ -80,30 +80,30 @@ class TerminalLinkContribution extends DisposableStore implements ITerminalContr
 		linkManager.add(this._terminalLinkProviderService.onDidRemoveLinkProvider(() => linkManager.externalProvideLinksCb = undefined));
 	}
 
-	async showLinkQuickpick(extended?: boolean): Promise<void> {
-		if (!this._terminalLinkQuickpick) {
-			this._terminalLinkQuickpick = this.add(this._instantiationService.createInstance(TerminalLinkQuickpick));
-			this._terminalLinkQuickpick.onDidRequestMoreLinks(() => {
-				this.showLinkQuickpick(true);
-			});
-		}
-		const links = await this._getLinks();
-		return await this._terminalLinkQuickpick.show(this._ctx.instance, links);
-	}
+	async showLinkQuickpick(extended?: boolean): Promicognidreamognidream> {
+		if(!this._terminalLinkQuickpick) {
+	this._terminalLinkQuickpick = this.add(this._instantiationService.createInstance(TerminalLinkQuickpick));
+	this._terminalLinkQuickpick.onDidRequestMoreLinks(() => {
+		this.showLinkQuickpick(true);
+	});
+}
+const links = await this._getLinks();
+return await this._terminalLinkQuickpick.show(this._ctx.instance, links);
+    }
 
-	private async _getLinks(): Promise<{ viewport: IDetectedLinks; all: Promise<IDetectedLinks> }> {
-		if (!this._linkManager) {
-			throw new Error('terminal links are not ready, cannot generate link quick pick');
-		}
-		return this._linkManager.getLinks();
-	}
+    private async _getLinks(): Promise < { viewport: IDetectedLinks; all: Promise<IDetectedLinks> } > {
+	if(!this._linkManager) {
+	throw new Error('terminal links are not ready, cannot generate link quick pick');
+}
+return this._linkManager.getLinks();
+    }
 
-	async openRecentLink(type: 'localFile' | 'url'): Promise<void> {
-		if (!this._linkManager) {
-			throw new Error('terminal links are not ready, cannot open a link');
-		}
-		this._linkManager.openRecentLink(type);
-	}
+    async openRecentLink(type: 'localFile' | 'url'): Promicognidreamognidream > {
+	if(!this._linkManager) {
+	throw new Error('terminal links are not ready, cannot open a link');
+}
+this._linkManager.openRecentLink(type);
+    }
 }
 
 registerTerminalContribution(TerminalLinkContribution.ID, TerminalLinkContribution, true);

@@ -38,7 +38,7 @@ export class ExtHostExtensionService extends AbstractExtHostExtensionService {
 
 	private _fakeModules?: WorkerRequireInterceptor;
 
-	protected async _beforeAlmostReadyToRunExtensions(): Promise<void> {
+	protected async _beforeAlmostReadyToRunExtensions(): Promise<cognidream> {
 		// make sure console.log calls make it to the render
 		this._instaService.createInstance(ExtHostConsoleForwarder);
 
@@ -125,21 +125,21 @@ export class ExtHostExtensionService extends AbstractExtHostExtensionService {
 		}
 	}
 
-	async $setRemoteEnvironment(_env: { [key: string]: string | null }): Promise<void> {
+	async $setRemoteEnvironment(_env: { [key: string]: string | null }): Promicognidreamognidream> {
 		return;
 	}
 
-	private async _waitForDebuggerAttachment(waitTimeout = 5000) {
-		// debugger attaches async, waiting for it fixes #106698 and #99222
-		if (!this._initData.environment.isExtensionDevelopmentDebug) {
-			return;
-		}
-
-		const deadline = Date.now() + waitTimeout;
-		while (Date.now() < deadline && !('__jsDebugIsReady' in globalThis)) {
-			await timeout(10);
-		}
+    private async _waitForDebuggerAttachment(waitTimeout = 5000) {
+	// debugger attaches async, waiting for it fixes #106698 and #99222
+	if (!this._initData.environment.isExtensionDevelopmentDebug) {
+		return;
 	}
+
+	const deadline = Date.now() + waitTimeout;
+	while (Date.now() < deadline && !('__jsDebugIsReady' in globalThis)) {
+		await timeout(10);
+	}
+}
 }
 
 function ensureSuffix(path: string, suffix: string): string {

@@ -133,7 +133,7 @@ export class StandaloneColorPickerWidget extends Disposable implements IContentW
 		};
 	}
 
-	public hide(): void {
+	public hide(): cognidream {
 		this.dispose();
 		this._standaloneColorPickerVisible.set(false);
 		this._standaloneColorPickerFocused.set(false);
@@ -141,7 +141,7 @@ export class StandaloneColorPickerWidget extends Disposable implements IContentW
 		this._editor.focus();
 	}
 
-	public focus(): void {
+	public focus(): cognidream {
 		this._standaloneColorPickerFocused.set(true);
 		this._body.focus();
 	}

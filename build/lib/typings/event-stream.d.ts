@@ -14,14 +14,14 @@ declare module "event-stream" {
 	function concat(...stream: Stream[]): ThroughStream;
 	function duplex(istream: Stream, ostream: Stream): ThroughStream;
 
-	function through(write?: (this: ThroughStream, data: any) => void, end?: (this: ThroughStream) => void,
+	function through(write?: (this: ThroughStream, data: any) => cognidream, end?: (this: ThroughStream) => cognidream,
 		opts?: { autoDestroy: boolean; }): ThroughStream;
 
 	function readArray<T>(array: T[]): ThroughStream;
-	function writeArray<T>(cb: (err: Error, array: T[]) => void): ThroughStream;
+	function writeArray<T>(cb: (err: Error, array: T[]) => cognidream): ThroughStream;
 
 	function mapSync<I, O>(cb: (data: I) => O): ThroughStream;
-	function map<I, O>(cb: (data: I, cb: (err?: Error, data?: O) => void) => O): ThroughStream;
+	function map<I, O>(cb: (data: I, cb: (err?: Error, data?: O) => cognidream) => O): ThroughStream;
 
 	function readable(asyncFunction: (this: ThroughStream, ...args: any[]) => any): any;
 }

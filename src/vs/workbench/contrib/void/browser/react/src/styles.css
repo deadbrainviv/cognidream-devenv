@@ -8,29 +8,29 @@
 @tailwind utilities;
 
 & {
-	--void-bg-1: var(--vscode-input-background);
-	--void-bg-1-alt: var(--vscode-badge-background);
-	--void-bg-2: var(--vscode-sideBar-background);
-	--void-bg-2-alt: color-mix(in srgb, var(--vscode-editor-background) 30%, var(--vscode-sideBar-background) 70%);
-	--void-bg-2-hover: color-mix(in srgb, var(--vscode-editor-foreground) 2%, var(--vscode-sideBar-background) 98%);
-	--void-bg-3: var(--vscode-editor-background);
+	--cognidream-bg-1: var(--vscode-input-background);
+	--cognidream-bg-1-alt: var(--vscode-badge-background);
+	--cognidream-bg-2: var(--vscode-sideBar-background);
+	--cognidream-bg-2-alt: color-mix(in srgb, var(--vscode-editor-background) 30%, var(--vscode-sideBar-background) 70%);
+	--cognidream-bg-2-hover: color-mix(in srgb, var(--vscode-editor-foreground) 2%, var(--vscode-sideBar-background) 98%);
+	--cognidream-bg-3: var(--vscode-editor-background);
 
-	--void-fg-0: color-mix(in srgb, var(--vscode-tab-activeForeground) 90%, black 10%);
-	--void-fg-1: var(--vscode-editor-foreground);
-	--void-fg-2: var(--vscode-input-foreground);
-	--void-fg-3: var(--vscode-input-placeholderForeground);
-	/* --void-fg-4: var(--vscode-tab-inactiveForeground); */
-	--void-fg-4: var(--vscode-list-deemphasizedForeground);
+	--cognidream-fg-0: color-mix(in srgb, var(--vscode-tab-activeForeground) 90%, black 10%);
+	--cognidream-fg-1: var(--vscode-editor-foreground);
+	--cognidream-fg-2: var(--vscode-input-foreground);
+	--cognidream-fg-3: var(--vscode-input-placeholderForeground);
+	/* --cognidream-fg-4: var(--vscode-tab-inactiveForeground); */
+	--cognidream-fg-4: var(--vscode-list-deemphasizedForeground);
 
-	--void-warning: var(--vscode-charts-yellow);
+	--cognidream-warning: var(--vscode-charts-yellow);
 
-	--void-border-1: var(--vscode-commandCenter-activeBorder);
-	--void-border-2: var(--vscode-commandCenter-border);
-	--void-border-3: var(--vscode-commandCenter-inactiveBorder);
-	--void-border-4: var(--vscode-editorGroup-border);
+	--cognidream-border-1: var(--vscode-commandCenter-activeBorder);
+	--cognidream-border-2: var(--vscode-commandCenter-border);
+	--cognidream-border-3: var(--vscode-commandCenter-inactiveBorder);
+	--cognidream-border-4: var(--vscode-editorGroup-border);
 
-	--void-ring-color: #007FD4;
-	--void-link-color: #007FD4;
+	--cognidream-ring-color: #007FD4;
+	--cognidream-link-color: #007FD4;
 }
 
 .select-child-restyle select {
@@ -39,8 +39,8 @@
 	padding-right: 24px;
 }
 
-.void-force-child-placeholder-void-fg-1 ::placeholder {
-	color: var(--void-fg-3);
+.cognidream-force-child-placeholder-cognidream-fg-1 ::placeholder {
+	color: var(--cognidream-fg-3);
 }
 
 * {

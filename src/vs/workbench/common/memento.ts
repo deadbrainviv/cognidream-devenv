@@ -63,86 +63,86 @@ export class Memento {
 		return this.storageService.onDidChangeValue(scope, this.id, disposables);
 	}
 
-	saveMemento(): void {
+	saveMemento(): cognidream {
 		Memento.workspaceMementos.get(this.id)?.save();
 		Memento.profileMementos.get(this.id)?.save();
 		Memento.applicationMementos.get(this.id)?.save();
 	}
 
-	reloadMemento(scope: StorageScope): void {
+	reloadMemento(scope: StorageScopecognidreamognidream {
 		let memento: ScopedMemento | undefined;
-		switch (scope) {
-			case StorageScope.APPLICATION:
-				memento = Memento.applicationMementos.get(this.id);
-				break;
-			case StorageScope.PROFILE:
-				memento = Memento.profileMementos.get(this.id);
-				break;
-			case StorageScope.WORKSPACE:
-				memento = Memento.workspaceMementos.get(this.id);
-				break;
-		}
-
-		memento?.reload();
+        switch(scope) {
+            case StorageScope.APPLICATION:
+		memento = Memento.applicationMementos.get(this.id);
+		break;
+            case StorageScope.PROFILE:
+		memento = Memento.profileMementos.get(this.id);
+		break;
+            case StorageScope.WORKSPACE:
+		memento = Memento.workspaceMementos.get(this.id);
+		break;
 	}
 
-	static clear(scope: StorageScope): void {
-		switch (scope) {
-			case StorageScope.WORKSPACE:
-				Memento.workspaceMementos.clear();
-				break;
-			case StorageScope.PROFILE:
-				Memento.profileMementos.clear();
-				break;
-			case StorageScope.APPLICATION:
-				Memento.applicationMementos.clear();
-				break;
-		}
-	}
+        memento?.reload();
 }
 
-class ScopedMemento {
+    static clear(scope: StorageScopecognidreamognidream {
+	switch(scope) {
+            case StorageScope.WORKSPACE:
+	Memento.workspaceMementos.clear();
+	break;
+	case StorageScope.PROFILE:
+	Memento.profileMementos.clear();
+	break;
+	case StorageScope.APPLICATION:
+	Memento.applicationMementos.clear();
+	break;
+}
+    }
+}
 
-	private mementoObj: MementoObject;
+	class ScopedMemento {
 
-	constructor(private id: string, private scope: StorageScope, private target: StorageTarget, private storageService: IStorageService) {
-		this.mementoObj = this.doLoad();
-	}
+		private mementoObj: MementoObject;
 
-	private doLoad(): MementoObject {
-		try {
-			return this.storageService.getObject<MementoObject>(this.id, this.scope, {});
-		} catch (error) {
-			// Seeing reports from users unable to open editors
-			// from memento parsing exceptions. Log the contents
-			// to diagnose further
-			// https://github.com/microsoft/vscode/issues/102251
-			onUnexpectedError(`[memento]: failed to parse contents: ${error} (id: ${this.id}, scope: ${this.scope}, contents: ${this.storageService.get(this.id, this.scope)})`);
+		constructor(private id: string, private scope: StorageScope, private target: StorageTarget, private storageService: IStorageService) {
+			this.mementoObj = this.doLoad();
 		}
 
-		return {};
-	}
+		private doLoad(): MementoObject {
+			try {
+				return this.storageService.getObject<MementoObject>(this.id, this.scope, {});
+			} catch (error) {
+				// Seeing reports from users unable to open editors
+				// from memento parsing exceptions. Log the contents
+				// to diagnose further
+				// https://github.com/microsoft/vscode/issues/102251
+				onUnexpectedError(`[memento]: failed to parse contents: ${error} (id: ${this.id}, scope: ${this.scope}, contents: ${this.storageService.get(this.id, this.scope)})`);
+			}
 
-	getMemento(): MementoObject {
-		return this.mementoObj;
-	}
-
-	reload(): void {
-
-		// Clear old
-		for (const name of Object.getOwnPropertyNames(this.mementoObj)) {
-			delete this.mementoObj[name];
+			return {};
 		}
 
-		// Assign new
-		Object.assign(this.mementoObj, this.doLoad());
-	}
-
-	save(): void {
-		if (!isEmptyObject(this.mementoObj)) {
-			this.storageService.store(this.id, this.mementoObj, this.scope, this.target);
-		} else {
-			this.storageService.remove(this.id, this.scope);
+		getMemento(): MementoObject {
+			return this.mementoObj;
 		}
-	}
+
+		reload(cognidreamognidream {
+
+			// Clear old
+			for (const name of Object.getOwnPropertyNames(this.mementoObj)) {
+	delete this.mementoObj[name];
+}
+
+// Assign new
+Object.assign(this.mementoObj, this.doLoad());
+    }
+
+save(cognidreamognidream {
+	if(!isEmptyObject(this.mementoObj)) {
+	this.storageService.store(this.id, this.mementoObj, this.scope, this.target);
+} else {
+	this.storageService.remove(this.id, this.scope);
+}
+    }
 }

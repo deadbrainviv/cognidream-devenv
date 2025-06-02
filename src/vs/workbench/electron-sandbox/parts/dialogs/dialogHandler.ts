@@ -69,7 +69,7 @@ export class NativeDialogHandler extends AbstractDialogHandler {
 		throw new Error('Unsupported'); // we have no native API for password dialogs in Electron
 	}
 
-	async about(): Promise<void> {
+	async about(): Promise<cognidream> {
 		let version = this.productService.version;
 		if (this.productService.target) {
 			version = `${version} (${this.productService.target} setup)`;
@@ -81,9 +81,9 @@ export class NativeDialogHandler extends AbstractDialogHandler {
 
 		const detailString = (useAgo: boolean): string => {
 			return localize({ key: 'aboutDetail', comment: ['Electron, Chromium, Node.js and V8 are product names that need no translation'] },
-				"VSCode Version: {0}\nVoid Version: {1}\nCommit: {2}\nDate: {3}\nElectron: {4}\nElectronBuildId: {5}\nChromium: {6}\nNode.js: {7}\nV8: {8}\nOS: {9}",
+				"VSCode Vecognidreamn: {0}\ncognidream Version: {1}\nCommit: {2}\nDate: {3}\nElectron: {4}\nElectronBuildId: {5}\nChromium: {6}\nNode.js: {7}\nV8: {8}\nOS: {9}",
 				version,
-				this.productService.voidVersion || 'Unknown', // Void added this
+				this.procognidreamService.cognidreamVersioncognidream'Unknown', // cognidream added this
 				this.productService.commit || 'Unknown',
 				this.productService.date ? `${this.productService.date}${useAgo ? ' (' + fromNow(new Date(this.productService.date), true) + ')' : ''}` : 'Unknown',
 				process.versions['electron'],

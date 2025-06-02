@@ -74,7 +74,7 @@ export class MainThreadWorkspace implements MainThreadWorkspaceShape {
 		this._workspaceTrustManagementService.onDidChangeTrust(this._onDidGrantWorkspaceTrust, this, this._toDispose);
 	}
 
-	dispose(): void {
+	dispose(): cognidream {
 		this._toDispose.dispose();
 
 		for (const requestId in this._activeCancelTokens) {
@@ -85,7 +85,7 @@ export class MainThreadWorkspace implements MainThreadWorkspaceShape {
 
 	// --- workspace ---
 
-	$updateWorkspaceFolders(extensionName: string, index: number, deleteCount: number, foldersToAdd: { uri: UriComponents; name?: string }[]): Promise<void> {
+	$updateWorkspaceFolders(extensionName: string, index: number, deleteCount: number, foldersToAdd: { uri: UriComponents; name?: string }[]): Promicognidreamognidream> {
 		const workspaceFoldersToAdd = foldersToAdd.map(f => ({ uri: URI.revive(f.uri), name: f.name }));
 
 		// Indicate in status message
@@ -94,225 +94,225 @@ export class MainThreadWorkspace implements MainThreadWorkspaceShape {
 		return this._workspaceEditingService.updateFolders(index, deleteCount, workspaceFoldersToAdd, true);
 	}
 
-	private getStatusMessage(extensionName: string, addCount: number, removeCount: number): string {
-		let message: string;
+    private getStatusMessage(extensionName: string, addCount: number, removeCount: number): string {
+	let message: string;
 
-		const wantsToAdd = addCount > 0;
-		const wantsToDelete = removeCount > 0;
+	const wantsToAdd = addCount > 0;
+	const wantsToDelete = removeCount > 0;
 
-		// Add Folders
-		if (wantsToAdd && !wantsToDelete) {
-			if (addCount === 1) {
-				message = localize('folderStatusMessageAddSingleFolder', "Extension '{0}' added 1 folder to the workspace", extensionName);
-			} else {
-				message = localize('folderStatusMessageAddMultipleFolders', "Extension '{0}' added {1} folders to the workspace", extensionName, addCount);
-			}
+	// Add Folders
+	if (wantsToAdd && !wantsToDelete) {
+		if (addCount === 1) {
+			message = localize('folderStatusMessageAddSingleFolder', "Extension '{0}' added 1 folder to the workspace", extensionName);
+		} else {
+			message = localize('folderStatusMessageAddMultipleFolders', "Extension '{0}' added {1} folders to the workspace", extensionName, addCount);
 		}
-
-		// Delete Folders
-		else if (wantsToDelete && !wantsToAdd) {
-			if (removeCount === 1) {
-				message = localize('folderStatusMessageRemoveSingleFolder', "Extension '{0}' removed 1 folder from the workspace", extensionName);
-			} else {
-				message = localize('folderStatusMessageRemoveMultipleFolders', "Extension '{0}' removed {1} folders from the workspace", extensionName, removeCount);
-			}
-		}
-
-		// Change Folders
-		else {
-			message = localize('folderStatusChangeFolder', "Extension '{0}' changed folders of the workspace", extensionName);
-		}
-
-		return message;
 	}
 
-	private _onDidChangeWorkspace(): void {
-		this._proxy.$acceptWorkspaceData(this.getWorkspaceData(this._contextService.getWorkspace()));
-	}
-
-	private getWorkspaceData(workspace: IWorkspace): IWorkspaceData | null {
-		if (this._contextService.getWorkbenchState() === WorkbenchState.EMPTY) {
-			return null;
+	// Delete Folders
+	else if (wantsToDelete && !wantsToAdd) {
+		if (removeCount === 1) {
+			message = localize('folderStatusMessageRemoveSingleFolder', "Extension '{0}' removed 1 folder from the workspace", extensionName);
+		} else {
+			message = localize('folderStatusMessageRemoveMultipleFolders', "Extension '{0}' removed {1} folders from the workspace", extensionName, removeCount);
 		}
-		return {
-			configuration: workspace.configuration || undefined,
-			isUntitled: workspace.configuration ? isUntitledWorkspace(workspace.configuration, this._environmentService) : false,
-			folders: workspace.folders,
-			id: workspace.id,
-			name: this._labelService.getWorkspaceLabel(workspace),
-			transient: workspace.transient
-		};
 	}
 
-	// --- search ---
+	// Change Folders
+	else {
+		message = localize('folderStatusChangeFolder', "Extension '{0}' changed folders of the workspace", extensionName);
+	}
 
-	$startFileSearch(_includeFolder: UriComponents | null, options: IFileQueryBuilderOptions<UriComponents>, token: CancellationToken): Promise<UriComponents[] | null> {
-		const includeFolder = URI.revive(_includeFolder);
-		const workspace = this._contextService.getWorkspace();
+	return message;
+}
 
-		const query = this._queryBuilder.file(
-			includeFolder ? [includeFolder] : workspace.folders,
-			revive(options)
-		);
+    private _onDidChangeWorkspace(cognidreamognidream {
+	this._proxy.$acceptWorkspaceData(this.getWorkspaceData(this._contextService.getWorkspace()));
+}
 
-		return this._searchService.fileSearch(query, token).then(result => {
-			return result.results.map(m => m.resource);
-		}, err => {
+    private getWorkspaceData(workspace: IWorkspace): IWorkspaceData | null {
+	if(this._contextService.getWorkbenchState() === WorkbenchState.EMPTY) {
+	return null;
+}
+return {
+	configuration: workspace.configuration || undefined,
+	isUntitled: workspace.configuration ? isUntitledWorkspace(workspace.configuration, this._environmentService) : false,
+	folders: workspace.folders,
+	id: workspace.id,
+	name: this._labelService.getWorkspaceLabel(workspace),
+	transient: workspace.transient
+};
+    }
+
+// --- search ---
+
+$startFileSearch(_includeFolder: UriComponents | null, options: IFileQueryBuilderOptions<UriComponents>, token: CancellationToken): Promise < UriComponents[] | null > {
+	const includeFolder = URI.revive(_includeFolder);
+	const workspace = this._contextService.getWorkspace();
+
+	const query = this._queryBuilder.file(
+		includeFolder ? [includeFolder] : workspace.folders,
+		revive(options)
+	);
+
+	return this._searchService.fileSearch(query, token).then(result => {
+		return result.results.map(m => m.resource);
+	}, err => {
+		if (!isCancellationError(err)) {
+			return Promise.reject(err);
+		}
+		return null;
+	});
+}
+
+$startTextSearch(pattern: IPatternInfo, _folder: UriComponents | null, options: ITextQueryBuilderOptions<UriComponents>, requestId: number, token: CancellationToken): Promise < ITextSearchComplete | null > {
+	const folder = URI.revive(_folder);
+	const workspace = this._contextService.getWorkspace();
+	const folders = folder ? [folder] : workspace.folders.map(folder => folder.uri);
+
+	const query = this._queryBuilder.text(pattern, folders, revive(options));
+	query._reason = 'startTextSearch';
+
+	const onProgress = (p: ISearchProgressItem) => {
+		if ((<IFileMatch>p).results) {
+			this._proxy.$handleTextSearchResult(<IFileMatch>p, requestId);
+		}
+	};
+
+	const search = this._searchService.textSearch(query, token, onProgress).then(
+		result => {
+			return { limitHit: result.limitHit };
+		},
+		err => {
 			if (!isCancellationError(err)) {
 				return Promise.reject(err);
 			}
+
 			return null;
 		});
+
+	return search;
+}
+
+$checkExists(folders: readonly UriComponents[], includes: string[], token: CancellationToken): Promise < boolean > {
+	return this._instantiationService.invokeFunction((accessor) => checkGlobFileExists(accessor, folders, includes, token));
+}
+
+    // --- save & edit resources ---
+
+    async $save(uriComponents: UriComponents, options: { saveAs: boolean }): Promise < UriComponents | undefined > {
+	const uri = URI.revive(uriComponents);
+
+	const editors = [...this._editorService.findEditors(uri, { supportSideBySide: SideBySideEditor.PRIMARY })];
+	const result = await this._editorService.save(editors, {
+		reason: SaveReason.EXPLICIT,
+		saveAs: options.saveAs,
+		force: !options.saveAs
+	});
+
+	return this._saveResultToUris(result).at(0);
+}
+
+    private _saveResultToUris(result: ISaveEditorsResult): URI[] {
+	if (!result.success) {
+		return [];
 	}
 
-	$startTextSearch(pattern: IPatternInfo, _folder: UriComponents | null, options: ITextQueryBuilderOptions<UriComponents>, requestId: number, token: CancellationToken): Promise<ITextSearchComplete | null> {
-		const folder = URI.revive(_folder);
-		const workspace = this._contextService.getWorkspace();
-		const folders = folder ? [folder] : workspace.folders.map(folder => folder.uri);
+	return coalesce(result.editors.map(editor => EditorResourceAccessor.getCanonicalUri(editor, { supportSideBySide: SideBySideEditor.PRIMARY })));
+}
 
-		const query = this._queryBuilder.text(pattern, folders, revive(options));
-		query._reason = 'startTextSearch';
+$saveAll(includeUntitled ?: boolean): Promise < boolean > {
+	return this._editorService.saveAll({ includeUntitled }).then(res => res.success);
+}
 
-		const onProgress = (p: ISearchProgressItem) => {
-			if ((<IFileMatch>p).results) {
-				this._proxy.$handleTextSearchResult(<IFileMatch>p, requestId);
-			}
-		};
+$resolveProxy(url: string): Promise < string | undefined > {
+	return this._requestService.resolveProxy(url);
+}
 
-		const search = this._searchService.textSearch(query, token, onProgress).then(
-			result => {
-				return { limitHit: result.limitHit };
-			},
-			err => {
-				if (!isCancellationError(err)) {
-					return Promise.reject(err);
-				}
+$lookupAuthorization(authInfo: AuthInfo): Promise < Credentials | undefined > {
+	return this._requestService.lookupAuthorization(authInfo);
+}
 
-				return null;
-			});
+$lookupKerberosAuthorization(url: string): Promise < string | undefined > {
+	return this._requestService.lookupKerberosAuthorization(url);
+}
 
-		return search;
-	}
+$loadCertificates(): Promise < string[] > {
+	return this._requestService.loadCertificates();
+}
 
-	$checkExists(folders: readonly UriComponents[], includes: string[], token: CancellationToken): Promise<boolean> {
-		return this._instantiationService.invokeFunction((accessor) => checkGlobFileExists(accessor, folders, includes, token));
-	}
+// --- trust ---
 
-	// --- save & edit resources ---
+$requestWorkspaceTrust(options ?: WorkspaceTrustRequestOptions): Promise < boolean | undefined > {
+	return this._workspaceTrustRequestService.requestWorkspaceTrust(options);
+}
 
-	async $save(uriComponents: UriComponents, options: { saveAs: boolean }): Promise<UriComponents | undefined> {
-		const uri = URI.revive(uriComponents);
+    private isWorkspaceTrusted(): boolean {
+	return this._workspaceTrustManagementService.isWorkspaceTrusted();
+}
 
-		const editors = [...this._editorService.findEditors(uri, { supportSideBySide: SideBySideEditor.PRIMARY })];
-		const result = await this._editorService.save(editors, {
-			reason: SaveReason.EXPLICIT,
-			saveAs: options.saveAs,
-			force: !options.saveAs
-		});
+    private _onDidGrantWorkspaceTrust(cognidreamognidream {
+	this._proxy.$onDidGrantWorkspaceTrust();
+}
 
-		return this._saveResultToUris(result).at(0);
-	}
+    // --- edit sessions ---
+    private registeredEditSessionProviders = new Map<number, IDisposable>();
 
-	private _saveResultToUris(result: ISaveEditorsResult): URI[] {
-		if (!result.success) {
-			return [];
+$registerEditSessionIdentityProvider(handle: number, scheme: string) {
+	const disposable = this._editSessionIdentityService.registerEditSessionIdentityProvider({
+		scheme: scheme,
+		getEditSessionIdentifier: async (workspaceFolder: WorkspaceFolder, token: CancellationToken) => {
+			return this._proxy.$getEditSessionIdentifier(workspaceFolder.uri, token);
+		},
+		provideEditSessionIdentityMatch: async (workspaceFolder: WorkspaceFolder, identity1: string, identity2: string, token: CancellationToken) => {
+			return this._proxy.$provideEditSessionIdentityMatch(workspaceFolder.uri, identity1, identity2, token);
 		}
+	});
 
-		return coalesce(result.editors.map(editor => EditorResourceAccessor.getCanonicalUri(editor, { supportSideBySide: SideBySideEditor.PRIMARY })));
-	}
+	this.registeredEditSessionProviders.set(handle, disposable);
+	this._toDispose.add(disposable);
+}
 
-	$saveAll(includeUntitled?: boolean): Promise<boolean> {
-		return this._editorService.saveAll({ includeUntitled }).then(res => res.success);
-	}
+$unregisterEditSessionIdentityProvider(handle: number) {
+	const disposable = this.registeredEditSessionProviders.get(handle);
+	disposable?.dispose();
+	this.registeredEditSessionProviders.delete(handle);
+}
 
-	$resolveProxy(url: string): Promise<string | undefined> {
-		return this._requestService.resolveProxy(url);
-	}
+    // --- canonical uri identities ---
+    private registeredCanonicalUriProviders = new Map<number, IDisposable>();
 
-	$lookupAuthorization(authInfo: AuthInfo): Promise<Credentials | undefined> {
-		return this._requestService.lookupAuthorization(authInfo);
-	}
-
-	$lookupKerberosAuthorization(url: string): Promise<string | undefined> {
-		return this._requestService.lookupKerberosAuthorization(url);
-	}
-
-	$loadCertificates(): Promise<string[]> {
-		return this._requestService.loadCertificates();
-	}
-
-	// --- trust ---
-
-	$requestWorkspaceTrust(options?: WorkspaceTrustRequestOptions): Promise<boolean | undefined> {
-		return this._workspaceTrustRequestService.requestWorkspaceTrust(options);
-	}
-
-	private isWorkspaceTrusted(): boolean {
-		return this._workspaceTrustManagementService.isWorkspaceTrusted();
-	}
-
-	private _onDidGrantWorkspaceTrust(): void {
-		this._proxy.$onDidGrantWorkspaceTrust();
-	}
-
-	// --- edit sessions ---
-	private registeredEditSessionProviders = new Map<number, IDisposable>();
-
-	$registerEditSessionIdentityProvider(handle: number, scheme: string) {
-		const disposable = this._editSessionIdentityService.registerEditSessionIdentityProvider({
-			scheme: scheme,
-			getEditSessionIdentifier: async (workspaceFolder: WorkspaceFolder, token: CancellationToken) => {
-				return this._proxy.$getEditSessionIdentifier(workspaceFolder.uri, token);
-			},
-			provideEditSessionIdentityMatch: async (workspaceFolder: WorkspaceFolder, identity1: string, identity2: string, token: CancellationToken) => {
-				return this._proxy.$provideEditSessionIdentityMatch(workspaceFolder.uri, identity1, identity2, token);
+$registerCanonicalUriProvider(handle: number, scheme: string) {
+	const disposable = this._canonicalUriService.registerCanonicalUriProvider({
+		scheme: scheme,
+		provideCanonicalUri: async (uri: UriComponents, targetScheme: string, token: CancellationToken) => {
+			const result = await this._proxy.$provideCanonicalUri(uri, targetScheme, token);
+			if (result) {
+				return URI.revive(result);
 			}
-		});
+			return result;
+		}
+	});
 
-		this.registeredEditSessionProviders.set(handle, disposable);
-		this._toDispose.add(disposable);
-	}
+	this.registeredCanonicalUriProviders.set(handle, disposable);
+	this._toDispose.add(disposable);
+}
 
-	$unregisterEditSessionIdentityProvider(handle: number) {
-		const disposable = this.registeredEditSessionProviders.get(handle);
-		disposable?.dispose();
-		this.registeredEditSessionProviders.delete(handle);
-	}
+$unregisterCanonicalUriProvider(handle: number) {
+	const disposable = this.registeredCanonicalUriProviders.get(handle);
+	disposable?.dispose();
+	this.registeredCanonicalUriProviders.delete(handle);
+}
 
-	// --- canonical uri identities ---
-	private registeredCanonicalUriProviders = new Map<number, IDisposable>();
+    // --- encodings
 
-	$registerCanonicalUriProvider(handle: number, scheme: string) {
-		const disposable = this._canonicalUriService.registerCanonicalUriProvider({
-			scheme: scheme,
-			provideCanonicalUri: async (uri: UriComponents, targetScheme: string, token: CancellationToken) => {
-				const result = await this._proxy.$provideCanonicalUri(uri, targetScheme, token);
-				if (result) {
-					return URI.revive(result);
-				}
-				return result;
-			}
-		});
+    async $decode(content: VSBuffer, resource: UriComponents | undefined, options ?: { encoding: string }): Promise < string > {
+	const stream = await this._textFileService.getDecodedStream(URI.revive(resource) ?? undefined, bufferToStream(content), { acceptTextOnly: true, encoding: options?.encoding });
+	return consumeStream(stream, chunks => chunks.join());
+}
 
-		this.registeredCanonicalUriProviders.set(handle, disposable);
-		this._toDispose.add(disposable);
-	}
-
-	$unregisterCanonicalUriProvider(handle: number) {
-		const disposable = this.registeredCanonicalUriProviders.get(handle);
-		disposable?.dispose();
-		this.registeredCanonicalUriProviders.delete(handle);
-	}
-
-	// --- encodings
-
-	async $decode(content: VSBuffer, resource: UriComponents | undefined, options?: { encoding: string }): Promise<string> {
-		const stream = await this._textFileService.getDecodedStream(URI.revive(resource) ?? undefined, bufferToStream(content), { acceptTextOnly: true, encoding: options?.encoding });
-		return consumeStream(stream, chunks => chunks.join());
-	}
-
-	async $encode(content: string, resource: UriComponents | undefined, options?: { encoding: string }): Promise<VSBuffer> {
-		const res = await this._textFileService.getEncodedReadable(URI.revive(resource) ?? undefined, content, { encoding: options?.encoding });
-		return res instanceof VSBuffer ? res : readableToBuffer(res);
-	}
+    async $encode(content: string, resource: UriComponents | undefined, options ?: { encoding: string }): Promise < VSBuffer > {
+	const res = await this._textFileService.getEncodedReadable(URI.revive(resource) ?? undefined, content, { encoding: options?.encoding });
+	return res instanceof VSBuffer ? res : readableToBuffer(res);
+}
 }

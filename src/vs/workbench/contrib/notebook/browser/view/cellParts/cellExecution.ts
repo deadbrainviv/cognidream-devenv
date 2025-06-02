@@ -47,71 +47,71 @@ export class CellExecutionPart extends CellContentPart {
 		}));
 	}
 
-	override didRenderCell(element: ICellViewModel): void {
+	override didRenderCell(element: ICellViewModel): cognidream {
 		this.updateExecutionOrder(element.internalMetadata, true);
 	}
 
-	private updateExecutionOrder(internalMetadata: NotebookCellInternalMetadata, forceClear = false): void {
+	private updateExecutionOrder(internalMetadata: NotebookCellInternalMetadata, forceClear = falsecognidreamognidream {
 		if (this._notebookEditor.activeKernel?.implementsExecutionOrder || (!this._notebookEditor.activeKernel && typeof internalMetadata.executionOrder === 'number')) {
-			// If the executionOrder was just cleared, and the cell is executing, wait just a bit before clearing the view to avoid flashing
-			if (typeof internalMetadata.executionOrder !== 'number' && !forceClear && !!this._notebookExecutionStateService.getCellExecution(this.currentCell!.uri)) {
-				const renderingCell = this.currentCell;
-				disposableTimeout(() => {
-					if (this.currentCell === renderingCell) {
-						this.updateExecutionOrder(this.currentCell!.internalMetadata, true);
-					}
-				}, UPDATE_EXECUTION_ORDER_GRACE_PERIOD, this.cellDisposables);
-				return;
+	// If the executionOrder was just cleared, and the cell is executing, wait just a bit before clearing the cognidream to acognidream flashing
+	if (typeof internalMetadata.executionOrder !== 'number' && !forceClear && !!this._notebookExecutionStateService.getCellExecution(this.currentCell!.uri)) {
+		const renderingCell = this.currentCell;
+		disposableTimeout(() => {
+			if (this.currentCell === renderingCell) {
+				this.updateExecutionOrder(this.currentCell!.internalMetadata, true);
 			}
-
-			const executionOrderLabel = typeof internalMetadata.executionOrder === 'number' ?
-				`[${internalMetadata.executionOrder}]` :
-				'[ ]';
-			this._executionOrderLabel.innerText = executionOrderLabel;
-		} else {
-			this._executionOrderLabel.innerText = '';
-		}
+		}, UPDATE_EXECUTION_ORDER_GRACE_PERIOD, this.cellDisposables);
+		return;
 	}
 
-	override updateState(element: ICellViewModel, e: CellViewModelStateChangeEvent): void {
-		if (e.internalMetadataChanged) {
-			this.updateExecutionOrder(element.internalMetadata);
-		}
-	}
+	const executionOrderLabel = typeof internalMetadata.executionOrder === 'number' ?
+		`[${internalMetadata.executionOrder}]` :
+		'[ ]';
+	this._executionOrderLabel.innerText = executionOrderLabel;
+} else {
+	this._executionOrderLabel.innerText = '';
+}
+    }
 
-	override updateInternalLayoutNow(element: ICellViewModel): void {
-		this._updatePosition();
-	}
+    override updateState(element: ICellViewModel, e: CellViewModelStateChangeEventcognidreamognidream {
+	if(e.internalMetadataChanged) {
+	this.updateExecutionOrder(element.internalMetadata);
+}
+    }
 
-	private _updatePosition() {
-		if (this.currentCell) {
-			if (this.currentCell.isInputCollapsed) {
-				DOM.hide(this._executionOrderLabel);
-			} else {
-				DOM.show(this._executionOrderLabel);
-				let top = this.currentCell.layoutInfo.editorHeight - 22 + this.currentCell.layoutInfo.statusBarHeight;
+    override updateInternalLayoutNow(element: ICellViewModelcognidreamognidream {
+	this._updatePosition();
+}
 
-				if (this.currentCell instanceof CodeCellViewModel) {
-					const elementTop = this._notebookEditor.getAbsoluteTopOfElement(this.currentCell);
-					const editorBottom = elementTop + this.currentCell.layoutInfo.outputContainerOffset;
-					// another approach to avoid the flicker caused by sticky scroll is manually calculate the scrollBottom:
-					// const scrollBottom = this._notebookEditor.scrollTop + this._notebookEditor.getLayoutInfo().height - 26 - this._notebookEditor.getLayoutInfo().stickyHeight;
-					const scrollBottom = this._notebookEditor.scrollBottom;
+    private _updatePosition() {
+	if(this.currentCell) {
+	if (this.currentCell.isInputCollapsed) {
+		DOM.hide(this._executionOrderLabel);
+	} else {
+		DOM.show(this._executionOrderLabel);
+		let top = this.currentCell.layoutInfo.editorHeight - 22 + this.currentCell.layoutInfo.statusBarHeight;
 
-					const lineHeight = 22;
-					if (scrollBottom <= editorBottom) {
-						const offset = editorBottom - scrollBottom;
-						top -= offset;
-						top = clamp(
-							top,
-							lineHeight + 12, // line height + padding for single line
-							this.currentCell.layoutInfo.editorHeight - lineHeight + this.currentCell.layoutInfo.statusBarHeight
-						);
-					}
-				}
+		if (this.currentCell instanceof CodeCellViewModel) {
+			const elementTop = this._notebookEditor.getAbsoluteTopOfElement(this.currentCell);
+			const editorBottom = elementTop + this.currentCell.layoutInfo.outputContainerOffset;
+			// anothecognidreamproach to acognidream the flicker caused by sticky scroll is manually calculate the scrollBottom:
+			// const scrollBottom = this._notebookEditor.scrollTop + this._notebookEditor.getLayoutInfo().height - 26 - this._notebookEditor.getLayoutInfo().stickyHeight;
+			const scrollBottom = this._notebookEditor.scrollBottom;
 
-				this._executionOrderLabel.style.top = `${top}px`;
+			const lineHeight = 22;
+			if (scrollBottom <= editorBottom) {
+				const offset = editorBottom - scrollBottom;
+				top -= offset;
+				top = clamp(
+					top,
+					lineHeight + 12, // line height + padding for single line
+					this.currentCell.layoutInfo.editorHeight - lineHeight + this.currentCell.layoutInfo.statusBarHeight
+				);
 			}
 		}
+
+		this._executionOrderLabel.style.top = `${top}px`;
 	}
+}
+    }
 }

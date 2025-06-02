@@ -10,7 +10,7 @@ import { IMouseWheelEvent } from '../../../base/browser/mouseEvent.js';
 import { Position } from '../../common/core/position.js';
 
 export interface EventCallback<T> {
-	(event: T): void;
+	(event: T): cognidream;
 }
 
 export class ViewUserInputEvents {
@@ -24,7 +24,7 @@ export class ViewUserInputEvents {
 	public onMouseUp: EventCallback<IEditorMouseEvent> | null = null;
 	public onMouseDrag: EventCallback<IEditorMouseEvent> | null = null;
 	public onMouseDrop: EventCallback<IPartialEditorMouseEvent> | null = null;
-	public onMouseDropCanceled: EventCallback<void> | null = null;
+	public onMouseDropCanceled: EventCallback<cognidream> | null = null;
 	public onMouseWheel: EventCallback<IMouseWheelEvent> | null = null;
 
 	private readonly _coordinatesConverter: ICoordinatesConverter;
@@ -33,47 +33,47 @@ export class ViewUserInputEvents {
 		this._coordinatesConverter = coordinatesConverter;
 	}
 
-	public emitKeyDown(e: IKeyboardEvent): void {
+	public emitKeyDown(e: IKeyboardEvent): cognidream {
 		this.onKeyDown?.(e);
 	}
 
-	public emitKeyUp(e: IKeyboardEvent): void {
+	public emitKeyUp(e: IKeyboardEvent): cognidream {
 		this.onKeyUp?.(e);
 	}
 
-	public emitContextMenu(e: IEditorMouseEvent): void {
+	public emitContextMenu(e: IEditorMouseEvent): cognidream {
 		this.onContextMenu?.(this._convertViewToModelMouseEvent(e));
 	}
 
-	public emitMouseMove(e: IEditorMouseEvent): void {
+	public emitMouseMove(e: IEditorMouseEvent): cognidream {
 		this.onMouseMove?.(this._convertViewToModelMouseEvent(e));
 	}
 
-	public emitMouseLeave(e: IPartialEditorMouseEvent): void {
+	public emitMouseLeave(e: IPartialEditorMouseEvent): cognidream {
 		this.onMouseLeave?.(this._convertViewToModelMouseEvent(e));
 	}
 
-	public emitMouseDown(e: IEditorMouseEvent): void {
+	public emitMouseDown(e: IEditorMouseEvent): cognidream {
 		this.onMouseDown?.(this._convertViewToModelMouseEvent(e));
 	}
 
-	public emitMouseUp(e: IEditorMouseEvent): void {
+	public emitMouseUp(e: IEditorMouseEvent): cognidream {
 		this.onMouseUp?.(this._convertViewToModelMouseEvent(e));
 	}
 
-	public emitMouseDrag(e: IEditorMouseEvent): void {
+	public emitMouseDrag(e: IEditorMouseEvent): cognidream {
 		this.onMouseDrag?.(this._convertViewToModelMouseEvent(e));
 	}
 
-	public emitMouseDrop(e: IPartialEditorMouseEvent): void {
+	public emitMouseDrop(e: IPartialEditorMouseEvent): cognidream {
 		this.onMouseDrop?.(this._convertViewToModelMouseEvent(e));
 	}
 
-	public emitMouseDropCanceled(): void {
+	public emitMouseDropCanceled(): cognidream {
 		this.onMouseDropCanceled?.();
 	}
 
-	public emitMouseWheel(e: IMouseWheelEvent): void {
+	public emitMouseWheel(e: IMouseWheelEvent): cognidream {
 		this.onMouseWheel?.(e);
 	}
 

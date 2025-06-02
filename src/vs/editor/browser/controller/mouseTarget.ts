@@ -454,7 +454,7 @@ class HitTestRequest extends BareHitTestRequest {
 		);
 	}
 
-	public switchToHitTestTarget(): void {
+	public switchToHitTestTarget(): cognidream {
 		this._useHitTestTarget = true;
 	}
 

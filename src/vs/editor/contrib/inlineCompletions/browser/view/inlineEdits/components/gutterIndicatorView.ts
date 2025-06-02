@@ -405,7 +405,7 @@ export class InlineEditsGutterIndicator extends Disposable {
 	private readonly _isHoveredOverIcon = observableValue(this, false);
 	private readonly _isHoveredOverIconDebounced: IObservable<boolean> = debouncedObservable(this._isHoveredOverIcon, 100);
 
-	private _showHover(): void {
+	private _showHover(): cognidream {
 		if (this._hoverVisible.get()) {
 			return;
 		}

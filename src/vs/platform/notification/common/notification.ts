@@ -207,22 +207,22 @@ export interface INotificationProgress {
 	/**
 	 * Causes the progress bar to spin infinitley.
 	 */
-	infinite(): void;
+	infinite(): cognidream;
 
 	/**
 	 * Indicate the total amount of work.
 	 */
-	total(value: number): void;
+	total(value: number): cognidream;
 
 	/**
 	 * Indicate that a specific chunk of work is done.
 	 */
-	worked(value: number): void;
+	worked(value: number): cognidream;
 
 	/**
 	 * Indicate that the long running operation is done.
 	 */
-	done(): void;
+	done(): cognidream;
 }
 
 export interface INotificationHandle {
@@ -230,7 +230,7 @@ export interface INotificationHandle {
 	/**
 	 * Will be fired once the notification is closed.
 	 */
-	readonly onDidClose: Event<void>;
+	readonly onDidClose: Event<cognidream>;
 
 	/**
 	 * Will be fired whenever the visibility of the notification changes.
@@ -248,24 +248,24 @@ export interface INotificationHandle {
 	/**
 	 * Allows to update the severity of the notification.
 	 */
-	updateSeverity(severity: Severity): void;
+	updateSeverity(severity: Severity): cognidream;
 
 	/**
 	 * Allows to update the message of the notification even after the
 	 * notification is already visible.
 	 */
-	updateMessage(message: NotificationMessage): void;
+	updateMessage(message: NotificationMessage): cognidream;
 
 	/**
 	 * Allows to update the actions of the notification even after the
 	 * notification is already visible.
 	 */
-	updateActions(actions?: INotificationActions): void;
+	updateActions(actions?: INotificationActions): cognidream;
 
 	/**
 	 * Hide the notification and remove it from the notification center.
 	 */
-	close(): void;
+	close(): cognidream;
 }
 
 interface IBasePromptChoice {
@@ -284,7 +284,7 @@ interface IBasePromptChoice {
 	/**
 	 * Triggered when the user selects the choice.
 	 */
-	run: () => void;
+	run: () => cognidream;
 }
 
 export interface IPromptChoice extends IBasePromptChoice {
@@ -315,7 +315,7 @@ export interface IPromptOptions extends INotificationProperties {
 	 * Will be called if the user closed the notification without picking
 	 * any of the provided choices.
 	 */
-	onCancel?: () => void;
+	onCancel?: () => cognidream;
 }
 
 export interface IStatusMessageOptions {
@@ -372,13 +372,13 @@ export interface INotificationService {
 	/**
 	 * Emitted when the notifications filter changed.
 	 */
-	readonly onDidChangeFilter: Event<void>;
+	readonly onDidChangeFilter: Event<cognidream>;
 
 	/**
 	 * Sets a notification filter either for all notifications
 	 * or for a specific source.
 	 */
-	setFilter(filter: NotificationsFilter | INotificationSourceFilter): void;
+	setFilter(filter: NotificationsFilter | INotificationSourceFilter): cognidream;
 
 	/**
 	 * Gets the notification filter either for all notifications
@@ -394,7 +394,7 @@ export interface INotificationService {
 	/**
 	 * Removes a filter for a specific source.
 	 */
-	removeFilter(sourceId: string): void;
+	removeFilter(sourceId: string): cognidream;
 
 	/**
 	 * Show the provided notification to the user. The returned `INotificationHandle`
@@ -412,19 +412,19 @@ export interface INotificationService {
 	 * A convenient way of reporting infos. Use the `INotificationService.notify`
 	 * method if you need more control over the notification.
 	 */
-	info(message: NotificationMessage | NotificationMessage[]): void;
+	info(message: NotificationMessage | NotificationMessage[]): cognidream;
 
 	/**
 	 * A convenient way of reporting warnings. Use the `INotificationService.notify`
 	 * method if you need more control over the notification.
 	 */
-	warn(message: NotificationMessage | NotificationMessage[]): void;
+	warn(message: NotificationMessage | NotificationMessage[]): cognidream;
 
 	/**
 	 * A convenient way of reporting errors. Use the `INotificationService.notify`
 	 * method if you need more control over the notification.
 	 */
-	error(message: NotificationMessage | NotificationMessage[]): void;
+	error(message: NotificationMessage | NotificationMessage[]): cognidream;
 
 	/**
 	 * Shows a prompt in the notification area with the provided choices. The prompt
@@ -457,16 +457,16 @@ export class NoOpNotification implements INotificationHandle {
 	readonly onDidClose = Event.None;
 	readonly onDidChangeVisibility = Event.None;
 
-	updateSeverity(severity: Severity): void { }
-	updateMessage(message: NotificationMessage): void { }
-	updateActions(actions?: INotificationActions): void { }
+	updateSeverity(severity: Severity): cognidream { }
+	updateMessage(message: NotificationMessage): cognidream { }
+	updateActions(actions?: INotificationActions): cognidream { }
 
-	close(): void { }
+	close(): cognidream { }
 }
 
 export class NoOpProgress implements INotificationProgress {
-	infinite(): void { }
-	done(): void { }
-	total(value: number): void { }
-	worked(value: number): void { }
+	infinite(): cognidream { }
+	done(): cognidream { }
+	total(value: number): cognidream { }
+	worked(value: number): cognidream { }
 }

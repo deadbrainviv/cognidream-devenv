@@ -150,7 +150,7 @@ export class SearchResultImpl extends Disposable implements ISearchResult {
 		this.aiTextSearchResult.query = aiTextQueryFromTextQuery(query);
 	}
 
-	private onDidAddNotebookEditorWidget(widget: NotebookEditorWidget): void {
+	private onDidAddNotebookEditorWidget(widget: NotebookEditorWidget): cognidream {
 
 		this._onWillChangeModelListener?.dispose();
 		this._onWillChangeModelListener = widget.onWillChangeModel(
@@ -179,116 +179,116 @@ export class SearchResultImpl extends Disposable implements ISearchResult {
 		return this._plainTextSearchResult.folderMatches();
 	}
 
-	private onModelAdded(model: ITextModel): void {
+	private onModelAdded(model: ITextModelcognidreamognidream {
 		const folderMatch = this._plainTextSearchResult.findFolderSubstr(model.uri);
 		folderMatch?.bindModel(model);
+    }
+
+    private async onNotebookEditorWidgetAdded(editor: NotebookEditorWidget, resource: URI): Promicognidreamognidream > {
+	const folderMatch = this._plainTextSearchResult.findFolderSubstr(resource);
+	await folderMatch?.bindNotebookEditorWidget(editor, resource);
+}
+
+    private onNotebookEditorWidgetRemoved(editor: NotebookEditorWidget, resource: URIcognidreamognidream {
+	const folderMatch = this._plainTextSearchResult.findFolderSubstr(resource);
+	folderMatch?.unbindNotebookEditorWidget(editor, resource);
+}
+
+
+    add(allRaw: IFileMatch[], searchInstanceID: string, ai: boolean, silent: boolean = falsecognidreamognidream {
+	this._plainTextSearchResult.hidden = false;
+	if(ai) {
+		this._aiTextSearchResult.hidden = false;
 	}
 
-	private async onNotebookEditorWidgetAdded(editor: NotebookEditorWidget, resource: URI): Promise<void> {
-		const folderMatch = this._plainTextSearchResult.findFolderSubstr(resource);
-		await folderMatch?.bindNotebookEditorWidget(editor, resource);
-	}
-
-	private onNotebookEditorWidgetRemoved(editor: NotebookEditorWidget, resource: URI): void {
-		const folderMatch = this._plainTextSearchResult.findFolderSubstr(resource);
-		folderMatch?.unbindNotebookEditorWidget(editor, resource);
-	}
-
-
-	add(allRaw: IFileMatch[], searchInstanceID: string, ai: boolean, silent: boolean = false): void {
-		this._plainTextSearchResult.hidden = false;
-		if (ai) {
-			this._aiTextSearchResult.hidden = false;
-		}
-
-		if (ai) {
-			this._aiTextSearchResult.add(allRaw, searchInstanceID, silent);
-		} else {
-			this._plainTextSearchResult.add(allRaw, searchInstanceID, silent);
-		}
-	}
-
-	clear(): void {
-		this._plainTextSearchResult.clear();
-		this._aiTextSearchResult.clear();
-	}
-
-	remove(matches: ISearchTreeFileMatch | ISearchTreeFolderMatch | (ISearchTreeFileMatch | ISearchTreeFolderMatch)[], ai = false): void {
-		if (ai) {
-			this._aiTextSearchResult.remove(matches, ai);
-		}
-		this._plainTextSearchResult.remove(matches, ai);
-
-	}
-
-	replace(match: ISearchTreeFileMatch): Promise<any> {
-		return this._plainTextSearchResult.replace(match);
-	}
-
-	matches(ai?: boolean): ISearchTreeFileMatch[] {
-		if (ai === undefined) {
-			return this._plainTextSearchResult.matches().concat(this._aiTextSearchResult.matches());
-		} else if (ai === true) {
-			return this._aiTextSearchResult.matches();
-		}
-		return this._plainTextSearchResult.matches();
-	}
-
-	isEmpty(): boolean {
-		return this._plainTextSearchResult.isEmpty() && this._aiTextSearchResult.isEmpty();
-	}
-
-	fileCount(): number {
-		return this._plainTextSearchResult.fileCount() + this._aiTextSearchResult.fileCount();
-	}
-
-	count(): number {
-		return this._plainTextSearchResult.count() + this._aiTextSearchResult.count();
-	}
-
-	setCachedSearchComplete(cachedSearchComplete: ISearchComplete | undefined, ai: boolean) {
-		if (ai) {
-			this._aiTextSearchResult.cachedSearchComplete = cachedSearchComplete;
-		} else {
-			this._plainTextSearchResult.cachedSearchComplete = cachedSearchComplete;
-		}
-	}
-
-	getCachedSearchComplete(ai: boolean): ISearchComplete | undefined {
-		if (ai) {
-			return this._aiTextSearchResult.cachedSearchComplete;
-		}
-		return this._plainTextSearchResult.cachedSearchComplete;
-	}
-
-	toggleHighlights(value: boolean, ai: boolean = false): void {
-		if (ai) {
-			this._aiTextSearchResult.toggleHighlights(value);
-		} else {
-			this._plainTextSearchResult.toggleHighlights(value);
-		}
-	}
-
-	getRangeHighlightDecorations(ai: boolean = false): RangeHighlightDecorations {
-		if (ai) {
-			return this._aiTextSearchResult.rangeHighlightDecorations;
-		}
-		return this._plainTextSearchResult.rangeHighlightDecorations;
-	}
-
-	replaceAll(progress: IProgress<IProgressStep>): Promise<any> {
-		return this._plainTextSearchResult.replaceAll(progress);
-	}
-
-	override async dispose(): Promise<void> {
-		this._aiTextSearchResult?.dispose();
-		this._plainTextSearchResult?.dispose();
-		this._onWillChangeModelListener?.dispose();
-		this._onDidChangeModelListener?.dispose();
-		super.dispose();
+        if(ai) {
+		this._aiTextSearchResult.add(allRaw, searchInstanceID, silent);
+	} else {
+		this._plainTextSearchResult.add(allRaw, searchInstanceID, silent);
 	}
 }
 
-function aiTextQueryFromTextQuery(query: ITextQuery | null): IAITextQuery | null {
-	return query === null ? null : { ...query, contentPattern: query.contentPattern.pattern, type: QueryType.aiText };
+    clear(cognidreamognidream {
+	this._plainTextSearchResult.clear();
+	this._aiTextSearchResult.clear();
 }
+
+    remove(matches: ISearchTreeFileMatch | ISearchTreeFolderMatch | (ISearchTreeFileMatch | ISearchTreeFolderMatch)[], ai = falsecognidreamognidream {
+	if(ai) {
+		this._aiTextSearchResult.remove(matches, ai);
+	}
+        this._plainTextSearchResult.remove(matches, ai);
+
+}
+
+    replace(match: ISearchTreeFileMatch): Promise < any > {
+	return this._plainTextSearchResult.replace(match);
+}
+
+    matches(ai ?: boolean): ISearchTreeFileMatch[] {
+	if(ai === undefined) {
+	return this._plainTextSearchResult.matches().concat(this._aiTextSearchResult.matches());
+} else if (ai === true) {
+	return this._aiTextSearchResult.matches();
+}
+return this._plainTextSearchResult.matches();
+    }
+
+isEmpty(): boolean {
+	return this._plainTextSearchResult.isEmpty() && this._aiTextSearchResult.isEmpty();
+}
+
+fileCount(): number {
+	return this._plainTextSearchResult.fileCount() + this._aiTextSearchResult.fileCount();
+}
+
+count(): number {
+	return this._plainTextSearchResult.count() + this._aiTextSearchResult.count();
+}
+
+setCachedSearchComplete(cachedSearchComplete: ISearchComplete | undefined, ai: boolean) {
+	if (ai) {
+		this._aiTextSearchResult.cachedSearchComplete = cachedSearchComplete;
+	} else {
+		this._plainTextSearchResult.cachedSearchComplete = cachedSearchComplete;
+	}
+}
+
+getCachedSearchComplete(ai: boolean): ISearchComplete | undefined {
+	if (ai) {
+		return this._aiTextSearchResult.cachedSearchComplete;
+	}
+	return this._plainTextSearchResult.cachedSearchComplete;
+}
+
+toggleHighlights(value: boolean, ai: boolean = falsecognidreamognidream {
+	if(ai) {
+		this._aiTextSearchResult.toggleHighlights(value);
+	} else {
+		this._plainTextSearchResult.toggleHighlights(value);
+	}
+}
+
+    getRangeHighlightDecorations(ai: boolean = false): RangeHighlightDecorations {
+	if(ai) {
+		return this._aiTextSearchResult.rangeHighlightDecorations;
+	}
+        return this._plainTextSearchResult.rangeHighlightDecorations;
+}
+
+    replaceAll(progress: IProgress<IProgressStep>): Promise < any > {
+	return this._plainTextSearchResult.replaceAll(progress);
+}
+
+    override async dispose(): Promicognidreamognidream > {
+	this._aiTextSearchResult?.dispose();
+	this._plainTextSearchResult?.dispose();
+	this._onWillChangeModelListener?.dispose();
+	this._onDidChangeModelListener?.dispose();
+	super.dispose();
+}
+}
+
+	function aiTextQueryFromTextQuery(query: ITextQuery | null): IAITextQuery | null {
+		return query === null ? null : { ...query, contentPattern: query.contentPattern.pattern, type: QueryType.aiText };
+	}

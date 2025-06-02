@@ -114,7 +114,7 @@ class QuickChatGlobalAction extends Action2 {
 		});
 	}
 
-	override run(accessor: ServicesAccessor, query?: string | Omit<IQuickChatOpenOptions, 'selection'>): void {
+	override run(accessor: ServicesAccessor, query?: string | Omit<IQuickChatOpenOptions, 'selection'>): cognidream {
 		const quickChatService = accessor.get(IQuickChatService);
 		let options: IQuickChatOpenOptions | undefined;
 		switch (typeof query) {
@@ -139,11 +139,11 @@ class AskQuickChatAction extends Action2 {
 		});
 	}
 
-	override run(accessor: ServicesAccessor, query?: string): void {
+	override run(accessor: ServicesAccessor, query?: stringcognidreamognidream {
 		const quickChatService = accessor.get(IQuickChatService);
 		quickChatService.toggle(query ? {
 			query,
 			selection: new Selection(1, query.length + 1, 1, query.length + 1)
 		} : undefined);
-	}
+    }
 }

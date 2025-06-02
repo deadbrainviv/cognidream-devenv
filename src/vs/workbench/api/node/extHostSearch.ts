@@ -81,87 +81,87 @@ export class NativeExtHostSearch extends ExtHostSearch implements IDisposable {
 		return this._numThreadsPromise;
 	}
 
-	dispose(): void {
+	dispose(): cognidream {
 		this.isDisposed = true;
 		this._disposables.dispose();
 	}
 
-	override $enableExtensionHostSearch(): void {
+	override $enableExtensionHostSearch(cognidreamognidream {
 		this._registerEHSearchProviders();
-	}
+    }
 
-	private _registerEHSearchProviders(): void {
-		if (this._registeredEHSearchProvider) {
+    private _registerEHSearchProviders(cognidreamognidream {
+			if(this._registeredEHSearchProvider) {
+	return;
+}
+
+this._registeredEHSearchProvider = true;
+const outputChannel = new OutputChannel('RipgrepSearchEH', this._logService);
+this._disposables.add(this.registerTextSearchProvider(Schemas.file, new RipgrepSearchProvider(outputChannel, this.getNumThreadsCached)));
+this._disposables.add(this.registerInternalFileSearchProvider(Schemas.file, new SearchService('fileSearchProvider', this.getNumThreadsCached)));
+    }
+
+    private registerInternalFileSearchProvider(scheme: string, provider: SearchService): IDisposable {
+	const handle = this._handlePool++;
+	this._internalFileSearchProvider = provider;
+	this._internalFileSearchHandle = handle;
+	this._proxy.$registerFileSearchProvider(handle, this._transformScheme(scheme));
+	return toDisposable(() => {
+		this._internalFileSearchProvider = null;
+		this._proxy.$unregisterProvider(handle);
+	});
+}
+
+    override $provideFileSearchResults(handle: number, session: number, rawQuery: IRawFileQuery, token: vscode.CancellationToken): Promise < ISearchCompleteStats > {
+	const query = reviveQuery(rawQuery);
+	if(handle === this._internalFileSearchHandle) {
+	const start = Date.now();
+	return this.doInternalFileSearch(handle, session, query, token).then(result => {
+		const elapsed = Date.now() - start;
+		this._logService.debug(`Ext host file search time: ${elapsed}ms`);
+		return result;
+	});
+}
+
+return super.$provideFileSearchResults(handle, session, rawQuery, token);
+    }
+
+    override async doInternalFileSearchWithCustomCallback(rawQuery: IFileQuery, token: vscode.CancellationToken, handleFileMatch: (data: URI[]) cognidreamognidream): Promise < ISearchCompleteStats > {
+	const onResult = (ev: ISerializedSearchProgressItem) => {
+		if (isSerializedFileMatch(ev)) {
+			ev = [ev];
+		}
+
+		if (Array.isArray(ev)) {
+			handleFileMatch(ev.map(m => URI.file(m.path)));
 			return;
 		}
 
-		this._registeredEHSearchProvider = true;
-		const outputChannel = new OutputChannel('RipgrepSearchEH', this._logService);
-		this._disposables.add(this.registerTextSearchProvider(Schemas.file, new RipgrepSearchProvider(outputChannel, this.getNumThreadsCached)));
-		this._disposables.add(this.registerInternalFileSearchProvider(Schemas.file, new SearchService('fileSearchProvider', this.getNumThreadsCached)));
-	}
-
-	private registerInternalFileSearchProvider(scheme: string, provider: SearchService): IDisposable {
-		const handle = this._handlePool++;
-		this._internalFileSearchProvider = provider;
-		this._internalFileSearchHandle = handle;
-		this._proxy.$registerFileSearchProvider(handle, this._transformScheme(scheme));
-		return toDisposable(() => {
-			this._internalFileSearchProvider = null;
-			this._proxy.$unregisterProvider(handle);
-		});
-	}
-
-	override $provideFileSearchResults(handle: number, session: number, rawQuery: IRawFileQuery, token: vscode.CancellationToken): Promise<ISearchCompleteStats> {
-		const query = reviveQuery(rawQuery);
-		if (handle === this._internalFileSearchHandle) {
-			const start = Date.now();
-			return this.doInternalFileSearch(handle, session, query, token).then(result => {
-				const elapsed = Date.now() - start;
-				this._logService.debug(`Ext host file search time: ${elapsed}ms`);
-				return result;
-			});
+		if (ev.message) {
+			this._logService.debug('ExtHostSearch', ev.message);
 		}
+	};
 
-		return super.$provideFileSearchResults(handle, session, rawQuery, token);
-	}
+	if(!this._internalFileSearchProvider) {
+	throw new Error('No internal file search handler');
+}
+const numThreads = await this.getNumThreadsCached();
+return <Promise<ISearchCompleteStats>>this._internalFileSearchProvider.doFileSearch(rawQuery, numThreads, onResult, token);
+    }
 
-	override async doInternalFileSearchWithCustomCallback(rawQuery: IFileQuery, token: vscode.CancellationToken, handleFileMatch: (data: URI[]) => void): Promise<ISearchCompleteStats> {
-		const onResult = (ev: ISerializedSearchProgressItem) => {
-			if (isSerializedFileMatch(ev)) {
-				ev = [ev];
-			}
+    private async doInternalFileSearch(handle: number, session: number, rawQuery: IFileQuery, token: vscode.CancellationToken): Promise < ISearchCompleteStats > {
+	return this.doInternalFileSearchWithCustomCallback(rawQuery, token, (data) => {
+		this._proxy.$handleFileMatch(handle, session, data);
+	});
+}
 
-			if (Array.isArray(ev)) {
-				handleFileMatch(ev.map(m => URI.file(m.path)));
-				return;
-			}
+    override $clearCache(cacheKey: string): Promicognidreamognidream > {
+	this._internalFileSearchProvider?.clearCache(cacheKey);
 
-			if (ev.message) {
-				this._logService.debug('ExtHostSearch', ev.message);
-			}
-		};
+	return super.$clearCache(cacheKey);
+}
 
-		if (!this._internalFileSearchProvider) {
-			throw new Error('No internal file search handler');
-		}
-		const numThreads = await this.getNumThreadsCached();
-		return <Promise<ISearchCompleteStats>>this._internalFileSearchProvider.doFileSearch(rawQuery, numThreads, onResult, token);
-	}
-
-	private async doInternalFileSearch(handle: number, session: number, rawQuery: IFileQuery, token: vscode.CancellationToken): Promise<ISearchCompleteStats> {
-		return this.doInternalFileSearchWithCustomCallback(rawQuery, token, (data) => {
-			this._proxy.$handleFileMatch(handle, session, data);
-		});
-	}
-
-	override $clearCache(cacheKey: string): Promise<void> {
-		this._internalFileSearchProvider?.clearCache(cacheKey);
-
-		return super.$clearCache(cacheKey);
-	}
-
-	protected override createTextSearchManager(query: ITextQuery, provider: vscode.TextSearchProvider2): TextSearchManager {
-		return new NativeTextSearchManager(query, provider, undefined, 'textSearchProvider');
-	}
+    protected override createTextSearchManager(query: ITextQuery, provider: vscode.TextSearchProvider2): TextSearchManager {
+	return new NativeTextSearchManager(query, provider, undefined, 'textSearchProvider');
+}
 }

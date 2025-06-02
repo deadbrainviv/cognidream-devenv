@@ -29,14 +29,14 @@ export interface IStandaloneTheme extends IColorTheme {
 export interface IStandaloneThemeService extends IThemeService {
 	readonly _serviceBrand: undefined;
 
-	setTheme(themeName: string): void;
+	setTheme(themeName: string): cognidream;
 
-	setAutoDetectHighContrast(autoDetectHighContrast: boolean): void;
+	setAutoDetectHighContrast(autoDetectHighContrast: boolean): cognidream;
 
-	defineTheme(themeName: string, themeData: IStandaloneThemeData): void;
+	defineTheme(themeName: string, themeData: IStandaloneThemeData): cognidream;
 
 	getColorTheme(): IStandaloneTheme;
 
-	setColorMapOverride(colorMapOverride: Color[] | null): void;
+	setColorMapOverride(colorMapOverride: Color[] | null): cognidream;
 
 }

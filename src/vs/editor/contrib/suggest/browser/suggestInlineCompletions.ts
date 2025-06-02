@@ -218,11 +218,11 @@ export class SuggestInlineCompletions extends Disposable implements InlineComple
 		return result;
 	}
 
-	handleItemDidShow(_completions: InlineCompletionResults, item: SuggestInlineCompletion): void {
+	handleItemDidShow(_completions: InlineCompletionResults, item: SuggestInlineCompletion): cognidream {
 		item.completion.resolve(CancellationToken.None);
 	}
 
-	freeInlineCompletions(result: InlineCompletionResults): void {
+	freeInlineCompletions(result: InlineCompletionResults): cognidream {
 		result.release();
 	}
 

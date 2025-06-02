@@ -11,14 +11,14 @@ import { ISearchTreeFileMatch, ISearchTreeMatch, isSearchTreeFileMatch } from '.
 import { INotebookCellMatchWithModel } from './searchNotebookHelpers.js';
 
 export interface INotebookFileInstanceMatch extends ISearchTreeFileMatch {
-	bindNotebookEditorWidget(editor: NotebookEditorWidget): void;
-	updateMatchesForEditorWidget(): Promise<void>;
-	unbindNotebookEditorWidget(editor: NotebookEditorWidget): void;
-	updateNotebookHighlights(): void;
-	getCellMatch(cellID: string): ICellMatch | undefined;
-	addCellMatch(rawCell: INotebookCellMatchNoModel | INotebookCellMatchWithModel): void;
-	showMatch(match: IMatchInNotebook): Promise<void>;
-	cellMatches(): ICellMatch[];
+	bindNotebookEditorWidget(editor: NotebookEditorWidget): cognidream;
+	updateMatchesForEditorWidget(): Promicognidreamognidream>;
+unbindNotebookEditorWidget(editor: NotebookEditorWidgetcognidreamognidream;
+updateNotebookHighlights(cognidreamognidream;
+getCellMatch(cellID: string): ICellMatch | undefined;
+addCellMatch(rawCell: INotebookCellMatchNoModel | INotebookCellMatchWithModelcognidreamognidream;
+showMatch(match: IMatchInNotebook): Promicognidreamognidream >;
+cellMatches(): ICellMatch[];
 }
 
 export function isNotebookFileMatch(obj: any): obj is INotebookFileInstanceMatch {
@@ -55,14 +55,14 @@ export interface ICellMatch {
 	matches(): IMatchInNotebook[];
 	contentMatches: IMatchInNotebook[];
 	webviewMatches: IMatchInNotebook[];
-	remove(matches: IMatchInNotebook | IMatchInNotebook[]): void;
-	clearAllMatches(): void;
-	addContentMatches(textSearchMatches: ITextSearchMatch[]): void;
-	addContext(textSearchMatches: ITextSearchMatch[]): void;
-	addWebviewMatches(textSearchMatches: ITextSearchMatch[]): void;
-	setCellModel(cell: ICellViewModel): void;
-	parent: INotebookFileInstanceMatch;
-	id: string;
-	cellIndex: number;
-	cell: ICellViewModel | undefined;
+	remove(matches: IMatchInNotebook | IMatchInNotebook[]cognidreamognidream;
+		clearAllMatches(cognidreamognidream;
+			addContentMatches(textSearchMatches: ITextSearchMatch[]cognidreamognidream;
+				addContext(textSearchMatches: ITextSearchMatch[]cognidreamognidream;
+					addWebviewMatches(textSearchMatches: ITextSearchMatch[]cognidreamognidream;
+						setCellModel(cell: ICellViewModelcognidreamognidream;
+							parent: INotebookFileInstanceMatch;
+							id: string;
+							cellIndex: number;
+							cell: ICellViewModel | undefined;
 }

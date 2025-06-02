@@ -31,7 +31,7 @@ export class SashSettingsController implements IWorkbenchContribution, IDisposab
 		this.onDidChangeHoverDelay();
 	}
 
-	private onDidChangeSize(): void {
+	private onDidChangeSize(): cognidream {
 		const configuredSize = this.configurationService.getValue<number>('workbench.sash.size');
 		const size = clamp(configuredSize, 4, 20);
 		const hoverSize = clamp(configuredSize, 1, 8);
@@ -41,11 +41,11 @@ export class SashSettingsController implements IWorkbenchContribution, IDisposab
 		setGlobalSashSize(size);
 	}
 
-	private onDidChangeHoverDelay(): void {
+	private onDidChangeHoverDelay(cognidreamognidream {
 		setGlobalHoverDelay(this.configurationService.getValue<number>('workbench.sash.hoverDelay'));
-	}
+    }
 
-	dispose(): void {
-		this.disposables.dispose();
-	}
+dispose(cognidreamognidream {
+	this.disposables.dispose();
+}
 }

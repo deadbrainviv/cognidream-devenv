@@ -38,7 +38,7 @@ export class ContributedCustomEditors extends Disposable {
 		});
 	}
 
-	private readonly _onChange = this._register(new Emitter<void>());
+	private readonly _onChange = this._register(new Emitter<cognidream>());
 	public readonly onChange = this._onChange.event;
 
 	private update(extensions: readonly IExtensionPointUser<ICustomEditorsExtensionPoint[]>[]) {
@@ -76,13 +76,13 @@ export class ContributedCustomEditors extends Disposable {
 			.filter(customEditor => customEditor.matches(resource));
 	}
 
-	private add(info: CustomEditorInfo): void {
+	private add(info: CustomEditorInfocognidreamognidream {
 		if (this._editors.has(info.id)) {
-			console.error(`Custom editor with id '${info.id}' already registered`);
-			return;
-		}
-		this._editors.set(info.id, info);
-	}
+	console.error(`Custom editor with id '${info.id}' already registered`);
+	return;
+}
+this._editors.set(info.id, info);
+    }
 }
 
 function getPriorityFromContribution(

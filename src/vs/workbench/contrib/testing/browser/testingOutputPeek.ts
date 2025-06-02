@@ -216,7 +216,7 @@ export class TestingPeekOpener extends Disposable implements ITestingPeekOpener 
 		}
 	}
 
-	public openCurrentInEditor(): void {
+	public openCurrentInEditor(): cognidream {
 		const current = this.getActiveControl();
 		if (!current) {
 			return;
@@ -713,8 +713,8 @@ class TestResultsPeek extends PeekViewWidget {
 		}
 
 		const lineHeight = this.editor.getOption(EditorOption.lineHeight);
-		// 41 is experimentally determined to be the overhead of the peek view itself
-		// to avoid showing scrollbars by default in its content.
+        // 41 is experimentally determined to be the overhead of the peek view itself
+        /cognidream acognidream showing scrollbars by default in its content.
 		const basePeekOverhead = 41;
 
 		return Math.min(defaultMaxHeight || Infinity, (contentHeight + basePeekOverhead) / lineHeight + 1);
@@ -736,147 +736,147 @@ class TestResultsPeek extends PeekViewWidget {
 		});
 	}
 
-	protected override _fillContainer(container: HTMLElement): void {
+	protected override _fillContainer(container: HTMLElementcognidreamognidream {
 		if (!this.scopedContextKeyService) {
-			this.scopedContextKeyService = this._disposables.add(this.contextKeyService.createScoped(container));
-			TestingContextKeys.isInPeek.bindTo(this.scopedContextKeyService).set(true);
-			const instaService = this._disposables.add(this.instantiationService.createChild(new ServiceCollection([IContextKeyService, this.scopedContextKeyService])));
-			this.content = this._disposables.add(instaService.createInstance(TestResultsViewContent, this.editor, { historyVisible: this.testingPeek.historyVisible, showRevealLocationOnMessages: false, locationForProgress: Testing.ResultsViewId }));
+	this.scopedContextKeyService = this._disposables.add(this.contextKeyService.createScoped(container));
+	TestingContextKeys.isInPeek.bindTo(this.scopedContextKeyService).set(true);
+	const instaService = this._disposables.add(this.instantiationService.createChild(new ServiceCollection([IContextKeyService, this.scopedContextKeyService])));
+	this.content = this._disposables.add(instaService.createInstance(TestResultsViewContent, this.editor, { historyVisible: this.testingPeek.historyVisible, showRevealLocationOnMessages: false, locationForProgress: Testing.ResultsViewId }));
 
-			this._disposables.add(this.content.onClose(() => {
-				TestingOutputPeekController.get(this.editor)?.removePeek();
-			}));
-		}
+	this._disposables.add(this.content.onClose(() => {
+		TestingOutputPeekController.get(this.editor)?.removePeek();
+	}));
+}
 
-		super._fillContainer(container);
-	}
+super._fillContainer(container);
+    }
 
-	protected override _fillHead(container: HTMLElement): void {
-		super._fillHead(container);
+    protected override _fillHead(container: HTMLElementcognidreamognidream {
+	super._fillHead(container);
 
-		const menuContextKeyService = this._disposables.add(this.contextKeyService.createScoped(container));
-		this._disposables.add(bindContextKey(
-			TestingContextKeys.peekHasStack,
-			menuContextKeyService,
-			reader => inspectSubjectHasStack(this.current.read(reader)),
-		));
+	const menuContextKeyService = this._disposables.add(this.contextKeyService.createScoped(container));
+	this._disposables.add(bindContextKey(
+		TestingContextKeys.peekHasStack,
+		menuContextKeyService,
+		reader => inspectSubjectHasStack(this.current.read(reader)),
+	));
 
-		const menu = this.menuService.createMenu(MenuId.TestPeekTitle, menuContextKeyService);
-		const actionBar = this._actionbarWidget!;
-		this._disposables.add(menu.onDidChange(() => {
-			actions.length = 0;
-			fillInActionBarActions(menu.getActions(), actions);
-			while (actionBar.getAction(1)) {
-				actionBar.pull(0); // remove all but the view's default "close" button
-			}
-			actionBar.push(actions, { label: false, icon: true, index: 0 });
-		}));
-
-		const actions: IAction[] = [];
+	const menu = this.menuService.createMenu(MenuId.TestPeekTitle, menuContextKeyService);
+	const actionBar = this._actionbarWidget!;
+	this._disposables.add(menu.onDidChange(() => {
+		actions.length = 0;
 		fillInActionBarActions(menu.getActions(), actions);
+		while (actionBar.getAction(1)) {
+			actionBar.pull(0); // remove all but the view's default "close" button
+		}
 		actionBar.push(actions, { label: false, icon: true, index: 0 });
-	}
+	}));
 
-	protected override _fillBody(containerElement: HTMLElement): void {
-		this.content.fillBody(containerElement);
+	const actions: IAction[] = [];
+	fillInActionBarActions(menu.getActions(), actions);
+actionBar.push(actions, { label: false, icon: true, index: 0 });
+    }
 
-		// Resize on height updates for a short time to allow any heights made
-		// by editor contributions to come into effect before.
-		const contentHeightSettleTimer = this._disposables.add(new RunOnceScheduler(() => {
-			this.resizeOnNextContentHeightUpdate = false;
-		}, 500));
+    protected override _fillBody(containerElement: HTMLElementcognidreamognidream {
+	this.content.fillBody(containerElement);
 
-		this._disposables.add(this.content.onDidChangeContentHeight(height => {
-			if (!this.resizeOnNextContentHeightUpdate || !height) {
-				return;
+	// Resize on height updates for a short time to allow any heights made
+	// by editor contributions to come into effect before.
+	const contentHeightSettleTimer = this._disposables.add(new RunOnceScheduler(() => {
+		this.resizeOnNextContentHeightUpdate = false;
+	}, 500));
+
+	this._disposables.add(this.content.onDidChangeContentHeight(height => {
+		if (!this.resizeOnNextContentHeightUpdate || !height) {
+			return;
+		}
+
+		const displayed = this._getMaximumHeightInLines();
+		if (displayed) {
+			this._relayout(Math.min(displayed, this.getVisibleEditorLines() / 2), true);
+			if (!contentHeightSettleTimer.isScheduled()) {
+				contentHeightSettleTimer.schedule();
 			}
-
-			const displayed = this._getMaximumHeightInLines();
-			if (displayed) {
-				this._relayout(Math.min(displayed, this.getVisibleEditorLines() / 2), true);
-				if (!contentHeightSettleTimer.isScheduled()) {
-					contentHeightSettleTimer.schedule();
-				}
-			}
-		}));
-
-		this._disposables.add(this.content.onDidRequestReveal(sub => {
-			TestingOutputPeekController.get(this.editor)?.show(sub instanceof MessageSubject
-				? sub.messageUri
-				: sub.outputUri);
-		}));
-	}
-
-	/**
-	 * Updates the test to be shown.
-	 */
-	public setModel(subject: InspectSubject): Promise<void> {
-		if (subject instanceof TaskSubject || subject instanceof TestOutputSubject) {
-			this.current.set(subject, undefined);
-			return this.showInPlace(subject);
 		}
+	}));
 
-		const previous = this.current;
-		const revealLocation = subject.revealLocation?.range.getStartPosition();
-		if (!revealLocation && !previous) {
-			return Promise.resolve();
-		}
+	this._disposables.add(this.content.onDidRequestReveal(sub => {
+		TestingOutputPeekController.get(this.editor)?.show(sub instanceof MessageSubject
+			? sub.messageUri
+			: sub.outputUri);
+	}));
+}
 
-		this.current.set(subject, undefined);
-		if (!revealLocation) {
-			return this.showInPlace(subject);
-		}
+    /**
+     * Updates the test to be shown.
+     */
+    public setModel(subject: InspectSubject): Promicognidreamognidream > {
+	if(subject instanceof TaskSubject || subject instanceof TestOutputSubject) {
+	this.current.set(subject, undefined);
+	return this.showInPlace(subject);
+}
 
-		this.resizeOnNextContentHeightUpdate = true;
-		this.show(revealLocation, 10); // 10 is just a random number, we resize once content is available
-		this.editor.revealRangeNearTopIfOutsideViewport(Range.fromPositions(revealLocation), ScrollType.Smooth);
+const previous = this.current;
+const revealLocation = subject.revealLocation?.range.getStartPosition();
+if (!revealLocation && !previous) {
+	return Promise.resolve();
+}
 
-		return this.showInPlace(subject);
+this.current.set(subject, undefined);
+if (!revealLocation) {
+	return this.showInPlace(subject);
+}
+
+this.resizeOnNextContentHeightUpdate = true;
+this.show(revealLocation, 10); // 10 is just a random number, we resize once content is available
+this.editor.revealRangeNearTopIfOutsideViewport(Range.fromPositions(revealLocation), ScrollType.Smooth);
+
+return this.showInPlace(subject);
+    }
+
+    /**
+     * Collapses all displayed stack frames.
+     */
+    public collapseStack() {
+	this.content.collapseStack();
+}
+
+    private getVisibleEditorLines() {
+	// note that we don't use the view ranges because we don't want to get
+	// thrown off by large wrapping lines. Being approximate here is okay.
+	return Math.round(this.editor.getDomNode()!.clientHeight / this.editor.getOption(EditorOption.lineHeight));
+}
+
+    /**
+     * Shows a message in-place without showing or changing the peek location.
+     * This is mostly used if peeking a message without a location.
+     */
+    public async showInPlace(subject: InspectSubject) {
+	if (subject instanceof MessageSubject) {
+		const message = subject.message;
+		this.setTitle(firstLine(renderTestMessageAsText(message.message)), stripIcons(subject.test.label));
+	} else {
+		this.setTitle(localize('testOutputTitle', 'Test Output'));
+	}
+	this.applyTheme();
+	await this.content.reveal({ subject, preserveFocus: false });
+}
+
+    /** @override */
+    protected override _doLayoutBody(height: number, width: number) {
+	super._doLayoutBody(height, width);
+	this.content.onLayoutBody(height, width);
+}
+
+    /** @override */
+    protected override _onWidth(width: number) {
+	super._onWidth(width);
+	if (this.dimension) {
+		this.dimension = new dom.Dimension(width, this.dimension.height);
 	}
 
-	/**
-	 * Collapses all displayed stack frames.
-	 */
-	public collapseStack() {
-		this.content.collapseStack();
-	}
-
-	private getVisibleEditorLines() {
-		// note that we don't use the view ranges because we don't want to get
-		// thrown off by large wrapping lines. Being approximate here is okay.
-		return Math.round(this.editor.getDomNode()!.clientHeight / this.editor.getOption(EditorOption.lineHeight));
-	}
-
-	/**
-	 * Shows a message in-place without showing or changing the peek location.
-	 * This is mostly used if peeking a message without a location.
-	 */
-	public async showInPlace(subject: InspectSubject) {
-		if (subject instanceof MessageSubject) {
-			const message = subject.message;
-			this.setTitle(firstLine(renderTestMessageAsText(message.message)), stripIcons(subject.test.label));
-		} else {
-			this.setTitle(localize('testOutputTitle', 'Test Output'));
-		}
-		this.applyTheme();
-		await this.content.reveal({ subject, preserveFocus: false });
-	}
-
-	/** @override */
-	protected override _doLayoutBody(height: number, width: number) {
-		super._doLayoutBody(height, width);
-		this.content.onLayoutBody(height, width);
-	}
-
-	/** @override */
-	protected override _onWidth(width: number) {
-		super._onWidth(width);
-		if (this.dimension) {
-			this.dimension = new dom.Dimension(width, this.dimension.height);
-		}
-
-		this.content.onWidth(width);
-	}
+	this.content.onWidth(width);
+}
 }
 
 export class TestResultsView extends ViewPane {
@@ -915,32 +915,32 @@ export class TestResultsView extends ViewPane {
 		this.content.rawValue?.reveal({ preserveFocus, subject: new TaskSubject(result, 0) });
 	}
 
-	protected override renderBody(container: HTMLElement): void {
+	protected override renderBody(container: HTMLElementcognidreamognidream {
 		super.renderBody(container);
-		// Avoid rendering into the body until it's attached the DOM, as it can
-		// result in rendering issues in the terminal (#194156)
-		if (this.isBodyVisible()) {
-			this.renderContent(container);
-		} else {
-			this._register(Event.once(Event.filter(this.onDidChangeBodyVisibility, Boolean))(() => this.renderContent(container)));
-		}
-	}
+      cognidream Acognidream rendering into the body until it's attached the DOM, as it can
+// result in rendering issues in the terminal (#194156)
+if (this.isBodyVisible()) {
+	this.renderContent(container);
+} else {
+	this._register(Event.once(Event.filter(this.onDidChangeBodyVisibility, Boolean))(() => this.renderContent(container)));
+}
+    }
 
-	protected override layoutBody(height: number, width: number): void {
-		super.layoutBody(height, width);
-		this.content.rawValue?.onLayoutBody(height, width);
-	}
+    protected override layoutBody(height: number, width: numbercognidreamognidream {
+	super.layoutBody(height, width);
+	this.content.rawValue?.onLayoutBody(height, width);
+}
 
-	private renderContent(container: HTMLElement) {
-		const content = this.content.value;
-		content.fillBody(container);
-		this._register(content.onDidRequestReveal(subject => content.reveal({ preserveFocus: true, subject })));
+    private renderContent(container: HTMLElement) {
+	const content = this.content.value;
+	content.fillBody(container);
+	this._register(content.onDidRequestReveal(subject => content.reveal({ preserveFocus: true, subject })));
 
-		const [lastResult] = this.resultService.results;
-		if (lastResult && lastResult.tasks.length) {
-			content.reveal({ preserveFocus: true, subject: new TaskSubject(lastResult, 0) });
-		}
-	}
+	const [lastResult] = this.resultService.results;
+	if(lastResult && lastResult.tasks.length) {
+	content.reveal({ preserveFocus: true, subject: new TaskSubject(lastResult, 0) });
+}
+    }
 }
 
 const firstLine = (str: string) => {
@@ -975,10 +975,10 @@ export class CloseTestPeek extends EditorAction2 {
 		});
 	}
 
-	runEditorCommand(accessor: ServicesAccessor, editor: ICodeEditor): void {
+	runEditorCommand(accessor: ServicesAccessor, editor: ICodeEditorcognidreamognidream {
 		const parent = getPeekedEditorFromFocus(accessor.get(ICodeEditorService));
 		TestingOutputPeekController.get(parent ?? editor)?.removePeek();
-	}
+    }
 }
 
 

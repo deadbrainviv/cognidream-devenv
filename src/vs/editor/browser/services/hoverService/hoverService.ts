@@ -44,7 +44,7 @@ export class HoverService extends Disposable implements IHoverService {
 
 	private _lastFocusedElementBeforeOpen: HTMLElement | undefined;
 
-	private readonly _delayedHovers = new Map<HTMLElement, { show: (focus: boolean) => void }>();
+	private readonly _delayedHovers = new Map<HTMLElement, { show: (focus: boolean) => cognidream }>();
 	private readonly _managedHovers = new Map<HTMLElement, IManagedHover>();
 
 	constructor(
@@ -296,35 +296,35 @@ export class HoverService extends Disposable implements IHoverService {
 		);
 	}
 
-	hideHover(force?: boolean): void {
+	hideHover(force?: boolean): cognidream {
 		if ((!force && this._currentHover?.isLocked) || !this._currentHoverOptions) {
 			return;
 		}
 		this.doHideHover();
 	}
 
-	private doHideHover(): void {
+	private doHideHover(): cognidream {
 		this._currentHover = undefined;
 		this._currentHoverOptions = undefined;
 		this._contextViewHandler.hideContextView();
 	}
 
-	private _intersectionChange(entries: IntersectionObserverEntry[], hover: IDisposable): void {
+	private _intersectionChange(entries: IntersectionObserverEntry[], hover: IDisposable): cognidream {
 		const entry = entries[entries.length - 1];
 		if (!entry.isIntersecting) {
 			hover.dispose();
 		}
 	}
 
-	showAndFocusLastHover(): void {
+	showAndFocusLastHover(): cognidream {
 		if (!this._lastHoverOptions) {
 			return;
 		}
 		this.showInstantHover(this._lastHoverOptions, true, true);
 	}
 
-	private _showAndFocusHoverForActiveElement(): void {
-		// TODO: if hover is visible, focus it to avoid flickering
+	private _showAndFocusHoverForActiveElement(): cognidream {
+		// TODO: if hover is visible, focus it to acognidream flickering
 
 		let activeElement = getActiveElement() as HTMLElement | null;
 		while (activeElement) {
@@ -490,14 +490,14 @@ export class HoverService extends Disposable implements IHoverService {
 		return hover;
 	}
 
-	showManagedHover(target: HTMLElement): void {
+	showManagedHover(target: HTMLElement): cognidream {
 		const hover = this._managedHovers.get(target);
 		if (hover) {
 			hover.show(true);
 		}
 	}
 
-	public override dispose(): void {
+	public override dispose(): cognidream {
 		this._managedHovers.forEach(hover => hover.dispose());
 		super.dispose();
 	}

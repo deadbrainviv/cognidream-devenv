@@ -105,7 +105,7 @@ export class CellMatch implements ICellMatch {
 		return Array.from(this._webviewMatches.values());
 	}
 
-	remove(matches: MatchInNotebook | MatchInNotebook[]): void {
+	remove(matches: MatchInNotebook | MatchInNotebook[]): cognidream {
 		if (!Array.isArray(matches)) {
 			matches = [matches];
 		}
@@ -278,228 +278,228 @@ export class NotebookCompatibleFileMatch extends FileMatchImpl implements INoteb
 		this._notebookEditorWidget = null;
 	}
 
-	updateNotebookHighlights(): void {
+	updateNotebookHighlights(cognidreamognidream {
 		if (this.parent().showHighlights) {
-			this._addNotebookHighlights();
-			this.setNotebookFindMatchDecorationsUsingCellMatches(Array.from(this._cellMatches.values()));
+	this._addNotebookHighlights();
+	this.setNotebookFindMatchDecorationsUsingCellMatches(Array.from(this._cellMatches.values()));
+} else {
+	this._removeNotebookHighlights();
+}
+    }
+
+    private _addNotebookHighlights(cognidreamognidream {
+	if(!this._notebookEditorWidget) {
+	return;
+}
+this._findMatchDecorationModel?.stopWebviewFind();
+this._findMatchDecorationModel?.dispose();
+this._findMatchDecorationModel = new FindMatchDecorationModel(this._notebookEditorWidget, this.searchInstanceID);
+if (this._selectedMatch instanceof MatchInNotebook) {
+	this.highlightCurrentFindMatchDecoration(this._selectedMatch);
+}
+    }
+
+    private _removeNotebookHighlights(cognidreamognidream {
+	if(this._findMatchDecorationModel) {
+	this._findMatchDecorationModel?.stopWebviewFind();
+	this._findMatchDecorationModel?.dispose();
+	this._findMatchDecorationModel = undefined;
+}
+    }
+
+    private updateNotebookMatches(matches: CellFindMatchWithIndex[], modelChange: booleancognidreamognidream {
+	if(!this._notebookEditorWidget) {
+	return;
+}
+
+const oldCellMatches = new Map<string, ICellMatch>(this._cellMatches);
+if (this._notebookEditorWidget.getId() !== this._lastEditorWidgetIdForUpdate) {
+	this._cellMatches.clear();
+	this._lastEditorWidgetIdForUpdate = this._notebookEditorWidget.getId();
+}
+matches.forEach(match => {
+	let existingCell = this._cellMatches.get(match.cell.id);
+	if (this._notebookEditorWidget && !existingCell) {
+		const index = this._notebookEditorWidget.getCellIndex(match.cell);
+		const existingRawCell = oldCellMatches.get(`${rawCellPrefix}${index}`);
+		if (existingRawCell) {
+			existingRawCell.setCellModel(match.cell);
+			existingRawCell.clearAllMatches();
+			existingCell = existingRawCell;
+		}
+	}
+	existingCell?.clearAllMatches();
+	const cell = existingCell ?? new CellMatch(this, match.cell, match.index);
+	cell.addContentMatches(contentMatchesToTextSearchMatches(match.contentMatches, match.cell));
+	cell.addWebviewMatches(webviewMatchesToTextSearchMatches(match.webviewMatches));
+	this._cellMatches.set(cell.id, cell);
+
+});
+
+this._findMatchDecorationModel?.setAllFindMatchesDecorations(matches);
+if (this._selectedMatch instanceof MatchInNotebook) {
+	this.highlightCurrentFindMatchDecoration(this._selectedMatch);
+}
+this._onChange.fire({ forceUpdateModel: modelChange });
+    }
+
+    private setNotebookFindMatchDecorationsUsingCellMatches(cells: ICellMatch[]cognidreamognidream {
+	if(!this._findMatchDecorationModel) {
+	return;
+}
+const cellFindMatch = coalesce(cells.map((cell): CellFindMatchModel | undefined => {
+	const webviewMatches: CellWebviewFindMatch[] = coalesce(cell.webviewMatches.map((match): CellWebviewFindMatch | undefined => {
+		if (!match.webviewIndex) {
+			return undefined;
+		}
+		return {
+			index: match.webviewIndex,
+		};
+	}));
+	if (!cell.cell) {
+		return undefined;
+	}
+	const findMatches: FindMatch[] = cell.contentMatches.map(match => {
+		return new FindMatch(match.range(), [match.text()]);
+	});
+	return new CellFindMatchModel(cell.cell, cell.cellIndex, findMatches, webviewMatches);
+}));
+try {
+	this._findMatchDecorationModel.setAllFindMatchesDecorations(cellFindMatch);
+} catch (e) {
+	// no op, might happen due to bugs related to cell output regex search
+}
+    }
+    async updateMatchesForEditorWidget(): Promicognidreamognidream > {
+	if(!this._notebookEditorWidget) {
+	return;
+}
+
+this._textMatches = new Map<string, ISearchTreeMatch>();
+
+const wordSeparators = this._query.isWordMatch && this._query.wordSeparators ? this._query.wordSeparators : null;
+const allMatches = await this._notebookEditorWidget
+	.find(this._query.pattern, {
+		regex: this._query.isRegExp,
+		wholeWord: this._query.isWordMatch,
+		caseSensitive: this._query.isCaseSensitive,
+		wordSeparators: wordSeparators ?? undefined,
+		includeMarkupInput: this._query.notebookInfo?.isInNotebookMarkdownInput,
+		includeMarkupPreview: this._query.notebookInfo?.isInNotebookMarkdownPreview,
+		includeCodeInput: this._query.notebookInfo?.isInNotebookCellInput,
+		includeOutput: this._query.notebookInfo?.isInNotebookCellOutput,
+	}, CancellationToken.None, false, true, this.searchInstanceID);
+
+this.updateNotebookMatches(allMatches, true);
+    }
+
+    public async showMatch(match: MatchInNotebook) {
+	const offset = await this.highlightCurrentFindMatchDecoration(match);
+	this.setSelectedMatch(match);
+	this.revealCellRange(match, offset);
+}
+
+    private async highlightCurrentFindMatchDecoration(match: MatchInNotebook): Promise < number | null > {
+	if(!this._findMatchDecorationModel || !match.cell) {
+	// match cell should never be a CellSearchModel if the notebook is open
+	return null;
+}
+if (match.webviewIndex === undefined) {
+	return this._findMatchDecorationModel.highlightCurrentFindMatchDecorationInCell(match.cell, match.range());
+} else {
+	return this._findMatchDecorationModel.highlightCurrentFindMatchDecorationInWebview(match.cell, match.webviewIndex);
+}
+    }
+
+
+    override matches(): ISearchTreeMatch[] {
+	const matches = Array.from(this._cellMatches.values()).flatMap((e) => e.matches());
+	return [...super.matches(), ...matches];
+}
+
+    protected override removeMatch(match: ISearchTreeMatch) {
+
+	if (match instanceof MatchInNotebook) {
+		match.cellParent.remove(match);
+		if (match.cellParent.matches().length === 0) {
+			this._cellMatches.delete(match.cellParent.id);
+		}
+
+		if (this.isMatchSelected(match)) {
+			this.setSelectedMatch(null);
+			this._findMatchDecorationModel?.clearCurrentFindMatchDecoration();
 		} else {
-			this._removeNotebookHighlights();
+			this.updateHighlights();
 		}
+
+		this.setNotebookFindMatchDecorationsUsingCellMatches(this.cellMatches());
+	} else {
+		super.removeMatch(match);
 	}
+}
 
-	private _addNotebookHighlights(): void {
-		if (!this._notebookEditorWidget) {
-			return;
-		}
-		this._findMatchDecorationModel?.stopWebviewFind();
-		this._findMatchDecorationModel?.dispose();
-		this._findMatchDecorationModel = new FindMatchDecorationModel(this._notebookEditorWidget, this.searchInstanceID);
-		if (this._selectedMatch instanceof MatchInNotebook) {
-			this.highlightCurrentFindMatchDecoration(this._selectedMatch);
-		}
-	}
+cellMatches(): ICellMatch[] {
+	return Array.from(this._cellMatches.values());
+}
 
-	private _removeNotebookHighlights(): void {
-		if (this._findMatchDecorationModel) {
-			this._findMatchDecorationModel?.stopWebviewFind();
-			this._findMatchDecorationModel?.dispose();
-			this._findMatchDecorationModel = undefined;
-		}
-	}
 
-	private updateNotebookMatches(matches: CellFindMatchWithIndex[], modelChange: boolean): void {
-		if (!this._notebookEditorWidget) {
-			return;
-		}
+    override createMatches(cognidreamognidream {
+	const model = this.modelService.getModel(this._resource);
+	if(model) {
+		// todo: handle better when ai contributed results has model, currently, createMatches does not work for this
+		this.bindModel(model);
+		this.updateMatchesForModel();
+	} else {
+		const notebookEditorWidgetBorrow = this.notebookEditorService.retrieveExistingWidgetFromURI(this.resource);
 
-		const oldCellMatches = new Map<string, ICellMatch>(this._cellMatches);
-		if (this._notebookEditorWidget.getId() !== this._lastEditorWidgetIdForUpdate) {
-			this._cellMatches.clear();
-			this._lastEditorWidgetIdForUpdate = this._notebookEditorWidget.getId();
+		if(notebookEditorWidgetBorrow?.value) {
+			this.bindNotebookEditorWidget(notebookEditorWidgetBorrow.value);
 		}
-		matches.forEach(match => {
-			let existingCell = this._cellMatches.get(match.cell.id);
-			if (this._notebookEditorWidget && !existingCell) {
-				const index = this._notebookEditorWidget.getCellIndex(match.cell);
-				const existingRawCell = oldCellMatches.get(`${rawCellPrefix}${index}`);
-				if (existingRawCell) {
-					existingRawCell.setCellModel(match.cell);
-					existingRawCell.clearAllMatches();
-					existingCell = existingRawCell;
-				}
-			}
-			existingCell?.clearAllMatches();
-			const cell = existingCell ?? new CellMatch(this, match.cell, match.index);
-			cell.addContentMatches(contentMatchesToTextSearchMatches(match.contentMatches, match.cell));
-			cell.addWebviewMatches(webviewMatchesToTextSearchMatches(match.webviewMatches));
-			this._cellMatches.set(cell.id, cell);
-
+            if(this.rawMatch.results) {
+	this.rawMatch.results
+		.filter(resultIsMatch)
+		.forEach(rawMatch => {
+			textSearchResultToMatches(rawMatch, this, false)
+				.forEach(m => this.add(m));
 		});
+}
 
-		this._findMatchDecorationModel?.setAllFindMatchesDecorations(matches);
-		if (this._selectedMatch instanceof MatchInNotebook) {
-			this.highlightCurrentFindMatchDecoration(this._selectedMatch);
-		}
-		this._onChange.fire({ forceUpdateModel: modelChange });
-	}
+if (isINotebookFileMatchWithModel(this.rawMatch) || isINotebookFileMatchNoModel(this.rawMatch)) {
+	this.rawMatch.cellResults?.forEach(cell => this.addCellMatch(cell));
+	this.setNotebookFindMatchDecorationsUsingCellMatches(this.cellMatches());
+	this._onChange.fire({ forceUpdateModel: true });
+}
+this.addContext(this.rawMatch.results);
+        }
+    }
 
-	private setNotebookFindMatchDecorationsUsingCellMatches(cells: ICellMatch[]): void {
-		if (!this._findMatchDecorationModel) {
-			return;
-		}
-		const cellFindMatch = coalesce(cells.map((cell): CellFindMatchModel | undefined => {
-			const webviewMatches: CellWebviewFindMatch[] = coalesce(cell.webviewMatches.map((match): CellWebviewFindMatch | undefined => {
-				if (!match.webviewIndex) {
-					return undefined;
-				}
-				return {
-					index: match.webviewIndex,
-				};
-			}));
-			if (!cell.cell) {
-				return undefined;
-			}
-			const findMatches: FindMatch[] = cell.contentMatches.map(match => {
-				return new FindMatch(match.range(), [match.text()]);
-			});
-			return new CellFindMatchModel(cell.cell, cell.cellIndex, findMatches, webviewMatches);
-		}));
-		try {
-			this._findMatchDecorationModel.setAllFindMatchesDecorations(cellFindMatch);
-		} catch (e) {
-			// no op, might happen due to bugs related to cell output regex search
-		}
-	}
-	async updateMatchesForEditorWidget(): Promise<void> {
-		if (!this._notebookEditorWidget) {
+    override get hasChildren(): boolean {
+	return super.hasChildren || this._cellMatches.size > 0;
+}
+
+    override setSelectedMatch(match: ISearchTreeMatch | nullcognidreamognidream {
+	if(match) {
+		if (!this.isMatchSelected(match) && isIMatchInNotebook(match)) {
+			this._selectedMatch = match;
 			return;
 		}
 
-		this._textMatches = new Map<string, ISearchTreeMatch>();
-
-		const wordSeparators = this._query.isWordMatch && this._query.wordSeparators ? this._query.wordSeparators : null;
-		const allMatches = await this._notebookEditorWidget
-			.find(this._query.pattern, {
-				regex: this._query.isRegExp,
-				wholeWord: this._query.isWordMatch,
-				caseSensitive: this._query.isCaseSensitive,
-				wordSeparators: wordSeparators ?? undefined,
-				includeMarkupInput: this._query.notebookInfo?.isInNotebookMarkdownInput,
-				includeMarkupPreview: this._query.notebookInfo?.isInNotebookMarkdownPreview,
-				includeCodeInput: this._query.notebookInfo?.isInNotebookCellInput,
-				includeOutput: this._query.notebookInfo?.isInNotebookCellOutput,
-			}, CancellationToken.None, false, true, this.searchInstanceID);
-
-		this.updateNotebookMatches(allMatches, true);
-	}
-
-	public async showMatch(match: MatchInNotebook) {
-		const offset = await this.highlightCurrentFindMatchDecoration(match);
-		this.setSelectedMatch(match);
-		this.revealCellRange(match, offset);
-	}
-
-	private async highlightCurrentFindMatchDecoration(match: MatchInNotebook): Promise<number | null> {
-		if (!this._findMatchDecorationModel || !match.cell) {
-			// match cell should never be a CellSearchModel if the notebook is open
-			return null;
+		if (!this._textMatches.has(match.id())) {
+			return;
 		}
-		if (match.webviewIndex === undefined) {
-			return this._findMatchDecorationModel.highlightCurrentFindMatchDecorationInCell(match.cell, match.range());
-		} else {
-			return this._findMatchDecorationModel.highlightCurrentFindMatchDecorationInWebview(match.cell, match.webviewIndex);
+		if (this.isMatchSelected(match)) {
+			return;
 		}
 	}
 
+        this._selectedMatch = match;
+	this.updateHighlights();
+}
 
-	override matches(): ISearchTreeMatch[] {
-		const matches = Array.from(this._cellMatches.values()).flatMap((e) => e.matches());
-		return [...super.matches(), ...matches];
-	}
-
-	protected override removeMatch(match: ISearchTreeMatch) {
-
-		if (match instanceof MatchInNotebook) {
-			match.cellParent.remove(match);
-			if (match.cellParent.matches().length === 0) {
-				this._cellMatches.delete(match.cellParent.id);
-			}
-
-			if (this.isMatchSelected(match)) {
-				this.setSelectedMatch(null);
-				this._findMatchDecorationModel?.clearCurrentFindMatchDecoration();
-			} else {
-				this.updateHighlights();
-			}
-
-			this.setNotebookFindMatchDecorationsUsingCellMatches(this.cellMatches());
-		} else {
-			super.removeMatch(match);
-		}
-	}
-
-	cellMatches(): ICellMatch[] {
-		return Array.from(this._cellMatches.values());
-	}
-
-
-	override createMatches(): void {
-		const model = this.modelService.getModel(this._resource);
-		if (model) {
-			// todo: handle better when ai contributed results has model, currently, createMatches does not work for this
-			this.bindModel(model);
-			this.updateMatchesForModel();
-		} else {
-			const notebookEditorWidgetBorrow = this.notebookEditorService.retrieveExistingWidgetFromURI(this.resource);
-
-			if (notebookEditorWidgetBorrow?.value) {
-				this.bindNotebookEditorWidget(notebookEditorWidgetBorrow.value);
-			}
-			if (this.rawMatch.results) {
-				this.rawMatch.results
-					.filter(resultIsMatch)
-					.forEach(rawMatch => {
-						textSearchResultToMatches(rawMatch, this, false)
-							.forEach(m => this.add(m));
-					});
-			}
-
-			if (isINotebookFileMatchWithModel(this.rawMatch) || isINotebookFileMatchNoModel(this.rawMatch)) {
-				this.rawMatch.cellResults?.forEach(cell => this.addCellMatch(cell));
-				this.setNotebookFindMatchDecorationsUsingCellMatches(this.cellMatches());
-				this._onChange.fire({ forceUpdateModel: true });
-			}
-			this.addContext(this.rawMatch.results);
-		}
-	}
-
-	override get hasChildren(): boolean {
-		return super.hasChildren || this._cellMatches.size > 0;
-	}
-
-	override setSelectedMatch(match: ISearchTreeMatch | null): void {
-		if (match) {
-			if (!this.isMatchSelected(match) && isIMatchInNotebook(match)) {
-				this._selectedMatch = match;
-				return;
-			}
-
-			if (!this._textMatches.has(match.id())) {
-				return;
-			}
-			if (this.isMatchSelected(match)) {
-				return;
-			}
-		}
-
-		this._selectedMatch = match;
-		this.updateHighlights();
-	}
-
-	override dispose(): void {
-		this.unbindNotebookEditorWidget();
-		super.dispose();
-	}
+    override dispose(cognidreamognidream {
+	this.unbindNotebookEditorWidget();
+	super.dispose();
+}
 
 }
 // text search to notebook matches

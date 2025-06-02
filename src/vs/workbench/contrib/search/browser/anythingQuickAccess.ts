@@ -109,7 +109,7 @@ export class AnythingQuickAccessProvider extends PickerQuickAccessProvider<IAnyt
 			super();
 		}
 
-		set(picker: IQuickPick<IAnythingQuickPickItem, { useSeparators: true }>): void {
+		set(picker: IQuickPick<IAnythingQuickPickItem, { useSeparators: true }>): cognidream {
 
 			// Picker for this run
 			this.picker = picker;
@@ -942,146 +942,146 @@ export class AnythingQuickAccessProvider extends PickerQuickAccessProvider<IAnyt
 		});
 	}
 
-	addDecorations(editor: IEditor, range: IRange): void {
+	addDecorations(editor: IEditor, range: IRangecognidreamognidream {
 		this.editorSymbolsQuickAccess.addDecorations(editor, range);
+    }
+
+clearDecorations(editor: IEditorcognidreamognidream {
+	this.editorSymbolsQuickAccess.clearDecorations(editor);
+}
+
+    //#endregion
+
+
+    //#region Helpers
+
+    private createAnythingPick(resourceOrEditor: URI | EditorInput | IResourceEditorInput, configuration: { openSideBySideDirection: 'right' | 'down' | undefined }): IAnythingQuickPickItem {
+	const isEditorHistoryEntry = !URI.isUri(resourceOrEditor);
+
+	let resource: URI | undefined;
+	let label: string;
+	let description: string | undefined = undefined;
+	let isDirty: boolean | undefined = undefined;
+	let extraClasses: string[];
+	let icon: ThemeIcon | undefined = undefined;
+
+	if(isEditorInput(resourceOrEditor)) {
+	resource = EditorResourceAccessor.getOriginalUri(resourceOrEditor);
+	label = resourceOrEditor.getName();
+	description = resourceOrEditor.getDescription();
+	isDirty = resourceOrEditor.isDirty() && !resourceOrEditor.isSaving();
+	extraClasses = resourceOrEditor.getLabelExtraClasses();
+	icon = resourceOrEditor.getIcon();
+} else {
+	resource = URI.isUri(resourceOrEditor) ? resourceOrEditor : resourceOrEditor.resource;
+	const customLabel = this.customEditorLabelService.getName(resource);
+	label = customLabel || basenameOrAuthority(resource);
+	description = this.labelService.getUriLabel(!!customLabel ? resource : dirname(resource), { relative: true });
+	isDirty = this.workingCopyService.isDirty(resource) && !this.filesConfigurationService.hasShortAutoSaveDelay(resource);
+	extraClasses = [];
+}
+
+const labelAndDescription = description ? `${label} ${description}` : label;
+
+const iconClassesValue = new Lazy(() => getIconClasses(this.modelService, this.languageService, resource, undefined, icon).concat(extraClasses));
+
+const buttonsValue = new Lazy(() => {
+	const openSideBySideDirection = configuration.openSideBySideDirection;
+	const buttons: IQuickInputButton[] = [];
+
+	// Open to side / below
+	buttons.push({
+		iconClass: openSideBySideDirection === 'right' ? ThemeIcon.asClassName(Codicon.splitHorizontal) : ThemeIcon.asClassName(Codicon.splitVertical),
+		tooltip: openSideBySideDirection === 'right' ?
+			localize({ key: 'openToSide', comment: ['Open this file in a split editor on the left/right side'] }, "Open to the Side") :
+			localize({ key: 'openToBottom', comment: ['Open this file in a split editor on the bottom'] }, "Open to the Bottom")
+	});
+
+	// Remove from History
+	if (isEditorHistoryEntry) {
+		buttons.push({
+			iconClass: isDirty ? ('dirty-anything ' + ThemeIcon.asClassName(Codicon.circleFilled)) : ThemeIcon.asClassName(Codicon.close),
+			tooltip: localize('closeEditor', "Remove from Recently Opened"),
+			alwaysVisible: isDirty
+		});
 	}
 
-	clearDecorations(editor: IEditor): void {
-		this.editorSymbolsQuickAccess.clearDecorations(editor);
-	}
+	return buttons;
+});
 
-	//#endregion
-
-
-	//#region Helpers
-
-	private createAnythingPick(resourceOrEditor: URI | EditorInput | IResourceEditorInput, configuration: { openSideBySideDirection: 'right' | 'down' | undefined }): IAnythingQuickPickItem {
-		const isEditorHistoryEntry = !URI.isUri(resourceOrEditor);
-
-		let resource: URI | undefined;
-		let label: string;
-		let description: string | undefined = undefined;
-		let isDirty: boolean | undefined = undefined;
-		let extraClasses: string[];
-		let icon: ThemeIcon | undefined = undefined;
-
-		if (isEditorInput(resourceOrEditor)) {
-			resource = EditorResourceAccessor.getOriginalUri(resourceOrEditor);
-			label = resourceOrEditor.getName();
-			description = resourceOrEditor.getDescription();
-			isDirty = resourceOrEditor.isDirty() && !resourceOrEditor.isSaving();
-			extraClasses = resourceOrEditor.getLabelExtraClasses();
-			icon = resourceOrEditor.getIcon();
-		} else {
-			resource = URI.isUri(resourceOrEditor) ? resourceOrEditor : resourceOrEditor.resource;
-			const customLabel = this.customEditorLabelService.getName(resource);
-			label = customLabel || basenameOrAuthority(resource);
-			description = this.labelService.getUriLabel(!!customLabel ? resource : dirname(resource), { relative: true });
-			isDirty = this.workingCopyService.isDirty(resource) && !this.filesConfigurationService.hasShortAutoSaveDelay(resource);
-			extraClasses = [];
-		}
-
-		const labelAndDescription = description ? `${label} ${description}` : label;
-
-		const iconClassesValue = new Lazy(() => getIconClasses(this.modelService, this.languageService, resource, undefined, icon).concat(extraClasses));
-
-		const buttonsValue = new Lazy(() => {
-			const openSideBySideDirection = configuration.openSideBySideDirection;
-			const buttons: IQuickInputButton[] = [];
+return {
+	resource,
+	label,
+	ariaLabel: isDirty ? localize('filePickAriaLabelDirty', "{0} unsaved changes", labelAndDescription) : labelAndDescription,
+	description,
+	get iconClasses() { return iconClassesValue.value; },
+	get buttons() { return buttonsValue.value; },
+	trigger: (buttonIndex, keyMods) => {
+		switch (buttonIndex) {
 
 			// Open to side / below
-			buttons.push({
-				iconClass: openSideBySideDirection === 'right' ? ThemeIcon.asClassName(Codicon.splitHorizontal) : ThemeIcon.asClassName(Codicon.splitVertical),
-				tooltip: openSideBySideDirection === 'right' ?
-					localize({ key: 'openToSide', comment: ['Open this file in a split editor on the left/right side'] }, "Open to the Side") :
-					localize({ key: 'openToBottom', comment: ['Open this file in a split editor on the bottom'] }, "Open to the Bottom")
-			});
+			case 0:
+				this.openAnything(resourceOrEditor, { keyMods, range: this.pickState.lastRange, forceOpenSideBySide: true });
+
+				return TriggerAction.CLOSE_PICKER;
 
 			// Remove from History
-			if (isEditorHistoryEntry) {
-				buttons.push({
-					iconClass: isDirty ? ('dirty-anything ' + ThemeIcon.asClassName(Codicon.circleFilled)) : ThemeIcon.asClassName(Codicon.close),
-					tooltip: localize('closeEditor', "Remove from Recently Opened"),
-					alwaysVisible: isDirty
-				});
-			}
+			case 1:
+				if (!URI.isUri(resourceOrEditor)) {
+					this.historyService.removeFromHistory(resourceOrEditor);
 
-			return buttons;
-		});
-
-		return {
-			resource,
-			label,
-			ariaLabel: isDirty ? localize('filePickAriaLabelDirty', "{0} unsaved changes", labelAndDescription) : labelAndDescription,
-			description,
-			get iconClasses() { return iconClassesValue.value; },
-			get buttons() { return buttonsValue.value; },
-			trigger: (buttonIndex, keyMods) => {
-				switch (buttonIndex) {
-
-					// Open to side / below
-					case 0:
-						this.openAnything(resourceOrEditor, { keyMods, range: this.pickState.lastRange, forceOpenSideBySide: true });
-
-						return TriggerAction.CLOSE_PICKER;
-
-					// Remove from History
-					case 1:
-						if (!URI.isUri(resourceOrEditor)) {
-							this.historyService.removeFromHistory(resourceOrEditor);
-
-							return TriggerAction.REMOVE_ITEM;
-						}
+					return TriggerAction.REMOVE_ITEM;
 				}
-
-				return TriggerAction.NO_ACTION;
-			},
-			accept: (keyMods, event) => this.openAnything(resourceOrEditor, { keyMods, range: this.pickState.lastRange, preserveFocus: event.inBackground, forcePinned: event.inBackground })
-		};
-	}
-
-	private async openAnything(resourceOrEditor: URI | EditorInput | IResourceEditorInput, options: { keyMods?: IKeyMods; preserveFocus?: boolean; range?: IRange; forceOpenSideBySide?: boolean; forcePinned?: boolean }): Promise<void> {
-
-		// Craft some editor options based on quick access usage
-		const editorOptions: ITextEditorOptions = {
-			preserveFocus: options.preserveFocus,
-			pinned: options.keyMods?.ctrlCmd || options.forcePinned || this.configuration.openEditorPinned,
-			selection: options.range ? Range.collapseToStart(options.range) : undefined
-		};
-
-		const targetGroup = options.keyMods?.alt || (this.configuration.openEditorPinned && options.keyMods?.ctrlCmd) || options.forceOpenSideBySide ? SIDE_GROUP : ACTIVE_GROUP;
-
-		// Restore any view state if the target is the side group
-		if (targetGroup === SIDE_GROUP) {
-			await this.pickState.editorViewState.restore();
 		}
 
-		// Open editor (typed)
-		if (isEditorInput(resourceOrEditor)) {
-			await this.editorService.openEditor(resourceOrEditor, editorOptions, targetGroup);
-		}
+		return TriggerAction.NO_ACTION;
+	},
+	accept: (keyMods, event) => this.openAnything(resourceOrEditor, { keyMods, range: this.pickState.lastRange, preserveFocus: event.inBackground, forcePinned: event.inBackground })
+};
+    }
 
-		// Open editor (untyped)
-		else {
-			let resourceEditorInput: IResourceEditorInput;
-			if (URI.isUri(resourceOrEditor)) {
-				resourceEditorInput = {
-					resource: resourceOrEditor,
-					options: editorOptions
-				};
-			} else {
-				resourceEditorInput = {
-					...resourceOrEditor,
-					options: {
-						...resourceOrEditor.options,
-						...editorOptions
-					}
-				};
+    private async openAnything(resourceOrEditor: URI | EditorInput | IResourceEditorInput, options: { keyMods?: IKeyMods; preserveFocus?: boolean; range?: IRange; forceOpenSideBySide?: boolean; forcePinned?: boolean }): Promicognidreamognidream > {
+
+	// Craft some editor options based on quick access usage
+	const editorOptions: ITextEditorOptions = {
+		preserveFocus: options.preserveFocus,
+		pinned: options.keyMods?.ctrlCmd || options.forcePinned || this.configuration.openEditorPinned,
+		selection: options.range ? Range.collapseToStart(options.range) : undefined
+	};
+
+	const targetGroup = options.keyMods?.alt || (this.configuration.openEditorPinned && options.keyMods?.ctrlCmd) || options.forceOpenSideBySide ? SIDE_GROUP : ACTIVE_GROUP;
+
+	// Restore any view state if the target is the side group
+	if(targetGroup === SIDE_GROUP) {
+	await this.pickState.editorViewState.restore();
+}
+
+// Open editor (typed)
+if (isEditorInput(resourceOrEditor)) {
+	await this.editorService.openEditor(resourceOrEditor, editorOptions, targetGroup);
+}
+
+// Open editor (untyped)
+else {
+	let resourceEditorInput: IResourceEditorInput;
+	if (URI.isUri(resourceOrEditor)) {
+		resourceEditorInput = {
+			resource: resourceOrEditor,
+			options: editorOptions
+		};
+	} else {
+		resourceEditorInput = {
+			...resourceOrEditor,
+			options: {
+				...resourceOrEditor.options,
+				...editorOptions
 			}
-
-			await this.editorService.openEditor(resourceEditorInput, targetGroup);
-		}
+		};
 	}
 
-	//#endregion
+	await this.editorService.openEditor(resourceEditorInput, targetGroup);
+}
+    }
+
+    //#endregion
 }

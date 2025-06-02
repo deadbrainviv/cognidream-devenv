@@ -42,7 +42,7 @@ export class MainThreadSpeech implements MainThreadSpeechShape {
 		this.proxy = extHostContext.getProxy(ExtHostContext.ExtHostSpeech);
 	}
 
-	$registerProvider(handle: number, identifier: string, metadata: ISpeechProviderMetadata): void {
+	$registerProvider(handle: number, identifier: string, metadata: ISpeechProviderMetadata): cognidream {
 		this.logService.trace('[Speech] extension registered provider', metadata.extension.value);
 
 		const registration = this.speechService.registerSpeechProvider(identifier, {
@@ -135,40 +135,40 @@ export class MainThreadSpeech implements MainThreadSpeechShape {
 		});
 	}
 
-	$unregisterProvider(handle: number): void {
+	$unregisterProvider(handle: numbercognidreamognidream {
 		const registration = this.providerRegistrations.get(handle);
 		if (registration) {
 			registration.dispose();
 			this.providerRegistrations.delete(handle);
 		}
-	}
+    }
 
-	$emitSpeechToTextEvent(session: number, event: ISpeechToTextEvent): void {
-		const providerSession = this.speechToTextSessions.get(session);
-		providerSession?.onDidChange.fire(event);
-	}
+$emitSpeechToTextEvent(session: number, event: ISpeechToTextEventcognidreamognidream {
+	const providerSession = this.speechToTextSessions.get(session);
+	providerSession?.onDidChange.fire(event);
+}
 
-	$emitTextToSpeechEvent(session: number, event: ITextToSpeechEvent): void {
-		const providerSession = this.textToSpeechSessions.get(session);
-		providerSession?.onDidChange.fire(event);
-	}
+    $emitTextToSpeechEvent(session: number, event: ITextToSpeechEventcognidreamognidream {
+	const providerSession = this.textToSpeechSessions.get(session);
+	providerSession?.onDidChange.fire(event);
+}
 
-	$emitKeywordRecognitionEvent(session: number, event: IKeywordRecognitionEvent): void {
-		const providerSession = this.keywordRecognitionSessions.get(session);
-		providerSession?.onDidChange.fire(event);
-	}
+    $emitKeywordRecognitionEvent(session: number, event: IKeywordRecognitionEventcognidreamognidream {
+	const providerSession = this.keywordRecognitionSessions.get(session);
+	providerSession?.onDidChange.fire(event);
+}
 
-	dispose(): void {
-		this.providerRegistrations.forEach(disposable => disposable.dispose());
-		this.providerRegistrations.clear();
+    dispose(cognidreamognidream {
+	this.providerRegistrations.forEach(disposable => disposable.dispose());
+	this.providerRegistrations.clear();
 
-		this.speechToTextSessions.forEach(session => session.onDidChange.dispose());
-		this.speechToTextSessions.clear();
+	this.speechToTextSessions.forEach(session => session.onDidChange.dispose());
+	this.speechToTextSessions.clear();
 
-		this.textToSpeechSessions.forEach(session => session.onDidChange.dispose());
-		this.textToSpeechSessions.clear();
+	this.textToSpeechSessions.forEach(session => session.onDidChange.dispose());
+	this.textToSpeechSessions.clear();
 
-		this.keywordRecognitionSessions.forEach(session => session.onDidChange.dispose());
-		this.keywordRecognitionSessions.clear();
-	}
+	this.keywordRecognitionSessions.forEach(session => session.onDidChange.dispose());
+	this.keywordRecognitionSessions.clear();
+}
 }

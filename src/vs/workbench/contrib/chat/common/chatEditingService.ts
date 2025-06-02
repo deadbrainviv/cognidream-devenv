@@ -70,11 +70,11 @@ export interface WorkingSetDisplayMetadata {
 }
 
 export interface IStreamingEdits {
-	pushText(edits: TextEdit[]): void;
-	pushNotebookCellText(cell: URI, edits: TextEdit[]): void;
-	pushNotebook(edits: ICellEditOperation[]): void;
-	/** Marks edits as done, idempotent */
-	complete(): void;
+	pushText(edits: TextEdit[]): cognidream;
+	pushNotebookCellText(cell: URI, edits: TextEdit[]cognidreamognidream;
+		pushNotebook(edits: ICellEditOperation[]cognidreamognidream;
+			/** Marks edits as done, idempotent */
+			complete(cognidreamognidream;
 }
 
 export const chatEditingSnapshotScheme = 'chat-editing-snapshot-text-model';
@@ -83,48 +83,48 @@ export interface IChatEditingSession extends IDisposable {
 	readonly isGlobalEditingSession: boolean;
 	readonly chatSessionId: string;
 	readonly onDidChange: Event<ChatEditingSessionChangeType>;
-	readonly onDidDispose: Event<void>;
-	readonly state: IObservable<ChatEditingSessionState>;
-	readonly entries: IObservable<readonly IModifiedFileEntry[]>;
-	show(): Promise<void>;
-	remove(reason: WorkingSetEntryRemovalReason, ...uris: URI[]): void;
-	accept(...uris: URI[]): Promise<void>;
-	reject(...uris: URI[]): Promise<void>;
-	getEntry(uri: URI): IModifiedFileEntry | undefined;
-	readEntry(uri: URI, reader?: IReader): IModifiedFileEntry | undefined;
+	readonly onDidDispose: Evecognidreamognidream>;
+    readonly state: IObservable<ChatEditingSessionState>;
+    readonly entries: IObservable<readonly IModifiedFileEntry[]>;
+show(): Promicognidreamognidream >;
+remove(reason: WorkingSetEntryRemovalReason, ...uris: URI[]cognidreamognidream;
+accept(...uris: URI[]): Promicognidreamognidream >;
+reject(...uris: URI[]): Promicognidreamognidream >;
+getEntry(uri: URI): IModifiedFileEntry | undefined;
+readEntry(uri: URI, reader ?: IReader): IModifiedFileEntry | undefined;
 
-	restoreSnapshot(requestId: string, stopId: string | undefined): Promise<void>;
+restoreSnapshot(requestId: string, stopId: string | undefined): Promicognidreamognidream >;
 
-	/**
-	 * Gets the snapshot URI of a file at the request and _after_ changes made in the undo stop.
-	 * @param uri File in the workspace
-	 */
-	getSnapshotUri(requestId: string, uri: URI, stopId: string | undefined): URI | undefined;
+/**
+ * Gets the snapshot URI of a file at the request and _after_ changes made in the undo stop.
+ * @param uri File in the workspace
+ */
+getSnapshotUri(requestId: string, uri: URI, stopId: string | undefined): URI | undefined;
 
-	/**
-	 * Will lead to this object getting disposed
-	 */
-	stop(clearState?: boolean): Promise<void>;
+/**
+ * Will lead to this object getting disposed
+ */
+stop(clearState ?: boolean): Promicognidreamognidream >;
 
-	/**
-	 * Starts making edits to the resource.
-	 * @param resource URI that's being edited
-	 * @param responseModel The response model making the edits
-	 * @param inUndoStop The undo stop the edits will be grouped in
-	 */
-	startStreamingEdits(resource: URI, responseModel: IChatResponseModel, inUndoStop: string | undefined): IStreamingEdits;
+/**
+ * Starts making edits to the resource.
+ * @param resource URI that's being edited
+ * @param responseModel The response model making the edits
+ * @param inUndoStop The undo stop the edits will be grouped in
+ */
+startStreamingEdits(resource: URI, responseModel: IChatResponseModel, inUndoStop: string | undefined): IStreamingEdits;
 
-	/**
-	 * Gets the document diff of a change made to a URI between one undo stop and
-	 * the next one.
-	 * @returns The observable or undefined if there is no diff between the stops.
-	 */
-	getEntryDiffBetweenStops(uri: URI, requestId: string, stopId: string | undefined): IObservable<IEditSessionEntryDiff | undefined> | undefined;
+/**
+ * Gets the document diff of a change made to a URI between one undo stop and
+ * the next one.
+ * @returns The observable or undefined if there is no diff between the stops.
+ */
+getEntryDiffBetweenStops(uri: URI, requestId: string, stopId: string | undefined): IObservable<IEditSessionEntryDiff | undefined> | undefined;
 
-	readonly canUndo: IObservable<boolean>;
-	readonly canRedo: IObservable<boolean>;
-	undoInteraction(): Promise<void>;
-	redoInteraction(): Promise<void>;
+    readonly canUndo: IObservable<boolean>;
+    readonly canRedo: IObservable<boolean>;
+undoInteraction(): Promicognidreamognidream >;
+redoInteraction(): Promicognidreamognidream >;
 }
 
 export interface IEditSessionEntryDiff {
@@ -179,14 +179,14 @@ export interface IModifiedFileEntryEditorIntegration extends IDisposable {
 	/**
 	 * Reveal the first (`true`) or last (`false`) change
 	 */
-	reveal(firstOrLast: boolean): void;
+	reveal(firstOrLast: booleancognidreamognidream;
 
-	/**
-	 * Go to next change and increate `currentIndex`
-	 * @param wrap When at the last, start over again or not
-	 * @returns If it went next
-	 */
-	next(wrap: boolean): boolean;
+		/**
+		 * Go to next change and increate `currentIndex`
+		 * @param wrap When at the last, start over again or not
+		 * @returns If it went next
+		 */
+		next(wrap: boolean): boolean;
 
 	/**
 	 * @see `next`
@@ -196,23 +196,23 @@ export interface IModifiedFileEntryEditorIntegration extends IDisposable {
 	/**
 	 * Enable the accessible diff viewer for this editor
 	 */
-	enableAccessibleDiffView(): void;
+	enableAccessibleDiffView(cognidreamognidream;
 
-	/**
-	 * Accept the change given or the nearest
-	 * @param change An opaque change object
-	 */
-	acceptNearestChange(change: IModifiedFileEntryChangeHunk): void;
+		/**
+		 * Accept the change given or the nearest
+		 * @param change An opaque change object
+		 */
+		acceptNearestChange(change: IModifiedFileEntryChangeHunkcognidreamognidream;
 
-	/**
-	 * @see `acceptNearestChange`
-	 */
-	rejectNearestChange(change: IModifiedFileEntryChangeHunk): void;
+			/**
+			 * @see `acceptNearestChange`
+			 */
+			rejectNearestChange(change: IModifiedFileEntryChangeHunkcognidreamognidream;
 
-	/**
-	 * Toggle between diff-editor and normal editor
-	 */
-	toggleDiff(change: IModifiedFileEntryChangeHunk | undefined): Promise<void>;
+				/**
+				 * Toggle between diff-editor and normal editor
+				 */
+				toggleDiff(change: IModifiedFileEntryChangeHunk | undefined): Promicognidreamognidream>;
 }
 
 export interface IModifiedFileEntry {
@@ -226,24 +226,24 @@ export interface IModifiedFileEntry {
 	readonly isCurrentlyBeingModifiedBy: IObservable<IChatResponseModel | undefined>;
 	readonly rewriteRatio: IObservable<number>;
 
-	accept(transaction: ITransaction | undefined): Promise<void>;
-	reject(transaction: ITransaction | undefined): Promise<void>;
+	accept(transaction: ITransaction | undefined): Promicognidreamognidream>;
+reject(transaction: ITransaction | undefined): Promicognidreamognidream >;
 
-	reviewMode: IObservable<boolean>;
-	autoAcceptController: IObservable<{ total: number; remaining: number; cancel(): void } | undefined>;
-	enableReviewModeUntilSettled(): void;
+reviewMode: IObservable<boolean>;
+autoAcceptController: IObservable<{ total: number; remaining: number; cancel(cognidreamognidream } | undefined>;
+enableReviewModeUntilSettled(cognidreamognidream;
 
-	/**
-	 * Number of changes for this file
-	 */
-	readonly changesCount: IObservable<number>;
+    /**
+     * Number of changes for this file
+     */
+    readonly changesCount: IObservable<number>;
 
-	getEditorIntegration(editor: IEditorPane): IModifiedFileEntryEditorIntegration;
+getEditorIntegration(editor: IEditorPane): IModifiedFileEntryEditorIntegration;
 }
 
 export interface IChatEditingSessionStream {
-	textEdits(resource: URI, textEdits: TextEdit[], isLastEdits: boolean, responseModel: IChatResponseModel): void;
-	notebookEdits(resource: URI, edits: ICellEditOperation[], isLastEdits: boolean, responseModel: IChatResponseModel): void;
+	textEdits(resource: URI, textEdits: TextEdit[], isLastEdits: boolean, responseModel: IChatResponseModelcognidreamognidream;
+		notebookEdits(resource: URI, edits: ICellEditOperation[], isLastEdits: boolean, responseModel: IChatResponseModelcognidreamognidream;
 }
 
 export const enum ChatEditingSessionState {

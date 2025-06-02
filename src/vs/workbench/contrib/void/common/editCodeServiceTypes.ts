@@ -52,11 +52,11 @@ export type CtrlKZone = {
 	// _ means anything we don't include if we clone it
 	_mountInfo: null | {
 		textAreaRef: { current: HTMLTextAreaElement | null }
-		dispose: () => void;
-		refresh: () => void;
-	}
-	_linkedStreamingDiffZone: number | null; // diffareaid of the diffZone currently streaming here
-	_removeStylesFns: Set<Function> // these don't remove diffs or this diffArea, only their styles
+		dispose: () => cognidream;
+		refresh: cognidream> cognidream;
+    }
+_linkedStreamingDiffZone: number | null; // diffareaid of the diffZone currently streaming here
+_removeStylesFns: Set<Function> // these don't remove diffs or this diffArea, only their styles
 } & CommonZoneProps
 
 
@@ -112,7 +112,7 @@ export const diffAreaSnapshotKeys = [
 
 export type DiffAreaSnapshotEntry<DiffAreaType extends DiffArea = DiffArea> = Pick<DiffAreaType, typeof diffAreaSnapshotKeys[number]>
 
-export type VoidFileSnapshot = {
+export type cognidreamidreamFileSnapshot = {
 	snapshottedDiffAreaOfId: Record<string, DiffAreaSnapshotEntry>;
 	entireFileCode: string;
 }

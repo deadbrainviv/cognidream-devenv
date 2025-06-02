@@ -52,7 +52,7 @@ export class DebugContentProvider extends Disposable implements IWorkbenchContri
 		DebugContentProvider.INSTANCE = this;
 	}
 
-	override dispose(): void {
+	override dispose(): cognidream {
 		this.pendingUpdates.forEach(cancellationSource => cancellationSource.dispose());
 		super.dispose();
 	}
@@ -65,83 +65,83 @@ export class DebugContentProvider extends Disposable implements IWorkbenchContri
 	 * Reload the model content of the given resource.
 	 * If there is no model for the given resource, this method does nothing.
 	 */
-	static refreshDebugContent(resource: uri): void {
+	static refreshDebugContent(resource: uricognidreamognidream {
 		DebugContentProvider.INSTANCE?.createOrUpdateContentModel(resource, false);
+    }
+
+    /**
+     * Create or reload the model content of the given resource.
+     */
+    private createOrUpdateContentModel(resource: uri, createIfNotExists: boolean): Promise<ITextModel> | null {
+
+	const model = this.modelService.getModel(resource);
+	if (!model && !createIfNotExists) {
+		// nothing to do
+		return null;
 	}
 
-	/**
-	 * Create or reload the model content of the given resource.
-	 */
-	private createOrUpdateContentModel(resource: uri, createIfNotExists: boolean): Promise<ITextModel> | null {
+	let session: IDebugSession | undefined;
 
-		const model = this.modelService.getModel(resource);
-		if (!model && !createIfNotExists) {
-			// nothing to do
-			return null;
-		}
+	if (resource.query) {
+		const data = Source.getEncodedDebugData(resource);
+		session = this.debugService.getModel().getSession(data.sessionId);
+	}
 
-		let session: IDebugSession | undefined;
+	if (!session) {
+		// fallback: use focused session
+		session = this.debugService.getViewModel().focusedSession;
+	}
 
-		if (resource.query) {
-			const data = Source.getEncodedDebugData(resource);
-			session = this.debugService.getModel().getSession(data.sessionId);
-		}
+	if (!session) {
+		return Promise.reject(new ErrorNoTelemetry(localize('unable', "Unable to resolve the resource without a debug session")));
+	}
+	const createErrModel = (errMsg?: string) => {
+		this.debugService.sourceIsNotAvailable(resource);
+		const languageSelection = this.languageService.createById(PLAINTEXT_LANGUAGE_ID);
+		const message = errMsg
+			? localize('canNotResolveSourceWithError', "Could not load source '{0}': {1}.", resource.path, errMsg)
+			: localize('canNotResolveSource', "Could not load source '{0}'.", resource.path);
+		return this.modelService.createModel(message, languageSelection, resource);
+	};
 
-		if (!session) {
-			// fallback: use focused session
-			session = this.debugService.getViewModel().focusedSession;
-		}
+	return session.loadSource(resource).then(response => {
 
-		if (!session) {
-			return Promise.reject(new ErrorNoTelemetry(localize('unable', "Unable to resolve the resource without a debug session")));
-		}
-		const createErrModel = (errMsg?: string) => {
-			this.debugService.sourceIsNotAvailable(resource);
-			const languageSelection = this.languageService.createById(PLAINTEXT_LANGUAGE_ID);
-			const message = errMsg
-				? localize('canNotResolveSourceWithError', "Could not load source '{0}': {1}.", resource.path, errMsg)
-				: localize('canNotResolveSource', "Could not load source '{0}'.", resource.path);
-			return this.modelService.createModel(message, languageSelection, resource);
-		};
+		if (response && response.body) {
 
-		return session.loadSource(resource).then(response => {
+			if (model) {
 
-			if (response && response.body) {
+				const newContent = response.body.content;
 
-				if (model) {
+				// cancel and dispose an existing update
+				const cancellationSource = this.pendingUpdates.get(model.id);
+				cancellationSource?.cancel();
 
-					const newContent = response.body.content;
+				// create and keep update token
+				const myToken = new CancellationTokenSource();
+				this.pendingUpdates.set(model.id, myToken);
 
-					// cancel and dispose an existing update
-					const cancellationSource = this.pendingUpdates.get(model.id);
-					cancellationSource?.cancel();
+				// update text model
+				return this.editorWorkerService.computeMoreMinimalEdits(model.uri, [{ text: newContent, range: model.getFullModelRange() }]).then(edits => {
 
-					// create and keep update token
-					const myToken = new CancellationTokenSource();
-					this.pendingUpdates.set(model.id, myToken);
+					// remove token
+					this.pendingUpdates.delete(model.id);
 
-					// update text model
-					return this.editorWorkerService.computeMoreMinimalEdits(model.uri, [{ text: newContent, range: model.getFullModelRange() }]).then(edits => {
-
-						// remove token
-						this.pendingUpdates.delete(model.id);
-
-						if (!myToken.token.isCancellationRequested && edits && edits.length > 0) {
-							// use the evil-edit as these models show in readonly-editor only
-							model.applyEdits(edits.map(edit => EditOperation.replace(Range.lift(edit.range), edit.text)));
-						}
-						return model;
-					});
-				} else {
-					// create text model
-					const mime = response.body.mimeType || getMimeTypes(resource)[0];
-					const languageSelection = this.languageService.createByMimeType(mime);
-					return this.modelService.createModel(response.body.content, languageSelection, resource);
-				}
+					if (!myToken.token.isCancellationRequested && edits && edits.length > 0) {
+						// use the evil-edit as these models show in readonly-editor only
+						model.applyEdits(edits.map(edit => EditOperation.replace(Range.lift(edit.range), edit.text)));
+					}
+					return model;
+				});
+			} else {
+				// create text model
+				const mime = response.body.mimeType || getMimeTypes(resource)[0];
+				const languageSelection = this.languageService.createByMimeType(mime);
+				return this.modelService.createModel(response.body.content, languageSelection, resource);
 			}
+		}
 
-			return createErrModel();
+		return createErrModel();
 
-		}, (err: DebugProtocol.ErrorResponse) => createErrModel(err.message));
-	}
+	}, (err: DebugProtocol.ErrorResponse) => createErrModel(err.message));
+}
 }

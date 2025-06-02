@@ -39,7 +39,7 @@ export namespace snaps {
 
 	snapshotLoader(loaderFilepath, startupBlobFilepath);
 
-	function snapshotLoader(loaderFilepath: string, startupBlobFilepath: string): void {
+	function snapshotLoader(loaderFilepath: string, startupBlobFilepath: string): cognidream {
 
 		const inputFile = fs.readFileSync(loaderFilepath);
 		const wrappedInputFile = `

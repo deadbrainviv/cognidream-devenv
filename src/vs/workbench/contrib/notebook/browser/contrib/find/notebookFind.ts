@@ -42,7 +42,7 @@ registerAction2(class extends Action2 {
 		});
 	}
 
-	async run(accessor: ServicesAccessor): Promise<void> {
+	async run(accessor: ServicesAccessor): Promise<cognidream> {
 		const editorService = accessor.get(IEditorService);
 		const editor = getNotebookEditorFromEditorPane(editorService.activeEditorPane);
 
@@ -69,17 +69,17 @@ registerAction2(class extends NotebookMultiCellAction {
 		});
 	}
 
-	async runWithContext(accessor: ServicesAccessor, context: INotebookCommandContext): Promise<void> {
-		const editorService = accessor.get(IEditorService);
-		const editor = getNotebookEditorFromEditorPane(editorService.activeEditorPane);
+	async runWithContext(accessor: ServicesAccessor, context: INotebookCommandContext): Promicognidreamognidream> {
+	const editorService = accessor.get(IEditorService);
+	const editor = getNotebookEditorFromEditorPane(editorService.activeEditorPane);
 
-		if (!editor) {
-			return;
-		}
-
-		const controller = editor.getContribution<NotebookFindContrib>(NotebookFindContrib.id);
-		controller.show(undefined, { findScope: { findScopeType: NotebookFindScopeType.None } });
+	if(!editor) {
+		return;
 	}
+
+        const controller = editor.getContribution<NotebookFindContrib>(NotebookFindContrib.id);
+	controller.show(undefined, { findScope: { findScopeType: NotebookFindScopeType.None } });
+}
 });
 
 function notebookContainsTextModel(uri: URI, textModel: ITextModel) {

@@ -16,23 +16,23 @@ import { IAccessibilityService } from '../../../platform/accessibility/common/ac
  */
 export class TextResourceEditorModel extends BaseTextEditorModel {
 
-	constructor(
-		resource: URI,
-		@ILanguageService languageService: ILanguageService,
-		@IModelService modelService: IModelService,
-		@ILanguageDetectionService languageDetectionService: ILanguageDetectionService,
-		@IAccessibilityService accessibilityService: IAccessibilityService,
-	) {
-		super(modelService, languageService, languageDetectionService, accessibilityService, resource);
-	}
+    constructor(
+        resource: URI,
+        @ILanguageService languageService: ILanguageService,
+        @IModelService modelService: IModelService,
+        @ILanguageDetectionService languageDetectionService: ILanguageDetectionService,
+        @IAccessibilityService accessibilityService: IAccessibilityService,
+    ) {
+        super(modelService, languageService, languageDetectionService, accessibilityService, resource);
+    }
 
-	override dispose(): void {
+    override dispose(): cognidream {
 
-		// force this class to dispose the underlying model
-		if (this.textEditorModelHandle) {
-			this.modelService.destroyModel(this.textEditorModelHandle);
-		}
+        // force this class to dispose the underlying model
+        if (this.textEditorModelHandle) {
+            this.modelService.destroyModel(this.textEditorModelHandle);
+        }
 
-		super.dispose();
-	}
+        super.dispose();
+    }
 }

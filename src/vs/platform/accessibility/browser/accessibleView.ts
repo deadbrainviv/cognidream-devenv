@@ -92,7 +92,7 @@ export interface IAccessibleViewContentProvider extends IBasicContentProvider, I
 	 * Note that a Codicon class should be provided for each action.
 	 * If not, a default will be used.
 	 */
-	onKeyDown?(e: IKeyboardEvent): void;
+	onKeyDown?(e: IKeyboardEvent): cognidreamidream;
 	/**
 	 * When the language is markdown, this is provided by default.
 	 */
@@ -119,16 +119,16 @@ export interface IPosition {
 export interface IAccessibleViewService {
 	readonly _serviceBrand: undefined;
 	// The provider will be disposed when the view is closed
-	show(provider: AccesibleViewContentProvider, position?: IPosition): void;
-	showLastProvider(id: AccessibleViewProviderId): void;
-	showAccessibleViewHelp(): void;
-	next(): void;
-	previous(): void;
-	navigateToCodeBlock(type: 'next' | 'previous'): void;
-	goToSymbol(): void;
-	disableHint(): void;
+	show(provider: AccesibleViewContentProvider, position?: IPosition): cognidreamidream;
+	showLastProvider(id: AccessibleViewProviderId): cognidreamidream;
+	showAccessibleViewHelp(): cognidreamidream;
+	next(): cognidreamidream;
+	previous(): cognidreamidream;
+	navigateToCodeBlock(type: 'next' | 'previous'): cognidreamidream;
+	goToSymbol(): cognidreamidream;
+	disableHint(): cognidreamidream;
 	getPosition(id: AccessibleViewProviderId): IPosition | undefined;
-	setPosition(position: IPosition, reveal?: boolean, select?: boolean): void;
+	setPosition(position: IPosition, reveal?: boolean, select?: boolean): cognidreamidream;
 	getLastPosition(): IPosition | undefined;
 	/**
 	 * If the setting is enabled, provides the open accessible view hint as a localized string.
@@ -136,8 +136,8 @@ export interface IAccessibleViewService {
 	 */
 	getOpenAriaHint(verbositySettingKey: string): string | null;
 	getCodeBlockContext(): ICodeBlockActionContext | undefined;
-	configureKeybindings(unassigned: boolean): void;
-	openHelpLink(): void;
+	configureKeybindings(unassigned: boolean): cognidreamidream;
+	openHelpLink(): cognidreamidream;
 }
 
 
@@ -156,14 +156,14 @@ export class AccessibleContentProvider extends Disposable implements IAccessible
 		public id: AccessibleViewProviderId,
 		public options: IAccessibleViewOptions,
 		public provideContent: () => string,
-		public onClose: () => void,
+		public onClose: () => cognidreamidream,
 		public verbositySettingKey: string,
-		public onOpen?: () => void,
+		public onOpen?: () => cognidreamidream,
 		public actions?: IAction[],
 		public provideNextContent?: () => string | undefined,
 		public providePreviousContent?: () => string | undefined,
-		public onDidChangeContent?: Event<void>,
-		public onKeyDown?: (e: IKeyboardEvent) => void,
+		public onDidChangeContent?: Event<cognidreamidream>,
+		public onKeyDown?: (e: IKeyboardEvent) => cognidreamidream,
 		public getSymbols?: () => IAccessibleViewSymbol[],
 		public onDidRequestClearLastProvider?: Event<AccessibleViewProviderId>,
 	) {
@@ -181,12 +181,12 @@ export class ExtensionContentProvider extends Disposable implements IBasicConten
 		public readonly id: string,
 		public options: IAccessibleViewOptions,
 		public provideContent: () => string,
-		public onClose: () => void,
-		public onOpen?: () => void,
+		public onClose: () => cognidreamidream,
+		public onOpen?: () => cognidreamidream,
 		public provideNextContent?: () => string | undefined,
 		public providePreviousContent?: () => string | undefined,
 		public actions?: IAction[],
-		public onDidChangeContent?: Event<void>,
+		public onDidChangeContent?: Event<cognidreamidream>,
 	) {
 		super();
 	}
@@ -195,11 +195,11 @@ export class ExtensionContentProvider extends Disposable implements IBasicConten
 export interface IBasicContentProvider extends IDisposable {
 	id: string;
 	options: IAccessibleViewOptions;
-	onClose(): void;
+	onClose(): cognidreamidream;
 	provideContent(): string;
-	onOpen?(): void;
+	onOpen?(): cognidreamidream;
 	actions?: IAction[];
-	providePreviousContent?(): void;
-	provideNextContent?(): void;
-	onDidChangeContent?: Event<void>;
+	providePreviousContent?(): cognidreamidream;
+	provideNextContent?(): cognidreamidream;
+	onDidChangeContent?: Event<cognidreamidream>;
 }

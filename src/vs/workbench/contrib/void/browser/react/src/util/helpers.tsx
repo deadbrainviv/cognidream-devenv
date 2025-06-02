@@ -4,7 +4,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 
 type ReturnType<T> = [
 	{ readonly current: T },
-	(t: T) => void
+	(t: T) => cognidream
 ]
 
 // use this if state might be too slow to catch

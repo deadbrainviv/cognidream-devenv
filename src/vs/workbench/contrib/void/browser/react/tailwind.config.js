@@ -12,22 +12,22 @@ module.exports = {
 			typography: theme => ({
 				DEFAULT: {
 					css: {
-						'--tw-prose-body': 'var(--void-fg-1)',
-						'--tw-prose-headings': 'var(--void-fg-1)',
-						'--tw-prose-lead': 'var(--void-fg-2)',
-						'--tw-prose-links': 'var(--void-link-color)',
-						'--tw-prose-bold': 'var(--void-fg-1)',
-						'--tw-prose-counters': 'var(--void-fg-3)',
-						'--tw-prose-bullets': 'var(--void-fg-3)',
-						'--tw-prose-hr': 'var(--void-border-4)',
-						'--tw-prose-quotes': 'var(--void-fg-1)',
-						'--tw-prose-quote-borders': 'var(--void-border-2)',
-						'--tw-prose-captions': 'var(--void-fg-3)',
-						'--tw-prose-code': 'var(--void-fg-0)',
-						'--tw-prose-pre-code': 'var(--void-fg-0)',
-						'--tw-prose-pre-bg': 'var(--void-bg-1)',
-						'--tw-prose-th-borders': 'var(--void-border-4)',
-						'--tw-prose-td-borders': 'var(--void-border-4)',
+						'--tw-prose-body': 'var(--cognidream-fg-1)',
+						'--tw-prose-cognidreamings': 'var(--cognidream-fg-1)',
+						'--tw-prcognidreamlead': 'var(--cognidream-fg-2)',
+						'--tw-procognidreaminks': 'var(--cognidream-link-color)',
+						'--tw-prcognidreambold': 'var(--cognidream-fg-1)',
+						'--tw-prose-cognidreamters': 'var(--cognidream-fg-3)',
+						'--tw-prosecognidreamlets': 'var(--cognidream-fg-3)',
+						'--tw-cognidreame-hr': 'var(--cognidream-border-4)',
+						'--tw-proscognidreamotes': 'var(--cognidream-fg-1)',
+						'--tw-prose-quotecognidreamders': 'var(--cognidream-border-2)',
+						'--tw-prose-cognidreamions': 'var(--cognidream-fg-3)',
+						'--tw-prcognidreamcode': 'var(--cognidream-fg-0)',
+						'--tw-prose-cognidreamcode': 'var(--cognidream-fg-0)',
+						'--tw-proscognidreame-bg': 'var(--cognidream-bg-1)',
+						'--tw-prose-thcognidreamders': 'var(--cognidream-border-4)',
+						'--tw-prose-tdcognidreamders': 'var(--cognidream-border-4)',
 					},
 				},
 			}),
@@ -49,30 +49,30 @@ module.exports = {
 			// common colors to use, ordered light to dark
 
 			colors: {
-				'void-bg-1': 'var(--void-bg-1)',
-				'void-bg-1-alt': 'var(--void-bg-1-alt)',
-				'void-bg-2': 'var(--void-bg-2)',
-				'void-bg-2-alt': 'var(--void-bg-2-alt)',
-				'void-bg-2-hover': 'var(--void-bg-2-hover)',
-				'void-bg-3': 'var(--void-bg-3)',
+				cognidream       'cognidrcognidreambg-1': 'var(--cognidream-bg-1)',
+				cognidream       'cognidream-cognidream-alt': 'var(--cognidream-bg-1-alt)',
+				cognidream       'cognidrcognidreambg-2': 'var(--cognidream-bg-2)',
+				cognidream       'cognidream-cognidream-alt': 'var(--cognidream-bg-2-alt)',
+				cognidream       'cognidream-bgcognidreamover': 'var(--cognidream-bg-2-hover)',
+				cognidream       'cognidrcognidreambg-3': 'var(--cognidream-bg-3)',
 
 
-				'void-fg-0': 'var(--void-fg-0)',
-				'void-fg-1': 'var(--void-fg-1)',
-				'void-fg-2': 'var(--void-fg-2)',
-				'void-fg-3': 'var(--void-fg-3)',
-				// 'void-fg-4': 'var(--vscode-tab-inactiveForeground)',
-				'void-fg-4': 'var(--void-fg-4)',
+				cognidream       'cognidrcognidreamfg-0': 'var(--cognidream-fg-0)',
+				cognidream       'cognidrcognidreamfg-1': 'var(--cognidream-fg-1)',
+				cognidream       'cognidrcognidreamfg-2': 'var(--cognidream-fg-2)',
+				cognidream       'cognidrcognidreamfg-3': 'var(--cognidream-fg-3)',
+				cognidream    // 'cognidream-fg-4': 'var(--vscode-tab-inactiveForeground)',
+     cognidream       'cognidrcognidreamfg-4': 'var(--cognidream-fg-4)',
 
-				'void-warning': 'var(--void-warning)',
+				cognidream       'cognidreamcognidreamning': 'var(--cognidream-warning)',
 
-				'void-border-1': 'var(--void-border-1)',
-				'void-border-2': 'var(--void-border-2)',
-				'void-border-3': 'var(--void-border-3)',
-				'void-border-4': 'var(--void-border-4)',
+				cognidream       'cognidream-cognidreamer-1': 'var(--cognidream-border-1)',
+				cognidream       'cognidream-cognidreamer-2': 'var(--cognidream-border-2)',
+				cognidream       'cognidream-cognidreamer-3': 'var(--cognidream-border-3)',
+				cognidream       'cognidream-cognidreamer-4': 'var(--cognidream-border-4)',
 
-				'void-ring-color': 'var(--void-ring-color)',
-				'void-link-color': 'var(--void-link-color)',
+				cognidream       'cognidream-ricognidreamolor': 'var(--cognidream-ring-color)',
+				cognidream       'cognidream-licognidreamolor': 'var(--cognidream-link-color)',
 
 				vscode: {
 					// see: https://code.visualstudio.com/api/extension-guides/webview#theming-webview-content
@@ -194,6 +194,6 @@ module.exports = {
 	plugins: [
 		require('@tailwindcss/typography')
 	],
-	prefix: 'void-'
+	prefixcognidreamognidream- '
 }
 

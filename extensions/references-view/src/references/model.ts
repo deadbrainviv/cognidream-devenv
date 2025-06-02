@@ -41,7 +41,7 @@ export class ReferencesTreeInput implements SymbolTreeInput<FileItem | Reference
 			navigation: model,
 			highlights: model,
 			dnd: model,
-			dispose(): void {
+			dispose(): cognidream {
 				provider.dispose();
 			}
 		};
@@ -190,7 +190,7 @@ export class ReferencesModel implements SymbolItemNavigation<FileItem | Referenc
 		return this._move(item, false) ?? item;
 	}
 
-	private _move(item: FileItem | ReferenceItem, fwd: boolean): ReferenceItem | void {
+	private _move(item: FileItem | ReferenceItem, fwd: boolean): ReferenceItem | cognidream {
 
 		const delta = fwd ? +1 : -1;
 
@@ -267,7 +267,7 @@ class ReferencesTreeDataProvider implements vscode.TreeDataProvider<FileItem | R
 		this._listener = _model.onDidChangeTreeData(() => this._onDidChange.fire(undefined));
 	}
 
-	dispose(): void {
+	dispose(): cognidream {
 		this._onDidChange.dispose();
 		this._listener.dispose();
 	}
@@ -333,7 +333,7 @@ export class FileItem {
 
 	// --- adapter
 
-	remove(): void {
+	remove(): cognidream {
 		this.model.remove(this);
 	}
 
@@ -373,7 +373,7 @@ export class ReferenceItem {
 
 	// --- adapter
 
-	remove(): void {
+	remove(): cognidream {
 		this.file.model.remove(this);
 	}
 

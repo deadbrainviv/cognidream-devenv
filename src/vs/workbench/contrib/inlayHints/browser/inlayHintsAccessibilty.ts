@@ -52,139 +52,139 @@ export class InlayHintsAccessibility implements IEditorContribution {
 		this._ctxIsReading = InlayHintsAccessibility.IsReading.bindTo(contextKeyService);
 	}
 
-	dispose(): void {
+	dispose(): cognidream {
 		this._sessionDispoosables.dispose();
 		this._ctxIsReading.reset();
 		this._ariaElement.remove();
 	}
 
-	private _reset(): void {
+	private _reset(cognidreamognidream {
 		dom.clearNode(this._ariaElement);
-		this._sessionDispoosables.clear();
-		this._ctxIsReading.reset();
+this._sessionDispoosables.clear();
+this._ctxIsReading.reset();
+    }
+
+    private async _read(line: number, hints: InlayHintItem[]) {
+
+	this._sessionDispoosables.clear();
+
+	if (!this._ariaElement.isConnected) {
+		this._editor.getDomNode()?.appendChild(this._ariaElement);
 	}
 
-	private async _read(line: number, hints: InlayHintItem[]) {
+	if (!this._editor.hasModel() || !this._ariaElement.isConnected) {
+		this._ctxIsReading.set(false);
+		return;
+	}
 
-		this._sessionDispoosables.clear();
+	const cts = new CancellationTokenSource();
+	this._sessionDispoosables.add(cts);
 
-		if (!this._ariaElement.isConnected) {
-			this._editor.getDomNode()?.appendChild(this._ariaElement);
+	for (const hint of hints) {
+		await hint.resolve(cts.token);
+	}
+
+	if (cts.token.isCancellationRequested) {
+		return;
+	}
+	const model = this._editor.getModel();
+	// const text = this._editor.getModel().getLineContent(line);
+	const newChildren: (string | HTMLElement)[] = [];
+
+	let start = 0;
+	let tooLongToRead = false;
+
+	for (const item of hints) {
+
+		// text
+		const part = model.getValueInRange({ startLineNumber: line, startColumn: start + 1, endLineNumber: line, endColumn: item.hint.position.column });
+		if (part.length > 0) {
+			newChildren.push(part);
+			start = item.hint.position.column - 1;
 		}
 
-		if (!this._editor.hasModel() || !this._ariaElement.isConnected) {
-			this._ctxIsReading.set(false);
-			return;
+		// check length
+		if (start > 750) {
+			newChildren.push('…');
+			tooLongToRead = true;
+			break;
 		}
 
-		const cts = new CancellationTokenSource();
-		this._sessionDispoosables.add(cts);
+		// hint
+		const em = document.createElement('em');
+		const { label } = item.hint;
+		if (typeof label === 'string') {
+			em.innerText = label;
+		} else {
+			for (const part of label) {
+				if (part.command) {
+					const link = this._instaService.createInstance(Link, em,
+						{ href: asCommandLink(part.command), label: part.label, title: part.command.title },
+						undefined
+					);
+					this._sessionDispoosables.add(link);
 
-		for (const hint of hints) {
-			await hint.resolve(cts.token);
-		}
-
-		if (cts.token.isCancellationRequested) {
-			return;
-		}
-		const model = this._editor.getModel();
-		// const text = this._editor.getModel().getLineContent(line);
-		const newChildren: (string | HTMLElement)[] = [];
-
-		let start = 0;
-		let tooLongToRead = false;
-
-		for (const item of hints) {
-
-			// text
-			const part = model.getValueInRange({ startLineNumber: line, startColumn: start + 1, endLineNumber: line, endColumn: item.hint.position.column });
-			if (part.length > 0) {
-				newChildren.push(part);
-				start = item.hint.position.column - 1;
-			}
-
-			// check length
-			if (start > 750) {
-				newChildren.push('…');
-				tooLongToRead = true;
-				break;
-			}
-
-			// hint
-			const em = document.createElement('em');
-			const { label } = item.hint;
-			if (typeof label === 'string') {
-				em.innerText = label;
-			} else {
-				for (const part of label) {
-					if (part.command) {
-						const link = this._instaService.createInstance(Link, em,
-							{ href: asCommandLink(part.command), label: part.label, title: part.command.title },
-							undefined
-						);
-						this._sessionDispoosables.add(link);
-
-					} else {
-						em.innerText += part.label;
-					}
+				} else {
+					em.innerText += part.label;
 				}
 			}
-			newChildren.push(em);
 		}
-
-		// trailing text
-		if (!tooLongToRead) {
-			newChildren.push(model.getValueInRange({ startLineNumber: line, startColumn: start + 1, endLineNumber: line, endColumn: Number.MAX_SAFE_INTEGER }));
-		}
-
-		dom.reset(this._ariaElement, ...newChildren);
-		this._ariaElement.focus();
-		this._ctxIsReading.set(true);
-
-		// reset on blur
-		this._sessionDispoosables.add(dom.addDisposableListener(this._ariaElement, 'focusout', () => {
-			this._reset();
-		}));
+		newChildren.push(em);
 	}
 
-
-
-	startInlayHintsReading(): void {
-		if (!this._editor.hasModel()) {
-			return;
-		}
-		const line = this._editor.getPosition().lineNumber;
-		const hints = InlayHintsController.get(this._editor)?.getInlayHintsForLine(line);
-		if (!hints || hints.length === 0) {
-			this._accessibilitySignalService.playSignal(AccessibilitySignal.noInlayHints);
-		} else {
-			this._read(line, hints);
-		}
+	// trailing text
+	if (!tooLongToRead) {
+		newChildren.push(model.getValueInRange({ startLineNumber: line, startColumn: start + 1, endLineNumber: line, endColumn: Number.MAX_SAFE_INTEGER }));
 	}
 
-	stopInlayHintsReading(): void {
+	dom.reset(this._ariaElement, ...newChildren);
+	this._ariaElement.focus();
+	this._ctxIsReading.set(true);
+
+	// reset on blur
+	this._sessionDispoosables.add(dom.addDisposableListener(this._ariaElement, 'focusout', () => {
 		this._reset();
-		this._editor.focus();
-	}
+	}));
 }
 
 
-registerAction2(class StartReadHints extends EditorAction2 {
 
-	constructor() {
-		super({
-			id: 'inlayHints.startReadingLineWithHint',
-			title: localize2('read.title', "Read Line with Inline Hints"),
-			precondition: EditorContextKeys.hasInlayHintsProvider,
-			f1: true
-		});
-	}
+startInlayHintsReading(cognidreamognidream {
+	if(!this._editor.hasModel()) {
+	return;
+}
+const line = this._editor.getPosition().lineNumber;
+const hints = InlayHintsController.get(this._editor)?.getInlayHintsForLine(line);
+if (!hints || hints.length === 0) {
+	this._accessibilitySignalService.playSignal(AccessibilitySignal.noInlayHints);
+} else {
+	this._read(line, hints);
+}
+    }
 
-	runEditorCommand(_accessor: ServicesAccessor, editor: ICodeEditor) {
-		const ctrl = InlayHintsAccessibility.get(editor);
-		ctrl?.startInlayHintsReading();
-	}
-});
+stopInlayHintsReading(cognidreamognidream {
+	this._reset();
+	this._editor.focus();
+}
+}
+
+
+	registerAction2(class StartReadHints extends EditorAction2 {
+
+		constructor() {
+			super({
+				id: 'inlayHints.startReadingLineWithHint',
+				title: localize2('read.title', "Read Line with Inline Hints"),
+				precondition: EditorContextKeys.hasInlayHintsProvider,
+				f1: true
+			});
+		}
+
+		runEditorCommand(_accessor: ServicesAccessor, editor: ICodeEditor) {
+			const ctrl = InlayHintsAccessibility.get(editor);
+			ctrl?.startInlayHintsReading();
+		}
+	});
 
 registerAction2(class StopReadHints extends EditorAction2 {
 

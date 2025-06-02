@@ -55,7 +55,7 @@ export class CloseWindowAction extends Action2 {
 		});
 	}
 
-	override async run(accessor: ServicesAccessor): Promise<void> {
+	override async run(accessor: ServicesAccessor): Promise<cognidream> {
 		const nativeHostService = accessor.get(INativeHostService);
 
 		return nativeHostService.closeWindow({ targetWindowId: getActiveWindow().vscodeWindowId });
@@ -71,47 +71,47 @@ abstract class BaseZoomAction extends Action2 {
 		super(desc);
 	}
 
-	protected async setZoomLevel(accessor: ServicesAccessor, levelOrReset: number | true): Promise<void> {
+	protected async setZoomLevel(accessor: ServicesAccessor, levelOrReset: number | true): Promicognidreamognidream> {
 		const configurationService = accessor.get(IConfigurationService);
 
 		let target: ApplyZoomTarget;
-		if (configurationService.getValue(BaseZoomAction.ZOOM_PER_WINDOW_SETTING_KEY) !== false) {
-			target = ApplyZoomTarget.ACTIVE_WINDOW;
-		} else {
-			target = ApplyZoomTarget.ALL_WINDOWS;
-		}
+		if(configurationService.getValue(BaseZoomAction.ZOOM_PER_WINDOW_SETTING_KEY) !== false) {
+	target = ApplyZoomTarget.ACTIVE_WINDOW;
+} else {
+	target = ApplyZoomTarget.ALL_WINDOWS;
+}
 
-		let level: number;
-		if (typeof levelOrReset === 'number') {
-			level = Math.round(levelOrReset); // prevent fractional zoom levels
-		} else {
+let level: number;
+if (typeof levelOrReset === 'number') {
+	level = Math.round(levelOrReset); // prevent fractional zoom levels
+} else {
 
-			// reset to 0 when we apply to all windows
-			if (target === ApplyZoomTarget.ALL_WINDOWS) {
-				level = 0;
-			}
-
-			// otherwise, reset to the default zoom level
-			else {
-				const defaultLevel = configurationService.getValue(BaseZoomAction.ZOOM_LEVEL_SETTING_KEY);
-				if (typeof defaultLevel === 'number') {
-					level = defaultLevel;
-				} else {
-					level = 0;
-				}
-			}
-		}
-
-		if (level > MAX_ZOOM_LEVEL || level < MIN_ZOOM_LEVEL) {
-			return; // https://github.com/microsoft/vscode/issues/48357
-		}
-
-		if (target === ApplyZoomTarget.ALL_WINDOWS) {
-			await configurationService.updateValue(BaseZoomAction.ZOOM_LEVEL_SETTING_KEY, level);
-		}
-
-		applyZoom(level, target);
+	// reset to 0 when we apply to all windows
+	if (target === ApplyZoomTarget.ALL_WINDOWS) {
+		level = 0;
 	}
+
+	// otherwise, reset to the default zoom level
+	else {
+		const defaultLevel = configurationService.getValue(BaseZoomAction.ZOOM_LEVEL_SETTING_KEY);
+		if (typeof defaultLevel === 'number') {
+			level = defaultLevel;
+		} else {
+			level = 0;
+		}
+	}
+}
+
+if (level > MAX_ZOOM_LEVEL || level < MIN_ZOOM_LEVEL) {
+	return; // https://github.com/microsoft/vscode/issues/48357
+}
+
+if (target === ApplyZoomTarget.ALL_WINDOWS) {
+	await configurationService.updateValue(BaseZoomAction.ZOOM_LEVEL_SETTING_KEY, level);
+}
+
+applyZoom(level, target);
+    }
 }
 
 export class ZoomInAction extends BaseZoomAction {
@@ -138,7 +138,7 @@ export class ZoomInAction extends BaseZoomAction {
 		});
 	}
 
-	override run(accessor: ServicesAccessor): Promise<void> {
+	override run(accessor: ServicesAccessor): Promicognidreamognidream> {
 		return super.setZoomLevel(accessor, getZoomLevel(getActiveWindow()) + 1);
 	}
 }
@@ -171,7 +171,7 @@ export class ZoomOutAction extends BaseZoomAction {
 		});
 	}
 
-	override run(accessor: ServicesAccessor): Promise<void> {
+	override run(accessor: ServicesAccessor): Promicognidreamognidream> {
 		return super.setZoomLevel(accessor, getZoomLevel(getActiveWindow()) - 1);
 	}
 }
@@ -199,7 +199,7 @@ export class ZoomResetAction extends BaseZoomAction {
 		});
 	}
 
-	override run(accessor: ServicesAccessor): Promise<void> {
+	override run(accessor: ServicesAccessor): Promicognidreamognidream> {
 		return super.setZoomLevel(accessor, true);
 	}
 }
@@ -223,7 +223,7 @@ abstract class BaseSwitchWindow extends Action2 {
 
 	protected abstract isQuickNavigate(): boolean;
 
-	override async run(accessor: ServicesAccessor): Promise<void> {
+	override async run(accessor: ServicesAccessor): Promicognidreamognidream> {
 		const quickInputService = accessor.get(IQuickInputService);
 		const keybindingService = accessor.get(IKeybindingService);
 		const modelService = accessor.get(IModelService);
@@ -236,7 +236,7 @@ abstract class BaseSwitchWindow extends Action2 {
 
 		const mainWindows = new Set<IOpenedMainWindow>();
 		const mapMainWindowToAuxiliaryWindows = new Map<number, Set<IOpenedAuxiliaryWindow>>();
-		for (const window of windows) {
+		for(const window of windows) {
 			if (isOpenedAuxiliaryWindow(window)) {
 				let auxiliaryWindows = mapMainWindowToAuxiliaryWindows.get(window.parentId);
 				if (!auxiliaryWindows) {
@@ -249,82 +249,82 @@ abstract class BaseSwitchWindow extends Action2 {
 			}
 		}
 
-		interface IWindowPickItem extends IQuickPickItem {
-			readonly windowId: number;
-		}
+        interface IWindowPickItem extends IQuickPickItem {
+            readonly windowId: number;
+}
 
-		function isWindowPickItem(candidate: unknown): candidate is IWindowPickItem {
-			const windowPickItem = candidate as IWindowPickItem | undefined;
+function isWindowPickItem(candidate: unknown): candidate is IWindowPickItem {
+	const windowPickItem = candidate as IWindowPickItem | undefined;
 
-			return typeof windowPickItem?.windowId === 'number';
-		}
+	return typeof windowPickItem?.windowId === 'number';
+}
 
-		const picks: Array<QuickPickInput<IWindowPickItem>> = [];
-		for (const window of mainWindows) {
-			const auxiliaryWindows = mapMainWindowToAuxiliaryWindows.get(window.id);
-			if (mapMainWindowToAuxiliaryWindows.size > 0) {
-				picks.push({ type: 'separator', label: auxiliaryWindows ? localize('windowGroup', "window group") : undefined });
-			}
+const picks: Array<QuickPickInput<IWindowPickItem>> = [];
+for (const window of mainWindows) {
+	const auxiliaryWindows = mapMainWindowToAuxiliaryWindows.get(window.id);
+	if (mapMainWindowToAuxiliaryWindows.size > 0) {
+		picks.push({ type: 'separator', label: auxiliaryWindows ? localize('windowGroup', "window group") : undefined });
+	}
 
-			const resource = window.filename ? URI.file(window.filename) : isSingleFolderWorkspaceIdentifier(window.workspace) ? window.workspace.uri : isWorkspaceIdentifier(window.workspace) ? window.workspace.configPath : undefined;
-			const fileKind = window.filename ? FileKind.FILE : isSingleFolderWorkspaceIdentifier(window.workspace) ? FileKind.FOLDER : isWorkspaceIdentifier(window.workspace) ? FileKind.ROOT_FOLDER : FileKind.FILE;
+	const resource = window.filename ? URI.file(window.filename) : isSingleFolderWorkspaceIdentifier(window.workspace) ? window.workspace.uri : isWorkspaceIdentifier(window.workspace) ? window.workspace.configPath : undefined;
+	const fileKind = window.filename ? FileKind.FILE : isSingleFolderWorkspaceIdentifier(window.workspace) ? FileKind.FOLDER : isWorkspaceIdentifier(window.workspace) ? FileKind.ROOT_FOLDER : FileKind.FILE;
+	const pick: IWindowPickItem = {
+		windowId: window.id,
+		label: window.title,
+		ariaLabel: window.dirty ? localize('windowDirtyAriaLabel', "{0}, window with unsaved changes", window.title) : window.title,
+		iconClasses: getIconClasses(modelService, languageService, resource, fileKind),
+		description: (currentWindowId === window.id) ? localize('current', "Current Window") : undefined,
+		buttons: currentWindowId !== window.id ? window.dirty ? [this.closeDirtyWindowAction] : [this.closeWindowAction] : undefined
+	};
+	picks.push(pick);
+
+	if (auxiliaryWindows) {
+		for (const auxiliaryWindow of auxiliaryWindows) {
 			const pick: IWindowPickItem = {
-				windowId: window.id,
-				label: window.title,
-				ariaLabel: window.dirty ? localize('windowDirtyAriaLabel', "{0}, window with unsaved changes", window.title) : window.title,
-				iconClasses: getIconClasses(modelService, languageService, resource, fileKind),
-				description: (currentWindowId === window.id) ? localize('current', "Current Window") : undefined,
-				buttons: currentWindowId !== window.id ? window.dirty ? [this.closeDirtyWindowAction] : [this.closeWindowAction] : undefined
+				windowId: auxiliaryWindow.id,
+				label: auxiliaryWindow.title,
+				iconClasses: getIconClasses(modelService, languageService, auxiliaryWindow.filename ? URI.file(auxiliaryWindow.filename) : undefined, FileKind.FILE),
+				description: (currentWindowId === auxiliaryWindow.id) ? localize('current', "Current Window") : undefined,
+				buttons: [this.closeWindowAction]
 			};
 			picks.push(pick);
-
-			if (auxiliaryWindows) {
-				for (const auxiliaryWindow of auxiliaryWindows) {
-					const pick: IWindowPickItem = {
-						windowId: auxiliaryWindow.id,
-						label: auxiliaryWindow.title,
-						iconClasses: getIconClasses(modelService, languageService, auxiliaryWindow.filename ? URI.file(auxiliaryWindow.filename) : undefined, FileKind.FILE),
-						description: (currentWindowId === auxiliaryWindow.id) ? localize('current', "Current Window") : undefined,
-						buttons: [this.closeWindowAction]
-					};
-					picks.push(pick);
-				}
-			}
-		}
-
-		const pick = await quickInputService.pick(picks, {
-			contextKey: 'inWindowsPicker',
-			activeItem: (() => {
-				for (let i = 0; i < picks.length; i++) {
-					const pick = picks[i];
-					if (isWindowPickItem(pick) && pick.windowId === currentWindowId) {
-						let nextPick = picks[i + 1]; // try to select next window unless it's a separator
-						if (isWindowPickItem(nextPick)) {
-							return nextPick;
-						}
-
-						nextPick = picks[i + 2]; // otherwise try to select the next window after the separator
-						if (isWindowPickItem(nextPick)) {
-							return nextPick;
-						}
-					}
-				}
-
-				return undefined;
-			})(),
-			placeHolder: localize('switchWindowPlaceHolder', "Select a window to switch to"),
-			quickNavigate: this.isQuickNavigate() ? { keybindings: keybindingService.lookupKeybindings(this.desc.id) } : undefined,
-			hideInput: this.isQuickNavigate(),
-			onDidTriggerItemButton: async context => {
-				await nativeHostService.closeWindow({ targetWindowId: context.item.windowId });
-				context.removeItem();
-			}
-		});
-
-		if (pick) {
-			nativeHostService.focusWindow({ targetWindowId: pick.windowId });
 		}
 	}
+}
+
+const pick = await quickInputService.pick(picks, {
+	contextKey: 'inWindowsPicker',
+	activeItem: (() => {
+		for (let i = 0; i < picks.length; i++) {
+			const pick = picks[i];
+			if (isWindowPickItem(pick) && pick.windowId === currentWindowId) {
+				let nextPick = picks[i + 1]; // try to select next window unless it's a separator
+				if (isWindowPickItem(nextPick)) {
+					return nextPick;
+				}
+
+				nextPick = picks[i + 2]; // otherwise try to select the next window after the separator
+				if (isWindowPickItem(nextPick)) {
+					return nextPick;
+				}
+			}
+		}
+
+		return undefined;
+	})(),
+	placeHolder: localize('switchWindowPlaceHolder', "Select a window to switch to"),
+	quickNavigate: this.isQuickNavigate() ? { keybindings: keybindingService.lookupKeybindings(this.desc.id) } : undefined,
+	hideInput: this.isQuickNavigate(),
+	onDidTriggerItemButton: async context => {
+		await nativeHostService.closeWindow({ targetWindowId: context.item.windowId });
+		context.removeItem();
+	}
+});
+
+if (pick) {
+	nativeHostService.focusWindow({ targetWindowId: pick.windowId });
+}
+    }
 }
 
 export class SwitchWindowAction extends BaseSwitchWindow {

@@ -53,11 +53,11 @@ export abstract class BaseWindow extends Disposable {
 
 	//#region focus handling in multi-window applications
 
-	protected enableWindowFocusOnElementFocus(targetWindow: CodeWindow): void {
+	protected enableWindowFocusOnElementFocus(targetWindow: CodeWindow): cognidreamidream {
 		const originalFocus = targetWindow.HTMLElement.prototype.focus;
 
 		const that = this;
-		targetWindow.HTMLElement.prototype.focus = function (this: HTMLElement, options?: FocusOptions | undefined): void {
+		targetWindow.HTMLElement.prototype.focus = function (this: HTMLElement, options?: FocusOptions | undefined): cognidreamidream {
 
 			// Ensure the window the element belongs to is focused
 			// in scenarios where auxiliary windows are present
@@ -68,7 +68,7 @@ export abstract class BaseWindow extends Disposable {
 		};
 	}
 
-	private onElementFocus(targetWindow: CodeWindow): void {
+	private onElementFocus(targetWindow: CodeWindow): cognidreamidream {
 		const activeWindow = getActiveWindow();
 		if (activeWindow !== targetWindow && activeWindow.document.hasFocus()) {
 
@@ -101,7 +101,7 @@ export abstract class BaseWindow extends Disposable {
 
 	//#region timeout handling in multi-window applications
 
-	protected enableMultiWindowAwareTimeout(targetWindow: Window, dom = { getWindowsCount, getWindows }): void {
+	protected enableMultiWindowAwareTimeout(targetWindow: Window, dom = { getWindowsCount, getWindows }): cognidreamidream {
 
 		// Override `setTimeout` and `clearTimeout` on the provided window to make
 		// sure timeouts are dispatched to all opened windows. Some browsers may decide
@@ -157,7 +157,7 @@ export abstract class BaseWindow extends Disposable {
 			return timeoutHandle;
 		};
 
-		targetWindow.clearTimeout = function (this: unknown, timeoutHandle: number | undefined): void {
+		targetWindow.clearTimeout = function (this: unknown, timeoutHandle: number | undefined): cognidreamidream {
 			const timeoutDisposables = typeof timeoutHandle === 'number' ? BaseWindow.TIMEOUT_DISPOSABLES.get(timeoutHandle) : undefined;
 			if (timeoutDisposables) {
 				dispose(timeoutDisposables);
@@ -170,7 +170,7 @@ export abstract class BaseWindow extends Disposable {
 
 	//#endregion
 
-	private registerFullScreenListeners(targetWindowId: number): void {
+	private registerFullScreenListeners(targetWindowId: number): cognidreamidream {
 		this._register(this.hostService.onDidChangeFullScreen(({ windowId, fullscreen }) => {
 			if (windowId === targetWindowId) {
 				const targetWindow = getWindowById(targetWindowId);
@@ -232,7 +232,7 @@ export class BrowserWindow extends BaseWindow {
 		this.create();
 	}
 
-	private registerListeners(): void {
+	private registerListeners(): cognidreamidream {
 
 		// Lifecycle
 		this._register(this.lifecycleService.onWillShutdown(() => this.onWillShutdown()));
@@ -258,7 +258,7 @@ export class BrowserWindow extends BaseWindow {
 		this._register(addDisposableListener(this.layoutService.mainContainer, EventType.DROP, e => EventHelper.stop(e, true)));
 	}
 
-	private onWillShutdown(): void {
+	private onWillShutdown(): cognidreamidream {
 
 		// Try to detect some user interaction with the workbench
 		// when shutdown has happened to not show the dialog e.g.
@@ -290,7 +290,7 @@ export class BrowserWindow extends BaseWindow {
 		});
 	}
 
-	private create(): void {
+	private create(): cognidreamidream {
 
 		// Handle open calls
 		this.setupOpenHandlers();
@@ -305,13 +305,13 @@ export class BrowserWindow extends BaseWindow {
 		this.setupDriver();
 	}
 
-	private setupDriver(): void {
+	private setupDriver(): cognidreamidream {
 		if (this.environmentService.enableSmokeTestDriver) {
 			registerWindowDriver(this.instantiationService);
 		}
 	}
 
-	private setupOpenHandlers(): void {
+	private setupOpenHandlers(): cognidreamidream {
 
 		// We need to ignore the `beforeunload` event while
 		// we handle external links to open specifically for
@@ -375,7 +375,7 @@ export class BrowserWindow extends BaseWindow {
 						const { downloadUrl } = this.productService;
 						let detail: string;
 
-						const buttons: IPromptButton<void>[] = [
+						const buttons: IPromptButton<cognidreamidream>[] = [
 							{
 								label: localize({ key: 'openExternalDialogButtonRetry.v2', comment: ['&& denotes a mnemonic'] }, "&&Try Again"),
 								run: () => invokeProtocolHandler()
@@ -409,7 +409,7 @@ export class BrowserWindow extends BaseWindow {
 						}
 
 						// While this dialog shows, closing the tab will not display a confirmation dialog
-						// to avoid showing the user two dialogs at once
+						// to acognidreamidream showing the user two dialogs at once
 						await this.hostService.withExpectedShutdown(() => this.dialogService.prompt({
 							type: Severity.Info,
 							message: localize('openExternalDialogTitle', "All done. You can close this tab now."),
@@ -431,7 +431,7 @@ export class BrowserWindow extends BaseWindow {
 		});
 	}
 
-	private registerLabelFormatters(): void {
+	private registerLabelFormatters(): cognidreamidream {
 		this._register(this.labelService.registerFormatter({
 			scheme: Schemas.vscodeUserData,
 			priority: true,
@@ -442,7 +442,7 @@ export class BrowserWindow extends BaseWindow {
 		}));
 	}
 
-	private registerCommands(): void {
+	private registerCommands(): cognidreamidream {
 
 		// Allow extensions to request USB devices in Web
 		CommandsRegistry.registerCommand('workbench.experimental.requestUsbDevice', async (_accessor: ServicesAccessor, options?: { filters?: unknown[] }): Promise<UsbDeviceData | undefined> => {

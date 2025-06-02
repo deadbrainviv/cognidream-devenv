@@ -39,7 +39,7 @@ export class MainThreadStorage implements MainThreadStorageShape {
 		}));
 	}
 
-	dispose(): void {
+	dispose(): cognidream {
 		this._storageListener.dispose();
 	}
 
@@ -53,38 +53,38 @@ export class MainThreadStorage implements MainThreadStorageShape {
 		return this._extensionStorageService.getExtensionStateRaw(extensionId, shared);
 	}
 
-	async $setValue(shared: boolean, key: string, value: object): Promise<void> {
+	async $setValue(shared: boolean, key: string, value: object): Promicognidreamognidream> {
 		this._extensionStorageService.setExtensionState(key, value, shared);
 	}
 
-	$registerExtensionStorageKeysToSync(extension: IExtensionIdWithVersion, keys: string[]): void {
-		this._extensionStorageService.setKeysForSync(extension, keys);
+$registerExtensionStorageKeysToSync(extension: IExtensionIdWithVersion, keys: string[]cognidreamognidream {
+	this._extensionStorageService.setKeysForSync(extension, keys);
+}
+
+    private async checkAndMigrateExtensionStorage(extensionId: string, shared: boolean): Promicognidreamognidream > {
+	try {
+		let sourceExtensionId = this._extensionStorageService.getSourceExtensionToMigrate(extensionId);
+
+		// TODO: @sandy081 - Remove it after 6 months
+		// If current extension does not have any migration requested
+		// Then check if the extension has to be migrated for using lower case in web
+		// If so, migrate the extension state from lower case id to its normal id.
+		if(!sourceExtensionId && isWeb && extensionId !== extensionId.toLowerCase()) {
+	sourceExtensionId = extensionId.toLowerCase();
+}
+
+if (sourceExtensionId) {
+	// TODO: @sandy081 - Remove it after 6 months
+	// In Web, extension state was used to be stored in lower case extension id.
+	// Hence check that if the lower cased source extension was not yet migrated in web
+	// If not take the lower cased source extension id for migration
+	if (isWeb && sourceExtensionId !== sourceExtensionId.toLowerCase() && this._extensionStorageService.getExtensionState(sourceExtensionId.toLowerCase(), shared) && !this._extensionStorageService.getExtensionState(sourceExtensionId, shared)) {
+		sourceExtensionId = sourceExtensionId.toLowerCase();
 	}
-
-	private async checkAndMigrateExtensionStorage(extensionId: string, shared: boolean): Promise<void> {
-		try {
-			let sourceExtensionId = this._extensionStorageService.getSourceExtensionToMigrate(extensionId);
-
-			// TODO: @sandy081 - Remove it after 6 months
-			// If current extension does not have any migration requested
-			// Then check if the extension has to be migrated for using lower case in web
-			// If so, migrate the extension state from lower case id to its normal id.
-			if (!sourceExtensionId && isWeb && extensionId !== extensionId.toLowerCase()) {
-				sourceExtensionId = extensionId.toLowerCase();
-			}
-
-			if (sourceExtensionId) {
-				// TODO: @sandy081 - Remove it after 6 months
-				// In Web, extension state was used to be stored in lower case extension id.
-				// Hence check that if the lower cased source extension was not yet migrated in web
-				// If not take the lower cased source extension id for migration
-				if (isWeb && sourceExtensionId !== sourceExtensionId.toLowerCase() && this._extensionStorageService.getExtensionState(sourceExtensionId.toLowerCase(), shared) && !this._extensionStorageService.getExtensionState(sourceExtensionId, shared)) {
-					sourceExtensionId = sourceExtensionId.toLowerCase();
-				}
-				await migrateExtensionStorage(sourceExtensionId, extensionId, shared, this._instantiationService);
-			}
-		} catch (error) {
-			this._logService.error(error);
-		}
-	}
+	await migrateExtensionStorage(sourceExtensionId, extensionId, shared, this._instantiationService);
+}
+        } catch (error) {
+	this._logService.error(error);
+}
+    }
 }

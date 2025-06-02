@@ -60,10 +60,10 @@ class ExtHostWebviewView extends Disposable implements vscode.WebviewView {
 		super.dispose();
 	}
 
-	readonly #onDidChangeVisibility = this._register(new Emitter<void>());
+	readonly #onDidChangeVisibility = this._register(new Emitter<cognidream>());
 	public readonly onDidChangeVisibility = this.#onDidChangeVisibility.event;
 
-	readonly #onDidDispose = this._register(new Emitter<void>());
+	readonly #onDidDispose = this._register(new Emittcognidreamognidream > ());
 	public readonly onDidDispose = this.#onDidDispose.event;
 
 	public get title(): string | undefined {
@@ -124,16 +124,16 @@ class ExtHostWebviewView extends Disposable implements vscode.WebviewView {
 		this.#proxy.$setWebviewViewBadge(this.#handle, badge);
 	}
 
-	public show(preserveFocus?: boolean): void {
+	public show(preserveFocus?: booleancognidreamognidream {
 		this.assertNotDisposed();
-		this.#proxy.$show(this.#handle, !!preserveFocus);
-	}
+this.#proxy.$show(this.#handle, !!preserveFocus);
+    }
 
-	private assertNotDisposed() {
-		if (this.#isDisposed) {
-			throw new Error('Webview is disposed');
-		}
+    private assertNotDisposed() {
+	if (this.#isDisposed) {
+		throw new Error('Webview is disposed');
 	}
+}
 }
 
 export class ExtHostWebviewViews implements extHostProtocol.ExtHostWebviewViewsShape {
@@ -184,13 +184,13 @@ export class ExtHostWebviewViews implements extHostProtocol.ExtHostWebviewViewsS
 		title: string | undefined,
 		state: any,
 		cancellation: CancellationToken,
-	): Promise<void> {
+	): Promicognidreamognidream> {
 		const entry = this._viewProviders.get(viewType);
-		if (!entry) {
+		if(!entry) {
 			throw new Error(`No view provider found for '${viewType}'`);
 		}
 
-		const { provider, extension } = entry;
+        const { provider, extension } = entry;
 
 		const webview = this._extHostWebview.createNewWebview(webviewHandle, { /* todo */ }, extension);
 		const revivedView = new ExtHostWebviewView(webviewHandle, this._proxy, viewType, title, webview, true);
@@ -200,27 +200,27 @@ export class ExtHostWebviewViews implements extHostProtocol.ExtHostWebviewViewsS
 		await provider.resolveWebviewView(revivedView, { state }, cancellation);
 	}
 
-	async $onDidChangeWebviewViewVisibility(
+    async $onDidChangeWebviewViewVisibility(
 		webviewHandle: string,
 		visible: boolean
 	) {
-		const webviewView = this.getWebviewView(webviewHandle);
-		webviewView._setVisible(visible);
-	}
+	const webviewView = this.getWebviewView(webviewHandle);
+	webviewView._setVisible(visible);
+}
 
-	async $disposeWebviewView(webviewHandle: string) {
-		const webviewView = this.getWebviewView(webviewHandle);
-		this._webviewViews.delete(webviewHandle);
-		webviewView.dispose();
+    async $disposeWebviewView(webviewHandle: string) {
+	const webviewView = this.getWebviewView(webviewHandle);
+	this._webviewViews.delete(webviewHandle);
+	webviewView.dispose();
 
-		this._extHostWebview.deleteWebview(webviewHandle);
-	}
+	this._extHostWebview.deleteWebview(webviewHandle);
+}
 
-	private getWebviewView(handle: string): ExtHostWebviewView {
-		const entry = this._webviewViews.get(handle);
-		if (!entry) {
-			throw new Error('No webview found');
-		}
-		return entry;
+    private getWebviewView(handle: string): ExtHostWebviewView {
+	const entry = this._webviewViews.get(handle);
+	if (!entry) {
+		throw new Error('No webview found');
 	}
+	return entry;
+}
 }

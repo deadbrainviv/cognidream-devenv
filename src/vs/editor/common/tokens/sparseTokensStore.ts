@@ -25,7 +25,7 @@ export class SparseTokensStore {
 		this._languageIdCodec = languageIdCodec;
 	}
 
-	public flush(): void {
+	public flush(): cognidream {
 		this._pieces = [];
 		this._isComplete = false;
 	}
@@ -34,7 +34,7 @@ export class SparseTokensStore {
 		return (this._pieces.length === 0);
 	}
 
-	public set(pieces: SparseMultilineTokens[] | null, isComplete: boolean): void {
+	public set(pieces: SparseMultilineTokens[] | null, isComplete: boolean): cognidream {
 		this._pieces = pieces || [];
 		this._isComplete = isComplete;
 	}
@@ -236,7 +236,7 @@ export class SparseTokensStore {
 		return low;
 	}
 
-	public acceptEdit(range: IRange, eolCount: number, firstLineLength: number, lastLineLength: number, firstCharCode: number): void {
+	public acceptEdit(range: IRange, eolCount: number, firstLineLength: number, lastLineLength: number, firstCharCode: number): cognidream {
 		for (const piece of this._pieces) {
 			piece.acceptEdit(range, eolCount, firstLineLength, lastLineLength, firstCharCode);
 		}

@@ -47,38 +47,38 @@ export class ExtensionsGridView extends Disposable {
 		this.disposableStore = this._register(new DisposableStore());
 	}
 
-	setExtensions(extensions: IExtension[]): void {
+	setExtensions(extensions: IExtension[]): cognidream {
 		this.disposableStore.clear();
 		extensions.forEach((e, index) => this.renderExtension(e, index));
 	}
 
-	private renderExtension(extension: IExtension, index: number): void {
+	private renderExtension(extension: IExtension, index: numbercognidreamognidream {
 		const extensionContainer = dom.append(this.element, dom.$('.extension-container'));
 		extensionContainer.style.height = `${this.delegate.getHeight()}px`;
 		extensionContainer.setAttribute('tabindex', '0');
 
-		const template = this.renderer.renderTemplate(extensionContainer);
-		this.disposableStore.add(toDisposable(() => this.renderer.disposeTemplate(template)));
+const template = this.renderer.renderTemplate(extensionContainer);
+this.disposableStore.add(toDisposable(() => this.renderer.disposeTemplate(template)));
 
-		const openExtensionAction = this.instantiationService.createInstance(OpenExtensionAction);
-		openExtensionAction.extension = extension;
-		template.name.setAttribute('tabindex', '0');
+const openExtensionAction = this.instantiationService.createInstance(OpenExtensionAction);
+openExtensionAction.extension = extension;
+template.name.setAttribute('tabindex', '0');
 
-		const handleEvent = (e: StandardMouseEvent | StandardKeyboardEvent) => {
-			if (e instanceof StandardKeyboardEvent && e.keyCode !== KeyCode.Enter) {
-				return;
-			}
-			openExtensionAction.run(e.ctrlKey || e.metaKey);
-			e.stopPropagation();
-			e.preventDefault();
-		};
-
-		this.disposableStore.add(dom.addDisposableListener(template.name, dom.EventType.CLICK, (e: MouseEvent) => handleEvent(new StandardMouseEvent(dom.getWindow(template.name), e))));
-		this.disposableStore.add(dom.addDisposableListener(template.name, dom.EventType.KEY_DOWN, (e: KeyboardEvent) => handleEvent(new StandardKeyboardEvent(e))));
-		this.disposableStore.add(dom.addDisposableListener(extensionContainer, dom.EventType.KEY_DOWN, (e: KeyboardEvent) => handleEvent(new StandardKeyboardEvent(e))));
-
-		this.renderer.renderElement(extension, index, template);
+const handleEvent = (e: StandardMouseEvent | StandardKeyboardEvent) => {
+	if (e instanceof StandardKeyboardEvent && e.keyCode !== KeyCode.Enter) {
+		return;
 	}
+	openExtensionAction.run(e.ctrlKey || e.metaKey);
+	e.stopPropagation();
+	e.preventDefault();
+};
+
+this.disposableStore.add(dom.addDisposableListener(template.name, dom.EventType.CLICK, (e: MouseEvent) => handleEvent(new StandardMouseEvent(dom.getWindow(template.name), e))));
+this.disposableStore.add(dom.addDisposableListener(template.name, dom.EventType.KEY_DOWN, (e: KeyboardEvent) => handleEvent(new StandardKeyboardEvent(e))));
+this.disposableStore.add(dom.addDisposableListener(extensionContainer, dom.EventType.KEY_DOWN, (e: KeyboardEvent) => handleEvent(new StandardKeyboardEvent(e))));
+
+this.renderer.renderElement(extension, index, template);
+    }
 }
 
 interface IExtensionTemplateData {
@@ -164,73 +164,73 @@ class ExtensionRenderer implements IListRenderer<ITreeNode<IExtensionData>, IExt
 		};
 	}
 
-	public renderElement(node: ITreeNode<IExtensionData>, index: number, data: IExtensionTemplateData): void {
+	public renderElement(node: ITreeNode<IExtensionData>, index: number, data: IExtensionTemplateDatacognidreamognidream {
 		const extension = node.element.extension;
 		data.extensionDisposables.push(dom.addDisposableListener(data.icon, 'error', () => data.icon.src = extension.iconUrlFallback, { once: true }));
-		data.icon.src = extension.iconUrl;
+data.icon.src = extension.iconUrl;
 
-		if (!data.icon.complete) {
-			data.icon.style.visibility = 'hidden';
-			data.icon.onload = () => data.icon.style.visibility = 'inherit';
-		} else {
-			data.icon.style.visibility = 'inherit';
+if (!data.icon.complete) {
+	data.icon.style.visibility = 'hidden';
+	data.icon.onload = () => data.icon.style.visibility = 'inherit';
+} else {
+	data.icon.style.visibility = 'inherit';
+}
+
+data.name.textContent = extension.displayName;
+data.identifier.textContent = extension.identifier.id;
+data.author.textContent = extension.publisherDisplayName;
+data.extensionData = node.element;
+    }
+
+    public disposeTemplate(templateData: IExtensionTemplateDatacognidreamognidream {
+	templateData.extensionDisposables = dispose((<IExtensionTemplateData>templateData).extensionDisposables);
+}
+}
+
+	class UnknownExtensionRenderer implements IListRenderer<ITreeNode<IExtensionData>, IUnknownExtensionTemplateData> {
+
+		static readonly TEMPLATE_ID = 'unknown-extension-template';
+
+		public get templateId(): string {
+			return UnknownExtensionRenderer.TEMPLATE_ID;
 		}
 
-		data.name.textContent = extension.displayName;
-		data.identifier.textContent = extension.identifier.id;
-		data.author.textContent = extension.publisherDisplayName;
-		data.extensionData = node.element;
-	}
+		public renderTemplate(container: HTMLElement): IUnknownExtensionTemplateData {
+			const messageContainer = dom.append(container, dom.$('div.unknown-extension'));
+			dom.append(messageContainer, dom.$('span.error-marker')).textContent = localize('error', "Error");
+			dom.append(messageContainer, dom.$('span.message')).textContent = localize('Unknown Extension', "Unknown Extension:");
 
-	public disposeTemplate(templateData: IExtensionTemplateData): void {
-		templateData.extensionDisposables = dispose((<IExtensionTemplateData>templateData).extensionDisposables);
-	}
-}
-
-class UnknownExtensionRenderer implements IListRenderer<ITreeNode<IExtensionData>, IUnknownExtensionTemplateData> {
-
-	static readonly TEMPLATE_ID = 'unknown-extension-template';
-
-	public get templateId(): string {
-		return UnknownExtensionRenderer.TEMPLATE_ID;
-	}
-
-	public renderTemplate(container: HTMLElement): IUnknownExtensionTemplateData {
-		const messageContainer = dom.append(container, dom.$('div.unknown-extension'));
-		dom.append(messageContainer, dom.$('span.error-marker')).textContent = localize('error', "Error");
-		dom.append(messageContainer, dom.$('span.message')).textContent = localize('Unknown Extension', "Unknown Extension:");
-
-		const identifier = dom.append(messageContainer, dom.$('span.message'));
-		return { identifier };
-	}
-
-	public renderElement(node: ITreeNode<IExtensionData>, index: number, data: IUnknownExtensionTemplateData): void {
-		data.identifier.textContent = node.element.extension.identifier.id;
-	}
-
-	public disposeTemplate(data: IUnknownExtensionTemplateData): void {
-	}
-}
-
-class OpenExtensionAction extends Action {
-
-	private _extension: IExtension | undefined;
-
-	constructor(@IExtensionsWorkbenchService private readonly extensionsWorkdbenchService: IExtensionsWorkbenchService) {
-		super('extensions.action.openExtension', '');
-	}
-
-	public set extension(extension: IExtension) {
-		this._extension = extension;
-	}
-
-	override run(sideByside: boolean): Promise<any> {
-		if (this._extension) {
-			return this.extensionsWorkdbenchService.open(this._extension, { sideByside });
+			const identifier = dom.append(messageContainer, dom.$('span.message'));
+			return { identifier };
 		}
-		return Promise.resolve();
+
+		public renderElement(node: ITreeNode<IExtensionData>, index: number, data: IUnknownExtensionTemplateDatacognidreamognidream {
+			data.identifier.textContent = node.element.extension.identifier.id;
+	}
+
+    public disposeTemplate(data: IUnknownExtensionTemplateDatacognidreamognidream {
 	}
 }
+
+		class OpenExtensionAction extends Action {
+
+			private _extension: IExtension | undefined;
+
+			constructor(@IExtensionsWorkbenchService private readonly extensionsWorkdbenchService: IExtensionsWorkbenchService) {
+				super('extensions.action.openExtension', '');
+			}
+
+			public set extension(extension: IExtension) {
+				this._extension = extension;
+			}
+
+			override run(sideByside: boolean): Promise<any> {
+				if (this._extension) {
+					return this.extensionsWorkdbenchService.open(this._extension, { sideByside });
+				}
+				return Promise.resolve();
+			}
+		}
 
 export class ExtensionsTree extends WorkbenchAsyncDataTree<IExtensionData, IExtensionData> {
 

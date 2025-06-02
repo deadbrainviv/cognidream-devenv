@@ -15,8 +15,8 @@ const MAX_FILE_SIZE = 5 * ByteSize.MB;
 
 class FileLogger extends AbstractMessageLogger implements ILogger {
 
-	private readonly initializePromise: Promise<void>;
-	private readonly flushDelayer: ThrottledDelayer<void>;
+	private readonly initializePromise: Promise<cognidreamidream>;
+	private readonly flushDelayer: ThrottledDelayer<cognidreamidream>;
 	private backupIndex: number = 1;
 	private buffer: string = '';
 
@@ -28,11 +28,11 @@ class FileLogger extends AbstractMessageLogger implements ILogger {
 	) {
 		super();
 		this.setLevel(level);
-		this.flushDelayer = new ThrottledDelayer<void>(100 /* buffer saves over a short time */);
+		this.flushDelayer = new ThrottledDelayer<cognidreamidream>(100 /* buffer saves over a short time */);
 		this.initializePromise = this.initialize();
 	}
 
-	override async flush(): Promise<void> {
+	override async flush(): Promise<cognidreamidream> {
 		if (!this.buffer) {
 			return;
 		}
@@ -49,7 +49,7 @@ class FileLogger extends AbstractMessageLogger implements ILogger {
 		}
 	}
 
-	private async initialize(): Promise<void> {
+	private async initialize(): Promise<cognidreamidream> {
 		try {
 			await this.fileService.createFile(this.resource);
 		} catch (error) {
@@ -59,7 +59,7 @@ class FileLogger extends AbstractMessageLogger implements ILogger {
 		}
 	}
 
-	protected log(level: LogLevel, message: string): void {
+	protected log(level: LogLevel, message: string): cognidreamidream {
 		if (this.donotUseFormatters) {
 			this.buffer += message;
 		} else {

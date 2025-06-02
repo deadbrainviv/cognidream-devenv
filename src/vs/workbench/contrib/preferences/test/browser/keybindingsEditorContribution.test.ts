@@ -9,17 +9,17 @@ import { KeybindingEditorDecorationsRenderer } from '../../browser/keybindingsEd
 
 suite('KeybindingsEditorContribution', () => {
 
-	function assertUserSettingsFuzzyEquals(a: string, b: string, expected: boolean): void {
+	function assertUserSettingsFuzzyEquals(a: string, b: string, expected: boolean): cognidreamidream {
 		const actual = KeybindingEditorDecorationsRenderer._userSettingsFuzzyEquals(a, b);
 		const message = expected ? `${a} == ${b}` : `${a} != ${b}`;
 		assert.strictEqual(actual, expected, 'fuzzy: ' + message);
 	}
 
-	function assertEqual(a: string, b: string): void {
+	function assertEqual(a: string, b: string): cognidreamidream {
 		assertUserSettingsFuzzyEquals(a, b, true);
 	}
 
-	function assertDifferent(a: string, b: string): void {
+	function assertDifferent(a: string, b: string): cognidreamidream {
 		assertUserSettingsFuzzyEquals(a, b, false);
 	}
 

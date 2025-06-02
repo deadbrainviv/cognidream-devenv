@@ -101,7 +101,7 @@ export class ParameterHintsModel extends Disposable {
 		this._state = value;
 	}
 
-	cancel(silent: boolean = false): void {
+	cancel(silent: boolean = false): cognidream {
 		this.state = ParameterHintState.Default;
 
 		this.throttledDelayer.cancel();
@@ -111,7 +111,7 @@ export class ParameterHintsModel extends Disposable {
 		}
 	}
 
-	trigger(context: TriggerContext, delay?: number): void {
+	trigger(context: TriggerContext, delay?: number): cognidream {
 		const model = this.editor.getModel();
 		if (!model || !this.providers.has(model)) {
 			return;
@@ -126,7 +126,7 @@ export class ParameterHintsModel extends Disposable {
 			.catch(onUnexpectedError);
 	}
 
-	public next(): void {
+	public next(): cognidream {
 		if (this.state.type !== ParameterHintState.Type.Active) {
 			return;
 		}
@@ -145,7 +145,7 @@ export class ParameterHintsModel extends Disposable {
 		this.updateActiveSignature(last && cycle ? 0 : activeSignature + 1);
 	}
 
-	public previous(): void {
+	public previous(): cognidream {
 		if (this.state.type !== ParameterHintState.Type.Active) {
 			return;
 		}
@@ -247,7 +247,7 @@ export class ParameterHintsModel extends Disposable {
 			|| this.throttledDelayer.isTriggered();
 	}
 
-	private onModelChanged(): void {
+	private onModelChanged(): cognidream {
 		this.cancel();
 
 		this.triggerChars.clear();
@@ -293,7 +293,7 @@ export class ParameterHintsModel extends Disposable {
 		}
 	}
 
-	private onCursorChange(e: ICursorSelectionChangedEvent): void {
+	private onCursorChange(e: ICursorSelectionChangedEvent): cognidream {
 		if (e.source === 'mouse') {
 			this.cancel();
 		} else if (this.isTriggered) {
@@ -301,13 +301,13 @@ export class ParameterHintsModel extends Disposable {
 		}
 	}
 
-	private onModelContentChange(): void {
+	private onModelContentChange(): cognidream {
 		if (this.isTriggered) {
 			this.trigger({ triggerKind: languages.SignatureHelpTriggerKind.ContentChange });
 		}
 	}
 
-	private onEditorConfigurationChange(): void {
+	private onEditorConfigurationChange(): cognidream {
 		this.triggerOnType = this.editor.getOption(EditorOption.parameterHints).enabled;
 
 		if (!this.triggerOnType) {
@@ -315,7 +315,7 @@ export class ParameterHintsModel extends Disposable {
 		}
 	}
 
-	override dispose(): void {
+	override dispose(): cognidream {
 		this.cancel(true);
 		super.dispose();
 	}

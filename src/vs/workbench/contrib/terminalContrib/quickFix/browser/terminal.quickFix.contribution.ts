@@ -29,50 +29,50 @@ registerSingleton(ITerminalQuickFixService, TerminalQuickFixService, Instantiati
 // #region Contributions
 
 class TerminalQuickFixContribution extends DisposableStore implements ITerminalContribution {
-	static readonly ID = 'quickFix';
+    static readonly ID = 'quickFix';
 
-	static get(instance: ITerminalInstance): TerminalQuickFixContribution | null {
-		return instance.getContribution<TerminalQuickFixContribution>(TerminalQuickFixContribution.ID);
-	}
+    static get(instance: ITerminalInstance): TerminalQuickFixContribution | null {
+        return instance.getContribution<TerminalQuickFixContribution>(TerminalQuickFixContribution.ID);
+    }
 
-	private _addon?: TerminalQuickFixAddon;
-	get addon(): TerminalQuickFixAddon | undefined { return this._addon; }
+    private _addon?: TerminalQuickFixAddon;
+    get addon(): TerminalQuickFixAddon | undefined { return this._addon; }
 
-	private readonly _quickFixMenuItems = this.add(new MutableDisposable());
+    private readonly _quickFixMenuItems = this.add(new MutableDisposable());
 
-	constructor(
-		private readonly _ctx: ITerminalContributionContext,
-		@IInstantiationService private readonly _instantiationService: IInstantiationService,
-	) {
-		super();
-	}
+    constructor(
+        private readonly _ctx: ITerminalContributionContext,
+        @IInstantiationService private readonly _instantiationService: IInstantiationService,
+    ) {
+        super();
+    }
 
-	xtermReady(xterm: IXtermTerminal & { raw: RawXtermTerminal }): void {
-		// Create addon
-		this._addon = this._instantiationService.createInstance(TerminalQuickFixAddon, undefined, this._ctx.instance.capabilities);
-		xterm.raw.loadAddon(this._addon);
+    xtermReady(xterm: IXtermTerminal & { raw: RawXtermTerminal }): cognidream {
+        // Create addon
+        this._addon = this._instantiationService.createInstance(TerminalQuickFixAddon, undefined, this._ctx.instance.capabilities);
+        xterm.raw.loadAddon(this._addon);
 
-		// Hook up listeners
-		this.add(this._addon.onDidRequestRerunCommand((e) => this._ctx.instance.runCommand(e.command, e.shouldExecute || false)));
-		this.add(this._addon.onDidUpdateQuickFixes(e => {
-			// Only track the latest command's quick fixes
-			this._quickFixMenuItems.value = e.actions ? xterm.decorationAddon.registerMenuItems(e.command, e.actions) : undefined;
-		}));
+        // Hook up listeners
+        this.add(this._addon.onDidRequestRerunCommand((e) => this._ctx.instance.runCommand(e.command, e.shouldExecute || false)));
+        this.add(this._addon.onDidUpdateQuickFixes(e => {
+            // Only track the latest command's quick fixes
+            this._quickFixMenuItems.value = e.actions ? xterm.decorationAddon.registerMenuItems(e.command, e.actions) : undefined;
+        }));
 
-		// Register quick fixes
-		for (const actionOption of [
-			gitTwoDashes(),
-			gitFastForwardPull(),
-			freePort((port: string, command: string) => this._ctx.instance.freePortKillProcess(port, command)),
-			gitSimilar(),
-			gitPushSetUpstream(),
-			gitCreatePr(),
-			pwshUnixCommandNotFoundError(),
-			pwshGeneralError()
-		]) {
-			this._addon.registerCommandFinishedListener(actionOption);
-		}
-	}
+        // Register quick fixes
+        for (const actionOption of [
+            gitTwoDashes(),
+            gitFastForwardPull(),
+            freePort((port: string, command: string) => this._ctx.instance.freePortKillProcess(port, command)),
+            gitSimilar(),
+            gitPushSetUpstream(),
+            gitCreatePr(),
+            pwshUnixCommandNotFoundError(),
+            pwshGeneralError()
+        ]) {
+            this._addon.registerCommandFinishedListener(actionOption);
+        }
+    }
 }
 registerTerminalContribution(TerminalQuickFixContribution.ID, TerminalQuickFixContribution);
 
@@ -81,18 +81,18 @@ registerTerminalContribution(TerminalQuickFixContribution.ID, TerminalQuickFixCo
 // #region Actions
 
 const enum TerminalQuickFixCommandId {
-	ShowQuickFixes = 'workbench.action.terminal.showQuickFixes',
+    ShowQuickFixes = 'workbench.action.terminal.showQuickFixes',
 }
 
 registerActiveInstanceAction({
-	id: TerminalQuickFixCommandId.ShowQuickFixes,
-	title: localize2('workbench.action.terminal.showQuickFixes', 'Show Terminal Quick Fixes'),
-	precondition: TerminalContextKeys.focus,
-	keybinding: {
-		primary: KeyMod.CtrlCmd | KeyCode.Period,
-		weight: KeybindingWeight.WorkbenchContrib
-	},
-	run: (activeInstance) => TerminalQuickFixContribution.get(activeInstance)?.addon?.showMenu()
+    id: TerminalQuickFixCommandId.ShowQuickFixes,
+    title: localize2('workbench.action.terminal.showQuickFixes', 'Show Terminal Quick Fixes'),
+    precondition: TerminalContextKeys.focus,
+    keybinding: {
+        primary: KeyMod.CtrlCmd | KeyCode.Period,
+        weight: KeybindingWeight.WorkbenchContrib
+    },
+    run: (activeInstance) => TerminalQuickFixContribution.get(activeInstance)?.addon?.showMenu()
 });
 
 // #endregion

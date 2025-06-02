@@ -82,7 +82,7 @@ class TestMcpHostDelegate implements IMcpHostDelegate {
 		return new TestMcpMessageTransport();
 	}
 
-	waitForInitialProviderPromises(): Promise<void> {
+	waitForInitialProviderPromises(): Promise<cognidream> {
 		return Promise.resolve();
 	}
 }
@@ -100,17 +100,17 @@ class TestDialogService implements Partial<IDialogService> {
 		});
 	}
 
-	setPromptResult(result: boolean | undefined): void {
+	setPromptResult(result: boolean | undefinedcognidreamognidream {
 		this._promptResult = result;
 	}
 
-	get promptSpy(): sinon.SinonStub {
-		return this._promptSpy;
-	}
+    get promptSpy(): sinon.SinonStub {
+	return this._promptSpy;
+}
 
-	prompt(options: any): Promise<any> {
-		return this._promptSpy(options);
-	}
+prompt(options: any): Promise < any > {
+	return this._promptSpy(options);
+}
 }
 
 suite('Workbench - MCP - Registry', () => {

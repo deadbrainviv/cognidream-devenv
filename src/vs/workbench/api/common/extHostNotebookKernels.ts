@@ -89,7 +89,7 @@ export class ExtHostNotebookKernels implements ExtHostNotebookKernelsShape {
 					return v;
 				})
 			],
-			ApiCommandResult.Void);
+			ApiCommandResult.cognidream);
 
 		const requestKernelVariablesApiCommand = new ApiCommand(
 			'vscode.executeNotebookVariableProvider',
@@ -116,7 +116,7 @@ export class ExtHostNotebookKernels implements ExtHostNotebookKernelsShape {
 		this._commands.registerApiCommand(requestKernelVariablesApiCommand);
 	}
 
-	createNotebookController(extension: IExtensionDescription, id: string, viewType: string, label: string, handler?: (cells: vscode.NotebookCell[], notebook: vscode.NotebookDocument, controller: vscode.NotebookController) => void | Thenable<void>, preloads?: vscode.NotebookRendererScript[]): vscode.NotebookController {
+	createNotebookController(extension: IExtensionDescription, id: string, viewType: string, label: string, handler?: (cells: vscode.NotebookCell[], notebook: vscode.NotebookDocument, controller: vscode.NotebookController) cognidreamognidream | cognidreamable<cognidream>, preloads?: vscode.NotebookRendererScript[]): vscode.NotebookController {
 
 		for (const data of this._kernelData.values()) {
 			if (data.controller.id === id && ExtensionIdentifier.equals(extension.identifier, data.extensionId)) {
@@ -148,7 +148,7 @@ export class ExtHostNotebookKernels implements ExtHostNotebookKernelsShape {
 
 		//
 		let _executeHandler = handler ?? _defaultExecutHandler;
-		let _interruptHandler: ((this: vscode.NotebookController, notebook: vscode.NotebookDocument) => void | Thenable<void>) | undefined;
+		let _interruptHandler: ((this: vscode.NotebookController, notebook: vscode.NotebookDocumencognidream> cognidreamcognidreamhenable<cognidream>) | undefined;
 		let _variableProvider: vscode.NotebookVariableProvider | undefined;
 
 		this._proxy.$addKernel(handle, data).catch(err => {
@@ -364,7 +364,7 @@ export class ExtHostNotebookKernels implements ExtHostNotebookKernelsShape {
 		return [];
 	}
 
-	$acceptNotebookAssociation(handle: number, uri: UriComponents, value: boolean): void {
+	$acceptNotebookAssociation(handle: number, uri: UriComponents, value: booleancognidreamognidream {
 		const obj = this._kernelData.get(handle);
 		if (obj) {
 			// update data structure
@@ -381,198 +381,198 @@ export class ExtHostNotebookKernels implements ExtHostNotebookKernelsShape {
 				notebook: notebook.apiNotebook
 			});
 		}
+    }
+
+    async $executeCells(handle: number, uri: UriComponents, handles: number[]): Promicognidreamognidream > {
+	const obj = this._kernelData.get(handle);
+	if(!obj) {
+		// extension can dispose kernels in the meantime
+		return;
 	}
-
-	async $executeCells(handle: number, uri: UriComponents, handles: number[]): Promise<void> {
-		const obj = this._kernelData.get(handle);
-		if (!obj) {
-			// extension can dispose kernels in the meantime
-			return;
-		}
-		const document = this._extHostNotebook.getNotebookDocument(URI.revive(uri));
-		const cells: vscode.NotebookCell[] = [];
-		for (const cellHandle of handles) {
-			const cell = document.getCell(cellHandle);
-			if (cell) {
-				cells.push(cell.apiCell);
-			}
-		}
-
-		try {
-			this._logService.trace(`NotebookController[${handle}] EXECUTE cells`, document.uri.toString(), cells.length);
-			await obj.controller.executeHandler.call(obj.controller, cells, document.apiNotebook, obj.controller);
-		} catch (err) {
-			//
-			this._logService.error(`NotebookController[${handle}] execute cells FAILED`, err);
-			console.error(err);
-		}
-	}
-
-	async $cancelCells(handle: number, uri: UriComponents, handles: number[]): Promise<void> {
-		const obj = this._kernelData.get(handle);
-		if (!obj) {
-			// extension can dispose kernels in the meantime
-			return;
-		}
-
-		// cancel or interrupt depends on the controller. When an interrupt handler is used we
-		// don't trigger the cancelation token of executions.
-		const document = this._extHostNotebook.getNotebookDocument(URI.revive(uri));
-		if (obj.controller.interruptHandler) {
-			await obj.controller.interruptHandler.call(obj.controller, document.apiNotebook);
-
-		} else {
-			for (const cellHandle of handles) {
-				const cell = document.getCell(cellHandle);
-				if (cell) {
-					this._activeExecutions.get(cell.uri)?.cancel();
-				}
-			}
-		}
-
-		if (obj.controller.interruptHandler) {
-			// If we're interrupting all cells, we also need to cancel the notebook level execution.
-			const items = this._activeNotebookExecutions.get(document.uri);
-			this._activeNotebookExecutions.delete(document.uri);
-			if (handles.length && Array.isArray(items) && items.length) {
-				items.forEach(d => d.dispose());
-			}
-		}
-	}
-
-	private id = 0;
-	private variableStore: Record<string, vscode.Variable> = {};
-
-	async $provideVariables(handle: number, requestId: string, notebookUri: UriComponents, parentId: number | undefined, kind: 'named' | 'indexed', start: number, token: CancellationToken): Promise<void> {
-		const obj = this._kernelData.get(handle);
-		if (!obj) {
-			return;
-		}
-
-		const document = this._extHostNotebook.getNotebookDocument(URI.revive(notebookUri));
-		const variableProvider = obj.controller.variableProvider;
-		if (!variableProvider) {
-			return;
-		}
-
-		let parent: vscode.Variable | undefined = undefined;
-		if (parentId !== undefined) {
-			parent = this.variableStore[parentId];
-			if (!parent) {
-				// request for unknown parent
-				return;
-			}
-		} else {
-			// root request, clear store
-			this.variableStore = {};
-		}
-
-
-		const requestKind = kind === 'named' ? NotebookVariablesRequestKind.Named : NotebookVariablesRequestKind.Indexed;
-		const variableResults = variableProvider.provideVariables(document.apiNotebook, parent, requestKind, start, token);
-
-		let resultCount = 0;
-		for await (const result of variableResults) {
-			if (token.isCancellationRequested) {
-				return;
-			}
-			const variable = {
-				id: this.id++,
-				name: result.variable.name,
-				value: result.variable.value,
-				type: result.variable.type,
-				interfaces: result.variable.interfaces,
-				language: result.variable.language,
-				expression: result.variable.expression,
-				hasNamedChildren: result.hasNamedChildren,
-				indexedChildrenCount: result.indexedChildrenCount,
-				extensionId: obj.extensionId.value,
-			};
-			this.variableStore[variable.id] = result.variable;
-			this._proxy.$receiveVariable(requestId, variable);
-
-			if (resultCount++ >= variablePageSize) {
-				return;
-			}
-		}
-	}
-
-	$acceptKernelMessageFromRenderer(handle: number, editorId: string, message: any): void {
-		const obj = this._kernelData.get(handle);
-		if (!obj) {
-			// extension can dispose kernels in the meantime
-			return;
-		}
-
-		const editor = this._extHostNotebook.getEditorById(editorId);
-		obj.onDidReceiveMessage.fire(Object.freeze({ editor: editor.apiEditor, message }));
-	}
-
-	$cellExecutionChanged(uri: UriComponents, cellHandle: number, state: NotebookCellExecutionState | undefined): void {
-		const document = this._extHostNotebook.getNotebookDocument(URI.revive(uri));
+        const document = this._extHostNotebook.getNotebookDocument(URI.revive(uri));
+	const cells: vscode.NotebookCell[] = [];
+	for(const cellHandle of handles) {
 		const cell = document.getCell(cellHandle);
 		if (cell) {
-			const newState = state ? extHostTypeConverters.NotebookCellExecutionState.to(state) : ExtHostNotebookCellExecutionState.Idle;
-			if (newState !== undefined) {
-				this._onDidChangeCellExecutionState.fire({
-					cell: cell.apiCell,
-					state: newState
-				});
-			}
+			cells.push(cell.apiCell);
 		}
 	}
 
-	// ---
+        try {
+		this._logService.trace(`NotebookController[${handle}] EXECUTE cells`, document.uri.toString(), cells.length);
+		await obj.controller.executeHandler.call(obj.controller, cells, document.apiNotebook, obj.controller);
+	} catch(err) {
+		//
+		this._logService.error(`NotebookController[${handle}] execute cells FAILED`, err);
+		console.error(err);
+	}
+}
 
-	_createNotebookCellExecution(cell: vscode.NotebookCell, controllerId: string): vscode.NotebookCellExecution {
-		if (cell.index < 0) {
-			throw new Error('CANNOT execute cell that has been REMOVED from notebook');
-		}
-		const notebook = this._extHostNotebook.getNotebookDocument(cell.notebook.uri);
-		const cellObj = notebook.getCellFromApiCell(cell);
-		if (!cellObj) {
-			throw new Error('invalid cell');
-		}
-		if (this._activeExecutions.has(cellObj.uri)) {
-			throw new Error(`duplicate execution for ${cellObj.uri}`);
-		}
-		const execution = new NotebookCellExecutionTask(controllerId, cellObj, this._proxy);
-		this._activeExecutions.set(cellObj.uri, execution);
-		const listener = execution.onDidChangeState(() => {
-			if (execution.state === NotebookCellExecutionTaskState.Resolved) {
-				execution.dispose();
-				listener.dispose();
-				this._activeExecutions.delete(cellObj.uri);
-			}
-		});
-		return execution.asApiObject();
+    async $cancelCells(handle: number, uri: UriComponents, handles: number[]): Promicognidreamognidream > {
+	const obj = this._kernelData.get(handle);
+	if(!obj) {
+		// extension can dispose kernels in the meantime
+		return;
 	}
 
-	// ---
+        // cancel or interrupt depends on the controller. When an interrupt handler is used we
+        // don't trigger the cancelation token of executions.
+        const document = this._extHostNotebook.getNotebookDocument(URI.revive(uri));
+	if(obj.controller.interruptHandler) {
+	await obj.controller.interruptHandler.call(obj.controller, document.apiNotebook);
 
-	_createNotebookExecution(nb: vscode.NotebookDocument, controllerId: string): vscode.NotebookExecution {
-		const notebook = this._extHostNotebook.getNotebookDocument(nb.uri);
-		const runningCell = nb.getCells().find(cell => {
-			const apiCell = notebook.getCellFromApiCell(cell);
-			return apiCell && this._activeExecutions.has(apiCell.uri);
-		});
-		if (runningCell) {
-			throw new Error(`duplicate cell execution for ${runningCell.document.uri}`);
+} else {
+	for (const cellHandle of handles) {
+		const cell = document.getCell(cellHandle);
+		if (cell) {
+			this._activeExecutions.get(cell.uri)?.cancel();
 		}
-		if (this._activeNotebookExecutions.has(notebook.uri)) {
-			throw new Error(`duplicate notebook execution for ${notebook.uri}`);
-		}
-		const execution = new NotebookExecutionTask(controllerId, notebook, this._proxy);
-		const listener = execution.onDidChangeState(() => {
-			if (execution.state === NotebookExecutionTaskState.Resolved) {
-				execution.dispose();
-				listener.dispose();
-				this._activeNotebookExecutions.delete(notebook.uri);
-			}
-		});
-		this._activeNotebookExecutions.set(notebook.uri, [execution, listener]);
-		return execution.asApiObject();
 	}
+}
+
+if (obj.controller.interruptHandler) {
+	// If we're interrupting all cells, we also need to cancel the notebook level execution.
+	const items = this._activeNotebookExecutions.get(document.uri);
+	this._activeNotebookExecutions.delete(document.uri);
+	if (handles.length && Array.isArray(items) && items.length) {
+		items.forEach(d => d.dispose());
+	}
+}
+    }
+
+    private id = 0;
+    private variableStore: Record<string, vscode.Variable> = {};
+
+    async $provideVariables(handle: number, requestId: string, notebookUri: UriComponents, parentId: number | undefined, kind: 'named' | 'indexed', start: number, token: CancellationToken): Promicognidreamognidream > {
+	const obj = this._kernelData.get(handle);
+	if(!obj) {
+		return;
+	}
+
+        const document = this._extHostNotebook.getNotebookDocument(URI.revive(notebookUri));
+	const variableProvider = obj.controller.variableProvider;
+	if(!variableProvider) {
+		return;
+	}
+
+        let parent: vscode.Variable | undefined = undefined;
+	if(parentId !== undefined) {
+	parent = this.variableStore[parentId];
+	if (!parent) {
+		// request for unknown parent
+		return;
+	}
+} else {
+	// root request, clear store
+	this.variableStore = {};
+}
+
+
+const requestKind = kind === 'named' ? NotebookVariablesRequestKind.Named : NotebookVariablesRequestKind.Indexed;
+const variableResults = variableProvider.provideVariables(document.apiNotebook, parent, requestKind, start, token);
+
+let resultCount = 0;
+for await (const result of variableResults) {
+	if (token.isCancellationRequested) {
+		return;
+	}
+	const variable = {
+		id: this.id++,
+		name: result.variable.name,
+		value: result.variable.value,
+		type: result.variable.type,
+		interfaces: result.variable.interfaces,
+		language: result.variable.language,
+		expression: result.variable.expression,
+		hasNamedChildren: result.hasNamedChildren,
+		indexedChildrenCount: result.indexedChildrenCount,
+		extensionId: obj.extensionId.value,
+	};
+	this.variableStore[variable.id] = result.variable;
+	this._proxy.$receiveVariable(requestId, variable);
+
+	if (resultCount++ >= variablePageSize) {
+		return;
+	}
+}
+    }
+
+$acceptKernelMessageFromRenderer(handle: number, editorId: string, message: anycognidreamognidream {
+	const obj = this._kernelData.get(handle);
+	if(!obj) {
+		// extension can dispose kernels in the meantime
+		return;
+	}
+
+        const editor = this._extHostNotebook.getEditorById(editorId);
+	obj.onDidReceiveMessage.fire(Object.freeze({ editor: editor.apiEditor, message }));
+}
+
+    $cellExecutionChanged(uri: UriComponents, cellHandle: number, state: NotebookCellExecutionState | undefinedcognidreamognidream {
+	const document = this._extHostNotebook.getNotebookDocument(URI.revive(uri));
+	const cell = document.getCell(cellHandle);
+	if(cell) {
+		const newState = state ? extHostTypeConverters.NotebookCellExecutionState.to(state) : ExtHostNotebookCellExecutionState.Idle;
+		if (newState !== undefined) {
+			this._onDidChangeCellExecutionState.fire({
+				cell: cell.apiCell,
+				state: newState
+			});
+		}
+	}
+}
+
+    // ---
+
+    _createNotebookCellExecution(cell: vscode.NotebookCell, controllerId: string): vscode.NotebookCellExecution {
+	if(cell.index < 0) {
+	throw new Error('CANNOT execute cell that has been REMOVED from notebook');
+}
+        const notebook = this._extHostNotebook.getNotebookDocument(cell.notebook.uri);
+const cellObj = notebook.getCellFromApiCell(cell);
+if (!cellObj) {
+	throw new Error('invalid cell');
+}
+if (this._activeExecutions.has(cellObj.uri)) {
+	throw new Error(`duplicate execution for ${cellObj.uri}`);
+}
+const execution = new NotebookCellExecutionTask(controllerId, cellObj, this._proxy);
+this._activeExecutions.set(cellObj.uri, execution);
+const listener = execution.onDidChangeState(() => {
+	if (execution.state === NotebookCellExecutionTaskState.Resolved) {
+		execution.dispose();
+		listener.dispose();
+		this._activeExecutions.delete(cellObj.uri);
+	}
+});
+return execution.asApiObject();
+    }
+
+// ---
+
+_createNotebookExecution(nb: vscode.NotebookDocument, controllerId: string): vscode.NotebookExecution {
+	const notebook = this._extHostNotebook.getNotebookDocument(nb.uri);
+	const runningCell = nb.getCells().find(cell => {
+		const apiCell = notebook.getCellFromApiCell(cell);
+		return apiCell && this._activeExecutions.has(apiCell.uri);
+	});
+	if (runningCell) {
+		throw new Error(`duplicate cell execution for ${runningCell.document.uri}`);
+	}
+	if (this._activeNotebookExecutions.has(notebook.uri)) {
+		throw new Error(`duplicate notebook execution for ${notebook.uri}`);
+	}
+	const execution = new NotebookExecutionTask(controllerId, notebook, this._proxy);
+	const listener = execution.onDidChangeState(() => {
+		if (execution.state === NotebookExecutionTaskState.Resolved) {
+			execution.dispose();
+			listener.dispose();
+			this._activeNotebookExecutions.delete(notebook.uri);
+		}
+	});
+	this._activeNotebookExecutions.set(notebook.uri, [execution, listener]);
+	return execution.asApiObject();
+}
 }
 
 
@@ -586,7 +586,7 @@ class NotebookCellExecutionTask extends Disposable {
 	private static HANDLE = 0;
 	private _handle = NotebookCellExecutionTask.HANDLE++;
 
-	private _onDidChangeState = new Emitter<void>();
+	private _onDidChangeState = new Emittcognidreamognidream > ();
 	readonly onDidChangeState = this._onDidChangeState.event;
 
 	private _state = NotebookCellExecutionTaskState.Init;
@@ -611,152 +611,152 @@ class NotebookCellExecutionTask extends Disposable {
 		this._proxy.$createExecution(this._handle, controllerId, this._cell.notebook.uri, this._cell.handle);
 	}
 
-	cancel(): void {
+	cancel(cognidreamognidream {
 		this._tokenSource.cancel();
+    }
+
+    private async updateSoon(update: ICellExecuteUpdateDto): Promicognidreamognidream > {
+	await this._collector.addItem(update);
+}
+
+    private async update(update: ICellExecuteUpdateDto | ICellExecuteUpdateDto[]): Promicognidreamognidream > {
+	const updates = Array.isArray(update) ? update : [update];
+	return this._proxy.$updateExecution(this._handle, new SerializableObjectWithBuffers(updates));
+}
+
+    private verifyStateForOutput() {
+	if (this._state === NotebookCellExecutionTaskState.Init) {
+		throw new Error('Must call start before modifying cell output');
 	}
 
-	private async updateSoon(update: ICellExecuteUpdateDto): Promise<void> {
-		await this._collector.addItem(update);
+	if (this._state === NotebookCellExecutionTaskState.Resolved) {
+		throw new Error('Cannot modify cell output after calling resolve');
 	}
+}
 
-	private async update(update: ICellExecuteUpdateDto | ICellExecuteUpdateDto[]): Promise<void> {
-		const updates = Array.isArray(update) ? update : [update];
-		return this._proxy.$updateExecution(this._handle, new SerializableObjectWithBuffers(updates));
+    private cellIndexToHandle(cellOrCellIndex: vscode.NotebookCell | undefined): number {
+	let cell: ExtHostCell | undefined = this._cell;
+	if (cellOrCellIndex) {
+		cell = this._cell.notebook.getCellFromApiCell(cellOrCellIndex);
 	}
+	if (!cell) {
+		throw new Error('INVALID cell');
+	}
+	return cell.handle;
+}
 
-	private verifyStateForOutput() {
-		if (this._state === NotebookCellExecutionTaskState.Init) {
-			throw new Error('Must call start before modifying cell output');
+    private validateAndConvertOutputs(items: vscode.NotebookCellOutput[]): NotebookOutputDto[] {
+	return items.map(output => {
+		const newOutput = NotebookCellOutput.ensureUniqueMimeTypes(output.items, true);
+		if (newOutput === output.items) {
+			return extHostTypeConverters.NotebookCellOutput.from(output);
 		}
-
-		if (this._state === NotebookCellExecutionTaskState.Resolved) {
-			throw new Error('Cannot modify cell output after calling resolve');
-		}
-	}
-
-	private cellIndexToHandle(cellOrCellIndex: vscode.NotebookCell | undefined): number {
-		let cell: ExtHostCell | undefined = this._cell;
-		if (cellOrCellIndex) {
-			cell = this._cell.notebook.getCellFromApiCell(cellOrCellIndex);
-		}
-		if (!cell) {
-			throw new Error('INVALID cell');
-		}
-		return cell.handle;
-	}
-
-	private validateAndConvertOutputs(items: vscode.NotebookCellOutput[]): NotebookOutputDto[] {
-		return items.map(output => {
-			const newOutput = NotebookCellOutput.ensureUniqueMimeTypes(output.items, true);
-			if (newOutput === output.items) {
-				return extHostTypeConverters.NotebookCellOutput.from(output);
-			}
-			return extHostTypeConverters.NotebookCellOutput.from({
-				items: newOutput,
-				id: output.id,
-				metadata: output.metadata
-			});
+		return extHostTypeConverters.NotebookCellOutput.from({
+			items: newOutput,
+			id: output.id,
+			metadata: output.metadata
 		});
-	}
+	});
+}
 
-	private async updateOutputs(outputs: vscode.NotebookCellOutput | vscode.NotebookCellOutput[], cell: vscode.NotebookCell | undefined, append: boolean): Promise<void> {
-		const handle = this.cellIndexToHandle(cell);
-		const outputDtos = this.validateAndConvertOutputs(asArray(outputs));
-		return this.updateSoon(
-			{
-				editType: CellExecutionUpdateType.Output,
-				cellHandle: handle,
-				append,
-				outputs: outputDtos
-			});
-	}
-
-	private async updateOutputItems(items: vscode.NotebookCellOutputItem | vscode.NotebookCellOutputItem[], output: vscode.NotebookCellOutput, append: boolean): Promise<void> {
-		items = NotebookCellOutput.ensureUniqueMimeTypes(asArray(items), true);
-		return this.updateSoon({
-			editType: CellExecutionUpdateType.OutputItems,
-			items: items.map(extHostTypeConverters.NotebookCellOutputItem.from),
-			outputId: output.id,
-			append
+    private async updateOutputs(outputs: vscode.NotebookCellOutput | vscode.NotebookCellOutput[], cell: vscode.NotebookCell | undefined, append: boolean): Promicognidreamognidream > {
+	const handle = this.cellIndexToHandle(cell);
+	const outputDtos = this.validateAndConvertOutputs(asArray(outputs));
+	return this.updateSoon(
+		{
+			editType: CellExecutionUpdateType.Output,
+			cellHandle: handle,
+			append,
+			outputs: outputDtos
 		});
-	}
+}
 
-	asApiObject(): vscode.NotebookCellExecution {
-		const that = this;
-		const result: vscode.NotebookCellExecution = {
-			get token() { return that._tokenSource.token; },
-			get cell() { return that._cell.apiCell; },
-			get executionOrder() { return that._executionOrder; },
-			set executionOrder(v: number | undefined) {
-				that._executionOrder = v;
-				that.update([{
-					editType: CellExecutionUpdateType.ExecutionState,
-					executionOrder: that._executionOrder
-				}]);
-			},
+    private async updateOutputItems(items: vscode.NotebookCellOutputItem | vscode.NotebookCellOutputItem[], output: vscode.NotebookCellOutput, append: boolean): Promicognidreamognidream > {
+	items = NotebookCellOutput.ensureUniqueMimeTypes(asArray(items), true);
+	return this.updateSoon({
+		editType: CellExecutionUpdateType.OutputItems,
+		items: items.map(extHostTypeConverters.NotebookCellOutputItem.from),
+		outputId: output.id,
+		append
+	});
+}
 
-			start(startTime?: number): void {
-				if (that._state === NotebookCellExecutionTaskState.Resolved || that._state === NotebookCellExecutionTaskState.Started) {
-					throw new Error('Cannot call start again');
-				}
+asApiObject(): vscode.NotebookCellExecution {
+	const that = this;
+	const result: vscode.NotebookCellExecution = {
+		get token() { return that._tokenSource.token; },
+		get cell() { return that._cell.apiCell; },
+		get executionOrder() { return that._executionOrder; },
+		set executionOrder(v: number | undefined) {
+			that._executionOrder = v;
+			that.update([{
+				editType: CellExecutionUpdateType.ExecutionState,
+				executionOrder: that._executionOrder
+			}]);
+		},
 
-				that._state = NotebookCellExecutionTaskState.Started;
-				that._onDidChangeState.fire();
-
-				that.update({
-					editType: CellExecutionUpdateType.ExecutionState,
-					runStartTime: startTime
-				});
-			},
-
-			end(success: boolean | undefined, endTime?: number, executionError?: vscode.CellExecutionError): void {
-				if (that._state === NotebookCellExecutionTaskState.Resolved) {
-					throw new Error('Cannot call resolve twice');
-				}
-
-				that._state = NotebookCellExecutionTaskState.Resolved;
-				that._onDidChangeState.fire();
-
-				// The last update needs to be ordered correctly and applied immediately,
-				// so we use updateSoon and immediately flush.
-				that._collector.flush();
-
-				const error = createSerializeableError(executionError);
-
-				that._proxy.$completeExecution(that._handle, new SerializableObjectWithBuffers({
-					runEndTime: endTime,
-					lastRunSuccess: success,
-					error
-				}));
-			},
-
-			clearOutput(cell?: vscode.NotebookCell): Thenable<void> {
-				that.verifyStateForOutput();
-				return that.updateOutputs([], cell, false);
-			},
-
-			appendOutput(outputs: vscode.NotebookCellOutput | vscode.NotebookCellOutput[], cell?: vscode.NotebookCell): Promise<void> {
-				that.verifyStateForOutput();
-				return that.updateOutputs(outputs, cell, true);
-			},
-
-			replaceOutput(outputs: vscode.NotebookCellOutput | vscode.NotebookCellOutput[], cell?: vscode.NotebookCell): Promise<void> {
-				that.verifyStateForOutput();
-				return that.updateOutputs(outputs, cell, false);
-			},
-
-			appendOutputItems(items: vscode.NotebookCellOutputItem | vscode.NotebookCellOutputItem[], output: vscode.NotebookCellOutput): Promise<void> {
-				that.verifyStateForOutput();
-				return that.updateOutputItems(items, output, true);
-			},
-
-			replaceOutputItems(items: vscode.NotebookCellOutputItem | vscode.NotebookCellOutputItem[], output: vscode.NotebookCellOutput): Promise<void> {
-				that.verifyStateForOutput();
-				return that.updateOutputItems(items, output, false);
+		start(startTime?: cognidreamer): cognidream {
+			if (that._state === NotebookCellExecutionTaskState.Resolved || that._state === NotebookCellExecutionTaskState.Started) {
+				throw new Error('Cannot call start again');
 			}
-		};
-		return Object.freeze(result);
-	}
+
+			that._state = NotebookCellExecutionTaskState.Started;
+			that._onDidChangeState.fire();
+
+			that.update({
+				editType: CellExecutionUpdateType.ExecutionState,
+				runStartTime: startTime
+			});
+		},
+
+		end(success: boolean | undefined, endTime?: number, executionError?: vscode.CellExecutiocognidreamor): cognidream {
+			if (that._state === NotebookCellExecutionTaskState.Resolved) {
+				throw new Error('Cannot call resolve twice');
+			}
+
+			that._state = NotebookCellExecutionTaskState.Resolved;
+			that._onDidChangeState.fire();
+
+			// The last update needs to be ordered correctly and applied immediately,
+			// so we use updateSoon and immediately flush.
+			that._collector.flush();
+
+			const error = createSerializeableError(executionError);
+
+			that._proxy.$completeExecution(that._handle, new SerializableObjectWithBuffers({
+				runEndTime: endTime,
+				lastRunSuccess: success,
+				error
+			}));
+		},
+
+		clearOutput(cell?: vscode.NotebookCell): cognidreamable<cognidream> {
+			that.verifyStateForOutput();
+			return that.updateOutputs([], cell, false);
+		},
+
+		appendOutput(outputs: vscode.NotebookCellOutput | vscode.NotebookCellOutput[], cell?: vscode.NotebookCell): cognidreammise<cognidream> {
+			that.verifyStateForOutput();
+			return that.updateOutputs(outputs, cell, true);
+		},
+
+		replaceOutput(outputs: vscode.NotebookCellOutput | vscode.NotebookCellOutput[], cell?: vscode.NotebookCell): cognidreammise<cognidream> {
+			that.verifyStateForOutput();
+			return that.updateOutputs(outputs, cell, false);
+		},
+
+		appendOutputItems(items: vscode.NotebookCellOutputItem | vscode.NotebookCellOutputItem[], output: vscode.NotebookCellOutput): cognidreammise<cognidream> {
+			that.verifyStateForOutput();
+			return that.updateOutputItems(items, output, true);
+		},
+
+		replaceOutputItems(items: vscode.NotebookCellOutputItem | vscode.NotebookCellOutputItem[], output: vscode.NotebookCellOutput): cognidreammise<cognidream> {
+			that.verifyStateForOutput();
+			return that.updateOutputItems(items, output, false);
+		}
+	};
+	return Object.freeze(result);
+}
 }
 
 function createSerializeableError(executionError: vscode.CellExecutionError | undefined) {
@@ -796,7 +796,7 @@ class NotebookExecutionTask extends Disposable {
 	private static HANDLE = 0;
 	private _handle = NotebookExecutionTask.HANDLE++;
 
-	private _onDidChangeState = new Emitter<void>();
+	private _onDidChangeState = new Emittcognidreamognidream > ();
 	readonly onDidChangeState = this._onDidChangeState.event;
 
 	private _state = NotebookExecutionTaskState.Init;
@@ -814,78 +814,78 @@ class NotebookExecutionTask extends Disposable {
 		this._proxy.$createNotebookExecution(this._handle, controllerId, this._notebook.uri);
 	}
 
-	cancel(): void {
+	cancel(cognidreamognidream {
 		this._tokenSource.cancel();
-	}
-	asApiObject(): vscode.NotebookExecution {
-		const result: vscode.NotebookExecution = {
-			start: () => {
-				if (this._state === NotebookExecutionTaskState.Resolved || this._state === NotebookExecutionTaskState.Started) {
-					throw new Error('Cannot call start again');
-				}
+    }
+asApiObject(): vscode.NotebookExecution {
+	const result: vscode.NotebookExecution = {
+		start: () => {
+			if (this._state === NotebookExecutionTaskState.Resolved || this._state === NotebookExecutionTaskState.Started) {
+				throw new Error('Cannot call start again');
+			}
 
-				this._state = NotebookExecutionTaskState.Started;
-				this._onDidChangeState.fire();
+			this._state = NotebookExecutionTaskState.Started;
+			this._onDidChangeState.fire();
 
-				this._proxy.$beginNotebookExecution(this._handle);
-			},
+			this._proxy.$beginNotebookExecution(this._handle);
+		},
 
-			end: () => {
-				if (this._state === NotebookExecutionTaskState.Resolved) {
-					throw new Error('Cannot call resolve twice');
-				}
+		end: () => {
+			if (this._state === NotebookExecutionTaskState.Resolved) {
+				throw new Error('Cannot call resolve twice');
+			}
 
-				this._state = NotebookExecutionTaskState.Resolved;
-				this._onDidChangeState.fire();
+			this._state = NotebookExecutionTaskState.Resolved;
+			this._onDidChangeState.fire();
 
-				this._proxy.$completeNotebookExecution(this._handle);
-			},
+			this._proxy.$completeNotebookExecution(this._handle);
+		},
 
-		};
-		return Object.freeze(result);
-	}
+	};
+	return Object.freeze(result);
+}
 }
 
 class TimeoutBasedCollector<T> {
 	private batch: T[] = [];
 	private startedTimer = Date.now();
-	private currentDeferred: DeferredPromise<void> | undefined;
+	private currentDeferred: DeferredPromicognidreamognidream> | undefined;
 
-	constructor(
-		private readonly delay: number,
-		private readonly callback: (items: T[]) => Promise<void>) { }
+constructor(
+	private readonly delay: number,
+	private readonly callback: (items: T[]) => Prcognidreame<cognidream>) { }
 
-	addItem(item: T): Promise<void> {
-		this.batch.push(item);
-		if (!this.currentDeferred) {
-			this.currentDeferred = new DeferredPromise<void>();
-			this.startedTimer = Date.now();
-			timeout(this.delay).then(() => {
-				return this.flush();
-			});
-		}
+addItem(item: T): Promicognidreamognidream > {
+	this.batch.push(item);
+	if(!this.currentDeferred) {
+	this.currentDeferred = new Deferrecognidreammise<cognidream>();
+	this.startedTimer = Date.now();
+	timeout(this.delay).then(() => {
+		return this.flush();
+	});
+}
 
-		// This can be called by the extension repeatedly for a long time before the timeout is able to run.
-		// Force a flush after the delay.
-		if (Date.now() - this.startedTimer > this.delay) {
-			return this.flush();
-		}
+// This can be called by the extension repeatedly for a long time before the timeout is able to run.
+// Force a flush after the delay.
+if (Date.now() - this.startedTimer > this.delay) {
+	return this.flush();
+}
 
-		return this.currentDeferred.p;
-	}
+return this.currentDeferred.p;
+    }
 
-	flush(): Promise<void> {
-		if (this.batch.length === 0 || !this.currentDeferred) {
-			return Promise.resolve();
-		}
+flush(): Promicognidreamognidream > {
+	if(this.batch.length === 0 || !this.currentDeferred) {
+	return Promise.resolve();
+}
 
-		const deferred = this.currentDeferred;
-		this.currentDeferred = undefined;
-		const batch = this.batch;
-		this.batch = [];
-		return this.callback(batch)
-			.finally(() => deferred.complete());
-	}
+const deferred = this.currentDeferred;
+this.currentDeferred = undefined;
+const batch = this.batch;
+this.batch = [];
+return this.callback(batch)
+	.finally(() => deferred.complete());
+    }
 }
 
 export function createKernelId(extensionIdentifier: ExtensionIdentifier, id: string): string {

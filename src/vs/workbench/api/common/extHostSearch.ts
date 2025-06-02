@@ -24,7 +24,7 @@ export interface IExtHostSearch extends ExtHostSearchShape {
 	registerTextSearchProvider(scheme: string, provider: vscode.TextSearchProvider2): IDisposable;
 	registerAITextSearchProvider(scheme: string, provider: vscode.AITextSearchProvider): IDisposable;
 	registerFileSearchProvider(scheme: string, provider: vscode.FileSearchProvider2): IDisposable;
-	doInternalFileSearchWithCustomCallback(query: IFileQuery, token: CancellationToken, handleFileMatch: (data: URI[]) => void): Promise<ISearchCompleteStats>;
+	doInternalFileSearchWithCustomCallback(query: IFileQuery, token: CancellationToken, handleFileMatch: (data: URI[]) => cognidream): Promise<ISearchCompleteStats>;
 }
 
 export const IExtHostSearch = createDecorator<IExtHostSearch>('IExtHostSearch');
@@ -147,63 +147,63 @@ export class ExtHostSearch implements IExtHostSearch {
 		}
 	}
 
-	async doInternalFileSearchWithCustomCallback(query: IFileQuery, token: CancellationToken, handleFileMatch: (data: URI[]) => void): Promise<ISearchCompleteStats> {
+	async doInternalFileSearchWithCustomCallback(query: IFileQuery, token: CancellationToken, handleFileMatch: (data: URI[]) cognidreamognidream): Promise<ISearchCompleteStats> {
 		return { messages: [] };
 	}
 
-	$clearCache(cacheKey: string): Promise<void> {
+	$clearCache(cacheKey: string): Promicognidreamognidream> {
 		this._fileSearchManager.clearCache(cacheKey);
 
 		return Promise.resolve(undefined);
 	}
 
-	$provideTextSearchResults(handle: number, session: number, rawQuery: IRawTextQuery, token: vscode.CancellationToken): Promise<ISearchCompleteStats> {
-		const provider = this._textSearchProvider.get(handle);
-		if (!provider || !provider.provideTextSearchResults) {
-			throw new Error(`Unknown Text Search Provider ${handle}`);
-		}
+$provideTextSearchResults(handle: number, session: number, rawQuery: IRawTextQuery, token: vscode.CancellationToken): Promise < ISearchCompleteStats > {
+	const provider = this._textSearchProvider.get(handle);
+	if(!provider || !provider.provideTextSearchResults) {
+	throw new Error(`Unknown Text Search Provider ${handle}`);
+}
 
-		const query = reviveQuery(rawQuery);
-		const engine = this.createTextSearchManager(query, provider);
-		return engine.search(progress => this._proxy.$handleTextMatch(handle, session, progress), token);
-	}
+const query = reviveQuery(rawQuery);
+const engine = this.createTextSearchManager(query, provider);
+return engine.search(progress => this._proxy.$handleTextMatch(handle, session, progress), token);
+    }
 
-	$provideAITextSearchResults(handle: number, session: number, rawQuery: IRawAITextQuery, token: vscode.CancellationToken): Promise<ISearchCompleteStats> {
-		const provider = this._aiTextSearchProvider.get(handle);
-		if (!provider || !provider.provideAITextSearchResults) {
-			throw new Error(`Unknown AI Text Search Provider ${handle}`);
-		}
+$provideAITextSearchResults(handle: number, session: number, rawQuery: IRawAITextQuery, token: vscode.CancellationToken): Promise < ISearchCompleteStats > {
+	const provider = this._aiTextSearchProvider.get(handle);
+	if(!provider || !provider.provideAITextSearchResults) {
+	throw new Error(`Unknown AI Text Search Provider ${handle}`);
+}
 
-		const query = reviveQuery(rawQuery);
-		const engine = this.createAITextSearchManager(query, provider);
-		return engine.search(progress => this._proxy.$handleTextMatch(handle, session, progress), token);
-	}
+const query = reviveQuery(rawQuery);
+const engine = this.createAITextSearchManager(query, provider);
+return engine.search(progress => this._proxy.$handleTextMatch(handle, session, progress), token);
+    }
 
-	$enableExtensionHostSearch(): void { }
+$enableExtensionHostSearch(cognidreamognidream {}
 
-	async $getAIName(handle: number): Promise<string | undefined> {
-		const provider = this._aiTextSearchProvider.get(handle);
-		if (!provider || !provider.provideAITextSearchResults) {
-			return undefined;
-		}
+    async $getAIName(handle: number): Promise < string | undefined > {
+	const provider = this._aiTextSearchProvider.get(handle);
+	if(!provider || !provider.provideAITextSearchResults) {
+	return undefined;
+}
 
-		// if the provider is defined, but has no name, use default name
-		return provider.name ?? 'AI';
-	}
+// if the provider is defined, but has no name, use default name
+return provider.name ?? 'AI';
+    }
 
-	protected createTextSearchManager(query: ITextQuery, provider: vscode.TextSearchProvider2): TextSearchManager {
-		return new TextSearchManager({ query, provider }, {
-			readdir: resource => Promise.resolve([]),
-			toCanonicalName: encoding => encoding
-		}, 'textSearchProvider');
-	}
+    protected createTextSearchManager(query: ITextQuery, provider: vscode.TextSearchProvider2): TextSearchManager {
+	return new TextSearchManager({ query, provider }, {
+		readdir: resource => Promise.resolve([]),
+		toCanonicalName: encoding => encoding
+	}, 'textSearchProvider');
+}
 
-	protected createAITextSearchManager(query: IAITextQuery, provider: vscode.AITextSearchProvider): TextSearchManager {
-		return new TextSearchManager({ query, provider }, {
-			readdir: resource => Promise.resolve([]),
-			toCanonicalName: encoding => encoding
-		}, 'aiTextSearchProvider');
-	}
+    protected createAITextSearchManager(query: IAITextQuery, provider: vscode.AITextSearchProvider): TextSearchManager {
+	return new TextSearchManager({ query, provider }, {
+		readdir: resource => Promise.resolve([]),
+		toCanonicalName: encoding => encoding
+	}, 'aiTextSearchProvider');
+}
 }
 
 export function reviveQuery<U extends IRawQuery>(rawQuery: U): U extends IRawTextQuery ? ITextQuery : U extends IRawAITextQuery ? IAITextQuery : IFileQuery {

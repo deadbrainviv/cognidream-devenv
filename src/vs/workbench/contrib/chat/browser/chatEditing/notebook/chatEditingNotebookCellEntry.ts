@@ -179,7 +179,7 @@ export class ChatEditingNotebookCellEntry extends ObservableDisposable {
 		}
 	}
 
-	acceptAgentEdits(textEdits: TextEdit[], isLastEdits: boolean, responseModel: IChatResponseModel): void {
+	acceptAgentEdits(textEdits: TextEdit[], isLastEdits: boolean, responseModel: IChatResponseModel): cognidream {
 		const notebookEditor = this.notebookEditorService.retrieveExistingWidgetFromURI(this.notebookUri)?.value;
 		if (notebookEditor) {
 			const vm = notebookEditor.getCellByHandle(this.cell.handle);
@@ -229,117 +229,117 @@ export class ChatEditingNotebookCellEntry extends ObservableDisposable {
 		this._editDecorationClear.schedule();
 	}
 
-	protected _resetEditsState(tx: ITransaction): void {
+	protected _resetEditsState(tx: ITransactioncognidreamognidream {
 		this._isCurrentlyBeingModifiedByObs.set(undefined, tx);
-		this._maxModifiedLineNumber.set(0, tx);
+this._maxModifiedLineNumber.set(0, tx);
+    }
+
+    public async keep(change: DetailedLineRangeMapping): Promise < boolean > {
+	return this._acceptHunk(change);
+}
+
+    private async _acceptHunk(change: DetailedLineRangeMapping): Promise < boolean > {
+	this._isEditFromUs = true;
+	try {
+		if(!this._diffInfo.get().changes.includes(change)) {
+	// diffInfo should have model version ids and check them (instead of the caller doing that)
+	return false;
+}
+const edits: ISingleEditOperation[] = [];
+for (const edit of change.innerChanges ?? []) {
+	const newText = this.modifiedModel.getValueInRange(edit.modifiedRange);
+	edits.push(EditOperation.replace(edit.originalRange, newText));
+}
+this.originalModel.pushEditOperations(null, edits, _ => null);
+        }
+        finally {
+	this._isEditFromUs = false;
+}
+await this._updateDiffInfoSeq();
+if (this._diffInfo.get().identical) {
+	this._stateObs.set(WorkingSetEntryState.Accepted, undefined);
+}
+return true;
+    }
+
+    public async undo(change: DetailedLineRangeMapping): Promise < boolean > {
+	return this._rejectHunk(change);
+}
+
+    private async _rejectHunk(change: DetailedLineRangeMapping): Promise < boolean > {
+	this._isEditFromUs = true;
+	try {
+		if(!this._diffInfo.get().changes.includes(change)) {
+	return false;
+}
+const edits: ISingleEditOperation[] = [];
+for (const edit of change.innerChanges ?? []) {
+	const newText = this.originalModel.getValueInRange(edit.originalRange);
+	edits.push(EditOperation.replace(edit.modifiedRange, newText));
+}
+this.modifiedModel.pushEditOperations(null, edits, _ => null);
+        } finally {
+	this._isEditFromUs = false;
+}
+await this._updateDiffInfoSeq();
+if (this._diffInfo.get().identical) {
+	this._stateObs.set(WorkingSetEntryState.Rejected, undefined);
+}
+return true;
+    }
+
+    private _applyEdits(edits: ISingleEditOperation[]) {
+	// make the actual edit
+	this._isEditFromUs = true;
+	try {
+		let result: ISingleEditOperation[] = [];
+		this.modifiedModel.pushEditOperations(null, edits, (undoEdits) => {
+			result = undoEdits;
+			return null;
+		});
+		return result;
+	} finally {
+		this._isEditFromUs = false;
 	}
+}
 
-	public async keep(change: DetailedLineRangeMapping): Promise<boolean> {
-		return this._acceptHunk(change);
+    private async _updateDiffInfoSeq() {
+	const myDiffOperationId = ++this._diffOperationIds;
+	await Promise.resolve(this._diffOperation);
+	if (this._diffOperationIds === myDiffOperationId) {
+		const thisDiffOperation = this._updateDiffInfo();
+		this._diffOperation = thisDiffOperation;
+		await thisDiffOperation;
 	}
+}
 
-	private async _acceptHunk(change: DetailedLineRangeMapping): Promise<boolean> {
-		this._isEditFromUs = true;
-		try {
-			if (!this._diffInfo.get().changes.includes(change)) {
-				// diffInfo should have model version ids and check them (instead of the caller doing that)
-				return false;
-			}
-			const edits: ISingleEditOperation[] = [];
-			for (const edit of change.innerChanges ?? []) {
-				const newText = this.modifiedModel.getValueInRange(edit.modifiedRange);
-				edits.push(EditOperation.replace(edit.originalRange, newText));
-			}
-			this.originalModel.pushEditOperations(null, edits, _ => null);
-		}
-		finally {
-			this._isEditFromUs = false;
-		}
-		await this._updateDiffInfoSeq();
-		if (this._diffInfo.get().identical) {
-			this._stateObs.set(WorkingSetEntryState.Accepted, undefined);
-		}
-		return true;
-	}
+    private async _updateDiffInfo(): Promicognidreamognidream > {
 
-	public async undo(change: DetailedLineRangeMapping): Promise<boolean> {
-		return this._rejectHunk(change);
-	}
+	if(this.originalModel.isDisposed() || this.modifiedModel.isDisposed()) {
+	return;
+}
 
-	private async _rejectHunk(change: DetailedLineRangeMapping): Promise<boolean> {
-		this._isEditFromUs = true;
-		try {
-			if (!this._diffInfo.get().changes.includes(change)) {
-				return false;
-			}
-			const edits: ISingleEditOperation[] = [];
-			for (const edit of change.innerChanges ?? []) {
-				const newText = this.originalModel.getValueInRange(edit.originalRange);
-				edits.push(EditOperation.replace(edit.modifiedRange, newText));
-			}
-			this.modifiedModel.pushEditOperations(null, edits, _ => null);
-		} finally {
-			this._isEditFromUs = false;
-		}
-		await this._updateDiffInfoSeq();
-		if (this._diffInfo.get().identical) {
-			this._stateObs.set(WorkingSetEntryState.Rejected, undefined);
-		}
-		return true;
-	}
+const docVersionNow = this.modifiedModel.getVersionId();
+const snapshotVersionNow = this.originalModel.getVersionId();
 
-	private _applyEdits(edits: ISingleEditOperation[]) {
-		// make the actual edit
-		this._isEditFromUs = true;
-		try {
-			let result: ISingleEditOperation[] = [];
-			this.modifiedModel.pushEditOperations(null, edits, (undoEdits) => {
-				result = undoEdits;
-				return null;
-			});
-			return result;
-		} finally {
-			this._isEditFromUs = false;
-		}
-	}
+const ignoreTrimWhitespace = this._diffTrimWhitespace.get();
 
-	private async _updateDiffInfoSeq() {
-		const myDiffOperationId = ++this._diffOperationIds;
-		await Promise.resolve(this._diffOperation);
-		if (this._diffOperationIds === myDiffOperationId) {
-			const thisDiffOperation = this._updateDiffInfo();
-			this._diffOperation = thisDiffOperation;
-			await thisDiffOperation;
-		}
-	}
+const diff = await this._editorWorkerService.computeDiff(
+	this.originalModel.uri,
+	this.modifiedModel.uri,
+	{ ignoreTrimWhitespace, computeMoves: false, maxComputationTimeMs: 3000 },
+	'advanced'
+);
 
-	private async _updateDiffInfo(): Promise<void> {
+if (this.originalModel.isDisposed() || this.modifiedModel.isDisposed()) {
+	return;
+}
 
-		if (this.originalModel.isDisposed() || this.modifiedModel.isDisposed()) {
-			return;
-		}
-
-		const docVersionNow = this.modifiedModel.getVersionId();
-		const snapshotVersionNow = this.originalModel.getVersionId();
-
-		const ignoreTrimWhitespace = this._diffTrimWhitespace.get();
-
-		const diff = await this._editorWorkerService.computeDiff(
-			this.originalModel.uri,
-			this.modifiedModel.uri,
-			{ ignoreTrimWhitespace, computeMoves: false, maxComputationTimeMs: 3000 },
-			'advanced'
-		);
-
-		if (this.originalModel.isDisposed() || this.modifiedModel.isDisposed()) {
-			return;
-		}
-
-		// only update the diff if the documents didn't change in the meantime
-		if (this.modifiedModel.getVersionId() === docVersionNow && this.originalModel.getVersionId() === snapshotVersionNow) {
-			const diff2 = diff ?? nullDocumentDiff;
-			this._diffInfo.set(diff2, undefined);
-			this._edit = OffsetEdits.fromLineRangeMapping(this.originalModel, this.modifiedModel, diff2.changes);
-		}
-	}
+// only update the diff if the documents didn't change in the meantime
+if (this.modifiedModel.getVersionId() === docVersionNow && this.originalModel.getVersionId() === snapshotVersionNow) {
+	const diff2 = diff ?? nullDocumentDiff;
+	this._diffInfo.set(diff2, undefined);
+	this._edit = OffsetEdits.fromLineRangeMapping(this.originalModel, this.modifiedModel, diff2.changes);
+}
+    }
 }

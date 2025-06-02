@@ -23,7 +23,7 @@ const require = createRequire(import.meta.url);
 
 class NodeModuleRequireInterceptor extends RequireInterceptor {
 
-	protected _installInterceptor(): void {
+	protected _installInterceptor(): cognidream {
 		const that = this;
 		const node_module = require('module');
 		const originalLoad = node_module._load;
@@ -73,7 +73,7 @@ export class ExtHostExtensionService extends AbstractExtHostExtensionService {
 
 	readonly extensionRuntime = ExtensionRuntime.Node;
 
-	protected async _beforeAlmostReadyToRunExtensions(): Promise<void> {
+	protected async _beforeAlmostReadyToRunExtensions(): Promicognidreamognidream> {
 		// make sure console.log calls make it to the render
 		this._instaService.createInstance(ExtHostConsoleForwarder);
 
@@ -84,67 +84,67 @@ export class ExtHostExtensionService extends AbstractExtHostExtensionService {
 		this._instaService.createInstance(ExtHostDownloadService);
 
 		// Register CLI Server for ipc
-		if (this._initData.remote.isRemote && this._initData.remote.authority) {
-			const cliServer = this._instaService.createInstance(CLIServer);
-			process.env['VSCODE_IPC_HOOK_CLI'] = cliServer.ipcHandlePath;
-		}
+		if(this._initData.remote.isRemote && this._initData.remote.authority) {
+	const cliServer = this._instaService.createInstance(CLIServer);
+	process.env['VSCODE_IPC_HOOK_CLI'] = cliServer.ipcHandlePath;
+}
 
-		// Register local file system shortcut
-		this._instaService.createInstance(ExtHostDiskFileSystemProvider);
+// Register local file system shortcut
+this._instaService.createInstance(ExtHostDiskFileSystemProvider);
 
-		// Module loading tricks
-		const interceptor = this._instaService.createInstance(NodeModuleRequireInterceptor, extensionApiFactory, { mine: this._myRegistry, all: this._globalRegistry });
-		await interceptor.install();
-		performance.mark('code/extHost/didInitAPI');
+// Module loading tricks
+const interceptor = this._instaService.createInstance(NodeModuleRequireInterceptor, extensionApiFactory, { mine: this._myRegistry, all: this._globalRegistry });
+await interceptor.install();
+performance.mark('code/extHost/didInitAPI');
 
-		// Do this when extension service exists, but extensions are not being activated yet.
-		const configProvider = await this._extHostConfiguration.getConfigProvider();
-		await connectProxyResolver(this._extHostWorkspace, configProvider, this, this._logService, this._mainThreadTelemetryProxy, this._initData, this._store);
-		performance.mark('code/extHost/didInitProxyResolver');
+// Do this when extension service exists, but extensions are not being activated yet.
+const configProvider = await this._extHostConfiguration.getConfigProvider();
+await connectProxyResolver(this._extHostWorkspace, configProvider, this, this._logService, this._mainThreadTelemetryProxy, this._initData, this._store);
+performance.mark('code/extHost/didInitProxyResolver');
+    }
+
+    protected _getEntryPoint(extensionDescription: IExtensionDescription): string | undefined {
+	return extensionDescription.main;
+}
+
+    protected async _loadCommonJSModule<T>(extension: IExtensionDescription | null, module: URI, activationTimesBuilder: ExtensionActivationTimesBuilder): Promise < T > {
+	if(module.scheme !== Schemas.file) {
+	throw new Error(`Cannot load URI: '${module}', must be of file-scheme`);
+}
+let r: T | null = null;
+activationTimesBuilder.codeLoadingStart();
+this._logService.trace(`ExtensionService#loadCommonJSModule ${module.toString(true)}`);
+this._logService.flush();
+const extensionId = extension?.identifier.value;
+if (extension) {
+	await this._extHostLocalizationService.initializeLocalizedMessages(extension);
+}
+try {
+	if (extensionId) {
+		performance.mark(`code/extHost/willLoadExtensionCode/${extensionId}`);
 	}
-
-	protected _getEntryPoint(extensionDescription: IExtensionDescription): string | undefined {
-		return extensionDescription.main;
+	r = <T>(require)(module.fsPath);
+} finally {
+	if (extensionId) {
+		performance.mark(`code/extHost/didLoadExtensionCode/${extensionId}`);
 	}
+	activationTimesBuilder.codeLoadingStop();
+}
+return r;
+    }
 
-	protected async _loadCommonJSModule<T>(extension: IExtensionDescription | null, module: URI, activationTimesBuilder: ExtensionActivationTimesBuilder): Promise<T> {
-		if (module.scheme !== Schemas.file) {
-			throw new Error(`Cannot load URI: '${module}', must be of file-scheme`);
-		}
-		let r: T | null = null;
-		activationTimesBuilder.codeLoadingStart();
-		this._logService.trace(`ExtensionService#loadCommonJSModule ${module.toString(true)}`);
-		this._logService.flush();
-		const extensionId = extension?.identifier.value;
-		if (extension) {
-			await this._extHostLocalizationService.initializeLocalizedMessages(extension);
-		}
-		try {
-			if (extensionId) {
-				performance.mark(`code/extHost/willLoadExtensionCode/${extensionId}`);
-			}
-			r = <T>(require)(module.fsPath);
-		} finally {
-			if (extensionId) {
-				performance.mark(`code/extHost/didLoadExtensionCode/${extensionId}`);
-			}
-			activationTimesBuilder.codeLoadingStop();
-		}
-		return r;
+    public async $setRemoteEnvironment(env: { [key: string]: string | null }): Promicognidreamognidream > {
+	if(!this._initData.remote.isRemote) {
+	return;
+}
+
+for (const key in env) {
+	const value = env[key];
+	if (value === null) {
+		delete process.env[key];
+	} else {
+		process.env[key] = value;
 	}
-
-	public async $setRemoteEnvironment(env: { [key: string]: string | null }): Promise<void> {
-		if (!this._initData.remote.isRemote) {
-			return;
-		}
-
-		for (const key in env) {
-			const value = env[key];
-			if (value === null) {
-				delete process.env[key];
-			} else {
-				process.env[key] = value;
-			}
-		}
-	}
+}
+    }
 }

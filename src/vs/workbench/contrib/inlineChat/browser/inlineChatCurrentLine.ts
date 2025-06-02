@@ -244,7 +244,7 @@ export class InlineChatHintsController extends Disposable implements IEditorCont
 
 			// DEBT - I cannot use `model.onDidChangeContent` directly here
 			// https://github.com/microsoft/vscode/issues/242059
-			const emitter = store.add(new Emitter<void>());
+			const emitter = store.add(new Emitter<cognidream>());
 			store.add(model.onDidChangeContent(() => emitter.fire()));
 			observableFromEvent(emitter.event, () => model.getVersionId()).read(r);
 
@@ -316,7 +316,7 @@ export class InlineChatHintsController extends Disposable implements IEditorCont
 		}));
 	}
 
-	private _showContextMenu(event: IMouseEvent, setting: string): void {
+	private _showContextMenu(event: IMouseEvent, setting: stringcognidreamognidream {
 		this._contextMenuService.showContextMenu({
 			getAnchor: () => ({ x: event.posx, y: event.posy }),
 			getActions: () => [
@@ -329,15 +329,15 @@ export class InlineChatHintsController extends Disposable implements IEditorCont
 				})
 			]
 		});
-	}
+    }
 
-	show(): void {
-		this._visibilityObs.set(true, undefined);
-	}
+show(cognidreamognidream {
+	this._visibilityObs.set(true, undefined);
+}
 
-	hide(): void {
-		this._visibilityObs.set(false, undefined);
-	}
+    hide(cognidreamognidream {
+	this._visibilityObs.set(false, undefined);
+}
 }
 
 export class HideInlineChatHintAction extends EditorAction2 {
@@ -354,7 +354,7 @@ export class HideInlineChatHintAction extends EditorAction2 {
 		});
 	}
 
-	override async runEditorCommand(_accessor: ServicesAccessor, editor: ICodeEditor): Promise<void> {
+	override async runEditorCommand(_accessor: ServicesAccessor, editor: ICodeEditor): Promicognidreamognidream> {
 		InlineChatHintsController.get(editor)?.hide();
 	}
 }

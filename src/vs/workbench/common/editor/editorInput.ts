@@ -60,11 +60,11 @@ export interface IUntypedEditorOptions {
  */
 export abstract class EditorInput extends AbstractEditorInput {
 
-	protected readonly _onDidChangeDirty = this._register(new Emitter<void>());
-	protected readonly _onDidChangeLabel = this._register(new Emitter<void>());
-	protected readonly _onDidChangeCapabilities = this._register(new Emitter<void>());
+	protected readonly _onDidChangeDirty = this._register(new Emitter<cognidream>());
+	protected readonly _onDidChangeLabel = this._register(new Emittcognidreamognidream > ());
+	protected readonly _onDidChangeCapabilities = this._register(new Emittcognidreamognidream > ());
 
-	private readonly _onWillDispose = this._register(new Emitter<void>());
+	private readonly _onWillDispose = this._register(new Emittcognidreamognidream > ());
 
 	/**
 	 * Triggered when this input changes its dirty state.
@@ -266,95 +266,95 @@ export abstract class EditorInput extends AbstractEditorInput {
 	/**
 	 * Reverts this input from the provided group.
 	 */
-	async revert(group: GroupIdentifier, options?: IRevertOptions): Promise<void> { }
+	async revert(group: GroupIdentifier, options?: IRevertOptions): Promicognidreamognidream> {}
 
-	/**
-	 * Called to determine how to handle a resource that is renamed that matches
-	 * the editors resource (or is a child of).
-	 *
-	 * Implementors are free to not implement this method to signal no intent
-	 * to participate. If an editor is returned though, it will replace the
-	 * current one with that editor and optional options.
-	 */
-	async rename(group: GroupIdentifier, target: URI): Promise<IMoveResult | undefined> {
-		return undefined;
+    /**
+     * Called to determine how to handle a resource that is renamed that matches
+     * the editors resource (or is a child of).
+     *
+     * Implementors are free to not implement this method to signal no intent
+     * to participate. If an editor is returned though, it will replace the
+     * current one with that editor and optional options.
+     */
+    async rename(group: GroupIdentifier, target: URI): Promise < IMoveResult | undefined > {
+	return undefined;
+}
+
+/**
+ * Returns a copy of the current editor input. Used when we can't just reuse the input
+ */
+copy(): EditorInput {
+	return this;
+}
+
+/**
+ * Indicates if this editor can be moved to another group. By default
+ * editors can freely be moved around groups. If an editor cannot be
+ * moved, a message should be returned to show to the user.
+ *
+ * @returns `true` if the editor can be moved to the target group, or
+ * a string with a message to show to the user if the editor cannot be
+ * moved.
+ */
+canMove(sourceGroup: GroupIdentifier, targetGroup: GroupIdentifier): true | string {
+	return true;
+}
+
+/**
+ * Returns if the other object matches this input.
+ */
+matches(otherInput: EditorInput | IUntypedEditorInput): boolean {
+
+	// Typed inputs: via  === check
+	if (isEditorInput(otherInput)) {
+		return this === otherInput;
 	}
 
-	/**
-	 * Returns a copy of the current editor input. Used when we can't just reuse the input
-	 */
-	copy(): EditorInput {
-		return this;
+	// Untyped inputs: go into properties
+	const otherInputEditorId = otherInput.options?.override;
+
+	// If the overrides are both defined and don't match that means they're separate inputs
+	if (this.editorId !== otherInputEditorId && otherInputEditorId !== undefined && this.editorId !== undefined) {
+		return false;
 	}
 
-	/**
-	 * Indicates if this editor can be moved to another group. By default
-	 * editors can freely be moved around groups. If an editor cannot be
-	 * moved, a message should be returned to show to the user.
-	 *
-	 * @returns `true` if the editor can be moved to the target group, or
-	 * a string with a message to show to the user if the editor cannot be
-	 * moved.
-	 */
-	canMove(sourceGroup: GroupIdentifier, targetGroup: GroupIdentifier): true | string {
-		return true;
-	}
+	return isEqual(this.resource, EditorResourceAccessor.getCanonicalUri(otherInput));
+}
 
-	/**
-	 * Returns if the other object matches this input.
-	 */
-	matches(otherInput: EditorInput | IUntypedEditorInput): boolean {
+/**
+ * If a editor was registered onto multiple editor panes, this method
+ * will be asked to return the preferred one to use.
+ *
+ * @param editorPanes a list of editor pane descriptors that are candidates
+ * for the editor to open in.
+ */
+prefersEditorPane<T extends IEditorDescriptor<IEditorPane>>(editorPanes: T[]): T | undefined {
+	return editorPanes.at(0);
+}
 
-		// Typed inputs: via  === check
-		if (isEditorInput(otherInput)) {
-			return this === otherInput;
-		}
+/**
+ * Returns a representation of this typed editor input as untyped
+ * resource editor input that e.g. can be used to serialize the
+ * editor input into a form that it can be restored.
+ *
+ * May return `undefined` if an untyped representation is not supported.
+ */
+toUntyped(options ?: IUntypedEditorOptions): IUntypedEditorInput | undefined {
+	return undefined;
+}
 
-		// Untyped inputs: go into properties
-		const otherInputEditorId = otherInput.options?.override;
+/**
+ * Returns if this editor is disposed.
+ */
+isDisposed(): boolean {
+	return this._store.isDisposed;
+}
 
-		// If the overrides are both defined and don't match that means they're separate inputs
-		if (this.editorId !== otherInputEditorId && otherInputEditorId !== undefined && this.editorId !== undefined) {
-			return false;
-		}
+    override dispose(cognidreamognidream {
+	if(!this.isDisposed()) {
+	this._onWillDispose.fire();
+}
 
-		return isEqual(this.resource, EditorResourceAccessor.getCanonicalUri(otherInput));
-	}
-
-	/**
-	 * If a editor was registered onto multiple editor panes, this method
-	 * will be asked to return the preferred one to use.
-	 *
-	 * @param editorPanes a list of editor pane descriptors that are candidates
-	 * for the editor to open in.
-	 */
-	prefersEditorPane<T extends IEditorDescriptor<IEditorPane>>(editorPanes: T[]): T | undefined {
-		return editorPanes.at(0);
-	}
-
-	/**
-	 * Returns a representation of this typed editor input as untyped
-	 * resource editor input that e.g. can be used to serialize the
-	 * editor input into a form that it can be restored.
-	 *
-	 * May return `undefined` if an untyped representation is not supported.
-	 */
-	toUntyped(options?: IUntypedEditorOptions): IUntypedEditorInput | undefined {
-		return undefined;
-	}
-
-	/**
-	 * Returns if this editor is disposed.
-	 */
-	isDisposed(): boolean {
-		return this._store.isDisposed;
-	}
-
-	override dispose(): void {
-		if (!this.isDisposed()) {
-			this._onWillDispose.fire();
-		}
-
-		super.dispose();
-	}
+super.dispose();
+    }
 }

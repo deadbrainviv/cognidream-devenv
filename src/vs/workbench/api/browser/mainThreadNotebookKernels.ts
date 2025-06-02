@@ -99,9 +99,9 @@ abstract class MainThreadKernel implements INotebookKernel {
 		this._onDidChange.fire(event);
 	}
 
-	abstract executeNotebookCellsRequest(uri: URI, cellHandles: number[]): Promise<void>;
-	abstract cancelNotebookCellExecution(uri: URI, cellHandles: number[]): Promise<void>;
-	abstract provideVariables(notebookUri: URI, parentId: number | undefined, kind: 'named' | 'indexed', start: number, token: CancellationToken): AsyncIterableObject<VariablesResult>;
+	abstract executeNotebookCellsRequest(uri: URI, cellHandles: number[]): Promise<cognidream>;
+	abstract cancelNotebookCellExecution(uri: URI, cellHandles: number[]): Promicognidreamognidream>;
+    abstract provideVariables(notebookUri: URI, parentId: number | undefined, kind: 'named' | 'indexed', start: number, token: CancellationToken): AsyncIterableObject<VariablesResult>;
 }
 
 class MainThreadKernelDetectionTask implements INotebookKernelDetectionTask {
@@ -163,289 +163,289 @@ export class MainThreadNotebookKernels implements MainThreadNotebookKernelsShape
 		}));
 	}
 
-	dispose(): void {
+	dispose(cognidreamognidream {
 		this._disposables.dispose();
-		for (const [, registration] of this._kernels.values()) {
-			registration.dispose();
+for (const [, registration] of this._kernels.values()) {
+	registration.dispose();
+}
+for (const [, registration] of this._kernelDetectionTasks.values()) {
+	registration.dispose();
+}
+for (const [, registration] of this._kernelSourceActionProviders.values()) {
+	registration.dispose();
+}
+this._editors.dispose();
+    }
+
+    // --- kernel ipc
+
+    private _onEditorAdd(editor: INotebookEditor) {
+
+	const ipcListener = editor.onDidReceiveMessage(e => {
+		if (!editor.hasModel()) {
+			return;
 		}
-		for (const [, registration] of this._kernelDetectionTasks.values()) {
-			registration.dispose();
+		const { selected } = this._notebookKernelService.getMatchingKernel(editor.textModel);
+		if (!selected) {
+			return;
 		}
-		for (const [, registration] of this._kernelSourceActionProviders.values()) {
-			registration.dispose();
-		}
-		this._editors.dispose();
-	}
-
-	// --- kernel ipc
-
-	private _onEditorAdd(editor: INotebookEditor) {
-
-		const ipcListener = editor.onDidReceiveMessage(e => {
-			if (!editor.hasModel()) {
-				return;
-			}
-			const { selected } = this._notebookKernelService.getMatchingKernel(editor.textModel);
-			if (!selected) {
-				return;
-			}
-			for (const [handle, candidate] of this._kernels) {
-				if (candidate[0] === selected) {
-					this._proxy.$acceptKernelMessageFromRenderer(handle, editor.getId(), e.message);
-					break;
-				}
-			}
-		});
-		this._editors.set(editor, ipcListener);
-	}
-
-	private _onEditorRemove(editor: INotebookEditor) {
-		this._editors.deleteAndDispose(editor);
-	}
-
-	async $postMessage(handle: number, editorId: string | undefined, message: any): Promise<boolean> {
-		const tuple = this._kernels.get(handle);
-		if (!tuple) {
-			throw new Error('kernel already disposed');
-		}
-		const [kernel] = tuple;
-		let didSend = false;
-		for (const [editor] of this._editors) {
-			if (!editor.hasModel()) {
-				continue;
-			}
-			if (this._notebookKernelService.getMatchingKernel(editor.textModel).selected !== kernel) {
-				// different kernel
-				continue;
-			}
-			if (editorId === undefined) {
-				// all editors
-				editor.postMessage(message);
-				didSend = true;
-			} else if (editor.getId() === editorId) {
-				// selected editors
-				editor.postMessage(message);
-				didSend = true;
+		for (const [handle, candidate] of this._kernels) {
+			if (candidate[0] === selected) {
+				this._proxy.$acceptKernelMessageFromRenderer(handle, editor.getId(), e.message);
 				break;
 			}
 		}
-		return didSend;
-	}
+	});
+	this._editors.set(editor, ipcListener);
+}
 
-	private variableRequestIndex = 0;
-	private variableRequestMap = new Map<string, AsyncIterableSource<VariablesResult>>();
-	$receiveVariable(requestId: string, variable: VariablesResult) {
-		const source = this.variableRequestMap.get(requestId);
-		if (source) {
-			source.emitOne(variable);
+    private _onEditorRemove(editor: INotebookEditor) {
+	this._editors.deleteAndDispose(editor);
+}
+
+    async $postMessage(handle: number, editorId: string | undefined, message: any): Promise < boolean > {
+	const tuple = this._kernels.get(handle);
+	if(!tuple) {
+		throw new Error('kernel already disposed');
+	}
+        const [kernel] = tuple;
+	let didSend = false;
+	for(const [editor] of this._editors) {
+	if (!editor.hasModel()) {
+		continue;
+	}
+	if (this._notebookKernelService.getMatchingKernel(editor.textModel).selected !== kernel) {
+		// different kernel
+		continue;
+	}
+	if (editorId === undefined) {
+		// all editors
+		editor.postMessage(message);
+		didSend = true;
+	} else if (editor.getId() === editorId) {
+		// selected editors
+		editor.postMessage(message);
+		didSend = true;
+		break;
+	}
+}
+return didSend;
+    }
+
+    private variableRequestIndex = 0;
+    private variableRequestMap = new Map<string, AsyncIterableSource<VariablesResult>>();
+$receiveVariable(requestId: string, variable: VariablesResult) {
+	const source = this.variableRequestMap.get(requestId);
+	if (source) {
+		source.emitOne(variable);
+	}
+}
+
+    // --- kernel adding/updating/removal
+
+    async $addKernel(handle: number, data: INotebookKernelDto2): Promicognidreamognidream > {
+	const that = this;
+	const kernel = new class extends MainThreadKernel {
+		async executeNotebookCellsRequest(uri: URI, handles: number[]): cognidreammise<cognidream> {
+			await that._proxy.$executeCells(handle, uri, handles);
 		}
+		async cancelNotebookCellExecution(uri: URI, handles: number[]): cognidreammise<cognidream> {
+			await that._proxy.$cancelCells(handle, uri, handles);
+		}
+		provideVariables(notebookUri: URI, parentId: number | undefined, kind: 'named' | 'indexed', start: number, token: CancellationToken): AsyncIterableObject<VariablesResult> {
+			const requestId = `${handle}variables${that.variableRequestIndex++}`;
+			if (that.variableRequestMap.has(requestId)) {
+				return that.variableRequestMap.get(requestId)!.asyncIterable;
+			}
+
+			const source = new AsyncIterableSource<VariablesResult>();
+			that.variableRequestMap.set(requestId, source);
+			that._proxy.$provideVariables(handle, requestId, notebookUri, parentId, kind, start, token).then(() => {
+				source.resolve();
+				that.variableRequestMap.delete(requestId);
+			}).catch((err) => {
+				source.reject(err);
+				that.variableRequestMap.delete(requestId);
+			});
+
+			return source.asyncIterable;
+		}
+	}(data, this._languageService);
+
+	const disposables = this._disposables.add(new DisposableStore());
+	// Ensure _kernels is up to date before we register a kernel.
+	this._kernels.set(handle, [kernel, disposables]);
+	disposables.add(this._notebookKernelService.registerKernel(kernel));
+}
+
+$updateKernel(handle: number, data: Partial < INotebookKernelDto2 > cognidreamognidream {
+	const tuple = this._kernels.get(handle);
+	if(tuple) {
+		tuple[0].update(data);
+	}
+}
+
+    $removeKernel(handle: numbercognidreamognidream {
+	const tuple = this._kernels.get(handle);
+	if(tuple) {
+		tuple[1].dispose();
+		this._kernels.delete(handle);
+	}
+}
+
+    $updateNotebookPriority(handle: number, notebook: UriComponents, value: number | undefinedcognidreamognidream {
+	const tuple = this._kernels.get(handle);
+	if(tuple) {
+		this._notebookKernelService.updateKernelNotebookAffinity(tuple[0], URI.revive(notebook), value);
+	}
+}
+
+    // --- Cell execution
+
+    $createExecution(handle: number, controllerId: string, rawUri: UriComponents, cellHandle: numbercognidreamognidream {
+	const uri = URI.revive(rawUri);
+	const notebook = this._notebookService.getNotebookTextModel(uri);
+	if(!notebook) {
+		throw new Error(`Notebook not found: ${uri.toString()}`);
 	}
 
-	// --- kernel adding/updating/removal
+        const kernel = this._notebookKernelService.getMatchingKernel(notebook);
+	if(!kernel.selected || kernel.selected.id !== controllerId) {
+	throw new Error(`Kernel is not selected: ${kernel.selected?.id} !== ${controllerId}`);
+}
+        const execution = this._notebookExecutionStateService.createCellExecution(uri, cellHandle);
+execution.confirm();
+this._executions.set(handle, execution);
+    }
 
-	async $addKernel(handle: number, data: INotebookKernelDto2): Promise<void> {
-		const that = this;
-		const kernel = new class extends MainThreadKernel {
-			async executeNotebookCellsRequest(uri: URI, handles: number[]): Promise<void> {
-				await that._proxy.$executeCells(handle, uri, handles);
-			}
-			async cancelNotebookCellExecution(uri: URI, handles: number[]): Promise<void> {
-				await that._proxy.$cancelCells(handle, uri, handles);
-			}
-			provideVariables(notebookUri: URI, parentId: number | undefined, kind: 'named' | 'indexed', start: number, token: CancellationToken): AsyncIterableObject<VariablesResult> {
-				const requestId = `${handle}variables${that.variableRequestIndex++}`;
-				if (that.variableRequestMap.has(requestId)) {
-					return that.variableRequestMap.get(requestId)!.asyncIterable;
+$updateExecution(handle: number, data: SerializableObjectWithBuffers < ICellExecuteUpdateDto[] > cognidreamognidream {
+	const updates = data.value;
+	try {
+		const execution = this._executions.get(handle);
+		execution?.update(updates.map(NotebookDto.fromCellExecuteUpdateDto));
+        } catch (e) {
+	onUnexpectedError(e);
+}
+    }
+
+$completeExecution(handle: number, data: SerializableObjectWithBuffers < ICellExecutionCompleteDto > cognidreamognidream {
+	try {
+		const execution = this._executions.get(handle);
+		execution?.complete(NotebookDto.fromCellExecuteCompleteDto(data.value));
+        } catch (e) {
+	onUnexpectedError(e);
+} finally {
+	this._executions.delete(handle);
+}
+    }
+
+// --- Notebook execution
+
+$createNotebookExecution(handle: number, controllerId: string, rawUri: UriComponentscognidreamognidream {
+	const uri = URI.revive(rawUri);
+	const notebook = this._notebookService.getNotebookTextModel(uri);
+	if(!notebook) {
+		throw new Error(`Notebook not found: ${uri.toString()}`);
+	}
+
+        const kernel = this._notebookKernelService.getMatchingKernel(notebook);
+	if(!kernel.selected || kernel.selected.id !== controllerId) {
+	throw new Error(`Kernel is not selected: ${kernel.selected?.id} !== ${controllerId}`);
+}
+const execution = this._notebookExecutionStateService.createExecution(uri);
+execution.confirm();
+this._notebookExecutions.set(handle, execution);
+    }
+
+$beginNotebookExecution(handle: numbercognidreamognidream {
+	try {
+		const execution = this._notebookExecutions.get(handle);
+		execution?.begin();
+	} catch(e) {
+		onUnexpectedError(e);
+	}
+}
+
+    $completeNotebookExecution(handle: numbercognidreamognidream {
+	try {
+		const execution = this._notebookExecutions.get(handle);
+		execution?.complete();
+	} catch(e) {
+		onUnexpectedError(e);
+	} finally {
+		this._notebookExecutions.delete(handle);
+	}
+}
+
+    // --- notebook kernel detection task
+    async $addKernelDetectionTask(handle: number, notebookType: string): Promicognidreamognidream > {
+	const kernelDetectionTask = new MainThreadKernelDetectionTask(notebookType);
+	const registration = this._notebookKernelService.registerNotebookKernelDetectionTask(kernelDetectionTask);
+	this._kernelDetectionTasks.set(handle, [kernelDetectionTask, registration]);
+}
+
+    $removeKernelDetectionTask(handle: numbercognidreamognidream {
+	const tuple = this._kernelDetectionTasks.get(handle);
+	if(tuple) {
+		tuple[1].dispose();
+		this._kernelDetectionTasks.delete(handle);
+	}
+}
+
+    // --- notebook kernel source action provider
+
+    async $addKernelSourceActionProvider(handle: number, eventHandle: number, notebookType: string): Promicognidreamognidream > {
+	const kernelSourceActionProvider: IKernelSourceActionProvider = {
+		viewType: notebookType,
+		provideKernelSourceActions: async () => {
+			const actions = await this._proxy.$provideKernelSourceActions(handle, CancellationToken.None);
+
+			return actions.map(action => {
+				let documentation = action.documentation;
+				if (action.documentation && typeof action.documentation !== 'string') {
+					documentation = URI.revive(action.documentation);
 				}
 
-				const source = new AsyncIterableSource<VariablesResult>();
-				that.variableRequestMap.set(requestId, source);
-				that._proxy.$provideVariables(handle, requestId, notebookUri, parentId, kind, start, token).then(() => {
-					source.resolve();
-					that.variableRequestMap.delete(requestId);
-				}).catch((err) => {
-					source.reject(err);
-					that.variableRequestMap.delete(requestId);
-				});
-
-				return source.asyncIterable;
-			}
-		}(data, this._languageService);
-
-		const disposables = this._disposables.add(new DisposableStore());
-		// Ensure _kernels is up to date before we register a kernel.
-		this._kernels.set(handle, [kernel, disposables]);
-		disposables.add(this._notebookKernelService.registerKernel(kernel));
-	}
-
-	$updateKernel(handle: number, data: Partial<INotebookKernelDto2>): void {
-		const tuple = this._kernels.get(handle);
-		if (tuple) {
-			tuple[0].update(data);
+				return {
+					label: action.label,
+					command: action.command,
+					description: action.description,
+					detail: action.detail,
+					documentation,
+				};
+			});
 		}
+	};
+
+	if(typeof eventHandle === 'number') {
+	const emitter = newcognidreamtter<cognidream>();
+	this._kernelSourceActionProvidersEventRegistrations.set(eventHandle, emitter);
+	kernelSourceActionProvider.onDidChangeSourceActions = emitter.event;
+}
+
+        const registration = this._notebookKernelService.registerKernelSourceActionProvider(notebookType, kernelSourceActionProvider);
+this._kernelSourceActionProviders.set(handle, [kernelSourceActionProvider, registration]);
+    }
+
+$removeKernelSourceActionProvider(handle: number, eventHandle: numbercognidreamognidream {
+	const tuple = this._kernelSourceActionProviders.get(handle);
+	if(tuple) {
+		tuple[1].dispose();
+		this._kernelSourceActionProviders.delete(handle);
 	}
+        if(typeof eventHandle === 'number') {
+	this._kernelSourceActionProvidersEventRegistrations.delete(eventHandle);
+}
+    }
 
-	$removeKernel(handle: number): void {
-		const tuple = this._kernels.get(handle);
-		if (tuple) {
-			tuple[1].dispose();
-			this._kernels.delete(handle);
-		}
-	}
+$emitNotebookKernelSourceActionsChangeEvent(eventHandle: numbercognidreamognidream {
+	const emitter = this._kernelSourceActionProvidersEventRegistrations.get(eventHandle);
+	if(emitter instanceof Emitter) {
+	emitter.fire(undefined);
+}
+    }
 
-	$updateNotebookPriority(handle: number, notebook: UriComponents, value: number | undefined): void {
-		const tuple = this._kernels.get(handle);
-		if (tuple) {
-			this._notebookKernelService.updateKernelNotebookAffinity(tuple[0], URI.revive(notebook), value);
-		}
-	}
-
-	// --- Cell execution
-
-	$createExecution(handle: number, controllerId: string, rawUri: UriComponents, cellHandle: number): void {
-		const uri = URI.revive(rawUri);
-		const notebook = this._notebookService.getNotebookTextModel(uri);
-		if (!notebook) {
-			throw new Error(`Notebook not found: ${uri.toString()}`);
-		}
-
-		const kernel = this._notebookKernelService.getMatchingKernel(notebook);
-		if (!kernel.selected || kernel.selected.id !== controllerId) {
-			throw new Error(`Kernel is not selected: ${kernel.selected?.id} !== ${controllerId}`);
-		}
-		const execution = this._notebookExecutionStateService.createCellExecution(uri, cellHandle);
-		execution.confirm();
-		this._executions.set(handle, execution);
-	}
-
-	$updateExecution(handle: number, data: SerializableObjectWithBuffers<ICellExecuteUpdateDto[]>): void {
-		const updates = data.value;
-		try {
-			const execution = this._executions.get(handle);
-			execution?.update(updates.map(NotebookDto.fromCellExecuteUpdateDto));
-		} catch (e) {
-			onUnexpectedError(e);
-		}
-	}
-
-	$completeExecution(handle: number, data: SerializableObjectWithBuffers<ICellExecutionCompleteDto>): void {
-		try {
-			const execution = this._executions.get(handle);
-			execution?.complete(NotebookDto.fromCellExecuteCompleteDto(data.value));
-		} catch (e) {
-			onUnexpectedError(e);
-		} finally {
-			this._executions.delete(handle);
-		}
-	}
-
-	// --- Notebook execution
-
-	$createNotebookExecution(handle: number, controllerId: string, rawUri: UriComponents): void {
-		const uri = URI.revive(rawUri);
-		const notebook = this._notebookService.getNotebookTextModel(uri);
-		if (!notebook) {
-			throw new Error(`Notebook not found: ${uri.toString()}`);
-		}
-
-		const kernel = this._notebookKernelService.getMatchingKernel(notebook);
-		if (!kernel.selected || kernel.selected.id !== controllerId) {
-			throw new Error(`Kernel is not selected: ${kernel.selected?.id} !== ${controllerId}`);
-		}
-		const execution = this._notebookExecutionStateService.createExecution(uri);
-		execution.confirm();
-		this._notebookExecutions.set(handle, execution);
-	}
-
-	$beginNotebookExecution(handle: number): void {
-		try {
-			const execution = this._notebookExecutions.get(handle);
-			execution?.begin();
-		} catch (e) {
-			onUnexpectedError(e);
-		}
-	}
-
-	$completeNotebookExecution(handle: number): void {
-		try {
-			const execution = this._notebookExecutions.get(handle);
-			execution?.complete();
-		} catch (e) {
-			onUnexpectedError(e);
-		} finally {
-			this._notebookExecutions.delete(handle);
-		}
-	}
-
-	// --- notebook kernel detection task
-	async $addKernelDetectionTask(handle: number, notebookType: string): Promise<void> {
-		const kernelDetectionTask = new MainThreadKernelDetectionTask(notebookType);
-		const registration = this._notebookKernelService.registerNotebookKernelDetectionTask(kernelDetectionTask);
-		this._kernelDetectionTasks.set(handle, [kernelDetectionTask, registration]);
-	}
-
-	$removeKernelDetectionTask(handle: number): void {
-		const tuple = this._kernelDetectionTasks.get(handle);
-		if (tuple) {
-			tuple[1].dispose();
-			this._kernelDetectionTasks.delete(handle);
-		}
-	}
-
-	// --- notebook kernel source action provider
-
-	async $addKernelSourceActionProvider(handle: number, eventHandle: number, notebookType: string): Promise<void> {
-		const kernelSourceActionProvider: IKernelSourceActionProvider = {
-			viewType: notebookType,
-			provideKernelSourceActions: async () => {
-				const actions = await this._proxy.$provideKernelSourceActions(handle, CancellationToken.None);
-
-				return actions.map(action => {
-					let documentation = action.documentation;
-					if (action.documentation && typeof action.documentation !== 'string') {
-						documentation = URI.revive(action.documentation);
-					}
-
-					return {
-						label: action.label,
-						command: action.command,
-						description: action.description,
-						detail: action.detail,
-						documentation,
-					};
-				});
-			}
-		};
-
-		if (typeof eventHandle === 'number') {
-			const emitter = new Emitter<void>();
-			this._kernelSourceActionProvidersEventRegistrations.set(eventHandle, emitter);
-			kernelSourceActionProvider.onDidChangeSourceActions = emitter.event;
-		}
-
-		const registration = this._notebookKernelService.registerKernelSourceActionProvider(notebookType, kernelSourceActionProvider);
-		this._kernelSourceActionProviders.set(handle, [kernelSourceActionProvider, registration]);
-	}
-
-	$removeKernelSourceActionProvider(handle: number, eventHandle: number): void {
-		const tuple = this._kernelSourceActionProviders.get(handle);
-		if (tuple) {
-			tuple[1].dispose();
-			this._kernelSourceActionProviders.delete(handle);
-		}
-		if (typeof eventHandle === 'number') {
-			this._kernelSourceActionProvidersEventRegistrations.delete(eventHandle);
-		}
-	}
-
-	$emitNotebookKernelSourceActionsChangeEvent(eventHandle: number): void {
-		const emitter = this._kernelSourceActionProvidersEventRegistrations.get(eventHandle);
-		if (emitter instanceof Emitter) {
-			emitter.fire(undefined);
-		}
-	}
-
-	$variablesUpdated(notebookUri: UriComponents): void {
-		this._notebookKernelService.notifyVariablesChange(URI.revive(notebookUri));
-	}
+$variablesUpdated(notebookUri: UriComponentscognidreamognidream {
+	this._notebookKernelService.notifyVariablesChange(URI.revive(notebookUri));
+}
 }

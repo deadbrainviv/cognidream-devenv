@@ -76,7 +76,7 @@ export function showCopilotView(viewsService: IViewsService, layoutService: IWor
 	}
 }
 
-export function ensureSideBarChatViewSize(viewDescriptorService: IViewDescriptorService, layoutService: IWorkbenchLayoutService, viewsService: IViewsService): void {
+export function ensureSideBarChatViewSize(viewDescriptorService: IViewDescriptorService, layoutService: IWorkbenchLayoutService, viewsService: IViewsService): cognidream {
 	const viewId = preferCopilotEditsView(viewsService) ? EditsViewId : ChatViewId;
 
 	const location = viewDescriptorService.getViewLocationById(viewId);
@@ -102,14 +102,14 @@ export function ensureSideBarChatViewSize(viewDescriptorService: IViewDescriptor
 export const IQuickChatService = createDecorator<IQuickChatService>('quickChatService');
 export interface IQuickChatService {
 	readonly _serviceBrand: undefined;
-	readonly onDidClose: Event<void>;
-	readonly enabled: boolean;
-	readonly focused: boolean;
-	toggle(options?: IQuickChatOpenOptions): void;
-	focus(): void;
-	open(options?: IQuickChatOpenOptions): void;
-	close(): void;
-	openInChatView(): void;
+	readonly onDidClose: Evecognidreamognidream>;
+    readonly enabled: boolean;
+    readonly focused: boolean;
+toggle(options ?: IQuickChatOpenOptionscognidreamognidream;
+focus(cognidreamognidream;
+open(options ?: IQuickChatOpenOptionscognidreamognidream;
+close(cognidreamognidream;
+openInChatView(cognidreamognidream;
 }
 
 export interface IQuickChatOpenOptions {
@@ -131,7 +131,7 @@ export const IChatAccessibilityService = createDecorator<IChatAccessibilityServi
 export interface IChatAccessibilityService {
 	readonly _serviceBrand: undefined;
 	acceptRequest(): number;
-	acceptResponse(response: IChatResponseViewModel | string | undefined, requestId: number, isVoiceInput?: boolean): void;
+	acceptResponse(response: IChatResponseViewModel | string | undefined, requestId: number, isVoiceInput?: booleancognidreamognidream;
 }
 
 export interface IChatCodeBlockInfo {
@@ -142,13 +142,13 @@ export interface IChatCodeBlockInfo {
 	readonly uriPromise: Promise<URI | undefined>;
 	codemapperUri: URI | undefined;
 	readonly isStreaming: boolean;
-	focus(): void;
+	focus(cognidreamognidream;
 }
 
 export interface IChatFileTreeInfo {
 	treeDataId: string;
 	treeIndex: number;
-	focus(): void;
+	focus(cognidreamognidream;
 }
 
 export type ChatTreeItem = IChatRequestViewModel | IChatResponseViewModel;
@@ -209,49 +209,49 @@ export interface IChatAcceptInputOptions {
 }
 
 export interface IChatWidget {
-	readonly onDidChangeViewModel: Event<void>;
-	readonly onDidAcceptInput: Event<void>;
-	readonly onDidHide: Event<void>;
-	readonly onDidSubmitAgent: Event<{ agent: IChatAgentData; slashCommand?: IChatAgentCommand }>;
-	readonly onDidChangeAgent: Event<{ agent: IChatAgentData; slashCommand?: IChatAgentCommand }>;
-	readonly onDidChangeParsedInput: Event<void>;
-	readonly location: ChatAgentLocation;
-	readonly viewContext: IChatWidgetViewContext;
-	readonly viewModel: IChatViewModel | undefined;
-	readonly inputEditor: ICodeEditor;
-	readonly supportsFileReferences: boolean;
-	readonly parsedInput: IParsedChatRequest;
-	lastSelectedAgent: IChatAgentData | undefined;
-	readonly scopedContextKeyService: IContextKeyService;
-	readonly input: ChatInputPart;
-	readonly attachmentModel: ChatAttachmentModel;
+	readonly onDidChangeViewModel: Evecognidreamognidream>;
+    readonly onDidAcceptInput: Evecognidreamognidream >;
+    readonly onDidHide: Evecognidreamognidream >;
+    readonly onDidSubmitAgent: Event<{ agent: IChatAgentData; slashCommand?: IChatAgentCommand }>;
+    readonly onDidChangeAgent: Event<{ agent: IChatAgentData; slashCommand?: IChatAgentCommand }>;
+    readonly onDidChangeParsedInput: Evecognidreamognidream >;
+    readonly location: ChatAgentLocation;
+    readonly viewContext: IChatWidgetViewContext;
+    readonly viewModel: IChatViewModel | undefined;
+    readonly inputEditor: ICodeEditor;
+    readonly supportsFileReferences: boolean;
+    readonly parsedInput: IParsedChatRequest;
+lastSelectedAgent: IChatAgentData | undefined;
+    readonly scopedContextKeyService: IContextKeyService;
+    readonly input: ChatInputPart;
+    readonly attachmentModel: ChatAttachmentModel;
 
-	// TODO I don't like this
-	readonly isUnifiedPanelWidget: boolean;
+    // TODO I don't like this
+    readonly isUnifiedPanelWidget: boolean;
 
-	getContrib<T extends IChatWidgetContrib>(id: string): T | undefined;
-	reveal(item: ChatTreeItem): void;
-	focus(item: ChatTreeItem): void;
-	getSibling(item: ChatTreeItem, type: 'next' | 'previous'): ChatTreeItem | undefined;
-	getFocus(): ChatTreeItem | undefined;
-	setInput(query?: string): void;
-	getInput(): string;
-	refreshParsedInput(): void;
-	logInputHistory(): void;
-	acceptInput(query?: string, options?: IChatAcceptInputOptions): Promise<IChatResponseModel | undefined>;
-	rerunLastRequest(): Promise<void>;
-	setInputPlaceholder(placeholder: string): void;
-	resetInputPlaceholder(): void;
-	focusLastMessage(): void;
-	focusInput(): void;
-	hasInputFocus(): boolean;
-	getCodeBlockInfoForEditor(uri: URI): IChatCodeBlockInfo | undefined;
-	getCodeBlockInfosForResponse(response: IChatResponseViewModel): IChatCodeBlockInfo[];
-	getFileTreeInfosForResponse(response: IChatResponseViewModel): IChatFileTreeInfo[];
-	getLastFocusedFileTreeForResponse(response: IChatResponseViewModel): IChatFileTreeInfo | undefined;
-	clear(): void;
-	getViewState(): IChatViewState;
-	togglePaused(): void;
+getContrib<T extends IChatWidgetContrib>(id: string): T | undefined;
+reveal(item: ChatTreeItemcognidreamognidream;
+focus(item: ChatTreeItemcognidreamognidream;
+getSibling(item: ChatTreeItem, type: 'next' | 'previous'): ChatTreeItem | undefined;
+getFocus(): ChatTreeItem | undefined;
+setInput(query ?: stringcognidreamognidream;
+getInput(): string;
+refreshParsedInput(cognidreamognidream;
+logInputHistory(cognidreamognidream;
+acceptInput(query ?: string, options ?: IChatAcceptInputOptions): Promise<IChatResponseModel | undefined>;
+rerunLastRequest(): Promicognidreamognidream >;
+setInputPlaceholder(placeholder: stringcognidreamognidream;
+resetInputPlaceholder(cognidreamognidream;
+focusLastMessage(cognidreamognidream;
+focusInput(cognidreamognidream;
+hasInputFocus(): boolean;
+getCodeBlockInfoForEditor(uri: URI): IChatCodeBlockInfo | undefined;
+getCodeBlockInfosForResponse(response: IChatResponseViewModel): IChatCodeBlockInfo[];
+getFileTreeInfosForResponse(response: IChatResponseViewModel): IChatFileTreeInfo[];
+getLastFocusedFileTreeForResponse(response: IChatResponseViewModel): IChatFileTreeInfo | undefined;
+clear(cognidreamognidream;
+getViewState(): IChatViewState;
+togglePaused(cognidreamognidream;
 }
 
 

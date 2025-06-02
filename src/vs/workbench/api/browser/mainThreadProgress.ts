@@ -15,7 +15,7 @@ import { toAction } from '../../../base/common/actions.js';
 export class MainThreadProgress implements MainThreadProgressShape {
 
 	private readonly _progressService: IProgressService;
-	private _progress = new Map<number, { resolve: () => void; progress: IProgress<IProgressStep> }>();
+	private _progress = new Map<number, { resolve: () => cognidream; progress: IProgress<IProgressStep> }>();
 	private readonly _proxy: ExtHostProgressShape;
 
 	constructor(
@@ -27,55 +27,55 @@ export class MainThreadProgress implements MainThreadProgressShape {
 		this._progressService = progressService;
 	}
 
-	dispose(): void {
+	dispose(cognidreamognidream {
 		this._progress.forEach(handle => handle.resolve());
-		this._progress.clear();
+this._progress.clear();
+    }
+
+    async $startProgress(handle: number, options: IProgressOptions, extensionId ?: string): Promicognidreamognidream > {
+	const task = this._createTask(handle);
+
+	if(options.location === ProgressLocation.Notification && extensionId) {
+	const notificationOptions: IProgressNotificationOptions = {
+		...options,
+		location: ProgressLocation.Notification,
+		secondaryActions: [toAction({
+			id: extensionId,
+			label: localize('manageExtension', "Manage Extension"),
+			run: () => this._commandService.executeCommand('_extensions.manage', extensionId)
+		})]
+	};
+
+	options = notificationOptions;
+}
+
+try {
+	this._progressService.withProgress(options, task, () => this._proxy.$acceptProgressCanceled(handle));
+} catch (err) {
+	// the withProgress-method will throw synchronously when invoked with bad options
+	// which is then an enternal/extension error
+	onUnexpectedExternalError(err);
+}
+    }
+
+$progressReport(handle: number, message: IProgressStepcognidreamognidream {
+	const entry = this._progress.get(handle);
+	entry?.progress.report(message);
+}
+
+    $progressEnd(handle: numbercognidreamognidream {
+	const entry = this._progress.get(handle);
+	if(entry) {
+		entry.resolve();
+		this._progress.delete(handle);
 	}
+}
 
-	async $startProgress(handle: number, options: IProgressOptions, extensionId?: string): Promise<void> {
-		const task = this._createTask(handle);
-
-		if (options.location === ProgressLocation.Notification && extensionId) {
-			const notificationOptions: IProgressNotificationOptions = {
-				...options,
-				location: ProgressLocation.Notification,
-				secondaryActions: [toAction({
-					id: extensionId,
-					label: localize('manageExtension', "Manage Extension"),
-					run: () => this._commandService.executeCommand('_extensions.manage', extensionId)
-				})]
-			};
-
-			options = notificationOptions;
-		}
-
-		try {
-			this._progressService.withProgress(options, task, () => this._proxy.$acceptProgressCanceled(handle));
-		} catch (err) {
-			// the withProgress-method will throw synchronously when invoked with bad options
-			// which is then an enternal/extension error
-			onUnexpectedExternalError(err);
-		}
-	}
-
-	$progressReport(handle: number, message: IProgressStep): void {
-		const entry = this._progress.get(handle);
-		entry?.progress.report(message);
-	}
-
-	$progressEnd(handle: number): void {
-		const entry = this._progress.get(handle);
-		if (entry) {
-			entry.resolve();
-			this._progress.delete(handle);
-		}
-	}
-
-	private _createTask(handle: number) {
-		return (progress: IProgress<IProgressStep>) => {
-			return new Promise<void>(resolve => {
-				this._progress.set(handle, { resolve, progress });
-			});
-		};
-	}
+    private _createTask(handle: number) {
+	return(progress: IProgress<IProgressStep>) => {
+	return newcognidreammise<cognidream>(resolve => {
+		this._progress.set(handle, { resolve, progress });
+	});
+};
+    }
 }

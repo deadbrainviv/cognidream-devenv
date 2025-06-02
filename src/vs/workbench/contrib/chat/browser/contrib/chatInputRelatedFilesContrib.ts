@@ -19,7 +19,7 @@ export class ChatRelatedFilesContribution extends Disposable implements IWorkben
 	static readonly ID = 'chat.relatedFilesWorkingSet';
 
 	private readonly chatEditingSessionDisposables = new Map<string, DisposableStore>();
-	private _currentRelatedFilesRetrievalOperation: Promise<void> | undefined;
+	private _currentRelatedFilesRetrievalOperation: Promise<cognidream> | undefined;
 
 	constructor(
 		@IChatEditingService private readonly chatEditingService: IChatEditingService,
@@ -125,37 +125,37 @@ export interface IChatRelatedFile {
 }
 export class ChatRelatedFiles extends Disposable {
 
-	private readonly _onDidChange = this._register(new Emitter<void>());
-	readonly onDidChange: Event<void> = this._onDidChange.event;
+	private readonly _onDidChange = this._register(new Emittcognidreamognidream > ());
+	readonly onDidChange: Evecognidreamognidream> = this._onDidChange.event;
 
-	private _removedFiles = new ResourceSet();
-	get removedFiles() {
-		return this._removedFiles;
-	}
+    private _removedFiles = new ResourceSet();
+    get removedFiles() {
+	return this._removedFiles;
+}
 
-	private _value: IChatRelatedFile[] = [];
-	get value() {
-		return this._value;
-	}
+    private _value: IChatRelatedFile[] = [];
+    get value() {
+	return this._value;
+}
 
-	set value(value: IChatRelatedFile[]) {
-		this._value = value;
-		this._onDidChange.fire();
-	}
+    set value(value: IChatRelatedFile[]) {
+	this._value = value;
+	this._onDidChange.fire();
+}
 
-	remove(uri: URI) {
-		this._value = this._value.filter(file => !isEqual(file.uri, uri));
-		this._removedFiles.add(uri);
-		this._onDidChange.fire();
-	}
+remove(uri: URI) {
+	this._value = this._value.filter(file => !isEqual(file.uri, uri));
+	this._removedFiles.add(uri);
+	this._onDidChange.fire();
+}
 
-	clearRemovedFiles() {
-		this._removedFiles.clear();
-	}
+clearRemovedFiles() {
+	this._removedFiles.clear();
+}
 
-	clear() {
-		this._value = [];
-		this._removedFiles.clear();
-		this._onDidChange.fire();
-	}
+clear() {
+	this._value = [];
+	this._removedFiles.clear();
+	this._onDidChange.fire();
+}
 }

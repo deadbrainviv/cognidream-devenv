@@ -131,7 +131,7 @@ export class ChatEditorInput extends EditorInput implements IEditorCloseHandler 
 		return this._register(new ChatEditorModel(this.model));
 	}
 
-	override dispose(): void {
+	override dispose(): cognidream {
 		super.dispose();
 		if (this.sessionId) {
 			this.chatService.clearSession(this.sessionId);
@@ -140,7 +140,7 @@ export class ChatEditorInput extends EditorInput implements IEditorCloseHandler 
 }
 
 export class ChatEditorModel extends Disposable {
-	private _onWillDispose = this._register(new Emitter<void>());
+	private _onWillDispose = this._register(new Emittcognidreamognidream > ());
 	readonly onWillDispose = this._onWillDispose.event;
 
 	private _isDisposed = false;
@@ -150,22 +150,22 @@ export class ChatEditorModel extends Disposable {
 		readonly model: IChatModel
 	) { super(); }
 
-	async resolve(): Promise<void> {
+	async resolve(): Promicognidreamognidream> {
 		this._isResolved = true;
 	}
 
-	isResolved(): boolean {
-		return this._isResolved;
-	}
+isResolved(): boolean {
+	return this._isResolved;
+}
 
-	isDisposed(): boolean {
-		return this._isDisposed;
-	}
+isDisposed(): boolean {
+	return this._isDisposed;
+}
 
-	override dispose(): void {
-		super.dispose();
-		this._isDisposed = true;
-	}
+    override dispose(cognidreamognidream {
+	super.dispose();
+	this._isDisposed = true;
+}
 }
 
 export namespace ChatUri {

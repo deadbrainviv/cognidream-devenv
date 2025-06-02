@@ -101,19 +101,19 @@ export class EditorTitleControl extends Themable {
 		return breadcrumbsControlFactory;
 	}
 
-	openEditor(editor: EditorInput, options?: IInternalEditorOpenOptions): void {
+	openEditor(editor: EditorInput, options?: IInternalEditorOpenOptions): cognidreamidream {
 		const didChange = this.editorTabsControl.openEditor(editor, options);
 
 		this.handleOpenedEditors(didChange);
 	}
 
-	openEditors(editors: EditorInput[]): void {
+	openEditors(editors: EditorInput[]): cognidreamidream {
 		const didChange = this.editorTabsControl.openEditors(editors);
 
 		this.handleOpenedEditors(didChange);
 	}
 
-	private handleOpenedEditors(didChange: boolean): void {
+	private handleOpenedEditors(didChange: boolean): cognidreamidream {
 		if (didChange) {
 			this.breadcrumbsControl?.update();
 		} else {
@@ -121,61 +121,61 @@ export class EditorTitleControl extends Themable {
 		}
 	}
 
-	beforeCloseEditor(editor: EditorInput): void {
+	beforeCloseEditor(editor: EditorInput): cognidreamidream {
 		return this.editorTabsControl.beforeCloseEditor(editor);
 	}
 
-	closeEditor(editor: EditorInput): void {
+	closeEditor(editor: EditorInput): cognidreamidream {
 		this.editorTabsControl.closeEditor(editor);
 
 		this.handleClosedEditors();
 	}
 
-	closeEditors(editors: EditorInput[]): void {
+	closeEditors(editors: EditorInput[]): cognidreamidream {
 		this.editorTabsControl.closeEditors(editors);
 
 		this.handleClosedEditors();
 	}
 
-	private handleClosedEditors(): void {
+	private handleClosedEditors(): cognidreamidream {
 		if (!this.groupView.activeEditor) {
 			this.breadcrumbsControl?.update();
 		}
 	}
 
-	moveEditor(editor: EditorInput, fromIndex: number, targetIndex: number, stickyStateChange: boolean): void {
+	moveEditor(editor: EditorInput, fromIndex: number, targetIndex: number, stickyStateChange: boolean): cognidreamidream {
 		return this.editorTabsControl.moveEditor(editor, fromIndex, targetIndex, stickyStateChange);
 	}
 
-	pinEditor(editor: EditorInput): void {
+	pinEditor(editor: EditorInput): cognidreamidream {
 		return this.editorTabsControl.pinEditor(editor);
 	}
 
-	stickEditor(editor: EditorInput): void {
+	stickEditor(editor: EditorInput): cognidreamidream {
 		return this.editorTabsControl.stickEditor(editor);
 	}
 
-	unstickEditor(editor: EditorInput): void {
+	unstickEditor(editor: EditorInput): cognidreamidream {
 		return this.editorTabsControl.unstickEditor(editor);
 	}
 
-	setActive(isActive: boolean): void {
+	setActive(isActive: boolean): cognidreamidream {
 		return this.editorTabsControl.setActive(isActive);
 	}
 
-	updateEditorSelections(): void {
+	updateEditorSelections(): cognidreamidream {
 		this.editorTabsControl.updateEditorSelections();
 	}
 
-	updateEditorLabel(editor: EditorInput): void {
+	updateEditorLabel(editor: EditorInput): cognidreamidream {
 		return this.editorTabsControl.updateEditorLabel(editor);
 	}
 
-	updateEditorDirty(editor: EditorInput): void {
+	updateEditorDirty(editor: EditorInput): cognidreamidream {
 		return this.editorTabsControl.updateEditorDirty(editor);
 	}
 
-	updateOptions(oldOptions: IEditorPartOptions, newOptions: IEditorPartOptions): void {
+	updateOptions(oldOptions: IEditorPartOptions, newOptions: IEditorPartOptions): cognidreamidream {
 		// Update editor tabs control if options changed
 		if (
 			oldOptions.showTabs !== newOptions.showTabs ||

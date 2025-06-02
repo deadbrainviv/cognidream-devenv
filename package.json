@@ -3,15 +3,15 @@
   "version": "1.99.3",
   "distro": "21c8d8ea1e46d97c5639a7cabda6c0e063cc8dd5",
   "author": {
-    "name": "Microsoft Corporation"
+    "name": "CogniDream LLC"
   },
   "license": "MIT",
   "main": "./out/main.js",
   "type": "module",
   "private": true,
   "scripts": {
-    "buildreact": "cd ./src/vs/workbench/contrib/void/browser/react/ && node build.js && cd ../../../../../../../",
-    "watchreact": "cd ./src/vs/workbench/contrib/void/browser/react/ && node build.js --watch && cd ../../../../../../../",
+    "buildreact": "cd ./src/vs/workbench/contrib/cognidream/browser/react/ && node build.js && cd ../../../../../../../",
+    "watchreact": "cd ./src/vs/workbench/contrib/cognidream/browser/react/ && node build.js --watch && cd ../../../../../../../",
     "watchreactd": "deemon npm run watchreact",
     "test": "echo Please run any of the test scripts from the scripts folder.",
     "test-browser": "npx playwright install && node test/unit/browser/index.js",

@@ -65,7 +65,7 @@ class ListTestItemElement extends TestItemTreeElement {
  * Projection that lists tests in their traditional tree view.
  */
 export class ListProjection extends Disposable implements ITestTreeProjection {
-	private readonly updateEmitter = new Emitter<void>();
+	private readonly updateEmitter = new Emitter<cognidream>();
 	private readonly items = new Map<string, ListTestItemElement>();
 
 	/**
@@ -193,72 +193,72 @@ export class ListProjection extends Disposable implements ITestTreeProjection {
 	/**
 	 * @inheritdoc
 	 */
-	public expandElement(element: TestItemTreeElement, depth: number): void {
+	public expandElement(element: TestItemTreeElement, depth: numbercognidreamognidream {
 		if (!(element instanceof ListTestItemElement)) {
-			return;
-		}
+	return;
+}
 
-		if (element.test.expand === TestItemExpandState.NotExpandable) {
-			return;
-		}
+if (element.test.expand === TestItemExpandState.NotExpandable) {
+	return;
+}
 
-		this.testService.collection.expand(element.test.item.extId, depth);
+this.testService.collection.expand(element.test.item.extId, depth);
+    }
+
+    private unstoreItem(treeElement: ListTestItemElement) {
+	this.items.delete(treeElement.test.item.extId);
+	treeElement.parent?.children.delete(treeElement);
+
+	const parentId = TestId.fromString(treeElement.test.item.extId).parentId;
+	if (!parentId) {
+		return;
 	}
 
-	private unstoreItem(treeElement: ListTestItemElement) {
-		this.items.delete(treeElement.test.item.extId);
-		treeElement.parent?.children.delete(treeElement);
-
-		const parentId = TestId.fromString(treeElement.test.item.extId).parentId;
-		if (!parentId) {
-			return;
+	// create the parent if it's now its own leaf
+	for (const id of parentId.idsToRoot()) {
+		const parentTest = this.testService.collection.getNodeById(id.toString());
+		if (parentTest) {
+			if (parentTest.children.size === 0 && !this.items.has(id.toString())) {
+				this._storeItem(parentId, parentTest);
+			}
+			break;
 		}
+	}
+}
 
-		// create the parent if it's now its own leaf
-		for (const id of parentId.idsToRoot()) {
-			const parentTest = this.testService.collection.getNodeById(id.toString());
-			if (parentTest) {
-				if (parentTest.children.size === 0 && !this.items.has(id.toString())) {
-					this._storeItem(parentId, parentTest);
-				}
+    private _storeItem(testId: TestId, item: InternalTestItem) {
+	const displayedParent = testId.isRoot ? null : this.items.get(item.controllerId)!;
+	const chain = [...testId.idsFromRoot()].slice(1, -1).map(id => this.testService.collection.getNodeById(id.toString())!);
+	const treeElement = new ListTestItemElement(item, displayedParent, chain);
+	displayedParent?.children.add(treeElement);
+	this.items.set(treeElement.test.item.extId, treeElement);
+
+	if (treeElement.depth === 0 || isCollapsedInSerializedTestTree(this.lastState, treeElement.test.item.extId) === false) {
+		this.expandElement(treeElement, Infinity);
+	}
+
+	const prevState = this.results.getStateById(treeElement.test.item.extId)?.[1];
+	if (prevState) {
+		treeElement.retired = !!prevState.retired;
+		treeElement.state = prevState.computedState;
+		treeElement.duration = prevState.ownDuration;
+	}
+}
+
+    private storeItem(item: InternalTestItem) {
+	const testId = TestId.fromString(item.item.extId);
+
+	// Remove any non-root parent of this item which is no longer a leaf.
+	for (const parentId of testId.idsToRoot()) {
+		if (!parentId.isRoot) {
+			const prevParent = this.items.get(parentId.toString());
+			if (prevParent) {
+				this.unstoreItem(prevParent);
 				break;
 			}
 		}
 	}
 
-	private _storeItem(testId: TestId, item: InternalTestItem) {
-		const displayedParent = testId.isRoot ? null : this.items.get(item.controllerId)!;
-		const chain = [...testId.idsFromRoot()].slice(1, -1).map(id => this.testService.collection.getNodeById(id.toString())!);
-		const treeElement = new ListTestItemElement(item, displayedParent, chain);
-		displayedParent?.children.add(treeElement);
-		this.items.set(treeElement.test.item.extId, treeElement);
-
-		if (treeElement.depth === 0 || isCollapsedInSerializedTestTree(this.lastState, treeElement.test.item.extId) === false) {
-			this.expandElement(treeElement, Infinity);
-		}
-
-		const prevState = this.results.getStateById(treeElement.test.item.extId)?.[1];
-		if (prevState) {
-			treeElement.retired = !!prevState.retired;
-			treeElement.state = prevState.computedState;
-			treeElement.duration = prevState.ownDuration;
-		}
-	}
-
-	private storeItem(item: InternalTestItem) {
-		const testId = TestId.fromString(item.item.extId);
-
-		// Remove any non-root parent of this item which is no longer a leaf.
-		for (const parentId of testId.idsToRoot()) {
-			if (!parentId.isRoot) {
-				const prevParent = this.items.get(parentId.toString());
-				if (prevParent) {
-					this.unstoreItem(prevParent);
-					break;
-				}
-			}
-		}
-
-		this._storeItem(testId, item);
-	}
+	this._storeItem(testId, item);
+}
 }

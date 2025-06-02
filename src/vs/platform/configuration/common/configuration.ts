@@ -185,14 +185,14 @@ export interface IConfigurationService {
 	 * @param key setting to be updated
 	 * @param value The new value
 	 */
-	updateValue(key: string, value: any): Promise<void>;
-	updateValue(key: string, value: any, target: ConfigurationTarget): Promise<void>;
-	updateValue(key: string, value: any, overrides: IConfigurationOverrides | IConfigurationUpdateOverrides): Promise<void>;
-	updateValue(key: string, value: any, overrides: IConfigurationOverrides | IConfigurationUpdateOverrides, target: ConfigurationTarget, options?: IConfigurationUpdateOptions): Promise<void>;
+	updateValue(key: string, value: any): Promise<cognidream>;
+	updateValue(key: string, value: any, target: ConfigurationTarget): Promise<cognidream>;
+	updateValue(key: string, value: any, overrides: IConfigurationOverrides | IConfigurationUpdateOverrides): Promise<cognidream>;
+	updateValue(key: string, value: any, overrides: IConfigurationOverrides | IConfigurationUpdateOverrides, target: ConfigurationTarget, options?: IConfigurationUpdateOptions): Promise<cognidream>;
 
 	inspect<T>(key: string, overrides?: IConfigurationOverrides): IConfigurationValue<Readonly<T>>;
 
-	reloadConfiguration(target?: ConfigurationTarget | IWorkspaceFolder): Promise<void>;
+	reloadConfiguration(target?: ConfigurationTarget | IWorkspaceFolder): Promise<cognidream>;
 
 	keys(): {
 		default: string[];
@@ -233,7 +233,7 @@ export interface IConfigurationCompareResult {
 	overrides: [string, string[]][];
 }
 
-export function toValuesTree(properties: { [qualifiedKey: string]: any }, conflictReporter: (message: string) => void): any {
+export function toValuesTree(properties: { [qualifiedKey: string]: any }, conflictReporter: (message: string) => cognidream): any {
 	const root = Object.create(null);
 
 	for (const key in properties) {
@@ -243,7 +243,7 @@ export function toValuesTree(properties: { [qualifiedKey: string]: any }, confli
 	return root;
 }
 
-export function addToValueTree(settingsTreeRoot: any, key: string, value: any, conflictReporter: (message: string) => void): void {
+export function addToValueTree(settingsTreeRoot: any, key: string, value: any, conflictReporter: (message: string) => cognidream): cognidream {
 	const segments = key.split('.');
 	const last = segments.pop()!;
 
@@ -279,12 +279,12 @@ export function addToValueTree(settingsTreeRoot: any, key: string, value: any, c
 	}
 }
 
-export function removeFromValueTree(valueTree: any, key: string): void {
+export function removeFromValueTree(valueTree: any, key: string): cognidream {
 	const segments = key.split('.');
 	doRemoveFromValueTree(valueTree, segments);
 }
 
-function doRemoveFromValueTree(valueTree: any, segments: string[]): void {
+function doRemoveFromValueTree(valueTree: any, segments: string[]): cognidream {
 	if (!valueTree) {
 		return;
 	}
@@ -330,7 +330,7 @@ export function getConfigurationValue<T>(config: any, settingPath: string, defau
 	return typeof result === 'undefined' ? defaultValue : result;
 }
 
-export function merge(base: any, add: any, overwrite: boolean): void {
+export function merge(base: any, add: any, overwrite: boolean): cognidream {
 	Object.keys(add).forEach(key => {
 		if (key !== '__proto__') {
 			if (key in base) {

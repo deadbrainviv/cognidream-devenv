@@ -130,14 +130,14 @@ export function findDiffs(oldStr: string, newStr: string) {
 // 	let keys = new Set([...Object.keys(a), ...Object.keys(b)])
 // 	for (let k of keys) {
 // 		if (a[k] !== b[k]) {
-// 			console.error('Void Test Error:', name_, '\n', `${k}=`, `${JSON.stringify(a[k])}, ${JSON.stringify(b[k])}`)
+// 			console.error('cognidream Test Error:', name_, '\n', `${k}=`, `${JSON.stringify(a[k])}, ${JSON.stringify(b[k])}`)
 // 			// console.error(JSON.stringify(a, null, 4))
 // 			// console.error(JSON.stringify(b, null, 4))
 // 			testsFailed += 1
 // 		}
 // 	}
 // }
-// const test = (name: string, fn: () => void) => {
+// const test = (name: string, fn: () => cognidreamidream) => {
 // 	name_ = name
 // 	fn()
 // }
@@ -244,8 +244,8 @@ export function findDiffs(oldStr: string, newStr: string) {
 
 
 // if (testsFailed === 0) {
-// 	console.log('✅ Void - All tests passed')
+// 	console.log('✅ cognidreamidream - All tests passed')
 // }
 // else {
-// 	console.log('❌ Void - At least one test failed')
+// 	console.log('❌ cognidreamidream - At least one test failed')
 // }

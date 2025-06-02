@@ -19,13 +19,13 @@ export abstract class BaseTerminalBackend extends Disposable {
 
 	get isResponsive(): boolean { return !this._isPtyHostUnresponsive; }
 
-	protected readonly _onPtyHostConnected = this._register(new Emitter<void>());
+	protected readonly _onPtyHostConnected = this._register(new Emitter<cognidream>());
 	readonly onPtyHostConnected = this._onPtyHostConnected.event;
-	protected readonly _onPtyHostRestart = this._register(new Emitter<void>());
+	protected readonly _onPtyHostRestart = this._register(new Emittcognidreamognidream > ());
 	readonly onPtyHostRestart = this._onPtyHostRestart.event;
-	protected readonly _onPtyHostUnresponsive = this._register(new Emitter<void>());
+	protected readonly _onPtyHostUnresponsive = this._register(new Emittcognidreamognidream > ());
 	readonly onPtyHostUnresponsive = this._onPtyHostUnresponsive.event;
-	protected readonly _onPtyHostResponsive = this._register(new Emitter<void>());
+	protected readonly _onPtyHostResponsive = this._register(new Emittcognidreamognidream > ());
 	readonly onPtyHostResponsive = this._onPtyHostResponsive.event;
 
 	constructor(
@@ -97,28 +97,28 @@ export abstract class BaseTerminalBackend extends Disposable {
 		}));
 	}
 
-	restartPtyHost(): void {
+	restartPtyHost(cognidreamognidream {
 		this._ptyHostController.restartPtyHost();
-	}
+    }
 
-	protected _deserializeTerminalState(serializedState: string | undefined): ISerializedTerminalState[] | undefined {
-		if (serializedState === undefined) {
-			return undefined;
-		}
-		const parsedUnknown = JSON.parse(serializedState);
-		if (!('version' in parsedUnknown) || !('state' in parsedUnknown) || !Array.isArray(parsedUnknown.state)) {
-			this._logService.warn('Could not revive serialized processes, wrong format', parsedUnknown);
-			return undefined;
-		}
-		const parsedCrossVersion = parsedUnknown as ICrossVersionSerializedTerminalState;
-		if (parsedCrossVersion.version !== 1) {
-			this._logService.warn(`Could not revive serialized processes, wrong version "${parsedCrossVersion.version}"`, parsedCrossVersion);
-			return undefined;
-		}
-		return parsedCrossVersion.state as ISerializedTerminalState[];
+    protected _deserializeTerminalState(serializedState: string | undefined): ISerializedTerminalState[] | undefined {
+	if (serializedState === undefined) {
+		return undefined;
 	}
+	const parsedUnknown = JSON.parse(serializedState);
+	if (!('version' in parsedUnknown) || !('state' in parsedUnknown) || !Array.isArray(parsedUnknown.state)) {
+		this._logService.warn('Could not revive serialized processes, wrong format', parsedUnknown);
+		return undefined;
+	}
+	const parsedCrossVersion = parsedUnknown as ICrossVersionSerializedTerminalState;
+	if (parsedCrossVersion.version !== 1) {
+		this._logService.warn(`Could not revive serialized processes, wrong version "${parsedCrossVersion.version}"`, parsedCrossVersion);
+		return undefined;
+	}
+	return parsedCrossVersion.state as ISerializedTerminalState[];
+}
 
-	protected _getWorkspaceId(): string {
-		return this._workspaceContextService.getWorkspace().id;
-	}
+    protected _getWorkspaceId(): string {
+	return this._workspaceContextService.getWorkspace().id;
+}
 }

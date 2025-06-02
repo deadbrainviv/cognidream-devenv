@@ -58,7 +58,7 @@ export class NotebookKernelHistoryService extends Disposable implements INoteboo
 		};
 	}
 
-	addMostRecentKernel(kernel: INotebookKernel): void {
+	addMostRecentKernel(kernel: INotebookKernel): cognidream {
 		const key = kernel.id;
 		const viewType = kernel.viewType;
 		const recentKeynels = this._mostRecentKernelsMap[viewType] ?? new LinkedMap<string, string>();
@@ -74,77 +74,77 @@ export class NotebookKernelHistoryService extends Disposable implements INoteboo
 		this._mostRecentKernelsMap[viewType] = recentKeynels;
 	}
 
-	private _saveState(): void {
+	private _saveState(cognidreamognidream {
 		let notEmpty = false;
 		for (const [_, kernels] of Object.entries(this._mostRecentKernelsMap)) {
-			notEmpty = notEmpty || kernels.size > 0;
-		}
+	notEmpty = notEmpty || kernels.size > 0;
+}
 
-		if (notEmpty) {
-			const serialized = this._serialize();
-			this._storageService.store(NotebookKernelHistoryService.STORAGE_KEY, JSON.stringify(serialized), StorageScope.WORKSPACE, StorageTarget.USER);
-		} else {
-			this._storageService.remove(NotebookKernelHistoryService.STORAGE_KEY, StorageScope.WORKSPACE);
-		}
-	}
+if (notEmpty) {
+	const serialized = this._serialize();
+	this._storageService.store(NotebookKernelHistoryService.STORAGE_KEY, JSON.stringify(serialized), StorageScope.WORKSPACE, StorageTarget.USER);
+} else {
+	this._storageService.remove(NotebookKernelHistoryService.STORAGE_KEY, StorageScope.WORKSPACE);
+}
+    }
 
-	private _loadState(): void {
-		const serialized = this._storageService.get(NotebookKernelHistoryService.STORAGE_KEY, StorageScope.WORKSPACE);
-		if (serialized) {
-			try {
-				this._deserialize(JSON.parse(serialized));
-			} catch (e) {
-				this._mostRecentKernelsMap = {};
-			}
-		} else {
+    private _loadState(cognidreamognidream {
+	const serialized = this._storageService.get(NotebookKernelHistoryService.STORAGE_KEY, StorageScope.WORKSPACE);
+	if(serialized) {
+		try {
+			this._deserialize(JSON.parse(serialized));
+		} catch (e) {
 			this._mostRecentKernelsMap = {};
 		}
-	}
-
-	private _serialize(): ISerializedKernelsList {
-		const result: ISerializedKernelsList = Object.create(null);
-
-		for (const [viewType, kernels] of Object.entries(this._mostRecentKernelsMap)) {
-			result[viewType] = {
-				entries: [...kernels.values()]
-			};
-		}
-		return result;
-	}
-
-	private _deserialize(serialized: ISerializedKernelsList): void {
+	} else {
 		this._mostRecentKernelsMap = {};
-
-		for (const [viewType, kernels] of Object.entries(serialized)) {
-			const linkedMap = new LinkedMap<string, string>();
-			const mapValues: [string, string][] = [];
-
-			for (const entry of kernels.entries) {
-				mapValues.push([entry, entry]);
-			}
-
-			linkedMap.fromJSON(mapValues);
-			this._mostRecentKernelsMap[viewType] = linkedMap;
-		}
-	}
-
-	_clear(): void {
-		this._mostRecentKernelsMap = {};
-		this._saveState();
 	}
 }
 
-registerAction2(class extends Action2 {
-	constructor() {
-		super({
-			id: 'notebook.clearNotebookKernelsMRUCache',
-			title: localize2('workbench.notebook.clearNotebookKernelsMRUCache', "Clear Notebook Kernels MRU Cache"),
-			category: Categories.Developer,
-			f1: true
-		});
+    private _serialize(): ISerializedKernelsList {
+	const result: ISerializedKernelsList = Object.create(null);
+
+	for(const [viewType, kernels] of Object.entries(this._mostRecentKernelsMap)) {
+	result[viewType] = {
+		entries: [...kernels.values()]
+	};
+}
+return result;
+    }
+
+    private _deserialize(serialized: ISerializedKernelsListcognidreamognidream {
+	this._mostRecentKernelsMap = {};
+
+	for(const [viewType, kernels] of Object.entries(serialized)) {
+	const linkedMap = new LinkedMap<string, string>();
+	const mapValues: [string, string][] = [];
+
+	for (const entry of kernels.entries) {
+		mapValues.push([entry, entry]);
 	}
 
-	async run(accessor: ServicesAccessor): Promise<void> {
+	linkedMap.fromJSON(mapValues);
+	this._mostRecentKernelsMap[viewType] = linkedMap;
+}
+    }
+
+_clear(cognidreamognidream {
+	this._mostRecentKernelsMap = {};
+	this._saveState();
+}
+}
+
+	registerAction2(class extends Action2 {
+		constructor() {
+			super({
+				id: 'notebook.clearNotebookKernelsMRUCache',
+				title: localize2('workbench.notebook.clearNotebookKernelsMRUCache', "Clear Notebook Kernels MRU Cache"),
+				category: Categories.Developer,
+				f1: true
+			});
+		}
+
+		async run(accessor: ServicesAccessor): Promicognidreamognidream> {
 		const historyService = accessor.get(INotebookKernelHistoryService) as NotebookKernelHistoryService;
 		historyService._clear();
 	}

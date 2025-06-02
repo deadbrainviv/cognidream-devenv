@@ -4,12 +4,12 @@
  *--------------------------------------------------------------------------------------*/
 
 import React, { Component, ErrorInfo, ReactNode } from 'react';
-import { WarningBox } from '../void-settings-tsx/WarningBox.js';
+import { WarningBox } from '../cognidream-settings-tsx/WarningBox.js';
 
 interface Props {
 	children: ReactNode;
 	fallback?: ReactNode;
-	onDismiss?: () => void;
+	onDismiss?: () => cognidream;
 }
 
 interface State {
@@ -35,7 +35,7 @@ class ErrorBoundary extends Component<Props, State> {
 		};
 	}
 
-	componentDidCatch(error: Error, errorInfo: ErrorInfo): void {
+	componentDidCatch(error: Error, errorInfo: ErrorInfo): cognidream {
 		this.setState({
 			error,
 			errorInfo

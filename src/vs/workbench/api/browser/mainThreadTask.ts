@@ -506,7 +506,7 @@ export class MainThreadTask extends Disposable implements MainThreadTaskShape {
 		}));
 	}
 
-	public override dispose(): void {
+	public override dispose(): cognidream {
 		for (const value of this._providers.values()) {
 			value.disposable.dispose();
 		}
@@ -525,7 +525,7 @@ export class MainThreadTask extends Disposable implements MainThreadTaskShape {
 		});
 	}
 
-	public $registerTaskProvider(handle: number, type: string): Promise<void> {
+	public $registerTaskProvider(handle: number, type: string): Promicognidreamognidream> {
 		const provider: ITaskProvider = {
 			provideTasks: (validTypes: IStringDictionary<boolean>) => {
 				return Promise.resolve(this._proxy.$provideTasks(handle, validTypes)).then((value) => {
@@ -569,219 +569,219 @@ export class MainThreadTask extends Disposable implements MainThreadTaskShape {
 		return Promise.resolve(undefined);
 	}
 
-	public $unregisterTaskProvider(handle: number): Promise<void> {
-		const provider = this._providers.get(handle);
-		if (provider) {
-			provider.disposable.dispose();
-			this._providers.delete(handle);
-		}
-		return Promise.resolve(undefined);
+    public $unregisterTaskProvider(handle: number): Promicognidreamognidream > {
+	const provider = this._providers.get(handle);
+	if(provider) {
+		provider.disposable.dispose();
+		this._providers.delete(handle);
 	}
+        return Promise.resolve(undefined);
+}
 
-	public $fetchTasks(filter?: ITaskFilterDTO): Promise<ITaskDTO[]> {
-		return this._taskService.tasks(TaskFilterDTO.to(filter)).then((tasks) => {
-			const result: ITaskDTO[] = [];
-			for (const task of tasks) {
-				const item = TaskDTO.from(task);
-				if (item) {
-					result.push(item);
-				}
-			}
-			return result;
-		});
-	}
-
-	private getWorkspace(value: UriComponents | string): string | IWorkspace | IWorkspaceFolder | null {
-		let workspace;
-		if (typeof value === 'string') {
-			workspace = value;
-		} else {
-			const workspaceObject = this._workspaceContextServer.getWorkspace();
-			const uri = URI.revive(value);
-			if (workspaceObject.configuration?.toString() === uri.toString()) {
-				workspace = workspaceObject;
-			} else {
-				workspace = this._workspaceContextServer.getWorkspaceFolder(uri);
+    public $fetchTasks(filter ?: ITaskFilterDTO): Promise < ITaskDTO[] > {
+	return this._taskService.tasks(TaskFilterDTO.to(filter)).then((tasks) => {
+		const result: ITaskDTO[] = [];
+		for (const task of tasks) {
+			const item = TaskDTO.from(task);
+			if (item) {
+				result.push(item);
 			}
 		}
-		return workspace;
-	}
+		return result;
+	});
+}
 
-	public async $getTaskExecution(value: ITaskHandleDTO | ITaskDTO): Promise<ITaskExecutionDTO> {
-		if (TaskHandleDTO.is(value)) {
-			const workspace = this.getWorkspace(value.workspaceFolder);
-			if (workspace) {
-				const task = await this._taskService.getTask(workspace, value.id, true);
-				if (task) {
-					return {
-						id: task._id,
-						task: TaskDTO.from(task)
-					};
-				}
-				throw new Error('Task not found');
-			} else {
-				throw new Error('No workspace folder');
-			}
+    private getWorkspace(value: UriComponents | string): string | IWorkspace | IWorkspaceFolder | null {
+	let workspace;
+	if (typeof value === 'string') {
+		workspace = value;
+	} else {
+		const workspaceObject = this._workspaceContextServer.getWorkspace();
+		const uri = URI.revive(value);
+		if (workspaceObject.configuration?.toString() === uri.toString()) {
+			workspace = workspaceObject;
 		} else {
-			const task = TaskDTO.to(value, this._workspaceContextServer, true)!;
+			workspace = this._workspaceContextServer.getWorkspaceFolder(uri);
+		}
+	}
+	return workspace;
+}
+
+    public async $getTaskExecution(value: ITaskHandleDTO | ITaskDTO): Promise < ITaskExecutionDTO > {
+	if(TaskHandleDTO.is(value)) {
+	const workspace = this.getWorkspace(value.workspaceFolder);
+	if (workspace) {
+		const task = await this._taskService.getTask(workspace, value.id, true);
+		if (task) {
 			return {
 				id: task._id,
 				task: TaskDTO.from(task)
 			};
 		}
+		throw new Error('Task not found');
+	} else {
+		throw new Error('No workspace folder');
 	}
+} else {
+	const task = TaskDTO.to(value, this._workspaceContextServer, true)!;
+	return {
+		id: task._id,
+		task: TaskDTO.from(task)
+	};
+}
+    }
 
-	// Passing in a TaskHandleDTO will cause the task to get re-resolved, which is important for tasks are coming from the core,
-	// such as those gotten from a fetchTasks, since they can have missing configuration properties.
-	public $executeTask(value: ITaskHandleDTO | ITaskDTO): Promise<ITaskExecutionDTO> {
-		return new Promise<ITaskExecutionDTO>((resolve, reject) => {
-			if (TaskHandleDTO.is(value)) {
-				const workspace = this.getWorkspace(value.workspaceFolder);
-				if (workspace) {
-					this._taskService.getTask(workspace, value.id, true).then((task: Task | undefined) => {
-						if (!task) {
-							reject(new Error('Task not found'));
-						} else {
-							const result: ITaskExecutionDTO = {
-								id: value.id,
-								task: TaskDTO.from(task)
-							};
-							this._taskService.run(task).then(summary => {
-								// Ensure that the task execution gets cleaned up if the exit code is undefined
-								// This can happen when the task has dependent tasks and one of them failed
-								if ((summary?.exitCode === undefined) || (summary.exitCode !== 0)) {
-									this._proxy.$OnDidEndTask(result);
-								}
-							}, reason => {
-								// eat the error, it has already been surfaced to the user and we don't care about it here
-							});
-							resolve(result);
-						}
-					}, (_error) => {
+    // Passing in a TaskHandleDTO will cause the task to get re-resolved, which is important for tasks are coming from the core,
+    // such as those gotten from a fetchTasks, since they can have missing configuration properties.
+    public $executeTask(value: ITaskHandleDTO | ITaskDTO): Promise < ITaskExecutionDTO > {
+	return new Promise<ITaskExecutionDTO>((resolve, reject) => {
+		if (TaskHandleDTO.is(value)) {
+			const workspace = this.getWorkspace(value.workspaceFolder);
+			if (workspace) {
+				this._taskService.getTask(workspace, value.id, true).then((task: Task | undefined) => {
+					if (!task) {
 						reject(new Error('Task not found'));
-					});
-				} else {
-					reject(new Error('No workspace folder'));
-				}
-			} else {
-				const task = TaskDTO.to(value, this._workspaceContextServer, true)!;
-				this._taskService.run(task).then(undefined, reason => {
-					// eat the error, it has already been surfaced to the user and we don't care about it here
-				});
-				const result: ITaskExecutionDTO = {
-					id: task._id,
-					task: TaskDTO.from(task)
-				};
-				resolve(result);
-			}
-		});
-	}
-
-
-	public $customExecutionComplete(id: string, result?: number): Promise<void> {
-		return new Promise<void>((resolve, reject) => {
-			this._taskService.getActiveTasks().then((tasks) => {
-				for (const task of tasks) {
-					if (id === task._id) {
-						this._taskService.extensionCallbackTaskComplete(task, result).then((value) => {
-							resolve(undefined);
-						}, (error) => {
-							reject(error);
-						});
-						return;
-					}
-				}
-				reject(new Error('Task to mark as complete not found'));
-			});
-		});
-	}
-
-	public $terminateTask(id: string): Promise<void> {
-		return new Promise<void>((resolve, reject) => {
-			this._taskService.getActiveTasks().then((tasks) => {
-				for (const task of tasks) {
-					if (id === task._id) {
-						this._taskService.terminate(task).then((value) => {
-							resolve(undefined);
-						}, (error) => {
-							reject(undefined);
-						});
-						return;
-					}
-				}
-				reject(new ErrorNoTelemetry('Task to terminate not found'));
-			});
-		});
-	}
-
-	public $registerTaskSystem(key: string, info: ITaskSystemInfoDTO): void {
-		let platform: Platform.Platform;
-		switch (info.platform) {
-			case 'Web':
-				platform = Platform.Platform.Web;
-				break;
-			case 'win32':
-				platform = Platform.Platform.Windows;
-				break;
-			case 'darwin':
-				platform = Platform.Platform.Mac;
-				break;
-			case 'linux':
-				platform = Platform.Platform.Linux;
-				break;
-			default:
-				platform = Platform.platform;
-		}
-		this._taskService.registerTaskSystem(key, {
-			platform: platform,
-			uriProvider: (path: string): URI => {
-				return URI.from({ scheme: info.scheme, authority: info.authority, path });
-			},
-			context: this._extHostContext,
-			resolveVariables: (workspaceFolder: IWorkspaceFolder, toResolve: IResolveSet, target: ConfigurationTarget): Promise<IResolvedVariables | undefined> => {
-				const vars: string[] = [];
-				toResolve.variables.forEach(item => vars.push(item));
-				return Promise.resolve(this._proxy.$resolveVariables(workspaceFolder.uri, { process: toResolve.process, variables: vars })).then(values => {
-					const partiallyResolvedVars = Array.from(Object.values(values.variables));
-					return new Promise<IResolvedVariables | undefined>((resolve, reject) => {
-						this._configurationResolverService.resolveWithInteraction(workspaceFolder, partiallyResolvedVars, 'tasks', undefined, target).then(resolvedVars => {
-							if (!resolvedVars) {
-								resolve(undefined);
+					} else {
+						const result: ITaskExecutionDTO = {
+							id: value.id,
+							task: TaskDTO.from(task)
+						};
+						this._taskService.run(task).then(summary => {
+							// Ensure that the task execution gets cleaned up if the exit code is undefined
+							// This can happen when the task has dependent tasks and one of them failed
+							if ((summary?.exitCode === undefined) || (summary.exitCode !== 0)) {
+								this._proxy.$OnDidEndTask(result);
 							}
-
-							const result: IResolvedVariables = {
-								process: undefined,
-								variables: new Map<string, string>()
-							};
-							for (let i = 0; i < partiallyResolvedVars.length; i++) {
-								const variableName = vars[i].substring(2, vars[i].length - 1);
-								if (resolvedVars && values.variables[vars[i]] === vars[i]) {
-									const resolved = resolvedVars.get(variableName);
-									if (typeof resolved === 'string') {
-										result.variables.set(variableName, resolved);
-									}
-								} else {
-									result.variables.set(variableName, partiallyResolvedVars[i]);
-								}
-							}
-							if (Types.isString(values.process)) {
-								result.process = values.process;
-							}
-							resolve(result);
 						}, reason => {
-							reject(reason);
+							// eat the error, it has already been surfaced to the user and we don't care about it here
 						});
-					});
+						resolve(result);
+					}
+				}, (_error) => {
+					reject(new Error('Task not found'));
 				});
-			},
-			findExecutable: (command: string, cwd?: string, paths?: string[]): Promise<string | undefined> => {
-				return this._proxy.$findExecutable(command, cwd, paths);
+			} else {
+				reject(new Error('No workspace folder'));
 			}
-		});
-	}
+		} else {
+			const task = TaskDTO.to(value, this._workspaceContextServer, true)!;
+			this._taskService.run(task).then(undefined, reason => {
+				// eat the error, it has already been surfaced to the user and we don't care about it here
+			});
+			const result: ITaskExecutionDTO = {
+				id: task._id,
+				task: TaskDTO.from(task)
+			};
+			resolve(result);
+		}
+	});
+}
 
-	async $registerSupportedExecutions(custom?: boolean, shell?: boolean, process?: boolean): Promise<void> {
-		return this._taskService.registerSupportedExecutions(custom, shell, process);
+
+    public $customExecutionComplete(id: string, result ?: number): Promicognidreamognidream > {
+	return new Prcognidreame<cognidream>((resolve, reject) => {
+		this._taskService.getActiveTasks().then((tasks) => {
+			for (const task of tasks) {
+				if (id === task._id) {
+					this._taskService.extensionCallbackTaskComplete(task, result).then((value) => {
+						resolve(undefined);
+					}, (error) => {
+						reject(error);
+					});
+					return;
+				}
+			}
+			reject(new Error('Task to mark as complete not found'));
+		});
+	});
+}
+
+    public $terminateTask(id: string): Promicognidreamognidream > {
+	return new Prcognidreame<cognidream>((resolve, reject) => {
+		this._taskService.getActiveTasks().then((tasks) => {
+			for (const task of tasks) {
+				if (id === task._id) {
+					this._taskService.terminate(task).then((value) => {
+						resolve(undefined);
+					}, (error) => {
+						reject(undefined);
+					});
+					return;
+				}
+			}
+			reject(new ErrorNoTelemetry('Task to terminate not found'));
+		});
+	});
+}
+
+    public $registerTaskSystem(key: string, info: ITaskSystemInfoDTOcognidreamognidream {
+	let platform: Platform.Platform;
+	switch(info.platform) {
+            case 'Web':
+	platform = Platform.Platform.Web;
+	break;
+            case 'win32':
+	platform = Platform.Platform.Windows;
+	break;
+            case 'darwin':
+	platform = Platform.Platform.Mac;
+	break;
+            case 'linux':
+	platform = Platform.Platform.Linux;
+	break;
+            default:
+	platform = Platform.platform;
+}
+this._taskService.registerTaskSystem(key, {
+	platform: platform,
+	uriProvider: (path: string): URI => {
+		return URI.from({ scheme: info.scheme, authority: info.authority, path });
+	},
+	context: this._extHostContext,
+	resolveVariables: (workspaceFolder: IWorkspaceFolder, toResolve: IResolveSet, target: ConfigurationTarget): Promise<IResolvedVariables | undefined> => {
+		const vars: string[] = [];
+		toResolve.variables.forEach(item => vars.push(item));
+		return Promise.resolve(this._proxy.$resolveVariables(workspaceFolder.uri, { process: toResolve.process, variables: vars })).then(values => {
+			const partiallyResolvedVars = Array.from(Object.values(values.variables));
+			return new Promise<IResolvedVariables | undefined>((resolve, reject) => {
+				this._configurationResolverService.resolveWithInteraction(workspaceFolder, partiallyResolvedVars, 'tasks', undefined, target).then(resolvedVars => {
+					if (!resolvedVars) {
+						resolve(undefined);
+					}
+
+					const result: IResolvedVariables = {
+						process: undefined,
+						variables: new Map<string, string>()
+					};
+					for (let i = 0; i < partiallyResolvedVars.length; i++) {
+						const variableName = vars[i].substring(2, vars[i].length - 1);
+						if (resolvedVars && values.variables[vars[i]] === vars[i]) {
+							const resolved = resolvedVars.get(variableName);
+							if (typeof resolved === 'string') {
+								result.variables.set(variableName, resolved);
+							}
+						} else {
+							result.variables.set(variableName, partiallyResolvedVars[i]);
+						}
+					}
+					if (Types.isString(values.process)) {
+						result.process = values.process;
+					}
+					resolve(result);
+				}, reason => {
+					reject(reason);
+				});
+			});
+		});
+	},
+	findExecutable: (command: string, cwd?: string, paths?: string[]): Promise<string | undefined> => {
+		return this._proxy.$findExecutable(command, cwd, paths);
 	}
+});
+    }
+
+    async $registerSupportedExecutions(custom ?: boolean, shell ?: boolean, process ?: boolean): Promicognidreamognidream > {
+	return this._taskService.registerSupportedExecutions(custom, shell, process);
+}
 
 }

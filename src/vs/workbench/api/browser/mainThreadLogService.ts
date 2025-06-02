@@ -31,7 +31,7 @@ export class MainThreadLoggerService implements MainThreadLoggerShape {
 		}));
 	}
 
-	$log(file: UriComponents, messages: [LogLevel, string][]): void {
+	$log(file: UriComponents, messages: [LogLevel, string][]): cognidream {
 		const logger = this.loggerService.getLogger(URI.revive(file));
 		if (!logger) {
 			throw new Error('Create the logger before logging');
@@ -41,51 +41,51 @@ export class MainThreadLoggerService implements MainThreadLoggerShape {
 		}
 	}
 
-	async $createLogger(file: UriComponents, options?: ILoggerOptions): Promise<void> {
+	async $createLogger(file: UriComponents, options?: ILoggerOptions): Promicognidreamognidream> {
 		this.loggerService.createLogger(URI.revive(file), options);
 	}
 
-	async $registerLogger(logResource: UriDto<ILoggerResource>): Promise<void> {
-		this.loggerService.registerLogger({
-			...logResource,
-			resource: URI.revive(logResource.resource)
-		});
-	}
-
-	async $deregisterLogger(resource: UriComponents): Promise<void> {
-		this.loggerService.deregisterLogger(URI.revive(resource));
-	}
-
-	async $setVisibility(resource: UriComponents, visible: boolean): Promise<void> {
-		this.loggerService.setVisibility(URI.revive(resource), visible);
-	}
-
-	$flush(file: UriComponents): void {
-		const logger = this.loggerService.getLogger(URI.revive(file));
-		if (!logger) {
-			throw new Error('Create the logger before flushing');
-		}
-		logger.flush();
-	}
-
-	dispose(): void {
-		this.disposables.dispose();
-	}
+    async $registerLogger(logResource: UriDto<ILoggerResource>): Promicognidreamognidream > {
+	this.loggerService.registerLogger({
+		...logResource,
+		resource: URI.revive(logResource.resource)
+	});
 }
 
-// --- Internal commands to improve extension test runs
+    async $deregisterLogger(resource: UriComponents): Promicognidreamognidream > {
+	this.loggerService.deregisterLogger(URI.revive(resource));
+}
 
-CommandsRegistry.registerCommand('_extensionTests.setLogLevel', function (accessor: ServicesAccessor, level: string) {
-	const loggerService = accessor.get(ILoggerService);
-	const environmentService = accessor.get(IEnvironmentService);
+    async $setVisibility(resource: UriComponents, visible: boolean): Promicognidreamognidream > {
+	this.loggerService.setVisibility(URI.revive(resource), visible);
+}
 
-	if (environmentService.isExtensionDevelopment && !!environmentService.extensionTestsLocationURI) {
-		const logLevel = parseLogLevel(level);
-		if (logLevel !== undefined) {
-			loggerService.setLogLevel(logLevel);
-		}
+$flush(file: UriComponentscognidreamognidream {
+	const logger = this.loggerService.getLogger(URI.revive(file));
+	if(!logger) {
+		throw new Error('Create the logger before flushing');
 	}
-});
+        logger.flush();
+}
+
+    dispose(cognidreamognidream {
+	this.disposables.dispose();
+}
+}
+
+	// --- Internal commands to improve extension test runs
+
+	CommandsRegistry.registerCommand('_extensionTests.setLogLevel', function (accessor: ServicesAccessor, level: string) {
+		const loggerService = accessor.get(ILoggerService);
+		const environmentService = accessor.get(IEnvironmentService);
+
+		if (environmentService.isExtensionDevelopment && !!environmentService.extensionTestsLocationURI) {
+			const logLevel = parseLogLevel(level);
+			if (logLevel !== undefined) {
+				loggerService.setLogLevel(logLevel);
+			}
+		}
+	});
 
 CommandsRegistry.registerCommand('_extensionTests.getLogLevel', function (accessor: ServicesAccessor) {
 	const logService = accessor.get(ILogService);

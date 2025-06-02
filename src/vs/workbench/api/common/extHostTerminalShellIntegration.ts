@@ -60,7 +60,7 @@ export class ExtHostTerminalShellIntegration extends Disposable implements IExtH
 		// });
 		// this.onDidStartTerminalShellExecution(async e => {
 		// 	console.log('*** onDidStartTerminalShellExecution', e);
-		// 	// new Promise<void>(r => {
+		// 	// new Promise<cognidream>(r => {
 		// 	// 	(async () => {
 		// 	// 		for await (const d of e.execution.read()) {
 		// 	// 			console.log('data2', d);
@@ -81,71 +81,71 @@ export class ExtHostTerminalShellIntegration extends Disposable implements IExtH
 		// }, 4000);
 	}
 
-	public $shellIntegrationChange(instanceId: number): void {
+	public $shellIntegrationChange(instanceId: numbercognidreamognidream {
 		const terminal = this._extHostTerminalService.getTerminalById(instanceId);
 		if (!terminal) {
-			return;
-		}
-
-		const apiTerminal = terminal.value;
-		let shellIntegration = this._activeShellIntegrations.get(instanceId);
-		if (!shellIntegration) {
-			shellIntegration = new InternalTerminalShellIntegration(terminal.value, this._onDidStartTerminalShellExecution);
-			this._activeShellIntegrations.set(instanceId, shellIntegration);
-			shellIntegration.store.add(terminal.onWillDispose(() => this._activeShellIntegrations.get(instanceId)?.dispose()));
-			shellIntegration.store.add(shellIntegration.onDidRequestShellExecution(commandLine => this._proxy.$executeCommand(instanceId, commandLine)));
-			shellIntegration.store.add(shellIntegration.onDidRequestEndExecution(e => this._onDidEndTerminalShellExecution.fire(e)));
-			shellIntegration.store.add(shellIntegration.onDidRequestChangeShellIntegration(e => this._onDidChangeTerminalShellIntegration.fire(e)));
-			terminal.shellIntegration = shellIntegration.value;
-		}
-		this._onDidChangeTerminalShellIntegration.fire({
-			terminal: apiTerminal,
-			shellIntegration: shellIntegration.value
-		});
-	}
-
-	public $shellExecutionStart(instanceId: number, commandLineValue: string, commandLineConfidence: TerminalShellExecutionCommandLineConfidence, isTrusted: boolean, cwd: UriComponents | undefined): void {
-		// Force shellIntegration creation if it hasn't been created yet, this could when events
-		// don't come through on startup
-		if (!this._activeShellIntegrations.has(instanceId)) {
-			this.$shellIntegrationChange(instanceId);
-		}
-		const commandLine: vscode.TerminalShellExecutionCommandLine = {
-			value: commandLineValue,
-			confidence: commandLineConfidence,
-			isTrusted
-		};
-		this._activeShellIntegrations.get(instanceId)?.startShellExecution(commandLine, URI.revive(cwd));
-	}
-
-	public $shellExecutionEnd(instanceId: number, commandLineValue: string, commandLineConfidence: TerminalShellExecutionCommandLineConfidence, isTrusted: boolean, exitCode: number | undefined): void {
-		const commandLine: vscode.TerminalShellExecutionCommandLine = {
-			value: commandLineValue,
-			confidence: commandLineConfidence,
-			isTrusted
-		};
-		this._activeShellIntegrations.get(instanceId)?.endShellExecution(commandLine, exitCode);
-	}
-
-	public $shellExecutionData(instanceId: number, data: string): void {
-		this._activeShellIntegrations.get(instanceId)?.emitData(data);
-	}
-
-	public $shellEnvChange(instanceId: number, shellEnvKeys: string[], shellEnvValues: string[], isTrusted: boolean): void {
-		this._activeShellIntegrations.get(instanceId)?.setEnv(shellEnvKeys, shellEnvValues, isTrusted);
-	}
-
-	public $cwdChange(instanceId: number, cwd: UriComponents | undefined): void {
-		this._activeShellIntegrations.get(instanceId)?.setCwd(URI.revive(cwd));
-	}
-
-	public $closeTerminal(instanceId: number): void {
-		this._activeShellIntegrations.get(instanceId)?.dispose();
-		this._activeShellIntegrations.delete(instanceId);
-	}
+	return;
 }
 
-interface IExecutionProperties {
+const apiTerminal = terminal.value;
+let shellIntegration = this._activeShellIntegrations.get(instanceId);
+if (!shellIntegration) {
+	shellIntegration = new InternalTerminalShellIntegration(terminal.value, this._onDidStartTerminalShellExecution);
+	this._activeShellIntegrations.set(instanceId, shellIntegration);
+	shellIntegration.store.add(terminal.onWillDispose(() => this._activeShellIntegrations.get(instanceId)?.dispose()));
+	shellIntegration.store.add(shellIntegration.onDidRequestShellExecution(commandLine => this._proxy.$executeCommand(instanceId, commandLine)));
+	shellIntegration.store.add(shellIntegration.onDidRequestEndExecution(e => this._onDidEndTerminalShellExecution.fire(e)));
+	shellIntegration.store.add(shellIntegration.onDidRequestChangeShellIntegration(e => this._onDidChangeTerminalShellIntegration.fire(e)));
+	terminal.shellIntegration = shellIntegration.value;
+}
+this._onDidChangeTerminalShellIntegration.fire({
+	terminal: apiTerminal,
+	shellIntegration: shellIntegration.value
+});
+    }
+
+    public $shellExecutionStart(instanceId: number, commandLineValue: string, commandLineConfidence: TerminalShellExecutionCommandLineConfidence, isTrusted: boolean, cwd: UriComponents | undefinedcognidreamognidream {
+	// Force shellIntegration creation if it hasn't been created yet, this could when events
+	// don't come through on startup
+	if(!this._activeShellIntegrations.has(instanceId)) {
+	this.$shellIntegrationChange(instanceId);
+}
+const commandLine: vscode.TerminalShellExecutionCommandLine = {
+	value: commandLineValue,
+	confidence: commandLineConfidence,
+	isTrusted
+};
+this._activeShellIntegrations.get(instanceId)?.startShellExecution(commandLine, URI.revive(cwd));
+    }
+
+    public $shellExecutionEnd(instanceId: number, commandLineValue: string, commandLineConfidence: TerminalShellExecutionCommandLineConfidence, isTrusted: boolean, exitCode: number | undefinedcognidreamognidream {
+	const commandLine: vscode.TerminalShellExecutionCommandLine = {
+		value: commandLineValue,
+		confidence: commandLineConfidence,
+		isTrusted
+	};
+	this._activeShellIntegrations.get(instanceId)?.endShellExecution(commandLine, exitCode);
+}
+
+    public $shellExecutionData(instanceId: number, data: stringcognidreamognidream {
+	this._activeShellIntegrations.get(instanceId)?.emitData(data);
+}
+
+    public $shellEnvChange(instanceId: number, shellEnvKeys: string[], shellEnvValues: string[], isTrusted: booleancognidreamognidream {
+	this._activeShellIntegrations.get(instanceId)?.setEnv(shellEnvKeys, shellEnvValues, isTrusted);
+}
+
+    public $cwdChange(instanceId: number, cwd: UriComponents | undefinedcognidreamognidream {
+	this._activeShellIntegrations.get(instanceId)?.setCwd(URI.revive(cwd));
+}
+
+    public $closeTerminal(instanceId: numbercognidreamognidream {
+	this._activeShellIntegrations.get(instanceId)?.dispose();
+	this._activeShellIntegrations.delete(instanceId);
+}
+}
+
+	interface IExecutionProperties {
 	isMultiLine: boolean;
 	unresolvedCommandLines: string[] | undefined;
 }
@@ -302,63 +302,63 @@ export class InternalTerminalShellIntegration extends Disposable {
 		this._onDidStartTerminalShellExecution.fire({ terminal: this._terminal, shellIntegration: this.value, execution: this._currentExecution.value });
 	}
 
-	emitData(data: string): void {
+	emitData(data: stringcognidreamognidream {
 		this.currentExecution?.emitData(data);
-	}
+    }
 
-	endShellExecution(commandLine: vscode.TerminalShellExecutionCommandLine | undefined, exitCode: number | undefined): void {
-		// If the current execution is multi-line, don't end it until the next command line is
-		// confirmed to not be a part of it.
-		if (this._currentExecutionProperties?.isMultiLine) {
-			if (this._currentExecutionProperties.unresolvedCommandLines && this._currentExecutionProperties.unresolvedCommandLines.length > 0) {
-				return;
-			}
-		}
-
-		if (this._currentExecution) {
-			const commandLineForEvent = this._currentExecutionProperties?.isMultiLine ? this._currentExecution.value.commandLine : commandLine;
-			this._currentExecution.endExecution(commandLineForEvent);
-			const currentExecution = this._currentExecution;
-			this._pendingEndingExecution = currentExecution;
-			this._currentExecution = undefined;
-			// IMPORTANT: Ensure the current execution's data events are flushed in order to
-			// prevent data events firing after the end event fires.
-			currentExecution.flush().then(() => {
-				// Only fire if it's still the same execution, if it's changed it would have already
-				// been fired.
-				if (this._pendingEndingExecution === currentExecution) {
-					this._onDidRequestEndExecution.fire({ terminal: this._terminal, shellIntegration: this.value, execution: currentExecution.value, exitCode });
-					this._pendingEndingExecution = undefined;
-				}
-			});
-		}
+endShellExecution(commandLine: vscode.TerminalShellExecutionCommandLine | undefined, exitCode: number | undefinedcognidreamognidream {
+	// If the current execution is multi-line, don't end it until the next command line is
+	// confirmed to not be a part of it.
+	if(this._currentExecutionProperties?.isMultiLine) {
+	if (this._currentExecutionProperties.unresolvedCommandLines && this._currentExecutionProperties.unresolvedCommandLines.length > 0) {
+		return;
 	}
+}
 
-	setEnv(keys: string[], values: string[], isTrusted: boolean): void {
-		const env: { [key: string]: string | undefined } = {};
-		for (let i = 0; i < keys.length; i++) {
-			env[keys[i]] = values[i];
+if (this._currentExecution) {
+	const commandLineForEvent = this._currentExecutionProperties?.isMultiLine ? this._currentExecution.value.commandLine : commandLine;
+	this._currentExecution.endExecution(commandLineForEvent);
+	const currentExecution = this._currentExecution;
+	this._pendingEndingExecution = currentExecution;
+	this._currentExecution = undefined;
+	// IMPORTANT: Ensure the current execution's data events are flushed in order to
+	// prevent data events firing after the end event fires.
+	currentExecution.flush().then(() => {
+		// Only fire if it's still the same execution, if it's changed it would have already
+		// been fired.
+		if (this._pendingEndingExecution === currentExecution) {
+			this._onDidRequestEndExecution.fire({ terminal: this._terminal, shellIntegration: this.value, execution: currentExecution.value, exitCode });
+			this._pendingEndingExecution = undefined;
 		}
-		this._env = { value: env, isTrusted };
-		this._fireChangeEvent();
-	}
+	});
+}
+    }
 
-	setCwd(cwd: URI | undefined): void {
-		let wasChanged = false;
-		if (URI.isUri(this._cwd)) {
-			wasChanged = !URI.isUri(cwd) || this._cwd.toString() !== cwd.toString();
-		} else if (this._cwd !== cwd) {
-			wasChanged = true;
-		}
-		if (wasChanged) {
-			this._cwd = cwd;
-			this._fireChangeEvent();
-		}
-	}
+setEnv(keys: string[], values: string[], isTrusted: booleancognidreamognidream {
+	const env: { [key: string]: string | undefined } = {};
+for (let i = 0; i < keys.length; i++) {
+	env[keys[i]] = values[i];
+}
+this._env = { value: env, isTrusted };
+this._fireChangeEvent();
+    }
 
-	private _fireChangeEvent() {
-		this._onDidRequestChangeShellIntegration.fire({ terminal: this._terminal, shellIntegration: this.value });
-	}
+setCwd(cwd: URI | undefinedcognidreamognidream {
+	let wasChanged = false;
+	if(URI.isUri(this._cwd)) {
+	wasChanged = !URI.isUri(cwd) || this._cwd.toString() !== cwd.toString();
+} else if (this._cwd !== cwd) {
+	wasChanged = true;
+}
+if (wasChanged) {
+	this._cwd = cwd;
+	this._fireChangeEvent();
+}
+    }
+
+    private _fireChangeEvent() {
+	this._onDidRequestChangeShellIntegration.fire({ terminal: this._terminal, shellIntegration: this.value });
+}
 }
 
 class InternalTerminalShellExecution {
@@ -395,27 +395,27 @@ class InternalTerminalShellExecution {
 		return this._dataStream.createIterable();
 	}
 
-	emitData(data: string): void {
+	emitData(data: stringcognidreamognidream {
 		if (!this._isEnded) {
-			this._dataStream?.emitData(data);
-		}
-	}
+	this._dataStream?.emitData(data);
+}
+    }
 
-	endExecution(commandLine: vscode.TerminalShellExecutionCommandLine | undefined): void {
-		if (commandLine) {
-			this._commandLine = commandLine;
-		}
-		this._dataStream?.endExecution();
-		this._isEnded = true;
+endExecution(commandLine: vscode.TerminalShellExecutionCommandLine | undefinedcognidreamognidream {
+	if(commandLine) {
+		this._commandLine = commandLine;
 	}
+        this._dataStream?.endExecution();
+	this._isEnded = true;
+}
 
-	async flush(): Promise<void> {
-		if (this._dataStream) {
-			await this._dataStream.flush();
-			this._dataStream.dispose();
-			this._dataStream = undefined;
-		}
-	}
+    async flush(): Promicognidreamognidream > {
+	if(this._dataStream) {
+	await this._dataStream.flush();
+	this._dataStream.dispose();
+	this._dataStream = undefined;
+}
+    }
 }
 
 class ShellExecutionDataStream extends Disposable {
@@ -436,27 +436,27 @@ class ShellExecutionDataStream extends Disposable {
 		return iterable;
 	}
 
-	emitData(data: string): void {
+	emitData(data: stringcognidreamognidream {
 		for (const emitter of this._emitters) {
 			emitter.emitOne(data);
 		}
-	}
+    }
 
-	endExecution(): void {
-		this._barrier?.open();
-	}
-
-	async flush(): Promise<void> {
-		await Promise.all(this._iterables.map(e => e.toPromise()));
-	}
+endExecution(cognidreamognidream {
+	this._barrier?.open();
 }
 
-function splitAndSanitizeCommandLine(commandLine: string): string[] {
-	return commandLine
-		.split('\n')
-		.map(line => line.trim())
-		.filter(line => line.length > 0);
+    async flush(): Promicognidreamognidream > {
+	await Promise.all(this._iterables.map(e => e.toPromise()));
 }
+}
+
+	function splitAndSanitizeCommandLine(commandLine: string): string[] {
+		return commandLine
+			.split('\n')
+			.map(line => line.trim())
+			.filter(line => line.length > 0);
+	}
 
 /**
  * When executing something that the shell considers multiple commands, such as
@@ -464,25 +464,25 @@ function splitAndSanitizeCommandLine(commandLine: string): string[] {
  * execution.
  */
 function isSubExecution(unresolvedCommandLines: string[], commandLine: vscode.TerminalShellExecutionCommandLine): { unresolvedCommandLines: string[] } | false {
-	if (unresolvedCommandLines.length === 0) {
+		if (unresolvedCommandLines.length === 0) {
+			return false;
+		}
+		const newUnresolvedCommandLines = [...unresolvedCommandLines];
+		const subExecutionLines = splitAndSanitizeCommandLine(commandLine.value);
+		if (newUnresolvedCommandLines && newUnresolvedCommandLines.length > 0) {
+			// If all sub-execution lines are in the command line, this is part of the
+			// multi-line execution.
+			while (newUnresolvedCommandLines.length > 0) {
+				if (newUnresolvedCommandLines[0] !== subExecutionLines[0]) {
+					break;
+				}
+				newUnresolvedCommandLines.shift();
+				subExecutionLines.shift();
+			}
+
+			if (subExecutionLines.length === 0) {
+				return { unresolvedCommandLines: newUnresolvedCommandLines };
+			}
+		}
 		return false;
 	}
-	const newUnresolvedCommandLines = [...unresolvedCommandLines];
-	const subExecutionLines = splitAndSanitizeCommandLine(commandLine.value);
-	if (newUnresolvedCommandLines && newUnresolvedCommandLines.length > 0) {
-		// If all sub-execution lines are in the command line, this is part of the
-		// multi-line execution.
-		while (newUnresolvedCommandLines.length > 0) {
-			if (newUnresolvedCommandLines[0] !== subExecutionLines[0]) {
-				break;
-			}
-			newUnresolvedCommandLines.shift();
-			subExecutionLines.shift();
-		}
-
-		if (subExecutionLines.length === 0) {
-			return { unresolvedCommandLines: newUnresolvedCommandLines };
-		}
-	}
-	return false;
-}

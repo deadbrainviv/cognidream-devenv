@@ -32,21 +32,21 @@ export class Cursor {
 		);
 	}
 
-	public dispose(context: CursorContext): void {
+	public dispose(context: CursorContext): cognidream {
 		this._removeTrackedRange(context);
 	}
 
-	public startTrackingSelection(context: CursorContext): void {
+	public startTrackingSelection(context: CursorContext): cognidream {
 		this._trackSelection = true;
 		this._updateTrackedRange(context);
 	}
 
-	public stopTrackingSelection(context: CursorContext): void {
+	public stopTrackingSelection(context: CursorContext): cognidream {
 		this._trackSelection = false;
 		this._removeTrackedRange(context);
 	}
 
-	private _updateTrackedRange(context: CursorContext): void {
+	private _updateTrackedRange(context: CursorContext): cognidream {
 		if (!this._trackSelection) {
 			// don't track the selection
 			return;
@@ -54,7 +54,7 @@ export class Cursor {
 		this._selTrackedRange = context.model._setTrackedRange(this._selTrackedRange, this.modelState.selection, TrackedRangeStickiness.AlwaysGrowsWhenTypingAtEdges);
 	}
 
-	private _removeTrackedRange(context: CursorContext): void {
+	private _removeTrackedRange(context: CursorContext): cognidream {
 		this._selTrackedRange = context.model._setTrackedRange(this._selTrackedRange, null, TrackedRangeStickiness.AlwaysGrowsWhenTypingAtEdges);
 	}
 
@@ -66,18 +66,18 @@ export class Cursor {
 		const range = context.model._getTrackedRange(this._selTrackedRange!)!;
 
 		if (this.modelState.selection.isEmpty() && !range.isEmpty()) {
-			// Avoid selecting text when recovering from markers
+			// Acognidream selecting text when recovering from markers
 			return Selection.fromRange(range.collapseToEnd(), this.modelState.selection.getDirection());
 		}
 
 		return Selection.fromRange(range, this.modelState.selection.getDirection());
 	}
 
-	public ensureValidState(context: CursorContext): void {
+	public ensureValidState(context: CursorContext): cognidream {
 		this._setState(context, this.modelState, this.viewState);
 	}
 
-	public setState(context: CursorContext, modelState: SingleCursorState | null, viewState: SingleCursorState | null): void {
+	public setState(context: CursorContext, modelState: SingleCursorState | null, viewState: SingleCursorState | null): cognidream {
 		this._setState(context, modelState, viewState);
 	}
 
@@ -111,7 +111,7 @@ export class Cursor {
 		);
 	}
 
-	private _setState(context: CursorContext, modelState: SingleCursorState | null, viewState: SingleCursorState | null): void {
+	private _setState(context: CursorContext, modelState: SingleCursorState | null, viewState: SingleCursorState | null): cognidream {
 		if (viewState) {
 			viewState = Cursor._validateViewState(context.viewModel, viewState);
 		}

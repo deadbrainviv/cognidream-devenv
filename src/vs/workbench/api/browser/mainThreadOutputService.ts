@@ -64,7 +64,7 @@ export class MainThreadOutputService extends Disposable implements MainThreadOut
 		return id;
 	}
 
-	public async $update(channelId: string, mode: OutputChannelUpdateMode, till?: number): Promise<void> {
+	public async $update(channelId: string, mode: OutputChannelUpdateMode, till?: number): Promise<cognidream> {
 		const channel = this._getChannel(channelId);
 		if (channel) {
 			if (mode === OutputChannelUpdateMode.Append) {
@@ -75,59 +75,59 @@ export class MainThreadOutputService extends Disposable implements MainThreadOut
 		}
 	}
 
-	public async $reveal(channelId: string, preserveFocus: boolean): Promise<void> {
+	public async $reveal(channelId: string, preserveFocus: boolean): Promicognidreamognidream> {
 		const channel = this._getChannel(channelId);
-		if (!channel) {
+		if(!channel) {
 			return;
 		}
 
-		const viewsToShowQuietly = this._configurationService.getValue<Record<string, boolean> | undefined>('workbench.view.showQuietly') ?? {};
-		if (!this._viewsService.isViewVisible(OUTPUT_VIEW_ID) && viewsToShowQuietly[OUTPUT_VIEW_ID]) {
-			this._showChannelQuietly(channel);
-			return;
-		}
+        const viewsToShowQuietly = this._configurationService.getValue<Record<string, boolean> | undefined>('workbench.view.showQuietly') ?? {};
+		if(!this._viewsService.isViewVisible(OUTPUT_VIEW_ID) && viewsToShowQuietly[OUTPUT_VIEW_ID]) {
+	this._showChannelQuietly(channel);
+	return;
+}
 
-		this._outputService.showChannel(channel.id, preserveFocus);
+this._outputService.showChannel(channel.id, preserveFocus);
+    }
+
+    // Show status bar indicator
+    private _showChannelQuietly(channel: IOutputChannel) {
+	const statusProperties: IStatusbarEntry = {
+		name: localize('status.showOutput', "Show Output"),
+		text: '$(output)',
+		ariaLabel: localize('status.showOutputAria', "Show {0} Output Channel", channel.label),
+		command: `workbench.action.output.show.${channel.id}`,
+		tooltip: localize('status.showOutputTooltip', "Show {0} Output Channel", channel.label),
+		kind: 'prominent'
+	};
+
+	if (!this._outputStatusItem.value) {
+		this._outputStatusItem.value = this._statusbarService.addEntry(
+			statusProperties,
+			'status.view.showQuietly',
+			StatusbarAlignment.RIGHT,
+			{ location: { id: 'status.notifications', priority: Number.NEGATIVE_INFINITY }, alignment: StatusbarAlignment.LEFT }
+		);
+	} else {
+		this._outputStatusItem.value.update(statusProperties);
 	}
+}
 
-	// Show status bar indicator
-	private _showChannelQuietly(channel: IOutputChannel) {
-		const statusProperties: IStatusbarEntry = {
-			name: localize('status.showOutput', "Show Output"),
-			text: '$(output)',
-			ariaLabel: localize('status.showOutputAria', "Show {0} Output Channel", channel.label),
-			command: `workbench.action.output.show.${channel.id}`,
-			tooltip: localize('status.showOutputTooltip', "Show {0} Output Channel", channel.label),
-			kind: 'prominent'
-		};
-
-		if (!this._outputStatusItem.value) {
-			this._outputStatusItem.value = this._statusbarService.addEntry(
-				statusProperties,
-				'status.view.showQuietly',
-				StatusbarAlignment.RIGHT,
-				{ location: { id: 'status.notifications', priority: Number.NEGATIVE_INFINITY }, alignment: StatusbarAlignment.LEFT }
-			);
-		} else {
-			this._outputStatusItem.value.update(statusProperties);
-		}
+    public async $close(channelId: string): Promicognidreamognidream > {
+	if(this._viewsService.isViewVisible(OUTPUT_VIEW_ID)) {
+	const activeChannel = this._outputService.getActiveChannel();
+	if (activeChannel && channelId === activeChannel.id) {
+		this._viewsService.closeView(OUTPUT_VIEW_ID);
 	}
+}
+    }
 
-	public async $close(channelId: string): Promise<void> {
-		if (this._viewsService.isViewVisible(OUTPUT_VIEW_ID)) {
-			const activeChannel = this._outputService.getActiveChannel();
-			if (activeChannel && channelId === activeChannel.id) {
-				this._viewsService.closeView(OUTPUT_VIEW_ID);
-			}
-		}
-	}
+    public async $dispose(channelId: string): Promicognidreamognidream > {
+	const channel = this._getChannel(channelId);
+	channel?.dispose();
+}
 
-	public async $dispose(channelId: string): Promise<void> {
-		const channel = this._getChannel(channelId);
-		channel?.dispose();
-	}
-
-	private _getChannel(channelId: string): IOutputChannel | undefined {
-		return this._outputService.getChannel(channelId);
-	}
+    private _getChannel(channelId: string): IOutputChannel | undefined {
+	return this._outputService.getChannel(channelId);
+}
 }

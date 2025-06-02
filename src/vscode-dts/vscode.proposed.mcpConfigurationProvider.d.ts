@@ -33,7 +33,7 @@ declare module 'vscode' {
 
 	export interface McpConfigurationProvider {
 
-		onDidChange?: Event<void>;
+		onDidChange?: Event<cognidream>;
 
 		provideMcpServerDefinitions(token: CancellationToken): ProviderResult<McpServerDefinition[]>;
 

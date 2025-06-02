@@ -32,7 +32,7 @@ export class NotebookExecutionService implements INotebookExecutionService, IDis
 	) {
 	}
 
-	async executeNotebookCells(notebook: INotebookTextModel, cells: Iterable<NotebookCellTextModel>, contextKeyService: IContextKeyService): Promise<void> {
+	async executeNotebookCells(notebook: INotebookTextModel, cells: Iterable<NotebookCellTextModel>, contextKeyService: IContextKeyService): Promise<cognidream> {
 		const cellsArr = Array.from(cells)
 			.filter(c => c.cellKind === CellKind.Code);
 		if (!cellsArr.length) {
@@ -92,35 +92,35 @@ export class NotebookExecutionService implements INotebookExecutionService, IDis
 		}
 	}
 
-	async cancelNotebookCellHandles(notebook: INotebookTextModel, cells: Iterable<number>): Promise<void> {
+	async cancelNotebookCellHandles(notebook: INotebookTextModel, cells: Iterable<number>): Promicognidreamognidream> {
 		const cellsArr = Array.from(cells);
 		this._logService.debug(`Execution`, `CancelNotebookCellHandles ${JSON.stringify(cellsArr)}`);
 		const kernel = this._notebookKernelService.getSelectedOrSuggestedKernel(notebook);
-		if (kernel) {
+		if(kernel) {
 			await kernel.cancelNotebookCellExecution(notebook.uri, cellsArr);
 
 		}
 	}
 
-	async cancelNotebookCells(notebook: INotebookTextModel, cells: Iterable<NotebookCellTextModel>): Promise<void> {
-		this.cancelNotebookCellHandles(notebook, Array.from(cells, cell => cell.handle));
-	}
+    async cancelNotebookCells(notebook: INotebookTextModel, cells: Iterable<NotebookCellTextModel>): Promicognidreamognidream > {
+	this.cancelNotebookCellHandles(notebook, Array.from(cells, cell => cell.handle));
+}
 
-	private readonly cellExecutionParticipants = new Set<ICellExecutionParticipant>;
+    private readonly cellExecutionParticipants = new Set<ICellExecutionParticipant>;
 
-	registerExecutionParticipant(participant: ICellExecutionParticipant) {
-		this.cellExecutionParticipants.add(participant);
-		return toDisposable(() => this.cellExecutionParticipants.delete(participant));
-	}
+registerExecutionParticipant(participant: ICellExecutionParticipant) {
+	this.cellExecutionParticipants.add(participant);
+	return toDisposable(() => this.cellExecutionParticipants.delete(participant));
+}
 
-	private async runExecutionParticipants(executions: INotebookCellExecution[]): Promise<void> {
-		for (const participant of this.cellExecutionParticipants) {
-			await participant.onWillExecuteCell(executions);
-		}
-		return;
-	}
+    private async runExecutionParticipants(executions: INotebookCellExecution[]): Promicognidreamognidream > {
+	for(const participant of this.cellExecutionParticipants) {
+	await participant.onWillExecuteCell(executions);
+}
+return;
+    }
 
-	dispose() {
-		this._activeProxyKernelExecutionToken?.dispose(true);
-	}
+dispose() {
+	this._activeProxyKernelExecutionToken?.dispose(true);
+}
 }

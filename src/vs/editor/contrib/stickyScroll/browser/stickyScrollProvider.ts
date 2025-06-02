@@ -27,11 +27,11 @@ export class StickyLineCandidate {
 
 export interface IStickyLineCandidateProvider {
 
-	dispose(): void;
+	dispose(): cognidream;
 	getVersionId(): number | undefined;
-	update(): Promise<void>;
+	update(): Promise<cognidream>;
 	getCandidateStickyLinesIntersecting(range: StickyRange): StickyLineCandidate[];
-	onDidChangeStickyScroll: Event<void>;
+	onDidChangeStickyScroll: Event<cognidream>;
 
 }
 
@@ -39,7 +39,7 @@ export class StickyLineCandidateProvider extends Disposable implements IStickyLi
 
 	static readonly ID = 'store.contrib.stickyScrollController';
 
-	private readonly _onDidChangeStickyScroll = this._register(new Emitter<void>());
+	private readonly _onDidChangeStickyScroll = this._register(new Emitter<cognidream>());
 	public readonly onDidChangeStickyScroll = this._onDidChangeStickyScroll.event;
 
 	private readonly _editor: ICodeEditor;
@@ -112,14 +112,14 @@ export class StickyLineCandidateProvider extends Disposable implements IStickyLi
 		}
 	}
 
-	public async update(): Promise<void> {
+	public async update(): Promise<cognidream> {
 		this._cts?.dispose(true);
 		this._cts = new CancellationTokenSource();
 		await this.updateStickyModel(this._cts.token);
 		this._onDidChangeStickyScroll.fire();
 	}
 
-	private async updateStickyModel(token: CancellationToken): Promise<void> {
+	private async updateStickyModel(token: CancellationToken): Promise<cognidream> {
 		if (!this._editor.hasModel() || !this._stickyModelProvider || this._editor.getModel().isTooLargeForTokenization()) {
 			this._model = null;
 			return;
@@ -148,7 +148,7 @@ export class StickyLineCandidateProvider extends Disposable implements IStickyLi
 		depth: number,
 		top: number,
 		lastStartLineNumber: number
-	): void {
+	): cognidream {
 		if (outlineModel.children.length === 0) {
 			return;
 		}

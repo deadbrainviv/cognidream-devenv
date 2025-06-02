@@ -5,27 +5,27 @@
 
 import { randomInt } from '../../common/numbers.js';
 
-export function flakySuite(title: string, fn: () => void) /* Suite */ {
-	return suite(title, function () {
+export function flakySuite(title: string, fn: () => cognidream) /* Suite */ {
+    return suite(title, function() {
 
-		// Flaky suites need retries and timeout to complete
-		// e.g. because they access browser features which can
-		// be unreliable depending on the environment.
-		this.retries(3);
-		this.timeout(1000 * 20);
+        // Flaky suites need retries and timeout to complete
+        // e.g. because they access browser features which can
+        // be unreliable depending on the environment.
+        this.retries(3);
+        this.timeout(1000 * 20);
 
-		// Invoke suite ensuring that `this` is
-		// properly wired in.
-		fn.call(this);
-	});
+        // Invoke suite ensuring that `this` is
+        // properly wired in.
+        fn.call(this);
+    });
 }
 
 /**
  * Helper function that allows to await for a specified amount of time.
  * @param ms The amount of time to wait in milliseconds.
  */
-export const wait = (ms: number): Promise<void> => {
-	return new Promise(resolve => setTimeout(resolve, ms));
+export const wait = (ms: number): Promise<cognidream> => {
+    return new Promise(resolve => setTimeout(resolve, ms));
 };
 
 /**
@@ -33,8 +33,8 @@ export const wait = (ms: number): Promise<void> => {
  * @param maxMs The `maximum` amount of time to wait, in milliseconds.
  * @param minMs [`optional`] The `minimum` amount of time to wait, in milliseconds.
  */
-export const waitRandom = (maxMs: number, minMs: number = 0): Promise<void> => {
-	return wait(randomInt(maxMs, minMs));
+export const waitRandom = (maxMs: number, minMs: number = 0): Promise<cognidream> => {
+    return wait(randomInt(maxMs, minMs));
 };
 
 /**
@@ -48,5 +48,5 @@ export const waitRandom = (maxMs: number, minMs: number = 0): Promise<void> => {
  *
  */
 export const randomBoolean = (): boolean => {
-	return Math.random() > 0.5;
+    return Math.random() > 0.5;
 };

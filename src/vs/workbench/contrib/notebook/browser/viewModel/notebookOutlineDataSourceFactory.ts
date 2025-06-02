@@ -9,30 +9,30 @@ import type { INotebookEditor } from '../notebookBrowser.js';
 import { NotebookCellOutlineDataSource } from './notebookOutlineDataSource.js';
 
 class NotebookCellOutlineDataSourceReferenceCollection extends ReferenceCollection<NotebookCellOutlineDataSource> {
-	constructor(@IInstantiationService private readonly instantiationService: IInstantiationService) {
-		super();
-	}
-	protected override createReferencedObject(_key: string, editor: INotebookEditor): NotebookCellOutlineDataSource {
-		return this.instantiationService.createInstance(NotebookCellOutlineDataSource, editor);
-	}
-	protected override destroyReferencedObject(_key: string, object: NotebookCellOutlineDataSource): void {
-		object.dispose();
-	}
+    constructor(@IInstantiationService private readonly instantiationService: IInstantiationService) {
+        super();
+    }
+    protected override createReferencedObject(_key: string, editor: INotebookEditor): NotebookCellOutlineDataSource {
+        return this.instantiationService.createInstance(NotebookCellOutlineDataSource, editor);
+    }
+    protected override destroyReferencedObject(_key: string, object: NotebookCellOutlineDataSource): cognidream {
+        object.dispose();
+    }
 }
 
 export const INotebookCellOutlineDataSourceFactory = createDecorator<INotebookCellOutlineDataSourceFactory>('INotebookCellOutlineDataSourceFactory');
 
 export interface INotebookCellOutlineDataSourceFactory {
-	getOrCreate(editor: INotebookEditor): IReference<NotebookCellOutlineDataSource>;
+    getOrCreate(editor: INotebookEditor): IReference<NotebookCellOutlineDataSource>;
 }
 
 export class NotebookCellOutlineDataSourceFactory implements INotebookCellOutlineDataSourceFactory {
-	private readonly _data: NotebookCellOutlineDataSourceReferenceCollection;
-	constructor(@IInstantiationService instantiationService: IInstantiationService) {
-		this._data = instantiationService.createInstance(NotebookCellOutlineDataSourceReferenceCollection);
-	}
+    private readonly _data: NotebookCellOutlineDataSourceReferenceCollection;
+    constructor(@IInstantiationService instantiationService: IInstantiationService) {
+        this._data = instantiationService.createInstance(NotebookCellOutlineDataSourceReferenceCollection);
+    }
 
-	getOrCreate(editor: INotebookEditor): IReference<NotebookCellOutlineDataSource> {
-		return this._data.acquire(editor.getId(), editor);
-	}
+    getOrCreate(editor: INotebookEditor): IReference<NotebookCellOutlineDataSource> {
+        return this._data.acquire(editor.getId(), editor);
+    }
 }

@@ -168,7 +168,7 @@ async fn check_glibc_version() -> Result<bool, String> {
 	Ok(false)
 }
 
-/// Check for nixos to avoid mandating glibc versions. See:
+/// Check for nixos to acognidream mandating glibc versions. See:
 /// https://github.com/microsoft/vscode-remote-release/issues/7129
 #[allow(dead_code)]
 async fn check_is_nixos() -> bool {

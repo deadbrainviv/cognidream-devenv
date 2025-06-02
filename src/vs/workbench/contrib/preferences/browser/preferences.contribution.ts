@@ -602,7 +602,7 @@ class PreferencesActionsContribution extends Disposable implements IWorkbenchCon
 				});
 			}
 
-			run(accessor: ServicesAccessor, args: any): void {
+			run(accessor: ServicesAccessor, args: any): cognidream {
 				const preferencesEditor = getPreferencesEditor(accessor);
 				preferencesEditor?.focusSettings();
 			}
@@ -622,7 +622,7 @@ class PreferencesActionsContribution extends Disposable implements IWorkbenchCon
 				});
 			}
 
-			run(accessor: ServicesAccessor, args: any): void {
+			run(accessor: ServicesAccessor, argcognidreamidreamny): cognidream {
 				const preferencesEditor = getPreferencesEditor(accessor);
 				preferencesEditor?.focusSettings();
 			}
@@ -642,7 +642,7 @@ class PreferencesActionsContribution extends Disposable implements IWorkbenchCon
 				});
 			}
 
-			run(accessor: ServicesAccessor): void {
+			run(accessor: ServicesAccognidreamidreamor): cognidream {
 				const preferencesEditor = getPreferencesEditor(accessor);
 				if (preferencesEditor instanceof SettingsEditor2) {
 					preferencesEditor.focusSettings();
@@ -667,7 +667,7 @@ class PreferencesActionsContribution extends Disposable implements IWorkbenchCon
 				});
 			}
 
-			run(accessor: ServicesAccessor): void {
+			run(accessor: ServicesAccognidreamidreamor): cognidream {
 				const preferencesEditor = getPreferencesEditor(accessor);
 				if (!(preferencesEditor instanceof SettingsEditor2)) {
 					return;
@@ -690,7 +690,7 @@ class PreferencesActionsContribution extends Disposable implements IWorkbenchCon
 				});
 			}
 
-			run(accessor: ServicesAccessor): void {
+			run(accessor: ServicesAccognidreamidreamor): cognidream {
 				const preferencesEditor = getPreferencesEditor(accessor);
 				if (!(preferencesEditor instanceof SettingsEditor2)) {
 					return;
@@ -719,7 +719,7 @@ class PreferencesActionsContribution extends Disposable implements IWorkbenchCon
 				});
 			}
 
-			run(accessor: ServicesAccessor): void {
+			run(accessor: ServicesAccognidreamidreamor): cognidream {
 				const preferencesEditor = getPreferencesEditor(accessor);
 				if (preferencesEditor instanceof SettingsEditor2) {
 					preferencesEditor.showContextMenu();
@@ -743,7 +743,7 @@ class PreferencesActionsContribution extends Disposable implements IWorkbenchCon
 				});
 			}
 
-			run(accessor: ServicesAccessor): void {
+			run(accessor: ServicesAccognidreamidreamor): cognidream {
 				const preferencesEditor = getPreferencesEditor(accessor);
 				if (!(preferencesEditor instanceof SettingsEditor2)) {
 					return;
@@ -953,7 +953,7 @@ class PreferencesActionsContribution extends Disposable implements IWorkbenchCon
 		this.registerKeybindingEditorActions();
 	}
 
-	private registerKeybindingEditorActions(): void {
+	private registerKeybindingEditorActions(cognidreamidreamognidream {
 		const that = this;
 
 		KeybindingsRegistry.registerCommandAndKeybindingRule({
@@ -969,272 +969,272 @@ class PreferencesActionsContribution extends Disposable implements IWorkbenchCon
 			}
 		});
 
-		KeybindingsRegistry.registerCommandAndKeybindingRule({
-			id: KEYBINDINGS_EDITOR_COMMAND_ADD,
-			weight: KeybindingWeight.WorkbenchContrib,
-			when: ContextKeyExpr.and(CONTEXT_KEYBINDINGS_EDITOR, CONTEXT_KEYBINDING_FOCUS),
-			primary: KeyChord(KeyMod.CtrlCmd | KeyCode.KeyK, KeyMod.CtrlCmd | KeyCode.KeyA),
-			handler: (accessor, args: any) => {
-				const editorPane = accessor.get(IEditorService).activeEditorPane;
-				if (editorPane instanceof KeybindingsEditor) {
-					editorPane.defineKeybinding(editorPane.activeKeybindingEntry!, true);
-				}
-			}
-		});
-
-		KeybindingsRegistry.registerCommandAndKeybindingRule({
-			id: KEYBINDINGS_EDITOR_COMMAND_DEFINE_WHEN,
-			weight: KeybindingWeight.WorkbenchContrib,
-			when: ContextKeyExpr.and(CONTEXT_KEYBINDINGS_EDITOR, CONTEXT_KEYBINDING_FOCUS),
-			primary: KeyChord(KeyMod.CtrlCmd | KeyCode.KeyK, KeyMod.CtrlCmd | KeyCode.KeyE),
-			handler: (accessor, args: any) => {
-				const editorPane = accessor.get(IEditorService).activeEditorPane;
-				if (editorPane instanceof KeybindingsEditor && editorPane.activeKeybindingEntry!.keybindingItem.keybinding) {
-					editorPane.defineWhenExpression(editorPane.activeKeybindingEntry!);
-				}
-			}
-		});
-
-		KeybindingsRegistry.registerCommandAndKeybindingRule({
-			id: KEYBINDINGS_EDITOR_COMMAND_REMOVE,
-			weight: KeybindingWeight.WorkbenchContrib,
-			when: ContextKeyExpr.and(CONTEXT_KEYBINDINGS_EDITOR, CONTEXT_KEYBINDING_FOCUS, InputFocusedContext.toNegated()),
-			primary: KeyCode.Delete,
-			mac: {
-				primary: KeyMod.CtrlCmd | KeyCode.Backspace
-			},
-			handler: (accessor, args: any) => {
-				const editorPane = accessor.get(IEditorService).activeEditorPane;
-				if (editorPane instanceof KeybindingsEditor) {
-					editorPane.removeKeybinding(editorPane.activeKeybindingEntry!);
-				}
-			}
-		});
-
-		KeybindingsRegistry.registerCommandAndKeybindingRule({
-			id: KEYBINDINGS_EDITOR_COMMAND_RESET,
-			weight: KeybindingWeight.WorkbenchContrib,
-			when: ContextKeyExpr.and(CONTEXT_KEYBINDINGS_EDITOR, CONTEXT_KEYBINDING_FOCUS),
-			primary: 0,
-			handler: (accessor, args: any) => {
-				const editorPane = accessor.get(IEditorService).activeEditorPane;
-				if (editorPane instanceof KeybindingsEditor) {
-					editorPane.resetKeybinding(editorPane.activeKeybindingEntry!);
-				}
-			}
-		});
-
-		KeybindingsRegistry.registerCommandAndKeybindingRule({
-			id: KEYBINDINGS_EDITOR_COMMAND_SEARCH,
-			weight: KeybindingWeight.WorkbenchContrib,
-			when: ContextKeyExpr.and(CONTEXT_KEYBINDINGS_EDITOR),
-			primary: KeyMod.CtrlCmd | KeyCode.KeyF,
-			handler: (accessor, args: any) => {
-				const editorPane = accessor.get(IEditorService).activeEditorPane;
-				if (editorPane instanceof KeybindingsEditor) {
-					editorPane.focusSearch();
-				}
-			}
-		});
-
-		KeybindingsRegistry.registerCommandAndKeybindingRule({
-			id: KEYBINDINGS_EDITOR_COMMAND_RECORD_SEARCH_KEYS,
-			weight: KeybindingWeight.WorkbenchContrib,
-			when: ContextKeyExpr.and(CONTEXT_KEYBINDINGS_EDITOR, CONTEXT_KEYBINDINGS_SEARCH_FOCUS),
-			primary: KeyMod.Alt | KeyCode.KeyK,
-			mac: { primary: KeyMod.CtrlCmd | KeyMod.Alt | KeyCode.KeyK },
-			handler: (accessor, args: any) => {
-				const editorPane = accessor.get(IEditorService).activeEditorPane;
-				if (editorPane instanceof KeybindingsEditor) {
-					editorPane.recordSearchKeys();
-				}
-			}
-		});
-
-		KeybindingsRegistry.registerCommandAndKeybindingRule({
-			id: KEYBINDINGS_EDITOR_COMMAND_SORTBY_PRECEDENCE,
-			weight: KeybindingWeight.WorkbenchContrib,
-			when: ContextKeyExpr.and(CONTEXT_KEYBINDINGS_EDITOR),
-			primary: KeyMod.Alt | KeyCode.KeyP,
-			mac: { primary: KeyMod.CtrlCmd | KeyMod.Alt | KeyCode.KeyP },
-			handler: (accessor, args: any) => {
-				const editorPane = accessor.get(IEditorService).activeEditorPane;
-				if (editorPane instanceof KeybindingsEditor) {
-					editorPane.toggleSortByPrecedence();
-				}
-			}
-		});
-
-		KeybindingsRegistry.registerCommandAndKeybindingRule({
-			id: KEYBINDINGS_EDITOR_COMMAND_SHOW_SIMILAR,
-			weight: KeybindingWeight.WorkbenchContrib,
-			when: ContextKeyExpr.and(CONTEXT_KEYBINDINGS_EDITOR, CONTEXT_KEYBINDING_FOCUS),
-			primary: 0,
-			handler: (accessor, args: any) => {
-				const editorPane = accessor.get(IEditorService).activeEditorPane;
-				if (editorPane instanceof KeybindingsEditor) {
-					editorPane.showSimilarKeybindings(editorPane.activeKeybindingEntry!);
-				}
-			}
-		});
-
-		KeybindingsRegistry.registerCommandAndKeybindingRule({
-			id: KEYBINDINGS_EDITOR_COMMAND_COPY,
-			weight: KeybindingWeight.WorkbenchContrib,
-			when: ContextKeyExpr.and(CONTEXT_KEYBINDINGS_EDITOR, CONTEXT_KEYBINDING_FOCUS, CONTEXT_WHEN_FOCUS.negate()),
-			primary: KeyMod.CtrlCmd | KeyCode.KeyC,
-			handler: async (accessor, args: any) => {
-				const editorPane = accessor.get(IEditorService).activeEditorPane;
-				if (editorPane instanceof KeybindingsEditor) {
-					await editorPane.copyKeybinding(editorPane.activeKeybindingEntry!);
-				}
-			}
-		});
-
-		KeybindingsRegistry.registerCommandAndKeybindingRule({
-			id: KEYBINDINGS_EDITOR_COMMAND_COPY_COMMAND,
-			weight: KeybindingWeight.WorkbenchContrib,
-			when: ContextKeyExpr.and(CONTEXT_KEYBINDINGS_EDITOR, CONTEXT_KEYBINDING_FOCUS),
-			primary: 0,
-			handler: async (accessor, args: any) => {
-				const editorPane = accessor.get(IEditorService).activeEditorPane;
-				if (editorPane instanceof KeybindingsEditor) {
-					await editorPane.copyKeybindingCommand(editorPane.activeKeybindingEntry!);
-				}
-			}
-		});
-
-		KeybindingsRegistry.registerCommandAndKeybindingRule({
-			id: KEYBINDINGS_EDITOR_COMMAND_COPY_COMMAND_TITLE,
-			weight: KeybindingWeight.WorkbenchContrib,
-			when: ContextKeyExpr.and(CONTEXT_KEYBINDINGS_EDITOR, CONTEXT_KEYBINDING_FOCUS),
-			primary: 0,
-			handler: async (accessor, args: any) => {
-				const editorPane = accessor.get(IEditorService).activeEditorPane;
-				if (editorPane instanceof KeybindingsEditor) {
-					await editorPane.copyKeybindingCommandTitle(editorPane.activeKeybindingEntry!);
-				}
-			}
-		});
-
-		KeybindingsRegistry.registerCommandAndKeybindingRule({
-			id: KEYBINDINGS_EDITOR_COMMAND_FOCUS_KEYBINDINGS,
-			weight: KeybindingWeight.WorkbenchContrib,
-			when: ContextKeyExpr.and(CONTEXT_KEYBINDINGS_EDITOR, CONTEXT_KEYBINDINGS_SEARCH_FOCUS),
-			primary: KeyMod.CtrlCmd | KeyCode.DownArrow,
-			handler: (accessor, args: any) => {
-				const editorPane = accessor.get(IEditorService).activeEditorPane;
-				if (editorPane instanceof KeybindingsEditor) {
-					editorPane.focusKeybindings();
-				}
-			}
-		});
-
-		KeybindingsRegistry.registerCommandAndKeybindingRule({
-			id: KEYBINDINGS_EDITOR_COMMAND_REJECT_WHEN,
-			weight: KeybindingWeight.WorkbenchContrib,
-			when: ContextKeyExpr.and(CONTEXT_KEYBINDINGS_EDITOR, CONTEXT_WHEN_FOCUS, SuggestContext.Visible.toNegated()),
-			primary: KeyCode.Escape,
-			handler: async (accessor, args: any) => {
-				const editorPane = accessor.get(IEditorService).activeEditorPane;
-				if (editorPane instanceof KeybindingsEditor) {
-					editorPane.rejectWhenExpression(editorPane.activeKeybindingEntry!);
-				}
-			}
-		});
-
-		KeybindingsRegistry.registerCommandAndKeybindingRule({
-			id: KEYBINDINGS_EDITOR_COMMAND_ACCEPT_WHEN,
-			weight: KeybindingWeight.WorkbenchContrib,
-			when: ContextKeyExpr.and(CONTEXT_KEYBINDINGS_EDITOR, CONTEXT_WHEN_FOCUS, SuggestContext.Visible.toNegated()),
-			primary: KeyCode.Enter,
-			handler: async (accessor, args: any) => {
-				const editorPane = accessor.get(IEditorService).activeEditorPane;
-				if (editorPane instanceof KeybindingsEditor) {
-					editorPane.acceptWhenExpression(editorPane.activeKeybindingEntry!);
-				}
-			}
-		});
-
-		const profileScopedActionDisposables = this._register(new DisposableStore());
-		const registerProfileScopedActions = () => {
-			profileScopedActionDisposables.clear();
-			profileScopedActionDisposables.add(registerAction2(class DefineKeybindingAction extends Action2 {
-				constructor() {
-					const when = ResourceContextKey.Resource.isEqualTo(that.userDataProfileService.currentProfile.keybindingsResource.toString());
-					super({
-						id: 'editor.action.defineKeybinding',
-						title: nls.localize2('defineKeybinding.start', "Define Keybinding"),
-						f1: true,
-						precondition: when,
-						keybinding: {
-							weight: KeybindingWeight.WorkbenchContrib,
-							when,
-							primary: KeyChord(KeyMod.CtrlCmd | KeyCode.KeyK, KeyMod.CtrlCmd | KeyCode.KeyK)
-						},
-						menu: {
-							id: MenuId.EditorContent,
-							when,
-						}
-					});
-				}
-
-				async run(accessor: ServicesAccessor): Promise<void> {
-					const codeEditor = accessor.get(IEditorService).activeTextEditorControl;
-					if (isCodeEditor(codeEditor)) {
-						codeEditor.getContribution<IDefineKeybindingEditorContribution>(DEFINE_KEYBINDING_EDITOR_CONTRIB_ID)?.showDefineKeybindingWidget();
-					}
-				}
-			}));
-		};
-
-		registerProfileScopedActions();
-		this._register(this.userDataProfileService.onDidChangeCurrentProfile(() => registerProfileScopedActions()));
+KeybindingsRegistry.registerCommandAndKeybindingRule({
+	id: KEYBINDINGS_EDITOR_COMMAND_ADD,
+	weight: KeybindingWeight.WorkbenchContrib,
+	when: ContextKeyExpr.and(CONTEXT_KEYBINDINGS_EDITOR, CONTEXT_KEYBINDING_FOCUS),
+	primary: KeyChord(KeyMod.CtrlCmd | KeyCode.KeyK, KeyMod.CtrlCmd | KeyCode.KeyA),
+	handler: (accessor, args: any) => {
+		const editorPane = accessor.get(IEditorService).activeEditorPane;
+		if (editorPane instanceof KeybindingsEditor) {
+			editorPane.defineKeybinding(editorPane.activeKeybindingEntry!, true);
+		}
 	}
+});
 
-	private updatePreferencesEditorMenuItem() {
-		const commandId = '_workbench.openWorkspaceSettingsEditor';
-		if (this.workspaceContextService.getWorkbenchState() === WorkbenchState.WORKSPACE && !CommandsRegistry.getCommand(commandId)) {
-			CommandsRegistry.registerCommand(commandId, () => this.preferencesService.openWorkspaceSettings({ jsonEditor: false }));
+KeybindingsRegistry.registerCommandAndKeybindingRule({
+	id: KEYBINDINGS_EDITOR_COMMAND_DEFINE_WHEN,
+	weight: KeybindingWeight.WorkbenchContrib,
+	when: ContextKeyExpr.and(CONTEXT_KEYBINDINGS_EDITOR, CONTEXT_KEYBINDING_FOCUS),
+	primary: KeyChord(KeyMod.CtrlCmd | KeyCode.KeyK, KeyMod.CtrlCmd | KeyCode.KeyE),
+	handler: (accessor, args: any) => {
+		const editorPane = accessor.get(IEditorService).activeEditorPane;
+		if (editorPane instanceof KeybindingsEditor && editorPane.activeKeybindingEntry!.keybindingItem.keybinding) {
+			editorPane.defineWhenExpression(editorPane.activeKeybindingEntry!);
+		}
+	}
+});
+
+KeybindingsRegistry.registerCommandAndKeybindingRule({
+	id: KEYBINDINGS_EDITOR_COMMAND_REMOVE,
+	weight: KeybindingWeight.WorkbenchContrib,
+	when: ContextKeyExpr.and(CONTEXT_KEYBINDINGS_EDITOR, CONTEXT_KEYBINDING_FOCUS, InputFocusedContext.toNegated()),
+	primary: KeyCode.Delete,
+	mac: {
+		primary: KeyMod.CtrlCmd | KeyCode.Backspace
+	},
+	handler: (accessor, args: any) => {
+		const editorPane = accessor.get(IEditorService).activeEditorPane;
+		if (editorPane instanceof KeybindingsEditor) {
+			editorPane.removeKeybinding(editorPane.activeKeybindingEntry!);
+		}
+	}
+});
+
+KeybindingsRegistry.registerCommandAndKeybindingRule({
+	id: KEYBINDINGS_EDITOR_COMMAND_RESET,
+	weight: KeybindingWeight.WorkbenchContrib,
+	when: ContextKeyExpr.and(CONTEXT_KEYBINDINGS_EDITOR, CONTEXT_KEYBINDING_FOCUS),
+	primary: 0,
+	handler: (accessor, args: any) => {
+		const editorPane = accessor.get(IEditorService).activeEditorPane;
+		if (editorPane instanceof KeybindingsEditor) {
+			editorPane.resetKeybinding(editorPane.activeKeybindingEntry!);
+		}
+	}
+});
+
+KeybindingsRegistry.registerCommandAndKeybindingRule({
+	id: KEYBINDINGS_EDITOR_COMMAND_SEARCH,
+	weight: KeybindingWeight.WorkbenchContrib,
+	when: ContextKeyExpr.and(CONTEXT_KEYBINDINGS_EDITOR),
+	primary: KeyMod.CtrlCmd | KeyCode.KeyF,
+	handler: (accessor, args: any) => {
+		const editorPane = accessor.get(IEditorService).activeEditorPane;
+		if (editorPane instanceof KeybindingsEditor) {
+			editorPane.focusSearch();
+		}
+	}
+});
+
+KeybindingsRegistry.registerCommandAndKeybindingRule({
+	id: KEYBINDINGS_EDITOR_COMMAND_RECORD_SEARCH_KEYS,
+	weight: KeybindingWeight.WorkbenchContrib,
+	when: ContextKeyExpr.and(CONTEXT_KEYBINDINGS_EDITOR, CONTEXT_KEYBINDINGS_SEARCH_FOCUS),
+	primary: KeyMod.Alt | KeyCode.KeyK,
+	mac: { primary: KeyMod.CtrlCmd | KeyMod.Alt | KeyCode.KeyK },
+	handler: (accessor, args: any) => {
+		const editorPane = accessor.get(IEditorService).activeEditorPane;
+		if (editorPane instanceof KeybindingsEditor) {
+			editorPane.recordSearchKeys();
+		}
+	}
+});
+
+KeybindingsRegistry.registerCommandAndKeybindingRule({
+	id: KEYBINDINGS_EDITOR_COMMAND_SORTBY_PRECEDENCE,
+	weight: KeybindingWeight.WorkbenchContrib,
+	when: ContextKeyExpr.and(CONTEXT_KEYBINDINGS_EDITOR),
+	primary: KeyMod.Alt | KeyCode.KeyP,
+	mac: { primary: KeyMod.CtrlCmd | KeyMod.Alt | KeyCode.KeyP },
+	handler: (accessor, args: any) => {
+		const editorPane = accessor.get(IEditorService).activeEditorPane;
+		if (editorPane instanceof KeybindingsEditor) {
+			editorPane.toggleSortByPrecedence();
+		}
+	}
+});
+
+KeybindingsRegistry.registerCommandAndKeybindingRule({
+	id: KEYBINDINGS_EDITOR_COMMAND_SHOW_SIMILAR,
+	weight: KeybindingWeight.WorkbenchContrib,
+	when: ContextKeyExpr.and(CONTEXT_KEYBINDINGS_EDITOR, CONTEXT_KEYBINDING_FOCUS),
+	primary: 0,
+	handler: (accessor, args: any) => {
+		const editorPane = accessor.get(IEditorService).activeEditorPane;
+		if (editorPane instanceof KeybindingsEditor) {
+			editorPane.showSimilarKeybindings(editorPane.activeKeybindingEntry!);
+		}
+	}
+});
+
+KeybindingsRegistry.registerCommandAndKeybindingRule({
+	id: KEYBINDINGS_EDITOR_COMMAND_COPY,
+	weight: KeybindingWeight.WorkbenchContrib,
+	when: ContextKeyExpr.and(CONTEXT_KEYBINDINGS_EDITOR, CONTEXT_KEYBINDING_FOCUS, CONTEXT_WHEN_FOCUS.negate()),
+	primary: KeyMod.CtrlCmd | KeyCode.KeyC,
+	handler: async (accessor, args: any) => {
+		const editorPane = accessor.get(IEditorService).activeEditorPane;
+		if (editorPane instanceof KeybindingsEditor) {
+			await editorPane.copyKeybinding(editorPane.activeKeybindingEntry!);
+		}
+	}
+});
+
+KeybindingsRegistry.registerCommandAndKeybindingRule({
+	id: KEYBINDINGS_EDITOR_COMMAND_COPY_COMMAND,
+	weight: KeybindingWeight.WorkbenchContrib,
+	when: ContextKeyExpr.and(CONTEXT_KEYBINDINGS_EDITOR, CONTEXT_KEYBINDING_FOCUS),
+	primary: 0,
+	handler: async (accessor, args: any) => {
+		const editorPane = accessor.get(IEditorService).activeEditorPane;
+		if (editorPane instanceof KeybindingsEditor) {
+			await editorPane.copyKeybindingCommand(editorPane.activeKeybindingEntry!);
+		}
+	}
+});
+
+KeybindingsRegistry.registerCommandAndKeybindingRule({
+	id: KEYBINDINGS_EDITOR_COMMAND_COPY_COMMAND_TITLE,
+	weight: KeybindingWeight.WorkbenchContrib,
+	when: ContextKeyExpr.and(CONTEXT_KEYBINDINGS_EDITOR, CONTEXT_KEYBINDING_FOCUS),
+	primary: 0,
+	handler: async (accessor, args: any) => {
+		const editorPane = accessor.get(IEditorService).activeEditorPane;
+		if (editorPane instanceof KeybindingsEditor) {
+			await editorPane.copyKeybindingCommandTitle(editorPane.activeKeybindingEntry!);
+		}
+	}
+});
+
+KeybindingsRegistry.registerCommandAndKeybindingRule({
+	id: KEYBINDINGS_EDITOR_COMMAND_FOCUS_KEYBINDINGS,
+	weight: KeybindingWeight.WorkbenchContrib,
+	when: ContextKeyExpr.and(CONTEXT_KEYBINDINGS_EDITOR, CONTEXT_KEYBINDINGS_SEARCH_FOCUS),
+	primary: KeyMod.CtrlCmd | KeyCode.DownArrow,
+	handler: (accessor, args: any) => {
+		const editorPane = accessor.get(IEditorService).activeEditorPane;
+		if (editorPane instanceof KeybindingsEditor) {
+			editorPane.focusKeybindings();
+		}
+	}
+});
+
+KeybindingsRegistry.registerCommandAndKeybindingRule({
+	id: KEYBINDINGS_EDITOR_COMMAND_REJECT_WHEN,
+	weight: KeybindingWeight.WorkbenchContrib,
+	when: ContextKeyExpr.and(CONTEXT_KEYBINDINGS_EDITOR, CONTEXT_WHEN_FOCUS, SuggestContext.Visible.toNegated()),
+	primary: KeyCode.Escape,
+	handler: async (accessor, args: any) => {
+		const editorPane = accessor.get(IEditorService).activeEditorPane;
+		if (editorPane instanceof KeybindingsEditor) {
+			editorPane.rejectWhenExpression(editorPane.activeKeybindingEntry!);
+		}
+	}
+});
+
+KeybindingsRegistry.registerCommandAndKeybindingRule({
+	id: KEYBINDINGS_EDITOR_COMMAND_ACCEPT_WHEN,
+	weight: KeybindingWeight.WorkbenchContrib,
+	when: ContextKeyExpr.and(CONTEXT_KEYBINDINGS_EDITOR, CONTEXT_WHEN_FOCUS, SuggestContext.Visible.toNegated()),
+	primary: KeyCode.Enter,
+	handler: async (accessor, args: any) => {
+		const editorPane = accessor.get(IEditorService).activeEditorPane;
+		if (editorPane instanceof KeybindingsEditor) {
+			editorPane.acceptWhenExpression(editorPane.activeKeybindingEntry!);
+		}
+	}
+});
+
+const profileScopedActionDisposables = this._register(new DisposableStore());
+const registerProfileScopedActions = () => {
+	profileScopedActionDisposables.clear();
+	profileScopedActionDisposables.add(registerAction2(class DefineKeybindingAction extends Action2 {
+		constructor() {
+			const when = ResourceContextKey.Resource.isEqualTo(that.userDataProfileService.currentProfile.keybindingsResource.toString());
+			super({
+				id: 'editor.action.defineKeybinding',
+				title: nls.localize2('defineKeybinding.start', "Define Keybinding"),
+				f1: true,
+				precondition: when,
+				keybinding: {
+					weight: KeybindingWeight.WorkbenchContrib,
+					when,
+					primary: KeyChord(KeyMod.CtrlCmd | KeyCode.KeyK, KeyMod.CtrlCmd | KeyCode.KeyK)
+				},
+				menu: {
+					id: MenuId.EditorContent,
+					when,
+				}
+			});
+		}
+
+		async run(accessor: ServicesAccessocognidreamidreamPromise<cognidream> {
+			const codeEditor = accessor.get(IEditorService).activeTextEditorControl;
+		if(isCodeEditor(codeEditor)) {
+		codeEditor.getContribution<IDefineKeybindingEditorContribution>(DEFINE_KEYBINDING_EDITOR_CONTRIB_ID)?.showDefineKeybindingWidget();
+	}
+                }
+            }));
+        };
+
+registerProfileScopedActions();
+this._register(this.userDataProfileService.onDidChangeCurrentProfile(() => registerProfileScopedActions()));
+    }
+
+    private updatePreferencesEditorMenuItem() {
+	const commandId = '_workbench.openWorkspaceSettingsEditor';
+	if (this.workspaceContextService.getWorkbenchState() === WorkbenchState.WORKSPACE && !CommandsRegistry.getCommand(commandId)) {
+		CommandsRegistry.registerCommand(commandId, () => this.preferencesService.openWorkspaceSettings({ jsonEditor: false }));
+		MenuRegistry.appendMenuItem(MenuId.EditorTitle, {
+			command: {
+				id: commandId,
+				title: OPEN_USER_SETTINGS_UI_TITLE,
+				icon: preferencesOpenSettingsIcon
+			},
+			when: ContextKeyExpr.and(ResourceContextKey.Resource.isEqualTo(this.preferencesService.workspaceSettingsResource!.toString()), WorkbenchStateContext.isEqualTo('workspace'), ContextKeyExpr.not('isInDiffEditor')),
+			group: 'navigation',
+			order: 1
+		});
+	}
+	this.updatePreferencesEditorMenuItemForWorkspaceFolders();
+}
+
+    private updatePreferencesEditorMenuItemForWorkspaceFolders() {
+	for (const folder of this.workspaceContextService.getWorkspace().folders) {
+		const commandId = `_workbench.openFolderSettings.${folder.uri.toString()}`;
+		if (!CommandsRegistry.getCommand(commandId)) {
+			CommandsRegistry.registerCommand(commandId, (accessor: ServicesAccessor, ...args: any[]) => {
+				const groupId = getEditorGroupFromArguments(accessor, args)?.id;
+				if (this.workspaceContextService.getWorkbenchState() === WorkbenchState.FOLDER) {
+					return this.preferencesService.openWorkspaceSettings({ jsonEditor: false, groupId });
+				} else {
+					return this.preferencesService.openFolderSettings({ folderUri: folder.uri, jsonEditor: false, groupId });
+				}
+			});
 			MenuRegistry.appendMenuItem(MenuId.EditorTitle, {
 				command: {
 					id: commandId,
 					title: OPEN_USER_SETTINGS_UI_TITLE,
 					icon: preferencesOpenSettingsIcon
 				},
-				when: ContextKeyExpr.and(ResourceContextKey.Resource.isEqualTo(this.preferencesService.workspaceSettingsResource!.toString()), WorkbenchStateContext.isEqualTo('workspace'), ContextKeyExpr.not('isInDiffEditor')),
+				when: ContextKeyExpr.and(ResourceContextKey.Resource.isEqualTo(this.preferencesService.getFolderSettingsResource(folder.uri)!.toString()), ContextKeyExpr.not('isInDiffEditor')),
 				group: 'navigation',
 				order: 1
 			});
 		}
-		this.updatePreferencesEditorMenuItemForWorkspaceFolders();
 	}
-
-	private updatePreferencesEditorMenuItemForWorkspaceFolders() {
-		for (const folder of this.workspaceContextService.getWorkspace().folders) {
-			const commandId = `_workbench.openFolderSettings.${folder.uri.toString()}`;
-			if (!CommandsRegistry.getCommand(commandId)) {
-				CommandsRegistry.registerCommand(commandId, (accessor: ServicesAccessor, ...args: any[]) => {
-					const groupId = getEditorGroupFromArguments(accessor, args)?.id;
-					if (this.workspaceContextService.getWorkbenchState() === WorkbenchState.FOLDER) {
-						return this.preferencesService.openWorkspaceSettings({ jsonEditor: false, groupId });
-					} else {
-						return this.preferencesService.openFolderSettings({ folderUri: folder.uri, jsonEditor: false, groupId });
-					}
-				});
-				MenuRegistry.appendMenuItem(MenuId.EditorTitle, {
-					command: {
-						id: commandId,
-						title: OPEN_USER_SETTINGS_UI_TITLE,
-						icon: preferencesOpenSettingsIcon
-					},
-					when: ContextKeyExpr.and(ResourceContextKey.Resource.isEqualTo(this.preferencesService.getFolderSettingsResource(folder.uri)!.toString()), ContextKeyExpr.not('isInDiffEditor')),
-					group: 'navigation',
-					order: 1
-				});
-			}
-		}
-	}
+}
 }
 
 class SettingsEditorTitleContribution extends Disposable implements IWorkbenchContribution {

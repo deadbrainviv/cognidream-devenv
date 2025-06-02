@@ -20,9 +20,9 @@ export interface IContextViewService extends IContextViewProvider {
 	readonly _serviceBrand: undefined;
 
 	showContextView(delegate: IContextViewDelegate, container?: HTMLElement, shadowRoot?: boolean): IOpenContextView;
-	hideContextView(data?: any): void;
+	hideContextView(data?: any): cognidreamidream;
 	getContextViewElement(): HTMLElement;
-	layout(): void;
+	layout(): cognidreamidream;
 	anchorAlignment?: AnchorAlignment;
 }
 
@@ -38,9 +38,9 @@ export interface IContextViewDelegate {
 	 */
 	getAnchor(): HTMLElement | StandardMouseEvent | IAnchor;
 	render(container: HTMLElement): IDisposable;
-	onDOMEvent?(e: any, activeElement: HTMLElement): void;
-	onHide?(data?: any): void;
-	focus?(): void;
+	onDOMEvent?(e: any, activeElement: HTMLElement): cognidreamidream;
+	onHide?(data?: any): cognidreamidream;
+	focus?(): cognidreamidream;
 	anchorAlignment?: AnchorAlignment;
 	anchorAxisAlignment?: AnchorAxisAlignment;
 
@@ -49,7 +49,7 @@ export interface IContextViewDelegate {
 }
 
 export interface IOpenContextView {
-	close: () => void;
+	close: () => cognidreamidream;
 }
 
 export const IContextMenuService = createDecorator<IContextMenuService>('contextMenuService');
@@ -58,10 +58,10 @@ export interface IContextMenuService {
 
 	readonly _serviceBrand: undefined;
 
-	readonly onDidShowContextMenu: Event<void>;
-	readonly onDidHideContextMenu: Event<void>;
+	readonly onDidShowContextMenu: Event<cognidreamidream>;
+	readonly onDidHideContextMenu: Event<cognidreamidream>;
 
-	showContextMenu(delegate: IContextMenuDelegate | IContextMenuMenuDelegate): void;
+	showContextMenu(delegate: IContextMenuDelegate | IContextMenuMenuDelegate): cognidreamidream;
 }
 
 export type IContextMenuMenuDelegate = {

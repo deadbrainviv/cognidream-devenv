@@ -35,7 +35,7 @@ export class MainThreadCommands implements MainThreadCommandsShape {
 		this._generateCommandsDocumentationRegistration.dispose();
 	}
 
-	private async _generateCommandsDocumentation(): Promise<void> {
+	private async _generateCommandsDocumentation(): Promise<cognidream> {
 		const result = await this._proxy.$getContributedCommandMetadata();
 
 		// add local commands
@@ -54,7 +54,7 @@ export class MainThreadCommands implements MainThreadCommandsShape {
 		console.log(all.join('\n'));
 	}
 
-	$registerCommand(id: string): void {
+	$registerCommand(id: stringcognidreamognidream {
 		this._commandRegistrations.set(
 			id,
 			CommandsRegistry.registerCommand(id, (accessor, ...args) => {
@@ -63,38 +63,38 @@ export class MainThreadCommands implements MainThreadCommandsShape {
 				});
 			})
 		);
-	}
+    }
 
-	$unregisterCommand(id: string): void {
-		this._commandRegistrations.deleteAndDispose(id);
-	}
+$unregisterCommand(id: stringcognidreamognidream {
+	this._commandRegistrations.deleteAndDispose(id);
+}
 
-	$fireCommandActivationEvent(id: string): void {
-		const activationEvent = `onCommand:${id}`;
-		if (!this._extensionService.activationEventIsDone(activationEvent)) {
-			// this is NOT awaited because we only use it as drive-by-activation
-			// for commands that are already known inside the extension host
-			this._extensionService.activateByEvent(activationEvent);
-		}
-	}
+    $fireCommandActivationEvent(id: stringcognidreamognidream {
+	const activationEvent = `onCommand:${id}`;
+	if(!this._extensionService.activationEventIsDone(activationEvent)) {
+	// this is NOT awaited because we only use it as drive-by-activation
+	// for commands that are already known inside the extension host
+	this._extensionService.activateByEvent(activationEvent);
+}
+    }
 
-	async $executeCommand<T>(id: string, args: any[] | SerializableObjectWithBuffers<any[]>, retry: boolean): Promise<T | undefined> {
-		if (args instanceof SerializableObjectWithBuffers) {
-			args = args.value;
-		}
-		for (let i = 0; i < args.length; i++) {
-			args[i] = revive(args[i]);
-		}
-		if (retry && args.length > 0 && !CommandsRegistry.getCommand(id)) {
-			await this._extensionService.activateByEvent(`onCommand:${id}`);
-			throw new Error('$executeCommand:retry');
-		}
-		return this._commandService.executeCommand<T>(id, ...args);
-	}
+	async $executeCommand<T>(id: string, args: any[] | SerializableObjectWithBuffers<any[]>, retry: boolean): Promise < T | undefined > {
+		if(args instanceof SerializableObjectWithBuffers) {
+	args = args.value;
+}
+for (let i = 0; i < args.length; i++) {
+	args[i] = revive(args[i]);
+}
+if (retry && args.length > 0 && !CommandsRegistry.getCommand(id)) {
+	await this._extensionService.activateByEvent(`onCommand:${id}`);
+	throw new Error('$executeCommand:retry');
+}
+return this._commandService.executeCommand<T>(id, ...args);
+    }
 
-	$getCommands(): Promise<string[]> {
-		return Promise.resolve([...CommandsRegistry.getCommands().keys()]);
-	}
+$getCommands(): Promise < string[] > {
+	return Promise.resolve([...CommandsRegistry.getCommands().keys()]);
+}
 }
 
 // --- command doc

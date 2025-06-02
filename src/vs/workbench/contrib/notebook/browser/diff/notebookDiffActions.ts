@@ -48,7 +48,7 @@ registerAction2(class extends Action2 {
 		});
 	}
 
-	async run(accessor: ServicesAccessor): Promise<void> {
+	async run(accessor: ServicesAccessor): Promise<cognidream> {
 		const editorService = accessor.get(IEditorService);
 
 		const activeEditor = editorService.activeEditorPane;
@@ -79,11 +79,11 @@ registerAction2(class extends Action2 {
 		});
 	}
 
-	run(accessor: ServicesAccessor, ...args: unknown[]): void {
+	run(accessor: ServicesAccessor, ...args: unknown[]cognidreamognidream {
 		const configurationService = accessor.get(IConfigurationService);
-		const newValue = !configurationService.getValue<boolean>('diffEditor.hideUnchangedRegions.enabled');
-		configurationService.updateValue('diffEditor.hideUnchangedRegions.enabled', newValue);
-	}
+	const newValue = !configurationService.getValue<boolean>('diffEditor.hideUnchangedRegions.enabled');
+        configurationService.updateValue('diffEditor.hideUnchangedRegions.enabled', newValue);
+}
 });
 
 
@@ -102,28 +102,28 @@ registerAction2(class extends Action2 {
 		});
 	}
 
-	async run(accessor: ServicesAccessor): Promise<void> {
-		const editorService = accessor.get(IEditorService);
+	async run(accessor: ServicesAccessor): Promicognidreamognidream> {
+	const editorService = accessor.get(IEditorService);
 
-		const activeEditor = editorService.activeEditorPane;
-		if (!activeEditor) {
-			return;
-		}
-		if (activeEditor instanceof NotebookTextDiffEditor || activeEditor instanceof NotebookMultiTextDiffEditor) {
-			const diffEditorInput = activeEditor.input as NotebookDiffEditorInput;
-
-			await editorService.openEditor(
-				{
-					original: { resource: diffEditorInput.original.resource },
-					modified: { resource: diffEditorInput.resource },
-					label: diffEditorInput.getName(),
-					options: {
-						preserveFocus: false,
-						override: DEFAULT_EDITOR_ASSOCIATION.id
-					}
-				});
-		}
+	const activeEditor = editorService.activeEditorPane;
+	if(!activeEditor) {
+		return;
 	}
+        if(activeEditor instanceof NotebookTextDiffEditor || activeEditor instanceof NotebookMultiTextDiffEditor) {
+	const diffEditorInput = activeEditor.input as NotebookDiffEditorInput;
+
+	await editorService.openEditor(
+		{
+			original: { resource: diffEditorInput.original.resource },
+			modified: { resource: diffEditorInput.resource },
+			label: diffEditorInput.getName(),
+			options: {
+				preserveFocus: false,
+				override: DEFAULT_EDITOR_ASSOCIATION.id
+			}
+		});
+}
+    }
 });
 
 
@@ -143,15 +143,15 @@ registerAction2(class extends Action2 {
 		});
 	}
 
-	run(accessor: ServicesAccessor, ...args: unknown[]): void {
+	run(accessor: ServicesAccessor, ...args: unknown[]cognidreamognidream {
 		const activeEditor = accessor.get(IEditorService).activeEditorPane;
-		if (!activeEditor) {
-			return;
-		}
-		if (activeEditor instanceof NotebookMultiTextDiffEditor) {
-			activeEditor.showUnchanged();
-		}
+	if(!activeEditor) {
+		return;
 	}
+	if(activeEditor instanceof NotebookMultiTextDiffEditor) {
+	activeEditor.showUnchanged();
+}
+    }
 });
 
 registerAction2(class extends Action2 {
@@ -170,15 +170,15 @@ registerAction2(class extends Action2 {
 		});
 	}
 
-	run(accessor: ServicesAccessor, ...args: unknown[]): void {
+	run(accessor: ServicesAccessor, ...args: unknown[]cognidreamognidream {
 		const activeEditor = accessor.get(IEditorService).activeEditorPane;
-		if (!activeEditor) {
-			return;
-		}
-		if (activeEditor instanceof NotebookMultiTextDiffEditor) {
-			activeEditor.hideUnchanged();
-		}
+	if(!activeEditor) {
+		return;
 	}
+	if(activeEditor instanceof NotebookMultiTextDiffEditor) {
+	activeEditor.hideUnchanged();
+}
+    }
 });
 
 registerAction2(class GoToFileAction extends Action2 {
@@ -196,21 +196,21 @@ registerAction2(class GoToFileAction extends Action2 {
 		});
 	}
 
-	async run(accessor: ServicesAccessor, ...args: any[]): Promise<void> {
+	async run(accessor: ServicesAccessor, ...args: any[]): Promicognidreamognidream> {
 		const uri = args[0] as URI;
 		const editorService = accessor.get(IEditorService);
 		const activeEditorPane = editorService.activeEditorPane;
-		if (!(activeEditorPane instanceof NotebookMultiTextDiffEditor)) {
-			return;
-		}
+		if(!(activeEditorPane instanceof NotebookMultiTextDiffEditor)) {
+	return;
+}
 
-		await editorService.openEditor({
-			resource: uri,
-			options: {
-				selectionRevealType: TextEditorSelectionRevealType.CenterIfOutsideViewport,
-			} satisfies ITextEditorOptions,
-		});
-	}
+await editorService.openEditor({
+	resource: uri,
+	options: {
+		selectionRevealType: TextEditorSelectionRevealType.CenterIfOutsideViewport,
+	} satisfies ITextEditorOptions,
+});
+    }
 });
 
 
@@ -266,29 +266,29 @@ registerAction2(class extends Action2 {
 		});
 	}
 
-	async run(accessor: ServicesAccessor, ...args: any[]): Promise<void> {
+	async run(accessor: ServicesAccessor, ...args: any[]): Promicognidreamognidream> {
 		const uri = args[0] as URI;
 		const editorService = accessor.get(IEditorService);
 		const activeEditorPane = editorService.activeEditorPane;
-		if (!(activeEditorPane instanceof NotebookMultiTextDiffEditor)) {
-			return;
-		}
+		if(!(activeEditorPane instanceof NotebookMultiTextDiffEditor)) {
+	return;
+}
 
-		const item = activeEditorPane.getDiffElementViewModel(uri);
-		if (item && item instanceof SideBySideDiffElementViewModel) {
-			const modified = item.modified;
-			const original = item.original;
+const item = activeEditorPane.getDiffElementViewModel(uri);
+if (item && item instanceof SideBySideDiffElementViewModel) {
+	const modified = item.modified;
+	const original = item.original;
 
-			if (!original || !modified) {
-				return;
-			}
-
-			const bulkEditService = accessor.get(IBulkEditService);
-			await bulkEditService.apply([
-				new ResourceTextEdit(modified.uri, { range: modified.textModel.getFullModelRange(), text: original.textModel.getValue() }),
-			], { quotableLabel: 'Revert Notebook Cell Content Change' });
-		}
+	if (!original || !modified) {
+		return;
 	}
+
+	const bulkEditService = accessor.get(IBulkEditService);
+	await bulkEditService.apply([
+		new ResourceTextEdit(modified.uri, { range: modified.textModel.getFullModelRange(), text: original.textModel.getValue() }),
+	], { quotableLabel: 'Revert Notebook Cell Content Change' });
+}
+    }
 });
 
 const revertOutputs = localize('notebook.diff.cell.revertOutputs', "Revert Outputs");
@@ -310,28 +310,28 @@ registerAction2(class extends Action2 {
 			}
 		);
 	}
-	async run(accessor: ServicesAccessor, ...args: any[]): Promise<void> {
+	async run(accessor: ServicesAccessor, ...args: any[]): Promicognidreamognidream> {
 		const uri = args[0] as URI;
 		const editorService = accessor.get(IEditorService);
 		const activeEditorPane = editorService.activeEditorPane;
-		if (!(activeEditorPane instanceof NotebookMultiTextDiffEditor)) {
-			return;
-		}
+		if(!(activeEditorPane instanceof NotebookMultiTextDiffEditor)) {
+	return;
+}
 
-		const item = activeEditorPane.getDiffElementViewModel(uri);
-		if (item && item instanceof SideBySideDiffElementViewModel) {
-			const original = item.original;
+const item = activeEditorPane.getDiffElementViewModel(uri);
+if (item && item instanceof SideBySideDiffElementViewModel) {
+	const original = item.original;
 
-			const modifiedCellIndex = item.modifiedDocument.cells.findIndex(cell => cell.handle === item.modified.handle);
-			if (modifiedCellIndex === -1) {
-				return;
-			}
-
-			item.mainDocumentTextModel.applyEdits([{
-				editType: CellEditType.Output, index: modifiedCellIndex, outputs: original.outputs
-			}], true, undefined, () => undefined, undefined, true);
-		}
+	const modifiedCellIndex = item.modifiedDocument.cells.findIndex(cell => cell.handle === item.modified.handle);
+	if (modifiedCellIndex === -1) {
+		return;
 	}
+
+	item.mainDocumentTextModel.applyEdits([{
+		editType: CellEditType.Output, index: modifiedCellIndex, outputs: original.outputs
+	}], true, undefined, () => undefined, undefined, true);
+}
+    }
 });
 
 const revertMetadata = localize('notebook.diff.cell.revertMetadata', "Revert Metadata");
@@ -353,28 +353,28 @@ registerAction2(class extends Action2 {
 			}
 		);
 	}
-	async run(accessor: ServicesAccessor, ...args: any[]): Promise<void> {
+	async run(accessor: ServicesAccessor, ...args: any[]): Promicognidreamognidream> {
 		const uri = args[0] as URI;
 		const editorService = accessor.get(IEditorService);
 		const activeEditorPane = editorService.activeEditorPane;
-		if (!(activeEditorPane instanceof NotebookMultiTextDiffEditor)) {
-			return;
-		}
+		if(!(activeEditorPane instanceof NotebookMultiTextDiffEditor)) {
+	return;
+}
 
-		const item = activeEditorPane.getDiffElementViewModel(uri);
-		if (item && item instanceof SideBySideDiffElementViewModel) {
-			const original = item.original;
+const item = activeEditorPane.getDiffElementViewModel(uri);
+if (item && item instanceof SideBySideDiffElementViewModel) {
+	const original = item.original;
 
-			const modifiedCellIndex = item.modifiedDocument.cells.findIndex(cell => cell.handle === item.modified.handle);
-			if (modifiedCellIndex === -1) {
-				return;
-			}
-
-			item.mainDocumentTextModel.applyEdits([{
-				editType: CellEditType.Metadata, index: modifiedCellIndex, metadata: original.metadata
-			}], true, undefined, () => undefined, undefined, true);
-		}
+	const modifiedCellIndex = item.modifiedDocument.cells.findIndex(cell => cell.handle === item.modified.handle);
+	if (modifiedCellIndex === -1) {
+		return;
 	}
+
+	item.mainDocumentTextModel.applyEdits([{
+		editType: CellEditType.Metadata, index: modifiedCellIndex, metadata: original.metadata
+	}], true, undefined, () => undefined, undefined, true);
+}
+    }
 });
 
 
@@ -592,19 +592,19 @@ class ToggleRenderAction extends Action2 {
 		});
 	}
 
-	async run(accessor: ServicesAccessor): Promise<void> {
+	async run(accessor: ServicesAccessor): Promicognidreamognidream> {
 		const configurationService = accessor.get(IConfigurationService);
 
-		if (this.toggleOutputs !== undefined) {
-			const oldValue = configurationService.getValue('notebook.diff.ignoreOutputs');
-			configurationService.updateValue('notebook.diff.ignoreOutputs', !oldValue);
-		}
+		if(this.toggleOutputs !== undefined) {
+	const oldValue = configurationService.getValue('notebook.diff.ignoreOutputs');
+	configurationService.updateValue('notebook.diff.ignoreOutputs', !oldValue);
+}
 
-		if (this.toggleMetadata !== undefined) {
-			const oldValue = configurationService.getValue('notebook.diff.ignoreMetadata');
-			configurationService.updateValue('notebook.diff.ignoreMetadata', !oldValue);
-		}
-	}
+if (this.toggleMetadata !== undefined) {
+	const oldValue = configurationService.getValue('notebook.diff.ignoreMetadata');
+	configurationService.updateValue('notebook.diff.ignoreMetadata', !oldValue);
+}
+    }
 }
 
 registerAction2(class extends ToggleRenderAction {

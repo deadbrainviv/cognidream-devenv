@@ -110,7 +110,7 @@ class NavBar extends Disposable {
 		this.actionbar = this._register(new ActionBar(element));
 	}
 
-	push(id: string, label: string, tooltip: string): void {
+	push(id: string, label: string, tooltip: string): cognidream {
 		const action = new Action(id, label, undefined, true, () => this.update(id, true));
 
 		action.tooltip = tooltip;
@@ -123,33 +123,33 @@ class NavBar extends Disposable {
 		}
 	}
 
-	clear(): void {
+	clear(cognidreamognidream {
 		this.actions = dispose(this.actions);
 		this.actionbar.clear();
-	}
+    }
 
-	switch(id: string): boolean {
-		const action = this.actions.find(action => action.id === id);
-		if (action) {
-			action.run();
-			return true;
-		}
-		return false;
+switch (id: string): boolean {
+	const action = this.actions.find(action => action.id === id);
+	if (action) {
+		action.run();
+		return true;
 	}
-
-	private update(id: string, focus?: boolean): void {
-		this._currentId = id;
-		this._onChange.fire({ id, focus: !!focus });
-		this.actions.forEach(a => a.checked = a.id === id);
-	}
+	return false;
 }
 
-interface ILayoutParticipant {
-	layout(): void;
+    private update(id: string, focus ?: booleancognidreamognidream {
+	this._currentId = id;
+	this._onChange.fire({ id, focus: !!focus });
+	this.actions.forEach(a => a.checked = a.id === id);
+}
+}
+
+	interface ILayoutParticipant {
+	layout(cognidreamognidream;
 }
 
 interface IActiveElement {
-	focus(): void;
+	focus(cognidreamognidream;
 }
 
 interface IExtensionEditorTemplate {
@@ -199,13 +199,13 @@ class VersionWidget extends ExtensionWithDifferentGalleryVersionWidget {
 		this._register(hoverService.setupManagedHover(getDefaultHoverDelegate('mouse'), this.element, localize('extension version', "Extension Version")));
 		this.render();
 	}
-	render(): void {
+	render(cognidreamognidream {
 		if (this.extension?.preRelease) {
-			show(this.element);
-		} else {
-			hide(this.element);
-		}
-	}
+	show(this.element);
+} else {
+	hide(this.element);
+}
+    }
 }
 
 export class ExtensionEditor extends EditorPane {
@@ -261,514 +261,514 @@ export class ExtensionEditor extends EditorPane {
 		return this._scopedContextKeyService.value;
 	}
 
-	protected createEditor(parent: HTMLElement): void {
+	protected createEditor(parent: HTMLElementcognidreamognidream {
 		const root = append(parent, $('.extension-editor'));
 		this._scopedContextKeyService.value = this.contextKeyService.createScoped(root);
 		this._scopedContextKeyService.value.createKey('inExtensionEditor', true);
-		this.showPreReleaseVersionContextKey = CONTEXT_SHOW_PRE_RELEASE_VERSION.bindTo(this._scopedContextKeyService.value);
+this.showPreReleaseVersionContextKey = CONTEXT_SHOW_PRE_RELEASE_VERSION.bindTo(this._scopedContextKeyService.value);
 
-		root.tabIndex = 0; // this is required for the focus tracker on the editor
-		root.style.outline = 'none';
-		root.setAttribute('role', 'document');
-		const header = append(root, $('.header'));
+root.tabIndex = 0; // this is required for the focus tracker on the editor
+root.style.outline = 'none';
+root.setAttribute('role', 'document');
+const header = append(root, $('.header'));
 
-		const iconContainer = append(header, $('.icon-container'));
-		const icon = append(iconContainer, $<HTMLImageElement>('img.icon', { draggable: false, alt: '' }));
-		const remoteBadge = this.instantiationService.createInstance(RemoteBadgeWidget, iconContainer, true);
+const iconContainer = append(header, $('.icon-container'));
+const icon = append(iconContainer, $<HTMLImageElement>('img.icon', { draggable: false, alt: '' }));
+const remoteBadge = this.instantiationService.createInstance(RemoteBadgeWidget, iconContainer, true);
 
-		const details = append(header, $('.details'));
-		const title = append(details, $('.title'));
-		const name = append(title, $('span.name.clickable', { role: 'heading', tabIndex: 0 }));
-		this._register(this.hoverService.setupManagedHover(getDefaultHoverDelegate('mouse'), name, localize('name', "Extension name")));
-		const versionWidget = new VersionWidget(title, this.hoverService);
+const details = append(header, $('.details'));
+const title = append(details, $('.title'));
+const name = append(title, $('span.name.clickable', { role: 'heading', tabIndex: 0 }));
+this._register(this.hoverService.setupManagedHover(getDefaultHoverDelegate('mouse'), name, localize('name', "Extension name")));
+const versionWidget = new VersionWidget(title, this.hoverService);
 
-		const preview = append(title, $('span.preview'));
-		this._register(this.hoverService.setupManagedHover(getDefaultHoverDelegate('mouse'), preview, localize('preview', "Preview")));
-		preview.textContent = localize('preview', "Preview");
+const preview = append(title, $('span.preview'));
+this._register(this.hoverService.setupManagedHover(getDefaultHoverDelegate('mouse'), preview, localize('preview', "Preview")));
+preview.textContent = localize('preview', "Preview");
 
-		const builtin = append(title, $('span.builtin'));
-		builtin.textContent = localize('builtin', "Built-in");
+const builtin = append(title, $('span.builtin'));
+builtin.textContent = localize('builtin', "Built-in");
 
-		const subtitle = append(details, $('.subtitle'));
-		const subTitleEntryContainers: HTMLElement[] = [];
+const subtitle = append(details, $('.subtitle'));
+const subTitleEntryContainers: HTMLElement[] = [];
 
-		const publisherContainer = append(subtitle, $('.subtitle-entry'));
-		subTitleEntryContainers.push(publisherContainer);
-		const publisherWidget = this.instantiationService.createInstance(PublisherWidget, publisherContainer, false);
+const publisherContainer = append(subtitle, $('.subtitle-entry'));
+subTitleEntryContainers.push(publisherContainer);
+const publisherWidget = this.instantiationService.createInstance(PublisherWidget, publisherContainer, false);
 
-		const extensionKindContainer = append(subtitle, $('.subtitle-entry'));
-		subTitleEntryContainers.push(extensionKindContainer);
-		const extensionKindWidget = this.instantiationService.createInstance(ExtensionKindIndicatorWidget, extensionKindContainer, false);
+const extensionKindContainer = append(subtitle, $('.subtitle-entry'));
+subTitleEntryContainers.push(extensionKindContainer);
+const extensionKindWidget = this.instantiationService.createInstance(ExtensionKindIndicatorWidget, extensionKindContainer, false);
 
-		const installCountContainer = append(subtitle, $('.subtitle-entry'));
-		subTitleEntryContainers.push(installCountContainer);
-		const installCountWidget = this.instantiationService.createInstance(InstallCountWidget, installCountContainer, false);
+const installCountContainer = append(subtitle, $('.subtitle-entry'));
+subTitleEntryContainers.push(installCountContainer);
+const installCountWidget = this.instantiationService.createInstance(InstallCountWidget, installCountContainer, false);
 
-		const ratingsContainer = append(subtitle, $('.subtitle-entry'));
-		subTitleEntryContainers.push(ratingsContainer);
-		const ratingsWidget = this.instantiationService.createInstance(RatingsWidget, ratingsContainer, false);
+const ratingsContainer = append(subtitle, $('.subtitle-entry'));
+subTitleEntryContainers.push(ratingsContainer);
+const ratingsWidget = this.instantiationService.createInstance(RatingsWidget, ratingsContainer, false);
 
-		const sponsorContainer = append(subtitle, $('.subtitle-entry'));
-		subTitleEntryContainers.push(sponsorContainer);
-		const sponsorWidget = this.instantiationService.createInstance(SponsorWidget, sponsorContainer);
+const sponsorContainer = append(subtitle, $('.subtitle-entry'));
+subTitleEntryContainers.push(sponsorContainer);
+const sponsorWidget = this.instantiationService.createInstance(SponsorWidget, sponsorContainer);
 
-		const widgets: ExtensionWidget[] = [
-			remoteBadge,
-			versionWidget,
-			publisherWidget,
-			extensionKindWidget,
-			installCountWidget,
-			ratingsWidget,
-			sponsorWidget,
-		];
+const widgets: ExtensionWidget[] = [
+	remoteBadge,
+	versionWidget,
+	publisherWidget,
+	extensionKindWidget,
+	installCountWidget,
+	ratingsWidget,
+	sponsorWidget,
+];
 
-		const description = append(details, $('.description'));
+const description = append(details, $('.description'));
 
-		const installAction = this.instantiationService.createInstance(InstallDropdownAction);
-		const actions = [
-			this.instantiationService.createInstance(ExtensionRuntimeStateAction),
-			this.instantiationService.createInstance(ExtensionStatusLabelAction),
-			this.instantiationService.createInstance(UpdateAction, true),
-			this.instantiationService.createInstance(SetColorThemeAction),
-			this.instantiationService.createInstance(SetFileIconThemeAction),
-			this.instantiationService.createInstance(SetProductIconThemeAction),
-			this.instantiationService.createInstance(SetLanguageAction),
-			this.instantiationService.createInstance(ClearLanguageAction),
+const installAction = this.instantiationService.createInstance(InstallDropdownAction);
+const actions = [
+	this.instantiationService.createInstance(ExtensionRuntimeStateAction),
+	this.instantiationService.createInstance(ExtensionStatusLabelAction),
+	this.instantiationService.createInstance(UpdateAction, true),
+	this.instantiationService.createInstance(SetColorThemeAction),
+	this.instantiationService.createInstance(SetFileIconThemeAction),
+	this.instantiationService.createInstance(SetProductIconThemeAction),
+	this.instantiationService.createInstance(SetLanguageAction),
+	this.instantiationService.createInstance(ClearLanguageAction),
 
-			this.instantiationService.createInstance(EnableDropDownAction),
-			this.instantiationService.createInstance(DisableDropDownAction),
-			this.instantiationService.createInstance(RemoteInstallAction, false),
-			this.instantiationService.createInstance(LocalInstallAction),
-			this.instantiationService.createInstance(WebInstallAction),
-			installAction,
-			this.instantiationService.createInstance(InstallingLabelAction),
-			this.instantiationService.createInstance(ButtonWithDropDownExtensionAction, 'extensions.uninstall', UninstallAction.UninstallClass, [
-				[
-					this.instantiationService.createInstance(MigrateDeprecatedExtensionAction, false),
-					this.instantiationService.createInstance(UninstallAction),
-					this.instantiationService.createInstance(InstallAnotherVersionAction, null, true),
-				]
-			]),
-			this.instantiationService.createInstance(TogglePreReleaseExtensionAction),
-			this.instantiationService.createInstance(ToggleAutoUpdateForExtensionAction),
-			new ExtensionEditorManageExtensionAction(this.scopedContextKeyService || this.contextKeyService, this.instantiationService),
-		];
+	this.instantiationService.createInstance(EnableDropDownAction),
+	this.instantiationService.createInstance(DisableDropDownAction),
+	this.instantiationService.createInstance(RemoteInstallAction, false),
+	this.instantiationService.createInstance(LocalInstallAction),
+	this.instantiationService.createInstance(WebInstallAction),
+	installAction,
+	this.instantiationService.createInstance(InstallingLabelAction),
+	this.instantiationService.createInstance(ButtonWithDropDownExtensionAction, 'extensions.uninstall', UninstallAction.UninstallClass, [
+		[
+			this.instantiationService.createInstance(MigrateDeprecatedExtensionAction, false),
+			this.instantiationService.createInstance(UninstallAction),
+			this.instantiationService.createInstance(InstallAnotherVersionAction, null, true),
+		]
+	]),
+	this.instantiationService.createInstance(TogglePreReleaseExtensionAction),
+	this.instantiationService.createInstance(ToggleAutoUpdateForExtensionAction),
+	new ExtensionEditorManageExtensionAction(this.scopedContextKeyService || this.contextKeyService, this.instantiationService),
+];
 
-		const actionsAndStatusContainer = append(details, $('.actions-status-container'));
-		const extensionActionBar = this._register(new ActionBar(actionsAndStatusContainer, {
-			actionViewItemProvider: (action: IAction, options) => {
-				if (action instanceof DropDownExtensionAction) {
-					return action.createActionViewItem(options);
-				}
-				if (action instanceof ButtonWithDropDownExtensionAction) {
-					return new ButtonWithDropdownExtensionActionViewItem(
-						action,
-						{
-							...options,
-							icon: true,
-							label: true,
-							menuActionsOrProvider: { getActions: () => action.menuActions },
-							menuActionClassNames: action.menuActionClassNames
-						},
-						this.contextMenuService);
-				}
-				if (action instanceof ToggleAutoUpdateForExtensionAction) {
-					return new CheckboxActionViewItem(undefined, action, { ...options, icon: true, label: true, checkboxStyles: defaultCheckboxStyles });
-				}
-				return undefined;
-			},
-			focusOnlyEnabledItems: true
-		}));
-
-		extensionActionBar.push(actions, { icon: true, label: true });
-		extensionActionBar.setFocusable(true);
-		// update focusable elements when the enablement of an action changes
-		this._register(Event.any(...actions.map(a => Event.filter(a.onDidChange, e => e.enabled !== undefined)))(() => {
-			extensionActionBar.setFocusable(false);
-			extensionActionBar.setFocusable(true);
-		}));
-
-		const otherExtensionContainers: IExtensionContainer[] = [];
-		const extensionStatusAction = this.instantiationService.createInstance(ExtensionStatusAction);
-		const extensionStatusWidget = this._register(this.instantiationService.createInstance(ExtensionStatusWidget, append(actionsAndStatusContainer, $('.status')), extensionStatusAction));
-
-		otherExtensionContainers.push(extensionStatusAction, new class extends ExtensionWidget {
-			render() {
-				actionsAndStatusContainer.classList.toggle('list-layout', this.extension?.state === ExtensionState.Installed);
-			}
-		}());
-
-		const recommendationWidget = this.instantiationService.createInstance(ExtensionRecommendationWidget, append(details, $('.recommendation')));
-		widgets.push(recommendationWidget);
-
-		this._register(Event.any(extensionStatusWidget.onDidRender, recommendationWidget.onDidRender)(() => {
-			if (this.dimension) {
-				this.layout(this.dimension);
-			}
-		}));
-
-		const extensionContainers: ExtensionContainers = this.instantiationService.createInstance(ExtensionContainers, [...actions, ...widgets, ...otherExtensionContainers]);
-		for (const disposable of [...actions, ...widgets, ...otherExtensionContainers, extensionContainers]) {
-			this._register(disposable);
+const actionsAndStatusContainer = append(details, $('.actions-status-container'));
+const extensionActionBar = this._register(new ActionBar(actionsAndStatusContainer, {
+	actionViewItemProvider: (action: IAction, options) => {
+		if (action instanceof DropDownExtensionAction) {
+			return action.createActionViewItem(options);
 		}
-
-		const onError = Event.chain(extensionActionBar.onDidRun, $ =>
-			$.map(({ error }) => error)
-				.filter(error => !!error)
-		);
-
-		this._register(onError(this.onError, this));
-
-		const body = append(root, $('.body'));
-		const navbar = new NavBar(body);
-
-		const content = append(body, $('.content'));
-		content.id = generateUuid(); // An id is needed for the webview parent flow to
-
-		this.template = {
-			builtin,
-			content,
-			description,
-			header,
-			icon,
-			iconContainer,
-			name,
-			navbar,
-			preview,
-			actionsAndStatusContainer,
-			extensionActionBar,
-			set extension(extension: IExtension) {
-				extensionContainers.extension = extension;
-				let lastNonEmptySubtitleEntryContainer;
-				for (const subTitleEntryElement of subTitleEntryContainers) {
-					subTitleEntryElement.classList.remove('last-non-empty');
-					if (subTitleEntryElement.children.length > 0) {
-						lastNonEmptySubtitleEntryContainer = subTitleEntryElement;
-					}
-				}
-				if (lastNonEmptySubtitleEntryContainer) {
-					lastNonEmptySubtitleEntryContainer.classList.add('last-non-empty');
-				}
-			},
-			set gallery(gallery: IGalleryExtension | null) {
-				versionWidget.gallery = gallery;
-			},
-			set manifest(manifest: IExtensionManifest | null) {
-				installAction.manifest = manifest;
-			}
-		};
-	}
-
-	override async setInput(input: ExtensionsInput, options: IExtensionEditorOptions | undefined, context: IEditorOpenContext, token: CancellationToken): Promise<void> {
-		await super.setInput(input, options, context, token);
-		this.updatePreReleaseVersionContext();
-		if (this.template) {
-			await this.render(input.extension, this.template, !!options?.preserveFocus);
-		}
-	}
-
-	override setOptions(options: IExtensionEditorOptions | undefined): void {
-		const currentOptions: IExtensionEditorOptions | undefined = this.options;
-		super.setOptions(options);
-		this.updatePreReleaseVersionContext();
-
-		if (this.input && this.template && currentOptions?.showPreReleaseVersion !== options?.showPreReleaseVersion) {
-			this.render((this.input as ExtensionsInput).extension, this.template, !!options?.preserveFocus);
-			return;
-		}
-
-		if (options?.tab) {
-			this.template?.navbar.switch(options.tab);
-		}
-
-	}
-
-	private updatePreReleaseVersionContext(): void {
-		let showPreReleaseVersion = (<IExtensionEditorOptions | undefined>this.options)?.showPreReleaseVersion;
-		if (isUndefined(showPreReleaseVersion)) {
-			showPreReleaseVersion = !!(<ExtensionsInput>this.input).extension.gallery?.properties.isPreReleaseVersion;
-		}
-		this.showPreReleaseVersionContextKey?.set(showPreReleaseVersion);
-	}
-
-	async openTab(tab: ExtensionEditorTab): Promise<void> {
-		if (!this.input || !this.template) {
-			return;
-		}
-		if (this.template.navbar.switch(tab)) {
-			return;
-		}
-		// Fallback to Readme tab if ExtensionPack tab does not exist
-		if (tab === ExtensionEditorTab.ExtensionPack) {
-			this.template.navbar.switch(ExtensionEditorTab.Readme);
-		}
-	}
-
-	private async getGalleryVersionToShow(extension: IExtension, preRelease?: boolean): Promise<IGalleryExtension | null> {
-		if (extension.resourceExtension) {
-			return null;
-		}
-		if (extension.local?.source === 'resource') {
-			return null;
-		}
-		if (isUndefined(preRelease)) {
-			return null;
-		}
-		if (preRelease === extension.gallery?.properties.isPreReleaseVersion) {
-			return null;
-		}
-		if (preRelease && !extension.hasPreReleaseVersion) {
-			return null;
-		}
-		if (!preRelease && !extension.hasReleaseVersion) {
-			return null;
-		}
-		return (await this.extensionGalleryService.getExtensions([{ ...extension.identifier, preRelease, hasPreRelease: extension.hasPreReleaseVersion }], CancellationToken.None))[0] || null;
-	}
-
-	private async render(extension: IExtension, template: IExtensionEditorTemplate, preserveFocus: boolean): Promise<void> {
-		this.activeElement = null;
-		this.transientDisposables.clear();
-
-		const token = this.transientDisposables.add(new CancellationTokenSource()).token;
-
-		const gallery = await this.getGalleryVersionToShow(extension, (this.options as IExtensionEditorOptions)?.showPreReleaseVersion);
-		if (token.isCancellationRequested) {
-			return;
-		}
-
-		this.extensionReadme = new Cache(() => gallery ? this.extensionGalleryService.getReadme(gallery, token) : extension.getReadme(token));
-		this.extensionChangelog = new Cache(() => gallery ? this.extensionGalleryService.getChangelog(gallery, token) : extension.getChangelog(token));
-		this.extensionManifest = new Cache(() => gallery ? this.extensionGalleryService.getManifest(gallery, token) : extension.getManifest(token));
-
-		template.extension = extension;
-		template.gallery = gallery;
-		template.manifest = null;
-
-		this.transientDisposables.add(addDisposableListener(template.icon, 'error', () => template.icon.src = extension.iconUrlFallback, { once: true }));
-		template.icon.src = extension.iconUrl;
-
-		template.name.textContent = extension.displayName;
-		template.name.classList.toggle('clickable', !!extension.url);
-		template.name.classList.toggle('deprecated', !!extension.deprecationInfo);
-		template.preview.style.display = extension.preview ? 'inherit' : 'none';
-		template.builtin.style.display = extension.isBuiltin ? 'inherit' : 'none';
-
-		template.description.textContent = extension.description;
-
-		if (extension.url) {
-			this.transientDisposables.add(onClick(template.name, () => this.openerService.open(URI.parse(extension.url!))));
-		}
-
-		const manifest = await this.extensionManifest.get().promise;
-		if (token.isCancellationRequested) {
-			return;
-		}
-
-		if (manifest) {
-			template.manifest = manifest;
-		}
-
-		this.renderNavbar(extension, manifest, template, preserveFocus);
-
-		// report telemetry
-		const extRecommendations = this.extensionRecommendationsService.getAllRecommendationsWithReason();
-		let recommendationsData = {};
-		if (extRecommendations[extension.identifier.id.toLowerCase()]) {
-			recommendationsData = { recommendationReason: extRecommendations[extension.identifier.id.toLowerCase()].reasonId };
-		}
-		/* __GDPR__
-		"extensionGallery:openExtension" : {
-			"owner": "sandy081",
-			"recommendationReason": { "classification": "SystemMetaData", "purpose": "FeatureInsight", "isMeasurement": true },
-			"${include}": [
-				"${GalleryExtensionTelemetryData}"
-			]
-		}
-		*/
-		this.telemetryService.publicLog('extensionGallery:openExtension', { ...extension.telemetryData, ...recommendationsData });
-
-	}
-
-	private renderNavbar(extension: IExtension, manifest: IExtensionManifest | null, template: IExtensionEditorTemplate, preserveFocus: boolean): void {
-		template.content.innerText = '';
-		template.navbar.clear();
-
-		if (this.currentIdentifier !== extension.identifier.id) {
-			this.initialScrollProgress.clear();
-			this.currentIdentifier = extension.identifier.id;
-		}
-
-		template.navbar.push(ExtensionEditorTab.Readme, localize('details', "Details"), localize('detailstooltip', "Extension details, rendered from the extension's 'README.md' file"));
-		if (manifest) {
-			template.navbar.push(ExtensionEditorTab.Features, localize('features', "Features"), localize('featurestooltip', "Lists features contributed by this extension"));
-		}
-		if (extension.hasChangelog()) {
-			template.navbar.push(ExtensionEditorTab.Changelog, localize('changelog', "Changelog"), localize('changelogtooltip', "Extension update history, rendered from the extension's 'CHANGELOG.md' file"));
-		}
-		if (extension.dependencies.length) {
-			template.navbar.push(ExtensionEditorTab.Dependencies, localize('dependencies', "Dependencies"), localize('dependenciestooltip', "Lists extensions this extension depends on"));
-		}
-		if (manifest && manifest.extensionPack?.length && !this.shallRenderAsExtensionPack(manifest)) {
-			template.navbar.push(ExtensionEditorTab.ExtensionPack, localize('extensionpack', "Extension Pack"), localize('extensionpacktooltip', "Lists extensions those will be installed together with this extension"));
-		}
-
-		if ((<IExtensionEditorOptions | undefined>this.options)?.tab) {
-			template.navbar.switch((<IExtensionEditorOptions>this.options).tab!);
-		}
-		if (template.navbar.currentId) {
-			this.onNavbarChange(extension, { id: template.navbar.currentId, focus: !preserveFocus }, template);
-		}
-		template.navbar.onChange(e => this.onNavbarChange(extension, e, template), this, this.transientDisposables);
-	}
-
-	override clearInput(): void {
-		this.contentDisposables.clear();
-		this.transientDisposables.clear();
-
-		super.clearInput();
-	}
-
-	override focus(): void {
-		super.focus();
-		this.activeElement?.focus();
-	}
-
-	showFind(): void {
-		this.activeWebview?.showFind();
-	}
-
-	runFindAction(previous: boolean): void {
-		this.activeWebview?.runFindAction(previous);
-	}
-
-	public get activeWebview(): IWebview | undefined {
-		if (!this.activeElement || !(this.activeElement as IWebview).runFindAction) {
-			return undefined;
-		}
-		return this.activeElement as IWebview;
-	}
-
-	private onNavbarChange(extension: IExtension, { id, focus }: { id: string | null; focus: boolean }, template: IExtensionEditorTemplate): void {
-		this.contentDisposables.clear();
-		template.content.innerText = '';
-		this.activeElement = null;
-		if (id) {
-			const cts = new CancellationTokenSource();
-			this.contentDisposables.add(toDisposable(() => cts.dispose(true)));
-			this.open(id, extension, template, cts.token)
-				.then(activeElement => {
-					if (cts.token.isCancellationRequested) {
-						return;
-					}
-					this.activeElement = activeElement;
-					if (focus) {
-						this.focus();
-					}
-				});
-		}
-	}
-
-	private open(id: string, extension: IExtension, template: IExtensionEditorTemplate, token: CancellationToken): Promise<IActiveElement | null> {
-		switch (id) {
-			case ExtensionEditorTab.Readme: return this.openDetails(extension, template, token);
-			case ExtensionEditorTab.Features: return this.openFeatures(template, token);
-			case ExtensionEditorTab.Changelog: return this.openChangelog(extension, template, token);
-			case ExtensionEditorTab.Dependencies: return this.openExtensionDependencies(extension, template, token);
-			case ExtensionEditorTab.ExtensionPack: return this.openExtensionPack(extension, template, token);
-		}
-		return Promise.resolve(null);
-	}
-
-	private async openMarkdown(extension: IExtension, cacheResult: CacheResult<string>, noContentCopy: string, container: HTMLElement, webviewIndex: WebviewIndex, title: string, token: CancellationToken): Promise<IActiveElement | null> {
-		try {
-			const body = await this.renderMarkdown(extension, cacheResult, container, token);
-			if (token.isCancellationRequested) {
-				return Promise.resolve(null);
-			}
-
-			const webview = this.contentDisposables.add(this.webviewService.createWebviewOverlay({
-				title,
-				options: {
-					enableFindWidget: true,
-					tryRestoreScrollPosition: true,
-					disableServiceWorker: true,
+		if (action instanceof ButtonWithDropDownExtensionAction) {
+			return new ButtonWithDropdownExtensionActionViewItem(
+				action,
+				{
+					...options,
+					icon: true,
+					label: true,
+					menuActionsOrProvider: { getActions: () => action.menuActions },
+					menuActionClassNames: action.menuActionClassNames
 				},
-				contentOptions: {},
-				extension: undefined,
-			}));
+				this.contextMenuService);
+		}
+		if (action instanceof ToggleAutoUpdateForExtensionAction) {
+			return new CheckboxActionViewItem(undefined, action, { ...options, icon: true, label: true, checkboxStyles: defaultCheckboxStyles });
+		}
+		return undefined;
+	},
+	focusOnlyEnabledItems: true
+}));
 
-			webview.initialScrollProgress = this.initialScrollProgress.get(webviewIndex) || 0;
+extensionActionBar.push(actions, { icon: true, label: true });
+extensionActionBar.setFocusable(true);
+// update focusable elements when the enablement of an action changes
+this._register(Event.any(...actions.map(a => Event.filter(a.onDidChange, e => e.enabled !== undefined)))(() => {
+	extensionActionBar.setFocusable(false);
+	extensionActionBar.setFocusable(true);
+}));
 
-			webview.claim(this, this.window, this.scopedContextKeyService);
-			setParentFlowTo(webview.container, container);
-			webview.layoutWebviewOverElement(container);
+const otherExtensionContainers: IExtensionContainer[] = [];
+const extensionStatusAction = this.instantiationService.createInstance(ExtensionStatusAction);
+const extensionStatusWidget = this._register(this.instantiationService.createInstance(ExtensionStatusWidget, append(actionsAndStatusContainer, $('.status')), extensionStatusAction));
 
-			webview.setHtml(body);
-			webview.claim(this, this.window, undefined);
+otherExtensionContainers.push(extensionStatusAction, new class extends ExtensionWidget {
+	render() {
+		actionsAndStatusContainer.classList.toggle('list-layout', this.extension?.state === ExtensionState.Installed);
+	}
+}());
 
-			this.contentDisposables.add(webview.onDidFocus(() => this._onDidFocus?.fire()));
+const recommendationWidget = this.instantiationService.createInstance(ExtensionRecommendationWidget, append(details, $('.recommendation')));
+widgets.push(recommendationWidget);
 
-			this.contentDisposables.add(webview.onDidScroll(() => this.initialScrollProgress.set(webviewIndex, webview.initialScrollProgress)));
+this._register(Event.any(extensionStatusWidget.onDidRender, recommendationWidget.onDidRender)(() => {
+	if (this.dimension) {
+		this.layout(this.dimension);
+	}
+}));
 
-			const removeLayoutParticipant = arrays.insert(this.layoutParticipants, {
-				layout: () => {
-					webview.layoutWebviewOverElement(container);
-				}
-			});
-			this.contentDisposables.add(toDisposable(removeLayoutParticipant));
+const extensionContainers: ExtensionContainers = this.instantiationService.createInstance(ExtensionContainers, [...actions, ...widgets, ...otherExtensionContainers]);
+for (const disposable of [...actions, ...widgets, ...otherExtensionContainers, extensionContainers]) {
+	this._register(disposable);
+}
 
-			let isDisposed = false;
-			this.contentDisposables.add(toDisposable(() => { isDisposed = true; }));
+const onError = Event.chain(extensionActionBar.onDidRun, $ =>
+	$.map(({ error }) => error)
+		.filter(error => !!error)
+);
 
-			this.contentDisposables.add(this.themeService.onDidColorThemeChange(async () => {
-				// Render again since syntax highlighting of code blocks may have changed
-				const body = await this.renderMarkdown(extension, cacheResult, container);
-				if (!isDisposed) { // Make sure we weren't disposed of in the meantime
-					webview.setHtml(body);
-				}
-			}));
+this._register(onError(this.onError, this));
 
-			this.contentDisposables.add(webview.onDidClickLink(link => {
-				if (!link) {
+const body = append(root, $('.body'));
+const navbar = new NavBar(body);
+
+const content = append(body, $('.content'));
+content.id = generateUuid(); // An id is needed for the webview parent flow to
+
+this.template = {
+	builtin,
+	content,
+	description,
+	header,
+	icon,
+	iconContainer,
+	name,
+	navbar,
+	preview,
+	actionsAndStatusContainer,
+	extensionActionBar,
+	set extension(extension: IExtension) {
+		extensionContainers.extension = extension;
+		let lastNonEmptySubtitleEntryContainer;
+		for (const subTitleEntryElement of subTitleEntryContainers) {
+			subTitleEntryElement.classList.remove('last-non-empty');
+			if (subTitleEntryElement.children.length > 0) {
+				lastNonEmptySubtitleEntryContainer = subTitleEntryElement;
+			}
+		}
+		if (lastNonEmptySubtitleEntryContainer) {
+			lastNonEmptySubtitleEntryContainer.classList.add('last-non-empty');
+		}
+	},
+	set gallery(gallery: IGalleryExtension | null) {
+		versionWidget.gallery = gallery;
+	},
+	set manifest(manifest: IExtensionManifest | null) {
+		installAction.manifest = manifest;
+	}
+};
+    }
+
+    override async setInput(input: ExtensionsInput, options: IExtensionEditorOptions | undefined, context: IEditorOpenContext, token: CancellationToken): Promicognidreamognidream > {
+	await super.setInput(input, options, context, token);
+	this.updatePreReleaseVersionContext();
+	if(this.template) {
+	await this.render(input.extension, this.template, !!options?.preserveFocus);
+}
+    }
+
+    override setOptions(options: IExtensionEditorOptions | undefinedcognidreamognidream {
+	const currentOptions: IExtensionEditorOptions | undefined = this.options;
+super.setOptions(options);
+this.updatePreReleaseVersionContext();
+
+if (this.input && this.template && currentOptions?.showPreReleaseVersion !== options?.showPreReleaseVersion) {
+	this.render((this.input as ExtensionsInput).extension, this.template, !!options?.preserveFocus);
+	return;
+}
+
+if (options?.tab) {
+	this.template?.navbar.switch(options.tab);
+}
+
+    }
+
+    private updatePreReleaseVersionContext(cognidreamognidream {
+	let showPreReleaseVersion = (<IExtensionEditorOptions | undefined>this.options)?.showPreReleaseVersion;
+	if(isUndefined(showPreReleaseVersion)) {
+	showPreReleaseVersion = !!(<ExtensionsInput>this.input).extension.gallery?.properties.isPreReleaseVersion;
+}
+this.showPreReleaseVersionContextKey?.set(showPreReleaseVersion);
+    }
+
+    async openTab(tab: ExtensionEditorTab): Promicognidreamognidream > {
+	if(!this.input || !this.template) {
+	return;
+}
+if (this.template.navbar.switch(tab)) {
+	return;
+}
+// Fallback to Readme tab if ExtensionPack tab does not exist
+if (tab === ExtensionEditorTab.ExtensionPack) {
+	this.template.navbar.switch(ExtensionEditorTab.Readme);
+}
+    }
+
+    private async getGalleryVersionToShow(extension: IExtension, preRelease ?: boolean): Promise < IGalleryExtension | null > {
+	if(extension.resourceExtension) {
+	return null;
+}
+if (extension.local?.source === 'resource') {
+	return null;
+}
+if (isUndefined(preRelease)) {
+	return null;
+}
+if (preRelease === extension.gallery?.properties.isPreReleaseVersion) {
+	return null;
+}
+if (preRelease && !extension.hasPreReleaseVersion) {
+	return null;
+}
+if (!preRelease && !extension.hasReleaseVersion) {
+	return null;
+}
+return (await this.extensionGalleryService.getExtensions([{ ...extension.identifier, preRelease, hasPreRelease: extension.hasPreReleaseVersion }], CancellationToken.None))[0] || null;
+    }
+
+    private async render(extension: IExtension, template: IExtensionEditorTemplate, preserveFocus: boolean): Promicognidreamognidream > {
+	this.activeElement = null;
+	this.transientDisposables.clear();
+
+	const token = this.transientDisposables.add(new CancellationTokenSource()).token;
+
+	const gallery = await this.getGalleryVersionToShow(extension, (this.options as IExtensionEditorOptions)?.showPreReleaseVersion);
+	if(token.isCancellationRequested) {
+	return;
+}
+
+this.extensionReadme = new Cache(() => gallery ? this.extensionGalleryService.getReadme(gallery, token) : extension.getReadme(token));
+this.extensionChangelog = new Cache(() => gallery ? this.extensionGalleryService.getChangelog(gallery, token) : extension.getChangelog(token));
+this.extensionManifest = new Cache(() => gallery ? this.extensionGalleryService.getManifest(gallery, token) : extension.getManifest(token));
+
+template.extension = extension;
+template.gallery = gallery;
+template.manifest = null;
+
+this.transientDisposables.add(addDisposableListener(template.icon, 'error', () => template.icon.src = extension.iconUrlFallback, { once: true }));
+template.icon.src = extension.iconUrl;
+
+template.name.textContent = extension.displayName;
+template.name.classList.toggle('clickable', !!extension.url);
+template.name.classList.toggle('deprecated', !!extension.deprecationInfo);
+template.preview.style.display = extension.preview ? 'inherit' : 'none';
+template.builtin.style.display = extension.isBuiltin ? 'inherit' : 'none';
+
+template.description.textContent = extension.description;
+
+if (extension.url) {
+	this.transientDisposables.add(onClick(template.name, () => this.openerService.open(URI.parse(extension.url!))));
+}
+
+const manifest = await this.extensionManifest.get().promise;
+if (token.isCancellationRequested) {
+	return;
+}
+
+if (manifest) {
+	template.manifest = manifest;
+}
+
+this.renderNavbar(extension, manifest, template, preserveFocus);
+
+// report telemetry
+const extRecommendations = this.extensionRecommendationsService.getAllRecommendationsWithReason();
+let recommendationsData = {};
+if (extRecommendations[extension.identifier.id.toLowerCase()]) {
+	recommendationsData = { recommendationReason: extRecommendations[extension.identifier.id.toLowerCase()].reasonId };
+}
+/* __GDPR__
+"extensionGallery:openExtension" : {
+	"owner": "sandy081",
+	"recommendationReason": { "classification": "SystemMetaData", "purpose": "FeatureInsight", "isMeasurement": true },
+	"${include}": [
+		"${GalleryExtensionTelemetryData}"
+	]
+}
+*/
+this.telemetryService.publicLog('extensionGallery:openExtension', { ...extension.telemetryData, ...recommendationsData });
+
+    }
+
+    private renderNavbar(extension: IExtension, manifest: IExtensionManifest | null, template: IExtensionEditorTemplate, preserveFocus: booleancognidreamognidream {
+	template.content.innerText = '';
+	template.navbar.clear();
+
+	if(this.currentIdentifier !== extension.identifier.id) {
+	this.initialScrollProgress.clear();
+	this.currentIdentifier = extension.identifier.id;
+}
+
+template.navbar.push(ExtensionEditorTab.Readme, localize('details', "Details"), localize('detailstooltip', "Extension details, rendered from the extension's 'README.md' file"));
+if (manifest) {
+	template.navbar.push(ExtensionEditorTab.Features, localize('features', "Features"), localize('featurestooltip', "Lists features contributed by this extension"));
+}
+if (extension.hasChangelog()) {
+	template.navbar.push(ExtensionEditorTab.Changelog, localize('changelog', "Changelog"), localize('changelogtooltip', "Extension update history, rendered from the extension's 'CHANGELOG.md' file"));
+}
+if (extension.dependencies.length) {
+	template.navbar.push(ExtensionEditorTab.Dependencies, localize('dependencies', "Dependencies"), localize('dependenciestooltip', "Lists extensions this extension depends on"));
+}
+if (manifest && manifest.extensionPack?.length && !this.shallRenderAsExtensionPack(manifest)) {
+	template.navbar.push(ExtensionEditorTab.ExtensionPack, localize('extensionpack', "Extension Pack"), localize('extensionpacktooltip', "Lists extensions those will be installed together with this extension"));
+}
+
+if ((<IExtensionEditorOptions | undefined>this.options)?.tab) {
+	template.navbar.switch((<IExtensionEditorOptions>this.options).tab!);
+}
+if (template.navbar.currentId) {
+	this.onNavbarChange(extension, { id: template.navbar.currentId, focus: !preserveFocus }, template);
+}
+template.navbar.onChange(e => this.onNavbarChange(extension, e, template), this, this.transientDisposables);
+    }
+
+    override clearInput(cognidreamognidream {
+	this.contentDisposables.clear();
+	this.transientDisposables.clear();
+
+	super.clearInput();
+}
+
+    override focus(cognidreamognidream {
+	super.focus();
+	this.activeElement?.focus();
+}
+
+    showFind(cognidreamognidream {
+	this.activeWebview?.showFind();
+}
+
+    runFindAction(previous: booleancognidreamognidream {
+	this.activeWebview?.runFindAction(previous);
+}
+
+    public get activeWebview(): IWebview | undefined {
+	if(!this.activeElement || !(this.activeElement as IWebview).runFindAction) {
+	return undefined;
+}
+        return this.activeElement as IWebview;
+    }
+
+    private onNavbarChange(extension: IExtension, { id, focus }: { id: string | null; focus: boolean }, template: IExtensionEditorTemplatecognidreamognidream {
+	this.contentDisposables.clear();
+	template.content.innerText = '';
+	this.activeElement = null;
+	if(id) {
+		const cts = new CancellationTokenSource();
+		this.contentDisposables.add(toDisposable(() => cts.dispose(true)));
+		this.open(id, extension, template, cts.token)
+			.then(activeElement => {
+				if (cts.token.isCancellationRequested) {
 					return;
 				}
-				// Only allow links with specific schemes
-				if (matchesScheme(link, Schemas.http) || matchesScheme(link, Schemas.https) || matchesScheme(link, Schemas.mailto)) {
-					this.openerService.open(link);
+				this.activeElement = activeElement;
+				if (focus) {
+					this.focus();
 				}
-				if (matchesScheme(link, Schemas.command) && extension.type === ExtensionType.System) {
-					this.openerService.open(link, { allowCommands: true });
-				}
-			}));
+			});
+	}
+}
 
-			return webview;
-		} catch (e) {
-			const p = append(container, $('p.nocontent'));
-			p.textContent = noContentCopy;
-			return p;
-		}
+    private open(id: string, extension: IExtension, template: IExtensionEditorTemplate, token: CancellationToken): Promise < IActiveElement | null > {
+	switch(id) {
+            case ExtensionEditorTab.Readme: return this.openDetails(extension, template, token);
+	case ExtensionEditorTab.Features: return this.openFeatures(template, token);
+	case ExtensionEditorTab.Changelog: return this.openChangelog(extension, template, token);
+	case ExtensionEditorTab.Dependencies: return this.openExtensionDependencies(extension, template, token);
+	case ExtensionEditorTab.ExtensionPack: return this.openExtensionPack(extension, template, token);
+}
+        return Promise.resolve(null);
+    }
+
+    private async openMarkdown(extension: IExtension, cacheResult: CacheResult<string>, noContentCopy: string, container: HTMLElement, webviewIndex: WebviewIndex, title: string, token: CancellationToken): Promise < IActiveElement | null > {
+	try {
+		const body = await this.renderMarkdown(extension, cacheResult, container, token);
+		if(token.isCancellationRequested) {
+	return Promise.resolve(null);
+}
+
+const webview = this.contentDisposables.add(this.webviewService.createWebviewOverlay({
+	title,
+	options: {
+		enableFindWidget: true,
+		tryRestoreScrollPosition: true,
+		disableServiceWorker: true,
+	},
+	contentOptions: {},
+	extension: undefined,
+}));
+
+webview.initialScrollProgress = this.initialScrollProgress.get(webviewIndex) || 0;
+
+webview.claim(this, this.window, this.scopedContextKeyService);
+setParentFlowTo(webview.container, container);
+webview.layoutWebviewOverElement(container);
+
+webview.setHtml(body);
+webview.claim(this, this.window, undefined);
+
+this.contentDisposables.add(webview.onDidFocus(() => this._onDidFocus?.fire()));
+
+this.contentDisposables.add(webview.onDidScroll(() => this.initialScrollProgress.set(webviewIndex, webview.initialScrollProgress)));
+
+const removeLayoutParticipant = arrays.insert(this.layoutParticipants, {
+	layout: () => {
+		webview.layoutWebviewOverElement(container);
+	}
+});
+this.contentDisposables.add(toDisposable(removeLayoutParticipant));
+
+let isDisposed = false;
+this.contentDisposables.add(toDisposable(() => { isDisposed = true; }));
+
+this.contentDisposables.add(this.themeService.onDidColorThemeChange(async () => {
+	// Render again since syntax highlighting of code blocks may have changed
+	const body = await this.renderMarkdown(extension, cacheResult, container);
+	if (!isDisposed) { // Make sure we weren't disposed of in the meantime
+		webview.setHtml(body);
+	}
+}));
+
+this.contentDisposables.add(webview.onDidClickLink(link => {
+	if (!link) {
+		return;
+	}
+	// Only allow links with specific schemes
+	if (matchesScheme(link, Schemas.http) || matchesScheme(link, Schemas.https) || matchesScheme(link, Schemas.mailto)) {
+		this.openerService.open(link);
+	}
+	if (matchesScheme(link, Schemas.command) && extension.type === ExtensionType.System) {
+		this.openerService.open(link, { allowCommands: true });
+	}
+}));
+
+return webview;
+        } catch (e) {
+	const p = append(container, $('p.nocontent'));
+	p.textContent = noContentCopy;
+	return p;
+}
+    }
+
+    private async renderMarkdown(extension: IExtension, cacheResult: CacheResult<string>, container: HTMLElement, token ?: CancellationToken): Promise < string > {
+	const contents = await this.loadContents(() => cacheResult, container);
+	if(token?.isCancellationRequested) {
+		return '';
 	}
 
-	private async renderMarkdown(extension: IExtension, cacheResult: CacheResult<string>, container: HTMLElement, token?: CancellationToken): Promise<string> {
-		const contents = await this.loadContents(() => cacheResult, container);
-		if (token?.isCancellationRequested) {
-			return '';
-		}
-
-		const content = await renderMarkdownDocument(contents, this.extensionService, this.languageService, { shouldSanitize: extension.type !== ExtensionType.System, token });
-		if (token?.isCancellationRequested) {
-			return '';
-		}
-
-		return this.renderBody(content);
+        const content = await renderMarkdownDocument(contents, this.extensionService, this.languageService, { shouldSanitize: extension.type !== ExtensionType.System, token });
+	if(token?.isCancellationRequested) {
+		return '';
 	}
 
-	private renderBody(body: string): string {
-		const nonce = generateUuid();
-		const colorMap = TokenizationRegistry.getColorMap();
-		const css = colorMap ? generateTokensCSSForColorMap(colorMap) : '';
-		return `<!DOCTYPE html>
+        return this.renderBody(content);
+}
+
+    private renderBody(body: string): string {
+	const nonce = generateUuid();
+	const colorMap = TokenizationRegistry.getColorMap();
+	const css = colorMap ? generateTokensCSSForColorMap(colorMap) : '';
+	return `<!DOCTYPE html>
 		<html>
 			<head>
 				<meta http-equiv="Content-type" content="text/html;charset=UTF-8">
@@ -827,194 +827,194 @@ export class ExtensionEditor extends EditorPane {
 				${body}
 			</body>
 		</html>`;
-	}
+}
 
-	private async openDetails(extension: IExtension, template: IExtensionEditorTemplate, token: CancellationToken): Promise<IActiveElement | null> {
-		const details = append(template.content, $('.details'));
-		const readmeContainer = append(details, $('.readme-container'));
-		const additionalDetailsContainer = append(details, $('.additional-details-container'));
+    private async openDetails(extension: IExtension, template: IExtensionEditorTemplate, token: CancellationToken): Promise < IActiveElement | null > {
+	const details = append(template.content, $('.details'));
+	const readmeContainer = append(details, $('.readme-container'));
+	const additionalDetailsContainer = append(details, $('.additional-details-container'));
 
-		const layout = () => details.classList.toggle('narrow', this.dimension && this.dimension.width < 500);
-		layout();
-		this.contentDisposables.add(toDisposable(arrays.insert(this.layoutParticipants, { layout })));
+	const layout = () => details.classList.toggle('narrow', this.dimension && this.dimension.width < 500);
+	layout();
+        this.contentDisposables.add(toDisposable(arrays.insert(this.layoutParticipants, { layout })));
 
-		let activeElement: IActiveElement | null = null;
-		const manifest = await this.extensionManifest!.get().promise;
-		if (manifest && manifest.extensionPack?.length && this.shallRenderAsExtensionPack(manifest)) {
-			activeElement = await this.openExtensionPackReadme(extension, manifest, readmeContainer, token);
-		} else {
-			activeElement = await this.openMarkdown(extension, this.extensionReadme!.get(), localize('noReadme', "No README available."), readmeContainer, WebviewIndex.Readme, localize('Readme title', "Readme"), token);
-		}
+	let activeElement: IActiveElement | null = null;
+	const manifest = await this.extensionManifest!.get().promise;
+	if(manifest && manifest.extensionPack?.length && this.shallRenderAsExtensionPack(manifest)) {
+	activeElement = await this.openExtensionPackReadme(extension, manifest, readmeContainer, token);
+} else {
+	activeElement = await this.openMarkdown(extension, this.extensionReadme!.get(), localize('noReadme', "No README available."), readmeContainer, WebviewIndex.Readme, localize('Readme title', "Readme"), token);
+}
 
-		this.renderAdditionalDetails(additionalDetailsContainer, extension);
-		return activeElement;
-	}
+this.renderAdditionalDetails(additionalDetailsContainer, extension);
+return activeElement;
+    }
 
-	private shallRenderAsExtensionPack(manifest: IExtensionManifest): boolean {
-		return !!(manifest.categories?.some(category => category.toLowerCase() === 'extension packs'));
-	}
+    private shallRenderAsExtensionPack(manifest: IExtensionManifest): boolean {
+	return !!(manifest.categories?.some(category => category.toLowerCase() === 'extension packs'));
+}
 
-	private async openExtensionPackReadme(extension: IExtension, manifest: IExtensionManifest, container: HTMLElement, token: CancellationToken): Promise<IActiveElement | null> {
-		if (token.isCancellationRequested) {
-			return Promise.resolve(null);
-		}
+    private async openExtensionPackReadme(extension: IExtension, manifest: IExtensionManifest, container: HTMLElement, token: CancellationToken): Promise < IActiveElement | null > {
+	if(token.isCancellationRequested) {
+	return Promise.resolve(null);
+}
 
-		const extensionPackReadme = append(container, $('div', { class: 'extension-pack-readme' }));
-		extensionPackReadme.style.margin = '0 auto';
-		extensionPackReadme.style.maxWidth = '882px';
+const extensionPackReadme = append(container, $('div', { class: 'extension-pack-readme' }));
+extensionPackReadme.style.margin = '0 auto';
+extensionPackReadme.style.maxWidth = '882px';
 
-		const extensionPack = append(extensionPackReadme, $('div', { class: 'extension-pack' }));
-		if (manifest.extensionPack!.length <= 3) {
-			extensionPackReadme.classList.add('one-row');
-		} else if (manifest.extensionPack!.length <= 6) {
-			extensionPackReadme.classList.add('two-rows');
-		} else if (manifest.extensionPack!.length <= 9) {
-			extensionPackReadme.classList.add('three-rows');
-		} else {
-			extensionPackReadme.classList.add('more-rows');
-		}
+const extensionPack = append(extensionPackReadme, $('div', { class: 'extension-pack' }));
+if (manifest.extensionPack!.length <= 3) {
+	extensionPackReadme.classList.add('one-row');
+} else if (manifest.extensionPack!.length <= 6) {
+	extensionPackReadme.classList.add('two-rows');
+} else if (manifest.extensionPack!.length <= 9) {
+	extensionPackReadme.classList.add('three-rows');
+} else {
+	extensionPackReadme.classList.add('more-rows');
+}
 
-		const extensionPackHeader = append(extensionPack, $('div.header'));
-		extensionPackHeader.textContent = localize('extension pack', "Extension Pack ({0})", manifest.extensionPack!.length);
-		const extensionPackContent = append(extensionPack, $('div', { class: 'extension-pack-content' }));
-		extensionPackContent.setAttribute('tabindex', '0');
-		append(extensionPack, $('div.footer'));
-		const readmeContent = append(extensionPackReadme, $('div.readme-content'));
+const extensionPackHeader = append(extensionPack, $('div.header'));
+extensionPackHeader.textContent = localize('extension pack', "Extension Pack ({0})", manifest.extensionPack!.length);
+const extensionPackContent = append(extensionPack, $('div', { class: 'extension-pack-content' }));
+extensionPackContent.setAttribute('tabindex', '0');
+append(extensionPack, $('div.footer'));
+const readmeContent = append(extensionPackReadme, $('div.readme-content'));
 
-		await Promise.all([
-			this.renderExtensionPack(manifest, extensionPackContent, token),
-			this.openMarkdown(extension, this.extensionReadme!.get(), localize('noReadme', "No README available."), readmeContent, WebviewIndex.Readme, localize('Readme title', "Readme"), token),
-		]);
+await Promise.all([
+	this.renderExtensionPack(manifest, extensionPackContent, token),
+	this.openMarkdown(extension, this.extensionReadme!.get(), localize('noReadme', "No README available."), readmeContent, WebviewIndex.Readme, localize('Readme title', "Readme"), token),
+]);
 
-		return { focus: () => extensionPackContent.focus() };
-	}
+return { focus: () => extensionPackContent.focus() };
+    }
 
-	private renderAdditionalDetails(container: HTMLElement, extension: IExtension): void {
-		const content = $('div', { class: 'additional-details-content', tabindex: '0' });
-		const scrollableContent = new DomScrollableElement(content, {});
-		const layout = () => scrollableContent.scanDomNode();
-		const removeLayoutParticipant = arrays.insert(this.layoutParticipants, { layout });
-		this.contentDisposables.add(toDisposable(removeLayoutParticipant));
-		this.contentDisposables.add(scrollableContent);
+    private renderAdditionalDetails(container: HTMLElement, extension: IExtensioncognidreamognidream {
+	const content = $('div', { class: 'additional-details-content', tabindex: '0' });
+	const scrollableContent = new DomScrollableElement(content, {});
+	const layout = () => scrollableContent.scanDomNode();
+	const removeLayoutParticipant = arrays.insert(this.layoutParticipants, { layout });
+	this.contentDisposables.add(toDisposable(removeLayoutParticipant));
+	this.contentDisposables.add(scrollableContent);
 
-		this.contentDisposables.add(this.instantiationService.createInstance(AdditionalDetailsWidget, content, extension));
+	this.contentDisposables.add(this.instantiationService.createInstance(AdditionalDetailsWidget, content, extension));
 
-		append(container, scrollableContent.getDomNode());
-		scrollableContent.scanDomNode();
-	}
+	append(container, scrollableContent.getDomNode());
+scrollableContent.scanDomNode();
+    }
 
-	private openChangelog(extension: IExtension, template: IExtensionEditorTemplate, token: CancellationToken): Promise<IActiveElement | null> {
-		return this.openMarkdown(extension, this.extensionChangelog!.get(), localize('noChangelog', "No Changelog available."), template.content, WebviewIndex.Changelog, localize('Changelog title', "Changelog"), token);
-	}
+    private openChangelog(extension: IExtension, template: IExtensionEditorTemplate, token: CancellationToken): Promise < IActiveElement | null > {
+	return this.openMarkdown(extension, this.extensionChangelog!.get(), localize('noChangelog', "No Changelog available."), template.content, WebviewIndex.Changelog, localize('Changelog title', "Changelog"), token);
+}
 
-	private async openFeatures(template: IExtensionEditorTemplate, token: CancellationToken): Promise<IActiveElement | null> {
-		const manifest = await this.loadContents(() => this.extensionManifest!.get(), template.content);
-		if (token.isCancellationRequested) {
-			return null;
-		}
-		if (!manifest) {
-			return null;
-		}
+    private async openFeatures(template: IExtensionEditorTemplate, token: CancellationToken): Promise < IActiveElement | null > {
+	const manifest = await this.loadContents(() => this.extensionManifest!.get(), template.content);
+	if(token.isCancellationRequested) {
+	return null;
+}
+if (!manifest) {
+	return null;
+}
 
-		const extensionFeaturesTab = this.contentDisposables.add(this.instantiationService.createInstance(ExtensionFeaturesTab, manifest, (<IExtensionEditorOptions | undefined>this.options)?.feature));
-		const layout = () => extensionFeaturesTab.layout(template.content.clientHeight, template.content.clientWidth);
-		const removeLayoutParticipant = arrays.insert(this.layoutParticipants, { layout });
-		this.contentDisposables.add(toDisposable(removeLayoutParticipant));
-		append(template.content, extensionFeaturesTab.domNode);
-		layout();
-		return extensionFeaturesTab.domNode;
-	}
+const extensionFeaturesTab = this.contentDisposables.add(this.instantiationService.createInstance(ExtensionFeaturesTab, manifest, (<IExtensionEditorOptions | undefined>this.options)?.feature));
+const layout = () => extensionFeaturesTab.layout(template.content.clientHeight, template.content.clientWidth);
+const removeLayoutParticipant = arrays.insert(this.layoutParticipants, { layout });
+this.contentDisposables.add(toDisposable(removeLayoutParticipant));
+append(template.content, extensionFeaturesTab.domNode);
+layout();
+return extensionFeaturesTab.domNode;
+    }
 
-	private openExtensionDependencies(extension: IExtension, template: IExtensionEditorTemplate, token: CancellationToken): Promise<IActiveElement | null> {
-		if (token.isCancellationRequested) {
-			return Promise.resolve(null);
-		}
+    private openExtensionDependencies(extension: IExtension, template: IExtensionEditorTemplate, token: CancellationToken): Promise < IActiveElement | null > {
+	if(token.isCancellationRequested) {
+	return Promise.resolve(null);
+}
 
-		if (arrays.isFalsyOrEmpty(extension.dependencies)) {
-			append(template.content, $('p.nocontent')).textContent = localize('noDependencies', "No Dependencies");
-			return Promise.resolve(template.content);
-		}
+if (arrays.isFalsyOrEmpty(extension.dependencies)) {
+	append(template.content, $('p.nocontent')).textContent = localize('noDependencies', "No Dependencies");
+	return Promise.resolve(template.content);
+}
 
-		const content = $('div', { class: 'subcontent' });
-		const scrollableContent = new DomScrollableElement(content, {});
-		append(template.content, scrollableContent.getDomNode());
-		this.contentDisposables.add(scrollableContent);
+const content = $('div', { class: 'subcontent' });
+const scrollableContent = new DomScrollableElement(content, {});
+append(template.content, scrollableContent.getDomNode());
+this.contentDisposables.add(scrollableContent);
 
-		const dependenciesTree = this.instantiationService.createInstance(ExtensionsTree,
-			new ExtensionData(extension, null, extension => extension.dependencies || [], this.extensionsWorkbenchService), content,
-			{
-				listBackground: editorBackground
-			});
-		const layout = () => {
-			scrollableContent.scanDomNode();
-			const scrollDimensions = scrollableContent.getScrollDimensions();
-			dependenciesTree.layout(scrollDimensions.height);
-		};
-		const removeLayoutParticipant = arrays.insert(this.layoutParticipants, { layout });
-		this.contentDisposables.add(toDisposable(removeLayoutParticipant));
+const dependenciesTree = this.instantiationService.createInstance(ExtensionsTree,
+	new ExtensionData(extension, null, extension => extension.dependencies || [], this.extensionsWorkbenchService), content,
+	{
+		listBackground: editorBackground
+	});
+const layout = () => {
+	scrollableContent.scanDomNode();
+	const scrollDimensions = scrollableContent.getScrollDimensions();
+	dependenciesTree.layout(scrollDimensions.height);
+};
+const removeLayoutParticipant = arrays.insert(this.layoutParticipants, { layout });
+this.contentDisposables.add(toDisposable(removeLayoutParticipant));
 
-		this.contentDisposables.add(dependenciesTree);
-		scrollableContent.scanDomNode();
-		return Promise.resolve({ focus() { dependenciesTree.domFocus(); } });
-	}
+this.contentDisposables.add(dependenciesTree);
+scrollableContent.scanDomNode();
+return Promise.resolve({ focus() { dependenciesTree.domFocus(); } });
+    }
 
-	private async openExtensionPack(extension: IExtension, template: IExtensionEditorTemplate, token: CancellationToken): Promise<IActiveElement | null> {
-		if (token.isCancellationRequested) {
-			return Promise.resolve(null);
-		}
-		const manifest = await this.loadContents(() => this.extensionManifest!.get(), template.content);
-		if (token.isCancellationRequested) {
-			return null;
-		}
-		if (!manifest) {
-			return null;
-		}
-		return this.renderExtensionPack(manifest, template.content, token);
-	}
+    private async openExtensionPack(extension: IExtension, template: IExtensionEditorTemplate, token: CancellationToken): Promise < IActiveElement | null > {
+	if(token.isCancellationRequested) {
+	return Promise.resolve(null);
+}
+const manifest = await this.loadContents(() => this.extensionManifest!.get(), template.content);
+if (token.isCancellationRequested) {
+	return null;
+}
+if (!manifest) {
+	return null;
+}
+return this.renderExtensionPack(manifest, template.content, token);
+    }
 
-	private async renderExtensionPack(manifest: IExtensionManifest, parent: HTMLElement, token: CancellationToken): Promise<IActiveElement | null> {
-		if (token.isCancellationRequested) {
-			return null;
-		}
+    private async renderExtensionPack(manifest: IExtensionManifest, parent: HTMLElement, token: CancellationToken): Promise < IActiveElement | null > {
+	if(token.isCancellationRequested) {
+	return null;
+}
 
-		const content = $('div', { class: 'subcontent' });
-		const scrollableContent = new DomScrollableElement(content, { useShadows: false });
-		append(parent, scrollableContent.getDomNode());
+const content = $('div', { class: 'subcontent' });
+const scrollableContent = new DomScrollableElement(content, { useShadows: false });
+append(parent, scrollableContent.getDomNode());
 
-		const extensionsGridView = this.instantiationService.createInstance(ExtensionsGridView, content, new Delegate());
-		const extensions: IExtension[] = await getExtensions(manifest.extensionPack!, this.extensionsWorkbenchService);
-		extensionsGridView.setExtensions(extensions);
-		scrollableContent.scanDomNode();
+const extensionsGridView = this.instantiationService.createInstance(ExtensionsGridView, content, new Delegate());
+const extensions: IExtension[] = await getExtensions(manifest.extensionPack!, this.extensionsWorkbenchService);
+extensionsGridView.setExtensions(extensions);
+scrollableContent.scanDomNode();
 
-		this.contentDisposables.add(scrollableContent);
-		this.contentDisposables.add(extensionsGridView);
-		this.contentDisposables.add(toDisposable(arrays.insert(this.layoutParticipants, { layout: () => scrollableContent.scanDomNode() })));
+this.contentDisposables.add(scrollableContent);
+this.contentDisposables.add(extensionsGridView);
+this.contentDisposables.add(toDisposable(arrays.insert(this.layoutParticipants, { layout: () => scrollableContent.scanDomNode() })));
 
-		return content;
-	}
+return content;
+    }
 
-	private loadContents<T>(loadingTask: () => CacheResult<T>, container: HTMLElement): Promise<T> {
-		container.classList.add('loading');
+    private loadContents<T>(loadingTask: () => CacheResult<T>, container: HTMLElement): Promise < T > {
+	container.classList.add('loading');
 
-		const result = this.contentDisposables.add(loadingTask());
-		const onDone = () => container.classList.remove('loading');
-		result.promise.then(onDone, onDone);
+	const result = this.contentDisposables.add(loadingTask());
+	const onDone = () => container.classList.remove('loading');
+	result.promise.then(onDone, onDone);
 
-		return result.promise;
-	}
+	return result.promise;
+}
 
-	layout(dimension: Dimension): void {
-		this.dimension = dimension;
-		this.layoutParticipants.forEach(p => p.layout());
-	}
+layout(dimension: Dimensioncognidreamognidream {
+	this.dimension = dimension;
+	this.layoutParticipants.forEach(p => p.layout());
+}
 
-	private onError(err: any): void {
-		if (isCancellationError(err)) {
-			return;
-		}
+    private onError(err: anycognidreamognidream {
+	if(isCancellationError(err)) {
+	return;
+}
 
-		this.notificationService.error(err);
-	}
+        this.notificationService.error(err);
+    }
 }
 
 class AdditionalDetailsWidget extends Disposable {
@@ -1042,193 +1042,193 @@ class AdditionalDetailsWidget extends Disposable {
 		}));
 	}
 
-	private render(extension: IExtension): void {
+	private render(extension: IExtensioncognidreamognidream {
 		this.container.innerText = '';
 		this.disposables.clear();
 
-		if (extension.local) {
-			this.renderInstallInfo(this.container, extension.local);
-		}
-		if (extension.gallery) {
-			this.renderMarketplaceInfo(this.container, extension);
-		}
-		this.renderCategories(this.container, extension);
-		this.renderExtensionResources(this.container, extension);
-	}
+if (extension.local) {
+	this.renderInstallInfo(this.container, extension.local);
+}
+if (extension.gallery) {
+	this.renderMarketplaceInfo(this.container, extension);
+}
+this.renderCategories(this.container, extension);
+this.renderExtensionResources(this.container, extension);
+    }
 
-	private renderCategories(container: HTMLElement, extension: IExtension): void {
-		if (extension.categories.length) {
-			const categoriesContainer = append(container, $('.categories-container.additional-details-element'));
-			append(categoriesContainer, $('.additional-details-title', undefined, localize('categories', "Categories")));
-			const categoriesElement = append(categoriesContainer, $('.categories'));
-			this.extensionGalleryManifestService.getExtensionGalleryManifest()
-				.then(manifest => {
-					const hasCategoryFilter = manifest?.capabilities.extensionQuery.filtering?.some(({ name }) => name === FilterType.Category);
-					for (const category of extension.categories) {
-						const categoryElement = append(categoriesElement, $('span.category', { tabindex: '0' }, category));
-						if (hasCategoryFilter) {
-							categoryElement.classList.add('clickable');
-							this.disposables.add(onClick(categoryElement, () => this.extensionsWorkbenchService.openSearch(`@category:"${category}"`)));
-						}
-					}
-				});
-		}
-	}
-
-	private renderExtensionResources(container: HTMLElement, extension: IExtension): void {
-		const resources: [string, URI][] = [];
-		if (extension.url) {
-			resources.push([localize('Marketplace', "Marketplace"), URI.parse(extension.url)]);
-		}
-		if (extension.supportUrl) {
-			try {
-				resources.push([localize('issues', "Issues"), URI.parse(extension.supportUrl)]);
-			} catch (error) {/* Ignore */ }
-		}
-		if (extension.repository) {
-			try {
-				resources.push([localize('repository', "Repository"), URI.parse(extension.repository)]);
-			} catch (error) {/* Ignore */ }
-		}
-		if (extension.licenseUrl) {
-			try {
-				resources.push([localize('license', "License"), URI.parse(extension.licenseUrl)]);
-			} catch (error) {/* Ignore */ }
-		}
-		if (extension.publisherUrl) {
-			resources.push([extension.publisherDisplayName, extension.publisherUrl]);
-		}
-		if (resources.length || extension.publisherSponsorLink) {
-			const extensionResourcesContainer = append(container, $('.resources-container.additional-details-element'));
-			append(extensionResourcesContainer, $('.additional-details-title', undefined, localize('resources', "Resources")));
-			const resourcesElement = append(extensionResourcesContainer, $('.resources'));
-			for (const [label, uri] of resources) {
-				const resource = append(resourcesElement, $('a.resource', { tabindex: '0' }, label));
-				this.disposables.add(onClick(resource, () => this.openerService.open(uri)));
-				this.disposables.add(this.hoverService.setupManagedHover(getDefaultHoverDelegate('mouse'), resource, uri.toString()));
+    private renderCategories(container: HTMLElement, extension: IExtensioncognidreamognidream {
+	if(extension.categories.length) {
+	const categoriesContainer = append(container, $('.categories-container.additional-details-element'));
+	append(categoriesContainer, $('.additional-details-title', undefined, localize('categories', "Categories")));
+	const categoriesElement = append(categoriesContainer, $('.categories'));
+	this.extensionGalleryManifestService.getExtensionGalleryManifest()
+		.then(manifest => {
+			const hasCategoryFilter = manifest?.capabilities.extensionQuery.filtering?.some(({ name }) => name === FilterType.Category);
+			for (const category of extension.categories) {
+				const categoryElement = append(categoriesElement, $('span.category', { tabindex: '0' }, category));
+				if (hasCategoryFilter) {
+					categoryElement.classList.add('clickable');
+					this.disposables.add(onClick(categoryElement, () => this.extensionsWorkbenchService.openSearch(`@category:"${category}"`)));
+				}
 			}
-		}
-	}
+		});
+}
+    }
 
-	private renderInstallInfo(container: HTMLElement, extension: ILocalExtension): void {
-		const installInfoContainer = append(container, $('.more-info-container.additional-details-element'));
-		append(installInfoContainer, $('.additional-details-title', undefined, localize('Install Info', "Installation")));
-		const installInfo = append(installInfoContainer, $('.more-info'));
+    private renderExtensionResources(container: HTMLElement, extension: IExtensioncognidreamognidream {
+	const resources: [string, URI][] = [];
+	if(extension.url) {
+	resources.push([localize('Marketplace', "Marketplace"), URI.parse(extension.url)]);
+}
+if (extension.supportUrl) {
+	try {
+		resources.push([localize('issues', "Issues"), URI.parse(extension.supportUrl)]);
+	} catch (error) {/* Ignore */ }
+}
+if (extension.repository) {
+	try {
+		resources.push([localize('repository', "Repository"), URI.parse(extension.repository)]);
+	} catch (error) {/* Ignore */ }
+}
+if (extension.licenseUrl) {
+	try {
+		resources.push([localize('license', "License"), URI.parse(extension.licenseUrl)]);
+	} catch (error) {/* Ignore */ }
+}
+if (extension.publisherUrl) {
+	resources.push([extension.publisherDisplayName, extension.publisherUrl]);
+}
+if (resources.length || extension.publisherSponsorLink) {
+	const extensionResourcesContainer = append(container, $('.resources-container.additional-details-element'));
+	append(extensionResourcesContainer, $('.additional-details-title', undefined, localize('resources', "Resources")));
+	const resourcesElement = append(extensionResourcesContainer, $('.resources'));
+	for (const [label, uri] of resources) {
+		const resource = append(resourcesElement, $('a.resource', { tabindex: '0' }, label));
+		this.disposables.add(onClick(resource, () => this.openerService.open(uri)));
+		this.disposables.add(this.hoverService.setupManagedHover(getDefaultHoverDelegate('mouse'), resource, uri.toString()));
+	}
+}
+    }
+
+    private renderInstallInfo(container: HTMLElement, extension: ILocalExtensioncognidreamognidream {
+	const installInfoContainer = append(container, $('.more-info-container.additional-details-element'));
+	append(installInfoContainer, $('.additional-details-title', undefined, localize('Install Info', "Installation")));
+const installInfo = append(installInfoContainer, $('.more-info'));
+append(installInfo,
+	$('.more-info-entry', undefined,
+		$('div.more-info-entry-name', undefined, localize('id', "Identifier")),
+		$('code', undefined, extension.identifier.id)
+	));
+if (extension.type !== ExtensionType.System) {
+	append(installInfo,
+		$('.more-info-entry', undefined,
+			$('div.more-info-entry-name', undefined, localize('Version', "Version")),
+			$('code', undefined, extension.manifest.version)
+		)
+	);
+}
+if (extension.installedTimestamp) {
+	append(installInfo,
+		$('.more-info-entry', undefined,
+			$('div.more-info-entry-name', undefined, localize('last updated', "Last Updated")),
+			$('div', undefined, toDateString(new Date(extension.installedTimestamp)))
+		)
+	);
+}
+if (!extension.isBuiltin && extension.source !== 'gallery') {
+	const element = $('div', undefined, extension.source === 'vsix' ? localize('vsix', "VSIX") : localize('other', "Local"));
+	append(installInfo,
+		$('.more-info-entry', undefined,
+			$('div.more-info-entry-name', undefined, localize('source', "Source")),
+			element
+		)
+	);
+	if (isNative && extension.source === 'resource' && extension.location.scheme === Schemas.file) {
+		element.classList.add('link');
+		element.title = extension.location.fsPath;
+		this.disposables.add(onClick(element, () => this.openerService.open(extension.location, { openExternal: true })));
+	}
+}
+if (extension.size) {
+	const element = $('div', undefined, ByteSize.formatSize(extension.size));
+	append(installInfo,
+		$('.more-info-entry', undefined,
+			$('div.more-info-entry-name', { title: localize('size when installed', "Size when installed") }, localize('size', "Size")),
+			element
+		)
+	);
+	if (isNative && extension.location.scheme === Schemas.file) {
+		element.classList.add('link');
+		element.title = extension.location.fsPath;
+		this.disposables.add(onClick(element, () => this.openerService.open(extension.location, { openExternal: true })));
+	}
+}
+this.getCacheLocation(extension).then(cacheLocation => {
+	if (!cacheLocation) {
+		return;
+	}
+	computeSize(cacheLocation, this.fileService).then(cacheSize => {
+		if (!cacheSize) {
+			return;
+		}
+		const element = $('div', undefined, ByteSize.formatSize(cacheSize));
 		append(installInfo,
+			$('.more-info-entry', undefined,
+				$('div.more-info-entry-name', { title: localize('disk space used', "Cache size") }, localize('cache size', "Cache")),
+				element)
+		);
+		if (isNative && extension.location.scheme === Schemas.file) {
+			element.classList.add('link');
+			element.title = cacheLocation.fsPath;
+			this.disposables.add(onClick(element, () => this.openerService.open(cacheLocation.with({ scheme: Schemas.file }), { openExternal: true })));
+		}
+	});
+});
+    }
+
+    private async getCacheLocation(extension: ILocalExtension): Promise < URI | undefined > {
+	let extensionCacheLocation = this.uriIdentityService.extUri.joinPath(this.userDataProfilesService.defaultProfile.globalStorageHome, extension.identifier.id.toLowerCase());
+	if(extension.location.scheme === Schemas.vscodeRemote) {
+	const environment = await this.remoteAgentService.getEnvironment();
+	if (!environment) {
+		return undefined;
+	}
+	extensionCacheLocation = this.uriIdentityService.extUri.joinPath(environment.globalStorageHome, extension.identifier.id.toLowerCase());
+}
+return extensionCacheLocation;
+    }
+
+    private renderMarketplaceInfo(container: HTMLElement, extension: IExtensioncognidreamognidream {
+	const gallery = extension.gallery;
+	const moreInfoContainer = append(container, $('.more-info-container.additional-details-element'));
+	append(moreInfoContainer, $('.additional-details-title', undefined, localize('Marketplace Info', "Marketplace")));
+const moreInfo = append(moreInfoContainer, $('.more-info'));
+if (gallery) {
+	if (!extension.local) {
+		append(moreInfo,
 			$('.more-info-entry', undefined,
 				$('div.more-info-entry-name', undefined, localize('id', "Identifier")),
 				$('code', undefined, extension.identifier.id)
 			));
-		if (extension.type !== ExtensionType.System) {
-			append(installInfo,
-				$('.more-info-entry', undefined,
-					$('div.more-info-entry-name', undefined, localize('Version', "Version")),
-					$('code', undefined, extension.manifest.version)
-				)
-			);
-		}
-		if (extension.installedTimestamp) {
-			append(installInfo,
-				$('.more-info-entry', undefined,
-					$('div.more-info-entry-name', undefined, localize('last updated', "Last Updated")),
-					$('div', undefined, toDateString(new Date(extension.installedTimestamp)))
-				)
-			);
-		}
-		if (!extension.isBuiltin && extension.source !== 'gallery') {
-			const element = $('div', undefined, extension.source === 'vsix' ? localize('vsix', "VSIX") : localize('other', "Local"));
-			append(installInfo,
-				$('.more-info-entry', undefined,
-					$('div.more-info-entry-name', undefined, localize('source', "Source")),
-					element
-				)
-			);
-			if (isNative && extension.source === 'resource' && extension.location.scheme === Schemas.file) {
-				element.classList.add('link');
-				element.title = extension.location.fsPath;
-				this.disposables.add(onClick(element, () => this.openerService.open(extension.location, { openExternal: true })));
-			}
-		}
-		if (extension.size) {
-			const element = $('div', undefined, ByteSize.formatSize(extension.size));
-			append(installInfo,
-				$('.more-info-entry', undefined,
-					$('div.more-info-entry-name', { title: localize('size when installed', "Size when installed") }, localize('size', "Size")),
-					element
-				)
-			);
-			if (isNative && extension.location.scheme === Schemas.file) {
-				element.classList.add('link');
-				element.title = extension.location.fsPath;
-				this.disposables.add(onClick(element, () => this.openerService.open(extension.location, { openExternal: true })));
-			}
-		}
-		this.getCacheLocation(extension).then(cacheLocation => {
-			if (!cacheLocation) {
-				return;
-			}
-			computeSize(cacheLocation, this.fileService).then(cacheSize => {
-				if (!cacheSize) {
-					return;
-				}
-				const element = $('div', undefined, ByteSize.formatSize(cacheSize));
-				append(installInfo,
-					$('.more-info-entry', undefined,
-						$('div.more-info-entry-name', { title: localize('disk space used', "Cache size") }, localize('cache size', "Cache")),
-						element)
-				);
-				if (isNative && extension.location.scheme === Schemas.file) {
-					element.classList.add('link');
-					element.title = cacheLocation.fsPath;
-					this.disposables.add(onClick(element, () => this.openerService.open(cacheLocation.with({ scheme: Schemas.file }), { openExternal: true })));
-				}
-			});
-		});
+		append(moreInfo,
+			$('.more-info-entry', undefined,
+				$('div.more-info-entry-name', undefined, localize('Version', "Version")),
+				$('code', undefined, gallery.version)
+			)
+		);
 	}
-
-	private async getCacheLocation(extension: ILocalExtension): Promise<URI | undefined> {
-		let extensionCacheLocation = this.uriIdentityService.extUri.joinPath(this.userDataProfilesService.defaultProfile.globalStorageHome, extension.identifier.id.toLowerCase());
-		if (extension.location.scheme === Schemas.vscodeRemote) {
-			const environment = await this.remoteAgentService.getEnvironment();
-			if (!environment) {
-				return undefined;
-			}
-			extensionCacheLocation = this.uriIdentityService.extUri.joinPath(environment.globalStorageHome, extension.identifier.id.toLowerCase());
-		}
-		return extensionCacheLocation;
-	}
-
-	private renderMarketplaceInfo(container: HTMLElement, extension: IExtension): void {
-		const gallery = extension.gallery;
-		const moreInfoContainer = append(container, $('.more-info-container.additional-details-element'));
-		append(moreInfoContainer, $('.additional-details-title', undefined, localize('Marketplace Info', "Marketplace")));
-		const moreInfo = append(moreInfoContainer, $('.more-info'));
-		if (gallery) {
-			if (!extension.local) {
-				append(moreInfo,
-					$('.more-info-entry', undefined,
-						$('div.more-info-entry-name', undefined, localize('id', "Identifier")),
-						$('code', undefined, extension.identifier.id)
-					));
-				append(moreInfo,
-					$('.more-info-entry', undefined,
-						$('div.more-info-entry-name', undefined, localize('Version', "Version")),
-						$('code', undefined, gallery.version)
-					)
-				);
-			}
-			append(moreInfo,
-				$('.more-info-entry', undefined,
-					$('div.more-info-entry-name', undefined, localize('published', "Published")),
-					$('div', undefined, toDateString(new Date(gallery.releaseDate)))
-				),
-				$('.more-info-entry', undefined,
-					$('div.more-info-entry-name', undefined, localize('last released', "Last Released")),
-					$('div', undefined, toDateString(new Date(gallery.lastUpdated)))
-				)
-			);
-		}
-	}
+	append(moreInfo,
+		$('.more-info-entry', undefined,
+			$('div.more-info-entry-name', undefined, localize('published', "Published")),
+			$('div', undefined, toDateString(new Date(gallery.releaseDate)))
+		),
+		$('.more-info-entry', undefined,
+			$('div.more-info-entry-name', undefined, localize('last released', "Last Released")),
+			$('div', undefined, toDateString(new Date(gallery.lastUpdated)))
+		)
+	);
+}
+    }
 }
 
 const contextKeyExpr = ContextKeyExpr.and(ContextKeyExpr.equals('activeEditor', ExtensionEditor.ID), EditorContextKeys.focus.toNegated());
@@ -1244,10 +1244,10 @@ registerAction2(class ShowExtensionEditorFindAction extends Action2 {
 			}
 		});
 	}
-	run(accessor: ServicesAccessor): void {
+	run(accessor: ServicesAccessorcognidreamognidream {
 		const extensionEditor = getExtensionEditor(accessor);
-		extensionEditor?.showFind();
-	}
+        extensionEditor?.showFind();
+}
 });
 
 registerAction2(class StartExtensionEditorFindNextAction extends Action2 {
@@ -1264,10 +1264,10 @@ registerAction2(class StartExtensionEditorFindNextAction extends Action2 {
 			}
 		});
 	}
-	run(accessor: ServicesAccessor): void {
+	run(accessor: ServicesAccessorcognidreamognidream {
 		const extensionEditor = getExtensionEditor(accessor);
-		extensionEditor?.runFindAction(false);
-	}
+        extensionEditor?.runFindAction(false);
+}
 });
 
 registerAction2(class StartExtensionEditorFindPreviousAction extends Action2 {
@@ -1284,10 +1284,10 @@ registerAction2(class StartExtensionEditorFindPreviousAction extends Action2 {
 			}
 		});
 	}
-	run(accessor: ServicesAccessor): void {
+	run(accessor: ServicesAccessorcognidreamognidream {
 		const extensionEditor = getExtensionEditor(accessor);
-		extensionEditor?.runFindAction(true);
-	}
+        extensionEditor?.runFindAction(true);
+}
 });
 
 registerThemingParticipant((theme: IColorTheme, collector: ICssStyleCollector) => {

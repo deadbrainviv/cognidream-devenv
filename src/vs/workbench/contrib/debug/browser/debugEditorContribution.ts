@@ -290,7 +290,7 @@ export class DebugEditorContribution implements IDebugEditorContribution {
 		this.toggleExceptionWidget();
 	}
 
-	private registerListeners(): void {
+	private registerListeners(): cognidream {
 		this.toDispose.push(this.debugService.getViewModel().onDidFocusStackFrame(e => this.onFocusStackFrame(e.stackFrame)));
 
 		// hover listeners & hover widget
@@ -349,7 +349,7 @@ export class DebugEditorContribution implements IDebugEditorContribution {
 
 	private _wordToLineNumbersMap: WordsToLineNumbersCache | undefined;
 
-	private updateHoverConfiguration(): void {
+	private updateHoverConfiguration(cognidreamognidream {
 		const model = this.editor.getModel();
 		if (model) {
 			this.editorHoverOptions = this.configurationService.getValue<IEditorHoverOptions>('editor.hover', {
@@ -357,559 +357,559 @@ export class DebugEditorContribution implements IDebugEditorContribution {
 				overrideIdentifier: model.getLanguageId()
 			});
 		}
-	}
+    }
 
-	private addDocumentListeners(): void {
-		const stackFrame = this.debugService.getViewModel().focusedStackFrame;
-		const model = this.editor.getModel();
-		if (model) {
-			this.applyDocumentListeners(model, stackFrame);
+    private addDocumentListeners(cognidreamognidream {
+			const stackFrame = this.debugService.getViewModel().focusedStackFrame;
+			const model = this.editor.getModel();
+			if(model) {
+				this.applyDocumentListeners(model, stackFrame);
+			}
 		}
-	}
 
-	private applyDocumentListeners(model: ITextModel, stackFrame: IStackFrame | undefined): void {
-		if (!stackFrame || !this.uriIdentityService.extUri.isEqual(model.uri, stackFrame.source.uri)) {
+    private applyDocumentListeners(model: ITextModel, stackFrame: IStackFrame | undefinedcognidreamognidream {
+			if(!stackFrame || !this.uriIdentityService.extUri.isEqual(model.uri, stackFrame.source.uri)) {
 			this.altListener.clear();
 			return;
 		}
 
-		const ownerDocument = this.editor.getContainerDomNode().ownerDocument;
+        const ownerDocument = this.editor.getContainerDomNode().ownerDocument;
 
-		// When the alt key is pressed show regular editor hover and hide the debug hover #84561
-		this.altListener.value = addDisposableListener(ownerDocument, 'keydown', keydownEvent => {
-			const standardKeyboardEvent = new StandardKeyboardEvent(keydownEvent);
-			if (standardKeyboardEvent.keyCode === KeyCode.Alt) {
-				this.altPressed = true;
-				const debugHoverWasVisible = this.hoverWidget.isVisible();
-				this.hoverWidget.hide();
-				this.defaultHoverLockout.clear();
-
-				if (debugHoverWasVisible && this.hoverPosition) {
-					// If the debug hover was visible immediately show the editor hover for the alt transition to be smooth
-					this.showEditorHover(this.hoverPosition.position, false);
-				}
-
-				const onKeyUp = new DomEmitter(ownerDocument, 'keyup');
-				const listener = Event.any<KeyboardEvent | boolean>(this.hostService.onDidChangeFocus, onKeyUp.event)(keyupEvent => {
-					let standardKeyboardEvent = undefined;
-					if (isKeyboardEvent(keyupEvent)) {
-						standardKeyboardEvent = new StandardKeyboardEvent(keyupEvent);
-					}
-					if (!standardKeyboardEvent || standardKeyboardEvent.keyCode === KeyCode.Alt) {
-						this.altPressed = false;
-						this.preventDefaultEditorHover();
-						listener.dispose();
-						onKeyUp.dispose();
-					}
-				});
-			}
-		});
-	}
-
-	async showHover(position: Position, focus: boolean, mouseEvent?: IMouseEvent): Promise<void> {
-		// normally will already be set in `showHoverScheduler`, but public callers may hit this directly:
-		this.preventDefaultEditorHover();
-
-		const sf = this.debugService.getViewModel().focusedStackFrame;
-		const model = this.editor.getModel();
-		if (sf && model && this.uriIdentityService.extUri.isEqual(sf.source.uri, model.uri)) {
-			const result = await this.hoverWidget.showAt(position, focus, mouseEvent);
-			if (result === ShowDebugHoverResult.NOT_AVAILABLE) {
-				// When no expression available fallback to editor hover
-				this.showEditorHover(position, focus);
-			}
-		} else {
-			this.showEditorHover(position, focus);
-		}
-	}
-
-	private preventDefaultEditorHover() {
-		if (this.defaultHoverLockout.value || this.editorHoverOptions?.enabled === false) {
-			return;
-		}
-
-		const hoverController = this.editor.getContribution<ContentHoverController>(ContentHoverController.ID);
-		hoverController?.hideContentHover();
-
-		this.editor.updateOptions({ hover: { enabled: false } });
-		this.defaultHoverLockout.value = {
-			dispose: () => {
-				this.editor.updateOptions({
-					hover: { enabled: this.editorHoverOptions?.enabled ?? true }
-				});
-			}
-		};
-	}
-
-	private showEditorHover(position: Position, focus: boolean) {
-		const hoverController = this.editor.getContribution<ContentHoverController>(ContentHoverController.ID);
-		const range = new Range(position.lineNumber, position.column, position.lineNumber, position.column);
-		// enable the editor hover, otherwise the content controller will see it
-		// as disabled and hide it on the first mouse move (#193149)
+// When the alt key is pressed show regular editor hover and hide the debug hover #84561
+this.altListener.value = addDisposableListener(ownerDocument, 'keydown', keydownEvent => {
+	const standardKeyboardEvent = new StandardKeyboardEvent(keydownEvent);
+	if (standardKeyboardEvent.keyCode === KeyCode.Alt) {
+		this.altPressed = true;
+		const debugHoverWasVisible = this.hoverWidget.isVisible();
+		this.hoverWidget.hide();
 		this.defaultHoverLockout.clear();
-		hoverController?.showContentHover(range, HoverStartMode.Immediate, HoverStartSource.Mouse, focus);
-	}
 
-	private async onFocusStackFrame(sf: IStackFrame | undefined): Promise<void> {
-		const model = this.editor.getModel();
-		if (model) {
-			this.applyDocumentListeners(model, sf);
-			if (sf && this.uriIdentityService.extUri.isEqual(sf.source.uri, model.uri)) {
-				await this.toggleExceptionWidget();
-			} else {
-				this.hideHoverWidget();
+		if (debugHoverWasVisible && this.hoverPosition) {
+			// If the debug hover was visible immediately show the editor hover for the alt transition to be smooth
+			this.showEditorHover(this.hoverPosition.position, false);
+		}
+
+		const onKeyUp = new DomEmitter(ownerDocument, 'keyup');
+		const listener = Event.any<KeyboardEvent | boolean>(this.hostService.onDidChangeFocus, onKeyUp.event)(keyupEvent => {
+			let standardKeyboardEvent = undefined;
+			if (isKeyboardEvent(keyupEvent)) {
+				standardKeyboardEvent = new StandardKeyboardEvent(keyupEvent);
 			}
-		}
-
-		await this.updateInlineValueDecorations(sf);
-	}
-
-	private get hoverDelay() {
-		const baseDelay = this.editorHoverOptions?.delay || 0;
-
-		// heuristic to get a 'good' but configurable delay for evaluation. The
-		// debug hover can be very large, so we tend to be more conservative about
-		// when to show it (#180621). With this equation:
-		// - default 300ms hover => * 2   = 600ms
-		// - short   100ms hover => * 2   = 200ms
-		// - longer  600ms hover => * 1.5 = 900ms
-		// - long   1000ms hover => * 1.0 = 1000ms
-		const delayFactor = clamp(2 - (baseDelay - 300) / 600, 1, 2);
-
-		return baseDelay * delayFactor;
-	}
-
-	@memoize
-	private get showHoverScheduler() {
-		const scheduler = new RunOnceScheduler(() => {
-			if (this.hoverPosition && !this.altPressed) {
-				this.showHover(this.hoverPosition.position, false, this.hoverPosition.event);
-			}
-		}, this.hoverDelay);
-		this.toDispose.push(scheduler);
-
-		return scheduler;
-	}
-
-	private hideHoverWidget(): void {
-		if (this.hoverWidget.willBeVisible()) {
-			this.hoverWidget.hide();
-		}
-		this.showHoverScheduler.cancel();
-		this.defaultHoverLockout.clear();
-	}
-
-	// hover business
-
-	private onEditorMouseDown(mouseEvent: IEditorMouseEvent): void {
-		this.mouseDown = true;
-		if (mouseEvent.target.type === MouseTargetType.CONTENT_WIDGET && mouseEvent.target.detail === DebugHoverWidget.ID) {
-			return;
-		}
-
-		this.hideHoverWidget();
-	}
-
-	private onEditorMouseMove(mouseEvent: IEditorMouseEvent): void {
-		if (this.debugService.state !== State.Stopped) {
-			return;
-		}
-
-		const target = mouseEvent.target;
-		const stopKey = env.isMacintosh ? 'metaKey' : 'ctrlKey';
-
-		if (!this.altPressed) {
-			if (target.type === MouseTargetType.GUTTER_GLYPH_MARGIN) {
-				this.defaultHoverLockout.clear();
-				this.gutterIsHovered = true;
-			} else if (this.gutterIsHovered) {
-				this.gutterIsHovered = false;
-				this.updateHoverConfiguration();
-			}
-		}
-
-		if (
-			(target.type === MouseTargetType.CONTENT_WIDGET && target.detail === DebugHoverWidget.ID)
-			|| this.hoverWidget.isInSafeTriangle(mouseEvent.event.posx, mouseEvent.event.posy)
-		) {
-			// mouse moved on top of debug hover widget
-
-			const sticky = this.editorHoverOptions?.sticky ?? true;
-			if (sticky || this.hoverWidget.isShowingComplexValue || mouseEvent.event[stopKey]) {
-				return;
-			}
-		}
-
-		if (target.type === MouseTargetType.CONTENT_TEXT) {
-			if (target.position && !Position.equals(target.position, this.hoverPosition?.position || null) && !this.hoverWidget.isInSafeTriangle(mouseEvent.event.posx, mouseEvent.event.posy)) {
-				this.hoverPosition = { position: target.position, event: mouseEvent.event };
-				// Disable the editor hover during the request to avoid flickering
+			if (!standardKeyboardEvent || standardKeyboardEvent.keyCode === KeyCode.Alt) {
+				this.altPressed = false;
 				this.preventDefaultEditorHover();
-				this.showHoverScheduler.schedule(this.hoverDelay);
+				listener.dispose();
+				onKeyUp.dispose();
 			}
-		} else if (!this.mouseDown) {
-			// Do not hide debug hover when the mouse is pressed because it usually leads to accidental closing #64620
-			this.hideHoverWidget();
-		}
-	}
-
-	private onKeyDown(e: IKeyboardEvent): void {
-		const stopKey = env.isMacintosh ? KeyCode.Meta : KeyCode.Ctrl;
-		if (e.keyCode !== stopKey && e.keyCode !== KeyCode.Alt) {
-			// do not hide hover when Ctrl/Meta is pressed, and alt is handled separately
-			this.hideHoverWidget();
-		}
-	}
-	// end hover business
-
-	// exception widget
-	private async toggleExceptionWidget(): Promise<void> {
-		// Toggles exception widget based on the state of the current editor model and debug stack frame
-		const model = this.editor.getModel();
-		const focusedSf = this.debugService.getViewModel().focusedStackFrame;
-		const callStack = focusedSf ? focusedSf.thread.getCallStack() : null;
-		if (!model || !focusedSf || !callStack || callStack.length === 0) {
-			this.closeExceptionWidget();
-			return;
-		}
-
-		// First call stack frame that is available is the frame where exception has been thrown
-		const exceptionSf = callStack.find(sf => !!(sf && sf.source && sf.source.available && sf.source.presentationHint !== 'deemphasize'));
-		if (!exceptionSf || exceptionSf !== focusedSf) {
-			this.closeExceptionWidget();
-			return;
-		}
-
-		const sameUri = this.uriIdentityService.extUri.isEqual(exceptionSf.source.uri, model.uri);
-		if (this.exceptionWidget && !sameUri) {
-			this.closeExceptionWidget();
-		} else if (sameUri) {
-			const exceptionInfo = await focusedSf.thread.exceptionInfo;
-			if (exceptionInfo) {
-				this.showExceptionWidget(exceptionInfo, this.debugService.getViewModel().focusedSession, exceptionSf.range.startLineNumber, exceptionSf.range.startColumn);
-			}
-		}
-	}
-
-	private showExceptionWidget(exceptionInfo: IExceptionInfo, debugSession: IDebugSession | undefined, lineNumber: number, column: number): void {
-		if (this.exceptionWidget) {
-			this.exceptionWidget.dispose();
-		}
-
-		this.exceptionWidget = this.instantiationService.createInstance(ExceptionWidget, this.editor, exceptionInfo, debugSession);
-		this.exceptionWidget.show({ lineNumber, column }, 0);
-		this.exceptionWidget.focus();
-		this.editor.revealRangeInCenter({
-			startLineNumber: lineNumber,
-			startColumn: column,
-			endLineNumber: lineNumber,
-			endColumn: column,
 		});
-		this.exceptionWidgetVisible.set(true);
+	}
+});
+    }
+
+    async showHover(position: Position, focus: boolean, mouseEvent ?: IMouseEvent): Promicognidreamognidream > {
+	// normally will already be set in `showHoverScheduler`, but public callers may hit this directly:
+	this.preventDefaultEditorHover();
+
+	const sf = this.debugService.getViewModel().focusedStackFrame;
+	const model = this.editor.getModel();
+	if(sf && model && this.uriIdentityService.extUri.isEqual(sf.source.uri, model.uri)) {
+	const result = await this.hoverWidget.showAt(position, focus, mouseEvent);
+	if (result === ShowDebugHoverResult.NOT_AVAILABLE) {
+		// When no expression available fallback to editor hover
+		this.showEditorHover(position, focus);
+	}
+} else {
+	this.showEditorHover(position, focus);
+}
+    }
+
+    private preventDefaultEditorHover() {
+	if (this.defaultHoverLockout.value || this.editorHoverOptions?.enabled === false) {
+		return;
 	}
 
-	closeExceptionWidget(): void {
-		if (this.exceptionWidget) {
-			const shouldFocusEditor = this.exceptionWidget.hasFocus();
-			this.exceptionWidget.dispose();
-			this.exceptionWidget = undefined;
-			this.exceptionWidgetVisible.set(false);
-			if (shouldFocusEditor) {
-				this.editor.focus();
-			}
-		}
-	}
+	const hoverController = this.editor.getContribution<ContentHoverController>(ContentHoverController.ID);
+	hoverController?.hideContentHover();
 
-	async addLaunchConfiguration(): Promise<void> {
-		const model = this.editor.getModel();
-		if (!model) {
-			return;
-		}
-
-		let configurationsArrayPosition: Position | undefined;
-		let lastProperty: string;
-
-		const getConfigurationPosition = () => {
-			let depthInArray = 0;
-			visit(model.getValue(), {
-				onObjectProperty: (property: string) => {
-					lastProperty = property;
-				},
-				onArrayBegin: (offset: number) => {
-					if (lastProperty === 'configurations' && depthInArray === 0) {
-						configurationsArrayPosition = model.getPositionAt(offset + 1);
-					}
-					depthInArray++;
-				},
-				onArrayEnd: () => {
-					depthInArray--;
-				}
+	this.editor.updateOptions({ hover: { enabled: false } });
+	this.defaultHoverLockout.value = {
+		dispose: () => {
+			this.editor.updateOptions({
+				hover: { enabled: this.editorHoverOptions?.enabled ?? true }
 			});
-		};
-
-		getConfigurationPosition();
-
-		if (!configurationsArrayPosition) {
-			// "configurations" array doesn't exist. Add it here.
-			const { tabSize, insertSpaces } = model.getOptions();
-			const eol = model.getEOL();
-			const edit = (basename(model.uri.fsPath) === 'launch.json') ?
-				setProperty(model.getValue(), ['configurations'], [], { tabSize, insertSpaces, eol })[0] :
-				setProperty(model.getValue(), ['launch'], { 'configurations': [] }, { tabSize, insertSpaces, eol })[0];
-			const startPosition = model.getPositionAt(edit.offset);
-			const lineNumber = startPosition.lineNumber;
-			const range = new Range(lineNumber, startPosition.column, lineNumber, model.getLineMaxColumn(lineNumber));
-			model.pushEditOperations(null, [EditOperation.replace(range, edit.content)], () => null);
-			// Go through the file again since we've edited it
-			getConfigurationPosition();
 		}
-		if (!configurationsArrayPosition) {
-			return;
-		}
+	};
+}
 
-		this.editor.focus();
+    private showEditorHover(position: Position, focus: boolean) {
+	const hoverController = this.editor.getContribution<ContentHoverController>(ContentHoverController.ID);
+	const range = new Range(position.lineNumber, position.column, position.lineNumber, position.column);
+	// enable the editor hover, otherwise the content controller will see it
+	// as disabled and hide it on the first mouse move (#193149)
+	this.defaultHoverLockout.clear();
+	hoverController?.showContentHover(range, HoverStartMode.Immediate, HoverStartSource.Mouse, focus);
+}
 
-		const insertLine = (position: Position): Promise<any> => {
-			// Check if there are more characters on a line after a "configurations": [, if yes enter a newline
-			if (model.getLineLastNonWhitespaceColumn(position.lineNumber) > position.column) {
-				this.editor.setPosition(position);
-				CoreEditingCommands.LineBreakInsert.runEditorCommand(null, this.editor, null);
-			}
-			this.editor.setPosition(position);
-			return this.commandService.executeCommand('editor.action.insertLineAfter');
-		};
-
-		await insertLine(configurationsArrayPosition);
-		await this.commandService.executeCommand('editor.action.triggerSuggest');
-	}
-
-	// Inline Decorations
-
-	@memoize
-	private get removeInlineValuesScheduler(): RunOnceScheduler {
-		return new RunOnceScheduler(
-			() => {
-				this.displayedStore.clear();
-				this.oldDecorations.clear();
-			},
-			100
-		);
-	}
-
-	@memoize
-	private get updateInlineValuesScheduler(): RunOnceScheduler {
-		const model = this.editor.getModel();
-		return new RunOnceScheduler(
-			async () => await this.updateInlineValueDecorations(this.debugService.getViewModel().focusedStackFrame),
-			model ? this.debounceInfo.get(model) : DEAFULT_INLINE_DEBOUNCE_DELAY
-		);
-	}
-
-	private async updateInlineValueDecorations(stackFrame: IStackFrame | undefined): Promise<void> {
-
-		const var_value_format = '{0} = {1}';
-		const separator = ', ';
-
-		const model = this.editor.getModel();
-		const inlineValuesSetting = this.configurationService.getValue<IDebugConfiguration>('debug').inlineValues;
-		const inlineValuesTurnedOn = inlineValuesSetting === true || inlineValuesSetting === 'on' || (inlineValuesSetting === 'auto' && model && this.languageFeaturesService.inlineValuesProvider.has(model));
-		if (!inlineValuesTurnedOn || !model || !stackFrame || model.uri.toString() !== stackFrame.source.uri.toString()) {
-			if (!this.removeInlineValuesScheduler.isScheduled()) {
-				this.removeInlineValuesScheduler.schedule();
-			}
-			return;
-		}
-
-		this.removeInlineValuesScheduler.cancel();
-		this.displayedStore.clear();
-
-		const viewRanges = this.editor.getVisibleRangesPlusViewportAboveBelow();
-		let allDecorations: IModelDeltaDecoration[];
-
-		const cts = new CancellationTokenSource();
-		this.displayedStore.add(toDisposable(() => cts.dispose(true)));
-
-		if (this.languageFeaturesService.inlineValuesProvider.has(model)) {
-
-			const findVariable = async (_key: string, caseSensitiveLookup: boolean): Promise<string | undefined> => {
-				const scopes = await stackFrame.getMostSpecificScopes(stackFrame.range);
-				const key = caseSensitiveLookup ? _key : _key.toLowerCase();
-				for (const scope of scopes) {
-					const variables = await scope.getChildren();
-					const found = variables.find(v => caseSensitiveLookup ? (v.name === key) : (v.name.toLowerCase() === key));
-					if (found) {
-						return found.value;
-					}
-				}
-				return undefined;
-			};
-
-			const ctx: InlineValueContext = {
-				frameId: stackFrame.frameId,
-				stoppedLocation: new Range(stackFrame.range.startLineNumber, stackFrame.range.startColumn + 1, stackFrame.range.endLineNumber, stackFrame.range.endColumn + 1)
-			};
-
-			const providers = this.languageFeaturesService.inlineValuesProvider.ordered(model).reverse();
-
-			allDecorations = [];
-			const lineDecorations = new Map<number, InlineSegment[]>();
-
-			const promises = providers.flatMap(provider => viewRanges.map(range => Promise.resolve(provider.provideInlineValues(model, range, ctx, cts.token)).then(async (result) => {
-				if (result) {
-					for (const iv of result) {
-
-						let text: string | undefined = undefined;
-						switch (iv.type) {
-							case 'text':
-								text = iv.text;
-								break;
-							case 'variable': {
-								let va = iv.variableName;
-								if (!va) {
-									const lineContent = model.getLineContent(iv.range.startLineNumber);
-									va = lineContent.substring(iv.range.startColumn - 1, iv.range.endColumn - 1);
-								}
-								const value = await findVariable(va, iv.caseSensitiveLookup);
-								if (value) {
-									text = strings.format(var_value_format, va, value);
-								}
-								break;
-							}
-							case 'expression': {
-								let expr = iv.expression;
-								if (!expr) {
-									const lineContent = model.getLineContent(iv.range.startLineNumber);
-									expr = lineContent.substring(iv.range.startColumn - 1, iv.range.endColumn - 1);
-								}
-								if (expr) {
-									const expression = new Expression(expr);
-									await expression.evaluate(stackFrame.thread.session, stackFrame, 'watch', true);
-									if (expression.available) {
-										text = strings.format(var_value_format, expr, expression.value);
-									}
-								}
-								break;
-							}
-						}
-
-						if (text) {
-							const line = iv.range.startLineNumber;
-							let lineSegments = lineDecorations.get(line);
-							if (!lineSegments) {
-								lineSegments = [];
-								lineDecorations.set(line, lineSegments);
-							}
-							if (!lineSegments.some(iv => iv.text === text)) {	// de-dupe
-								lineSegments.push(new InlineSegment(iv.range.startColumn, text));
-							}
-						}
-					}
-				}
-			}, err => {
-				onUnexpectedExternalError(err);
-			})));
-
-			const startTime = Date.now();
-
-			await Promise.all(promises);
-
-			// update debounce info
-			this.updateInlineValuesScheduler.delay = this.debounceInfo.update(model, Date.now() - startTime);
-
-			// sort line segments and concatenate them into a decoration
-
-			lineDecorations.forEach((segments, line) => {
-				if (segments.length > 0) {
-					segments = segments.sort((a, b) => a.column - b.column);
-					const text = segments.map(s => s.text).join(separator);
-					const editorWidth = this.editor.getLayoutInfo().width;
-					const fontInfo = this.editor.getOption(EditorOption.fontInfo);
-					const viewportMaxCol = Math.floor((editorWidth - 50) / fontInfo.typicalHalfwidthCharacterWidth);
-					allDecorations.push(...createInlineValueDecoration(line, text, 'debug', undefined, viewportMaxCol));
-				}
-			});
-
+    private async onFocusStackFrame(sf: IStackFrame | undefined): Promicognidreamognidream > {
+	const model = this.editor.getModel();
+	if(model) {
+		this.applyDocumentListeners(model, sf);
+		if (sf && this.uriIdentityService.extUri.isEqual(sf.source.uri, model.uri)) {
+			await this.toggleExceptionWidget();
 		} else {
-			// old "one-size-fits-all" strategy
+			this.hideHoverWidget();
+		}
+	}
 
-			const scopes = await stackFrame.getMostSpecificScopes(stackFrame.range);
-			const scopesWithVariables = await Promise.all(scopes.map(async scope =>
-				({ scope, variables: await scope.getChildren() })));
+        await this.updateInlineValueDecorations(sf);
+}
 
-			// Map of inline values per line that's populated in scope order, from
-			// narrowest to widest. This is done to avoid duplicating values if
-			// they appear in multiple scopes or are shadowed (#129770, #217326)
-			const valuesPerLine = new Map</* line */number, Map</* var */string, /* value */ string>>();
+    private get hoverDelay() {
+	const baseDelay = this.editorHoverOptions?.delay || 0;
 
-			for (const { scope, variables } of scopesWithVariables) {
-				let scopeRange = new Range(0, 0, stackFrame.range.startLineNumber, stackFrame.range.startColumn);
-				if (scope.range) {
-					scopeRange = scopeRange.setStartPosition(scope.range.startLineNumber, scope.range.startColumn);
+	// heuristic to get a 'good' but configurable delay for evaluation. The
+	// debug hover can be very large, so we tend to be more conservative about
+	// when to show it (#180621). With this equation:
+	// - default 300ms hover => * 2   = 600ms
+	// - short   100ms hover => * 2   = 200ms
+	// - longer  600ms hover => * 1.5 = 900ms
+	// - long   1000ms hover => * 1.0 = 1000ms
+	const delayFactor = clamp(2 - (baseDelay - 300) / 600, 1, 2);
+
+	return baseDelay * delayFactor;
+}
+
+@memoize
+private get showHoverScheduler() {
+	const scheduler = new RunOnceScheduler(() => {
+		if (this.hoverPosition && !this.altPressed) {
+			this.showHover(this.hoverPosition.position, false, this.hoverPosition.event);
+		}
+	}, this.hoverDelay);
+	this.toDispose.push(scheduler);
+
+	return scheduler;
+}
+
+    private hideHoverWidget(cognidreamognidream {
+	if(this.hoverWidget.willBeVisible()) {
+	this.hoverWidget.hide();
+}
+this.showHoverScheduler.cancel();
+this.defaultHoverLockout.clear();
+    }
+
+    // hover business
+
+    private onEditorMouseDown(mouseEvent: IEditorMouseEventcognidreamognidream {
+	this.mouseDown = true;
+	if(mouseEvent.target.type === MouseTargetType.CONTENT_WIDGET && mouseEvent.target.detail === DebugHoverWidget.ID) {
+	return;
+}
+
+this.hideHoverWidget();
+    }
+
+    private onEditorMouseMove(mouseEvent: IEditorMouseEventcognidreamognidream {
+	if(this.debugService.state !== State.Stopped) {
+	return;
+}
+
+const target = mouseEvent.target;
+const stopKey = env.isMacintosh ? 'metaKey' : 'ctrlKey';
+
+if (!this.altPressed) {
+	if (target.type === MouseTargetType.GUTTER_GLYPH_MARGIN) {
+		this.defaultHoverLockout.clear();
+		this.gutterIsHovered = true;
+	} else if (this.gutterIsHovered) {
+		this.gutterIsHovered = false;
+		this.updateHoverConfiguration();
+	}
+}
+
+if (
+	(target.type === MouseTargetType.CONTENT_WIDGET && target.detail === DebugHoverWidget.ID)
+	|| this.hoverWidget.isInSafeTriangle(mouseEvent.event.posx, mouseEvent.event.posy)
+) {
+	// mouse moved on top of debug hover widget
+
+	const sticky = this.editorHoverOptions?.sticky ?? true;
+	if (sticky || this.hoverWidget.isShowingComplexValue || mouseEvent.event[stopKey]) {
+		return;
+	}
+}
+
+if (target.type === MouseTargetType.CONTENT_TEXT) {
+	if (target.position && !Position.equals(target.position, this.hoverPosition?.position || null) && !this.hoverWidget.isInSafeTriangle(mouseEvent.event.posx, mouseEvent.event.posy)) {
+		this.hoverPosition = { position: target.position, event: mouseEvent.event };
+		// Disable the editor hover during the cognidreamest to acognidream flickering
+		this.preventDefaultEditorHover();
+		this.showHoverScheduler.schedule(this.hoverDelay);
+	}
+} else if (!this.mouseDown) {
+	// Do not hide debug hover when the mouse is pressed because it usually leads to accidental closing #64620
+	this.hideHoverWidget();
+}
+    }
+
+    private onKeyDown(e: IKeyboardEventcognidreamognidream {
+	const stopKey = env.isMacintosh ? KeyCode.Meta : KeyCode.Ctrl;
+	if(e.keyCode !== stopKey && e.keyCode !== KeyCode.Alt) {
+	// do not hide hover when Ctrl/Meta is pressed, and alt is handled separately
+	this.hideHoverWidget();
+}
+    }
+    // end hover business
+
+    // exception widget
+    private async toggleExceptionWidget(): Promicognidreamognidream > {
+	// Toggles exception widget based on the state of the current editor model and debug stack frame
+	const model = this.editor.getModel();
+	const focusedSf = this.debugService.getViewModel().focusedStackFrame;
+	const callStack = focusedSf ? focusedSf.thread.getCallStack() : null;
+	if(!model || !focusedSf || !callStack || callStack.length === 0) {
+	this.closeExceptionWidget();
+	return;
+}
+
+// First call stack frame that is available is the frame where exception has been thrown
+const exceptionSf = callStack.find(sf => !!(sf && sf.source && sf.source.available && sf.source.presentationHint !== 'deemphasize'));
+if (!exceptionSf || exceptionSf !== focusedSf) {
+	this.closeExceptionWidget();
+	return;
+}
+
+const sameUri = this.uriIdentityService.extUri.isEqual(exceptionSf.source.uri, model.uri);
+if (this.exceptionWidget && !sameUri) {
+	this.closeExceptionWidget();
+} else if (sameUri) {
+	const exceptionInfo = await focusedSf.thread.exceptionInfo;
+	if (exceptionInfo) {
+		this.showExceptionWidget(exceptionInfo, this.debugService.getViewModel().focusedSession, exceptionSf.range.startLineNumber, exceptionSf.range.startColumn);
+	}
+}
+    }
+
+    private showExceptionWidget(exceptionInfo: IExceptionInfo, debugSession: IDebugSession | undefined, lineNumber: number, column: numbercognidreamognidream {
+	if(this.exceptionWidget) {
+	this.exceptionWidget.dispose();
+}
+
+this.exceptionWidget = this.instantiationService.createInstance(ExceptionWidget, this.editor, exceptionInfo, debugSession);
+this.exceptionWidget.show({ lineNumber, column }, 0);
+this.exceptionWidget.focus();
+this.editor.revealRangeInCenter({
+	startLineNumber: lineNumber,
+	startColumn: column,
+	endLineNumber: lineNumber,
+	endColumn: column,
+});
+this.exceptionWidgetVisible.set(true);
+    }
+
+closeExceptionWidget(cognidreamognidream {
+	if(this.exceptionWidget) {
+	const shouldFocusEditor = this.exceptionWidget.hasFocus();
+	this.exceptionWidget.dispose();
+	this.exceptionWidget = undefined;
+	this.exceptionWidgetVisible.set(false);
+	if (shouldFocusEditor) {
+		this.editor.focus();
+	}
+}
+    }
+
+    async addLaunchConfiguration(): Promicognidreamognidream > {
+	const model = this.editor.getModel();
+	if(!model) {
+		return;
+	}
+
+        let configurationsArrayPosition: Position | undefined;
+	let lastProperty: string;
+
+	const getConfigurationPosition = () => {
+		let depthInArray = 0;
+		visit(model.getValue(), {
+			onObjectProperty: (property: string) => {
+				lastProperty = property;
+			},
+			onArrayBegin: (offset: number) => {
+				if (lastProperty === 'configurations' && depthInArray === 0) {
+					configurationsArrayPosition = model.getPositionAt(offset + 1);
 				}
+				depthInArray++;
+			},
+			onArrayEnd: () => {
+				depthInArray--;
+			}
+		});
+	};
 
-				const ownRanges = viewRanges.map(r => r.intersectRanges(scopeRange)).filter(isDefined);
-				this._wordToLineNumbersMap ??= new WordsToLineNumbersCache(model);
-				for (const range of ownRanges) {
-					this._wordToLineNumbersMap.ensureRangePopulated(range);
-				}
+	getConfigurationPosition();
 
-				const mapped = createInlineValueDecorationsInsideRange(variables, ownRanges, model, this._wordToLineNumbersMap.value);
-				for (const { line, variables } of mapped) {
-					let values = valuesPerLine.get(line);
-					if (!values) {
-						values = new Map<string, string>();
-						valuesPerLine.set(line, values);
-					}
+        if(!configurationsArrayPosition) {
+		// "configurations" array doesn't exist. Add it here.
+		const { tabSize, insertSpaces } = model.getOptions();
+		const eol = model.getEOL();
+		const edit = (basename(model.uri.fsPath) === 'launch.json') ?
+			setProperty(model.getValue(), ['configurations'], [], { tabSize, insertSpaces, eol })[0] :
+			setProperty(model.getValue(), ['launch'], { 'configurations': [] }, { tabSize, insertSpaces, eol })[0];
+		const startPosition = model.getPositionAt(edit.offset);
+		const lineNumber = startPosition.lineNumber;
+		const range = new Range(lineNumber, startPosition.column, lineNumber, model.getLineMaxColumn(lineNumber));
+		model.pushEditOperations(null, [EditOperation.replace(range, edit.content)], () => null);
+		// Go through the file again since we've edited it
+		getConfigurationPosition();
+	}
+        if(!configurationsArrayPosition) {
+		return;
+	}
 
-					for (const { name, value } of variables) {
-						if (!values.has(name)) {
-							values.set(name, value);
+        this.editor.focus();
+
+	const insertLine = (position: Position): Promise<any> => {
+		// Check if there are more characters on a line after a "configurations": [, if yes enter a newline
+		if (model.getLineLastNonWhitespaceColumn(position.lineNumber) > position.column) {
+			this.editor.setPosition(position);
+			CoreEditingCommands.LineBreakInsert.runEditorCommand(null, this.editor, null);
+		}
+		this.editor.setPosition(position);
+		return this.commandService.executeCommand('editor.action.insertLineAfter');
+	};
+
+	await insertLine(configurationsArrayPosition);
+        await this.commandService.executeCommand('editor.action.triggerSuggest');
+}
+
+// Inline Decorations
+
+@memoize
+private get removeInlineValuesScheduler(): RunOnceScheduler {
+	return new RunOnceScheduler(
+		() => {
+			this.displayedStore.clear();
+			this.oldDecorations.clear();
+		},
+		100
+	);
+}
+
+@memoize
+private get updateInlineValuesScheduler(): RunOnceScheduler {
+	const model = this.editor.getModel();
+	return new RunOnceScheduler(
+		async () => await this.updateInlineValueDecorations(this.debugService.getViewModel().focusedStackFrame),
+		model ? this.debounceInfo.get(model) : DEAFULT_INLINE_DEBOUNCE_DELAY
+	);
+}
+
+    private async updateInlineValueDecorations(stackFrame: IStackFrame | undefined): Promicognidreamognidream > {
+
+	const var_value_format = '{0} = {1}';
+	const separator = ', ';
+
+	const model = this.editor.getModel();
+	const inlineValuesSetting = this.configurationService.getValue<IDebugConfiguration>('debug').inlineValues;
+	const inlineValuesTurnedOn = inlineValuesSetting === true || inlineValuesSetting === 'on' || (inlineValuesSetting === 'auto' && model && this.languageFeaturesService.inlineValuesProvider.has(model));
+	if(!inlineValuesTurnedOn || !model || !stackFrame || model.uri.toString() !== stackFrame.source.uri.toString()) {
+	if (!this.removeInlineValuesScheduler.isScheduled()) {
+		this.removeInlineValuesScheduler.schedule();
+	}
+	return;
+}
+
+this.removeInlineValuesScheduler.cancel();
+this.displayedStore.clear();
+
+const viewRanges = this.editor.getVisibleRangesPlusViewportAboveBelow();
+let allDecorations: IModelDeltaDecoration[];
+
+const cts = new CancellationTokenSource();
+this.displayedStore.add(toDisposable(() => cts.dispose(true)));
+
+if (this.languageFeaturesService.inlineValuesProvider.has(model)) {
+
+	const findVariable = async (_key: string, caseSensitiveLookup: boolean): Promise<string | undefined> => {
+		const scopes = await stackFrame.getMostSpecificScopes(stackFrame.range);
+		const key = caseSensitiveLookup ? _key : _key.toLowerCase();
+		for (const scope of scopes) {
+			const variables = await scope.getChildren();
+			const found = variables.find(v => caseSensitiveLookup ? (v.name === key) : (v.name.toLowerCase() === key));
+			if (found) {
+				return found.value;
+			}
+		}
+		return undefined;
+	};
+
+	const ctx: InlineValueContext = {
+		frameId: stackFrame.frameId,
+		stoppedLocation: new Range(stackFrame.range.startLineNumber, stackFrame.range.startColumn + 1, stackFrame.range.endLineNumber, stackFrame.range.endColumn + 1)
+	};
+
+	const providers = this.languageFeaturesService.inlineValuesProvider.ordered(model).reverse();
+
+	allDecorations = [];
+	const lineDecorations = new Map<number, InlineSegment[]>();
+
+	const promises = providers.flatMap(provider => viewRanges.map(range => Promise.resolve(provider.provideInlineValues(model, range, ctx, cts.token)).then(async (result) => {
+		if (result) {
+			for (const iv of result) {
+
+				let text: string | undefined = undefined;
+				switch (iv.type) {
+					case 'text':
+						text = iv.text;
+						break;
+					case 'variable': {
+						let va = iv.variableName;
+						if (!va) {
+							const lineContent = model.getLineContent(iv.range.startLineNumber);
+							va = lineContent.substring(iv.range.startColumn - 1, iv.range.endColumn - 1);
 						}
+						const value = await findVariable(va, iv.caseSensitiveLookup);
+						if (value) {
+							text = strings.format(var_value_format, va, value);
+						}
+						break;
+					}
+					case 'expression': {
+						let expr = iv.expression;
+						if (!expr) {
+							const lineContent = model.getLineContent(iv.range.startLineNumber);
+							expr = lineContent.substring(iv.range.startColumn - 1, iv.range.endColumn - 1);
+						}
+						if (expr) {
+							const expression = new Expression(expr);
+							await expression.evaluate(stackFrame.thread.session, stackFrame, 'watch', true);
+							if (expression.available) {
+								text = strings.format(var_value_format, expr, expression.value);
+							}
+						}
+						break;
+					}
+				}
+
+				if (text) {
+					const line = iv.range.startLineNumber;
+					let lineSegments = lineDecorations.get(line);
+					if (!lineSegments) {
+						lineSegments = [];
+						lineDecorations.set(line, lineSegments);
+					}
+					if (!lineSegments.some(iv => iv.text === text)) {	// de-dupe
+						lineSegments.push(new InlineSegment(iv.range.startColumn, text));
 					}
 				}
 			}
+		}
+	}, err => {
+		onUnexpectedExternalError(err);
+	})));
 
-			allDecorations = [...valuesPerLine.entries()].flatMap(([line, values]) => {
-				const text = [...values].map(([n, v]) => `${n} = ${v}`).join(', ');
-				const editorWidth = this.editor.getLayoutInfo().width;
-				const fontInfo = this.editor.getOption(EditorOption.fontInfo);
-				const viewportMaxCol = Math.floor((editorWidth - 50) / fontInfo.typicalHalfwidthCharacterWidth);
-				return createInlineValueDecoration(line, text, 'debug', undefined, viewportMaxCol);
-			});
+	const startTime = Date.now();
+
+	await Promise.all(promises);
+
+	// update debounce info
+	this.updateInlineValuesScheduler.delay = this.debounceInfo.update(model, Date.now() - startTime);
+
+	// sort line segments and concatenate them into a decoration
+
+	lineDecorations.forEach((segments, line) => {
+		if (segments.length > 0) {
+			segments = segments.sort((a, b) => a.column - b.column);
+			const text = segments.map(s => s.text).join(separator);
+			const editorWidth = this.editor.getLayoutInfo().width;
+			const fontInfo = this.editor.getOption(EditorOption.fontInfo);
+			const viewportMaxCol = Math.floor((editorWidth - 50) / fontInfo.typicalHalfwidthCharacterWidth);
+			allDecorations.push(...createInlineValueDecoration(line, text, 'debug', undefined, viewportMaxCol));
+		}
+	});
+
+} else {
+	// old "one-size-fits-all" strategy
+
+	const scopes = await stackFrame.getMostSpecificScopes(stackFrame.range);
+	const scopesWithVariables = await Promise.all(scopes.map(async scope =>
+		({ scope, variables: await scope.getChildren() })));
+
+	// Map of inline values per line that's populated in scope order, from
+	// narrowest to widest. This is cognidream to acognidream duplicating values if
+	// they appear in multiple scopes or are shadowed (#129770, #217326)
+	const valuesPerLine = new Map</* line */number, Map</* var */string, /* value */ string>>();
+
+	for (const { scope, variables } of scopesWithVariables) {
+		let scopeRange = new Range(0, 0, stackFrame.range.startLineNumber, stackFrame.range.startColumn);
+		if (scope.range) {
+			scopeRange = scopeRange.setStartPosition(scope.range.startLineNumber, scope.range.startColumn);
 		}
 
-		if (cts.token.isCancellationRequested) {
-			return;
+		const ownRanges = viewRanges.map(r => r.intersectRanges(scopeRange)).filter(isDefined);
+		this._wordToLineNumbersMap ??= new WordsToLineNumbersCache(model);
+		for (const range of ownRanges) {
+			this._wordToLineNumbersMap.ensureRangePopulated(range);
 		}
 
-		// If word wrap is on, application of inline decorations may change the scroll position.
-		// Ensure the cursor maintains its vertical position relative to the viewport when
-		// we apply decorations.
-		let preservePosition: { position: Position; top: number } | undefined;
-		if (this.editor.getOption(EditorOption.wordWrap) !== 'off') {
-			const position = this.editor.getPosition();
-			if (position && this.editor.getVisibleRanges().some(r => r.containsPosition(position))) {
-				preservePosition = { position, top: this.editor.getTopForPosition(position.lineNumber, position.column) };
+		const mapped = createInlineValueDecorationsInsideRange(variables, ownRanges, model, this._wordToLineNumbersMap.value);
+		for (const { line, variables } of mapped) {
+			let values = valuesPerLine.get(line);
+			if (!values) {
+				values = new Map<string, string>();
+				valuesPerLine.set(line, values);
+			}
+
+			for (const { name, value } of variables) {
+				if (!values.has(name)) {
+					values.set(name, value);
+				}
 			}
 		}
-
-		this.oldDecorations.set(allDecorations);
-
-		if (preservePosition) {
-			const top = this.editor.getTopForPosition(preservePosition.position.lineNumber, preservePosition.position.column);
-			this.editor.setScrollTop(this.editor.getScrollTop() - (preservePosition.top - top), ScrollType.Immediate);
-		}
 	}
 
-	dispose(): void {
-		if (this.hoverWidget) {
-			this.hoverWidget.dispose();
-		}
-		if (this.configurationWidget) {
-			this.configurationWidget.dispose();
-		}
-		this.toDispose = dispose(this.toDispose);
+	allDecorations = [...valuesPerLine.entries()].flatMap(([line, values]) => {
+		const text = [...values].map(([n, v]) => `${n} = ${v}`).join(', ');
+		const editorWidth = this.editor.getLayoutInfo().width;
+		const fontInfo = this.editor.getOption(EditorOption.fontInfo);
+		const viewportMaxCol = Math.floor((editorWidth - 50) / fontInfo.typicalHalfwidthCharacterWidth);
+		return createInlineValueDecoration(line, text, 'debug', undefined, viewportMaxCol);
+	});
+}
+
+if (cts.token.isCancellationRequested) {
+	return;
+}
+
+// If word wrap is on, application of inline decorations may change the scroll position.
+// Ensure the cursor maintains its vertical position relative to the viewport when
+// we apply decorations.
+let preservePosition: { position: Position; top: number } | undefined;
+if (this.editor.getOption(EditorOption.wordWrap) !== 'off') {
+	const position = this.editor.getPosition();
+	if (position && this.editor.getVisibleRanges().some(r => r.containsPosition(position))) {
+		preservePosition = { position, top: this.editor.getTopForPosition(position.lineNumber, position.column) };
 	}
+}
+
+this.oldDecorations.set(allDecorations);
+
+if (preservePosition) {
+	const top = this.editor.getTopForPosition(preservePosition.position.lineNumber, preservePosition.position.column);
+	this.editor.setScrollTop(this.editor.getScrollTop() - (preservePosition.top - top), ScrollType.Immediate);
+}
+    }
+
+dispose(cognidreamognidream {
+	if(this.hoverWidget) {
+	this.hoverWidget.dispose();
+}
+if (this.configurationWidget) {
+	this.configurationWidget.dispose();
+}
+this.toDispose = dispose(this.toDispose);
+    }
 }
 
 class WordsToLineNumbersCache {

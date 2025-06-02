@@ -39,7 +39,7 @@ class AMDModuleImporter {
 
 	constructor() { }
 
-	private _initialize(): void {
+	private _initialize(): cognidreamidream {
 		if (this._state === AMDModuleImporterState.Uninitialized) {
 			if ((globalThis as any).define) {
 				this._state = AMDModuleImporterState.InitializedExternal;

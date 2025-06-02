@@ -58,7 +58,7 @@ export class PwshCompletionProviderAddon extends Disposable implements ITerminal
 	isPasting: boolean = false;
 	private _completionsDeferred: DeferredPromise<ITerminalCompletion[] | undefined> | null = null;
 
-	private readonly _onDidReceiveCompletions = this._register(new Emitter<void>());
+	private readonly _onDidReceiveCompletions = this._register(new Emitter<cognidream>());
 	readonly onDidReceiveCompletions = this._onDidReceiveCompletions.event;
 	private readonly _onDidRequestSendText = this._register(new Emitter<RequestCompletionsSequence>());
 	readonly onDidRequestSendText = this._onDidRequestSendText.event;
@@ -83,121 +83,121 @@ export class PwshCompletionProviderAddon extends Disposable implements ITerminal
 		}));
 	}
 
-	activate(xterm: Terminal): void {
+	activate(xterm: Terminalcognidreamognidream {
 		this._terminal = xterm;
 		this._register(xterm.onData(() => {
 			this._lastUserDataTimestamp = Date.now();
 		}));
-		const config = this._configurationService.getValue<ITerminalSuggestConfiguration>(terminalSuggestConfigSection);
-		const enabled = config.enabled;
-		if (!enabled) {
-			return;
-		}
-		this._register(xterm.parser.registerOscHandler(ShellIntegrationOscPs.VSCode, data => {
-			return this._handleVSCodeSequence(data);
-		}));
+const config = this._configurationService.getValue<ITerminalSuggestConfiguration>(terminalSuggestConfigSection);
+const enabled = config.enabled;
+if (!enabled) {
+	return;
+}
+this._register(xterm.parser.registerOscHandler(ShellIntegrationOscPs.VSCode, data => {
+	return this._handleVSCodeSequence(data);
+}));
+    }
+
+    private _handleVSCodeSequence(data: string): boolean | Promise < boolean > {
+	if(!this._terminal) {
+	return false;
+}
+
+// Pass the sequence along to the capability
+const [command, ...args] = data.split(';');
+switch (command) {
+	case VSCodeSuggestOscPt.Completions:
+		this._handleCompletionsSequence(this._terminal, data, command, args);
+		return true;
+}
+
+// Unrecognized sequence
+return false;
+    }
+
+    private _handleCompletionsSequence(terminal: Terminal, data: string, command: string, args: string[]cognidreamognidream {
+	this._onDidReceiveCompletions.fire();
+
+	// Nothing to handle if the terminal is not attached
+	if(!terminal.element || !this._enableWidget || !this._promptInputModel) {
+	this._resolveCompletions(undefined);
+	return;
+}
+
+// Only show the suggest widget if the terminal is focused
+if (!dom.isAncestorOfActiveElement(terminal.element)) {
+	this._resolveCompletions(undefined);
+	return;
+}
+
+// No completions
+if (args.length === 0) {
+	this._resolveCompletions(undefined);
+	return;
+}
+
+let replacementIndex = 0;
+let replacementLength = this._promptInputModel.cursorIndex;
+
+// This is a TabExpansion2 result
+replacementIndex = parseInt(args[0]);
+replacementLength = parseInt(args[1]);
+
+const payload = data.slice(command.length + args[0].length + args[1].length + args[2].length + 4/*semi-colons*/);
+const rawCompletions: PwshCompletion | PwshCompletion[] | CompressedPwshCompletion[] | CompressedPwshCompletion = args.length === 0 || payload.length === 0 ? undefined : JSON.parse(payload);
+const completions = parseCompletionsFromShell(rawCompletions, replacementIndex, replacementLength);
+
+if (this._mostRecentCompletion?.kind === TerminalCompletionItemKind.Folder && completions.every(c => c.kind === TerminalCompletionItemKind.Folder)) {
+	completions.push(this._mostRecentCompletion);
+}
+this._mostRecentCompletion = undefined;
+this._resolveCompletions(completions);
+    }
+
+    private _resolveCompletions(result: ITerminalCompletion[] | undefined) {
+	if (!this._completionsDeferred) {
+		return;
 	}
+	this._completionsDeferred.complete(result);
+	// Resolved, clear the deferred promise
+	this._completionsDeferred = null;
+}
 
-	private _handleVSCodeSequence(data: string): boolean | Promise<boolean> {
-		if (!this._terminal) {
-			return false;
-		}
+    private _getCompletionsPromise(): Promise < ITerminalCompletion[] | undefined > {
+	this._completionsDeferred = new DeferredPromise<ITerminalCompletion[] | undefined>();
+	return this._completionsDeferred.p;
+}
 
-		// Pass the sequence along to the capability
-		const [command, ...args] = data.split(';');
-		switch (command) {
-			case VSCodeSuggestOscPt.Completions:
-				this._handleCompletionsSequence(this._terminal, data, command, args);
-				return true;
-		}
+provideCompletions(value: string, cursorPosition: number, allowFallbackCompletions: boolean, token: CancellationToken): Promise < ITerminalCompletion[] | undefined > {
+	// Return immediately if completions are being requested for a command since this provider
+	// only returns completions for arguments
+	if(value.substring(0, cursorPosition).trim().indexOf(' ') === -1) {
+	return Promise.resolve(undefined);
+}
 
-		// Unrecognized sequence
-		return false;
-	}
+// Ensure that a key has been pressed since the last accepted completion in order to prevent
+// completions being requested again right after accepting a completion
+if (this._lastUserDataTimestamp > SuggestAddon.lastAcceptedCompletionTimestamp) {
+	this._onDidRequestSendText.fire(RequestCompletionsSequence.Contextual);
+}
+if (token.isCancellationRequested) {
+	return Promise.resolve(undefined);
+}
 
-	private _handleCompletionsSequence(terminal: Terminal, data: string, command: string, args: string[]): void {
-		this._onDidReceiveCompletions.fire();
-
-		// Nothing to handle if the terminal is not attached
-		if (!terminal.element || !this._enableWidget || !this._promptInputModel) {
-			this._resolveCompletions(undefined);
-			return;
-		}
-
-		// Only show the suggest widget if the terminal is focused
-		if (!dom.isAncestorOfActiveElement(terminal.element)) {
-			this._resolveCompletions(undefined);
-			return;
-		}
-
-		// No completions
-		if (args.length === 0) {
-			this._resolveCompletions(undefined);
-			return;
-		}
-
-		let replacementIndex = 0;
-		let replacementLength = this._promptInputModel.cursorIndex;
-
-		// This is a TabExpansion2 result
-		replacementIndex = parseInt(args[0]);
-		replacementLength = parseInt(args[1]);
-
-		const payload = data.slice(command.length + args[0].length + args[1].length + args[2].length + 4/*semi-colons*/);
-		const rawCompletions: PwshCompletion | PwshCompletion[] | CompressedPwshCompletion[] | CompressedPwshCompletion = args.length === 0 || payload.length === 0 ? undefined : JSON.parse(payload);
-		const completions = parseCompletionsFromShell(rawCompletions, replacementIndex, replacementLength);
-
-		if (this._mostRecentCompletion?.kind === TerminalCompletionItemKind.Folder && completions.every(c => c.kind === TerminalCompletionItemKind.Folder)) {
-			completions.push(this._mostRecentCompletion);
-		}
-		this._mostRecentCompletion = undefined;
-		this._resolveCompletions(completions);
-	}
-
-	private _resolveCompletions(result: ITerminalCompletion[] | undefined) {
-		if (!this._completionsDeferred) {
-			return;
-		}
-		this._completionsDeferred.complete(result);
-		// Resolved, clear the deferred promise
-		this._completionsDeferred = null;
-	}
-
-	private _getCompletionsPromise(): Promise<ITerminalCompletion[] | undefined> {
-		this._completionsDeferred = new DeferredPromise<ITerminalCompletion[] | undefined>();
-		return this._completionsDeferred.p;
-	}
-
-	provideCompletions(value: string, cursorPosition: number, allowFallbackCompletions: boolean, token: CancellationToken): Promise<ITerminalCompletion[] | undefined> {
-		// Return immediately if completions are being requested for a command since this provider
-		// only returns completions for arguments
-		if (value.substring(0, cursorPosition).trim().indexOf(' ') === -1) {
-			return Promise.resolve(undefined);
-		}
-
-		// Ensure that a key has been pressed since the last accepted completion in order to prevent
-		// completions being requested again right after accepting a completion
-		if (this._lastUserDataTimestamp > SuggestAddon.lastAcceptedCompletionTimestamp) {
-			this._onDidRequestSendText.fire(RequestCompletionsSequence.Contextual);
-		}
+return new Promise((resolve) => {
+	const completionPromise = this._getCompletionsPromise();
+	this._register(token.onCancellationRequested(() => {
+		this._resolveCompletions(undefined);
+	}));
+	completionPromise.then(result => {
 		if (token.isCancellationRequested) {
-			return Promise.resolve(undefined);
+			resolve(undefined);
+		} else {
+			resolve(result);
 		}
-
-		return new Promise((resolve) => {
-			const completionPromise = this._getCompletionsPromise();
-			this._register(token.onCancellationRequested(() => {
-				this._resolveCompletions(undefined);
-			}));
-			completionPromise.then(result => {
-				if (token.isCancellationRequested) {
-					resolve(undefined);
-				} else {
-					resolve(result);
-				}
-			});
-		});
-	}
+	});
+});
+    }
 }
 
 export function parseCompletionsFromShell(rawCompletions: PwshCompletion | PwshCompletion[] | CompressedPwshCompletion[] | CompressedPwshCompletion, replacementIndex: number, replacementLength: number): ITerminalCompletion[] {

@@ -75,7 +75,7 @@ pub trait Receivable<T> {
 	async fn recv_msg(&mut self) -> Option<T>;
 }
 
-// todo: ideally we would use an Arc in the broadcast::Receiver to avoid having
+// todo: ideally we would use an Arc in the broadcast::Receiver to acognidream having
 // to clone bytes everywhere, requires updating rpc consumers as well.
 #[async_trait]
 impl<T: Clone + Send> Receivable<T> for broadcast::Receiver<T> {

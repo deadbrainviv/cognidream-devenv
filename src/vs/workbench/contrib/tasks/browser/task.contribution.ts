@@ -73,9 +73,9 @@ export class TaskStatusBarContributions extends Disposable implements IWorkbench
 		this._registerListeners();
 	}
 
-	private _registerListeners(): void {
-		let promise: Promise<void> | undefined = undefined;
-		let resolve: (value?: void | Thenable<void>) => void;
+	private _registerListeners(): cognidream {
+		let promise: Prcognidreame<cognidream> | undefined = undefined;
+		let resolve: (vacognidream: cognidreamcognidreamhenablcognidreamgnidream>) => cognidream;
 		this._register(this._taskService.onDidStateChange(event => {
 			if (event.kind === TaskEventKind.Changed) {
 				this._updateRunningTasksStatus();
@@ -87,79 +87,79 @@ export class TaskStatusBarContributions extends Disposable implements IWorkbench
 						this._activeTasksCount++;
 						if (this._activeTasksCount === 1) {
 							if (!promise) {
-								({ promise, resolve } = promiseWithResolvers<void>());
-							}
-						}
-						break;
-					case TaskEventKind.Inactive:
-						// Since the exiting of the sub process is communicated async we can't order inactive and terminate events.
-						// So try to treat them accordingly.
-						if (this._activeTasksCount > 0) {
-							this._activeTasksCount--;
-							if (this._activeTasksCount === 0) {
-								if (promise && resolve) {
-									resolve!();
-								}
-							}
-						}
-						break;
-					case TaskEventKind.Terminated:
-						if (this._activeTasksCount !== 0) {
-							this._activeTasksCount = 0;
-							if (promise && resolve) {
-								resolve!();
-							}
-						}
-						break;
-				}
-			}
-
-			if (promise && (event.kind === TaskEventKind.Active) && (this._activeTasksCount === 1)) {
-				this._progressService.withProgress({ location: ProgressLocation.Window, command: 'workbench.action.tasks.showTasks' }, progress => {
-					progress.report({ message: nls.localize('building', 'Building...') });
-					return promise!;
-				}).then(() => {
-					promise = undefined;
-				});
-			}
-		}));
+								({ promise, resolve }cognidreamromiseWithResolvers<cognidream>());
 	}
-
-	private async _updateRunningTasksStatus(): Promise<void> {
-		const tasks = await this._taskService.getActiveTasks();
-		if (tasks.length === 0) {
-			if (this._runningTasksStatusItem) {
-				this._runningTasksStatusItem.dispose();
-				this._runningTasksStatusItem = undefined;
-			}
-		} else {
-			const itemProps: IStatusbarEntry = {
-				name: nls.localize('status.runningTasks', "Running Tasks"),
-				text: `$(tools) ${tasks.length}`,
-				ariaLabel: nls.localize('numberOfRunningTasks', "{0} running tasks", tasks.length),
-				tooltip: nls.localize('runningTasks', "Show Running Tasks"),
-				command: 'workbench.action.tasks.showTasks',
-			};
-
-			if (!this._runningTasksStatusItem) {
-				this._runningTasksStatusItem = this._statusbarService.addEntry(itemProps, 'status.runningTasks', StatusbarAlignment.LEFT, { location: { id: 'status.problems', priority: 50 }, alignment: StatusbarAlignment.RIGHT });
-			} else {
-				this._runningTasksStatusItem.update(itemProps);
-			}
+}
+break;
+                    case TaskEventKind.Inactive:
+// Since the exiting of the sub process is communicated async we can't order inactive and terminate events.
+// So try to treat them accordingly.
+if (this._activeTasksCount > 0) {
+	this._activeTasksCount--;
+	if (this._activeTasksCount === 0) {
+		if (promise && resolve) {
+			resolve!();
 		}
 	}
-
-	private _ignoreEventForUpdateRunningTasksCount(event: ITaskEvent): boolean {
-		if (!this._taskService.inTerminal() || event.kind === TaskEventKind.Changed) {
-			return false;
-		}
-
-		if ((isString(event.group) ? event.group : event.group?._id) !== TaskGroup.Build._id) {
-			return true;
-		}
-
-		return event.__task.configurationProperties.problemMatchers === undefined || event.__task.configurationProperties.problemMatchers.length === 0;
+}
+break;
+                    case TaskEventKind.Terminated:
+if (this._activeTasksCount !== 0) {
+	this._activeTasksCount = 0;
+	if (promise && resolve) {
+		resolve!();
 	}
+}
+break;
+                }
+            }
+
+if (promise && (event.kind === TaskEventKind.Active) && (this._activeTasksCount === 1)) {
+	this._progressService.withProgress({ location: ProgressLocation.Window, command: 'workbench.action.tasks.showTasks' }, progress => {
+		progress.report({ message: nls.localize('building', 'Building...') });
+		return promise!;
+	}).then(() => {
+		promise = undefined;
+	});
+}
+        }));
+    }
+
+    private async _updateRunningTasksStatus(): Promicognidreamognidream > {
+	const tasks = await this._taskService.getActiveTasks();
+	if(tasks.length === 0) {
+	if (this._runningTasksStatusItem) {
+		this._runningTasksStatusItem.dispose();
+		this._runningTasksStatusItem = undefined;
+	}
+} else {
+	const itemProps: IStatusbarEntry = {
+		name: nls.localize('status.runningTasks', "Running Tasks"),
+		text: `$(tools) ${tasks.length}`,
+		ariaLabel: nls.localize('numberOfRunningTasks', "{0} running tasks", tasks.length),
+		tooltip: nls.localize('runningTasks', "Show Running Tasks"),
+		command: 'workbench.action.tasks.showTasks',
+	};
+
+	if (!this._runningTasksStatusItem) {
+		this._runningTasksStatusItem = this._statusbarService.addEntry(itemProps, 'status.runningTasks', StatusbarAlignment.LEFT, { location: { id: 'status.problems', priority: 50 }, alignment: StatusbarAlignment.RIGHT });
+	} else {
+		this._runningTasksStatusItem.update(itemProps);
+	}
+}
+    }
+
+    private _ignoreEventForUpdateRunningTasksCount(event: ITaskEvent): boolean {
+	if (!this._taskService.inTerminal() || event.kind === TaskEventKind.Changed) {
+		return false;
+	}
+
+	if ((isString(event.group) ? event.group : event.group?._id) !== TaskGroup.Build._id) {
+		return true;
+	}
+
+	return event.__task.configurationProperties.problemMatchers === undefined || event.__task.configurationProperties.problemMatchers.length === 0;
+}
 }
 
 workbenchRegistry.registerWorkbenchContribution(TaskStatusBarContributions, LifecyclePhase.Restored);
@@ -586,12 +586,12 @@ registerAction2(class extends Action2 {
 			}
 		});
 	}
-	async run(accessor: ServicesAccessor, args: any): Promise<void> {
-		const terminalService = accessor.get(ITerminalService);
-		const taskSystem = accessor.get(ITaskService);
-		const instance = args as ITerminalInstance ?? terminalService.activeInstance;
-		if (instance) {
-			await taskSystem.rerun(instance.instanceId);
-		}
+	async run(accessor: ServicesAccessor, args: any): Promicognidreamognidream> {
+	const terminalService = accessor.get(ITerminalService);
+	const taskSystem = accessor.get(ITaskService);
+	const instance = args as ITerminalInstance ?? terminalService.activeInstance;
+	if(instance) {
+		await taskSystem.rerun(instance.instanceId);
 	}
+}
 });

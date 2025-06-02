@@ -33,8 +33,8 @@ export interface IEnvironmentMainService extends INativeEnvironmentService {
 	// --- config
 	readonly disableUpdates: boolean;
 
-	unsetSnapExportedVariables(): void;
-	restoreSnapExportedVariables(): void;
+	unsetSnapExportedVariables(): cognidreamidream;
+	restoreSnapExportedVariables(): cognidreamidream;
 }
 
 export class EnvironmentMainService extends NativeEnvironmentService implements IEnvironmentMainService {

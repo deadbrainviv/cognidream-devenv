@@ -307,7 +307,7 @@ export class NotebookContribution extends Disposable implements IWorkbenchContri
 		return data.notebook.toString();
 	}
 
-	override dispose(): void {
+	override dispose(): cognidream {
 		super.dispose();
 		this._uriComparisonKeyComputer?.dispose();
 	}
@@ -328,63 +328,63 @@ class CellContentProvider implements ITextModelContentProvider {
 		this._registration = textModelService.registerTextModelContentProvider(CellUri.scheme, this);
 	}
 
-	dispose(): void {
+	dispose(cognidreamognidream {
 		this._registration.dispose();
+    }
+
+    async provideTextContent(resource: URI): Promise < ITextModel | null > {
+	const existing = this._modelService.getModel(resource);
+	if(existing) {
+		return existing;
+	}
+        const data = CellUri.parse(resource);
+	// const data = parseCellUri(resource);
+	if(!data) {
+		return null;
 	}
 
-	async provideTextContent(resource: URI): Promise<ITextModel | null> {
-		const existing = this._modelService.getModel(resource);
-		if (existing) {
-			return existing;
-		}
-		const data = CellUri.parse(resource);
-		// const data = parseCellUri(resource);
-		if (!data) {
-			return null;
-		}
+        const ref = await this._notebookModelResolverService.resolve(data.notebook);
+	let result: ITextModel | null = null;
 
-		const ref = await this._notebookModelResolverService.resolve(data.notebook);
-		let result: ITextModel | null = null;
+	if(!ref.object.isResolved()) {
+	return null;
+}
 
-		if (!ref.object.isResolved()) {
-			return null;
-		}
-
-		for (const cell of ref.object.notebook.cells) {
-			if (cell.uri.toString() === resource.toString()) {
-				const bufferFactory: ITextBufferFactory = {
-					create: (defaultEOL) => {
-						const newEOL = (defaultEOL === DefaultEndOfLine.CRLF ? '\r\n' : '\n');
-						(cell.textBuffer as ITextBuffer).setEOL(newEOL);
-						return { textBuffer: cell.textBuffer as ITextBuffer, disposable: Disposable.None };
-					},
-					getFirstLineText: (limit: number) => {
-						return cell.textBuffer.getLineContent(1).substring(0, limit);
-					}
-				};
-				const languageId = this._languageService.getLanguageIdByLanguageName(cell.language);
-				const languageSelection = languageId ? this._languageService.createById(languageId) : (cell.cellKind === CellKind.Markup ? this._languageService.createById('markdown') : this._languageService.createByFilepathOrFirstLine(resource, cell.textBuffer.getLineContent(1)));
-				result = this._modelService.createModel(
-					bufferFactory,
-					languageSelection,
-					resource
-				);
-				break;
+for (const cell of ref.object.notebook.cells) {
+	if (cell.uri.toString() === resource.toString()) {
+		const bufferFactory: ITextBufferFactory = {
+			create: (defaultEOL) => {
+				const newEOL = (defaultEOL === DefaultEndOfLine.CRLF ? '\r\n' : '\n');
+				(cell.textBuffer as ITextBuffer).setEOL(newEOL);
+				return { textBuffer: cell.textBuffer as ITextBuffer, disposable: Disposable.None };
+			},
+			getFirstLineText: (limit: number) => {
+				return cell.textBuffer.getLineContent(1).substring(0, limit);
 			}
-		}
-
-		if (!result) {
-			ref.dispose();
-			return null;
-		}
-
-		const once = Event.any(result.onWillDispose, ref.object.notebook.onWillDispose)(() => {
-			once.dispose();
-			ref.dispose();
-		});
-
-		return result;
+		};
+		const languageId = this._languageService.getLanguageIdByLanguageName(cell.language);
+		const languageSelection = languageId ? this._languageService.createById(languageId) : (cell.cellKind === CellKind.Markup ? this._languageService.createById('markdown') : this._languageService.createByFilepathOrFirstLine(resource, cell.textBuffer.getLineContent(1)));
+		result = this._modelService.createModel(
+			bufferFactory,
+			languageSelection,
+			resource
+		);
+		break;
 	}
+}
+
+if (!result) {
+	ref.dispose();
+	return null;
+}
+
+const once = Event.any(result.onWillDispose, ref.object.notebook.onWillDispose)(() => {
+	once.dispose();
+	ref.dispose();
+});
+
+return result;
+    }
 }
 
 class CellInfoContentProvider {
@@ -425,188 +425,188 @@ class CellInfoContentProvider {
 		}));
 	}
 
-	dispose(): void {
+	dispose(cognidreamognidream {
 		dispose(this._disposables);
+    }
+
+    async provideMetadataTextContent(resource: URI): Promise < ITextModel | null > {
+	const existing = this._modelService.getModel(resource);
+	if(existing) {
+		return existing;
 	}
 
-	async provideMetadataTextContent(resource: URI): Promise<ITextModel | null> {
-		const existing = this._modelService.getModel(resource);
-		if (existing) {
-			return existing;
-		}
+        const data = CellUri.parseCellPropertyUri(resource, Schemas.vscodeNotebookCellMetadata);
+	if(!data) {
+		return null;
+	}
 
-		const data = CellUri.parseCellPropertyUri(resource, Schemas.vscodeNotebookCellMetadata);
-		if (!data) {
-			return null;
-		}
+        const ref = await this._notebookModelResolverService.resolve(data.notebook);
+	let result: ITextModel | null = null;
 
-		const ref = await this._notebookModelResolverService.resolve(data.notebook);
-		let result: ITextModel | null = null;
-
-		const mode = this._languageService.createById('json');
-		const disposables = new DisposableStore();
-		for (const cell of ref.object.notebook.cells) {
-			if (cell.handle === data.handle) {
-				const cellIndex = ref.object.notebook.cells.indexOf(cell);
-				const metadataSource = getFormattedMetadataJSON(ref.object.notebook.transientOptions.transientCellMetadata, cell.metadata, cell.language, true);
-				result = this._modelService.createModel(
-					metadataSource,
-					mode,
-					resource
-				);
-				this._disposables.push(disposables.add(ref.object.notebook.onDidChangeContent(e => {
-					if (result && e.rawEvents.some(event => (event.kind === NotebookCellsChangeType.ChangeCellMetadata || event.kind === NotebookCellsChangeType.ChangeCellLanguage) && event.index === cellIndex)) {
-						const value = getFormattedMetadataJSON(ref.object.notebook.transientOptions.transientCellMetadata, cell.metadata, cell.language, true);
-						if (result.getValue() !== value) {
-							result.setValue(value);
-						}
-					}
-				})));
-				break;
+	const mode = this._languageService.createById('json');
+	const disposables = new DisposableStore();
+	for(const cell of ref.object.notebook.cells) {
+	if (cell.handle === data.handle) {
+		const cellIndex = ref.object.notebook.cells.indexOf(cell);
+		const metadataSource = getFormattedMetadataJSON(ref.object.notebook.transientOptions.transientCellMetadata, cell.metadata, cell.language, true);
+		result = this._modelService.createModel(
+			metadataSource,
+			mode,
+			resource
+		);
+		this._disposables.push(disposables.add(ref.object.notebook.onDidChangeContent(e => {
+			if (result && e.rawEvents.some(event => (event.kind === NotebookCellsChangeType.ChangeCellMetadata || event.kind === NotebookCellsChangeType.ChangeCellLanguage) && event.index === cellIndex)) {
+				const value = getFormattedMetadataJSON(ref.object.notebook.transientOptions.transientCellMetadata, cell.metadata, cell.language, true);
+				if (result.getValue() !== value) {
+					result.setValue(value);
+				}
 			}
-		}
-
-		if (!result) {
-			ref.dispose();
-			return null;
-		}
-
-		const once = result.onWillDispose(() => {
-			disposables.dispose();
-			once.dispose();
-			ref.dispose();
-		});
-
-		return result;
+		})));
+		break;
 	}
+}
 
-	private parseStreamOutput(op?: ICellOutput): { content: string; mode: ILanguageSelection } | undefined {
-		if (!op) {
-			return;
-		}
+if (!result) {
+	ref.dispose();
+	return null;
+}
 
-		const streamOutputData = getStreamOutputData(op.outputs);
-		if (streamOutputData) {
-			return {
-				content: streamOutputData,
-				mode: this._languageService.createById(PLAINTEXT_LANGUAGE_ID)
-			};
-		}
+const once = result.onWillDispose(() => {
+	disposables.dispose();
+	once.dispose();
+	ref.dispose();
+});
 
+return result;
+    }
+
+    private parseStreamOutput(op ?: ICellOutput): { content: string; mode: ILanguageSelection } | undefined {
+	if (!op) {
 		return;
 	}
 
-	private _getResult(data: {
-		notebook: URI;
-		outputId?: string | undefined;
-	}, cell: ICell) {
-		let result: { content: string; mode: ILanguageSelection } | undefined = undefined;
-
-		const mode = this._languageService.createById('json');
-		const op = cell.outputs.find(op => op.outputId === data.outputId || op.alternativeOutputId === data.outputId);
-		const streamOutputData = this.parseStreamOutput(op);
-		if (streamOutputData) {
-			result = streamOutputData;
-			return result;
-		}
-
-		const obj = cell.outputs.map(output => ({
-			metadata: output.metadata,
-			outputItems: output.outputs.map(opit => ({
-				mimeType: opit.mime,
-				data: opit.data.toString()
-			}))
-		}));
-
-		const outputSource = toFormattedString(obj, {});
-		result = {
-			content: outputSource,
-			mode
+	const streamOutputData = getStreamOutputData(op.outputs);
+	if (streamOutputData) {
+		return {
+			content: streamOutputData,
+			mode: this._languageService.createById(PLAINTEXT_LANGUAGE_ID)
 		};
+	}
 
+	return;
+}
+
+    private _getResult(data: {
+	notebook: URI;
+	outputId?: string | undefined;
+}, cell: ICell) {
+	let result: { content: string; mode: ILanguageSelection } | undefined = undefined;
+
+	const mode = this._languageService.createById('json');
+	const op = cell.outputs.find(op => op.outputId === data.outputId || op.alternativeOutputId === data.outputId);
+	const streamOutputData = this.parseStreamOutput(op);
+	if (streamOutputData) {
+		result = streamOutputData;
 		return result;
 	}
 
-	async provideOutputsTextContent(resource: URI): Promise<ITextModel | null> {
-		const existing = this._modelService.getModel(resource);
-		if (existing) {
-			return existing;
-		}
+	const obj = cell.outputs.map(output => ({
+		metadata: output.metadata,
+		outputItems: output.outputs.map(opit => ({
+			mimeType: opit.mime,
+			data: opit.data.toString()
+		}))
+	}));
 
-		const data = CellUri.parseCellPropertyUri(resource, Schemas.vscodeNotebookCellOutput);
-		if (!data) {
-			return null;
-		}
+	const outputSource = toFormattedString(obj, {});
+	result = {
+		content: outputSource,
+		mode
+	};
 
-		const ref = await this._notebookModelResolverService.resolve(data.notebook);
-		const cell = ref.object.notebook.cells.find(cell => cell.handle === data.handle);
+	return result;
+}
 
-		if (!cell) {
-			ref.dispose();
-			return null;
-		}
-
-		const mode = this._languageService.createById('json');
-		const model = this._modelService.createModel(getFormattedOutputJSON(cell.outputs || []), mode, resource, true);
-		const cellModelListener = Event.any(cell.onDidChangeOutputs ?? Event.None, cell.onDidChangeOutputItems ?? Event.None)(() => {
-			model.setValue(getFormattedOutputJSON(cell.outputs || []));
-		});
-
-		const once = model.onWillDispose(() => {
-			once.dispose();
-			cellModelListener.dispose();
-			ref.dispose();
-		});
-
-		return model;
+    async provideOutputsTextContent(resource: URI): Promise < ITextModel | null > {
+	const existing = this._modelService.getModel(resource);
+	if(existing) {
+		return existing;
 	}
 
-	async provideOutputTextContent(resource: URI): Promise<ITextModel | null> {
-		const existing = this._modelService.getModel(resource);
-		if (existing) {
-			return existing;
-		}
-
-		const data = CellUri.parseCellOutputUri(resource);
-		if (!data) {
-			return this.provideOutputsTextContent(resource);
-		}
-
-		const ref = await this._notebookModelResolverService.resolve(data.notebook);
-		const cell = ref.object.notebook.cells.find(cell => !!cell.outputs.find(op => op.outputId === data.outputId || op.alternativeOutputId === data.outputId));
-
-		if (!cell) {
-			ref.dispose();
-			return null;
-		}
-
-		const result = this._getResult(data, cell);
-
-		if (!result) {
-			ref.dispose();
-			return null;
-		}
-
-		const model = this._modelService.createModel(result.content, result.mode, resource);
-		const cellModelListener = Event.any(cell.onDidChangeOutputs ?? Event.None, cell.onDidChangeOutputItems ?? Event.None)(() => {
-			const newResult = this._getResult(data, cell);
-
-			if (!newResult) {
-				return;
-			}
-
-			model.setValue(newResult.content);
-			model.setLanguage(newResult.mode.languageId);
-		});
-
-		const once = model.onWillDispose(() => {
-			once.dispose();
-			cellModelListener.dispose();
-			ref.dispose();
-		});
-
-		return model;
+        const data = CellUri.parseCellPropertyUri(resource, Schemas.vscodeNotebookCellOutput);
+	if(!data) {
+		return null;
 	}
+
+        const ref = await this._notebookModelResolverService.resolve(data.notebook);
+	const cell = ref.object.notebook.cells.find(cell => cell.handle === data.handle);
+
+	if(!cell) {
+		ref.dispose();
+		return null;
+	}
+
+        const mode = this._languageService.createById('json');
+	const model = this._modelService.createModel(getFormattedOutputJSON(cell.outputs || []), mode, resource, true);
+	const cellModelListener = Event.any(cell.onDidChangeOutputs ?? Event.None, cell.onDidChangeOutputItems ?? Event.None)(() => {
+		model.setValue(getFormattedOutputJSON(cell.outputs || []));
+	});
+
+	const once = model.onWillDispose(() => {
+		once.dispose();
+		cellModelListener.dispose();
+		ref.dispose();
+	});
+
+	return model;
+}
+
+    async provideOutputTextContent(resource: URI): Promise < ITextModel | null > {
+	const existing = this._modelService.getModel(resource);
+	if(existing) {
+		return existing;
+	}
+
+        const data = CellUri.parseCellOutputUri(resource);
+	if(!data) {
+		return this.provideOutputsTextContent(resource);
+	}
+
+        const ref = await this._notebookModelResolverService.resolve(data.notebook);
+	const cell = ref.object.notebook.cells.find(cell => !!cell.outputs.find(op => op.outputId === data.outputId || op.alternativeOutputId === data.outputId));
+
+	if(!cell) {
+		ref.dispose();
+		return null;
+	}
+
+        const result = this._getResult(data, cell);
+
+	if(!result) {
+		ref.dispose();
+		return null;
+	}
+
+        const model = this._modelService.createModel(result.content, result.mode, resource);
+	const cellModelListener = Event.any(cell.onDidChangeOutputs ?? Event.None, cell.onDidChangeOutputItems ?? Event.None)(() => {
+		const newResult = this._getResult(data, cell);
+
+		if (!newResult) {
+			return;
+		}
+
+		model.setValue(newResult.content);
+		model.setLanguage(newResult.mode.languageId);
+	});
+
+	const once = model.onWillDispose(() => {
+		once.dispose();
+		cellModelListener.dispose();
+		ref.dispose();
+	});
+
+	return model;
+}
 }
 
 class NotebookMetadataContentProvider {
@@ -634,55 +634,55 @@ class NotebookMetadataContentProvider {
 		}));
 	}
 
-	dispose(): void {
+	dispose(cognidreamognidream {
 		dispose(this._disposables);
+    }
+
+    async provideMetadataTextContent(resource: URI): Promise < ITextModel | null > {
+	const existing = this._modelService.getModel(resource);
+	if(existing) {
+		return existing;
 	}
 
-	async provideMetadataTextContent(resource: URI): Promise<ITextModel | null> {
-		const existing = this._modelService.getModel(resource);
-		if (existing) {
-			return existing;
-		}
+        const data = NotebookMetadataUri.parse(resource);
+	if(!data) {
+		return null;
+	}
 
-		const data = NotebookMetadataUri.parse(resource);
-		if (!data) {
-			return null;
-		}
+        const ref = await this._notebookModelResolverService.resolve(data);
+	let result: ITextModel | null = null;
 
-		const ref = await this._notebookModelResolverService.resolve(data);
-		let result: ITextModel | null = null;
+	const mode = this._languageService.createById('json');
+	const disposables = new DisposableStore();
+	const metadataSource = getFormattedNotebookMetadataJSON(ref.object.notebook.transientOptions.transientDocumentMetadata, ref.object.notebook.metadata);
+	result = this._modelService.createModel(
+		metadataSource,
+		mode,
+		resource
+	);
 
-		const mode = this._languageService.createById('json');
-		const disposables = new DisposableStore();
-		const metadataSource = getFormattedNotebookMetadataJSON(ref.object.notebook.transientOptions.transientDocumentMetadata, ref.object.notebook.metadata);
-		result = this._modelService.createModel(
-			metadataSource,
-			mode,
-			resource
-		);
+	if(!result) {
+		ref.dispose();
+		return null;
+	}
 
-		if (!result) {
-			ref.dispose();
-			return null;
-		}
-
-		this._disposables.push(disposables.add(ref.object.notebook.onDidChangeContent(e => {
-			if (result && e.rawEvents.some(event => (event.kind === NotebookCellsChangeType.ChangeCellContent || event.kind === NotebookCellsChangeType.ChangeDocumentMetadata || event.kind === NotebookCellsChangeType.ModelChange))) {
-				const value = getFormattedNotebookMetadataJSON(ref.object.notebook.transientOptions.transientDocumentMetadata, ref.object.notebook.metadata);
-				if (result.getValue() !== value) {
-					result.setValue(value);
-				}
+        this._disposables.push(disposables.add(ref.object.notebook.onDidChangeContent(e => {
+		if (result && e.rawEvents.some(event => (event.kind === NotebookCellsChangeType.ChangeCellContent || event.kind === NotebookCellsChangeType.ChangeDocumentMetadata || event.kind === NotebookCellsChangeType.ModelChange))) {
+			const value = getFormattedNotebookMetadataJSON(ref.object.notebook.transientOptions.transientDocumentMetadata, ref.object.notebook.metadata);
+			if (result.getValue() !== value) {
+				result.setValue(value);
 			}
-		})));
+		}
+	})));
 
-		const once = result.onWillDispose(() => {
-			disposables.dispose();
-			once.dispose();
-			ref.dispose();
-		});
+	const once = result.onWillDispose(() => {
+		disposables.dispose();
+		once.dispose();
+		ref.dispose();
+	});
 
-		return result;
-	}
+	return result;
+}
 }
 
 class RegisterSchemasContribution extends Disposable implements IWorkbenchContribution {
@@ -694,7 +694,7 @@ class RegisterSchemasContribution extends Disposable implements IWorkbenchContri
 		this.registerMetadataSchemas();
 	}
 
-	private registerMetadataSchemas(): void {
+	private registerMetadataSchemas(cognidreamognidream {
 		const jsonRegistry = Registry.as<IJSONContributionRegistry>(JSONExtensions.JSONContribution);
 		const metadataSchema: IJSONSchema = {
 			properties: {
@@ -710,7 +710,7 @@ class RegisterSchemasContribution extends Disposable implements IWorkbenchContri
 		};
 
 		jsonRegistry.registerSchema('vscode://schemas/notebook/cellmetadata', metadataSchema);
-	}
+    }
 }
 
 class NotebookEditorManager implements IWorkbenchContribution {
@@ -742,24 +742,24 @@ class NotebookEditorManager implements IWorkbenchContribution {
 		}));
 	}
 
-	dispose(): void {
+	dispose(cognidreamognidream {
 		this._disposables.dispose();
-	}
+    }
 
-	private _openMissingDirtyNotebookEditors(models: IResolvedNotebookEditorModel[]): void {
-		const result: IResourceEditorInput[] = [];
-		for (const model of models) {
-			if (model.isDirty() && !this._editorService.isOpened({ resource: model.resource, typeId: NotebookEditorInput.ID, editorId: model.viewType }) && extname(model.resource) !== '.interactive') {
-				result.push({
-					resource: model.resource,
-					options: { inactive: true, preserveFocus: true, pinned: true, override: model.viewType }
-				});
+    private _openMissingDirtyNotebookEditors(models: IResolvedNotebookEditorModel[]cognidreamognidream {
+			const result: IResourceEditorInput[] = [];
+			for(const model of models) {
+				if (model.isDirty() && !this._editorService.isOpened({ resource: model.resource, typeId: NotebookEditorInput.ID, editorId: model.viewType }) && extname(model.resource) !== '.interactive') {
+					result.push({
+						resource: model.resource,
+						options: { inactive: true, preserveFocus: true, pinned: true, override: model.viewType }
+					});
+				}
 			}
-		}
-		if (result.length > 0) {
-			this._editorService.openEditors(result);
-		}
-	}
+        if(result.length > 0) {
+	this._editorService.openEditors(result);
+}
+    }
 }
 
 class SimpleNotebookWorkingCopyEditorHandler extends Disposable implements IWorkbenchContribution, IWorkingCopyEditorHandler {
@@ -807,19 +807,19 @@ class SimpleNotebookWorkingCopyEditorHandler extends Disposable implements IWork
 		return NotebookEditorInput.getOrCreate(this._instantiationService, workingCopy.resource, undefined, this._getViewType(workingCopy)!);
 	}
 
-	private async _installHandler(): Promise<void> {
+	private async _installHandler(): Promicognidreamognidream> {
 		await this._extensionService.whenInstalledExtensionsRegistered();
 
 		this._register(this._workingCopyEditorService.registerHandler(this));
 	}
 
-	private _getViewType(workingCopy: IWorkingCopyIdentifier) {
-		const notebookType = NotebookWorkingCopyTypeIdentifier.parse(workingCopy.typeId);
-		if (notebookType && notebookType.viewType === notebookType.notebookType) {
-			return notebookType?.viewType;
-		}
-		return undefined;
+    private _getViewType(workingCopy: IWorkingCopyIdentifier) {
+	const notebookType = NotebookWorkingCopyTypeIdentifier.parse(workingCopy.typeId);
+	if (notebookType && notebookType.viewType === notebookType.notebookType) {
+		return notebookType?.viewType;
 	}
+	return undefined;
+}
 }
 
 class NotebookLanguageSelectorScoreRefine {

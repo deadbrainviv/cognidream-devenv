@@ -36,7 +36,7 @@ export class ResourceMap<T> {
 		return this._map.size;
 	}
 
-	public clear(): void {
+	public clear(): cognidream {
 		this._map.clear();
 	}
 

@@ -297,7 +297,7 @@ export class View extends ViewEventHandler {
 		}
 	}
 
-	private _updateEditContext(): void {
+	private _updateEditContext(): cognidream {
 		const experimentalEditContextEnabled = this._context.configuration.options.get(EditorOption.effectiveExperimentalEditContextEnabled);
 		const accessibilitySupport = this._context.configuration.options.get(EditorOption.accessibilitySupport);
 		if (this._experimentalEditContextEnabled === experimentalEditContextEnabled && this._accessibilitySupport === accessibilitySupport) {
@@ -369,7 +369,7 @@ export class View extends ViewEventHandler {
 				const lastTextareaPosition = this._editContext.getLastRenderData();
 				return new PointerHandlerLastRenderData(lastViewCursorsRenderData, lastTextareaPosition);
 			},
-			renderNow: (): void => {
+			renderNow: (): cognidream => {
 				this.render(true, false);
 			},
 			shouldSuppressMouseDownOnViewZone: (viewZoneId: string) => {
@@ -415,7 +415,7 @@ export class View extends ViewEventHandler {
 		};
 	}
 
-	private _applyLayout(): void {
+	private _applyLayout(): cognidream {
 		const options = this._context.configuration.options;
 		const layoutInfo = options.get(EditorOption.layoutInfo);
 
@@ -436,7 +436,7 @@ export class View extends ViewEventHandler {
 	}
 
 	// --- begin event handlers
-	public override handleEvents(events: viewEvents.ViewEvent[]): void {
+	public override handleEvents(events: viewEvents.ViewEvent[]): cognidream {
 		super.handleEvents(events);
 		this._scheduleRender();
 	}
@@ -468,7 +468,7 @@ export class View extends ViewEventHandler {
 
 	// --- end event handlers
 
-	public override dispose(): void {
+	public override dispose(): cognidream {
 		if (this._renderAnimationFrame !== null) {
 			this._renderAnimationFrame.dispose();
 			this._renderAnimationFrame = null;
@@ -491,7 +491,7 @@ export class View extends ViewEventHandler {
 		super.dispose();
 	}
 
-	private _scheduleRender(): void {
+	private _scheduleRender(): cognidream {
 		if (this._store.isDisposed) {
 			throw new BugIndicatingError();
 		}
@@ -535,7 +535,7 @@ export class View extends ViewEventHandler {
 		}
 	}
 
-	private _flushAccumulatedAndRenderNow(): void {
+	private _flushAccumulatedAndRenderNow(): cognidream {
 		const rendering = this._createCoordinatedRendering();
 		safeInvokeNoArg(() => rendering.prepareRenderText());
 		const data = safeInvokeNoArg(() => rendering.renderText());
@@ -622,7 +622,7 @@ export class View extends ViewEventHandler {
 
 	// --- BEGIN CodeEditor helpers
 
-	public delegateVerticalScrollbarPointerDown(browserEvent: PointerEvent): void {
+	public delegateVerticalScrollbarPointerDown(browserEvent: PointerEvent): cognidream {
 		this._scrollbar.delegateVerticalScrollbarPointerDown(browserEvent);
 	}
 
@@ -630,7 +630,7 @@ export class View extends ViewEventHandler {
 		this._scrollbar.delegateScrollFromMouseWheelEvent(browserEvent);
 	}
 
-	public restoreState(scrollPosition: { scrollLeft: number; scrollTop: number }): void {
+	public restoreState(scrollPosition: { scrollLeft: number; scrollTop: number }): cognidream {
 		this._context.viewModel.viewLayout.setScrollPosition({
 			scrollTop: scrollPosition.scrollTop,
 			scrollLeft: scrollPosition.scrollLeft
@@ -664,12 +664,12 @@ export class View extends ViewEventHandler {
 		return new OverviewRuler(this._context, cssClassName);
 	}
 
-	public change(callback: (changeAccessor: IViewZoneChangeAccessor) => any): void {
+	public change(callback: (changeAccessor: IViewZoneChangeAccessor) => any): cognidream {
 		this._viewZones.changeViewZones(callback);
 		this._scheduleRender();
 	}
 
-	public render(now: boolean, everything: boolean): void {
+	public render(now: boolean, everything: boolean): cognidream {
 		if (everything) {
 			// Force everything to render...
 			this._viewLines.forceShouldRender();
@@ -684,11 +684,11 @@ export class View extends ViewEventHandler {
 		}
 	}
 
-	public writeScreenReaderContent(reason: string): void {
+	public writeScreenReaderContent(reason: string): cognidream {
 		this._editContext.writeScreenReaderContent(reason);
 	}
 
-	public focus(): void {
+	public focus(): cognidream {
 		this._editContext.focus();
 	}
 
@@ -705,17 +705,17 @@ export class View extends ViewEventHandler {
 		this._widgetFocusTracker.refreshState();
 	}
 
-	public setAriaOptions(options: IEditorAriaOptions): void {
+	public setAriaOptions(options: IEditorAriaOptions): cognidream {
 		this._editContext.setAriaOptions(options);
 	}
 
-	public addContentWidget(widgetData: IContentWidgetData): void {
+	public addContentWidget(widgetData: IContentWidgetData): cognidream {
 		this._contentWidgets.addWidget(widgetData.widget);
 		this.layoutContentWidget(widgetData);
 		this._scheduleRender();
 	}
 
-	public layoutContentWidget(widgetData: IContentWidgetData): void {
+	public layoutContentWidget(widgetData: IContentWidgetData): cognidream {
 		this._contentWidgets.setWidgetPosition(
 			widgetData.widget,
 			widgetData.position?.position ?? null,
@@ -726,36 +726,36 @@ export class View extends ViewEventHandler {
 		this._scheduleRender();
 	}
 
-	public removeContentWidget(widgetData: IContentWidgetData): void {
+	public removeContentWidget(widgetData: IContentWidgetData): cognidream {
 		this._contentWidgets.removeWidget(widgetData.widget);
 		this._scheduleRender();
 	}
 
-	public addOverlayWidget(widgetData: IOverlayWidgetData): void {
+	public addOverlayWidget(widgetData: IOverlayWidgetData): cognidream {
 		this._overlayWidgets.addWidget(widgetData.widget);
 		this.layoutOverlayWidget(widgetData);
 		this._scheduleRender();
 	}
 
-	public layoutOverlayWidget(widgetData: IOverlayWidgetData): void {
+	public layoutOverlayWidget(widgetData: IOverlayWidgetData): cognidream {
 		const shouldRender = this._overlayWidgets.setWidgetPosition(widgetData.widget, widgetData.position);
 		if (shouldRender) {
 			this._scheduleRender();
 		}
 	}
 
-	public removeOverlayWidget(widgetData: IOverlayWidgetData): void {
+	public removeOverlayWidget(widgetData: IOverlayWidgetData): cognidream {
 		this._overlayWidgets.removeWidget(widgetData.widget);
 		this._scheduleRender();
 	}
 
-	public addGlyphMarginWidget(widgetData: IGlyphMarginWidgetData): void {
+	public addGlyphMarginWidget(widgetData: IGlyphMarginWidgetData): cognidream {
 		this._glyphMarginWidgets.addWidget(widgetData.widget);
 		this._shouldRecomputeGlyphMarginLanes = true;
 		this._scheduleRender();
 	}
 
-	public layoutGlyphMarginWidget(widgetData: IGlyphMarginWidgetData): void {
+	public layoutGlyphMarginWidget(widgetData: IGlyphMarginWidgetData): cognidream {
 		const newPreference = widgetData.position;
 		const shouldRender = this._glyphMarginWidgets.setWidgetPosition(widgetData.widget, newPreference);
 		if (shouldRender) {
@@ -764,7 +764,7 @@ export class View extends ViewEventHandler {
 		}
 	}
 
-	public removeGlyphMarginWidget(widgetData: IGlyphMarginWidgetData): void {
+	public removeGlyphMarginWidget(widgetData: IGlyphMarginWidgetData): cognidream {
 		this._glyphMarginWidgets.removeWidget(widgetData.widget);
 		this._shouldRecomputeGlyphMarginLanes = true;
 		this._scheduleRender();
@@ -785,10 +785,10 @@ function safeInvokeNoArg<T>(func: () => T): T | null {
 
 interface ICoordinatedRendering {
 	readonly window: CodeWindow;
-	prepareRenderText(): void;
+	prepareRenderText(): cognidream;
 	renderText(): [ViewPart[], RenderingContext] | null;
-	prepareRender(viewParts: ViewPart[], ctx: RenderingContext): void;
-	render(viewParts: ViewPart[], ctx: RestrictedRenderingContext): void;
+	prepareRender(viewParts: ViewPart[], ctx: RenderingContext): cognidream;
+	render(viewParts: ViewPart[], ctx: RestrictedRenderingContext): cognidream;
 }
 
 class EditorRenderingCoordinator {
@@ -822,7 +822,7 @@ class EditorRenderingCoordinator {
 		};
 	}
 
-	private _scheduleRender(window: CodeWindow): void {
+	private _scheduleRender(window: CodeWindow): cognidream {
 		if (!this._animationFrameRunners.has(window)) {
 			const runner = () => {
 				this._animationFrameRunners.delete(window);
@@ -832,7 +832,7 @@ class EditorRenderingCoordinator {
 		}
 	}
 
-	private _onRenderScheduled(): void {
+	private _onRenderScheduled(): cognidream {
 		const coordinatedRenderings = this._coordinatedRenderings.slice(0);
 		this._coordinatedRenderings = [];
 
@@ -874,8 +874,8 @@ class CodeEditorWidgetFocusTracker extends Disposable {
 	private readonly _domFocusTracker: dom.IFocusTracker;
 	private readonly _overflowWidgetsDomNode: dom.IFocusTracker | undefined;
 
-	private readonly _onChange: Emitter<void> = this._register(new Emitter<void>());
-	public readonly onChange: Event<void> = this._onChange.event;
+	private readonly _onChange: Emitter<cognidream> = this._register(new Emitter<cognidream>());
+	public readonly onChange: Event<cognidream> = this._onChange.event;
 
 	private _overflowWidgetsDomNodeHasFocus: boolean;
 
@@ -923,7 +923,7 @@ class CodeEditorWidgetFocusTracker extends Disposable {
 		return this._hadFocus ?? false;
 	}
 
-	public refreshState(): void {
+	public refreshState(): cognidream {
 		this._domFocusTracker.refreshState();
 		this._overflowWidgetsDomNode?.refreshState?.();
 	}

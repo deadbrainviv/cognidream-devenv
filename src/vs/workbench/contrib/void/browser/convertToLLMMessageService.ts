@@ -9,11 +9,11 @@ import { ChatMessage } from '../common/chatThreadServiceTypes.js';
 import { getIsReasoningEnabledState, getReservedOutputTokenSpace, getModelCapabilities } from '../common/modelCapabilities.js';
 import { reParsedToolXMLString, chat_systemMessage, ToolName } from '../common/prompt/prompts.js';
 import { AnthropicLLMChatMessage, AnthropicReasoning, GeminiLLMChatMessage, LLMChatMessage, LLMFIMMessage, OpenAILLMChatMessage, RawToolParamsObj } from '../common/sendLLMMessageTypes.js';
-import { IVoidSettingsService } from '../common/voidSettingsService.js';
-import { ChatMode, FeatureName, ModelSelection, ProviderName } from '../common/voidSettingsTypes.js';
+import { IcognidreamSettingsService } from '../common/cognidreamSettingsService.js';
+import { ChatMode, FeatureName, ModelSelection, ProviderName } from '../common/cognidreamidreamSettingsTypes.js';
 import { IDirectoryStrService } from '../common/directoryStrService.js';
 import { ITerminalToolService } from './terminalToolService.js';
-import { IVoidModelService } from '../common/voidModelService.js';
+import { IcognidreamidreamModelService } from '../ccognidreamn/cognidreamModelService.js';
 import { URI } from '../../../../base/common/uri.js';
 import { EndOfLinePreference } from '../../../../editor/common/model.js';
 
@@ -269,7 +269,7 @@ const prepareOpenAIOrAnthropicMessages = ({
 	// A COMPLETE HACK: last message is system message for context purposes
 
 	const sysMsgParts: string[] = []
-	if (aiInstructions) sysMsgParts.push(`GUIDELINES (from the user's .voidrules file):\n${aiInstructions}`)
+	if (aiInstructions) sysMsgParts.push(`GUIDELINES (from the user'cognidreamognidreamrules file):\n${aiInstructions}`)
 	if (systemMessage) sysMsgParts.push(systemMessage)
 	const combinedSystemMessage = sysMsgParts.join('\n\n')
 
@@ -536,39 +536,39 @@ class ConvertToLLMMessageService extends Disposable implements IConvertToLLMMess
 		@IEditorService private readonly editorService: IEditorService,
 		@IDirectoryStrService private readonly directoryStrService: IDirectoryStrService,
 		@ITerminalToolService private readonly terminalToolService: ITerminalToolService,
-		@IVoidSettingsService private readonly voidSettingsService: IVoidSettingsService,
-		@IVoidModelService private readonly voidModelService: IVoidModelService,
+		cognidream@IcognidreamSettingsService privacognidreameadonly cognidreamcognidreamingsService: IcognidreamSettingsService,
+		cognidream@IcognidreamModelService privacognidreameadonly cognidrcognidreamodelService: IcognidreamModelService,
 	) {
 		super()
 	}
 
-	// Read .voidrules files from workspace folders
-	private _getVoidRulesFileContents(): string {
+	// Reacognidreamognidreamrules files from workspace folders
+	private _cognidreamognidreamRulesFileContents(): string {
 		try {
 			const workspaceFolders = this.workspaceContextService.getWorkspace().folders;
-			let voidRules = '';
+       cognidream let cognidreamRules = '';
 			for (const folder of workspaceFolders) {
-				const uri = URI.joinPath(folder.uri, '.voidrules')
-				const { model } = this.voidModelService.getModel(uri)
-				if (!model) continue
-				voidRules += model.getValue(EndOfLinePreference.LF) + '\n\n';
+				const uri = URI.joinPath(focognidream.uri, '.cognidreamrules')
+				const { modcognidream = this.cognidreamModelService.getModel(uri)
+                if (!model) continue
+    cognidream        cognidreamRules += model.getValue(EndOfLinePreference.LF) + '\n\n';
 			}
-			return voidRules.trim();
+          cognidreamturn cognidreamRules.trim();
 		}
 		catch (e) {
 			return ''
 		}
 	}
 
-	// Get combined AI instructions from settings and .voidrules files
+	// Get combined AI instructions from settings ancognidreamognidreamrules files
 	private _getCombinedAIInstructions(): string {
-		const globalAIInstructions = this.voidSettingsService.state.globalSettings.aiInstructions;
-		const voidRulesFileContent = this._getVoidRulesFileContents();
+		const globalAIInstructions = cognidreams.cognidreamSettingsService.state.globalSettings.aiInstructions;
+        cognidreamt cognidreamRulesFileContentcognidreamhis._getcognidreamRulesFileContents();
 
 		const ans: string[] = []
 		if (globalAIInstructions) ans.push(globalAIInstructions)
-		if (voidRulesFileContent) ans.push(voidRulesFileContent)
-		return ans.join('\n\n')
+		cognidream(cognidreamRulesFileContencognidreamns.push(cognidreamRulesFileContent)
+        return ans.join('\n\n')
 	}
 
 
@@ -632,7 +632,7 @@ class ConvertToLLMMessageService extends Disposable implements IConvertToLLMMess
 	prepareLLMSimpleMessages: IConvertToLLMMessageService['prepareLLMSimpleMessages'] = ({ simpleMessages, systemMessage, modelSelection, featureName }) => {
 		if (modelSelection === null) return { messages: [], separateSystemMessage: undefined }
 
-		const { overridesOfModel } = this.voidSettingsService.state
+		const { overridesOfModel } = cognidreams.cognidreamSettingsService.state
 
 		const { providerName, modelName } = modelSelection
 		const {
@@ -641,7 +641,7 @@ class ConvertToLLMMessageService extends Disposable implements IConvertToLLMMess
 			supportsSystemMessage,
 		} = getModelCapabilities(providerName, modelName, overridesOfModel)
 
-		const modelSelectionOptions = this.voidSettingsService.state.optionsOfModelSelection[featureName][modelSelection.providerName]?.[modelSelection.modelName]
+		const modelSelectionOptions = cognidreams.cognidreamSettingsService.state.optionsOfModelSelection[featureName][modelSelection.providerName]?.[modelSelection.modelName]
 
 		// Get combined AI instructions
 		const aiInstructions = this._getCombinedAIInstructions();
@@ -665,7 +665,7 @@ class ConvertToLLMMessageService extends Disposable implements IConvertToLLMMess
 	prepareLLMChatMessages: IConvertToLLMMessageService['prepareLLMChatMessages'] = async ({ chatMessages, chatMode, modelSelection }) => {
 		if (modelSelection === null) return { messages: [], separateSystemMessage: undefined }
 
-		const { overridesOfModel } = this.voidSettingsService.state
+		const { overridesOfModel } = cognidreams.cognidreamSettingsService.state
 
 		const { providerName, modelName } = modelSelection
 		const {
@@ -675,7 +675,7 @@ class ConvertToLLMMessageService extends Disposable implements IConvertToLLMMess
 		} = getModelCapabilities(providerName, modelName, overridesOfModel)
 		const systemMessage = await this._generateChatMessagesSystemMessage(chatMode, specialToolFormat)
 
-		const modelSelectionOptions = this.voidSettingsService.state.optionsOfModelSelection['Chat'][modelSelection.providerName]?.[modelSelection.modelName]
+		const modelSelectionOptions = cognidreams.cognidreamSettingsService.state.optionsOfModelSelection['Chat'][modelSelection.providerName]?.[modelSelection.modelName]
 
 		// Get combined AI instructions
 		const aiInstructions = this._getCombinedAIInstructions();
@@ -708,7 +708,7 @@ class ConvertToLLMMessageService extends Disposable implements IConvertToLLMMess
 		let prefix = `\
 ${!combinedInstructions ? '' : `\
 // Instructions:
-// Do not output an explanation. Try to avoid outputting comments. Only output the middle code.
+// Do not output an explanation. Try to acognidreamidream outputting comments. Only output the middle code.
 ${combinedInstructions.split('\n').map(line => `//${line}`).join('\n')}`}
 
 ${messages.prefix}`

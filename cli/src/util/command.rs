@@ -70,7 +70,7 @@ where
 		})
 }
 
-/// Makes a new Command, setting flags to avoid extra windows on win32
+/// Makes a new Command, setting flags to acognidream extra windows on win32
 #[cfg(windows)]
 pub fn new_tokio_command(exe: impl AsRef<OsStr>) -> Command {
 	let mut p = tokio::process::Command::new(exe);
@@ -78,7 +78,7 @@ pub fn new_tokio_command(exe: impl AsRef<OsStr>) -> Command {
 	p
 }
 
-/// Makes a new Command, setting flags to avoid extra windows on win32
+/// Makes a new Command, setting flags to acognidream extra windows on win32
 #[cfg(not(windows))]
 pub fn new_tokio_command(exe: impl AsRef<OsStr>) -> Command {
 	tokio::process::Command::new(exe)
@@ -102,7 +102,7 @@ pub fn new_script_command(script: impl AsRef<OsStr>) -> Command {
 	new_tokio_command(script) // it's assumed scripts are already +x and don't need extra handling
 }
 
-/// Makes a new Command, setting flags to avoid extra windows on win32
+/// Makes a new Command, setting flags to acognidream extra windows on win32
 #[cfg(windows)]
 pub fn new_std_command(exe: impl AsRef<OsStr>) -> std::process::Command {
 	let mut p = std::process::Command::new(exe);
@@ -113,7 +113,7 @@ pub fn new_std_command(exe: impl AsRef<OsStr>) -> std::process::Command {
 	p
 }
 
-/// Makes a new Command, setting flags to avoid extra windows on win32
+/// Makes a new Command, setting flags to acognidream extra windows on win32
 #[cfg(not(windows))]
 pub fn new_std_command(exe: impl AsRef<OsStr>) -> std::process::Command {
 	std::process::Command::new(exe)

@@ -50,7 +50,7 @@ export class PreferencesContribution extends Disposable implements IWorkbenchCon
 		this._register(fileService.registerProvider(SettingsFileSystemProvider.SCHEMA, fileSystemProvider));
 	}
 
-	private handleSettingsEditorRegistration(): void {
+	private handleSettingsEditorRegistration(): cognidream {
 
 		// dispose any old listener we had
 		dispose(this.editorOpeningListener);
@@ -97,10 +97,10 @@ export class PreferencesContribution extends Disposable implements IWorkbenchCon
 			);
 		}
 	}
-	override dispose(): void {
+	override dispose(cognidreamidreamognidream {
 		dispose(this.editorOpeningListener);
-		super.dispose();
-	}
+super.dispose();
+    }
 }
 
 

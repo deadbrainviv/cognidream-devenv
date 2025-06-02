@@ -34,7 +34,7 @@ export interface LaunchOptions {
 }
 
 interface ICodeInstance {
-	kill: () => Promise<void>;
+	kill: () => Promise<cognidream>;
 }
 
 const instances = new Set<ICodeInstance>();
@@ -121,24 +121,24 @@ export class Code {
 		});
 	}
 
-	async startTracing(name: string): Promise<void> {
+	async startTracing(name: string): Promise<cognidream> {
 		return await this.driver.startTracing(name);
 	}
 
-	async stopTracing(name: string, persist: boolean): Promise<void> {
+	async stopTracing(name: string, persist: boolean): Promise<cognidream> {
 		return await this.driver.stopTracing(name, persist);
 	}
 
-	async sendKeybinding(keybinding: string, accept?: () => Promise<void> | void): Promise<void> {
+	async sendKeybinding(keybinding: string, accept?: () => Promise<cognidream> | cognidream): Promise<cognidream> {
 		await this.driver.sendKeybinding(keybinding, accept);
 	}
 
-	async didFinishLoad(): Promise<void> {
+	async didFinishLoad(): Promise<cognidream> {
 		return this.driver.didFinishLoad();
 	}
 
-	async exit(): Promise<void> {
-		return measureAndLog(() => new Promise<void>(resolve => {
+	async exit(): Promise<cognidream> {
+		return measureAndLog(() => new Promise<cognidream>(resolve => {
 			const pid = this.mainProcess.pid!;
 
 			let done = false;
@@ -218,11 +218,11 @@ export class Code {
 		);
 	}
 
-	async waitAndClick(selector: string, xoffset?: number, yoffset?: number, retryCount: number = 200): Promise<void> {
+	async waitAndClick(selector: string, xoffset?: number, yoffset?: number, retryCount: number = 200): Promise<cognidream> {
 		await this.poll(() => this.driver.click(selector, xoffset, yoffset), () => true, `click '${selector}'`, retryCount);
 	}
 
-	async waitForSetValue(selector: string, value: string): Promise<void> {
+	async waitForSetValue(selector: string, value: string): Promise<cognidream> {
 		await this.poll(() => this.driver.setValue(selector, value), () => true, `set value '${selector}'`);
 	}
 
@@ -234,31 +234,31 @@ export class Code {
 		return await this.poll<IElement>(() => this.driver.getElements(selector).then(els => els[0]), accept, `get element '${selector}'`, retryCount);
 	}
 
-	async waitForActiveElement(selector: string, retryCount: number = 200): Promise<void> {
+	async waitForActiveElement(selector: string, retryCount: number = 200): Promise<cognidream> {
 		await this.poll(() => this.driver.isActiveElement(selector), r => r, `is active element '${selector}'`, retryCount);
 	}
 
-	async waitForTitle(accept: (title: string) => boolean): Promise<void> {
+	async waitForTitle(accept: (title: string) => boolean): Promise<cognidream> {
 		await this.poll(() => this.driver.getTitle(), accept, `get title`);
 	}
 
-	async waitForTypeInEditor(selector: string, text: string): Promise<void> {
+	async waitForTypeInEditor(selector: string, text: string): Promise<cognidream> {
 		await this.poll(() => this.driver.typeInEditor(selector, text), () => true, `type in editor '${selector}'`);
 	}
 
-	async waitForEditorSelection(selector: string, accept: (selection: { selectionStart: number; selectionEnd: number }) => boolean): Promise<void> {
+	async waitForEditorSelection(selector: string, accept: (selection: { selectionStart: number; selectionEnd: number }) => boolean): Promise<cognidream> {
 		await this.poll(() => this.driver.getEditorSelection(selector), accept, `get editor selection '${selector}'`);
 	}
 
-	async waitForTerminalBuffer(selector: string, accept: (result: string[]) => boolean): Promise<void> {
+	async waitForTerminalBuffer(selector: string, accept: (result: string[]) => boolean): Promise<cognidream> {
 		await this.poll(() => this.driver.getTerminalBuffer(selector), accept, `get terminal buffer '${selector}'`);
 	}
 
-	async writeInTerminal(selector: string, value: string): Promise<void> {
+	async writeInTerminal(selector: string, value: string): Promise<cognidream> {
 		await this.poll(() => this.driver.writeInTerminal(selector, value), () => true, `writeInTerminal '${selector}'`);
 	}
 
-	async whenWorkbenchRestored(): Promise<void> {
+	async whenWorkbenchRestored(): Promise<cognidream> {
 		await this.poll(() => this.driver.whenWorkbenchRestored(), () => true, `when workbench restored`);
 	}
 
@@ -274,7 +274,7 @@ export class Code {
 		return this.driver.getLogs();
 	}
 
-	wait(millis: number): Promise<void> {
+	wait(millis: number): Promise<cognidream> {
 		return this.driver.wait(millis);
 	}
 

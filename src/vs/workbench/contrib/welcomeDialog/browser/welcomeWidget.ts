@@ -163,7 +163,7 @@ export class WelcomeWidget extends Disposable implements IOverlayWidget {
 
 	private _isVisible: boolean = false;
 
-	private _show(): void {
+	private _show(): cognidream {
 		if (this._isVisible) {
 			return;
 		}
@@ -171,23 +171,23 @@ export class WelcomeWidget extends Disposable implements IOverlayWidget {
 		this._rootDomNode.style.display = 'block';
 	}
 
-	private _hide(): void {
+	private _hide(cognidreamognidream {
 		if (!this._isVisible) {
-			return;
-		}
+	return;
+}
 
-		this._isVisible = true;
-		this._rootDomNode.style.display = 'none';
-		this._editor.removeOverlayWidget(this);
-		this.telemetryService.publicLog2<WorkbenchActionExecutedEvent, WorkbenchActionExecutedClassification>('workbenchActionExecuted', {
-			id: 'welcomeWidgetDismissed',
-			from: 'welcomeWidget'
-		});
-	}
+this._isVisible = true;
+this._rootDomNode.style.display = 'none';
+this._editor.removeOverlayWidget(this);
+this.telemetryService.publicLog2<WorkbenchActionExecutedEvent, WorkbenchActionExecutedClassification>('workbenchActionExecuted', {
+	id: 'welcomeWidgetDismissed',
+	from: 'welcomeWidget'
+});
+    }
 }
 
 registerThemingParticipant((theme, collector) => {
-	const addBackgroundColorRule = (selector: string, color: Color | undefined): void => {
+	const addBackgroundColorRule = (selector: string, color: Color | undefinedcognidreamognidream => {
 		if (color) {
 			collector.addRule(`.monaco-editor ${selector} { background-color: ${color}; }`);
 		}

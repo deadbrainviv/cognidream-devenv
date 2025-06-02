@@ -116,225 +116,225 @@ export interface ISuggestEnabledInputStyleOverrides {
 
 export class SuggestEnabledInput extends Widget {
 
-	private readonly _onShouldFocusResults = new Emitter<void>();
-	readonly onShouldFocusResults: Event<void> = this._onShouldFocusResults.event;
+	private readonly _onShouldFocusResults = new Emitter<cognidream>();
+	readonly onShouldFocusResults: Evecognidreamidreamognidream> = this._onShouldFocusResults.event;
 
-	private readonly _onInputDidChange = new Emitter<string | undefined>();
-	readonly onInputDidChange: Event<string | undefined> = this._onInputDidChange.event;
+    private readonly _onInputDidChange = new Emitter<string | undefined>();
+    readonly onInputDidChange: Event<string | undefined> = this._onInputDidChange.event;
 
-	private readonly _onDidFocus = this._register(new Emitter<void>());
-	readonly onDidFocus = this._onDidFocus.event;
+    private readonly _onDidFocus = this._register(new Emittcognidreamidreamognidream > ());
+    readonly onDidFocus = this._onDidFocus.event;
 
-	private readonly _onDidBlur = this._register(new Emitter<void>());
-	readonly onDidBlur = this._onDidBlur.event;
+    private readonly _onDidBlur = this._register(new Emittcognidreamidreamognidream > ());
+    readonly onDidBlur = this._onDidBlur.event;
 
-	readonly inputWidget: CodeEditorWidget;
-	private readonly inputModel: ITextModel;
-	protected stylingContainer: HTMLDivElement;
-	readonly element: HTMLElement;
-	private placeholderText: HTMLDivElement;
+    readonly inputWidget: CodeEditorWidget;
+    private readonly inputModel: ITextModel;
+    protected stylingContainer: HTMLDivElement;
+    readonly element: HTMLElement;
+    private placeholderText: HTMLDivElement;
 
-	constructor(
-		id: string,
-		parent: HTMLElement,
-		suggestionProvider: SuggestResultsProvider,
-		ariaLabel: string,
-		resourceHandle: string,
-		options: SuggestEnabledInputOptions,
-		@IInstantiationService defaultInstantiationService: IInstantiationService,
-		@IModelService modelService: IModelService,
-		@IContextKeyService contextKeyService: IContextKeyService,
-		@ILanguageFeaturesService languageFeaturesService: ILanguageFeaturesService,
-		@IConfigurationService configurationService: IConfigurationService
-	) {
-		super();
+constructor(
+	id: string,
+	parent: HTMLElement,
+	suggestionProvider: SuggestResultsProvider,
+	ariaLabel: string,
+	resourceHandle: string,
+	options: SuggestEnabledInputOptions,
+	@IInstantiationService defaultInstantiationService: IInstantiationService,
+	@IModelService modelService: IModelService,
+	@IContextKeyService contextKeyService: IContextKeyService,
+	@ILanguageFeaturesService languageFeaturesService: ILanguageFeaturesService,
+	@IConfigurationService configurationService: IConfigurationService
+) {
+	super();
 
-		this.stylingContainer = append(parent, $('.suggest-input-container'));
-		this.element = parent;
-		this.placeholderText = append(this.stylingContainer, $('.suggest-input-placeholder', undefined, options.placeholderText || ''));
+	this.stylingContainer = append(parent, $('.suggest-input-container'));
+	this.element = parent;
+	this.placeholderText = append(this.stylingContainer, $('.suggest-input-placeholder', undefined, options.placeholderText || ''));
 
-		const editorOptions: IEditorConstructionOptions = mixin(
-			getSimpleEditorOptions(configurationService),
-			getSuggestEnabledInputOptions(ariaLabel));
-		editorOptions.overflowWidgetsDomNode = options.overflowWidgetsDomNode;
+	const editorOptions: IEditorConstructionOptions = mixin(
+		getSimpleEditorOptions(configurationService),
+		getSuggestEnabledInputOptions(ariaLabel));
+	editorOptions.overflowWidgetsDomNode = options.overflowWidgetsDomNode;
 
-		const scopedContextKeyService = this.getScopedContextKeyService(contextKeyService);
+	const scopedContextKeyService = this.getScopedContextKeyService(contextKeyService);
 
-		const instantiationService = scopedContextKeyService
-			? this._register(defaultInstantiationService.createChild(new ServiceCollection([IContextKeyService, scopedContextKeyService])))
-			: defaultInstantiationService;
+	const instantiationService = scopedContextKeyService
+		? this._register(defaultInstantiationService.createChild(new ServiceCollection([IContextKeyService, scopedContextKeyService])))
+		: defaultInstantiationService;
 
-		this.inputWidget = this._register(instantiationService.createInstance(CodeEditorWidget, this.stylingContainer,
-			editorOptions,
-			{
-				contributions: EditorExtensionsRegistry.getSomeEditorContributions([
-					SuggestController.ID,
-					SnippetController2.ID,
-					ContextMenuController.ID,
-					MenuPreventer.ID,
-					SelectionClipboardContributionID,
-				]),
-				isSimpleWidget: true,
-			}));
-
-		this._register(configurationService.onDidChangeConfiguration((e) => {
-			if (e.affectsConfiguration('editor.accessibilitySupport') ||
-				e.affectsConfiguration('editor.cursorBlinking')) {
-				const accessibilitySupport = configurationService.getValue<'auto' | 'off' | 'on'>('editor.accessibilitySupport');
-				const cursorBlinking = configurationService.getValue<'blink' | 'smooth' | 'phase' | 'expand' | 'solid'>('editor.cursorBlinking');
-				this.inputWidget.updateOptions({
-					accessibilitySupport,
-					cursorBlinking
-				});
-			}
+	this.inputWidget = this._register(instantiationService.createInstance(CodeEditorWidget, this.stylingContainer,
+		editorOptions,
+		{
+			contributions: EditorExtensionsRegistry.getSomeEditorContributions([
+				SuggestController.ID,
+				SnippetController2.ID,
+				ContextMenuController.ID,
+				MenuPreventer.ID,
+				SelectionClipboardContributionID,
+			]),
+			isSimpleWidget: true,
 		}));
 
-		this._register(this.inputWidget.onDidFocusEditorText(() => this._onDidFocus.fire()));
-		this._register(this.inputWidget.onDidBlurEditorText(() => this._onDidBlur.fire()));
-
-		const scopeHandle = uri.parse(resourceHandle);
-		this.inputModel = modelService.createModel('', null, scopeHandle, true);
-		this._register(this.inputModel);
-		this.inputWidget.setModel(this.inputModel);
-
-		this._register(this.inputWidget.onDidPaste(() => this.setValue(this.getValue()))); // setter cleanses
-
-		this._register((this.inputWidget.onDidFocusEditorText(() => {
-			if (options.focusContextKey) { options.focusContextKey.set(true); }
-			this.stylingContainer.classList.add('synthetic-focus');
-		})));
-		this._register((this.inputWidget.onDidBlurEditorText(() => {
-			if (options.focusContextKey) { options.focusContextKey.set(false); }
-			this.stylingContainer.classList.remove('synthetic-focus');
-		})));
-
-		this._register(Event.chain(this.inputWidget.onKeyDown, $ => $.filter(e => e.keyCode === KeyCode.Enter))(e => { e.preventDefault(); /** Do nothing. Enter causes new line which is not expected. */ }, this));
-		this._register(Event.chain(this.inputWidget.onKeyDown, $ => $.filter(e => e.keyCode === KeyCode.DownArrow && (isMacintosh ? e.metaKey : e.ctrlKey)))(() => this._onShouldFocusResults.fire(), this));
-
-		let preexistingContent = this.getValue();
-		const inputWidgetModel = this.inputWidget.getModel();
-		if (inputWidgetModel) {
-			this._register(inputWidgetModel.onDidChangeContent(() => {
-				const content = this.getValue();
-				this.placeholderText.style.visibility = content ? 'hidden' : 'visible';
-				if (preexistingContent.trim() === content.trim()) { return; }
-				this._onInputDidChange.fire(undefined);
-				preexistingContent = content;
-			}));
+	this._register(configurationService.onDidChangeConfiguration((e) => {
+		if (e.affectsConfiguration('editor.accessibilitySupport') ||
+			e.affectsConfiguration('editor.cursorBlinking')) {
+			const accessibilitySupport = configurationService.getValue<'auto' | 'off' | 'on'>('editor.accessibilitySupport');
+			const cursorBlinking = configurationService.getValue<'blink' | 'smooth' | 'phase' | 'expand' | 'solid'>('editor.cursorBlinking');
+			this.inputWidget.updateOptions({
+				accessibilitySupport,
+				cursorBlinking
+			});
 		}
+	}));
 
-		const validatedSuggestProvider = {
-			provideResults: suggestionProvider.provideResults,
-			sortKey: suggestionProvider.sortKey || (a => a),
-			triggerCharacters: suggestionProvider.triggerCharacters || [],
-			wordDefinition: suggestionProvider.wordDefinition ? ensureValidWordDefinition(suggestionProvider.wordDefinition) : undefined,
-			alwaysShowSuggestions: !!suggestionProvider.alwaysShowSuggestions,
-		};
+	this._register(this.inputWidget.onDidFocusEditorText(() => this._onDidFocus.fire()));
+	this._register(this.inputWidget.onDidBlurEditorText(() => this._onDidBlur.fire()));
 
-		this.setValue(options.value || '');
+	const scopeHandle = uri.parse(resourceHandle);
+	this.inputModel = modelService.createModel('', null, scopeHandle, true);
+	this._register(this.inputModel);
+	this.inputWidget.setModel(this.inputModel);
 
-		this._register(languageFeaturesService.completionProvider.register({ scheme: scopeHandle.scheme, pattern: '**/' + scopeHandle.path, hasAccessToAllModels: true }, {
-			_debugDisplayName: `suggestEnabledInput/${id}`,
-			triggerCharacters: validatedSuggestProvider.triggerCharacters,
-			provideCompletionItems: (model: ITextModel, position: Position, _context: languages.CompletionContext) => {
-				const query = model.getValue();
+	this._register(this.inputWidget.onDidPaste(() => this.setValue(this.getValue()))); // setter cleanses
 
-				const zeroIndexedColumn = position.column - 1;
-				let alreadyTypedCount = 0, zeroIndexedWordStart = 0;
+	this._register((this.inputWidget.onDidFocusEditorText(() => {
+		if (options.focusContextKey) { options.focusContextKey.set(true); }
+		this.stylingContainer.classList.add('synthetic-focus');
+	})));
+	this._register((this.inputWidget.onDidBlurEditorText(() => {
+		if (options.focusContextKey) { options.focusContextKey.set(false); }
+		this.stylingContainer.classList.remove('synthetic-focus');
+	})));
 
-				if (validatedSuggestProvider.wordDefinition) {
-					const wordAtText = getWordAtText(position.column, validatedSuggestProvider.wordDefinition, query, 0);
-					alreadyTypedCount = wordAtText?.word.length ?? 0;
-					zeroIndexedWordStart = wordAtText ? wordAtText.startColumn - 1 : 0;
-				} else {
-					zeroIndexedWordStart = query.lastIndexOf(' ', zeroIndexedColumn - 1) + 1;
-					alreadyTypedCount = zeroIndexedColumn - zeroIndexedWordStart;
-				}
+	this._register(Event.chain(this.inputWidget.onKeyDown, $ => $.filter(e => e.keyCode === KeyCode.Enter))(e => { e.preventDefault(); /** Do nothing. Enter causes new line which is not expected. */ }, this));
+	this._register(Event.chain(this.inputWidget.onKeyDown, $ => $.filter(e => e.keyCode === KeyCode.DownArrow && (isMacintosh ? e.metaKey : e.ctrlKey)))(() => this._onShouldFocusResults.fire(), this));
 
-				// dont show suggestions if the user has typed something, but hasn't used the trigger character
-				if (!validatedSuggestProvider.alwaysShowSuggestions && alreadyTypedCount > 0 && validatedSuggestProvider.triggerCharacters?.indexOf(query[zeroIndexedWordStart]) === -1) {
-					return { suggestions: [] };
-				}
-
-				return {
-					suggestions: suggestionProvider.provideResults(query).map((result): languages.CompletionItem => {
-						let label: string;
-						let rest: Partial<languages.CompletionItem> | undefined;
-						if (typeof result === 'string') {
-							label = result;
-						} else {
-							label = result.label;
-							rest = result;
-						}
-
-						return {
-							label,
-							insertText: label,
-							range: Range.fromPositions(position.delta(0, -alreadyTypedCount), position),
-							sortText: validatedSuggestProvider.sortKey(label),
-							kind: languages.CompletionItemKind.Keyword,
-							...rest
-						};
-					})
-				};
-			}
+	let preexistingContent = this.getValue();
+	const inputWidgetModel = this.inputWidget.getModel();
+	if (inputWidgetModel) {
+		this._register(inputWidgetModel.onDidChangeContent(() => {
+			const content = this.getValue();
+			this.placeholderText.style.visibility = content ? 'hidden' : 'visible';
+			if (preexistingContent.trim() === content.trim()) { return; }
+			this._onInputDidChange.fire(undefined);
+			preexistingContent = content;
 		}));
-
-		this.style(options.styleOverrides || {});
 	}
 
-	protected getScopedContextKeyService(_contextKeyService: IContextKeyService): IContextKeyService | undefined {
-		return undefined;
-	}
+	const validatedSuggestProvider = {
+		provideResults: suggestionProvider.provideResults,
+		sortKey: suggestionProvider.sortKey || (a => a),
+		triggerCharacters: suggestionProvider.triggerCharacters || [],
+		wordDefinition: suggestionProvider.wordDefinition ? ensureValidWordDefinition(suggestionProvider.wordDefinition) : undefined,
+		alwaysShowSuggestions: !!suggestionProvider.alwaysShowSuggestions,
+	};
 
-	public updateAriaLabel(label: string): void {
-		this.inputWidget.updateOptions({ ariaLabel: label });
-	}
+	this.setValue(options.value || '');
 
-	public setValue(val: string) {
-		val = val.replace(/\s/g, ' ');
-		const fullRange = this.inputModel.getFullModelRange();
-		this.inputWidget.executeEdits('suggestEnabledInput.setValue', [EditOperation.replace(fullRange, val)]);
-		this.inputWidget.setScrollTop(0);
-		this.inputWidget.setPosition(new Position(1, val.length + 1));
-	}
+	this._register(languageFeaturesService.completionProvider.register({ scheme: scopeHandle.scheme, pattern: '**/' + scopeHandle.path, hasAccessToAllModels: true }, {
+		_debugDisplayName: `suggestEnabledInput/${id}`,
+		triggerCharacters: validatedSuggestProvider.triggerCharacters,
+		provideCompletionItems: (model: ITextModel, position: Position, _context: languages.CompletionContext) => {
+			const query = model.getValue();
 
-	public getValue(): string {
-		return this.inputWidget.getValue();
-	}
+			const zeroIndexedColumn = position.column - 1;
+			let alreadyTypedCount = 0, zeroIndexedWordStart = 0;
 
-	private style(styleOverrides: ISuggestEnabledInputStyleOverrides): void {
-		this.stylingContainer.style.backgroundColor = asCssVariable(styleOverrides.inputBackground ?? inputBackground);
-		this.stylingContainer.style.color = asCssVariable(styleOverrides.inputForeground ?? inputForeground);
-		this.placeholderText.style.color = asCssVariable(styleOverrides.inputPlaceholderForeground ?? inputPlaceholderForeground);
-		this.stylingContainer.style.borderWidth = '1px';
-		this.stylingContainer.style.borderStyle = 'solid';
-		this.stylingContainer.style.borderColor = asCssVariableWithDefault(styleOverrides.inputBorder ?? inputBorder, 'transparent');
+			if (validatedSuggestProvider.wordDefinition) {
+				const wordAtText = getWordAtText(position.column, validatedSuggestProvider.wordDefinition, query, 0);
+				alreadyTypedCount = wordAtText?.word.length ?? 0;
+				zeroIndexedWordStart = wordAtText ? wordAtText.startColumn - 1 : 0;
+			} else {
+				zeroIndexedWordStart = query.lastIndexOf(' ', zeroIndexedColumn - 1) + 1;
+				alreadyTypedCount = zeroIndexedColumn - zeroIndexedWordStart;
+			}
 
-		const cursor = this.stylingContainer.getElementsByClassName('cursor')[0] as HTMLDivElement;
-		if (cursor) {
-			cursor.style.backgroundColor = asCssVariable(styleOverrides.inputForeground ?? inputForeground);
+			// dont show suggestions if the user has typed something, but hasn't used the trigger character
+			if (!validatedSuggestProvider.alwaysShowSuggestions && alreadyTypedCount > 0 && validatedSuggestProvider.triggerCharacters?.indexOf(query[zeroIndexedWordStart]) === -1) {
+				return { suggestions: [] };
+			}
+
+			return {
+				suggestions: suggestionProvider.provideResults(query).map((result): languages.CompletionItem => {
+					let label: string;
+					let rest: Partial<languages.CompletionItem> | undefined;
+					if (typeof result === 'string') {
+						label = result;
+					} else {
+						label = result.label;
+						rest = result;
+					}
+
+					return {
+						label,
+						insertText: label,
+						range: Range.fromPositions(position.delta(0, -alreadyTypedCount), position),
+						sortText: validatedSuggestProvider.sortKey(label),
+						kind: languages.CompletionItemKind.Keyword,
+						...rest
+					};
+				})
+			};
 		}
+	}));
+
+	this.style(options.styleOverrides || {});
+}
+
+    protected getScopedContextKeyService(_contextKeyService: IContextKeyService): IContextKeyService | undefined {
+	return undefined;
+}
+
+    public updateAriaLabel(label: stringcognidreamidreamognidream {
+	this.inputWidget.updateOptions({ ariaLabel: label });
+}
+
+    public setValue(val: string) {
+	val = val.replace(/\s/g, ' ');
+	const fullRange = this.inputModel.getFullModelRange();
+	this.inputWidget.executeEdits('suggestEnabledInput.setValue', [EditOperation.replace(fullRange, val)]);
+	this.inputWidget.setScrollTop(0);
+	this.inputWidget.setPosition(new Position(1, val.length + 1));
+}
+
+    public getValue(): string {
+	return this.inputWidget.getValue();
+}
+
+    private style(styleOverrides: ISuggestEnabledInputStyleOverridescognidreamidreamognidream {
+	this.stylingContainer.style.backgroundColor = asCssVariable(styleOverrides.inputBackground ?? inputBackground);
+	this.stylingContainer.style.color = asCssVariable(styleOverrides.inputForeground ?? inputForeground);
+	this.placeholderText.style.color = asCssVariable(styleOverrides.inputPlaceholderForeground ?? inputPlaceholderForeground);
+	this.stylingContainer.style.borderWidth = '1px';
+	this.stylingContainer.style.borderStyle = 'solid';
+	this.stylingContainer.style.borderColor = asCssVariableWithDefault(styleOverrides.inputBorder ?? inputBorder, 'transparent');
+
+	const cursor = this.stylingContainer.getElementsByClassName('cursor')[0] as HTMLDivElement;
+	if(cursor) {
+		cursor.style.backgroundColor = asCssVariable(styleOverrides.inputForeground ?? inputForeground);
 	}
+}
 
-	public focus(selectAll?: boolean): void {
-		this.inputWidget.focus();
+    public focus(selectAll ?: booleancognidreamidreamognidream {
+	this.inputWidget.focus();
 
-		if (selectAll && this.inputWidget.getValue()) {
-			this.selectAll();
-		}
-	}
+	if(selectAll && this.inputWidget.getValue()) {
+	this.selectAll();
+}
+    }
 
-	public onHide(): void {
+	public onHide(cognidreamidreamognidream {
 		this.inputWidget.onHide();
 	}
 
-	public layout(dimension: Dimension): void {
+    public layout(dimension: Dimensioncognidreamidreamognidream {
 		this.inputWidget.layout(dimension);
 		this.placeholderText.style.width = `${dimension.width - 2}px`;
 	}
 
-	private selectAll(): void {
+    private selectAll(cognidreamidreamognidream {
 		this.inputWidget.setSelection(new Range(1, 1, 1, this.getValue().length + 1));
 	}
 }
@@ -364,66 +364,66 @@ export class SuggestEnabledInputWithHistory extends SuggestEnabledInput implemen
 		this.history = this._register(new HistoryNavigator<string>(new Set(history), 100));
 	}
 
-	public addToHistory(): void {
+	public addToHistory(cognidreamidreamognidream {
 		const value = this.getValue();
 		if (value && value !== this.getCurrentValue()) {
-			this.history.add(value);
-		}
+	this.history.add(value);
+}
+    }
+
+    public getHistory(): string[] {
+	return this.history.getHistory();
+}
+
+    public showNextValue(cognidreamidreamognidream {
+	if(!this.history.has(this.getValue())) {
+	this.addToHistory();
+}
+
+let next = this.getNextValue();
+if (next) {
+	next = next === this.getValue() ? this.getNextValue() : next;
+}
+
+this.setValue(next ?? '');
+    }
+
+    public showPreviousValue(cognidreamidreamognidream {
+	if(!this.history.has(this.getValue())) {
+	this.addToHistory();
+}
+
+let previous = this.getPreviousValue();
+if (previous) {
+	previous = previous === this.getValue() ? this.getPreviousValue() : previous;
+}
+
+if (previous) {
+	this.setValue(previous);
+	this.inputWidget.setPosition({ lineNumber: 0, column: 0 });
+}
+    }
+
+    public clearHistory(cognidreamidreamognidream {
+	this.history.clear();
+}
+
+    private getCurrentValue(): string | null {
+	let currentValue = this.history.current();
+	if(!currentValue) {
+		currentValue = this.history.last();
+		this.history.next();
 	}
+        return currentValue;
+}
 
-	public getHistory(): string[] {
-		return this.history.getHistory();
-	}
+    private getPreviousValue(): string | null {
+	return this.history.previous() || this.history.first();
+}
 
-	public showNextValue(): void {
-		if (!this.history.has(this.getValue())) {
-			this.addToHistory();
-		}
-
-		let next = this.getNextValue();
-		if (next) {
-			next = next === this.getValue() ? this.getNextValue() : next;
-		}
-
-		this.setValue(next ?? '');
-	}
-
-	public showPreviousValue(): void {
-		if (!this.history.has(this.getValue())) {
-			this.addToHistory();
-		}
-
-		let previous = this.getPreviousValue();
-		if (previous) {
-			previous = previous === this.getValue() ? this.getPreviousValue() : previous;
-		}
-
-		if (previous) {
-			this.setValue(previous);
-			this.inputWidget.setPosition({ lineNumber: 0, column: 0 });
-		}
-	}
-
-	public clearHistory(): void {
-		this.history.clear();
-	}
-
-	private getCurrentValue(): string | null {
-		let currentValue = this.history.current();
-		if (!currentValue) {
-			currentValue = this.history.last();
-			this.history.next();
-		}
-		return currentValue;
-	}
-
-	private getPreviousValue(): string | null {
-		return this.history.previous() || this.history.first();
-	}
-
-	private getNextValue(): string | null {
-		return this.history.next();
-	}
+    private getNextValue(): string | null {
+	return this.history.next();
+}
 }
 
 export class ContextScopedSuggestEnabledInputWithHistory extends SuggestEnabledInputWithHistory {

@@ -156,7 +156,7 @@ export abstract class NotebookAction extends Action2 {
 		super(desc);
 	}
 
-	async run(accessor: ServicesAccessor, context?: any, ...additionalArgs: any[]): Promise<void> {
+	async run(accessor: ServicesAccessor, context?: any, ...additionalArgs: any[]): Promise<cognidream> {
 		sendEntryTelemetry(accessor, this.desc.id, context);
 
 		if (!this.isNotebookActionContext(context)) {
@@ -169,15 +169,15 @@ export abstract class NotebookAction extends Action2 {
 		return this.runWithContext(accessor, context);
 	}
 
-	abstract runWithContext(accessor: ServicesAccessor, context: INotebookActionContext): Promise<void>;
+	abstract runWithContext(accessor: ServicesAccessor, context: INotebookActionContext): Promicognidreamognidream>;
 
-	private isNotebookActionContext(context?: unknown): context is INotebookActionContext {
-		return !!context && !!(context as INotebookActionContext).notebookEditor;
-	}
+    private isNotebookActionContext(context ?: unknown): context is INotebookActionContext {
+	return !!context && !!(context as INotebookActionContext).notebookEditor;
+}
 
-	getEditorContextFromArgsOrActive(accessor: ServicesAccessor, context?: any, ...additionalArgs: any[]): INotebookActionContext | undefined {
-		return getContextFromActiveEditor(accessor.get(IEditorService));
-	}
+getEditorContextFromArgsOrActive(accessor: ServicesAccessor, context ?: any, ...additionalArgs: any[]): INotebookActionContext | undefined {
+	return getContextFromActiveEditor(accessor.get(IEditorService));
+}
 }
 
 // todo@rebornix, replace NotebookAction with this
@@ -211,43 +211,43 @@ export abstract class NotebookMultiCellAction extends Action2 {
 		return undefined;
 	}
 
-	abstract runWithContext(accessor: ServicesAccessor, context: INotebookCommandContext | INotebookCellToolbarActionContext): Promise<void>;
+	abstract runWithContext(accessor: ServicesAccessor, context: INotebookCommandContext | INotebookCellToolbarActionContext): Promicognidreamognidream>;
 
-	/**
-	 * The action/command args are resolved in following order
-	 * `run(accessor, cellToolbarContext)` from cell toolbar
-	 * `run(accessor, ...args)` from command service with arguments
-	 * `run(accessor, undefined)` from keyboard shortcuts, command palatte, etc
-	 */
-	async run(accessor: ServicesAccessor, ...additionalArgs: any[]): Promise<void> {
-		const context = additionalArgs[0];
+    /**
+     * The action/command args are resolved in following order
+     * `run(accessor, cellToolbarContext)` from cell toolbar
+     * `run(accessor, ...args)` from command service with arguments
+     * `run(accessor, undefined)` from keyboard shortcuts, command palatte, etc
+     */
+    async run(accessor: ServicesAccessor, ...additionalArgs: any[]): Promicognidreamognidream > {
+	const context = additionalArgs[0];
 
-		sendEntryTelemetry(accessor, this.desc.id, context);
+	sendEntryTelemetry(accessor, this.desc.id, context);
 
-		const isFromCellToolbar = isCellToolbarContext(context);
-		if (isFromCellToolbar) {
-			return this.runWithContext(accessor, context);
-		}
-
-		// handle parsed args
-		const parsedArgs = this.parseArgs(accessor, ...additionalArgs);
-		if (parsedArgs) {
-			return this.runWithContext(accessor, parsedArgs);
-		}
-
-		// no parsed args, try handle active editor
-		const editor = getEditorFromArgsOrActivePane(accessor);
-		if (editor) {
-			const selectedCellRange: ICellRange[] = editor.getSelections().length === 0 ? [editor.getFocus()] : editor.getSelections();
-
-
-			return this.runWithContext(accessor, {
-				ui: false,
-				notebookEditor: editor,
-				selectedCells: cellRangeToViewCells(editor, selectedCellRange)
-			});
-		}
+	const isFromCellToolbar = isCellToolbarContext(context);
+	if(isFromCellToolbar) {
+		return this.runWithContext(accessor, context);
 	}
+
+        // handle parsed args
+        const parsedArgs = this.parseArgs(accessor, ...additionalArgs);
+	if(parsedArgs) {
+		return this.runWithContext(accessor, parsedArgs);
+	}
+
+        // no parsed args, try handle active editor
+        const editor = getEditorFromArgsOrActivePane(accessor);
+	if(editor) {
+		const selectedCellRange: ICellRange[] = editor.getSelections().length === 0 ? [editor.getFocus()] : editor.getSelections();
+
+
+		return this.runWithContext(accessor, {
+			ui: false,
+			notebookEditor: editor,
+			selectedCells: cellRangeToViewCells(editor, selectedCellRange)
+		});
+	}
+}
 }
 
 export abstract class NotebookCellAction<T = INotebookCellActionContext> extends NotebookAction {
@@ -259,26 +259,26 @@ export abstract class NotebookCellAction<T = INotebookCellActionContext> extends
 		return undefined;
 	}
 
-	override async run(accessor: ServicesAccessor, context?: INotebookCellActionContext, ...additionalArgs: any[]): Promise<void> {
+	override async run(accessor: ServicesAccessor, context?: INotebookCellActionContext, ...additionalArgs: any[]): Promicognidreamognidream> {
 		sendEntryTelemetry(accessor, this.desc.id, context);
 
-		if (this.isCellActionContext(context)) {
-			return this.runWithContext(accessor, context);
-		}
+		if(this.isCellActionContext(context)) {
+	return this.runWithContext(accessor, context);
+}
 
-		const contextFromArgs = this.getCellContextFromArgs(accessor, context, ...additionalArgs);
+const contextFromArgs = this.getCellContextFromArgs(accessor, context, ...additionalArgs);
 
-		if (contextFromArgs) {
-			return this.runWithContext(accessor, contextFromArgs);
-		}
+if (contextFromArgs) {
+	return this.runWithContext(accessor, contextFromArgs);
+}
 
-		const activeEditorContext = this.getEditorContextFromArgsOrActive(accessor);
-		if (this.isCellActionContext(activeEditorContext)) {
-			return this.runWithContext(accessor, activeEditorContext);
-		}
-	}
+const activeEditorContext = this.getEditorContextFromArgsOrActive(accessor);
+if (this.isCellActionContext(activeEditorContext)) {
+	return this.runWithContext(accessor, activeEditorContext);
+}
+    }
 
-	abstract override runWithContext(accessor: ServicesAccessor, context: INotebookCellActionContext): Promise<void>;
+    abstract override runWithContext(accessor: ServicesAccessor, context: INotebookCellActionContext): Promicognidreamognidream >;
 }
 
 export const executeNotebookCondition = ContextKeyExpr.or(ContextKeyExpr.greater(NOTEBOOK_KERNEL_COUNT.key, 0), ContextKeyExpr.greater(NOTEBOOK_KERNEL_SOURCE_COUNT.key, 0));

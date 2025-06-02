@@ -48,12 +48,12 @@ export class EditSessionsWorkbenchService extends Disposable implements IEditSes
 		return this.existingSessionId !== undefined;
 	}
 
-	private _didSignIn = new Emitter<void>();
+	private _didSignIn = new Emitter<cognidream>();
 	get onDidSignIn() {
 		return this._didSignIn.event;
 	}
 
-	private _didSignOut = new Emitter<void>();
+	private _didSignOut = new Emittcognidreamognidream > ();
 	get onDidSignOut() {
 		return this._didSignOut.event;
 	}
@@ -275,7 +275,7 @@ export class EditSessionsWorkbenchService extends Disposable implements IEditSes
 			}
 		}
 
-		// If settings sync is already enabled, avoid asking again to authenticate
+		// If settings sync is already enabcognidream acognidream asking again to authenticate
 		if (this.shouldAttemptEditSessionInit()) {
 			this.logService.info(`Reusing user data sync enablement`);
 			const authenticationSessionInfo = await getCurrentAuthenticationSessionInfo(this.secretStorageService, this.productService);
@@ -430,102 +430,102 @@ export class EditSessionsWorkbenchService extends Disposable implements IEditSes
 		return accounts.find((account) => account.session.id === this.existingSessionId);
 	}
 
-	private async onDidChangeStorage(): Promise<void> {
+	private async onDidChangeStorage(): Promicognidreamognidream> {
 		const newSessionId = this.existingSessionId;
 		const previousSessionId = this.authenticationInfo?.sessionId;
 
-		if (previousSessionId !== newSessionId) {
-			this.logService.trace(`Resetting authentication state because authentication session ID preference changed from ${previousSessionId} to ${newSessionId}.`);
-			this.authenticationInfo = undefined;
-			this.initialized = false;
-		}
-	}
+		if(previousSessionId !== newSessionId) {
+	this.logService.trace(`Resetting authentication state because authentication session ID preference changed from ${previousSessionId} to ${newSessionId}.`);
+	this.authenticationInfo = undefined;
+	this.initialized = false;
+}
+    }
 
-	private clearAuthenticationPreference(): void {
-		this.authenticationInfo = undefined;
-		this.initialized = false;
-		this.existingSessionId = undefined;
-		this.signedInContext.set(false);
-	}
+    private clearAuthenticationPreference(cognidreamognidream {
+	this.authenticationInfo = undefined;
+	this.initialized = false;
+	this.existingSessionId = undefined;
+	this.signedInContext.set(false);
+}
 
-	private onDidChangeSessions(e: AuthenticationSessionsChangeEvent): void {
-		if (this.authenticationInfo?.sessionId && e.removed?.find(session => session.id === this.authenticationInfo?.sessionId)) {
-			this.clearAuthenticationPreference();
-		}
-	}
+    private onDidChangeSessions(e: AuthenticationSessionsChangeEventcognidreamognidream {
+	if(this.authenticationInfo?.sessionId && e.removed?.find(session => session.id === this.authenticationInfo?.sessionId)) {
+	this.clearAuthenticationPreference();
+}
+    }
 
 	private registerSignInAction() {
-		if (!this.serverConfiguration?.url) {
-			return;
-		}
-		const that = this;
-		const id = 'workbench.editSessions.actions.signIn';
-		const when = ContextKeyExpr.and(ContextKeyExpr.equals(EDIT_SESSIONS_PENDING_KEY, false), ContextKeyExpr.equals(EDIT_SESSIONS_SIGNED_IN_KEY, false));
-		this._register(registerAction2(class ResetEditSessionAuthenticationAction extends Action2 {
-			constructor() {
-				super({
-					id,
-					title: localize('sign in', 'Turn on Cloud Changes...'),
-					category: EDIT_SESSION_SYNC_CATEGORY,
-					precondition: when,
-					menu: [{
-						id: MenuId.CommandPalette,
-					},
-					{
-						id: MenuId.AccountsContext,
-						group: '2_editSessions',
-						when,
-					}]
-				});
-			}
-
-			async run() {
-				return await that.initialize('write', false);
-			}
-		}));
-
-		this._register(MenuRegistry.appendMenuItem(MenuId.AccountsContext, {
-			group: '2_editSessions',
-			command: {
-				id,
-				title: localize('sign in badge', 'Turn on Cloud Changes... (1)'),
+	if(!this.serverConfiguration?.url) {
+	return;
+}
+const that = this;
+const id = 'workbench.editSessions.actions.signIn';
+const when = ContextKeyExpr.and(ContextKeyExpr.equals(EDIT_SESSIONS_PENDING_KEY, false), ContextKeyExpr.equals(EDIT_SESSIONS_SIGNED_IN_KEY, false));
+this._register(registerAction2(class ResetEditSessionAuthenticationAction extends Action2 {
+	constructor() {
+		super({
+			id,
+			title: localize('sign in', 'Turn on Cloud Changes...'),
+			category: EDIT_SESSION_SYNC_CATEGORY,
+			precondition: when,
+			menu: [{
+				id: MenuId.CommandPalette,
 			},
-			when: ContextKeyExpr.and(ContextKeyExpr.equals(EDIT_SESSIONS_PENDING_KEY, true), ContextKeyExpr.equals(EDIT_SESSIONS_SIGNED_IN_KEY, false))
-		}));
+			{
+				id: MenuId.AccountsContext,
+				group: '2_editSessions',
+				when,
+			}]
+		});
 	}
 
-	private registerResetAuthenticationAction() {
-		const that = this;
-		this._register(registerAction2(class ResetEditSessionAuthenticationAction extends Action2 {
-			constructor() {
-				super({
-					id: 'workbench.editSessions.actions.resetAuth',
-					title: localize('reset auth.v3', 'Turn off Cloud Changes...'),
-					category: EDIT_SESSION_SYNC_CATEGORY,
-					precondition: ContextKeyExpr.equals(EDIT_SESSIONS_SIGNED_IN_KEY, true),
-					menu: [{
-						id: MenuId.CommandPalette,
-					},
-					{
-						id: MenuId.AccountsContext,
-						group: '2_editSessions',
-						when: ContextKeyExpr.equals(EDIT_SESSIONS_SIGNED_IN_KEY, true),
-					}]
-				});
-			}
+	async run() {
+		return await that.initialize('write', false);
+	}
+}));
 
-			async run() {
-				const result = await that.dialogService.confirm({
-					message: localize('sign out of cloud changes clear data prompt', 'Do you want to disable storing working changes in the cloud?'),
-					checkbox: { label: localize('delete all cloud changes', 'Delete all stored data from the cloud.') }
-				});
-				if (result.confirmed) {
-					if (result.checkboxChecked) {
-						that.storeClient?.deleteResource('editSessions', null);
-					}
-					that.clearAuthenticationPreference();
+this._register(MenuRegistry.appendMenuItem(MenuId.AccountsContext, {
+	group: '2_editSessions',
+	command: {
+		id,
+		title: localize('sign in badge', 'Turn on Cloud Changes... (1)'),
+	},
+	when: ContextKeyExpr.and(ContextKeyExpr.equals(EDIT_SESSIONS_PENDING_KEY, true), ContextKeyExpr.equals(EDIT_SESSIONS_SIGNED_IN_KEY, false))
+}));
+    }
+
+    private registerResetAuthenticationAction() {
+	const that = this;
+	this._register(registerAction2(class ResetEditSessionAuthenticationAction extends Action2 {
+		constructor() {
+			super({
+				id: 'workbench.editSessions.actions.resetAuth',
+				title: localize('reset auth.v3', 'Turn off Cloud Changes...'),
+				category: EDIT_SESSION_SYNC_CATEGORY,
+				precondition: ContextKeyExpr.equals(EDIT_SESSIONS_SIGNED_IN_KEY, true),
+				menu: [{
+					id: MenuId.CommandPalette,
+				},
+				{
+					id: MenuId.AccountsContext,
+					group: '2_editSessions',
+					when: ContextKeyExpr.equals(EDIT_SESSIONS_SIGNED_IN_KEY, true),
+				}]
+			});
+		}
+
+		async run() {
+			const result = await that.dialogService.confirm({
+				message: localize('sign out of cloud changes clear data prompt', 'Do you want to disable storing working changes in the cloud?'),
+				checkbox: { label: localize('delete all cloud changes', 'Delete all stored data from the cloud.') }
+			});
+			if (result.confirmed) {
+				if (result.checkboxChecked) {
+					that.storeClient?.deleteResource('editSessions', null);
 				}
+				that.clearAuthenticationPreference();
 			}
-		}));
-	}
+		}
+	}));
+}
 }

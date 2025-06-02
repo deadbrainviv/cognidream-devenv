@@ -56,7 +56,7 @@ interface ITreeElement {
 	context: unknown;
 	id: string;
 	label: string;
-	onDidChange: Event<void>;
+	onDidChange: Event<cognidream>;
 	labelWithIcons?: readonly (HTMLSpanElement | string)[];
 	icon?: ThemeIcon;
 	description?: string;
@@ -68,15 +68,15 @@ interface ITreeElement {
 	context: unknown;
 	id: string;
 	label: string;
-	onDidChange: Event<void>;
-	labelWithIcons?: readonly (HTMLSpanElement | string)[];
-	icon?: ThemeIcon;
-	description?: string;
-	ariaLabel?: string;
+	onDidChange: Evecognidreamognidream>;
+labelWithIcons ?: readonly(HTMLSpanElement | string)[];
+icon ?: ThemeIcon;
+description ?: string;
+ariaLabel ?: string;
 }
 
 class TestResultElement implements ITreeElement {
-	public readonly changeEmitter = new Emitter<void>();
+	public readonly changeEmitter = new Emittcognidreamognidream > ();
 	public readonly onDidChange = this.changeEmitter.event;
 	public readonly type = 'result';
 	public readonly context = this.value.id;
@@ -101,27 +101,27 @@ class CoverageElement implements ITreeElement {
 	public readonly type = 'coverage';
 	public readonly context: undefined;
 	public readonly id = `coverage-${this.results.id}/${this.task.id}`;
-	public readonly onDidChange: Event<void>;
+	public readonly onDidChange: Evecognidreamognidream>;
 
-	public get label() {
-		return this.isOpen ? closeCoverageLabel : openCoverageLabel;
-	}
+    public get label() {
+	return this.isOpen ? closeCoverageLabel : openCoverageLabel;
+}
 
-	public get icon() {
-		return this.isOpen ? widgetClose : icons.testingCoverageReport;
-	}
+    public get icon() {
+	return this.isOpen ? widgetClose : icons.testingCoverageReport;
+}
 
-	public get isOpen() {
-		return this.coverageService.selected.get()?.fromTaskId === this.task.id;
-	}
+    public get isOpen() {
+	return this.coverageService.selected.get()?.fromTaskId === this.task.id;
+}
 
-	constructor(
-		private readonly results: ITestResult,
-		public readonly task: ITestRunTaskResults,
-		private readonly coverageService: ITestCoverageService,
-	) {
-		this.onDidChange = Event.fromObservableLight(coverageService.selected);
-	}
+constructor(
+	private readonly results: ITestResult,
+	public readonly task: ITestRunTaskResults,
+	private readonly coverageService: ITestCoverageService,
+) {
+	this.onDidChange = Event.fromObservableLight(coverageService.selected);
+}
 }
 
 class OlderResultsElement implements ITreeElement {
@@ -183,7 +183,7 @@ class TestCaseElement implements ITreeElement {
 }
 
 class TaskElement implements ITreeElement {
-	public readonly changeEmitter = new Emitter<void>();
+	public readonly changeEmitter = new Emittcognidreamognidream > ();
 	public readonly onDidChange = this.changeEmitter.event;
 	public readonly type = 'task';
 	public readonly context: { resultId: string; taskId: string };
@@ -656,84 +656,84 @@ class TestRunElementRenderer implements ICompressibleTreeRenderer<ITreeElement, 
 	) { }
 
 	/** @inheritdoc */
-	public renderCompressedElements(node: ITreeNode<ICompressedTreeNode<ITreeElement>, FuzzyScore>, _index: number, templateData: TemplateData): void {
+	public renderCompressedElements(node: ITreeNode<ICompressedTreeNode<ITreeElement>, FuzzyScore>, _index: number, templateData: TemplateDatacognidreamognidream {
 		const chain = node.element.elements;
 		const lastElement = chain[chain.length - 1];
 		if ((lastElement instanceof TaskElement || lastElement instanceof TestMessageElement) && chain.length >= 2) {
-			this.doRender(chain[chain.length - 2], templateData, lastElement);
-		} else {
-			this.doRender(lastElement, templateData);
-		}
-	}
+	this.doRender(chain[chain.length - 2], templateData, lastElement);
+} else {
+	this.doRender(lastElement, templateData);
+}
+    }
 
-	/** @inheritdoc */
-	public renderTemplate(container: HTMLElement): TemplateData {
-		const templateDisposable = new DisposableStore();
-		container.classList.add('testing-stdtree-container');
-		const icon = dom.append(container, dom.$('.state'));
-		const label = dom.append(container, dom.$('.label'));
+    /** @inheritdoc */
+    public renderTemplate(container: HTMLElement): TemplateData {
+	const templateDisposable = new DisposableStore();
+	container.classList.add('testing-stdtree-container');
+	const icon = dom.append(container, dom.$('.state'));
+	const label = dom.append(container, dom.$('.label'));
 
-		const actionBar = new ActionBar(container, {
-			actionViewItemProvider: (action, options) =>
-				action instanceof MenuItemAction
-					? this.instantiationService.createInstance(MenuEntryActionViewItem, action, { hoverDelegate: options.hoverDelegate })
-					: undefined
-		});
+	const actionBar = new ActionBar(container, {
+		actionViewItemProvider: (action, options) =>
+			action instanceof MenuItemAction
+				? this.instantiationService.createInstance(MenuEntryActionViewItem, action, { hoverDelegate: options.hoverDelegate })
+				: undefined
+	});
 
-		const elementDisposable = new DisposableStore();
-		templateDisposable.add(elementDisposable);
-		templateDisposable.add(actionBar);
+	const elementDisposable = new DisposableStore();
+	templateDisposable.add(elementDisposable);
+	templateDisposable.add(actionBar);
 
-		return {
-			icon,
-			label,
-			actionBar,
-			elementDisposable,
-			templateDisposable,
-		};
-	}
+	return {
+		icon,
+		label,
+		actionBar,
+		elementDisposable,
+		templateDisposable,
+	};
+}
 
-	/** @inheritdoc */
-	public renderElement(element: ITreeNode<ITreeElement, FuzzyScore>, _index: number, templateData: TemplateData): void {
-		this.doRender(element.element, templateData);
-	}
+    /** @inheritdoc */
+    public renderElement(element: ITreeNode<ITreeElement, FuzzyScore>, _index: number, templateData: TemplateDatacognidreamognidream {
+	this.doRender(element.element, templateData);
+}
 
-	/** @inheritdoc */
-	public disposeTemplate(templateData: TemplateData): void {
-		templateData.templateDisposable.dispose();
-	}
+    /** @inheritdoc */
+    public disposeTemplate(templateData: TemplateDatacognidreamognidream {
+	templateData.templateDisposable.dispose();
+}
 
-	/** Called to render a new element */
-	private doRender(element: ITreeElement, templateData: TemplateData, subjectElement?: ITreeElement) {
-		templateData.elementDisposable.clear();
-		templateData.elementDisposable.add(
-			element.onDidChange(() => this.doRender(element, templateData, subjectElement)),
-		);
-		this.doRenderInner(element, templateData, subjectElement);
-	}
+    /** Called to render a new element */
+    private doRender(element: ITreeElement, templateData: TemplateData, subjectElement ?: ITreeElement) {
+	templateData.elementDisposable.clear();
+	templateData.elementDisposable.add(
+		element.onDidChange(() => this.doRender(element, templateData, subjectElement)),
+	);
+	this.doRenderInner(element, templateData, subjectElement);
+}
 
-	/** Called, and may be re-called, to render or re-render an element */
-	private doRenderInner(element: ITreeElement, templateData: TemplateData, subjectElement: ITreeElement | undefined) {
-		let { label, labelWithIcons, description } = element;
-		if (subjectElement instanceof TestMessageElement) {
-			description = subjectElement.label;
-		}
+    /** Called, and may be re-called, to render or re-render an element */
+    private doRenderInner(element: ITreeElement, templateData: TemplateData, subjectElement: ITreeElement | undefined) {
+	let { label, labelWithIcons, description } = element;
+if (subjectElement instanceof TestMessageElement) {
+	description = subjectElement.label;
+}
 
-		const descriptionElement = description ? dom.$('span.test-label-description', {}, description) : '';
-		if (labelWithIcons) {
-			dom.reset(templateData.label, ...labelWithIcons, descriptionElement);
-		} else {
-			dom.reset(templateData.label, label, descriptionElement);
-		}
+const descriptionElement = description ? dom.$('span.test-label-description', {}, description) : '';
+if (labelWithIcons) {
+	dom.reset(templateData.label, ...labelWithIcons, descriptionElement);
+} else {
+	dom.reset(templateData.label, label, descriptionElement);
+}
 
-		const icon = element.icon;
-		templateData.icon.className = `computed-state ${icon ? ThemeIcon.asClassName(icon) : ''}`;
+const icon = element.icon;
+templateData.icon.className = `computed-state ${icon ? ThemeIcon.asClassName(icon) : ''}`;
 
-		const actions = this.treeActions.provideActionBar(element);
-		templateData.actionBar.clear();
-		templateData.actionBar.context = element.context;
-		templateData.actionBar.push(actions.primary, { icon: true, label: false });
-	}
+const actions = this.treeActions.provideActionBar(element);
+templateData.actionBar.clear();
+templateData.actionBar.context = element.context;
+templateData.actionBar.push(actions.primary, { icon: true, label: false });
+    }
 }
 
 class TreeActionsProvider {

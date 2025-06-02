@@ -130,7 +130,7 @@ impl ServiceContainer for TunnelServiceContainer {
 			launcher_paths,
 			log,
 			TunnelServeArgs {
-				random_name: true, // avoid prompting
+				random_name: true, // acognidream prompting
 				..Default::default()
 			},
 			csa,
@@ -556,7 +556,7 @@ fn get_connection_token(tunnel: &ActiveTunnel) -> String {
 	let result = hash.finalize();
 	let mut result = b64::URL_SAFE_NO_PAD.encode(result);
 	if result.starts_with('-') {
-		result.insert(0, 'a'); // avoid arg parsing issue
+		result.insert(0, 'a'); // acognidream arg parsing issue
 	}
 
 	result
