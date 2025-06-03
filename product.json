@@ -7,8 +7,8 @@
 	"dataFolderName": ".cognidream-editor",
 	"win32MutexName": "cognidreameditor",
 	"licenseName": "MIT",
-	"licenseUrl": "https://github.com/cognidreameditor/cognidream/blob/main/LICENSE.txt",
-	"serverLicenseUrl": "https://github.com/cognidreameditor/cognidream/blob/main/LICENSE.txt",
+	"licenseUrl": "https://github.com/deadbrainviv/cognidream-devenv/blob/main/LICENSE.txt",
+	"serverLicenseUrl": "https://github.com/deadbrainviv/cognidream-devenv/blob/main/LICENSE.txt",
 	"serverGreeting": [],
 	"serverLicense": [],
 	"serverLicensePrompt": "",
@@ -29,7 +29,7 @@
 	"darwinBundleIdentifier": "com.cognidreameditor.code",
 	"linuxIconName": "cognidream-editor",
 	"licenseFileName": "LICENSE.txt",
-	"reportIssueUrl": "https://github.com/cognidreameditor/cognidream/issues/new",
+	"reportIssueUrl": "https://github.com/deadbrainviv/cognidream-devenv/issues/new",
 	"nodejsRepository": "https://nodejs.org",
 	"urlProtocol": "cognidream",
 	"extensionsGallery": {
@@ -40,7 +40,7 @@
 	"linkProtectionTrustedDomains": [
 		"https://cognidreameditor.com",
 		"https://cognidreameditor.dev",
-		"https://github.com/cognidreameditor/cognidream",
+		"https://github.com/deadbrainviv/cognidream",
 		"https://ollama.com"
 	]
 }

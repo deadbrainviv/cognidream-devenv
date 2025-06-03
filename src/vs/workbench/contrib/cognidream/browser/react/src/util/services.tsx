@@ -19,9 +19,9 @@ import { IFileService } from '../../../../../../../platform/files/common/files.j
 import { IHoverService } from '../../../../../../../platform/hover/browser/hover.js';
 import { IThemeService } from '../../../../../../../platform/theme/common/themeService.js';
 import { ILLMMessageService } from '../../../../common/sendLLMMessageService.js';
-import { IRefreshModelService } from '../../../../../../../workbench/contrib/void/common/refreshModelService.js';
-import { IVoidSettingsService } from '../../../../../../../workbench/contrib/void/common/voidSettingsService.js';
-import { IExtensionTransferService } from '../../../../../../../workbench/contrib/void/browser/extensionTransferService.js'
+import { IRefreshModelService } from '../../../../../../../workbench/contrib/cognidream/common/refreshModelService.js';
+import { IVoidSettingsService } from '../../../../../../../workbench/contrib/cognidream/common/voidSettingsService.js';
+import { IExtensionTransferService } from '../../../../../../../workbench/contrib/cognidream/browser/extensionTransferService.js'
 
 import { IInstantiationService } from '../../../../../../../platform/instantiation/common/instantiation.js'
 import { ICodeEditorService } from '../../../../../../../editor/browser/services/codeEditorService.js'
@@ -36,7 +36,7 @@ import { IKeybindingService } from '../../../../../../../platform/keybinding/com
 import { IEnvironmentService } from '../../../../../../../platform/environment/common/environment.js'
 import { IConfigurationService } from '../../../../../../../platform/configuration/common/configuration.js'
 import { IPathService } from '../../../../../../../workbench/services/path/common/pathService.js'
-import { IMetricsService } from '../../../../../../../workbench/contrib/void/common/metricsService.js'
+import { IMetricsService } from '../../../../../../../workbench/contrib/cognidream/common/metricsService.js'
 import { URI } from '../../../../../../../base/common/uri.js'
 import { IChatThreadService, ThreadsState, ThreadStreamState } from '../../../chatThreadService.js'
 import { ITerminalToolService } from '../../../terminalToolService.js'

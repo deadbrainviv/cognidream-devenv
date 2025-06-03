@@ -25,8 +25,8 @@ import { splitRecentLabel } from '../../../../base/common/labels.js';
 import { IViewsService } from '../../../services/views/common/viewsService.js';
 
 /* eslint-disable */ // Void
-import { VOID_CTRL_K_ACTION_ID, VOID_CTRL_L_ACTION_ID } from '../../../contrib/void/browser/actionIDs.js';
-import { VOID_OPEN_SETTINGS_ACTION_ID } from '../../../contrib/void/browser/voidSettingsPane.js';
+import { VOID_CTRL_K_ACTION_ID, VOID_CTRL_L_ACTION_ID } from '../../../contrib/cognidream/browser/actionIDs.js';
+import { VOID_OPEN_SETTINGS_ACTION_ID } from '../../../contrib/cognidream/browser/voidSettingsPane.js';
 import { VIEWLET_ID as REMOTE_EXPLORER_VIEWLET_ID } from '../../../contrib/remote/browser/remoteExplorer.js';
 /* eslint-enable */
 
@@ -413,6 +413,7 @@ registerColor('editorWatermark.foreground', { dark: transparent(editorForeground
 // 	startDebugging,
 // 	toggleTerminal,
 // 	openSettings,
+// 	openCopilotEdits
 // ];
 
 // export class EditorGroupWatermark extends Disposable {
