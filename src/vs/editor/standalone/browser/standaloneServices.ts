@@ -103,18 +103,18 @@ import { IWebWorkerDescriptor } from '../../../base/browser/webWorkerFactory.js'
 class SimpleModel implements IResolvedTextEditorModel {
 
 	private readonly model: ITextModel;
-	private readonly _onWillDispose: Emitter<cognidream>;
+	private readonly _onWillDispose: Emitter<void>;
 
 	constructor(model: ITextModel) {
 		this.model = model;
-		this._onWillDispose = new Emitter<cognidream>();
+		this._onWillDispose = new Emitter<void>();
 	}
 
-	public get onWillDispose(): Event<cognidream> {
+	public get onWillDispose(): Event<void> {
 		return this._onWillDispose.event;
 	}
 
-	public resolve(): Promise<cognidream> {
+	public resolve(): Promise<void> {
 		return Promise.resolve();
 	}
 
@@ -131,7 +131,7 @@ class SimpleModel implements IResolvedTextEditorModel {
 	}
 
 	private disposed = false;
-	public dispose(): cognidream {
+	public dispose(): void {
 		this.disposed = true;
 
 		this._onWillDispose.fire();
@@ -193,7 +193,7 @@ class StandaloneEditorProgressService implements IEditorProgressService {
 		return StandaloneEditorProgressService.NULL_PROGRESS_RUNNER;
 	}
 
-	async showWhile(promise: Promise<any>, delay?: number): Promise<cognidream> {
+	async showWhile(promise: Promise<any>, delay?: number): Promise<void> {
 		await promise;
 	}
 }
@@ -202,7 +202,7 @@ class StandaloneProgressService implements IProgressService {
 
 	declare readonly _serviceBrand: undefined;
 
-	withProgress<R>(_options: IProgressOptions | IProgressDialogOptions | IProgressNotificationOptions | IProgressWindowOptions | IProgressCompositeOptions, task: (progress: IProgress<IProgressStep>) => Promise<R>, onDidCancel?: ((choice?: number | undefined) => cognidream) | undefined): Promise<R> {
+	withProgress<R>(_options: IProgressOptions | IProgressDialogOptions | IProgressNotificationOptions | IProgressWindowOptions | IProgressCompositeOptions, task: (progress: IProgress<IProgressStep>) => Promise<R>, onDidCancel?: ((choice?: number | undefined) => void) | undefined): Promise<R> {
 		return task({
 			report: () => { },
 		});
@@ -285,15 +285,15 @@ class StandaloneDialogService implements IDialogService {
 		return { result };
 	}
 
-	async info(message: string, detail?: string): Promise<cognidream> {
+	async info(message: string, detail?: string): Promise<void> {
 		await this.prompt({ type: Severity.Info, message, detail });
 	}
 
-	async warn(message: string, detail?: string): Promise<cognidream> {
+	async warn(message: string, detail?: string): Promise<void> {
 		await this.prompt({ type: Severity.Warning, message, detail });
 	}
 
-	async error(message: string, detail?: string): Promise<cognidream> {
+	async error(message: string, detail?: string): Promise<void> {
 		await this.prompt({ type: Severity.Error, message, detail });
 	}
 
@@ -301,7 +301,7 @@ class StandaloneDialogService implements IDialogService {
 		return Promise.resolve({ confirmed: false }); // unsupported
 	}
 
-	about(): Promise<cognidream> {
+	about(): Promise<void> {
 		return Promise.resolve(undefined);
 	}
 }
@@ -312,7 +312,7 @@ export class StandaloneNotificationService implements INotificationService {
 
 	readonly onDidRemoveNotification: Event<INotification> = Event.None;
 
-	readonly onDidChangeFilter: Event<cognidream> = Event.None;
+	readonly onDidChangeFilter: Event<void> = Event.None;
 
 	public _serviceBrand: undefined;
 
@@ -355,7 +355,7 @@ export class StandaloneNotificationService implements INotificationService {
 	}
 
 
-	public setFilter(filter: NotificationsFilter | INotificationSourceFilter): cognidream { }
+	public setFilter(filter: NotificationsFilter | INotificationSourceFilter): void { }
 
 	public getFilter(source?: INotificationSource): NotificationsFilter {
 		return NotificationsFilter.OFF;
@@ -365,7 +365,7 @@ export class StandaloneNotificationService implements INotificationService {
 		return [];
 	}
 
-	public removeFilter(sourceId: string): cognidream { }
+	public removeFilter(sourceId: string): void { }
 }
 
 export class StandaloneCommandService implements ICommandService {
@@ -530,7 +530,7 @@ export class StandaloneKeybindingService extends AbstractKeybindingService {
 		});
 	}
 
-	private updateResolver(): cognidream {
+	private updateResolver(): void {
 		this._cachedResolver = null;
 		this._onDidUpdateKeybindings.fire();
 	}
@@ -596,14 +596,14 @@ export class StandaloneKeybindingService extends AbstractKeybindingService {
 		return '';
 	}
 
-	public registerSchemaContribution(contribution: KeybindingsSchemaContribution): cognidream {
+	public registerSchemaContribution(contribution: KeybindingsSchemaContribution): void {
 		// noop
 	}
 
 	/**
 	 * not yet supported
 	 */
-	public override enableKeybindingHoldMode(commandId: string): Promise<cognidream> | undefined {
+	public override enableKeybindingHoldMode(commandId: string): Promise<void> | undefined {
 		return undefined;
 	}
 }
@@ -663,7 +663,7 @@ export class StandaloneConfigurationService implements IConfigurationService {
 		return this._configuration.getValue(section, overrides, undefined);
 	}
 
-	public updateValues(values: [string, any][]): Promise<cognidream> {
+	public updateValues(values: [string, any][]): Promise<void> {
 		const previous = { data: this._configuration.toData() };
 
 		const changedKeys: string[] = [];
@@ -686,7 +686,7 @@ export class StandaloneConfigurationService implements IConfigurationService {
 		return Promise.resolve();
 	}
 
-	public updateValue(key: string, value: any, arg3?: any, arg4?: any): Promise<cognidream> {
+	public updateValue(key: string, value: any, arg3?: any, arg4?: any): Promise<void> {
 		return this.updateValues([[key, value]]);
 	}
 
@@ -698,7 +698,7 @@ export class StandaloneConfigurationService implements IConfigurationService {
 		return this._configuration.keys(undefined);
 	}
 
-	public reloadConfiguration(): Promise<cognidream> {
+	public reloadConfiguration(): Promise<void> {
 		return Promise.resolve(undefined);
 	}
 
@@ -768,7 +768,7 @@ class StandaloneResourceConfigurationService implements ITextResourceConfigurati
 		return this.languageService.guessLanguageIdByFilepathOrFirstLine(resource);
 	}
 
-	updateValue(resource: URI, key: string, value: any, configurationTarget?: ConfigurationTarget): Promise<cognidream> {
+	updateValue(resource: URI, key: string, value: any, configurationTarget?: ConfigurationTarget): Promise<void> {
 		return this.configurationService.updateValue(key, value, { resource }, configurationTarget);
 	}
 }
@@ -800,8 +800,8 @@ class StandaloneTelemetryService implements ITelemetryService {
 	readonly devDeviceId = 'someValue.devDeviceId';
 	readonly firstSessionDate = 'someValue.firstSessionDate';
 	readonly sendErrorTelemetry = false;
-	setEnabled(): cognidream { }
-	setExperimentProperty(): cognidream { }
+	setEnabled(): void { }
+	setExperimentProperty(): void { }
 	publicLog() { }
 	publicLog2() { }
 	publicLogError() { }
@@ -814,8 +814,8 @@ class StandaloneWorkspaceContextService implements IWorkspaceContextService {
 
 	private static readonly SCHEME = 'inmemory';
 
-	private readonly _onDidChangeWorkspaceName = new Emitter<cognidream>();
-	public readonly onDidChangeWorkspaceName: Event<cognidream> = this._onDidChangeWorkspaceName.event;
+	private readonly _onDidChangeWorkspaceName = new Emitter<void>();
+	public readonly onDidChangeWorkspaceName: Event<void> = this._onDidChangeWorkspaceName.event;
 
 	private readonly _onWillChangeWorkspaceFolders = new Emitter<IWorkspaceFoldersWillChangeEvent>();
 	public readonly onWillChangeWorkspaceFolders: Event<IWorkspaceFoldersWillChangeEvent> = this._onWillChangeWorkspaceFolders.event;
@@ -864,7 +864,7 @@ class StandaloneWorkspaceContextService implements IWorkspaceContextService {
 	}
 }
 
-export function updateConfigurationService(configurationService: IConfigurationService, source: any, isDiffEditor: boolean): cognidream {
+export function updateConfigurationService(configurationService: IConfigurationService, source: any, isDiffEditor: boolean): void {
 	if (!source) {
 		return;
 	}
@@ -1011,7 +1011,7 @@ class StandaloneWorkspaceTrustManagementService implements IWorkspaceTrustManage
 
 	private _neverEmitter = new Emitter<never>();
 	public readonly onDidChangeTrust: Event<boolean> = this._neverEmitter.event;
-	onDidChangeTrustedFolders: Event<cognidream> = this._neverEmitter.event;
+	onDidChangeTrustedFolders: Event<void> = this._neverEmitter.event;
 	public readonly workspaceResolved = Promise.resolve();
 	public readonly workspaceTrustInitialized = Promise.resolve();
 	public readonly acceptsOutOfWorkspaceFiles = true;
@@ -1025,25 +1025,25 @@ class StandaloneWorkspaceTrustManagementService implements IWorkspaceTrustManage
 	canSetParentFolderTrust(): boolean {
 		return false;
 	}
-	async setParentFolderTrust(trusted: boolean): Promise<cognidream> {
+	async setParentFolderTrust(trusted: boolean): Promise<void> {
 		// noop
 	}
 	canSetWorkspaceTrust(): boolean {
 		return false;
 	}
-	async setWorkspaceTrust(trusted: boolean): Promise<cognidream> {
+	async setWorkspaceTrust(trusted: boolean): Promise<void> {
 		// noop
 	}
 	getUriTrustInfo(uri: URI): Promise<IWorkspaceTrustUriInfo> {
 		throw new Error('Method not supported.');
 	}
-	async setUrisTrust(uri: URI[], trusted: boolean): Promise<cognidream> {
+	async setUrisTrust(uri: URI[], trusted: boolean): Promise<void> {
 		// noop
 	}
 	getTrustedUris(): URI[] {
 		return [];
 	}
-	async setTrustedUris(uris: URI[]): Promise<cognidream> {
+	async setTrustedUris(uris: URI[]): Promise<void> {
 		// noop
 	}
 	addWorkspaceTrustTransitionParticipant(participant: IWorkspaceTrustTransitionParticipant): IDisposable {
@@ -1096,10 +1096,10 @@ class StandaloneEditorWorkerService extends EditorWorkerService {
 
 class StandaloneAccessbilitySignalService implements IAccessibilitySignalService {
 	_serviceBrand: undefined;
-	async playSignal(cue: AccessibilitySignal, options: {}): Promise<cognidream> {
+	async playSignal(cue: AccessibilitySignal, options: {}): Promise<void> {
 	}
 
-	async playSignals(cues: AccessibilitySignal[]): Promise<cognidream> {
+	async playSignals(cues: AccessibilitySignal[]): Promise<void> {
 	}
 
 	getEnabledState(signal: AccessibilitySignal, userGesture: boolean, modality?: AccessibilityModality | undefined): IValueWithChangeEvent<boolean> {
@@ -1118,11 +1118,11 @@ class StandaloneAccessbilitySignalService implements IAccessibilitySignalService
 		return false;
 	}
 
-	onSoundEnabledChanged(cue: AccessibilitySignal): Event<cognidream> {
+	onSoundEnabledChanged(cue: AccessibilitySignal): Event<void> {
 		return Event.None;
 	}
 
-	async playSound(cue: Sound, allowManyInParallel?: boolean | undefined): Promise<cognidream> {
+	async playSound(cue: Sound, allowManyInParallel?: boolean | undefined): Promise<void> {
 	}
 	playSignalLoop(cue: AccessibilitySignal): IDisposable {
 		return toDisposable(() => { });
@@ -1199,7 +1199,7 @@ export module StandaloneServices {
 	}
 
 	let initialized = false;
-	const onDidInitialize = new Emitter<cognidream>();
+	const onDidInitialize = new Emitter<void>();
 	export function initialize(overrides: IEditorOverrideServices): IInstantiationService {
 		if (initialized) {
 			return instantiationService;

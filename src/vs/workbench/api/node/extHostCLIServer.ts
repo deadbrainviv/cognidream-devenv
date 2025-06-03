@@ -80,7 +80,7 @@ export class CLIServerBase {
 		return this._ipcHandlePath;
 	}
 
-	private onRequest(req: http.IncomingMessage, res: http.ServerResponse): cognidream {
+	private onRequest(req: http.IncomingMessage, res: http.ServerResponse): void {
 		const sendResponse = (statusCode: number, returnObj: string | undefined) => {
 			res.writeHead(statusCode, { 'content-type': 'application/json' });
 			res.end(JSON.stringify(returnObj || null), (err?: any) => err && this.logService.error(err)); // CodeQL [SM01524] Only the message portion of errors are passed in.
@@ -173,13 +173,13 @@ export class CLIServerBase {
 		return await this._commands.executeCommand<string | undefined>('_remoteCLI.getSystemStatus');
 	}
 
-	dispose(cognidreamognidream {
+	dispose(): void {
 		this._server.close();
 
-if (this._ipcHandlePath && process.platform !== 'win32' && fs.existsSync(this._ipcHandlePath)) {
-	fs.unlinkSync(this._ipcHandlePath);
-}
-    }
+		if (this._ipcHandlePath && process.platform !== 'win32' && fs.existsSync(this._ipcHandlePath)) {
+			fs.unlinkSync(this._ipcHandlePath);
+		}
+	}
 }
 
 export class CLIServer extends CLIServerBase {

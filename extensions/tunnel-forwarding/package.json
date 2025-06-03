@@ -50,7 +50,7 @@
     "printWidth": 100,
     "trailingComma": "all",
     "singleQuote": true,
-    "arrowParens": "acognidream"
+    "arrowParens": "avoid"
   },
   "repository": {
     "type": "git",

@@ -76,7 +76,7 @@ export class SideBySideEditorInput extends EditorInput implements ISideBySideEdi
 		this.registerListeners();
 	}
 
-	private registerListeners(): cognidream {
+	private registerListeners(): void {
 
 		// When the primary or secondary input gets disposed, dispose this diff editor input
 		this._register(Event.once(Event.any(this.primary.onWillDispose, this.secondary.onWillDispose))(() => {
@@ -224,105 +224,105 @@ export class SideBySideEditorInput extends EditorInput implements ISideBySideEdi
 		return undefined;
 	}
 
-	override revert(group: GroupIdentifier, options?: IRevertOptions): Promicognidreamognidream> {
+	override revert(group: GroupIdentifier, options?: IRevertOptions): Promise<void> {
 		return this.primary.revert(group, options);
 	}
 
-    override async rename(group: GroupIdentifier, target: URI): Promise < IMoveResult | undefined > {
-	if(!this.hasIdenticalSides) {
-	return; // currently only enabled when both sides are identical
-}
-
-// Forward rename to primary side
-const renameResult = await this.primary.rename(group, target);
-if (!renameResult) {
-	return undefined;
-}
-
-// Build a side-by-side result from the rename result
-
-if (isEditorInput(renameResult.editor)) {
-	return {
-		editor: new SideBySideEditorInput(this.preferredName, this.preferredDescription, renameResult.editor, renameResult.editor, this.editorService),
-		options: {
-			...renameResult.options,
-			viewState: findViewStateForEditor(this, group, this.editorService)
+	override async rename(group: GroupIdentifier, target: URI): Promise<IMoveResult | undefined> {
+		if (!this.hasIdenticalSides) {
+			return; // currently only enabled when both sides are identical
 		}
-	};
-}
 
-if (isResourceEditorInput(renameResult.editor)) {
-	return {
-		editor: {
-			label: this.preferredName,
-			description: this.preferredDescription,
-			primary: renameResult.editor,
-			secondary: renameResult.editor,
-			options: {
-				...renameResult.options,
-				viewState: findViewStateForEditor(this, group, this.editorService)
-			}
+		// Forward rename to primary side
+		const renameResult = await this.primary.rename(group, target);
+		if (!renameResult) {
+			return undefined;
 		}
-	};
-}
 
-return undefined;
-    }
+		// Build a side-by-side result from the rename result
 
-    override isReadonly(): boolean | IMarkdownString {
-	return this.primary.isReadonly();
-}
-
-    override toUntyped(options ?: IUntypedEditorOptions): IResourceSideBySideEditorInput | undefined {
-	const primaryResourceEditorInput = this.primary.toUntyped(options);
-	const secondaryResourceEditorInput = this.secondary.toUntyped(options);
-
-	// Prevent nested side by side editors which are unsupported
-	if (
-		primaryResourceEditorInput && secondaryResourceEditorInput &&
-		!isResourceDiffEditorInput(primaryResourceEditorInput) && !isResourceDiffEditorInput(secondaryResourceEditorInput) &&
-		!isResourceMultiDiffEditorInput(primaryResourceEditorInput) && !isResourceMultiDiffEditorInput(secondaryResourceEditorInput) &&
-		!isResourceSideBySideEditorInput(primaryResourceEditorInput) && !isResourceSideBySideEditorInput(secondaryResourceEditorInput) &&
-		!isResourceMergeEditorInput(primaryResourceEditorInput) && !isResourceMergeEditorInput(secondaryResourceEditorInput)
-	) {
-		const untypedInput: IResourceSideBySideEditorInput = {
-			label: this.preferredName,
-			description: this.preferredDescription,
-			primary: primaryResourceEditorInput,
-			secondary: secondaryResourceEditorInput
-		};
-
-		if (typeof options?.preserveViewState === 'number') {
-			untypedInput.options = {
-				viewState: findViewStateForEditor(this, options.preserveViewState, this.editorService)
+		if (isEditorInput(renameResult.editor)) {
+			return {
+				editor: new SideBySideEditorInput(this.preferredName, this.preferredDescription, renameResult.editor, renameResult.editor, this.editorService),
+				options: {
+					...renameResult.options,
+					viewState: findViewStateForEditor(this, group, this.editorService)
+				}
 			};
 		}
 
-		return untypedInput;
+		if (isResourceEditorInput(renameResult.editor)) {
+			return {
+				editor: {
+					label: this.preferredName,
+					description: this.preferredDescription,
+					primary: renameResult.editor,
+					secondary: renameResult.editor,
+					options: {
+						...renameResult.options,
+						viewState: findViewStateForEditor(this, group, this.editorService)
+					}
+				}
+			};
+		}
+
+		return undefined;
 	}
 
-	return undefined;
-}
-
-    override matches(otherInput: EditorInput | IUntypedEditorInput): boolean {
-	if (this === otherInput) {
-		return true;
+	override isReadonly(): boolean | IMarkdownString {
+		return this.primary.isReadonly();
 	}
 
-	if (isDiffEditorInput(otherInput) || isResourceDiffEditorInput(otherInput)) {
-		return false; // prevent subclass from matching
+	override toUntyped(options?: IUntypedEditorOptions): IResourceSideBySideEditorInput | undefined {
+		const primaryResourceEditorInput = this.primary.toUntyped(options);
+		const secondaryResourceEditorInput = this.secondary.toUntyped(options);
+
+		// Prevent nested side by side editors which are unsupported
+		if (
+			primaryResourceEditorInput && secondaryResourceEditorInput &&
+			!isResourceDiffEditorInput(primaryResourceEditorInput) && !isResourceDiffEditorInput(secondaryResourceEditorInput) &&
+			!isResourceMultiDiffEditorInput(primaryResourceEditorInput) && !isResourceMultiDiffEditorInput(secondaryResourceEditorInput) &&
+			!isResourceSideBySideEditorInput(primaryResourceEditorInput) && !isResourceSideBySideEditorInput(secondaryResourceEditorInput) &&
+			!isResourceMergeEditorInput(primaryResourceEditorInput) && !isResourceMergeEditorInput(secondaryResourceEditorInput)
+		) {
+			const untypedInput: IResourceSideBySideEditorInput = {
+				label: this.preferredName,
+				description: this.preferredDescription,
+				primary: primaryResourceEditorInput,
+				secondary: secondaryResourceEditorInput
+			};
+
+			if (typeof options?.preserveViewState === 'number') {
+				untypedInput.options = {
+					viewState: findViewStateForEditor(this, options.preserveViewState, this.editorService)
+				};
+			}
+
+			return untypedInput;
+		}
+
+		return undefined;
 	}
 
-	if (otherInput instanceof SideBySideEditorInput) {
-		return this.primary.matches(otherInput.primary) && this.secondary.matches(otherInput.secondary);
-	}
+	override matches(otherInput: EditorInput | IUntypedEditorInput): boolean {
+		if (this === otherInput) {
+			return true;
+		}
 
-	if (isResourceSideBySideEditorInput(otherInput)) {
-		return this.primary.matches(otherInput.primary) && this.secondary.matches(otherInput.secondary);
-	}
+		if (isDiffEditorInput(otherInput) || isResourceDiffEditorInput(otherInput)) {
+			return false; // prevent subclass from matching
+		}
 
-	return false;
-}
+		if (otherInput instanceof SideBySideEditorInput) {
+			return this.primary.matches(otherInput.primary) && this.secondary.matches(otherInput.secondary);
+		}
+
+		if (isResourceSideBySideEditorInput(otherInput)) {
+			return this.primary.matches(otherInput.primary) && this.secondary.matches(otherInput.secondary);
+		}
+
+		return false;
+	}
 }
 
 // Register SideBySide/DiffEditor Input Serializer

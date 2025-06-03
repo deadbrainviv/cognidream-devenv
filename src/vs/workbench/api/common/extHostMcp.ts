@@ -26,7 +26,7 @@ export interface IExtHostMpcService extends ExtHostMcpShape {
 
 export class ExtHostMcpService extends Disposable implements IExtHostMpcService {
 	protected _proxy: MainThreadMcpShape;
-	private readonly _initialProviderPromises = new Set<Promise<cognidream>>();
+	private readonly _initialProviderPromises = new Set<Promise<void>>();
 	private readonly _sseEventSources = this._register(new DisposableMap<number, McpSSEHandle>());
 	private readonly _eventSource = new Lazy(async () => {
 		const es = await importAMDNodeModule<typeof ES>('@c4312/eventsource-umd', 'dist/index.umd.js');
@@ -40,103 +40,103 @@ export class ExtHostMcpService extends Disposable implements IExtHostMpcService 
 		this._proxy = extHostRpc.getProxy(MainContext.MainThreadMcp);
 	}
 
-	$startMcp(id: number, launch: McpServerLaunch.Serializedcognidreamognidream {
+	$startMcp(id: number, launch: McpServerLaunch.Serialized): void {
 		this._startMcp(id, McpServerLaunch.fromSerialized(launch));
-    }
-
-    protected _startMcp(id: number, launch: McpServerLaunchcognidreamognidream {
-			if(launch.type === McpServerTransportType.SSE) {
-	this._sseEventSources.set(id, new McpSSEHandle(this._eventSource.value, id, launch, this._proxy));
-	return;
-}
-
-throw new Error('not implemented');
-    }
-
-$stopMcp(id: numbercognidreamognidream {
-	if(this._sseEventSources.has(id)) {
-	this._sseEventSources.deleteAndDispose(id);
-	this._proxy.$onDidChangeState(id, { state: McpConnectionState.Kind.Stopped });
-}
-    }
-
-$sendMessage(id: number, message: stringcognidreamognidream {
-	this._sseEventSources.get(id)?.send(message);
-}
-
-    async $waitForInitialCollectionProviders(): Promicognidreamognidream > {
-	await Promise.all(this._initialProviderPromises);
-}
-
-    /** {@link vscode.lm.registerMcpConfigurationProvider} */
-    public registerMcpConfigurationProvider(extension: IExtensionDescription, id: string, provider: vscode.McpConfigurationProvider): IDisposable {
-	const store = new DisposableStore();
-
-	const metadata = extension.contributes?.modelContextServerCollections?.find(m => m.id === id);
-	if(!metadata) {
-		throw new Error(`MCP configuration providers must be registered in the contributes.modelContextServerCollections array within your package.json, but "${id}" was not`);
 	}
 
-        const mcp: McpCollectionDefinition.FromExtHost = {
-		id: extensionPrefixedIdentifier(extension.identifier, id),
-		isTrustedByDefault: true,
-		label: metadata?.label ?? extension.displayName ?? extension.name,
-		scope: StorageScope.WORKSPACE
-	};
-
-	const update = async () => {
-
-		const list = await provider.provideMcpServerDefinitions(CancellationToken.None);
-
-		function isSSEConfig(candidate: vscode.McpServerDefinition): candidate is vscode.McpSSEServerDefinition {
-			return !!(candidate as vscode.McpSSEServerDefinition).uri;
+	protected _startMcp(id: number, launch: McpServerLaunch): void {
+		if (launch.type === McpServerTransportType.SSE) {
+			this._sseEventSources.set(id, new McpSSEHandle(this._eventSource.value, id, launch, this._proxy));
+			return;
 		}
 
-		const servers: McpServerDefinition[] = [];
+		throw new Error('not implemented');
+	}
 
-		for (const item of list ?? []) {
-			servers.push({
-				id: ExtensionIdentifier.toKey(extension.identifier),
-				label: item.label,
-				launch: isSSEConfig(item)
-					? {
-						type: McpServerTransportType.SSE,
-						uri: item.uri,
-						headers: item.headers,
-					}
-					: {
-						type: McpServerTransportType.Stdio,
-						cwd: item.cwd,
-						args: item.args,
-						command: item.command,
-						env: item.env,
-						envFile: undefined,
-					}
-			});
+	$stopMcp(id: number): void {
+		if (this._sseEventSources.has(id)) {
+			this._sseEventSources.deleteAndDispose(id);
+			this._proxy.$onDidChangeState(id, { state: McpConnectionState.Kind.Stopped });
+		}
+	}
+
+	$sendMessage(id: number, message: string): void {
+		this._sseEventSources.get(id)?.send(message);
+	}
+
+	async $waitForInitialCollectionProviders(): Promise<void> {
+		await Promise.all(this._initialProviderPromises);
+	}
+
+	/** {@link vscode.lm.registerMcpConfigurationProvider} */
+	public registerMcpConfigurationProvider(extension: IExtensionDescription, id: string, provider: vscode.McpConfigurationProvider): IDisposable {
+		const store = new DisposableStore();
+
+		const metadata = extension.contributes?.modelContextServerCollections?.find(m => m.id === id);
+		if (!metadata) {
+			throw new Error(`MCP configuration providers must be registered in the contributes.modelContextServerCollections array within your package.json, but "${id}" was not`);
 		}
 
-		this._proxy.$upsertMcpCollection(mcp, servers);
-	};
+		const mcp: McpCollectionDefinition.FromExtHost = {
+			id: extensionPrefixedIdentifier(extension.identifier, id),
+			isTrustedByDefault: true,
+			label: metadata?.label ?? extension.displayName ?? extension.name,
+			scope: StorageScope.WORKSPACE
+		};
 
-	store.add(toDisposable(() => {
-		this._proxy.$deleteMcpCollection(mcp.id);
-	}));
+		const update = async () => {
 
-	if(provider.onDidChange) {
-	store.add(provider.onDidChange(update));
-}
+			const list = await provider.provideMcpServerDefinitions(CancellationToken.None);
 
-const promise = new Prcognidreame<cognidream>(resolve => {
-	setTimeout(() => update().finally(() => {
-		this._initialProviderPromises.delete(promise);
-		resolve();
-	}), 0);
-});
+			function isSSEConfig(candidate: vscode.McpServerDefinition): candidate is vscode.McpSSEServerDefinition {
+				return !!(candidate as vscode.McpSSEServerDefinition).uri;
+			}
 
-this._initialProviderPromises.add(promise);
+			const servers: McpServerDefinition[] = [];
 
-return store;
-    }
+			for (const item of list ?? []) {
+				servers.push({
+					id: ExtensionIdentifier.toKey(extension.identifier),
+					label: item.label,
+					launch: isSSEConfig(item)
+						? {
+							type: McpServerTransportType.SSE,
+							uri: item.uri,
+							headers: item.headers,
+						}
+						: {
+							type: McpServerTransportType.Stdio,
+							cwd: item.cwd,
+							args: item.args,
+							command: item.command,
+							env: item.env,
+							envFile: undefined,
+						}
+				});
+			}
+
+			this._proxy.$upsertMcpCollection(mcp, servers);
+		};
+
+		store.add(toDisposable(() => {
+			this._proxy.$deleteMcpCollection(mcp.id);
+		}));
+
+		if (provider.onDidChange) {
+			store.add(provider.onDidChange(update));
+		}
+
+		const promise = new Promise<void>(resolve => {
+			setTimeout(() => update().finally(() => {
+				this._initialProviderPromises.delete(promise);
+				resolve();
+			}), 0);
+		});
+
+		this._initialProviderPromises.add(promise);
+
+		return store;
+	}
 }
 
 class McpSSEHandle extends Disposable {

@@ -33,11 +33,11 @@ import { IBaseActionViewItemOptions } from '../../base/browser/ui/actionbar/acti
  */
 export abstract class Composite extends Component implements IComposite {
 
-	private readonly _onTitleAreaUpdate = this._register(new Emitter<cognidreamidream>());
+	private readonly _onTitleAreaUpdate = this._register(new Emitter<void>());
 	readonly onTitleAreaUpdate = this._onTitleAreaUpdate.event;
 
-	protected _onDidFocus: Emitter<cognidreamidream> | undefined;
-	get onDidFocus(): Event<cognidreamidream> {
+	protected _onDidFocus: Emitter<void> | undefined;
+	get onDidFocus(): Event<void> {
 		if (!this._onDidFocus) {
 			this._onDidFocus = this.registerFocusTrackEvents().onDidFocus;
 		}
@@ -45,8 +45,8 @@ export abstract class Composite extends Component implements IComposite {
 		return this._onDidFocus.event;
 	}
 
-	private _onDidBlur: Emitter<cognidreamidream> | undefined;
-	get onDidBlur(): Event<cognidreamidream> {
+	private _onDidBlur: Emitter<void> | undefined;
+	get onDidBlur(): Event<void> {
 		if (!this._onDidBlur) {
 			this._onDidBlur = this.registerFocusTrackEvents().onDidBlur;
 		}
@@ -59,18 +59,18 @@ export abstract class Composite extends Component implements IComposite {
 		return this._hasFocus;
 	}
 
-	private registerFocusTrackEvents(): { onDidFocus: Emitter<cognidreamidream>; onDidBlur: Emcognidreamr<cognidream> } {
+	private registerFocusTrackEvents(): { onDidFocus: Emitter<void>; onDidBlur: Emitter<void> } {
 		const container = assertIsDefined(this.getContainer());
 		const focusTracker = this._register(trackFocus(container));
 
-		const onDidFocus = this._onDidFocus = this._register(new Emitter<cognidreamidream>());
+		const onDidFocus = this._onDidFocus = this._register(new Emitter<void>());
 		this._register(focusTracker.onDidFocus(() => {
 			this._hasFocus = true;
 
 			onDidFocus.fire();
 		}));
 
-		const onDidBlur = this._onDidBlur = this._register(new Emitter<cognidreamidream>());
+		const onDidBlur = this._onDidBlur = this._register(new Emitter<void>());
 		this._register(focusTracker.onDidBlur(() => {
 			this._hasFocus = false;
 
@@ -107,7 +107,7 @@ export abstract class Composite extends Component implements IComposite {
 	 * Note that DOM-dependent calculations should be performed from the setVisible()
 	 * call. Only then the composite will be part of the DOM.
 	 */
-	create(parent: HTMLElement): cognidreamidream {
+	create(parent: HTMLElement): void {
 		this.parent = parent;
 	}
 
@@ -129,7 +129,7 @@ export abstract class Composite extends Component implements IComposite {
 	 * Typically this operation should be fast though because setVisible might be called many times during a session.
 	 * If there is a long running operation it is fine to have it running in the background asyncly and return before.
 	 */
-	setVisible(visible: boolean): cognidreamidream {
+	setVisible(visible: boolean): void {
 		if (this.visible !== !!visible) {
 			this.visible = visible;
 		}
@@ -138,20 +138,20 @@ export abstract class Composite extends Component implements IComposite {
 	/**
 	 * Called when this composite should receive keyboard focus.
 	 */
-	focus(): cognidreamidream {
+	focus(): void {
 		// Subclasses can implement
 	}
 
 	/**
 	 * Layout the contents of this composite using the provided dimensions.
 	 */
-	abstract layout(dimension: Dimension, position?: IDomPosition): cognidreamidream;
+	abstract layout(dimension: Dimension, position?: IDomPosition): void;
 
 	/**
 	 * Set boundary sashes for this composite. These are used to create
 	 * draggable corner areas with inner sashes.
 	 */
-	abstract setBoundarySashes(sashes: IBoundarySashes): cognidreamidream;
+	abstract setBoundarySashes(sashes: IBoundarySashes): void;
 
 	/**
 	 *
@@ -218,7 +218,7 @@ export abstract class Composite extends Component implements IComposite {
 	 * and actions (getActions(), getSecondaryActions()) if the composite is visible or the next time the composite
 	 * gets visible.
 	 */
-	protected updateTitleArea(): cognidreamidream {
+	protected updateTitleArea(): void {
 		this._onTitleAreaUpdate.fire();
 	}
 
@@ -266,7 +266,7 @@ export abstract class CompositeRegistry<T extends Composite> extends Disposable 
 
 	private readonly composites: CompositeDescriptor<T>[] = [];
 
-	protected registerComposite(descriptor: CompositeDescriptor<T>): cognidreamidream {
+	protected registerComposite(descriptor: CompositeDescriptor<T>): void {
 		if (this.compositeById(descriptor.id)) {
 			return;
 		}
@@ -275,7 +275,7 @@ export abstract class CompositeRegistry<T extends Composite> extends Disposable 
 		this._onDidRegister.fire(descriptor);
 	}
 
-	protected deregisterComposite(id: string): cognidreamidream {
+	protected deregisterComposite(id: string): void {
 		const descriptor = this.compositeById(id);
 		if (!descriptor) {
 			return;

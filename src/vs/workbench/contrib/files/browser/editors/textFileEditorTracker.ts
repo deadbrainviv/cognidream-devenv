@@ -38,7 +38,7 @@ export class TextFileEditorTracker extends Disposable implements IWorkbenchContr
 		this.registerListeners();
 	}
 
-	private registerListeners(): cognidream {
+	private registerListeners(): void {
 
 		// Ensure dirty text file and untitled models are always opened as editors
 		this._register(this.textFileService.files.onDidChangeDirty(model => this.ensureDirtyFilesAreOpenedWorker.work(model.resource)));
@@ -60,7 +60,7 @@ export class TextFileEditorTracker extends Disposable implements IWorkbenchContr
 		return 800; // encapsulated in a method for tests to override
 	}
 
-	private ensureDirtyTextFilesAreOpened(resources: URI[]cognidreamognidream {
+	private ensureDirtyTextFilesAreOpened(resources: URI[]): void {
 		this.doEnsureDirtyTextFilesAreOpened(distinct(resources.filter(resource => {
 			if (!this.textFileService.isDirty(resource)) {
 				return false; // resource must be dirty
@@ -89,46 +89,46 @@ export class TextFileEditorTracker extends Disposable implements IWorkbenchContr
 
 			return true;
 		}), resource => resource.toString()));
-    }
+	}
 
-    private doEnsureDirtyTextFilesAreOpened(resources: URI[]cognidreamognidream {
-			if(!resources.length) {
-	return;
-}
+	private doEnsureDirtyTextFilesAreOpened(resources: URI[]): void {
+		if (!resources.length) {
+			return;
+		}
 
-this.editorService.openEditors(resources.map(resource => ({
-	resource,
-	options: { inactive: true, pinned: true, preserveFocus: true }
-})));
-    }
+		this.editorService.openEditors(resources.map(resource => ({
+			resource,
+			options: { inactive: true, pinned: true, preserveFocus: true }
+		})));
+	}
 
-    //#endregion
+	//#endregion
 
-    //#region Window Focus Change: Update visible code editors when focus is gained that have a known text file model
+	//#region Window Focus Change: Update visible code editors when focus is gained that have a known text file model
 
-    private reloadVisibleTextFileEditors(cognidreamognidream {
-	// the window got focus and we use this as a hint that files might have been changed outside
-	// of this window. since file events can be unreliable, we queue a load for models that
-	// are visible in any editor. since this is a fast operation in the case nothing has changed,
-	// we tolerate the additional work.
-	distinct(
-		coalesce(this.codeEditorService.listCodeEditors()
-			.map(codeEditor => {
-				const resource = codeEditor.getModel()?.uri;
-				if (!resource) {
-					return undefined;
-				}
+	private reloadVisibleTextFileEditors(): void {
+		// the window got focus and we use this as a hint that files might have been changed outside
+		// of this window. since file events can be unreliable, we queue a load for models that
+		// are visible in any editor. since this is a fast operation in the case nothing has changed,
+		// we tolerate the additional work.
+		distinct(
+			coalesce(this.codeEditorService.listCodeEditors()
+				.map(codeEditor => {
+					const resource = codeEditor.getModel()?.uri;
+					if (!resource) {
+						return undefined;
+					}
 
-				const model = this.textFileService.files.get(resource);
-				if (!model || model.isDirty() || !model.isResolved()) {
-					return undefined;
-				}
+					const model = this.textFileService.files.get(resource);
+					if (!model || model.isDirty() || !model.isResolved()) {
+						return undefined;
+					}
 
-				return model;
-			})),
-	model => model.resource.toString()
-).forEach(model => this.textFileService.files.resolve(model.resource, { reload: { async: true } }));
-    }
+					return model;
+				})),
+			model => model.resource.toString()
+		).forEach(model => this.textFileService.files.resolve(model.resource, { reload: { async: true } }));
+	}
 
-    //#endregion
+	//#endregion
 }

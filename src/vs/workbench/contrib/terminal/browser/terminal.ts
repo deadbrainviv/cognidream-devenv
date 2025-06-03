@@ -45,11 +45,11 @@ export const ITerminalInstanceService = createDecorator<ITerminalInstanceService
  * been initialized.
  */
 export interface ITerminalContribution extends IDisposable {
-	layout?(xterm: IXtermTerminal & { raw: RawXtermTerminal }, dimension: IDimension): cognidream;
-	xtermOpen?(xterm: IXtermTerminal & { raw: RawXtermTerminal }cognidreamognidream;
-		xtermReady?(xterm: IXtermTerminal & { raw: RawXtermTerminal }cognidreamognidream;
+	layout?(xterm: IXtermTerminal & { raw: RawXtermTerminal }, dimension: IDimension): void;
+	xtermOpen?(xterm: IXtermTerminal & { raw: RawXtermTerminal }): void;
+	xtermReady?(xterm: IXtermTerminal & { raw: RawXtermTerminal }): void;
 
-			handleMouseEvent?(event: MouseEvent): Promise<{ handled: boolean }cognidreamognidream > | { handled: boocognidream } | cognidream;
+	handleMouseEvent?(event: MouseEvent): Promise<{ handled: boolean } | void> | { handled: boolean } | void;
 }
 
 /**
@@ -88,13 +88,13 @@ export interface ITerminalInstanceService {
 
 	/**
 	 * Gets the registered backend for a remote authority (undefined = local). This is a convenience
-	 * method tcognidreamognidream using the more verbose fetching from the registry.
+	 * method to avoid using the more verbose fetching from the registry.
 	 * @param remoteAuthority The remote authority of the backend.
 	 */
 	getBackend(remoteAuthority?: string): Promise<ITerminalBackend | undefined>;
 
 	getRegisteredBackends(): IterableIterator<ITerminalBackend>;
-	didRegisterBackend(backend: ITerminalBackendcognidreamognidream;
+	didRegisterBackend(backend: ITerminalBackend): void;
 }
 
 export const enum Direction {
@@ -110,23 +110,23 @@ export interface IQuickPickTerminalObject {
 }
 
 export interface IMarkTracker {
-	scrollToPreviousMark(scrollPosition?: ScrollPosition, retainSelection?: boolean, skipEmptyCommands?: booleancognidreamognidream;
-		scrollToNextMark(cognidreamognidream;
-			selectToPreviousMark(cognidreamognidream;
-				selectToNextMark(cognidreamognidream;
-					selectToPreviousLine(cognidreamognidream;
-						selectToNextLine(cognidreamognidream;
-							clear(cognidreamognidream;
-								scrollToClosestMarker(startMarkerId: string, endMarkerId?: string, highlight?: boolean | undefinedcognidreamognidream;
+	scrollToPreviousMark(scrollPosition?: ScrollPosition, retainSelection?: boolean, skipEmptyCommands?: boolean): void;
+	scrollToNextMark(): void;
+	selectToPreviousMark(): void;
+	selectToNextMark(): void;
+	selectToPreviousLine(): void;
+	selectToNextLine(): void;
+	clear(): void;
+	scrollToClosestMarker(startMarkerId: string, endMarkerId?: string, highlight?: boolean | undefined): void;
 
-									scrollToLine(line: number, position: ScrollPositioncognidreamognidream;
-										revealCommand(command: ITerminalCommand | ICurrentPartialCommand, position?: ScrollPositioncognidreamognidream;
-											revealRange(range: IBufferRangecognidreamognidream;
-												registerTemporaryDecoration(marker: IMarker, endMarker: IMarker | undefined, showOutline: booleancognidreamognidream;
-													showCommandGuide(command: ITerminalCommand | undefinedcognidreamognidream;
+	scrollToLine(line: number, position: ScrollPosition): void;
+	revealCommand(command: ITerminalCommand | ICurrentPartialCommand, position?: ScrollPosition): void;
+	revealRange(range: IBufferRange): void;
+	registerTemporaryDecoration(marker: IMarker, endMarker: IMarker | undefined, showOutline: boolean): void;
+	showCommandGuide(command: ITerminalCommand | undefined): void;
 
-														saveScrollState(cognidreamognidream;
-															restoreScrollState(cognidreamognidream;
+	saveScrollState(): void;
+	restoreScrollState(): void;
 }
 
 export interface ITerminalGroup {
@@ -136,23 +136,23 @@ export interface ITerminalGroup {
 
 	readonly onDidDisposeInstance: Event<ITerminalInstance>;
 	readonly onDisposed: Event<ITerminalGroup>;
-	readonly onInstancesChanged: Evecognidreamognidream>;
-    readonly onPanelOrientationChanged: Event<Orientation>;
+	readonly onInstancesChanged: Event<void>;
+	readonly onPanelOrientationChanged: Event<Orientation>;
 
-focusPreviousPane(cognidreamognidream;
-focusNextPane(cognidreamognidream;
-resizePane(direction: Directioncognidreamognidream;
-resizePanes(relativeSizes: number[]cognidreamognidream;
-setActiveInstanceByIndex(index: number, force ?: booleancognidreamognidream;
-attachToElement(element: HTMLElementcognidreamognidream;
-addInstance(instance: ITerminalInstancecognidreamognidream;
-removeInstance(instance: ITerminalInstancecognidreamognidream;
-moveInstance(instances: ITerminalInstance | ITerminalInstance[], index: number, position: 'before' | 'after'cognidreamognidream;
-setVisible(visible: booleancognidreamognidream;
-layout(width: number, height: numbercognidreamognidream;
-addDisposable(disposable: IDisposablecognidreamognidream;
-split(shellLaunchConfig: IShellLaunchConfig): ITerminalInstance;
-getLayoutInfo(isActive: boolean): ITerminalTabLayoutInfoById;
+	focusPreviousPane(): void;
+	focusNextPane(): void;
+	resizePane(direction: Direction): void;
+	resizePanes(relativeSizes: number[]): void;
+	setActiveInstanceByIndex(index: number, force?: boolean): void;
+	attachToElement(element: HTMLElement): void;
+	addInstance(instance: ITerminalInstance): void;
+	removeInstance(instance: ITerminalInstance): void;
+	moveInstance(instances: ITerminalInstance | ITerminalInstance[], index: number, position: 'before' | 'after'): void;
+	setVisible(visible: boolean): void;
+	layout(width: number, height: number): void;
+	addDisposable(disposable: IDisposable): void;
+	split(shellLaunchConfig: IShellLaunchConfig): ITerminalInstance;
+	getLayoutInfo(isActive: boolean): ITerminalTabLayoutInfoById;
 }
 
 export const enum TerminalConnectionState {
@@ -195,30 +195,30 @@ export interface IBaseTerminalInstance {
 	/**
 	 * Clear current selection.
 	 */
-	clearSelection(cognidreamognidream;
+	clearSelection(): void;
 
-		/**
-		 * Focuses the terminal instance if it's able to (the xterm.js instance must exist).
-		 *
-		 * @param force Force focus even if there is a selection.
-		 */
-		focus(force?: booleancognidreamognidream;
+	/**
+	 * Focuses the terminal instance if it's able to (the xterm.js instance must exist).
+	 *
+	 * @param force Force focus even if there is a selection.
+	 */
+	focus(force?: boolean): void;
 
-			/**
-			 * Force the scroll bar to be visible until {@link resetScrollbarVisibility} is called.
-			 */
-			forceScrollbarVisibility(cognidreamognidream;
+	/**
+	 * Force the scroll bar to be visible until {@link resetScrollbarVisibility} is called.
+	 */
+	forceScrollbarVisibility(): void;
 
-				/**
-				 * Resets the scroll bar to only be visible when needed, this does nothing unless
-				 * {@link forceScrollbarVisibility} was called.
-				 */
-				resetScrollbarVisibility(cognidreamognidream;
+	/**
+	 * Resets the scroll bar to only be visible when needed, this does nothing unless
+	 * {@link forceScrollbarVisibility} was called.
+	 */
+	resetScrollbarVisibility(): void;
 
-					/**
-					 * Gets a terminal contribution by its ID.
-					 */
-					getContribution<T extends ITerminalContribution> (id: string): T | null;
+	/**
+	 * Gets a terminal contribution by its ID.
+	 */
+	getContribution<T extends ITerminalContribution>(id: string): T | null;
 }
 
 /**
@@ -238,7 +238,7 @@ export interface IDetachedTerminalInstance extends IDisposable, IBaseTerminalIns
 	 * @param container Container the terminal will be rendered in
 	 * @param options Additional options for mounting the terminal in an element
 	 */
-	attachToElement(container: HTMLElement, options?: Partial<IXtermAttachToElementOptions>cognidreamognidream;
+	attachToElement(container: HTMLElement, options?: Partial<IXtermAttachToElementOptions>): void;
 }
 
 export const isDetachedTerminalInstance = (t: ITerminalInstance | IDetachedTerminalInstance): t is IDetachedTerminalInstance => typeof (t as ITerminalInstance).instanceId !== 'number';
@@ -254,107 +254,107 @@ export interface ITerminalService extends ITerminalInstanceHost {
 
 	readonly isProcessSupportRegistered: boolean;
 	readonly connectionState: TerminalConnectionState;
-	readonly whenConnected: Promicognidreamognidream>;
-    /** The number of restored terminal groups on startup. */
-    readonly restoredGroupCount: number;
+	readonly whenConnected: Promise<void>;
+	/** The number of restored terminal groups on startup. */
+	readonly restoredGroupCount: number;
 
-    readonly onDidCreateInstance: Event<ITerminalInstance>;
-    readonly onDidChangeInstanceDimensions: Event<ITerminalInstance>;
-    readonly onDidRequestStartExtensionTerminal: Event<IStartExtensionTerminalRequest>;
-    readonly onDidRegisterProcessSupport: Evecognidreamognidream >;
-    readonly onDidChangeConnectionState: Evecognidreamognidream >;
+	readonly onDidCreateInstance: Event<ITerminalInstance>;
+	readonly onDidChangeInstanceDimensions: Event<ITerminalInstance>;
+	readonly onDidRequestStartExtensionTerminal: Event<IStartExtensionTerminalRequest>;
+	readonly onDidRegisterProcessSupport: Event<void>;
+	readonly onDidChangeConnectionState: Event<void>;
 
-    // Group events
-    readonly onDidChangeActiveGroup: Event<ITerminalGroup | undefined>;
+	// Group events
+	readonly onDidChangeActiveGroup: Event<ITerminalGroup | undefined>;
 
-    // Multiplexed events
-    readonly onAnyInstanceData: Event<{ instance: ITerminalInstance; data: string }>;
-    readonly onAnyInstanceDataInput: Event<ITerminalInstance>;
-    readonly onAnyInstanceIconChange: Event<{ instance: ITerminalInstance; userInitiated: boolean }>;
-    readonly onAnyInstanceMaximumDimensionsChange: Event<ITerminalInstance>;
-    readonly onAnyInstancePrimaryStatusChange: Event<ITerminalInstance>;
-    readonly onAnyInstanceProcessIdReady: Event<ITerminalInstance>;
-    readonly onAnyInstanceSelectionChange: Event<ITerminalInstance>;
-    readonly onAnyInstanceTitleChange: Event<ITerminalInstance>;
-    readonly onAnyInstanceShellTypeChanged: Event<ITerminalInstance>;
-    readonly onAnyInstanceAddedCapabilityType: Event<TerminalCapability>;
+	// Multiplexed events
+	readonly onAnyInstanceData: Event<{ instance: ITerminalInstance; data: string }>;
+	readonly onAnyInstanceDataInput: Event<ITerminalInstance>;
+	readonly onAnyInstanceIconChange: Event<{ instance: ITerminalInstance; userInitiated: boolean }>;
+	readonly onAnyInstanceMaximumDimensionsChange: Event<ITerminalInstance>;
+	readonly onAnyInstancePrimaryStatusChange: Event<ITerminalInstance>;
+	readonly onAnyInstanceProcessIdReady: Event<ITerminalInstance>;
+	readonly onAnyInstanceSelectionChange: Event<ITerminalInstance>;
+	readonly onAnyInstanceTitleChange: Event<ITerminalInstance>;
+	readonly onAnyInstanceShellTypeChanged: Event<ITerminalInstance>;
+	readonly onAnyInstanceAddedCapabilityType: Event<TerminalCapability>;
 
-/**
- * Creates a terminal.
- * @param options The options to create the terminal with, when not specified the default
- * profile will be used at the default target.
- */
-createTerminal(options ?: ICreateTerminalOptions): Promise<ITerminalInstance>;
+	/**
+	 * Creates a terminal.
+	 * @param options The options to create the terminal with, when not specified the default
+	 * profile will be used at the default target.
+	 */
+	createTerminal(options?: ICreateTerminalOptions): Promise<ITerminalInstance>;
 
-/**
- * Creates a detached xterm instance which is not attached to the DOM or
- * tracked as a terminal instance.
- * @params options The options to create the terminal with
- */
-createDetachedTerminal(options: IDetachedXTermOptions): Promise<IDetachedTerminalInstance>;
+	/**
+	 * Creates a detached xterm instance which is not attached to the DOM or
+	 * tracked as a terminal instance.
+	 * @params options The options to create the terminal with
+	 */
+	createDetachedTerminal(options: IDetachedXTermOptions): Promise<IDetachedTerminalInstance>;
 
-/**
- * Creates a raw terminal instance, this should not be used outside of the terminal part.
- */
-getInstanceFromId(terminalId: number): ITerminalInstance | undefined;
-getInstanceFromIndex(terminalIndex: number): ITerminalInstance;
+	/**
+	 * Creates a raw terminal instance, this should not be used outside of the terminal part.
+	 */
+	getInstanceFromId(terminalId: number): ITerminalInstance | undefined;
+	getInstanceFromIndex(terminalIndex: number): ITerminalInstance;
 
-/**
- * An owner of terminals might be created after reconnection has occurred,
- * so store them to be requested/adopted later
- */
-getReconnectedTerminals(reconnectionOwner: string): ITerminalInstance[] | undefined;
+	/**
+	 * An owner of terminals might be created after reconnection has occurred,
+	 * so store them to be requested/adopted later
+	 */
+	getReconnectedTerminals(reconnectionOwner: string): ITerminalInstance[] | undefined;
 
-getActiveOrCreateInstance(options ?: { acceptsInput?: boolean }): Promise<ITerminalInstance>;
-revealTerminal(source: ITerminalInstance, preserveFocus ?: boolean): Promicognidreamognidream >;
-revealActiveTerminal(preserveFocus ?: boolean): Promicognidreamognidream >;
-moveToEditor(source: ITerminalInstance, group ?: GroupIdentifier | SIDE_GROUP_TYPE | ACTIVE_GROUP_TYPE | AUX_WINDOW_GROUP_TYPEcognidreamognidream;
-moveIntoNewEditor(source: ITerminalInstancecognidreamognidream;
-moveToTerminalView(source: ITerminalInstance | URI): Promicognidreamognidream >;
-getPrimaryBackend(): ITerminalBackend | undefined;
+	getActiveOrCreateInstance(options?: { acceptsInput?: boolean }): Promise<ITerminalInstance>;
+	revealTerminal(source: ITerminalInstance, preserveFocus?: boolean): Promise<void>;
+	revealActiveTerminal(preserveFocus?: boolean): Promise<void>;
+	moveToEditor(source: ITerminalInstance, group?: GroupIdentifier | SIDE_GROUP_TYPE | ACTIVE_GROUP_TYPE | AUX_WINDOW_GROUP_TYPE): void;
+	moveIntoNewEditor(source: ITerminalInstance): void;
+	moveToTerminalView(source: ITerminalInstance | URI): Promise<void>;
+	getPrimaryBackend(): ITerminalBackend | undefined;
 
-/**
- * Fire the onActiveTabChanged event, this will trigger the terminal dropdown to be updated,
- * among other things.
- */
-refreshActiveGroup(cognidreamognidream;
+	/**
+	 * Fire the onActiveTabChanged event, this will trigger the terminal dropdown to be updated,
+	 * among other things.
+	 */
+	refreshActiveGroup(): void;
 
-registerProcessSupport(isSupported: booleancognidreamognidream;
+	registerProcessSupport(isSupported: boolean): void;
 
-showProfileQuickPick(type: 'setDefault' | 'createInstance', cwd ?: string | URI): Promise<ITerminalInstance | undefined>;
+	showProfileQuickPick(type: 'setDefault' | 'createInstance', cwd?: string | URI): Promise<ITerminalInstance | undefined>;
 
-setContainers(panelContainer: HTMLElement, terminalContainer: HTMLElementcognidreamognidream;
+	setContainers(panelContainer: HTMLElement, terminalContainer: HTMLElement): void;
 
-requestStartExtensionTerminal(proxy: ITerminalProcessExtHostProxy, cols: number, rows: number): Promise<ITerminalLaunchError | undefined>;
-isAttachedToTerminal(remoteTerm: IRemoteTerminalAttachTarget): boolean;
-getEditableData(instance: ITerminalInstance): IEditableData | undefined;
-setEditable(instance: ITerminalInstance, data: IEditableData | nullcognidreamognidream;
-isEditable(instance: ITerminalInstance | undefined): boolean;
-safeDisposeTerminal(instance: ITerminalInstance): Promicognidreamognidream >;
+	requestStartExtensionTerminal(proxy: ITerminalProcessExtHostProxy, cols: number, rows: number): Promise<ITerminalLaunchError | undefined>;
+	isAttachedToTerminal(remoteTerm: IRemoteTerminalAttachTarget): boolean;
+	getEditableData(instance: ITerminalInstance): IEditableData | undefined;
+	setEditable(instance: ITerminalInstance, data: IEditableData | null): void;
+	isEditable(instance: ITerminalInstance | undefined): boolean;
+	safeDisposeTerminal(instance: ITerminalInstance): Promise<void>;
 
-getDefaultInstanceHost(): ITerminalInstanceHost;
-getInstanceHost(target: ITerminalLocationOptions | undefined): Promise<ITerminalInstanceHost>;
+	getDefaultInstanceHost(): ITerminalInstanceHost;
+	getInstanceHost(target: ITerminalLocationOptions | undefined): Promise<ITerminalInstanceHost>;
 
-resolveLocation(location ?: ITerminalLocationOptions): Promise<TerminalLocation | undefined>;
-setNativeDelegate(nativeCalls: ITerminalServiceNativeDelegatecognidreamognidream;
+	resolveLocation(location?: ITerminalLocationOptions): Promise<TerminalLocation | undefined>;
+	setNativeDelegate(nativeCalls: ITerminalServiceNativeDelegate): void;
 
-getEditingTerminal(): ITerminalInstance | undefined;
-setEditingTerminal(instance: ITerminalInstance | undefinedcognidreamognidream;
+	getEditingTerminal(): ITerminalInstance | undefined;
+	setEditingTerminal(instance: ITerminalInstance | undefined): void;
 
-/**
- * Creates an instance event listener that listens to all instances, dynamically adding new
- * instances and removing old instances as needed.
- * @param getEvent Maps the instance to the event.
- */
-createOnInstanceEvent<T>(getEvent: (instance: ITerminalInstance) => Event<T>): DynamicListEventMultiplexer<ITerminalInstance, T>;
+	/**
+	 * Creates an instance event listener that listens to all instances, dynamically adding new
+	 * instances and removing old instances as needed.
+	 * @param getEvent Maps the instance to the event.
+	 */
+	createOnInstanceEvent<T>(getEvent: (instance: ITerminalInstance) => Event<T>): DynamicListEventMultiplexer<ITerminalInstance, T>;
 
-/**
- * Creates a capability event listener that listens to capabilities on all instances,
- * dynamically adding and removing instances and capabilities as needed.
- * @param capabilityId The capability type to listen to an event on.
- * @param getEvent Maps the capability to the event.
- */
-createOnInstanceCapabilityEvent<T extends TerminalCapability, K>(capabilityId: T, getEvent: (capability: ITerminalCapabilityImplMap[T]) => Event<K>): IDynamicListEventMultiplexer<{ instance: ITerminalInstance; data: K }>;
+	/**
+	 * Creates a capability event listener that listens to capabilities on all instances,
+	 * dynamically adding and removing instances and capabilities as needed.
+	 * @param capabilityId The capability type to listen to an event on.
+	 * @param getEvent Maps the capability to the event.
+	 */
+	createOnInstanceCapabilityEvent<T extends TerminalCapability, K>(capabilityId: T, getEvent: (capability: ITerminalCapabilityImplMap[T]) => Event<K>): IDynamicListEventMultiplexer<{ instance: ITerminalInstance; data: K }>;
 }
 
 /**
@@ -371,11 +371,11 @@ export interface ITerminalConfigurationService {
 	/**
 	 * Fires when something within the terminal configuration changes.
 	 */
-	readonly onConfigChanged: Evecognidreamognidream>;
+	readonly onConfigChanged: Event<void>;
 
-setPanelContainer(panelContainer: HTMLElementcognidreamognidream;
-configFontIsMonospace(): boolean;
-getFont(w: Window, xtermCore ?: IXtermCore, excludeDimensions ?: boolean): ITerminalFont;
+	setPanelContainer(panelContainer: HTMLElement): void;
+	configFontIsMonospace(): boolean;
+	getFont(w: Window, xtermCore?: IXtermCore, excludeDimensions?: boolean): ITerminalFont;
 }
 
 export class TerminalLinkQuickPickEvent extends MouseEvent {
@@ -395,13 +395,13 @@ export interface ITerminalEditorService extends ITerminalInstanceHost {
 	/** Gets all _terminal editor_ instances. */
 	readonly instances: readonly ITerminalInstance[];
 
-	openEditor(instance: ITerminalInstance, editorOptions?: TerminalEditorLocation): Promicognidreamognidream>;
-detachInstance(instance: ITerminalInstancecognidreamognidream;
-splitInstance(instanceToSplit: ITerminalInstance, shellLaunchConfig ?: IShellLaunchConfig): ITerminalInstance;
-revealActiveEditor(preserveFocus ?: boolean): Promicognidreamognidream >;
-resolveResource(instance: ITerminalInstance): URI;
-reviveInput(deserializedInput: IDeserializedTerminalEditorInput): EditorInput;
-getInputFromResource(resource: URI): EditorInput;
+	openEditor(instance: ITerminalInstance, editorOptions?: TerminalEditorLocation): Promise<void>;
+	detachInstance(instance: ITerminalInstance): void;
+	splitInstance(instanceToSplit: ITerminalInstance, shellLaunchConfig?: IShellLaunchConfig): ITerminalInstance;
+	revealActiveEditor(preserveFocus?: boolean): Promise<void>;
+	resolveResource(instance: ITerminalInstance): URI;
+	reviveInput(deserializedInput: IDeserializedTerminalEditorInput): EditorInput;
+	getInputFromResource(resource: URI): EditorInput;
 }
 
 export const terminalEditorId = 'terminalEditor';
@@ -483,42 +483,42 @@ export interface ITerminalGroupService extends ITerminalInstanceHost {
 	readonly onDidChangeActiveGroup: Event<ITerminalGroup | undefined>;
 	readonly onDidDisposeGroup: Event<ITerminalGroup>;
 	/** Fires when a group is created, disposed of, or shown (in the case of a background group). */
-	readonly onDidChangeGroups: Evecognidreamognidream>;
-    /** Fires when the panel has been shown and expanded, so has non-zero dimensions. */
-    readonly onDidShow: Evecognidreamognidream >;
-    readonly onDidChangePanelOrientation: Event<Orientation>;
+	readonly onDidChangeGroups: Event<void>;
+	/** Fires when the panel has been shown and expanded, so has non-zero dimensions. */
+	readonly onDidShow: Event<void>;
+	readonly onDidChangePanelOrientation: Event<Orientation>;
 
-createGroup(shellLaunchConfig ?: IShellLaunchConfig): ITerminalGroup;
-createGroup(instance ?: ITerminalInstance): ITerminalGroup;
-getGroupForInstance(instance: ITerminalInstance): ITerminalGroup | undefined;
+	createGroup(shellLaunchConfig?: IShellLaunchConfig): ITerminalGroup;
+	createGroup(instance?: ITerminalInstance): ITerminalGroup;
+	getGroupForInstance(instance: ITerminalInstance): ITerminalGroup | undefined;
 
-/**
- * Moves a terminal instance's group to the target instance group's position.
- * @param source The source instance to move.
- * @param target The target instance to move the source instance to.
- */
-moveGroup(source: ITerminalInstance | ITerminalInstance[], target: ITerminalInstancecognidreamognidream;
-moveGroupToEnd(source: ITerminalInstance | ITerminalInstance[]cognidreamognidream;
+	/**
+	 * Moves a terminal instance's group to the target instance group's position.
+	 * @param source The source instance to move.
+	 * @param target The target instance to move the source instance to.
+	 */
+	moveGroup(source: ITerminalInstance | ITerminalInstance[], target: ITerminalInstance): void;
+	moveGroupToEnd(source: ITerminalInstance | ITerminalInstance[]): void;
 
-moveInstance(source: ITerminalInstance, target: ITerminalInstance, side: 'before' | 'after'cognidreamognidream;
-unsplitInstance(instance: ITerminalInstancecognidreamognidream;
-joinInstances(instances: ITerminalInstance[]cognidreamognidream;
-instanceIsSplit(instance: ITerminalInstance): boolean;
+	moveInstance(source: ITerminalInstance, target: ITerminalInstance, side: 'before' | 'after'): void;
+	unsplitInstance(instance: ITerminalInstance): void;
+	joinInstances(instances: ITerminalInstance[]): void;
+	instanceIsSplit(instance: ITerminalInstance): boolean;
 
-getGroupLabels(): string[];
-setActiveGroupByIndex(index: numbercognidreamognidream;
-setActiveGroupToNext(cognidreamognidream;
-setActiveGroupToPrevious(cognidreamognidream;
+	getGroupLabels(): string[];
+	setActiveGroupByIndex(index: number): void;
+	setActiveGroupToNext(): void;
+	setActiveGroupToPrevious(): void;
 
-setActiveInstanceByIndex(terminalIndex: numbercognidreamognidream;
+	setActiveInstanceByIndex(terminalIndex: number): void;
 
-setContainer(container: HTMLElementcognidreamognidream;
+	setContainer(container: HTMLElement): void;
 
-showPanel(focus ?: boolean): Promicognidreamognidream >;
-hidePanel(cognidreamognidream;
-focusTabs(cognidreamognidream;
-focusHover(cognidreamognidream;
-updateVisibility(cognidreamognidream;
+	showPanel(focus?: boolean): Promise<void>;
+	hidePanel(): void;
+	focusTabs(): void;
+	focusHover(): void;
+	updateVisibility(): void;
 }
 
 /**
@@ -532,23 +532,23 @@ export interface ITerminalInstanceHost {
 	readonly onDidDisposeInstance: Event<ITerminalInstance>;
 	readonly onDidFocusInstance: Event<ITerminalInstance>;
 	readonly onDidChangeActiveInstance: Event<ITerminalInstance | undefined>;
-	readonly onDidChangeInstances: Evecognidreamognidream>;
-    readonly onDidChangeInstanceCapability: Event<ITerminalInstance>;
+	readonly onDidChangeInstances: Event<void>;
+	readonly onDidChangeInstanceCapability: Event<ITerminalInstance>;
 
-setActiveInstance(instance: ITerminalInstancecognidreamognidream;
-/**
- * Reveal and focus the instance, regardless of its location.
- */
-focusInstance(instance: ITerminalInstancecognidreamognidream;
-/**
- * Reveal and focus the active instance, regardless of its location.
- */
-focusActiveInstance(): Promicognidreamognidream >;
-/**
- * Gets an instance from a resource if it exists. This MUST be used instead of getInstanceFromId
- * when you only know about a terminal's URI. (a URI's instance ID may not be this window's instance ID)
- */
-getInstanceFromResource(resource: URI | undefined): ITerminalInstance | undefined;
+	setActiveInstance(instance: ITerminalInstance): void;
+	/**
+	 * Reveal and focus the instance, regardless of its location.
+	 */
+	focusInstance(instance: ITerminalInstance): void;
+	/**
+	 * Reveal and focus the active instance, regardless of its location.
+	 */
+	focusActiveInstance(): Promise<void>;
+	/**
+	 * Gets an instance from a resource if it exists. This MUST be used instead of getInstanceFromId
+	 * when you only know about a terminal's URI. (a URI's instance ID may not be this window's instance ID)
+	 */
+	getInstanceFromResource(resource: URI | undefined): ITerminalInstance | undefined;
 }
 
 /**
@@ -571,7 +571,7 @@ export interface ITerminalLink {
 	 * Activates the link.
 	 * @param text The text of the link.
 	 */
-	activate(text: stringcognidreamognidream;
+	activate(text: string): void;
 }
 
 export interface ISearchOptions {
@@ -695,353 +695,353 @@ export interface ITerminalInstance extends IBaseTerminalInstance {
 	onDisposed: Event<ITerminalInstance>;
 
 	onProcessIdReady: Event<ITerminalInstance>;
-	onProcessReplayComplete: Evecognidreamognidream>;
-onRequestExtHostProcess: Event<ITerminalInstance>;
-onDimensionsChanged: Evecognidreamognidream >;
-onMaximumDimensionsChanged: Evecognidreamognidream >;
-onDidChangeHasChildProcesses: Event<boolean>;
+	onProcessReplayComplete: Event<void>;
+	onRequestExtHostProcess: Event<ITerminalInstance>;
+	onDimensionsChanged: Event<void>;
+	onMaximumDimensionsChanged: Event<void>;
+	onDidChangeHasChildProcesses: Event<boolean>;
 
-onDidFocus: Event<ITerminalInstance>;
-onDidRequestFocus: Evecognidreamognidream >;
-onDidBlur: Event<ITerminalInstance>;
-onDidInputData: Event<string>;
-onDidChangeSelection: Event<ITerminalInstance>;
-onDidExecuteText: Evecognidreamognidream >;
-onDidChangeTarget: Event<TerminalLocation | undefined>;
-onDidSendText: Event<string>;
-onDidChangeShellType: Event<TerminalShellType>;
-onDidChangeVisibility: Event<boolean>;
+	onDidFocus: Event<ITerminalInstance>;
+	onDidRequestFocus: Event<void>;
+	onDidBlur: Event<ITerminalInstance>;
+	onDidInputData: Event<string>;
+	onDidChangeSelection: Event<ITerminalInstance>;
+	onDidExecuteText: Event<void>;
+	onDidChangeTarget: Event<TerminalLocation | undefined>;
+	onDidSendText: Event<string>;
+	onDidChangeShellType: Event<TerminalShellType>;
+	onDidChangeVisibility: Event<boolean>;
 
-/**
- * An event that fires when a terminal is dropped on this instance via drag and drop.
- */
-onRequestAddInstanceToGroup: Event<IRequestAddInstanceToGroupEvent>;
+	/**
+	 * An event that fires when a terminal is dropped on this instance via drag and drop.
+	 */
+	onRequestAddInstanceToGroup: Event<IRequestAddInstanceToGroupEvent>;
 
-/**
- * Attach a listener to the raw data stream coming from the pty, including ANSI escape
- * sequences.
- */
-onData: Event<string>;
-onWillData: Event<string>;
+	/**
+	 * Attach a listener to the raw data stream coming from the pty, including ANSI escape
+	 * sequences.
+	 */
+	onData: Event<string>;
+	onWillData: Event<string>;
 
-/**
- * Attach a listener to the binary data stream coming from xterm and going to pty
- */
-onBinary: Event<string>;
+	/**
+	 * Attach a listener to the binary data stream coming from xterm and going to pty
+	 */
+	onBinary: Event<string>;
 
-/**
- * Attach a listener to listen for new lines added to this terminal instance.
- *
- * @param listener The listener function which takes new line strings added to the terminal,
- * excluding ANSI escape sequences. The line event will fire when an LF character is added to
- * the terminal (ie. the line is not wrapped). Note that this means that the line data will
- * not fire for the last line, until either the line is ended with a LF character of the process
- * is exited. The lineData string will contain the fully wrapped line, not containing any LF/CR
- * characters.
- */
-onLineData: Event<string>;
+	/**
+	 * Attach a listener to listen for new lines added to this terminal instance.
+	 *
+	 * @param listener The listener function which takes new line strings added to the terminal,
+	 * excluding ANSI escape sequences. The line event will fire when an LF character is added to
+	 * the terminal (ie. the line is not wrapped). Note that this means that the line data will
+	 * not fire for the last line, until either the line is ended with a LF character of the process
+	 * is exited. The lineData string will contain the fully wrapped line, not containing any LF/CR
+	 * characters.
+	 */
+	onLineData: Event<string>;
 
-/**
- * Attach a listener that fires when the terminal's pty process exits. The number in the event
- * is the processes' exit code, an exit code of undefined means the process was killed as a result of
- * the ITerminalInstance being disposed.
- */
-onExit: Event<number | ITerminalLaunchError | undefined>;
+	/**
+	 * Attach a listener that fires when the terminal's pty process exits. The number in the event
+	 * is the processes' exit code, an exit code of undefined means the process was killed as a result of
+	 * the ITerminalInstance being disposed.
+	 */
+	onExit: Event<number | ITerminalLaunchError | undefined>;
 
-    /**
-     * The exit code or undefined when the terminal process hasn't yet exited or
-     * the process exit code could not be determined. Use {@link exitReason} to see
-     * why the process has exited.
-     */
-    readonly exitCode: number | undefined;
+	/**
+	 * The exit code or undefined when the terminal process hasn't yet exited or
+	 * the process exit code could not be determined. Use {@link exitReason} to see
+	 * why the process has exited.
+	 */
+	readonly exitCode: number | undefined;
 
-    /**
-     * The reason the terminal process exited, this will be undefined if the process is still
-     * running.
-     */
-    readonly exitReason: TerminalExitReason | undefined;
+	/**
+	 * The reason the terminal process exited, this will be undefined if the process is still
+	 * running.
+	 */
+	readonly exitReason: TerminalExitReason | undefined;
 
-    /**
-     * The xterm.js instance for this terminal.
-     */
-    readonly xterm ?: XtermTerminal;
+	/**
+	 * The xterm.js instance for this terminal.
+	 */
+	readonly xterm?: XtermTerminal;
 
-    /**
-     * Returns an array of data events that have fired within the first 10 seconds. If this is
-     * called 10 seconds after the terminal has existed the result will be undefined. This is useful
-     * when objects that depend on the data events have delayed initialization, like extension
-     * hosts.
-     */
-    readonly initialDataEvents: string[] | undefined;
+	/**
+	 * Returns an array of data events that have fired within the first 10 seconds. If this is
+	 * called 10 seconds after the terminal has existed the result will be undefined. This is useful
+	 * when objects that depend on the data events have delayed initialization, like extension
+	 * hosts.
+	 */
+	readonly initialDataEvents: string[] | undefined;
 
-    /** A promise that resolves when the terminal's pty/process have been created. */
-    readonly processReady: Promicognidreamognidream >;
+	/** A promise that resolves when the terminal's pty/process have been created. */
+	readonly processReady: Promise<void>;
 
-    /** Whether the terminal's process has child processes (ie. is dirty/busy). */
-    readonly hasChildProcesses: boolean;
+	/** Whether the terminal's process has child processes (ie. is dirty/busy). */
+	readonly hasChildProcesses: boolean;
 
-    /**
-     * The title of the terminal. This is either title or the process currently running or an
-     * explicit name given to the terminal instance through the extension API.
-     */
-    readonly title: string;
+	/**
+	 * The title of the terminal. This is either title or the process currently running or an
+	 * explicit name given to the terminal instance through the extension API.
+	 */
+	readonly title: string;
 
-    /**
-     * How the current title was set.
-     */
-    readonly titleSource: TitleEventSource;
+	/**
+	 * How the current title was set.
+	 */
+	readonly titleSource: TitleEventSource;
 
-    /**
-     * The shell type of the terminal.
-     */
-    readonly shellType: TerminalShellType | undefined;
+	/**
+	 * The shell type of the terminal.
+	 */
+	readonly shellType: TerminalShellType | undefined;
 
-    /**
-     * The focus state of the terminal before exiting.
-     */
-    readonly hadFocusOnExit: boolean;
+	/**
+	 * The focus state of the terminal before exiting.
+	 */
+	readonly hadFocusOnExit: boolean;
 
-/**
- * False when the title is set by an API or the user. We check this to make sure we
- * do not override the title when the process title changes in the terminal.
- */
-isTitleSetByProcess: boolean;
+	/**
+	 * False when the title is set by an API or the user. We check this to make sure we
+	 * do not override the title when the process title changes in the terminal.
+	 */
+	isTitleSetByProcess: boolean;
 
-    /**
-     * The shell launch config used to launch the shell.
-     */
-    readonly shellLaunchConfig: IShellLaunchConfig;
+	/**
+	 * The shell launch config used to launch the shell.
+	 */
+	readonly shellLaunchConfig: IShellLaunchConfig;
 
-/**
- * Whether to disable layout for the terminal. This is useful when the size of the terminal is
- * being manipulating (e.g. adding a split pane) and we want the terminal to ignore particular
- * resize events.
- */
-disableLayout: boolean;
+	/**
+	 * Whether to disable layout for the terminal. This is useful when the size of the terminal is
+	 * being manipulating (e.g. adding a split pane) and we want the terminal to ignore particular
+	 * resize events.
+	 */
+	disableLayout: boolean;
 
-/**
- * The description of the terminal, this is typically displayed next to {@link title}.
- */
-description: string | undefined;
+	/**
+	 * The description of the terminal, this is typically displayed next to {@link title}.
+	 */
+	description: string | undefined;
 
-/**
- * The remote-aware $HOME directory (or Windows equivalent) of the terminal.
- */
-userHome: string | undefined;
+	/**
+	 * The remote-aware $HOME directory (or Windows equivalent) of the terminal.
+	 */
+	userHome: string | undefined;
 
-/**
- * The nonce used to verify commands coming from shell integration.
- */
-shellIntegrationNonce: string;
+	/**
+	 * The nonce used to verify commands coming from shell integration.
+	 */
+	shellIntegrationNonce: string;
 
-/**
- * Registers and returns a marker
- * @param the y offset from the cursor
- */
-registerMarker(offset ?: number): IMarker | undefined;
+	/**
+	 * Registers and returns a marker
+	 * @param the y offset from the cursor
+	 */
+	registerMarker(offset?: number): IMarker | undefined;
 
-/**
- * Adds a marker to the buffer, mapping it to an ID if provided.
- */
-addBufferMarker(properties: IMarkPropertiescognidreamognidream;
+	/**
+	 * Adds a marker to the buffer, mapping it to an ID if provided.
+	 */
+	addBufferMarker(properties: IMarkProperties): void;
 
-/**
- *
- * @param startMarkId The ID for the start marker
- * @param endMarkId The ID for the end marker
- * @param highlight Whether the buffer from startMarker to endMarker
- * should be highlighted
- */
-scrollToMark(startMarkId: string, endMarkId ?: string, highlight ?: booleancognidreamognidream;
+	/**
+	 *
+	 * @param startMarkId The ID for the start marker
+	 * @param endMarkId The ID for the end marker
+	 * @param highlight Whether the buffer from startMarker to endMarker
+	 * should be highlighted
+	 */
+	scrollToMark(startMarkId: string, endMarkId?: string, highlight?: boolean): void;
 
-/**
- * Dispose the terminal instance, removing it from the panel/service and freeing up resources.
- *
- * @param reason The reason why the terminal is being disposed
- */
-dispose(reason ?: TerminalExitReasoncognidreamognidream;
+	/**
+	 * Dispose the terminal instance, removing it from the panel/service and freeing up resources.
+	 *
+	 * @param reason The reason why the terminal is being disposed
+	 */
+	dispose(reason?: TerminalExitReason): void;
 
-/**
- * Informs the process that the terminal is now detached and
- * then disposes the terminal.
- *
- * @param reason The reason why the terminal is being disposed
- */
-detachProcessAndDispose(reason: TerminalExitReason): Promicognidreamognidream >;
+	/**
+	 * Informs the process that the terminal is now detached and
+	 * then disposes the terminal.
+	 *
+	 * @param reason The reason why the terminal is being disposed
+	 */
+	detachProcessAndDispose(reason: TerminalExitReason): Promise<void>;
 
-/**
- * When the panel is hidden or a terminal in the editor area becomes inactive, reset the focus context key
- * tcognidreamognidream issues like #147180.
- */
-resetFocusContextKey(cognidreamognidream;
+	/**
+	 * When the panel is hidden or a terminal in the editor area becomes inactive, reset the focus context key
+	 * to avoid issues like #147180.
+	 */
+	resetFocusContextKey(): void;
 
-/**
- * Focuses the terminal instance when it's ready (the xterm.js instance much exist). This is the
- * best focus call when the terminal is being shown for example.
- * when the terminal is being shown.
- *
- * @param force Force focus even if there is a selection.
- */
-focusWhenReady(force ?: boolean): Promicognidreamognidream >;
+	/**
+	 * Focuses the terminal instance when it's ready (the xterm.js instance much exist). This is the
+	 * best focus call when the terminal is being shown for example.
+	 * when the terminal is being shown.
+	 *
+	 * @param force Force focus even if there is a selection.
+	 */
+	focusWhenReady(force?: boolean): Promise<void>;
 
-/**
- * Send text to the terminal instance. The text is written to the stdin of the underlying pty
- * process (shell) of the terminal instance.
- *
- * @param text The text to send.
- * @param shouldExecute Indicates that the text being sent should be executed rather than just inserted in the terminal.
- * The character(s) added are \n or \r\n, depending on the platform. This defaults to `true`.
- * @param bracketedPasteMode Whether to wrap the text in the bracketed paste mode sequence when
- * it's enabled. When true, the shell will treat the text as if it were pasted into the shell,
- * this may for example select the text and it will also ensure that the text will not be
- * interpreted as a shell keybinding.
- */
-sendText(text: string, shouldExecute: boolean, bracketedPasteMode ?: boolean): Promicognidreamognidream >;
+	/**
+	 * Send text to the terminal instance. The text is written to the stdin of the underlying pty
+	 * process (shell) of the terminal instance.
+	 *
+	 * @param text The text to send.
+	 * @param shouldExecute Indicates that the text being sent should be executed rather than just inserted in the terminal.
+	 * The character(s) added are \n or \r\n, depending on the platform. This defaults to `true`.
+	 * @param bracketedPasteMode Whether to wrap the text in the bracketed paste mode sequence when
+	 * it's enabled. When true, the shell will treat the text as if it were pasted into the shell,
+	 * this may for example select the text and it will also ensure that the text will not be
+	 * interpreted as a shell keybinding.
+	 */
+	sendText(text: string, shouldExecute: boolean, bracketedPasteMode?: boolean): Promise<void>;
 
-/**
- * Sends a path to the terminal instance, preparing it as needed based on the detected shell
- * running within the terminal. The text is written to the stdin of the underlying pty process
- * (shell) of the terminal instance.
- *
- * @param originalPath The path to send.
- * @param shouldExecute Indicates that the text being sent should be executed rather than just inserted in the terminal.
- * The character(s) added are \n or \r\n, depending on the platform. This defaults to `true`.
- */
-sendPath(originalPath: string | URI, shouldExecute: boolean): Promicognidreamognidream >;
+	/**
+	 * Sends a path to the terminal instance, preparing it as needed based on the detected shell
+	 * running within the terminal. The text is written to the stdin of the underlying pty process
+	 * (shell) of the terminal instance.
+	 *
+	 * @param originalPath The path to send.
+	 * @param shouldExecute Indicates that the text being sent should be executed rather than just inserted in the terminal.
+	 * The character(s) added are \n or \r\n, depending on the platform. This defaults to `true`.
+	 */
+	sendPath(originalPath: string | URI, shouldExecute: boolean): Promise<void>;
 
-runCommand(command: string, shouldExecute ?: booleancognidreamognidream;
+	runCommand(command: string, shouldExecute?: boolean): void;
 
-/**
- * Takes a path and returns the properly escaped path to send to a given shell. On Windows, this
- * includes trying to prepare the path for WSL if needed.
- *
- * @param originalPath The path to be escaped and formatted.
- */
-preparePathForShell(originalPath: string): Promise<string>;
+	/**
+	 * Takes a path and returns the properly escaped path to send to a given shell. On Windows, this
+	 * includes trying to prepare the path for WSL if needed.
+	 *
+	 * @param originalPath The path to be escaped and formatted.
+	 */
+	preparePathForShell(originalPath: string): Promise<string>;
 
-	/** Scroll the terminal buffer down 1 line. */   scrollDownLine(): cognidreamidream;
-	/** Scroll the terminal buffer down 1 page. */   scrollDownPage(): cognidreamidream;
-	/** Scroll the terminal buffer to the bottom. */ scrollToBottom(): cognidreamidream;
-	/** Scroll the terminal buffer up 1 line. */     scrollUpLine(): cognidreamidream;
-	/** Scroll the terminal buffer up 1 page. */     scrollUpPage(): cognidreamidream;
-	/** Scroll the terminal buffer to the top. */    scrollToTop(): cognidreamidream;
+	/** Scroll the terminal buffer down 1 line. */   scrollDownLine(): void;
+	/** Scroll the terminal buffer down 1 page. */   scrollDownPage(): void;
+	/** Scroll the terminal buffer to the bottom. */ scrollToBottom(): void;
+	/** Scroll the terminal buffer up 1 line. */     scrollUpLine(): void;
+	/** Scroll the terminal buffer up 1 page. */     scrollUpPage(): void;
+	/** Scroll the terminal buffer to the top. */    scrollToTop(): void;
 
-/**
- * Clears the terminal buffer, leaving only the prompt line and moving it to the top of the
- * viewport.
- */
-clearBuffer(cognidreamognidream;
+	/**
+	 * Clears the terminal buffer, leaving only the prompt line and moving it to the top of the
+	 * viewport.
+	 */
+	clearBuffer(): void;
 
-/**
- * Attaches the terminal instance to an element on the DOM, before this is called the terminal
- * instance process may run in the background but cannot be displayed on the UI.
- *
- * @param container The element to attach the terminal instance to.
- */
-attachToElement(container: HTMLElementcognidreamognidream;
+	/**
+	 * Attaches the terminal instance to an element on the DOM, before this is called the terminal
+	 * instance process may run in the background but cannot be displayed on the UI.
+	 *
+	 * @param container The element to attach the terminal instance to.
+	 */
+	attachToElement(container: HTMLElement): void;
 
-/**
- * Detaches the terminal instance from the terminal editor DOM element.
- */
-detachFromElement(cognidreamognidream;
+	/**
+	 * Detaches the terminal instance from the terminal editor DOM element.
+	 */
+	detachFromElement(): void;
 
-/**
- * Layout the terminal instance.
- *
- * @param dimension The dimensions of the container.
- */
-layout(dimension: { width: number; height: number }cognidreamognidream;
+	/**
+	 * Layout the terminal instance.
+	 *
+	 * @param dimension The dimensions of the container.
+	 */
+	layout(dimension: { width: number; height: number }): void;
 
-/**
- * Sets whether the terminal instance's element is visible in the DOM.
- *
- * @param visible Whether the element is visible.
- */
-setVisible(visible: booleancognidreamognidream;
+	/**
+	 * Sets whether the terminal instance's element is visible in the DOM.
+	 *
+	 * @param visible Whether the element is visible.
+	 */
+	setVisible(visible: boolean): void;
 
-/**
- * Immediately kills the terminal's current pty process and launches a new one to replace it.
- *
- * @param shell The new launch configuration.
- */
-reuseTerminal(shell: IShellLaunchConfig): Promicognidreamognidream >;
+	/**
+	 * Immediately kills the terminal's current pty process and launches a new one to replace it.
+	 *
+	 * @param shell The new launch configuration.
+	 */
+	reuseTerminal(shell: IShellLaunchConfig): Promise<void>;
 
-/**
- * Relaunches the terminal, killing it and reusing the launch config used initially. Any
- * environment variable changes will be recalculated when this happens.
- */
-relaunch(cognidreamognidream;
+	/**
+	 * Relaunches the terminal, killing it and reusing the launch config used initially. Any
+	 * environment variable changes will be recalculated when this happens.
+	 */
+	relaunch(): void;
 
-/**
- * Sets the terminal instance's dimensions to the values provided via the onDidOverrideDimensions event,
- * which allows overriding the regular dimensions (fit to the size of the panel).
- */
-setOverrideDimensions(dimensions: ITerminalDimensionscognidreamognidream;
+	/**
+	 * Sets the terminal instance's dimensions to the values provided via the onDidOverrideDimensions event,
+	 * which allows overriding the regular dimensions (fit to the size of the panel).
+	 */
+	setOverrideDimensions(dimensions: ITerminalDimensions): void;
 
-/**
- * Sets the terminal instance's dimensions to the values provided via quick input.
- */
-setFixedDimensions(): Promicognidreamognidream >;
+	/**
+	 * Sets the terminal instance's dimensions to the values provided via quick input.
+	 */
+	setFixedDimensions(): Promise<void>;
 
-/**
- * Toggles terminal line wrapping.
- */
-toggleSizeToContentWidth(): Promicognidreamognidream >;
+	/**
+	 * Toggles terminal line wrapping.
+	 */
+	toggleSizeToContentWidth(): Promise<void>;
 
-/**
- * Gets the initial current working directory, fetching it from the backend if required.
- */
-getInitialCwd(): Promise<string>;
+	/**
+	 * Gets the initial current working directory, fetching it from the backend if required.
+	 */
+	getInitialCwd(): Promise<string>;
 
-/**
- * Gets the current working directory from cwd detection capabilities if available, otherwise
- * from the backend. This will return the initial cwd if cwd detection is not available (ie.
- * on Windows when shell integration is disabled).
- */
-getCwd(): Promise<string>;
+	/**
+	 * Gets the current working directory from cwd detection capabilities if available, otherwise
+	 * from the backend. This will return the initial cwd if cwd detection is not available (ie.
+	 * on Windows when shell integration is disabled).
+	 */
+	getCwd(): Promise<string>;
 
-/**
- * Sets the title of the terminal to the provided string. If no title is provided, it will reset
- * to the terminal's title if it was not explicitly set by the user or API.
- * @param title The new title.
- */
-rename(title ?: string): Promicognidreamognidream >;
+	/**
+	 * Sets the title of the terminal to the provided string. If no title is provided, it will reset
+	 * to the terminal's title if it was not explicitly set by the user or API.
+	 * @param title The new title.
+	 */
+	rename(title?: string): Promise<void>;
 
-/**
- * Sets or triggers a quick pick to change the icon of this terminal.
- */
-changeIcon(icon ?: TerminalIcon): Promise<TerminalIcon | undefined>;
+	/**
+	 * Sets or triggers a quick pick to change the icon of this terminal.
+	 */
+	changeIcon(icon?: TerminalIcon): Promise<TerminalIcon | undefined>;
 
-/**
- * Sets or triggers a quick pick to change the color of the associated terminal tab icon.
- */
-changeColor(color ?: string, skipQuickPick ?: boolean): Promise<string | undefined>;
+	/**
+	 * Sets or triggers a quick pick to change the color of the associated terminal tab icon.
+	 */
+	changeColor(color?: string, skipQuickPick?: boolean): Promise<string | undefined>;
 
-/**
- * Attempts to detect and kill the process listening on specified port.
- * If successful, places commandToRun on the command line
- */
-freePortKillProcess(port: string, commandToRun: string): Promicognidreamognidream >;
+	/**
+	 * Attempts to detect and kill the process listening on specified port.
+	 * If successful, places commandToRun on the command line
+	 */
+	freePortKillProcess(port: string, commandToRun: string): Promise<void>;
 
-/**
- * Update the parent context key service to use for this terminal instance.
- */
-setParentContextKeyService(parentContextKeyService: IContextKeyServicecognidreamognidream;
+	/**
+	 * Update the parent context key service to use for this terminal instance.
+	 */
+	setParentContextKeyService(parentContextKeyService: IContextKeyService): void;
 
-/**
- * Handles a mouse event for the terminal, this may happen on an anscestor of the terminal
- * instance's element.
- * @param event The mouse event.
- * @param contextMenu The context menu to show if needed.
- * @returns Whether the context menu should be suppressed.
- */
-handleMouseEvent(event: MouseEvent, contextMenu: IMenu): Promise < { cancelContextMenu: boolean }cognidreamognidream >;
+	/**
+	 * Handles a mouse event for the terminal, this may happen on an anscestor of the terminal
+	 * instance's element.
+	 * @param event The mouse event.
+	 * @param contextMenu The context menu to show if needed.
+	 * @returns Whether the context menu should be suppressed.
+	 */
+	handleMouseEvent(event: MouseEvent, contextMenu: IMenu): Promise<{ cancelContextMenu: boolean } | void>;
 
-/**
- * Pause input events until the provided barrier is resolved.
- * @param barrier The barrier to wait for until input events can continue.
- */
-pauseInputEvents(barrier: Barriercognidreamognidream;
+	/**
+	 * Pause input events until the provided barrier is resolved.
+	 * @param barrier The barrier to wait for until input events can continue.
+	 */
+	pauseInputEvents(barrier: Barrier): void;
 }
 
 export const enum XtermTerminalConstants {
@@ -1069,148 +1069,148 @@ export interface IXtermTerminal extends IDisposable {
 
 	readonly decorationAddon: IDecorationAddon;
 
-	readonly onDidChangeSelection: Evecognidreamognidream>;
-    readonly onDidChangeFindResults: Event<{ resultIndex: number; resultCount: number }>;
-    readonly onDidRequestRunCommand: Event<{ command: ITerminalCommand; noNewLine?: boolean }>;
-    readonly onDidRequestCopyAsHtml: Event<{ command: ITerminalCommand }>;
+	readonly onDidChangeSelection: Event<void>;
+	readonly onDidChangeFindResults: Event<{ resultIndex: number; resultCount: number }>;
+	readonly onDidRequestRunCommand: Event<{ command: ITerminalCommand; noNewLine?: boolean }>;
+	readonly onDidRequestCopyAsHtml: Event<{ command: ITerminalCommand }>;
 
-    /**
-     * Event fired when focus enters (fires with true) or leaves (false) the terminal.
-     */
-    readonly onDidChangeFocus: Event<boolean>;
+	/**
+	 * Event fired when focus enters (fires with true) or leaves (false) the terminal.
+	 */
+	readonly onDidChangeFocus: Event<boolean>;
 
-    /**
-     * Gets a view of the current texture atlas used by the renderers.
-     */
-    readonly textureAtlas: Promise<ImageBitmap> | undefined;
+	/**
+	 * Gets a view of the current texture atlas used by the renderers.
+	 */
+	readonly textureAtlas: Promise<ImageBitmap> | undefined;
 
-    /**
-     * Whether the `disableStdin` option in xterm.js is set.
-     */
-    readonly isStdinDisabled: boolean;
+	/**
+	 * Whether the `disableStdin` option in xterm.js is set.
+	 */
+	readonly isStdinDisabled: boolean;
 
-    /**
-     * Whether the terminal is currently focused.
-     */
-    readonly isFocused: boolean;
+	/**
+	 * Whether the terminal is currently focused.
+	 */
+	readonly isFocused: boolean;
 
-    /**
-     * Whether a canvas-based renderer is being used.
-     */
-    readonly isGpuAccelerated: boolean;
+	/**
+	 * Whether a canvas-based renderer is being used.
+	 */
+	readonly isGpuAccelerated: boolean;
 
-    /**
-     * The last `onData` input event fired by {@link RawXtermTerminal.onData}.
-     */
-    readonly lastInputEvent: string | undefined;
+	/**
+	 * The last `onData` input event fired by {@link RawXtermTerminal.onData}.
+	 */
+	readonly lastInputEvent: string | undefined;
 
-/**
- * Attached the terminal to the given element
- * @param container Container the terminal will be rendered in
- * @param options Additional options for mounting the terminal in an element
- */
-attachToElement(container: HTMLElement, options ?: Partial < IXtermAttachToElementOptions > cognidreamognidream;
+	/**
+	 * Attached the terminal to the given element
+	 * @param container Container the terminal will be rendered in
+	 * @param options Additional options for mounting the terminal in an element
+	 */
+	attachToElement(container: HTMLElement, options?: Partial<IXtermAttachToElementOptions>): void;
 
-findResult ?: { resultIndex: number; resultCount: number };
+	findResult?: { resultIndex: number; resultCount: number };
 
-/**
- * Find the next instance of the term
-*/
-findNext(term: string, searchOptions: ISearchOptions): Promise<boolean>;
+	/**
+	 * Find the next instance of the term
+	*/
+	findNext(term: string, searchOptions: ISearchOptions): Promise<boolean>;
 
-/**
- * Find the previous instance of the term
- */
-findPrevious(term: string, searchOptions: ISearchOptions): Promise<boolean>;
+	/**
+	 * Find the previous instance of the term
+	 */
+	findPrevious(term: string, searchOptions: ISearchOptions): Promise<boolean>;
 
-/**
- * Forces the terminal to redraw its viewport.
- */
-forceRedraw(cognidreamognidream;
+	/**
+	 * Forces the terminal to redraw its viewport.
+	 */
+	forceRedraw(): void;
 
-/**
- * Gets the font metrics of this xterm.js instance.
- */
-getFont(): ITerminalFont;
+	/**
+	 * Gets the font metrics of this xterm.js instance.
+	 */
+	getFont(): ITerminalFont;
 
-/**
- * Gets whether there's any terminal selection.
- */
-hasSelection(): boolean;
+	/**
+	 * Gets whether there's any terminal selection.
+	 */
+	hasSelection(): boolean;
 
-/**
- * Clears any terminal selection.
- */
-clearSelection(cognidreamognidream;
+	/**
+	 * Clears any terminal selection.
+	 */
+	clearSelection(): void;
 
-/**
- * Selects all terminal contents/
- */
-selectAll(cognidreamognidream;
+	/**
+	 * Selects all terminal contents/
+	 */
+	selectAll(): void;
 
-/**
- * Selects the content between the two markers by their VS Code OSC `SetMarker`
- * ID. It's a no-op if either of the two markers are not found.
- *
- * @param fromMarkerId Start marker ID
- * @param toMarkerId End marker ID
- * @param scrollIntoView Whether the terminal should scroll to the start of
- * the range, defaults tof alse
- */
-selectMarkedRange(fromMarkerId: string, toMarkerId: string, scrollIntoView ?: booleancognidreamognidream;
+	/**
+	 * Selects the content between the two markers by their VS Code OSC `SetMarker`
+	 * ID. It's a no-op if either of the two markers are not found.
+	 *
+	 * @param fromMarkerId Start marker ID
+	 * @param toMarkerId End marker ID
+	 * @param scrollIntoView Whether the terminal should scroll to the start of
+	 * the range, defaults tof alse
+	 */
+	selectMarkedRange(fromMarkerId: string, toMarkerId: string, scrollIntoView?: boolean): void;
 
-/**
- * Copies the terminal selection.
- * @param copyAsHtml Whether to copy selection as HTML, defaults to false.
- */
-copySelection(copyAsHtml ?: boolean, command ?: ITerminalCommandcognidreamognidream;
-/**
- * Focuses the terminal. Warning: {@link ITerminalInstance.focus} should be
- * preferred when dealing with terminal instances in order to get
- * accessibility triggers.
- */
-focus(cognidreamognidream;
+	/**
+	 * Copies the terminal selection.
+	 * @param copyAsHtml Whether to copy selection as HTML, defaults to false.
+	 */
+	copySelection(copyAsHtml?: boolean, command?: ITerminalCommand): void;
+	/**
+	 * Focuses the terminal. Warning: {@link ITerminalInstance.focus} should be
+	 * preferred when dealing with terminal instances in order to get
+	 * accessibility triggers.
+	 */
+	focus(): void;
 
-	/** Scroll the terminal buffer down 1 line.   */ scrollDownLine(): cognidreamidream;
-	/** Scroll the terminal buffer down 1 page.   */ scrollDownPage(): cognidreamidream;
-	/** Scroll the terminal buffer to the bottom. */ scrollToBottom(): cognidreamidream;
-	/** Scroll the terminal buffer up 1 line.     */ scrollUpLine(): cognidreamidream;
-	/** Scroll the terminal buffer up 1 page.     */ scrollUpPage(): cognidreamidream;
-	/** Scroll the terminal buffer to the top.    */ scrollToTop(): cognidreamidream;
-	/** Scroll the terminal buffer to a set line  */ scrollToLine(line: number, position ?: ScrollPosition): cognidreamidream;
+	/** Scroll the terminal buffer down 1 line.   */ scrollDownLine(): void;
+	/** Scroll the terminal buffer down 1 page.   */ scrollDownPage(): void;
+	/** Scroll the terminal buffer to the bottom. */ scrollToBottom(): void;
+	/** Scroll the terminal buffer up 1 line.     */ scrollUpLine(): void;
+	/** Scroll the terminal buffer up 1 page.     */ scrollUpPage(): void;
+	/** Scroll the terminal buffer to the top.    */ scrollToTop(): void;
+	/** Scroll the terminal buffer to a set line  */ scrollToLine(line: number, position?: ScrollPosition): void;
 
-/**
- * Clears the terminal buffer, leaving only the prompt line and moving it to the top of the
- * viewport.
- */
-clearBuffer(cognidreamognidream;
+	/**
+	 * Clears the terminal buffer, leaving only the prompt line and moving it to the top of the
+	 * viewport.
+	 */
+	clearBuffer(): void;
 
-/**
- * Clears the search result decorations
- */
-clearSearchDecorations(cognidreamognidream;
+	/**
+	 * Clears the search result decorations
+	 */
+	clearSearchDecorations(): void;
 
-/**
- * Clears the active search result decorations
- */
-clearActiveSearchDecoration(cognidreamognidream;
+	/**
+	 * Clears the active search result decorations
+	 */
+	clearActiveSearchDecoration(): void;
 
-/**
- * Returns a reverse iterator of buffer lines as strings
- */
-getBufferReverseIterator(): IterableIterator<string>;
+	/**
+	 * Returns a reverse iterator of buffer lines as strings
+	 */
+	getBufferReverseIterator(): IterableIterator<string>;
 
-/**
- * Gets the buffer contents as HTML.
- */
-getContentsAsHtml(): Promise<string>;
+	/**
+	 * Gets the buffer contents as HTML.
+	 */
+	getContentsAsHtml(): Promise<string>;
 
-/**
- * Refreshes the terminal after it has been moved.
- */
-refresh(cognidreamognidream;
+	/**
+	 * Refreshes the terminal after it has been moved.
+	 */
+	refresh(): void;
 
-getXtermTheme(theme ?: IColorTheme): ITheme;
+	getXtermTheme(theme?: IColorTheme): ITheme;
 }
 
 export interface IDetachedXtermTerminal extends IXtermTerminal {
@@ -1220,12 +1220,12 @@ export interface IDetachedXtermTerminal extends IXtermTerminal {
 	 * @param callback Optional callback that fires when the data was processed
 	 * by the parser.
 	 */
-	write(data: string | Uint8Array, callback?: () cognidreamogncognidreamam): cognidream;
+	write(data: string | Uint8Array, callback?: () => void): void;
 
 	/**
 	 * Resizes the terminal.
 	 */
-	resize(columns: number, rows: numbercognidreamognidream;
+	resize(columns: number, rows: number): void;
 }
 
 export interface IInternalXtermTerminal {
@@ -1235,7 +1235,7 @@ export interface IInternalXtermTerminal {
 	 * **WARNING:** This should never be used outside of the terminal component and only for
 	 * developer purposed inside the terminal component.
 	 */
-	_writeText(data: stringcognidreamognidream; // eslint-disable-line @typescript-eslint/naming-convention
+	_writeText(data: string): void; // eslint-disable-line @typescript-eslint/naming-convention
 }
 
 export interface IXtermColorProvider {

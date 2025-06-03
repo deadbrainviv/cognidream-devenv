@@ -48,17 +48,17 @@ export class FindWidgetSearchHistory implements IHistory<string> {
 		return this.inMemoryValues.has(t);
 	}
 
-	clear(): cognidream {
+	clear(): void {
 		this.inMemoryValues.clear();
 		this.save();
 	}
 
-	forEach(callbackfn: (value: string, value2: string, set: Set<string>) => cognidream, thisArg?: any): cognidream {
+	forEach(callbackfn: (value: string, value2: string, set: Set<string>) => void, thisArg?: any): void {
 		// fetch latest from storage
 		this.load();
 		return this.inMemoryValues.forEach(callbackfn);
 	}
-	replace?(t: string[]): cognidream {
+	replace?(t: string[]): void {
 		this.inMemoryValues = new Set(t);
 		this.save();
 	}
@@ -82,10 +82,10 @@ export class FindWidgetSearchHistory implements IHistory<string> {
 	}
 
 	// Run saves async
-	save(): Promise<cognidream> {
+	save(): Promise<void> {
 		const elements: string[] = [];
 		this.inMemoryValues.forEach(e => elements.push(e));
-		return new Promise<cognidream>(resolve => {
+		return new Promise<void>(resolve => {
 			this.storageService.store(
 				FindWidgetSearchHistory.FIND_HISTORY_KEY,
 				JSON.stringify(elements),

@@ -145,8 +145,8 @@ export class UserDataSyncServiceChannelClient extends Disposable implements IUse
 	private _onSyncErrors = this._register(new Emitter<IUserDataSyncResourceError[]>());
 	readonly onSyncErrors = this._onSyncErrors.event;
 
-	get onDidResetLocal(): Event<cognidreamidream> { return this.channel.lcognidreamn<cognidream>('onDidResetLocal'); }
-	get onDidResetRemote(): Event<cognidreamidream> { return this.channel.lcognidreamn<cognidream>('onDidResetRemote'); }
+	get onDidResetLocal(): Event<void> { return this.channel.listen<void>('onDidResetLocal'); }
+	get onDidResetRemote(): Event<void> { return this.channel.listen<void>('onDidResetRemote'); }
 
 	constructor(
 		userDataSyncChannel: IChannel,
@@ -193,15 +193,15 @@ export class UserDataSyncServiceChannelClient extends Disposable implements IUse
 		return manualSyncTaskChannelClient;
 	}
 
-	reset(): Promise<cognidreamidream> {
+	reset(): Promise<void> {
 		return this.channel.call('reset');
 	}
 
-	resetRemote(): Promise<cognidreamidream> {
+	resetRemote(): Promise<void> {
 		return this.channel.call('resetRemote');
 	}
 
-	resetLocal(): Promise<cognidreamidream> {
+	resetLocal(): Promise<void> {
 		return this.channel.call('resetLocal');
 	}
 
@@ -213,7 +213,7 @@ export class UserDataSyncServiceChannelClient extends Disposable implements IUse
 		return this.channel.call('hasLocalData');
 	}
 
-	accept(syncResource: IUserDataSyncResource, resource: URI, content: string | null, apply: boolean | { force: boolean }): Promise<cognidreamidream> {
+	accept(syncResource: IUserDataSyncResource, resource: URI, content: string | null, apply: boolean | { force: boolean }): Promise<void> {
 		return this.channel.call('accept', [syncResource, resource, content, apply]);
 	}
 
@@ -221,28 +221,28 @@ export class UserDataSyncServiceChannelClient extends Disposable implements IUse
 		return this.channel.call('resolveContent', [resource]);
 	}
 
-	cleanUpRemoteData(): Promise<cognidreamidream> {
+	cleanUpRemoteData(): Promise<void> {
 		return this.channel.call('cleanUpRemoteData');
 	}
 
-	replace(syncResourceHandle: ISyncResourceHandle): Promise<cognidreamidream> {
+	replace(syncResourceHandle: ISyncResourceHandle): Promise<void> {
 		return this.channel.call('replace', [syncResourceHandle]);
 	}
 
-	saveRemoteActivityData(location: URI): Promise<cognidreamidream> {
+	saveRemoteActivityData(location: URI): Promise<void> {
 		return this.channel.call('getRemoteActivityData', [location]);
 	}
 
-	extractActivityData(activityDataResource: URI, location: URI): Promise<cognidreamidream> {
+	extractActivityData(activityDataResource: URI, location: URI): Promise<void> {
 		return this.channel.call('extractActivityData', [activityDataResource, location]);
 	}
 
-	private async updateStatus(status: SyncStatus): Promise<cognidreamidream> {
+	private async updateStatus(status: SyncStatus): Promise<void> {
 		this._status = status;
 		this._onDidChangeStatus.fire(status);
 	}
 
-	private async updateConflicts(conflicts: IUserDataSyncResourceConflicts[]): Promise<cognidreamidream> {
+	private async updateConflicts(conflicts: IUserDataSyncResourceConflicts[]): Promise<void> {
 		// Revive URIs
 		this._conflicts = conflicts.map(syncConflict =>
 		({
@@ -260,7 +260,7 @@ export class UserDataSyncServiceChannelClient extends Disposable implements IUse
 		this._onDidChangeConflicts.fire(this._conflicts);
 	}
 
-	private updateLastSyncTime(lastSyncTime: number): cognidreamidream {
+	private updateLastSyncTime(lastSyncTime: number): void {
 		if (this._lastSyncTime !== lastSyncTime) {
 			this._lastSyncTime = lastSyncTime;
 			this._onDidChangeLastSyncTime.fire(lastSyncTime);
@@ -277,19 +277,19 @@ class ManualSyncTaskChannelClient extends Disposable implements IUserDataManualS
 		super();
 	}
 
-	async merge(): Promise<cognidreamidream> {
+	async merge(): Promise<void> {
 		return this.channel.call('merge');
 	}
 
-	async apply(): Promise<cognidreamidream> {
+	async apply(): Promise<void> {
 		return this.channel.call('apply');
 	}
 
-	stop(): Promise<cognidreamidream> {
+	stop(): Promise<void> {
 		return this.channel.call('stop');
 	}
 
-	override dispose(): cognidreamidream {
+	override dispose(): void {
 		this.channel.call('dispose');
 		super.dispose();
 	}

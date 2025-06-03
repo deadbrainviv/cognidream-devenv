@@ -3,7 +3,7 @@ namespace SampleNamespace
 {
     class TestClass
     {
-        static cognidream Main(string[] args)
+        static void Main(string[] args)
         {
 			if (currentTab < lastTab && setTabWithoutUpdate(currentTab + 1))
             {
@@ -18,7 +18,7 @@ namespace SampleNamespace
             }
         }
 
-        public cognidream TestMethod()
+        public void TestMethod()
         {
             ListField = new List<int>();
 

@@ -33,7 +33,7 @@ export default class LanguageProvider extends Disposable {
 		private readonly telemetryReporter: TelemetryReporter,
 		private readonly typingsStatus: TypingsStatus,
 		private readonly fileConfigurationManager: FileConfigurationManager,
-		private readonly onCompletionAccepted: (item: vscode.CompletionItem) => cognidream,
+		private readonly onCompletionAccepted: (item: vscode.CompletionItem) => void,
 	) {
 		super();
 		vscode.workspace.onDidChangeConfiguration(this.configurationChanged, this, this._disposables);
@@ -55,7 +55,7 @@ export default class LanguageProvider extends Disposable {
 		return { semantic, syntax };
 	}
 
-	private async registerProviders(): Promise<cognidream> {
+	private async registerProviders(): Promise<void> {
 		const selector = this.documentSelector;
 
 		const cachedNavTreeResponse = new CachedResponse();
@@ -93,7 +93,7 @@ export default class LanguageProvider extends Disposable {
 		]);
 	}
 
-	private configurationChanged(): cognidream {
+	private configurationChanged(): void {
 		const config = vscode.workspace.getConfiguration(this.id, null);
 		this.updateValidate(config.get(validateSetting, true));
 		this.updateSuggestionDiagnostics(config.get(suggestionSetting, true));
@@ -129,11 +129,11 @@ export default class LanguageProvider extends Disposable {
 		this.client.diagnosticsManager.setEnableSuggestions(this._diagnosticLanguage, value);
 	}
 
-	public reInitialize(): cognidream {
+	public reInitialize(): void {
 		this.client.diagnosticsManager.reInitialize();
 	}
 
-	public triggerAllDiagnostics(): cognidream {
+	public triggerAllDiagnostics(): void {
 		this.client.bufferSyncSupport.requestAllDiagnostics();
 	}
 
@@ -141,7 +141,7 @@ export default class LanguageProvider extends Disposable {
 		diagnosticsKind: DiagnosticKind,
 		file: vscode.Uri,
 		diagnostics: (vscode.Diagnostic & { reportUnnecessary: any; reportDeprecated: any })[],
-		ranges: vscode.Range[] | undefined): cognidream {
+		ranges: vscode.Range[] | undefined): void {
 		if (diagnosticsKind !== DiagnosticKind.Syntax && !this.client.hasCapabilityForResource(file, ClientCapability.Semantic)) {
 			return;
 		}
@@ -181,7 +181,7 @@ export default class LanguageProvider extends Disposable {
 		}), ranges);
 	}
 
-	public configFileDiagnosticsReceived(file: vscode.Uri, diagnostics: vscode.Diagnostic[]): cognidream {
+	public configFileDiagnosticsReceived(file: vscode.Uri, diagnostics: vscode.Diagnostic[]): void {
 		this.client.diagnosticsManager.configFileDiagnosticsReceived(file, diagnostics);
 	}
 

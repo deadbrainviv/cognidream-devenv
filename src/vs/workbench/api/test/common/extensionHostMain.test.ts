@@ -31,13 +31,13 @@ suite('ExtensionHostMain#ErrorHandler - Wrapping prepareStackTrace can cause slo
 
 	const extensionsIndex = TernarySearchTree.forUris<IExtensionDescription>();
 	const mainThreadExtensionsService = new class extends mock<MainThreadExtensionServiceShape>() implements MainThreadErrorsShape {
-		override $onExtensionRuntimeError(extensionId: ExtensionIdentifier, data: SerializedError): cognidream {
+		override $onExtensionRuntimeError(extensionId: ExtensionIdentifier, data: SerializedError): void {
 
 		}
-		$onUnexpectedError(err: any | SerializedErcognidream: cognidream {
+		$onUnexpectedError(err: any | SerializedError): void {
 
 		}
-    };
+	};
 
 	const collection = new ServiceCollection(
 		[ILogService, new NullLogService()],
@@ -70,7 +70,7 @@ suite('ExtensionHostMain#ErrorHandler - Wrapping prepareStackTrace can cause slo
 	const originalPrepareStackTrace = Error.prepareStackTrace;
 	const insta = new InstantiationService(collection, false);
 
-	let existingErrorHandler: (e: any) cognidreamognidream;
+	let existingErrorHandler: (e: any) => void;
 	let findSubstrCount = 0;
 
 	ensureNoDisposablesAreLeakedInTestSuite();

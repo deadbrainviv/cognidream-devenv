@@ -183,773 +183,773 @@ export class ExtHostWorkspace implements ExtHostWorkspaceShape, IExtHostWorkspac
 	private readonly _onDidChangeWorkspace = new Emitter<vscode.WorkspaceFoldersChangeEvent>();
 	readonly onDidChangeWorkspace: Event<vscode.WorkspaceFoldersChangeEvent> = this._onDidChangeWorkspace.event;
 
-	private readonly _onDidGrantWorkspaceTrust = new Emitter<cognidream>();
-	readonly onDidGrantWorkspaceTrust: Evecognidreamognidream> = this._onDidGrantWorkspaceTrust.event;
+	private readonly _onDidGrantWorkspaceTrust = new Emitter<void>();
+	readonly onDidGrantWorkspaceTrust: Event<void> = this._onDidGrantWorkspaceTrust.event;
 
-    private readonly _logService: ILogService;
-    private readonly _requestIdProvider: Counter;
-    private readonly _barrier: Barrier;
+	private readonly _logService: ILogService;
+	private readonly _requestIdProvider: Counter;
+	private readonly _barrier: Barrier;
 
-    private _confirmedWorkspace ?: ExtHostWorkspaceImpl;
-    private _unconfirmedWorkspace ?: ExtHostWorkspaceImpl;
+	private _confirmedWorkspace?: ExtHostWorkspaceImpl;
+	private _unconfirmedWorkspace?: ExtHostWorkspaceImpl;
 
-    private readonly _proxy: MainThreadWorkspaceShape;
-    private readonly _messageService: MainThreadMessageServiceShape;
-    private readonly _extHostFileSystemInfo: IExtHostFileSystemInfo;
-    private readonly _uriTransformerService: IURITransformerService;
+	private readonly _proxy: MainThreadWorkspaceShape;
+	private readonly _messageService: MainThreadMessageServiceShape;
+	private readonly _extHostFileSystemInfo: IExtHostFileSystemInfo;
+	private readonly _uriTransformerService: IURITransformerService;
 
-    private readonly _activeSearchCallbacks: ((match: IRawFileMatch2) => any)[] = [];
+	private readonly _activeSearchCallbacks: ((match: IRawFileMatch2) => any)[] = [];
 
-    private _trusted: boolean = false;
+	private _trusted: boolean = false;
 
-    private readonly _editSessionIdentityProviders = new Map<string, vscode.EditSessionIdentityProvider>();
+	private readonly _editSessionIdentityProviders = new Map<string, vscode.EditSessionIdentityProvider>();
 
-constructor(
-	@IExtHostRpcService extHostRpc: IExtHostRpcService,
-	@IExtHostInitDataService initData: IExtHostInitDataService,
-	@IExtHostFileSystemInfo extHostFileSystemInfo: IExtHostFileSystemInfo,
-	@ILogService logService: ILogService,
-	@IURITransformerService uriTransformerService: IURITransformerService,
-) {
-	this._logService = logService;
-	this._extHostFileSystemInfo = extHostFileSystemInfo;
-	this._uriTransformerService = uriTransformerService;
-	this._requestIdProvider = new Counter();
-	this._barrier = new Barrier();
+	constructor(
+		@IExtHostRpcService extHostRpc: IExtHostRpcService,
+		@IExtHostInitDataService initData: IExtHostInitDataService,
+		@IExtHostFileSystemInfo extHostFileSystemInfo: IExtHostFileSystemInfo,
+		@ILogService logService: ILogService,
+		@IURITransformerService uriTransformerService: IURITransformerService,
+	) {
+		this._logService = logService;
+		this._extHostFileSystemInfo = extHostFileSystemInfo;
+		this._uriTransformerService = uriTransformerService;
+		this._requestIdProvider = new Counter();
+		this._barrier = new Barrier();
 
-	this._proxy = extHostRpc.getProxy(MainContext.MainThreadWorkspace);
-	this._messageService = extHostRpc.getProxy(MainContext.MainThreadMessageService);
-	const data = initData.workspace;
-	this._confirmedWorkspace = data ? new ExtHostWorkspaceImpl(data.id, data.name, [], !!data.transient, data.configuration ? URI.revive(data.configuration) : null, !!data.isUntitled, uri => ignorePathCasing(uri, extHostFileSystemInfo)) : undefined;
-}
-
-$initializeWorkspace(data: IWorkspaceData | null, trusted: booleancognidreamognidream {
-	this._trusted = trusted;
-	this.$acceptWorkspaceData(data);
-	this._barrier.open();
-}
-
-    waitForInitializeCall(): Promise < boolean > {
-	return this._barrier.wait();
-}
-
-    // --- workspace ---
-
-    get workspace(): Workspace | undefined {
-	return this._actualWorkspace;
-}
-
-    get name(): string | undefined {
-	return this._actualWorkspace ? this._actualWorkspace.name : undefined;
-}
-
-    get workspaceFile(): vscode.Uri | undefined {
-	if(this._actualWorkspace) {
-	if (this._actualWorkspace.configuration) {
-		if (this._actualWorkspace.isUntitled) {
-			return URI.from({ scheme: Schemas.untitled, path: basename(dirname(this._actualWorkspace.configuration)) }); // Untitled Workspace: return untitled URI
-		}
-
-		return this._actualWorkspace.configuration; // Workspace: return the configuration location
+		this._proxy = extHostRpc.getProxy(MainContext.MainThreadWorkspace);
+		this._messageService = extHostRpc.getProxy(MainContext.MainThreadMessageService);
+		const data = initData.workspace;
+		this._confirmedWorkspace = data ? new ExtHostWorkspaceImpl(data.id, data.name, [], !!data.transient, data.configuration ? URI.revive(data.configuration) : null, !!data.isUntitled, uri => ignorePathCasing(uri, extHostFileSystemInfo)) : undefined;
 	}
-}
 
-return undefined;
-    }
-
-    private get _actualWorkspace(): ExtHostWorkspaceImpl | undefined {
-	return this._unconfirmedWorkspace || this._confirmedWorkspace;
-}
-
-getWorkspaceFolders(): vscode.WorkspaceFolder[] | undefined {
-	if (!this._actualWorkspace) {
-		return undefined;
+	$initializeWorkspace(data: IWorkspaceData | null, trusted: boolean): void {
+		this._trusted = trusted;
+		this.$acceptWorkspaceData(data);
+		this._barrier.open();
 	}
-	return this._actualWorkspace.workspaceFolders.slice(0);
-}
 
-    async getWorkspaceFolders2(): Promise < vscode.WorkspaceFolder[] | undefined > {
-	await this._barrier.wait();
-	if(!this._actualWorkspace) {
-	return undefined;
-}
-return this._actualWorkspace.workspaceFolders.slice(0);
-    }
+	waitForInitializeCall(): Promise<boolean> {
+		return this._barrier.wait();
+	}
 
-updateWorkspaceFolders(extension: IExtensionDescription, index: number, deleteCount: number, ...workspaceFoldersToAdd: { uri: vscode.Uri; name?: string }[]): boolean {
-	const validatedDistinctWorkspaceFoldersToAdd: { uri: vscode.Uri; name?: string }[] = [];
-	if (Array.isArray(workspaceFoldersToAdd)) {
-		workspaceFoldersToAdd.forEach(folderToAdd => {
-			if (URI.isUri(folderToAdd.uri) && !validatedDistinctWorkspaceFoldersToAdd.some(f => isFolderEqual(f.uri, folderToAdd.uri, this._extHostFileSystemInfo))) {
-				validatedDistinctWorkspaceFoldersToAdd.push({ uri: folderToAdd.uri, name: folderToAdd.name || basenameOrAuthority(folderToAdd.uri) });
+	// --- workspace ---
+
+	get workspace(): Workspace | undefined {
+		return this._actualWorkspace;
+	}
+
+	get name(): string | undefined {
+		return this._actualWorkspace ? this._actualWorkspace.name : undefined;
+	}
+
+	get workspaceFile(): vscode.Uri | undefined {
+		if (this._actualWorkspace) {
+			if (this._actualWorkspace.configuration) {
+				if (this._actualWorkspace.isUntitled) {
+					return URI.from({ scheme: Schemas.untitled, path: basename(dirname(this._actualWorkspace.configuration)) }); // Untitled Workspace: return untitled URI
+				}
+
+				return this._actualWorkspace.configuration; // Workspace: return the configuration location
 			}
-		});
+		}
+
+		return undefined;
 	}
 
-	if (!!this._unconfirmedWorkspace) {
-		return false; // prevent accumulated calls without a confirmed workspace
+	private get _actualWorkspace(): ExtHostWorkspaceImpl | undefined {
+		return this._unconfirmedWorkspace || this._confirmedWorkspace;
 	}
 
-	if ([index, deleteCount].some(i => typeof i !== 'number' || i < 0)) {
-		return false; // validate numbers
+	getWorkspaceFolders(): vscode.WorkspaceFolder[] | undefined {
+		if (!this._actualWorkspace) {
+			return undefined;
+		}
+		return this._actualWorkspace.workspaceFolders.slice(0);
 	}
 
-	if (deleteCount === 0 && validatedDistinctWorkspaceFoldersToAdd.length === 0) {
-		return false; // nothing to delete or add
+	async getWorkspaceFolders2(): Promise<vscode.WorkspaceFolder[] | undefined> {
+		await this._barrier.wait();
+		if (!this._actualWorkspace) {
+			return undefined;
+		}
+		return this._actualWorkspace.workspaceFolders.slice(0);
 	}
 
-	const currentWorkspaceFolders: MutableWorkspaceFolder[] = this._actualWorkspace ? this._actualWorkspace.workspaceFolders : [];
-	if (index + deleteCount > currentWorkspaceFolders.length) {
-		return false; // cannot delete more than we have
+	updateWorkspaceFolders(extension: IExtensionDescription, index: number, deleteCount: number, ...workspaceFoldersToAdd: { uri: vscode.Uri; name?: string }[]): boolean {
+		const validatedDistinctWorkspaceFoldersToAdd: { uri: vscode.Uri; name?: string }[] = [];
+		if (Array.isArray(workspaceFoldersToAdd)) {
+			workspaceFoldersToAdd.forEach(folderToAdd => {
+				if (URI.isUri(folderToAdd.uri) && !validatedDistinctWorkspaceFoldersToAdd.some(f => isFolderEqual(f.uri, folderToAdd.uri, this._extHostFileSystemInfo))) {
+					validatedDistinctWorkspaceFoldersToAdd.push({ uri: folderToAdd.uri, name: folderToAdd.name || basenameOrAuthority(folderToAdd.uri) });
+				}
+			});
+		}
+
+		if (!!this._unconfirmedWorkspace) {
+			return false; // prevent accumulated calls without a confirmed workspace
+		}
+
+		if ([index, deleteCount].some(i => typeof i !== 'number' || i < 0)) {
+			return false; // validate numbers
+		}
+
+		if (deleteCount === 0 && validatedDistinctWorkspaceFoldersToAdd.length === 0) {
+			return false; // nothing to delete or add
+		}
+
+		const currentWorkspaceFolders: MutableWorkspaceFolder[] = this._actualWorkspace ? this._actualWorkspace.workspaceFolders : [];
+		if (index + deleteCount > currentWorkspaceFolders.length) {
+			return false; // cannot delete more than we have
+		}
+
+		// Simulate the updateWorkspaceFolders method on our data to do more validation
+		const newWorkspaceFolders = currentWorkspaceFolders.slice(0);
+		newWorkspaceFolders.splice(index, deleteCount, ...validatedDistinctWorkspaceFoldersToAdd.map(f => ({ uri: f.uri, name: f.name || basenameOrAuthority(f.uri), index: undefined! /* fixed later */ })));
+
+		for (let i = 0; i < newWorkspaceFolders.length; i++) {
+			const folder = newWorkspaceFolders[i];
+			if (newWorkspaceFolders.some((otherFolder, index) => index !== i && isFolderEqual(folder.uri, otherFolder.uri, this._extHostFileSystemInfo))) {
+				return false; // cannot add the same folder multiple times
+			}
+		}
+
+		newWorkspaceFolders.forEach((f, index) => f.index = index); // fix index
+		const { added, removed } = delta(currentWorkspaceFolders, newWorkspaceFolders, compareWorkspaceFolderByUriAndNameAndIndex, this._extHostFileSystemInfo);
+		if (added.length === 0 && removed.length === 0) {
+			return false; // nothing actually changed
+		}
+
+		// Trigger on main side
+		if (this._proxy) {
+			const extName = extension.displayName || extension.name;
+			this._proxy.$updateWorkspaceFolders(extName, index, deleteCount, validatedDistinctWorkspaceFoldersToAdd).then(undefined, error => {
+
+				// in case of an error, make sure to clear out the unconfirmed workspace
+				// because we cannot expect the acknowledgement from the main side for this
+				this._unconfirmedWorkspace = undefined;
+
+				// show error to user
+				const options: MainThreadMessageOptions = { source: { identifier: extension.identifier, label: extension.displayName || extension.name } };
+				this._messageService.$showMessage(Severity.Error, localize('updateerror', "Extension '{0}' failed to update workspace folders: {1}", extName, error.toString()), options, []);
+			});
+		}
+
+		// Try to accept directly
+		this.trySetWorkspaceFolders(newWorkspaceFolders);
+
+		return true;
 	}
 
-	// Simulate the updateWorkspaceFolders method on our data to do more validation
-	const newWorkspaceFolders = currentWorkspaceFolders.slice(0);
-	newWorkspaceFolders.splice(index, deleteCount, ...validatedDistinctWorkspaceFoldersToAdd.map(f => ({ uri: f.uri, name: f.name || basenameOrAuthority(f.uri), index: undefined! /* fixed later */ })));
+	getWorkspaceFolder(uri: vscode.Uri, resolveParent?: boolean): vscode.WorkspaceFolder | undefined {
+		if (!this._actualWorkspace) {
+			return undefined;
+		}
+		return this._actualWorkspace.getWorkspaceFolder(uri, resolveParent);
+	}
 
-	for (let i = 0; i < newWorkspaceFolders.length; i++) {
-		const folder = newWorkspaceFolders[i];
-		if (newWorkspaceFolders.some((otherFolder, index) => index !== i && isFolderEqual(folder.uri, otherFolder.uri, this._extHostFileSystemInfo))) {
-			return false; // cannot add the same folder multiple times
+	async getWorkspaceFolder2(uri: vscode.Uri, resolveParent?: boolean): Promise<vscode.WorkspaceFolder | undefined> {
+		await this._barrier.wait();
+		if (!this._actualWorkspace) {
+			return undefined;
+		}
+		return this._actualWorkspace.getWorkspaceFolder(uri, resolveParent);
+	}
+
+	async resolveWorkspaceFolder(uri: vscode.Uri): Promise<vscode.WorkspaceFolder | undefined> {
+		await this._barrier.wait();
+		if (!this._actualWorkspace) {
+			return undefined;
+		}
+		return this._actualWorkspace.resolveWorkspaceFolder(uri);
+	}
+
+	getPath(): string | undefined {
+
+		// this is legacy from the days before having
+		// multi-root and we keep it only alive if there
+		// is just one workspace folder.
+		if (!this._actualWorkspace) {
+			return undefined;
+		}
+
+		const { folders } = this._actualWorkspace;
+		if (folders.length === 0) {
+			return undefined;
+		}
+		// #54483 @Joh Why are we still using fsPath?
+		return folders[0].uri.fsPath;
+	}
+
+	getRelativePath(pathOrUri: string | vscode.Uri, includeWorkspace?: boolean): string {
+
+		let resource: URI | undefined;
+		let path: string = '';
+		if (typeof pathOrUri === 'string') {
+			resource = URI.file(pathOrUri);
+			path = pathOrUri;
+		} else if (typeof pathOrUri !== 'undefined') {
+			resource = pathOrUri;
+			path = pathOrUri.fsPath;
+		}
+
+		if (!resource) {
+			return path;
+		}
+
+		const folder = this.getWorkspaceFolder(
+			resource,
+			true
+		);
+
+		if (!folder) {
+			return path;
+		}
+
+		if (typeof includeWorkspace === 'undefined' && this._actualWorkspace) {
+			includeWorkspace = this._actualWorkspace.folders.length > 1;
+		}
+
+		let result = relativePath(folder.uri, resource);
+		if (includeWorkspace && folder.name) {
+			result = `${folder.name}/${result}`;
+		}
+		return result!;
+	}
+
+	private trySetWorkspaceFolders(folders: vscode.WorkspaceFolder[]): void {
+
+		// Update directly here. The workspace is unconfirmed as long as we did not get an
+		// acknowledgement from the main side (via $acceptWorkspaceData)
+		if (this._actualWorkspace) {
+			this._unconfirmedWorkspace = ExtHostWorkspaceImpl.toExtHostWorkspace({
+				id: this._actualWorkspace.id,
+				name: this._actualWorkspace.name,
+				configuration: this._actualWorkspace.configuration,
+				folders,
+				isUntitled: this._actualWorkspace.isUntitled
+			}, this._actualWorkspace, undefined, this._extHostFileSystemInfo).workspace || undefined;
 		}
 	}
 
-	newWorkspaceFolders.forEach((f, index) => f.index = index); // fix index
-	const { added, removed } = delta(currentWorkspaceFolders, newWorkspaceFolders, compareWorkspaceFolderByUriAndNameAndIndex, this._extHostFileSystemInfo);
-	if (added.length === 0 && removed.length === 0) {
-		return false; // nothing actually changed
+	$acceptWorkspaceData(data: IWorkspaceData | null): void {
+
+		const { workspace, added, removed } = ExtHostWorkspaceImpl.toExtHostWorkspace(data, this._confirmedWorkspace, this._unconfirmedWorkspace, this._extHostFileSystemInfo);
+
+		// Update our workspace object. We have a confirmed workspace, so we drop our
+		// unconfirmed workspace.
+		this._confirmedWorkspace = workspace || undefined;
+		this._unconfirmedWorkspace = undefined;
+
+		// Events
+		this._onDidChangeWorkspace.fire(Object.freeze({
+			added,
+			removed,
+		}));
 	}
 
-	// Trigger on main side
-	if (this._proxy) {
-		const extName = extension.displayName || extension.name;
-		this._proxy.$updateWorkspaceFolders(extName, index, deleteCount, validatedDistinctWorkspaceFoldersToAdd).then(undefined, error => {
+	// --- search ---
 
-			// in case of an error, make sure to clear out the unconfirmed workspace
-			// because we cannot expect the acknowledgement from the main side for this
-			this._unconfirmedWorkspace = undefined;
+	/**
+	 * Note, null/undefined have different and important meanings for "exclude"
+	 */
+	findFiles(include: vscode.GlobPattern | undefined, exclude: vscode.GlobPattern | null | undefined, maxResults: number | undefined, extensionId: ExtensionIdentifier, token: vscode.CancellationToken = CancellationToken.None): Promise<vscode.Uri[]> {
+		this._logService.trace(`extHostWorkspace#findFiles: fileSearch, extension: ${extensionId.value}, entryPoint: findFiles`);
 
-			// show error to user
-			const options: MainThreadMessageOptions = { source: { identifier: extension.identifier, label: extension.displayName || extension.name } };
-			this._messageService.$showMessage(Severity.Error, localize('updateerror', "Extension '{0}' failed to update workspace folders: {1}", extName, error.toString()), options, []);
-		});
+		let excludeString: string = '';
+		let useFileExcludes = true;
+		if (exclude === null) {
+			useFileExcludes = false;
+		} else if (exclude !== undefined) {
+			if (typeof exclude === 'string') {
+				excludeString = exclude;
+			} else {
+				excludeString = exclude.pattern;
+			}
+		}
+
+		// todo: consider exclude baseURI if available
+		return this._findFilesImpl({ type: 'include', value: include }, {
+			exclude: [excludeString],
+			maxResults,
+			useExcludeSettings: useFileExcludes ? ExcludeSettingOptions.FilesExclude : ExcludeSettingOptions.None,
+			useIgnoreFiles: {
+				local: false
+			}
+		}, token);
 	}
 
-	// Try to accept directly
-	this.trySetWorkspaceFolders(newWorkspaceFolders);
 
-	return true;
-}
-
-getWorkspaceFolder(uri: vscode.Uri, resolveParent ?: boolean): vscode.WorkspaceFolder | undefined {
-	if (!this._actualWorkspace) {
-		return undefined;
-	}
-	return this._actualWorkspace.getWorkspaceFolder(uri, resolveParent);
-}
-
-    async getWorkspaceFolder2(uri: vscode.Uri, resolveParent ?: boolean): Promise < vscode.WorkspaceFolder | undefined > {
-	await this._barrier.wait();
-	if(!this._actualWorkspace) {
-	return undefined;
-}
-return this._actualWorkspace.getWorkspaceFolder(uri, resolveParent);
-    }
-
-    async resolveWorkspaceFolder(uri: vscode.Uri): Promise < vscode.WorkspaceFolder | undefined > {
-	await this._barrier.wait();
-	if(!this._actualWorkspace) {
-	return undefined;
-}
-return this._actualWorkspace.resolveWorkspaceFolder(uri);
-    }
-
-getPath(): string | undefined {
-
-	// this is legacy from the days before having
-	// multi-root and we keep it only alive if there
-	// is just one workspace folder.
-	if (!this._actualWorkspace) {
-		return undefined;
-	}
-
-	const { folders } = this._actualWorkspace;
-	if (folders.length === 0) {
-		return undefined;
-	}
-	// #54483 @Joh Why are we still using fsPath?
-	return folders[0].uri.fsPath;
-}
-
-getRelativePath(pathOrUri: string | vscode.Uri, includeWorkspace ?: boolean): string {
-
-	let resource: URI | undefined;
-	let path: string = '';
-	if (typeof pathOrUri === 'string') {
-		resource = URI.file(pathOrUri);
-		path = pathOrUri;
-	} else if (typeof pathOrUri !== 'undefined') {
-		resource = pathOrUri;
-		path = pathOrUri.fsPath;
-	}
-
-	if (!resource) {
-		return path;
-	}
-
-	const folder = this.getWorkspaceFolder(
-		resource,
-		true
-	);
-
-	if (!folder) {
-		return path;
-	}
-
-	if (typeof includeWorkspace === 'undefined' && this._actualWorkspace) {
-		includeWorkspace = this._actualWorkspace.folders.length > 1;
-	}
-
-	let result = relativePath(folder.uri, resource);
-	if (includeWorkspace && folder.name) {
-		result = `${folder.name}/${result}`;
-	}
-	return result!;
-}
-
-    private trySetWorkspaceFolders(folders: vscode.WorkspaceFolder[]cognidreamognidream {
-
-	// Update directly here. The workspace is unconfirmed as long as we did not get an
-	// acknowledgement from the main side (via $acceptWorkspaceData)
-	if(this._actualWorkspace) {
-	this._unconfirmedWorkspace = ExtHostWorkspaceImpl.toExtHostWorkspace({
-		id: this._actualWorkspace.id,
-		name: this._actualWorkspace.name,
-		configuration: this._actualWorkspace.configuration,
-		folders,
-		isUntitled: this._actualWorkspace.isUntitled
-	}, this._actualWorkspace, undefined, this._extHostFileSystemInfo).workspace || undefined;
-}
-    }
-
-$acceptWorkspaceData(data: IWorkspaceData | nullcognidreamognidream {
-
-	const { workspace, added, removed } = ExtHostWorkspaceImpl.toExtHostWorkspace(data, this._confirmedWorkspace, this._unconfirmedWorkspace, this._extHostFileSystemInfo);
-
-	// Update our workspace object. We have a confirmed workspace, so we drop our
-	// unconfirmed workspace.
-	this._confirmedWorkspace = workspace || undefined;
-	this._unconfirmedWorkspace = undefined;
-
-	// Events
-	this._onDidChangeWorkspace.fire(Object.freeze({
-		added,
-		removed,
-	}));
-}
-
-    // --- search ---
-
-    /**
-     * Note, null/undefined have different and important meanings for "exclude"
-     */
-    findFiles(include: vscode.GlobPattern | undefined, exclude: vscode.GlobPattern | null | undefined, maxResults: number | undefined, extensionId: ExtensionIdentifier, token: vscode.CancellationToken = CancellationToken.None): Promise < vscode.Uri[] > {
-	this._logService.trace(`extHostWorkspace#findFiles: fileSearch, extension: ${extensionId.value}, entryPoint: findFiles`);
-
-	let excludeString: string = '';
-	let useFileExcludes = true;
-	if(exclude === null) {
-	useFileExcludes = false;
-} else if (exclude !== undefined) {
-	if (typeof exclude === 'string') {
-		excludeString = exclude;
-	} else {
-		excludeString = exclude.pattern;
-	}
-}
-
-// todo: consider exclude baseURI if available
-return this._findFilesImpl({ type: 'include', value: include }, {
-	exclude: [excludeString],
-	maxResults,
-	useExcludeSettings: useFileExcludes ? ExcludeSettingOptions.FilesExclude : ExcludeSettingOptions.None,
-	useIgnoreFiles: {
-		local: false
-	}
-}, token);
-    }
-
-
-findFiles2(filePatterns: readonly vscode.GlobPattern[],
-	options: vscode.FindFiles2Options = {},
-	extensionId: ExtensionIdentifier,
-	token: vscode.CancellationToken = CancellationToken.None): Promise < vscode.Uri[] > {
+	findFiles2(filePatterns: readonly vscode.GlobPattern[],
+		options: vscode.FindFiles2Options = {},
+		extensionId: ExtensionIdentifier,
+		token: vscode.CancellationToken = CancellationToken.None): Promise<vscode.Uri[]> {
 		this._logService.trace(`extHostWorkspace#findFiles2New: fileSearch, extension: ${extensionId.value}, entryPoint: findFiles2New`);
 		return this._findFilesImpl({ type: 'filePatterns', value: filePatterns }, options, token);
 	}
 
-    private async _findFilesImpl(
+	private async _findFilesImpl(
 		// the old `findFiles` used `include` to query, but the new `findFiles2` uses `filePattern` to query.
 		// `filePattern` is the proper way to handle this, since it takes less precedence than the ignore files.
 		query: { readonly type: 'include'; readonly value: vscode.GlobPattern | undefined } | { readonly type: 'filePatterns'; readonly value: readonly vscode.GlobPattern[] },
 		options: vscode.FindFiles2Options,
 		token: vscode.CancellationToken
-	): Promise < vscode.Uri[] > {
-		if(token.isCancellationRequested) {
-	return Promise.resolve([]);
-}
-
-const filePatternsToUse = query.type === 'include' ? [query.value] : query.value ?? [];
-if (!Array.isArray(filePatternsToUse)) {
-	console.error('Invalid file pattern provided', filePatternsToUse);
-	throw new Error(`Invalid file pattern provided ${JSON.stringify(filePatternsToUse)}`);
-}
-
-const queryOptions: QueryOptions<IFileQueryBuilderOptions>[] = filePatternsToUse.map(filePattern => {
-
-	const excludePatterns = globsToISearchPatternBuilder(options.exclude);
-
-	const fileQueries: IFileQueryBuilderOptions = {
-		ignoreSymlinks: typeof options.followSymlinks === 'boolean' ? !options.followSymlinks : undefined,
-		disregardIgnoreFiles: typeof options.useIgnoreFiles?.local === 'boolean' ? !options.useIgnoreFiles.local : undefined,
-		disregardGlobalIgnoreFiles: typeof options.useIgnoreFiles?.global === 'boolean' ? !options.useIgnoreFiles.global : undefined,
-		disregardParentIgnoreFiles: typeof options.useIgnoreFiles?.parent === 'boolean' ? !options.useIgnoreFiles.parent : undefined,
-		disregardExcludeSettings: options.useExcludeSettings !== undefined && options.useExcludeSettings === ExcludeSettingOptions.None,
-		disregardSearchExcludeSettings: options.useExcludeSettings !== undefined && (options.useExcludeSettings !== ExcludeSettingOptions.SearchAndFilesExclude),
-		maxResults: options.maxResults,
-		excludePattern: excludePatterns.length > 0 ? excludePatterns : undefined,
-		_reason: 'startFileSearch',
-		shouldGlobSearch: query.type === 'include' ? undefined : true,
-	};
-
-	const parseInclude = parseSearchExcludeInclude(GlobPattern.from(filePattern));
-	const folderToUse = parseInclude?.folder;
-	if (query.type === 'include') {
-		fileQueries.includePattern = parseInclude?.pattern;
-	} else {
-		fileQueries.filePattern = parseInclude?.pattern;
-	}
-
-	return {
-		folder: folderToUse,
-		options: fileQueries
-	};
-});
-
-return this._findFilesBase(queryOptions, token);
-    }
-
-    private async _findFilesBase(
-	queryOptions: QueryOptions < IFileQueryBuilderOptions > [] | undefined,
-	token: CancellationToken
-): Promise < vscode.Uri[] > {
-	const result = await Promise.all(queryOptions?.map(option => this._proxy.$startFileSearch(
-		option.folder ?? null,
-		option.options,
-		token).then(data => Array.isArray(data) ? data.map(d => URI.revive(d)) : [])
-	) ?? []);
-
-	return result.flat();
-}
-
-findTextInFiles2(query: vscode.TextSearchQuery2, options: vscode.FindTextInFilesOptions2 | undefined, extensionId: ExtensionIdentifier, token: vscode.CancellationToken = CancellationToken.None): vscode.FindTextInFilesResponse {
-	this._logService.trace(`extHostWorkspace#findTextInFiles2: textSearch, extension: ${extensionId.value}, entryPoint: findTextInFiles2`);
-
-
-	const getOptions = (include: vscode.GlobPattern | undefined): QueryOptions<ITextQueryBuilderOptions> => {
-		if (!options) {
-			return {
-				folder: undefined,
-				options: {}
-			};
+	): Promise<vscode.Uri[]> {
+		if (token.isCancellationRequested) {
+			return Promise.resolve([]);
 		}
-		const parsedInclude = include ? parseSearchExcludeInclude(GlobPattern.from(include)) : undefined;
 
-		const excludePatterns = options.exclude ? globsToISearchPatternBuilder(options.exclude) : undefined;
+		const filePatternsToUse = query.type === 'include' ? [query.value] : query.value ?? [];
+		if (!Array.isArray(filePatternsToUse)) {
+			console.error('Invalid file pattern provided', filePatternsToUse);
+			throw new Error(`Invalid file pattern provided ${JSON.stringify(filePatternsToUse)}`);
+		}
 
-		return {
-			options: {
+		const queryOptions: QueryOptions<IFileQueryBuilderOptions>[] = filePatternsToUse.map(filePattern => {
 
+			const excludePatterns = globsToISearchPatternBuilder(options.exclude);
+
+			const fileQueries: IFileQueryBuilderOptions = {
 				ignoreSymlinks: typeof options.followSymlinks === 'boolean' ? !options.followSymlinks : undefined,
-				disregardIgnoreFiles: typeof options.useIgnoreFiles === 'boolean' ? !options.useIgnoreFiles : undefined,
-				disregardGlobalIgnoreFiles: typeof options.useIgnoreFiles?.global === 'boolean' ? !options.useIgnoreFiles?.global : undefined,
-				disregardParentIgnoreFiles: typeof options.useIgnoreFiles?.parent === 'boolean' ? !options.useIgnoreFiles?.parent : undefined,
+				disregardIgnoreFiles: typeof options.useIgnoreFiles?.local === 'boolean' ? !options.useIgnoreFiles.local : undefined,
+				disregardGlobalIgnoreFiles: typeof options.useIgnoreFiles?.global === 'boolean' ? !options.useIgnoreFiles.global : undefined,
+				disregardParentIgnoreFiles: typeof options.useIgnoreFiles?.parent === 'boolean' ? !options.useIgnoreFiles.parent : undefined,
 				disregardExcludeSettings: options.useExcludeSettings !== undefined && options.useExcludeSettings === ExcludeSettingOptions.None,
 				disregardSearchExcludeSettings: options.useExcludeSettings !== undefined && (options.useExcludeSettings !== ExcludeSettingOptions.SearchAndFilesExclude),
-				fileEncoding: options.encoding,
 				maxResults: options.maxResults,
-				previewOptions: options.previewOptions ? {
-					matchLines: options.previewOptions?.numMatchLines ?? 100,
-					charsPerLine: options.previewOptions?.charsPerLine ?? 10000,
-				} : undefined,
-				surroundingContext: options.surroundingContext,
-
-				includePattern: parsedInclude?.pattern,
-				excludePattern: excludePatterns
-			} satisfies ITextQueryBuilderOptions,
-			folder: parsedInclude?.folder
-		} satisfies QueryOptions<ITextQueryBuilderOptions>;
-	};
-
-	const queryOptionsRaw: (QueryOptions<ITextQueryBuilderOptions> | undefined)[] = ((options?.include?.map((include) =>
-		getOptions(include)))) ?? [getOptions(undefined)];
-
-	const queryOptions = queryOptionsRaw.filter((queryOps): queryOps is QueryOptions<ITextQueryBuilderOptions> => !!queryOps);
-
-	const disposables = new DisposableStore();
-	const progressEmitter = disposables.add(new Emitter<{ result: ITextSearchResult<URI>; uri: URI }>());
-	const complete = this.findTextInFilesBase(
-		query,
-		queryOptions,
-		(result, uri) => progressEmitter.fire({ result, uri }),
-		token
-	);
-	const asyncIterable = new AsyncIterableObject<vscode.TextSearchResult2>(async emitter => {
-		disposables.add(progressEmitter.event(e => {
-			const result = e.result;
-			const uri = e.uri;
-			if (resultIsMatch(result)) {
-				emitter.emitOne(new TextSearchMatch2(
-					uri,
-					result.rangeLocations.map((range) => ({
-						previewRange: new Range(range.preview.startLineNumber, range.preview.startColumn, range.preview.endLineNumber, range.preview.endColumn),
-						sourceRange: new Range(range.source.startLineNumber, range.source.startColumn, range.source.endLineNumber, range.source.endColumn)
-					})),
-					result.previewText
-
-				));
-			} else {
-				emitter.emitOne(new TextSearchContext2(
-					uri,
-					result.text,
-					result.lineNumber
-				));
-
-			}
-		}));
-		await complete;
-	});
-
-	return {
-		results: asyncIterable,
-		complete: complete.then((e) => {
-			disposables.dispose();
-			return {
-				limitHit: e?.limitHit ?? false
+				excludePattern: excludePatterns.length > 0 ? excludePatterns : undefined,
+				_reason: 'startFileSearch',
+				shouldGlobSearch: query.type === 'include' ? undefined : true,
 			};
-		}),
-	};
-}
 
+			const parseInclude = parseSearchExcludeInclude(GlobPattern.from(filePattern));
+			const folderToUse = parseInclude?.folder;
+			if (query.type === 'include') {
+				fileQueries.includePattern = parseInclude?.pattern;
+			} else {
+				fileQueries.filePattern = parseInclude?.pattern;
+			}
 
-    async findTextInFilesBase(query: vscode.TextSearchQuery, queryOptions: QueryOptions < ITextQueryBuilderOptions > [] | undefined, callback: (result: ITextSearchResult<URI>, uri: URI) cognidreamognidream, token: vscode.CancellationToken = CancellationToken.None): Promise < vscode.TextSearchComplete > {
-	const requestId = this._requestIdProvider.getNext();
-
-	let isCanceled = false;
-	token.onCancellationRequested(_ => {
-		isCanceled = true;
-	});
-
-	this._activeSearchCallbacks[requestId] = p => {
-		if (isCanceled) {
-			return;
-		}
-
-		const uri = URI.revive(p.resource);
-		p.results!.forEach(rawResult => {
-			const result: ITextSearchResult<URI> = revive(rawResult);
-			callback(result, uri);
+			return {
+				folder: folderToUse,
+				options: fileQueries
+			};
 		});
-	};
 
-	if(token.isCancellationRequested) {
-	return {};
-}
+		return this._findFilesBase(queryOptions, token);
+	}
 
-try {
-	const result = await Promise.all(queryOptions?.map(option => this._proxy.$startTextSearch(
-		query,
-		option.folder ?? null,
-		option.options,
-		requestId,
-		token) || {}
-	) ?? []);
-	delete this._activeSearchCallbacks[requestId];
-	return result.reduce((acc, val) => {
-		return {
-			limitHit: acc?.limitHit || (val?.limitHit ?? false),
-			message: [acc?.message ?? [], val?.message ?? []].flat(),
+	private async _findFilesBase(
+		queryOptions: QueryOptions<IFileQueryBuilderOptions>[] | undefined,
+		token: CancellationToken
+	): Promise<vscode.Uri[]> {
+		const result = await Promise.all(queryOptions?.map(option => this._proxy.$startFileSearch(
+			option.folder ?? null,
+			option.options,
+			token).then(data => Array.isArray(data) ? data.map(d => URI.revive(d)) : [])
+		) ?? []);
+
+		return result.flat();
+	}
+
+	findTextInFiles2(query: vscode.TextSearchQuery2, options: vscode.FindTextInFilesOptions2 | undefined, extensionId: ExtensionIdentifier, token: vscode.CancellationToken = CancellationToken.None): vscode.FindTextInFilesResponse {
+		this._logService.trace(`extHostWorkspace#findTextInFiles2: textSearch, extension: ${extensionId.value}, entryPoint: findTextInFiles2`);
+
+
+		const getOptions = (include: vscode.GlobPattern | undefined): QueryOptions<ITextQueryBuilderOptions> => {
+			if (!options) {
+				return {
+					folder: undefined,
+					options: {}
+				};
+			}
+			const parsedInclude = include ? parseSearchExcludeInclude(GlobPattern.from(include)) : undefined;
+
+			const excludePatterns = options.exclude ? globsToISearchPatternBuilder(options.exclude) : undefined;
+
+			return {
+				options: {
+
+					ignoreSymlinks: typeof options.followSymlinks === 'boolean' ? !options.followSymlinks : undefined,
+					disregardIgnoreFiles: typeof options.useIgnoreFiles === 'boolean' ? !options.useIgnoreFiles : undefined,
+					disregardGlobalIgnoreFiles: typeof options.useIgnoreFiles?.global === 'boolean' ? !options.useIgnoreFiles?.global : undefined,
+					disregardParentIgnoreFiles: typeof options.useIgnoreFiles?.parent === 'boolean' ? !options.useIgnoreFiles?.parent : undefined,
+					disregardExcludeSettings: options.useExcludeSettings !== undefined && options.useExcludeSettings === ExcludeSettingOptions.None,
+					disregardSearchExcludeSettings: options.useExcludeSettings !== undefined && (options.useExcludeSettings !== ExcludeSettingOptions.SearchAndFilesExclude),
+					fileEncoding: options.encoding,
+					maxResults: options.maxResults,
+					previewOptions: options.previewOptions ? {
+						matchLines: options.previewOptions?.numMatchLines ?? 100,
+						charsPerLine: options.previewOptions?.charsPerLine ?? 10000,
+					} : undefined,
+					surroundingContext: options.surroundingContext,
+
+					includePattern: parsedInclude?.pattern,
+					excludePattern: excludePatterns
+				} satisfies ITextQueryBuilderOptions,
+				folder: parsedInclude?.folder
+			} satisfies QueryOptions<ITextQueryBuilderOptions>;
 		};
-	}, {}) ?? { limitHit: false };
 
-} catch (err) {
-	delete this._activeSearchCallbacks[requestId];
-	throw err;
-}
-    }
+		const queryOptionsRaw: (QueryOptions<ITextQueryBuilderOptions> | undefined)[] = ((options?.include?.map((include) =>
+			getOptions(include)))) ?? [getOptions(undefined)];
 
-    async findTextInFiles(query: vscode.TextSearchQuery, options: vscode.FindTextInFilesOptions & { useSearchExclude?: boolean }, callback: (result: vscode.TextSearchResult) cognidreamognidream, extensionId: ExtensionIdentifier, token: vscode.CancellationToken = CancellationToken.None): Promise < vscode.TextSearchComplete > {
-	this._logService.trace(`extHostWorkspace#findTextInFiles: textSearch, extension: ${extensionId.value}, entryPoint: findTextInFiles`);
+		const queryOptions = queryOptionsRaw.filter((queryOps): queryOps is QueryOptions<ITextQueryBuilderOptions> => !!queryOps);
 
-	const previewOptions: vscode.TextSearchPreviewOptions = typeof options.previewOptions === 'undefined' ?
-		{
-			matchLines: 100,
-			charsPerLine: 10000
-		} :
-		options.previewOptions;
+		const disposables = new DisposableStore();
+		const progressEmitter = disposables.add(new Emitter<{ result: ITextSearchResult<URI>; uri: URI }>());
+		const complete = this.findTextInFilesBase(
+			query,
+			queryOptions,
+			(result, uri) => progressEmitter.fire({ result, uri }),
+			token
+		);
+		const asyncIterable = new AsyncIterableObject<vscode.TextSearchResult2>(async emitter => {
+			disposables.add(progressEmitter.event(e => {
+				const result = e.result;
+				const uri = e.uri;
+				if (resultIsMatch(result)) {
+					emitter.emitOne(new TextSearchMatch2(
+						uri,
+						result.rangeLocations.map((range) => ({
+							previewRange: new Range(range.preview.startLineNumber, range.preview.startColumn, range.preview.endLineNumber, range.preview.endColumn),
+							sourceRange: new Range(range.source.startLineNumber, range.source.startColumn, range.source.endLineNumber, range.source.endColumn)
+						})),
+						result.previewText
 
-	const parsedInclude = parseSearchExcludeInclude(GlobPattern.from(options.include));
+					));
+				} else {
+					emitter.emitOne(new TextSearchContext2(
+						uri,
+						result.text,
+						result.lineNumber
+					));
 
-	const excludePattern = (typeof options.exclude === 'string') ? options.exclude :
-		options.exclude ? options.exclude.pattern : undefined;
-	const queryOptions: ITextQueryBuilderOptions = {
-		ignoreSymlinks: typeof options.followSymlinks === 'boolean' ? !options.followSymlinks : undefined,
-		disregardIgnoreFiles: typeof options.useIgnoreFiles === 'boolean' ? !options.useIgnoreFiles : undefined,
-		disregardGlobalIgnoreFiles: typeof options.useGlobalIgnoreFiles === 'boolean' ? !options.useGlobalIgnoreFiles : undefined,
-		disregardParentIgnoreFiles: typeof options.useParentIgnoreFiles === 'boolean' ? !options.useParentIgnoreFiles : undefined,
-		disregardExcludeSettings: typeof options.useDefaultExcludes === 'boolean' ? !options.useDefaultExcludes : true,
-		disregardSearchExcludeSettings: typeof options.useSearchExclude === 'boolean' ? !options.useSearchExclude : true,
-		fileEncoding: options.encoding,
-		maxResults: options.maxResults,
-		previewOptions,
-		surroundingContext: options.afterContext, // TODO: remove ability to have before/after context separately
+				}
+			}));
+			await complete;
+		});
 
-		includePattern: parsedInclude?.pattern,
-		excludePattern: excludePattern ? [{ pattern: excludePattern }] : undefined,
-	};
+		return {
+			results: asyncIterable,
+			complete: complete.then((e) => {
+				disposables.dispose();
+				return {
+					limitHit: e?.limitHit ?? false
+				};
+			}),
+		};
+	}
 
-	const progress = (result: ITextSearchResult<URI>, uri: URI) => {
-		if (resultIsMatch(result)) {
-			callback({
-				uri,
-				preview: {
-					text: result.previewText,
-					matches: mapArrayOrNot(
-						result.rangeLocations,
-						m => new Range(m.preview.startLineNumber, m.preview.startColumn, m.preview.endLineNumber, m.preview.endColumn))
-				},
-				ranges: mapArrayOrNot(
-					result.rangeLocations,
-					r => new Range(r.source.startLineNumber, r.source.startColumn, r.source.endLineNumber, r.source.endColumn))
-			} satisfies vscode.TextSearchMatch);
-		} else {
-			callback({
-				uri,
-				text: result.text,
-				lineNumber: result.lineNumber
-			} satisfies vscode.TextSearchContext);
+
+	async findTextInFilesBase(query: vscode.TextSearchQuery, queryOptions: QueryOptions<ITextQueryBuilderOptions>[] | undefined, callback: (result: ITextSearchResult<URI>, uri: URI) => void, token: vscode.CancellationToken = CancellationToken.None): Promise<vscode.TextSearchComplete> {
+		const requestId = this._requestIdProvider.getNext();
+
+		let isCanceled = false;
+		token.onCancellationRequested(_ => {
+			isCanceled = true;
+		});
+
+		this._activeSearchCallbacks[requestId] = p => {
+			if (isCanceled) {
+				return;
+			}
+
+			const uri = URI.revive(p.resource);
+			p.results!.forEach(rawResult => {
+				const result: ITextSearchResult<URI> = revive(rawResult);
+				callback(result, uri);
+			});
+		};
+
+		if (token.isCancellationRequested) {
+			return {};
 		}
-	};
 
-	return this.findTextInFilesBase(query, [{ options: queryOptions, folder: parsedInclude?.folder }], progress, token);
-}
+		try {
+			const result = await Promise.all(queryOptions?.map(option => this._proxy.$startTextSearch(
+				query,
+				option.folder ?? null,
+				option.options,
+				requestId,
+				token) || {}
+			) ?? []);
+			delete this._activeSearchCallbacks[requestId];
+			return result.reduce((acc, val) => {
+				return {
+					limitHit: acc?.limitHit || (val?.limitHit ?? false),
+					message: [acc?.message ?? [], val?.message ?? []].flat(),
+				};
+			}, {}) ?? { limitHit: false };
 
-$handleTextSearchResult(result: IRawFileMatch2, requestId: numbercognidreamognidream {
-	this._activeSearchCallbacks[requestId]?.(result);
-}
+		} catch (err) {
+			delete this._activeSearchCallbacks[requestId];
+			throw err;
+		}
+	}
 
-    async save(uri: URI): Promise < URI | undefined > {
-	const result = await this._proxy.$save(uri, { saveAs: false });
+	async findTextInFiles(query: vscode.TextSearchQuery, options: vscode.FindTextInFilesOptions & { useSearchExclude?: boolean }, callback: (result: vscode.TextSearchResult) => void, extensionId: ExtensionIdentifier, token: vscode.CancellationToken = CancellationToken.None): Promise<vscode.TextSearchComplete> {
+		this._logService.trace(`extHostWorkspace#findTextInFiles: textSearch, extension: ${extensionId.value}, entryPoint: findTextInFiles`);
 
-	return URI.revive(result);
-}
+		const previewOptions: vscode.TextSearchPreviewOptions = typeof options.previewOptions === 'undefined' ?
+			{
+				matchLines: 100,
+				charsPerLine: 10000
+			} :
+			options.previewOptions;
 
-    async saveAs(uri: URI): Promise < URI | undefined > {
-	const result = await this._proxy.$save(uri, { saveAs: true });
+		const parsedInclude = parseSearchExcludeInclude(GlobPattern.from(options.include));
 
-	return URI.revive(result);
-}
+		const excludePattern = (typeof options.exclude === 'string') ? options.exclude :
+			options.exclude ? options.exclude.pattern : undefined;
+		const queryOptions: ITextQueryBuilderOptions = {
+			ignoreSymlinks: typeof options.followSymlinks === 'boolean' ? !options.followSymlinks : undefined,
+			disregardIgnoreFiles: typeof options.useIgnoreFiles === 'boolean' ? !options.useIgnoreFiles : undefined,
+			disregardGlobalIgnoreFiles: typeof options.useGlobalIgnoreFiles === 'boolean' ? !options.useGlobalIgnoreFiles : undefined,
+			disregardParentIgnoreFiles: typeof options.useParentIgnoreFiles === 'boolean' ? !options.useParentIgnoreFiles : undefined,
+			disregardExcludeSettings: typeof options.useDefaultExcludes === 'boolean' ? !options.useDefaultExcludes : true,
+			disregardSearchExcludeSettings: typeof options.useSearchExclude === 'boolean' ? !options.useSearchExclude : true,
+			fileEncoding: options.encoding,
+			maxResults: options.maxResults,
+			previewOptions,
+			surroundingContext: options.afterContext, // TODO: remove ability to have before/after context separately
 
-    saveAll(includeUntitled ?: boolean): Promise < boolean > {
-	return this._proxy.$saveAll(includeUntitled);
-}
+			includePattern: parsedInclude?.pattern,
+			excludePattern: excludePattern ? [{ pattern: excludePattern }] : undefined,
+		};
 
-    resolveProxy(url: string): Promise < string | undefined > {
-	return this._proxy.$resolveProxy(url);
-}
+		const progress = (result: ITextSearchResult<URI>, uri: URI) => {
+			if (resultIsMatch(result)) {
+				callback({
+					uri,
+					preview: {
+						text: result.previewText,
+						matches: mapArrayOrNot(
+							result.rangeLocations,
+							m => new Range(m.preview.startLineNumber, m.preview.startColumn, m.preview.endLineNumber, m.preview.endColumn))
+					},
+					ranges: mapArrayOrNot(
+						result.rangeLocations,
+						r => new Range(r.source.startLineNumber, r.source.startColumn, r.source.endLineNumber, r.source.endColumn))
+				} satisfies vscode.TextSearchMatch);
+			} else {
+				callback({
+					uri,
+					text: result.text,
+					lineNumber: result.lineNumber
+				} satisfies vscode.TextSearchContext);
+			}
+		};
 
-    lookupAuthorization(authInfo: AuthInfo): Promise < Credentials | undefined > {
-	return this._proxy.$lookupAuthorization(authInfo);
-}
+		return this.findTextInFilesBase(query, [{ options: queryOptions, folder: parsedInclude?.folder }], progress, token);
+	}
 
-    lookupKerberosAuthorization(url: string): Promise < string | undefined > {
-	return this._proxy.$lookupKerberosAuthorization(url);
-}
+	$handleTextSearchResult(result: IRawFileMatch2, requestId: number): void {
+		this._activeSearchCallbacks[requestId]?.(result);
+	}
 
-    loadCertificates(): Promise < string[] > {
-	return this._proxy.$loadCertificates();
-}
+	async save(uri: URI): Promise<URI | undefined> {
+		const result = await this._proxy.$save(uri, { saveAs: false });
 
-    // --- trust ---
+		return URI.revive(result);
+	}
 
-    get trusted(): boolean {
-	return this._trusted;
-}
+	async saveAs(uri: URI): Promise<URI | undefined> {
+		const result = await this._proxy.$save(uri, { saveAs: true });
 
-    requestWorkspaceTrust(options ?: vscode.WorkspaceTrustRequestOptions): Promise < boolean | undefined > {
-	return this._proxy.$requestWorkspaceTrust(options);
-}
+		return URI.revive(result);
+	}
 
-    $onDidGrantWorkspaceTrust(cognidreamognidream {
-	if(!this._trusted) {
-	this._trusted = true;
-	this._onDidGrantWorkspaceTrust.fire();
-}
-    }
+	saveAll(includeUntitled?: boolean): Promise<boolean> {
+		return this._proxy.$saveAll(includeUntitled);
+	}
+
+	resolveProxy(url: string): Promise<string | undefined> {
+		return this._proxy.$resolveProxy(url);
+	}
+
+	lookupAuthorization(authInfo: AuthInfo): Promise<Credentials | undefined> {
+		return this._proxy.$lookupAuthorization(authInfo);
+	}
+
+	lookupKerberosAuthorization(url: string): Promise<string | undefined> {
+		return this._proxy.$lookupKerberosAuthorization(url);
+	}
+
+	loadCertificates(): Promise<string[]> {
+		return this._proxy.$loadCertificates();
+	}
+
+	// --- trust ---
+
+	get trusted(): boolean {
+		return this._trusted;
+	}
+
+	requestWorkspaceTrust(options?: vscode.WorkspaceTrustRequestOptions): Promise<boolean | undefined> {
+		return this._proxy.$requestWorkspaceTrust(options);
+	}
+
+	$onDidGrantWorkspaceTrust(): void {
+		if (!this._trusted) {
+			this._trusted = true;
+			this._onDidGrantWorkspaceTrust.fire();
+		}
+	}
 
 	// --- edit sessions ---
 
 	private _providerHandlePool = 0;
 
-// called by ext host
-registerEditSessionIdentityProvider(scheme: string, provider: vscode.EditSessionIdentityProvider) {
-	if (this._editSessionIdentityProviders.has(scheme)) {
-		throw new Error(`A provider has already been registered for scheme ${scheme}`);
+	// called by ext host
+	registerEditSessionIdentityProvider(scheme: string, provider: vscode.EditSessionIdentityProvider) {
+		if (this._editSessionIdentityProviders.has(scheme)) {
+			throw new Error(`A provider has already been registered for scheme ${scheme}`);
+		}
+
+		this._editSessionIdentityProviders.set(scheme, provider);
+		const outgoingScheme = this._uriTransformerService.transformOutgoingScheme(scheme);
+		const handle = this._providerHandlePool++;
+		this._proxy.$registerEditSessionIdentityProvider(handle, outgoingScheme);
+
+		return toDisposable(() => {
+			this._editSessionIdentityProviders.delete(scheme);
+			this._proxy.$unregisterEditSessionIdentityProvider(handle);
+		});
 	}
 
-	this._editSessionIdentityProviders.set(scheme, provider);
-	const outgoingScheme = this._uriTransformerService.transformOutgoingScheme(scheme);
-	const handle = this._providerHandlePool++;
-	this._proxy.$registerEditSessionIdentityProvider(handle, outgoingScheme);
+	// called by main thread
+	async $getEditSessionIdentifier(workspaceFolder: UriComponents, cancellationToken: CancellationToken): Promise<string | undefined> {
+		this._logService.info('Getting edit session identifier for workspaceFolder', workspaceFolder);
+		const folder = await this.resolveWorkspaceFolder(URI.revive(workspaceFolder));
+		if (!folder) {
+			this._logService.warn('Unable to resolve workspace folder');
+			return undefined;
+		}
 
-	return toDisposable(() => {
-		this._editSessionIdentityProviders.delete(scheme);
-		this._proxy.$unregisterEditSessionIdentityProvider(handle);
-	});
-}
+		this._logService.info('Invoking #provideEditSessionIdentity for workspaceFolder', folder);
 
-    // called by main thread
-    async $getEditSessionIdentifier(workspaceFolder: UriComponents, cancellationToken: CancellationToken): Promise < string | undefined > {
-	this._logService.info('Getting edit session identifier for workspaceFolder', workspaceFolder);
-	const folder = await this.resolveWorkspaceFolder(URI.revive(workspaceFolder));
-	if(!folder) {
-		this._logService.warn('Unable to resolve workspace folder');
-		return undefined;
+		const provider = this._editSessionIdentityProviders.get(folder.uri.scheme);
+		this._logService.info(`Provider for scheme ${folder.uri.scheme} is defined: `, !!provider);
+		if (!provider) {
+			return undefined;
+		}
+
+		const result = await provider.provideEditSessionIdentity(folder, cancellationToken);
+		this._logService.info('Provider returned edit session identifier: ', result);
+		if (!result) {
+			return undefined;
+		}
+
+		return result;
 	}
 
-        this._logService.info('Invoking #provideEditSessionIdentity for workspaceFolder', folder);
+	async $provideEditSessionIdentityMatch(workspaceFolder: UriComponents, identity1: string, identity2: string, cancellationToken: CancellationToken): Promise<EditSessionIdentityMatch | undefined> {
+		this._logService.info('Getting edit session identifier for workspaceFolder', workspaceFolder);
+		const folder = await this.resolveWorkspaceFolder(URI.revive(workspaceFolder));
+		if (!folder) {
+			this._logService.warn('Unable to resolve workspace folder');
+			return undefined;
+		}
 
-	const provider = this._editSessionIdentityProviders.get(folder.uri.scheme);
-	this._logService.info(`Provider for scheme ${folder.uri.scheme} is defined: `, !!provider);
-	if(!provider) {
-		return undefined;
+		this._logService.info('Invoking #provideEditSessionIdentity for workspaceFolder', folder);
+
+		const provider = this._editSessionIdentityProviders.get(folder.uri.scheme);
+		this._logService.info(`Provider for scheme ${folder.uri.scheme} is defined: `, !!provider);
+		if (!provider) {
+			return undefined;
+		}
+
+		const result = await provider.provideEditSessionIdentityMatch?.(identity1, identity2, cancellationToken);
+		this._logService.info('Provider returned edit session identifier match result: ', result);
+		if (!result) {
+			return undefined;
+		}
+
+		return result;
 	}
 
-        const result = await provider.provideEditSessionIdentity(folder, cancellationToken);
-	this._logService.info('Provider returned edit session identifier: ', result);
-	if(!result) {
-		return undefined;
+	private readonly _onWillCreateEditSessionIdentityEvent = new AsyncEmitter<vscode.EditSessionIdentityWillCreateEvent>();
+
+	getOnWillCreateEditSessionIdentityEvent(extension: IExtensionDescription): Event<vscode.EditSessionIdentityWillCreateEvent> {
+		return (listener, thisArg, disposables) => {
+			const wrappedListener: IExtensionListener<vscode.EditSessionIdentityWillCreateEvent> = function wrapped(e) { listener.call(thisArg, e); };
+			wrappedListener.extension = extension;
+			return this._onWillCreateEditSessionIdentityEvent.event(wrappedListener, undefined, disposables);
+		};
 	}
 
-        return result;
-}
+	// main thread calls this to trigger participants
+	async $onWillCreateEditSessionIdentity(workspaceFolder: UriComponents, token: CancellationToken, timeout: number): Promise<void> {
+		const folder = await this.resolveWorkspaceFolder(URI.revive(workspaceFolder));
 
-    async $provideEditSessionIdentityMatch(workspaceFolder: UriComponents, identity1: string, identity2: string, cancellationToken: CancellationToken): Promise < EditSessionIdentityMatch | undefined > {
-	this._logService.info('Getting edit session identifier for workspaceFolder', workspaceFolder);
-	const folder = await this.resolveWorkspaceFolder(URI.revive(workspaceFolder));
-	if(!folder) {
-		this._logService.warn('Unable to resolve workspace folder');
-		return undefined;
+		if (folder === undefined) {
+			throw new Error('Unable to resolve workspace folder');
+		}
+
+		await this._onWillCreateEditSessionIdentityEvent.fireAsync({ workspaceFolder: folder }, token, async (thenable: Promise<unknown>, listener) => {
+			const now = Date.now();
+			await Promise.resolve(thenable);
+			if (Date.now() - now > timeout) {
+				this._logService.warn('SLOW edit session create-participant', (<IExtensionListener<vscode.EditSessionIdentityWillCreateEvent>>listener).extension.identifier);
+			}
+		});
+
+		if (token.isCancellationRequested) {
+			return undefined;
+		}
 	}
 
-        this._logService.info('Invoking #provideEditSessionIdentity for workspaceFolder', folder);
+	// --- canonical uri identity ---
 
-	const provider = this._editSessionIdentityProviders.get(folder.uri.scheme);
-	this._logService.info(`Provider for scheme ${folder.uri.scheme} is defined: `, !!provider);
-	if(!provider) {
-		return undefined;
+	private readonly _canonicalUriProviders = new Map<string, vscode.CanonicalUriProvider>();
+
+	// called by ext host
+	registerCanonicalUriProvider(scheme: string, provider: vscode.CanonicalUriProvider) {
+		if (this._canonicalUriProviders.has(scheme)) {
+			throw new Error(`A provider has already been registered for scheme ${scheme}`);
+		}
+
+		this._canonicalUriProviders.set(scheme, provider);
+		const outgoingScheme = this._uriTransformerService.transformOutgoingScheme(scheme);
+		const handle = this._providerHandlePool++;
+		this._proxy.$registerCanonicalUriProvider(handle, outgoingScheme);
+
+		return toDisposable(() => {
+			this._canonicalUriProviders.delete(scheme);
+			this._proxy.$unregisterCanonicalUriProvider(handle);
+		});
 	}
 
-        const result = await provider.provideEditSessionIdentityMatch?.(identity1, identity2, cancellationToken);
-	this._logService.info('Provider returned edit session identifier match result: ', result);
-	if(!result) {
-		return undefined;
+	async provideCanonicalUri(uri: URI, options: vscode.CanonicalUriRequestOptions, cancellationToken: CancellationToken): Promise<URI | undefined> {
+		const provider = this._canonicalUriProviders.get(uri.scheme);
+		if (!provider) {
+			return undefined;
+		}
+
+		const result = await provider.provideCanonicalUri?.(URI.revive(uri), options, cancellationToken);
+		if (!result) {
+			return undefined;
+		}
+
+		return result;
 	}
 
-        return result;
-}
-
-    private readonly _onWillCreateEditSessionIdentityEvent = new AsyncEmitter<vscode.EditSessionIdentityWillCreateEvent>();
-
-getOnWillCreateEditSessionIdentityEvent(extension: IExtensionDescription): Event < vscode.EditSessionIdentityWillCreateEvent > {
-	return(listener, thisArg, disposables) => {
-	const wrappedListener: IExtensionListener<vscode.EditSessionIdentityWillCreateEvent> = function wrapped(e) { listener.call(thisArg, e); };
-	wrappedListener.extension = extension;
-	return this._onWillCreateEditSessionIdentityEvent.event(wrappedListener, undefined, disposables);
-};
-    }
-
-    // main thread calls this to trigger participants
-    async $onWillCreateEditSessionIdentity(workspaceFolder: UriComponents, token: CancellationToken, timeout: number): Promicognidreamognidream > {
-	const folder = await this.resolveWorkspaceFolder(URI.revive(workspaceFolder));
-
-	if(folder === undefined) {
-	throw new Error('Unable to resolve workspace folder');
-}
-
-await this._onWillCreateEditSessionIdentityEvent.fireAsync({ workspaceFolder: folder }, token, async (thenable: Promise<unknown>, listener) => {
-	const now = Date.now();
-	await Promise.resolve(thenable);
-	if (Date.now() - now > timeout) {
-		this._logService.warn('SLOW edit session create-participant', (<IExtensionListener<vscode.EditSessionIdentityWillCreateEvent>>listener).extension.identifier);
-	}
-});
-
-if (token.isCancellationRequested) {
-	return undefined;
-}
-    }
-
-    // --- canonical uri identity ---
-
-    private readonly _canonicalUriProviders = new Map<string, vscode.CanonicalUriProvider>();
-
-// called by ext host
-registerCanonicalUriProvider(scheme: string, provider: vscode.CanonicalUriProvider) {
-	if (this._canonicalUriProviders.has(scheme)) {
-		throw new Error(`A provider has already been registered for scheme ${scheme}`);
+	// called by main thread
+	async $provideCanonicalUri(uri: UriComponents, targetScheme: string, cancellationToken: CancellationToken): Promise<UriComponents | undefined> {
+		return this.provideCanonicalUri(URI.revive(uri), { targetScheme }, cancellationToken);
 	}
 
-	this._canonicalUriProviders.set(scheme, provider);
-	const outgoingScheme = this._uriTransformerService.transformOutgoingScheme(scheme);
-	const handle = this._providerHandlePool++;
-	this._proxy.$registerCanonicalUriProvider(handle, outgoingScheme);
+	// --- encodings ---
 
-	return toDisposable(() => {
-		this._canonicalUriProviders.delete(scheme);
-		this._proxy.$unregisterCanonicalUriProvider(handle);
-	});
-}
-
-    async provideCanonicalUri(uri: URI, options: vscode.CanonicalUriRequestOptions, cancellationToken: CancellationToken): Promise < URI | undefined > {
-	const provider = this._canonicalUriProviders.get(uri.scheme);
-	if(!provider) {
-		return undefined;
+	decode(content: Uint8Array, uri: UriComponents | undefined, options?: { encoding: string }): Promise<string> {
+		return this._proxy.$decode(VSBuffer.wrap(content), uri, options);
 	}
 
-        const result = await provider.provideCanonicalUri?.(URI.revive(uri), options, cancellationToken);
-	if(!result) {
-		return undefined;
+	async encode(content: string, uri: UriComponents | undefined, options?: { encoding: string }): Promise<Uint8Array> {
+		const buff = await this._proxy.$encode(content, uri, options);
+		return buff.buffer;
 	}
-
-        return result;
-}
-
-    // called by main thread
-    async $provideCanonicalUri(uri: UriComponents, targetScheme: string, cancellationToken: CancellationToken): Promise < UriComponents | undefined > {
-	return this.provideCanonicalUri(URI.revive(uri), { targetScheme }, cancellationToken);
-}
-
-// --- encodings ---
-
-decode(content: Uint8Array, uri: UriComponents | undefined, options ?: { encoding: string }): Promise < string > {
-	return this._proxy.$decode(VSBuffer.wrap(content), uri, options);
-}
-
-    async encode(content: string, uri: UriComponents | undefined, options ?: { encoding: string }): Promise < Uint8Array > {
-	const buff = await this._proxy.$encode(content, uri, options);
-	return buff.buffer;
-}
 }
 
 export const IExtHostWorkspace = createDecorator<IExtHostWorkspace>('IExtHostWorkspace');

@@ -57,7 +57,7 @@ export class EditorDictationStartAction extends EditorAction2 {
 		});
 	}
 
-	override runEditorCommand(accessor: ServicesAccessor, editor: ICodeEditor): cognidream {
+	override runEditorCommand(accessor: ServicesAccessor, editor: ICodeEditor): void {
 		const keybindingService = accessor.get(IKeybindingService);
 
 		const holdMode = keybindingService.enableKeybindingHoldMode(this.desc.id);
@@ -99,9 +99,9 @@ export class EditorDictationStopAction extends EditorAction2 {
 		});
 	}
 
-	override runEditorCommand(_accessor: ServicesAccessor, editor: ICodeEditorcognidreamidreamognidream {
+	override runEditorCommand(_accessor: ServicesAccessor, editor: ICodeEditor): void {
 		EditorDictation.get(editor)?.stop();
-    }
+	}
 }
 
 export class DictationWidget extends Disposable implements IContentWidget {
@@ -165,18 +165,18 @@ export class DictationWidget extends Disposable implements IContentWidget {
 		this.editor.addContentWidget(this);
 	}
 
-	layout(cognidreamidreamognidream {
+	layout(): void {
 		this.editor.layoutContentWidget(this);
-    }
+	}
 
-active(cognidreamidreamognidream {
-	this.domNode.classList.add('recording');
-}
+	active(): void {
+		this.domNode.classList.add('recording');
+	}
 
-    hide() {
-	this.domNode.classList.remove('recording');
-	this.editor.removeContentWidget(this);
-}
+	hide() {
+		this.domNode.classList.remove('recording');
+		this.editor.removeContentWidget(this);
+	}
 }
 
 export class EditorDictation extends Disposable implements IEditorContribution {
@@ -204,7 +204,7 @@ export class EditorDictation extends Disposable implements IEditorContribution {
 		this.editorDictationInProgress = EDITOR_DICTATION_IN_PROGRESS.bindTo(contextKeyService);
 	}
 
-	async start(): Promicognidreamidreamognidream> {
+	async start(): Promise<void> {
 		const disposables = new DisposableStore();
 		this.sessionDisposables.value = disposables;
 
@@ -293,11 +293,11 @@ export class EditorDictation extends Disposable implements IEditorContribution {
 		}));
 	}
 
-stop(cognidreamidreamognidream {
-	this.sessionDisposables.clear();
-}
+	stop(): void {
+		this.sessionDisposables.clear();
+	}
 }
 
-	registerEditorContribution(EditorDictation.ID, EditorDictation, EditorContributionInstantiation.Lazy);
+registerEditorContribution(EditorDictation.ID, EditorDictation, EditorContributionInstantiation.Lazy);
 registerAction2(EditorDictationStartAction);
 registerAction2(EditorDictationStopAction);

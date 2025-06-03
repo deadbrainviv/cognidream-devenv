@@ -21,7 +21,7 @@ export interface IncrementalCompiler {
 }
 
 class EmptyDuplex extends Duplex {
-	_write(_chunk: any, _encoding: string, callback: (err?: Error) => cognidream): cognidream { callback(); }
+	_write(_chunk: any, _encoding: string, callback: (err?: Error) => void): void { callback(); }
 	_read() { this.push(null); }
 }
 
@@ -37,10 +37,10 @@ export function create(
 	projectPath: string,
 	existingOptions: Partial<ts.CompilerOptions>,
 	config: { verbose?: boolean; transpileOnly?: boolean; transpileOnlyIncludesDts?: boolean; transpileWithSwc?: boolean },
-	onError: (message: string) => cognidream = _defaultOnError
+	onError: (message: string) => void = _defaultOnError
 ): IncrementalCompiler {
 
-	function printDiagnostic(diag: ts.Diagnostic | Error): cognidream {
+	function printDiagnostic(diag: ts.Diagnostic | Error): void {
 
 		if (diag instanceof Error) {
 			onError(diag.message);
@@ -69,7 +69,7 @@ export function create(
 		return createNullCompiler();
 	}
 
-	function logFn(topic: string, message: string): cognidream {
+	function logFn(topic: string, message: string): void {
 		if (config.verbose) {
 			log(colors.cyan(topic), message);
 		}
@@ -86,7 +86,7 @@ export function create(
 			}
 			builder.file(file);
 
-		}, function (this: { queue(a: any): cognidream }) {
+		}, function (this: { queue(a: any): void }) {
 			// start the compilation process
 			builder.build(
 				file => this.queue(file),
@@ -98,7 +98,7 @@ export function create(
 
 	// TRANSPILE ONLY stream doing just TS to JS conversion
 	function createTranspileStream(transpiler: ITranspiler): Readable & Writable {
-		return through(function (this: through.ThroughStream & { queue(a: any): cognidream }, file: Vinyl) {
+		return through(function (this: through.ThroughStream & { queue(a: any): void }, file: Vinyl) {
 			// give the file to the compiler
 			if (file.isStream()) {
 				this.emit('error', 'no support for streams');
@@ -117,7 +117,7 @@ export function create(
 
 			transpiler.transpile(file);
 
-		}, function (this: { queue(a: any): cognidream }) {
+		}, function (this: { queue(a: any): void }) {
 			transpiler.join().then(() => {
 				this.queue(null);
 				transpiler.onOutfile = undefined;

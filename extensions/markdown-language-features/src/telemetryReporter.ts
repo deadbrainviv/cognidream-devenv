@@ -12,10 +12,10 @@ interface IPackageInfo {
 }
 
 export interface TelemetryReporter {
-	dispose(): cognidream;
+	dispose(): void;
 	sendTelemetryEvent(eventName: string, properties?: {
 		[key: string]: string;
-	}): cognidream;
+	}): void;
 }
 
 const nullReporter = new class NullTelemetryReporter implements TelemetryReporter {

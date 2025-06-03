@@ -140,7 +140,7 @@ export class NativeStartupTimings extends StartupTimings implements IWorkbenchCo
 		return super._isStandardStartup();
 	}
 
-	private async _appendContent(file: URI, content: string): Promise<cognidream> {
+	private async _appendContent(file: URI, content: string): Promise<void> {
 		const chunks: VSBuffer[] = [];
 		if (await this._fileService.exists(file)) {
 			chunks.push((await this._fileService.readFile(file)).value);
@@ -207,7 +207,7 @@ export class NativeStartupTimings extends StartupTimings implements IWorkbenchCo
 		return undefined;
 	}
 
-	private _telemetryLogHeapStatistics({ used, garbage, majorGCs, minorGCs, duration }: IHeapStatisticscognidreamognidream {
+	private _telemetryLogHeapStatistics({ used, garbage, majorGCs, minorGCs, duration }: IHeapStatistics): void {
 		type StartupHeapStatisticsClassification = {
 			owner: 'bpasero';
 			comment: 'An event that reports startup heap statistics for performance analysis.';
@@ -224,17 +224,17 @@ export class NativeStartupTimings extends StartupTimings implements IWorkbenchCo
 			minorGCs: number;
 			gcsDuration: number;
 		};
-		this._telemetryService.publicLog2<StartupHeapStatisticsEvent, StartupHeapStatisticsClassification> ('startupHeapStatistics', {
+		this._telemetryService.publicLog2<StartupHeapStatisticsEvent, StartupHeapStatisticsClassification>('startupHeapStatistics', {
 			heapUsed: used,
 			heapGarbage: garbage,
 			majorGCs,
 			minorGCs,
 			gcsDuration: duration
 		});
-    }
+	}
 
-    private _printStartupHeapStatistics({ used, garbage, majorGCs, minorGCs, duration }: IHeapStatistics) {
-	const MB = 1024 * 1024;
-	return `Heap: ${Math.round(used / MB)}MB (used) ${Math.round(garbage / MB)}MB (garbage) ${majorGCs} (MajorGC) ${minorGCs} (MinorGC) ${duration}ms (GC duration)`;
-}
+	private _printStartupHeapStatistics({ used, garbage, majorGCs, minorGCs, duration }: IHeapStatistics) {
+		const MB = 1024 * 1024;
+		return `Heap: ${Math.round(used / MB)}MB (used) ${Math.round(garbage / MB)}MB (garbage) ${majorGCs} (MajorGC) ${minorGCs} (MinorGC) ${duration}ms (GC duration)`;
+	}
 }

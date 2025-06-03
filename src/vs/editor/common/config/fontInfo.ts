@@ -26,7 +26,7 @@ export interface IValidatedEditorOptions {
 }
 
 export class BareFontInfo {
-	readonly _bareFontInfoBrand: cognidream = undefined;
+	readonly _bareFontInfoBrand: void = undefined;
 
 	/**
 	 * @internal
@@ -167,7 +167,7 @@ export class BareFontInfo {
 export const SERIALIZED_FONT_INFO_VERSION = 2;
 
 export class FontInfo extends BareFontInfo {
-	readonly _editorStylingBrand: cognidream = undefined;
+	readonly _editorStylingBrand: void = undefined;
 
 	readonly version: number = SERIALIZED_FONT_INFO_VERSION;
 	readonly isTrusted: boolean;

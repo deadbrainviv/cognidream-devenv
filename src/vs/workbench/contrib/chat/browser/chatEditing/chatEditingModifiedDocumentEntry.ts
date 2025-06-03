@@ -98,7 +98,7 @@ export class ChatEditingModifiedDocumentEntry extends AbstractChatEditingModifie
 
 	constructor(
 		resourceRef: IReference<IResolvedTextEditorModel>,
-		private readonly _multiDiffEntryDelegate: { collapse: (transaction: ITransaction | undefined) => cognidream },
+		private readonly _multiDiffEntryDelegate: { collapse: (transaction: ITransaction | undefined) => void },
 		telemetryInfo: IModifiedEntryTelemetryInfo,
 		kind: ChatEditKind,
 		initialContent: string | undefined,
@@ -142,7 +142,7 @@ export class ChatEditingModifiedDocumentEntry extends AbstractChatEditingModifie
 			)
 		);
 
-		// Create a reference to this modecognidream acognidream it being disposed from under our nose
+		// Create a reference to this model to avoid it being disposed from under our nose
 		(async () => {
 			const reference = await textModelService.createModelReference(docSnapshot.uri);
 			if (this._store.isDisposed) {
@@ -223,278 +223,278 @@ export class ChatEditingModifiedDocumentEntry extends AbstractChatEditingModifie
 		return diff ? diff.identical : false;
 	}
 
-	protected override _resetEditsState(tx: ITransactioncognidreamognidream {
+	protected override _resetEditsState(tx: ITransaction): void {
 		super._resetEditsState(tx);
-this._clearCurrentEditLineDecoration();
-    }
+		this._clearCurrentEditLineDecoration();
+	}
 
-    private _mirrorEdits(event: IModelContentChangedEvent) {
-	const edit = OffsetEdits.fromContentChanges(event.changes);
+	private _mirrorEdits(event: IModelContentChangedEvent) {
+		const edit = OffsetEdits.fromContentChanges(event.changes);
 
-	if (this._isEditFromUs) {
-		const e_sum = this._edit;
-		const e_ai = edit;
-		this._edit = e_sum.compose(e_ai);
+		if (this._isEditFromUs) {
+			const e_sum = this._edit;
+			const e_ai = edit;
+			this._edit = e_sum.compose(e_ai);
 
-	} else {
-
-		//           e_ai
-		//   d0 ---------------> s0
-		//   |                   |
-		//   |                   |
-		//   | e_user_r          | e_user
-		//   |                   |
-		//   |                   |
-		//   v       e_ai_r      v
-		///  d1 ---------------> s1
-		//
-		// d0 - document snapshot
-		// s0 - document
-		// e_ai - ai edits
-		// e_user - user edits
-		//
-		const e_ai = this._edit;
-		const e_user = edit;
-
-		const e_user_r = e_user.tryRebase(e_ai.inverse(this.originalModel.getValue()), true);
-
-		if (e_user_r === undefined) {
-			// user edits overlaps/conflicts with AI edits
-			this._edit = e_ai.compose(e_user);
 		} else {
-			const edits = OffsetEdits.asEditOperations(e_user_r, this.originalModel);
-			this.originalModel.applyEdits(edits);
-			this._edit = e_ai.tryRebase(e_user_r);
+
+			//           e_ai
+			//   d0 ---------------> s0
+			//   |                   |
+			//   |                   |
+			//   | e_user_r          | e_user
+			//   |                   |
+			//   |                   |
+			//   v       e_ai_r      v
+			///  d1 ---------------> s1
+			//
+			// d0 - document snapshot
+			// s0 - document
+			// e_ai - ai edits
+			// e_user - user edits
+			//
+			const e_ai = this._edit;
+			const e_user = edit;
+
+			const e_user_r = e_user.tryRebase(e_ai.inverse(this.originalModel.getValue()), true);
+
+			if (e_user_r === undefined) {
+				// user edits overlaps/conflicts with AI edits
+				this._edit = e_ai.compose(e_user);
+			} else {
+				const edits = OffsetEdits.asEditOperations(e_user_r, this.originalModel);
+				this.originalModel.applyEdits(edits);
+				this._edit = e_ai.tryRebase(e_user_r);
+			}
+
+			this._allEditsAreFromUs = false;
+			this._updateDiffInfoSeq();
+
+			const didResetToOriginalContent = this.modifiedModel.getValue() === this.initialContent;
+			const currentState = this._stateObs.get();
+			switch (currentState) {
+				case WorkingSetEntryState.Modified:
+					if (didResetToOriginalContent) {
+						this._stateObs.set(WorkingSetEntryState.Rejected, undefined);
+						break;
+					}
+			}
+		}
+	}
+
+	protected override _createUndoRedoElement(response: IChatResponseModel): IUndoRedoElement {
+		const request = response.session.getRequests().find(req => req.id === response.requestId);
+		const label = request?.message.text ? localize('chatEditing1', "Chat Edit: '{0}'", request.message.text) : localize('chatEditing2', "Chat Edit");
+		return new SingleModelEditStackElement(label, 'chat.edit', this.modifiedModel, null);
+	}
+
+	async acceptAgentEdits(resource: URI, textEdits: (TextEdit | ICellEditOperation)[], isLastEdits: boolean, responseModel: IChatResponseModel): Promise<void> {
+
+		assertType(textEdits.every(TextEdit.isTextEdit), 'INVALID args, can only handle text edits');
+		assert(isEqual(resource, this.modifiedURI), ' INVALID args, can only edit THIS document');
+
+		const ops = textEdits.map(TextEdit.asEditOperation);
+		const undoEdits = this._applyEdits(ops);
+
+		const maxLineNumber = undoEdits.reduce((max, op) => Math.max(max, op.range.startLineNumber), 0);
+
+		const newDecorations: IModelDeltaDecoration[] = [
+			// decorate pending edit (region)
+			{
+				options: ChatEditingModifiedDocumentEntry._pendingEditDecorationOptions,
+				range: new Range(maxLineNumber + 1, 1, Number.MAX_SAFE_INTEGER, Number.MAX_SAFE_INTEGER)
+			}
+		];
+
+		if (maxLineNumber > 0) {
+			// decorate last edit
+			newDecorations.push({
+				options: ChatEditingModifiedDocumentEntry._lastEditDecorationOptions,
+				range: new Range(maxLineNumber, 1, maxLineNumber, Number.MAX_SAFE_INTEGER)
+			});
 		}
 
-		this._allEditsAreFromUs = false;
-		this._updateDiffInfoSeq();
+		this._editDecorations = this.modifiedModel.deltaDecorations(this._editDecorations, newDecorations);
 
-		const didResetToOriginalContent = this.modifiedModel.getValue() === this.initialContent;
-		const currentState = this._stateObs.get();
-		switch (currentState) {
-			case WorkingSetEntryState.Modified:
-				if (didResetToOriginalContent) {
-					this._stateObs.set(WorkingSetEntryState.Rejected, undefined);
-					break;
-				}
+
+		transaction((tx) => {
+			if (!isLastEdits) {
+				this._stateObs.set(WorkingSetEntryState.Modified, tx);
+				this._isCurrentlyBeingModifiedByObs.set(responseModel, tx);
+				const lineCount = this.modifiedModel.getLineCount();
+				this._rewriteRatioObs.set(Math.min(1, maxLineNumber / lineCount), tx);
+
+			} else {
+				this._resetEditsState(tx);
+				this._updateDiffInfoSeq();
+				this._rewriteRatioObs.set(1, tx);
+				this._editDecorationClear.schedule();
+			}
+		});
+	}
+
+	private async _acceptHunk(change: DetailedLineRangeMapping): Promise<boolean> {
+		if (!this._diffInfo.get().changes.includes(change)) {
+			// diffInfo should have model version ids and check them (instead of the caller doing that)
+			return false;
+		}
+		const edits: ISingleEditOperation[] = [];
+		for (const edit of change.innerChanges ?? []) {
+			const newText = this.modifiedModel.getValueInRange(edit.modifiedRange);
+			edits.push(EditOperation.replace(edit.originalRange, newText));
+		}
+		this.originalModel.pushEditOperations(null, edits, _ => null);
+		await this._updateDiffInfoSeq();
+		if (this._diffInfo.get().identical) {
+			this._stateObs.set(WorkingSetEntryState.Accepted, undefined);
+		}
+		this._accessibilitySignalService.playSignal(AccessibilitySignal.editsKept, { allowManyInParallel: true });
+		return true;
+	}
+
+	private async _rejectHunk(change: DetailedLineRangeMapping): Promise<boolean> {
+		if (!this._diffInfo.get().changes.includes(change)) {
+			return false;
+		}
+		const edits: ISingleEditOperation[] = [];
+		for (const edit of change.innerChanges ?? []) {
+			const newText = this.originalModel.getValueInRange(edit.originalRange);
+			edits.push(EditOperation.replace(edit.modifiedRange, newText));
+		}
+		this.modifiedModel.pushEditOperations(null, edits, _ => null);
+		await this._updateDiffInfoSeq();
+		if (this._diffInfo.get().identical) {
+			this._stateObs.set(WorkingSetEntryState.Rejected, undefined);
+		}
+		this._accessibilitySignalService.playSignal(AccessibilitySignal.editsUndone, { allowManyInParallel: true });
+		return true;
+	}
+
+	private _applyEdits(edits: ISingleEditOperation[]) {
+		// make the actual edit
+		this._isEditFromUs = true;
+		try {
+			let result: ISingleEditOperation[] = [];
+			this.modifiedModel.pushEditOperations(null, edits, (undoEdits) => {
+				result = undoEdits;
+				return null;
+			});
+			return result;
+		} finally {
+			this._isEditFromUs = false;
 		}
 	}
-}
 
-    protected override _createUndoRedoElement(response: IChatResponseModel): IUndoRedoElement {
-	const request = response.session.getRequests().find(req => req.id === response.requestId);
-	const label = request?.message.text ? localize('chatEditing1', "Chat Edit: '{0}'", request.message.text) : localize('chatEditing2', "Chat Edit");
-	return new SingleModelEditStackElement(label, 'chat.edit', this.modifiedModel, null);
-}
-
-    async acceptAgentEdits(resource: URI, textEdits: (TextEdit | ICellEditOperation)[], isLastEdits: boolean, responseModel: IChatResponseModel): Promicognidreamognidream > {
-
-	assertType(textEdits.every(TextEdit.isTextEdit), 'INVALID args, can only handle text edits');
-	assert(isEqual(resource, this.modifiedURI), ' INVALID args, can only edit THIS document');
-
-const ops = textEdits.map(TextEdit.asEditOperation);
-const undoEdits = this._applyEdits(ops);
-
-const maxLineNumber = undoEdits.reduce((max, op) => Math.max(max, op.range.startLineNumber), 0);
-
-const newDecorations: IModelDeltaDecoration[] = [
-	// decorate pending edit (region)
-	{
-		options: ChatEditingModifiedDocumentEntry._pendingEditDecorationOptions,
-		range: new Range(maxLineNumber + 1, 1, Number.MAX_SAFE_INTEGER, Number.MAX_SAFE_INTEGER)
+	private async _updateDiffInfoSeq() {
+		const myDiffOperationId = ++this._diffOperationIds;
+		await Promise.resolve(this._diffOperation);
+		if (this._diffOperationIds === myDiffOperationId) {
+			const thisDiffOperation = this._updateDiffInfo();
+			this._diffOperation = thisDiffOperation;
+			await thisDiffOperation;
+		}
 	}
-];
 
-if (maxLineNumber > 0) {
-	// decorate last edit
-	newDecorations.push({
-		options: ChatEditingModifiedDocumentEntry._lastEditDecorationOptions,
-		range: new Range(maxLineNumber, 1, maxLineNumber, Number.MAX_SAFE_INTEGER)
-	});
-}
+	private async _updateDiffInfo(): Promise<IDocumentDiff | undefined> {
 
-this._editDecorations = this.modifiedModel.deltaDecorations(this._editDecorations, newDecorations);
+		if (this.originalModel.isDisposed() || this.modifiedModel.isDisposed()) {
+			return undefined;
+		}
 
+		const docVersionNow = this.modifiedModel.getVersionId();
+		const snapshotVersionNow = this.originalModel.getVersionId();
 
-transaction((tx) => {
-	if (!isLastEdits) {
-		this._stateObs.set(WorkingSetEntryState.Modified, tx);
-		this._isCurrentlyBeingModifiedByObs.set(responseModel, tx);
-		const lineCount = this.modifiedModel.getLineCount();
-		this._rewriteRatioObs.set(Math.min(1, maxLineNumber / lineCount), tx);
+		const ignoreTrimWhitespace = this._diffTrimWhitespace.get();
 
-	} else {
-		this._resetEditsState(tx);
-		this._updateDiffInfoSeq();
-		this._rewriteRatioObs.set(1, tx);
-		this._editDecorationClear.schedule();
+		const diff = await this._editorWorkerService.computeDiff(
+			this.originalModel.uri,
+			this.modifiedModel.uri,
+			{ ignoreTrimWhitespace, computeMoves: false, maxComputationTimeMs: 3000 },
+			'advanced'
+		);
+
+		if (this.originalModel.isDisposed() || this.modifiedModel.isDisposed()) {
+			return undefined;
+		}
+
+		// only update the diff if the documents didn't change in the meantime
+		if (this.modifiedModel.getVersionId() === docVersionNow && this.originalModel.getVersionId() === snapshotVersionNow) {
+			const diff2 = diff ?? nullDocumentDiff;
+			this._diffInfo.set(diff2, undefined);
+			this._edit = OffsetEdits.fromLineRangeMapping(this.originalModel, this.modifiedModel, diff2.changes);
+			return diff2;
+		}
+		return undefined;
 	}
-});
-    }
 
-    private async _acceptHunk(change: DetailedLineRangeMapping): Promise < boolean > {
-	if(!this._diffInfo.get().changes.includes(change)) {
-	// diffInfo should have model version ids and check them (instead of the caller doing that)
-	return false;
-}
-const edits: ISingleEditOperation[] = [];
-for (const edit of change.innerChanges ?? []) {
-	const newText = this.modifiedModel.getValueInRange(edit.modifiedRange);
-	edits.push(EditOperation.replace(edit.originalRange, newText));
-}
-this.originalModel.pushEditOperations(null, edits, _ => null);
-await this._updateDiffInfoSeq();
-if (this._diffInfo.get().identical) {
-	this._stateObs.set(WorkingSetEntryState.Accepted, undefined);
-}
-this._accessibilitySignalService.playSignal(AccessibilitySignal.editsKept, { allowManyInParallel: true });
-return true;
-    }
+	protected override async _doAccept(tx: ITransaction | undefined): Promise<void> {
+		this.originalModel.setValue(this.modifiedModel.createSnapshot());
+		this._diffInfo.set(nullDocumentDiff, tx);
+		this._edit = OffsetEdit.empty;
+		await this._collapse(tx);
 
-    private async _rejectHunk(change: DetailedLineRangeMapping): Promise < boolean > {
-	if(!this._diffInfo.get().changes.includes(change)) {
-	return false;
-}
-const edits: ISingleEditOperation[] = [];
-for (const edit of change.innerChanges ?? []) {
-	const newText = this.originalModel.getValueInRange(edit.originalRange);
-	edits.push(EditOperation.replace(edit.modifiedRange, newText));
-}
-this.modifiedModel.pushEditOperations(null, edits, _ => null);
-await this._updateDiffInfoSeq();
-if (this._diffInfo.get().identical) {
-	this._stateObs.set(WorkingSetEntryState.Rejected, undefined);
-}
-this._accessibilitySignalService.playSignal(AccessibilitySignal.editsUndone, { allowManyInParallel: true });
-return true;
-    }
+		const config = this._fileConfigService.getAutoSaveConfiguration(this.modifiedURI);
+		if (!config.autoSave || !this._textFileService.isDirty(this.modifiedURI)) {
+			// SAVE after accept for manual-savers, for auto-savers
+			// trigger explict save to get save participants going
+			try {
+				await this._textFileService.save(this.modifiedURI, {
+					reason: SaveReason.EXPLICIT,
+					force: true,
+					ignoreErrorHandler: true
+				});
+			} catch {
+				// ignored
+			}
+		}
+	}
 
-    private _applyEdits(edits: ISingleEditOperation[]) {
-	// make the actual edit
-	this._isEditFromUs = true;
-	try {
-		let result: ISingleEditOperation[] = [];
-		this.modifiedModel.pushEditOperations(null, edits, (undoEdits) => {
-			result = undoEdits;
-			return null;
+	protected override async _doReject(tx: ITransaction | undefined): Promise<void> {
+		if (this.createdInRequestId === this._telemetryInfo.requestId) {
+			await this.docFileEditorModel.revert({ soft: true });
+			await this._fileService.del(this.modifiedURI);
+			this._onDidDelete.fire();
+		} else {
+			this._setDocValue(this.originalModel.getValue());
+			if (this._allEditsAreFromUs) {
+				// save the file after discarding so that the dirty indicator goes away
+				// and so that an intermediate saved state gets reverted
+				await this.docFileEditorModel.save({ reason: SaveReason.EXPLICIT, skipSaveParticipants: true });
+			}
+			await this._collapse(tx);
+		}
+	}
+
+	private _setDocValue(value: string): void {
+		if (this.modifiedModel.getValue() !== value) {
+
+			this.modifiedModel.pushStackElement();
+			const edit = EditOperation.replace(this.modifiedModel.getFullModelRange(), value);
+
+			this._applyEdits([edit]);
+			this._updateDiffInfoSeq();
+			this.modifiedModel.pushStackElement();
+		}
+	}
+
+	private async _collapse(transaction: ITransaction | undefined): Promise<void> {
+		this._multiDiffEntryDelegate.collapse(transaction);
+	}
+
+	protected _createEditorIntegration(editor: IEditorPane): IModifiedFileEntryEditorIntegration {
+		const codeEditor = getCodeEditor(editor.getControl());
+		assertType(codeEditor);
+
+		const diffInfo = this._diffInfo.map(value => {
+			return {
+				...value,
+				originalModel: this.originalModel,
+				modifiedModel: this.modifiedModel,
+				keep: changes => this._acceptHunk(changes),
+				undo: changes => this._rejectHunk(changes)
+			} satisfies IDocumentDiff2;
 		});
-		return result;
-	} finally {
-		this._isEditFromUs = false;
+
+		return this._instantiationService.createInstance(ChatEditingCodeEditorIntegration, this, codeEditor, diffInfo);
 	}
-}
-
-    private async _updateDiffInfoSeq() {
-	const myDiffOperationId = ++this._diffOperationIds;
-	await Promise.resolve(this._diffOperation);
-	if (this._diffOperationIds === myDiffOperationId) {
-		const thisDiffOperation = this._updateDiffInfo();
-		this._diffOperation = thisDiffOperation;
-		await thisDiffOperation;
-	}
-}
-
-    private async _updateDiffInfo(): Promise < IDocumentDiff | undefined > {
-
-	if(this.originalModel.isDisposed() || this.modifiedModel.isDisposed()) {
-	return undefined;
-}
-
-const docVersionNow = this.modifiedModel.getVersionId();
-const snapshotVersionNow = this.originalModel.getVersionId();
-
-const ignoreTrimWhitespace = this._diffTrimWhitespace.get();
-
-const diff = await this._editorWorkerService.computeDiff(
-	this.originalModel.uri,
-	this.modifiedModel.uri,
-	{ ignoreTrimWhitespace, computeMoves: false, maxComputationTimeMs: 3000 },
-	'advanced'
-);
-
-if (this.originalModel.isDisposed() || this.modifiedModel.isDisposed()) {
-	return undefined;
-}
-
-// only update the diff if the documents didn't change in the meantime
-if (this.modifiedModel.getVersionId() === docVersionNow && this.originalModel.getVersionId() === snapshotVersionNow) {
-	const diff2 = diff ?? nullDocumentDiff;
-	this._diffInfo.set(diff2, undefined);
-	this._edit = OffsetEdits.fromLineRangeMapping(this.originalModel, this.modifiedModel, diff2.changes);
-	return diff2;
-}
-return undefined;
-    }
-
-    protected override async _doAccept(tx: ITransaction | undefined): Promicognidreamognidream > {
-	this.originalModel.setValue(this.modifiedModel.createSnapshot());
-	this._diffInfo.set(nullDocumentDiff, tx);
-	this._edit = OffsetEdit.empty;
-	await this._collapse(tx);
-
-	const config = this._fileConfigService.getAutoSaveConfiguration(this.modifiedURI);
-	if(!config.autoSave || !this._textFileService.isDirty(this.modifiedURI)) {
-	// SAVE after accept for manual-savers, for auto-savers
-	// trigger explict save to get save participants going
-	try {
-		await this._textFileService.save(this.modifiedURI, {
-			reason: SaveReason.EXPLICIT,
-			force: true,
-			ignoreErrorHandler: true
-		});
-	} catch {
-		// ignored
-	}
-}
-    }
-
-    protected override async _doReject(tx: ITransaction | undefined): Promicognidreamognidream > {
-	if(this.createdInRequestId === this._telemetryInfo.requestId) {
-	await this.docFileEditorModel.revert({ soft: true });
-	await this._fileService.del(this.modifiedURI);
-	this._onDidDelete.fire();
-} else {
-	this._setDocValue(this.originalModel.getValue());
-	if (this._allEditsAreFromUs) {
-		// save the file after discarding so that the dirty indicator goes away
-		// and so that an intermediate saved state gets reverted
-		await this.docFileEditorModel.save({ reason: SaveReason.EXPLICIT, skipSaveParticipants: true });
-	}
-	await this._collapse(tx);
-}
-    }
-
-    private _setDocValue(value: stringcognidreamognidream {
-	if(this.modifiedModel.getValue() !== value) {
-
-	this.modifiedModel.pushStackElement();
-	const edit = EditOperation.replace(this.modifiedModel.getFullModelRange(), value);
-
-	this._applyEdits([edit]);
-	this._updateDiffInfoSeq();
-	this.modifiedModel.pushStackElement();
-}
-    }
-
-    private async _collapse(transaction: ITransaction | undefined): Promicognidreamognidream > {
-	this._multiDiffEntryDelegate.collapse(transaction);
-}
-
-    protected _createEditorIntegration(editor: IEditorPane): IModifiedFileEntryEditorIntegration {
-	const codeEditor = getCodeEditor(editor.getControl());
-	assertType(codeEditor);
-
-	const diffInfo = this._diffInfo.map(value => {
-		return {
-			...value,
-			originalModel: this.originalModel,
-			modifiedModel: this.modifiedModel,
-			keep: changes => this._acceptHunk(changes),
-			undo: changes => this._rejectHunk(changes)
-		} satisfies IDocumentDiff2;
-	});
-
-	return this._instantiationService.createInstance(ChatEditingCodeEditorIntegration, this, codeEditor, diffInfo);
-}
 }

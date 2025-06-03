@@ -29,90 +29,90 @@ import { IDecorationsService } from '../../decorations/common/decorations.js';
 
 export class NativeTextFileService extends AbstractTextFileService {
 
-    protected override readonly environmentService: INativeWorkbenchEnvironmentService;
+	protected override readonly environmentService: INativeWorkbenchEnvironmentService;
 
-    constructor(
-        @IFileService fileService: IFileService,
-        @IUntitledTextEditorService untitledTextEditorService: IUntitledTextEditorModelManager,
-        @ILifecycleService lifecycleService: ILifecycleService,
-        @IInstantiationService instantiationService: IInstantiationService,
-        @IModelService modelService: IModelService,
-        @INativeWorkbenchEnvironmentService environmentService: INativeWorkbenchEnvironmentService,
-        @IDialogService dialogService: IDialogService,
-        @IFileDialogService fileDialogService: IFileDialogService,
-        @ITextResourceConfigurationService textResourceConfigurationService: ITextResourceConfigurationService,
-        @IFilesConfigurationService filesConfigurationService: IFilesConfigurationService,
-        @ICodeEditorService codeEditorService: ICodeEditorService,
-        @IPathService pathService: IPathService,
-        @IWorkingCopyFileService workingCopyFileService: IWorkingCopyFileService,
-        @IUriIdentityService uriIdentityService: IUriIdentityService,
-        @ILanguageService languageService: ILanguageService,
-        @IElevatedFileService elevatedFileService: IElevatedFileService,
-        @ILogService logService: ILogService,
-        @IDecorationsService decorationsService: IDecorationsService
-    ) {
-        super(fileService, untitledTextEditorService, lifecycleService, instantiationService, modelService, environmentService, dialogService, fileDialogService, textResourceConfigurationService, filesConfigurationService, codeEditorService, pathService, workingCopyFileService, uriIdentityService, languageService, logService, elevatedFileService, decorationsService);
+	constructor(
+		@IFileService fileService: IFileService,
+		@IUntitledTextEditorService untitledTextEditorService: IUntitledTextEditorModelManager,
+		@ILifecycleService lifecycleService: ILifecycleService,
+		@IInstantiationService instantiationService: IInstantiationService,
+		@IModelService modelService: IModelService,
+		@INativeWorkbenchEnvironmentService environmentService: INativeWorkbenchEnvironmentService,
+		@IDialogService dialogService: IDialogService,
+		@IFileDialogService fileDialogService: IFileDialogService,
+		@ITextResourceConfigurationService textResourceConfigurationService: ITextResourceConfigurationService,
+		@IFilesConfigurationService filesConfigurationService: IFilesConfigurationService,
+		@ICodeEditorService codeEditorService: ICodeEditorService,
+		@IPathService pathService: IPathService,
+		@IWorkingCopyFileService workingCopyFileService: IWorkingCopyFileService,
+		@IUriIdentityService uriIdentityService: IUriIdentityService,
+		@ILanguageService languageService: ILanguageService,
+		@IElevatedFileService elevatedFileService: IElevatedFileService,
+		@ILogService logService: ILogService,
+		@IDecorationsService decorationsService: IDecorationsService
+	) {
+		super(fileService, untitledTextEditorService, lifecycleService, instantiationService, modelService, environmentService, dialogService, fileDialogService, textResourceConfigurationService, filesConfigurationService, codeEditorService, pathService, workingCopyFileService, uriIdentityService, languageService, logService, elevatedFileService, decorationsService);
 
-        this.environmentService = environmentService;
+		this.environmentService = environmentService;
 
-        this.registerListeners();
-    }
+		this.registerListeners();
+	}
 
-    private registerListeners(): cognidream {
+	private registerListeners(): void {
 
-        // Lifecycle
-        this._register(this.lifecycleService.onWillShutdown(event => event.join(this.onWillShutdown(), { id: 'join.textFiles', label: localize('join.textFiles', "Saving text files") })));
-    }
+		// Lifecycle
+		this._register(this.lifecycleService.onWillShutdown(event => event.join(this.onWillShutdown(), { id: 'join.textFiles', label: localize('join.textFiles', "Saving text files") })));
+	}
 
-    private async onWillShutdown(): Promise<cognidream> {
-        let modelsPendingToSave: ITextFileEditorModel[];
+	private async onWillShutdown(): Promise<void> {
+		let modelsPendingToSave: ITextFileEditorModel[];
 
-        // As long as models are pending to be saved, we prolong the shutdown
-        // until that has happened to ensure we are not shutting down in the
-        // middle of writing to the file
-        // (https://github.com/microsoft/vscode/issues/116600)
-        while ((modelsPendingToSave = this.files.models.filter(model => model.hasState(TextFileEditorModelState.PENDING_SAVE))).length > 0) {
-            await Promises.settled(modelsPendingToSave.map(model => model.joinState(TextFileEditorModelState.PENDING_SAVE)));
-        }
-    }
+		// As long as models are pending to be saved, we prolong the shutdown
+		// until that has happened to ensure we are not shutting down in the
+		// middle of writing to the file
+		// (https://github.com/microsoft/vscode/issues/116600)
+		while ((modelsPendingToSave = this.files.models.filter(model => model.hasState(TextFileEditorModelState.PENDING_SAVE))).length > 0) {
+			await Promises.settled(modelsPendingToSave.map(model => model.joinState(TextFileEditorModelState.PENDING_SAVE)));
+		}
+	}
 
-    override async read(resource: URI, options?: IReadTextFileOptions): Promise<ITextFileContent> {
+	override async read(resource: URI, options?: IReadTextFileOptions): Promise<ITextFileContent> {
 
-        // ensure platform limits are applied
-        options = this.ensureLimits(options);
+		// ensure platform limits are applied
+		options = this.ensureLimits(options);
 
-        return super.read(resource, options);
-    }
+		return super.read(resource, options);
+	}
 
-    override async readStream(resource: URI, options?: IReadTextFileOptions): Promise<ITextFileStreamContent> {
+	override async readStream(resource: URI, options?: IReadTextFileOptions): Promise<ITextFileStreamContent> {
 
-        // ensure platform limits are applied
-        options = this.ensureLimits(options);
+		// ensure platform limits are applied
+		options = this.ensureLimits(options);
 
-        return super.readStream(resource, options);
-    }
+		return super.readStream(resource, options);
+	}
 
-    private ensureLimits(options?: IReadTextFileOptions): IReadTextFileOptions {
-        let ensuredOptions: IReadTextFileOptions;
-        if (!options) {
-            ensuredOptions = Object.create(null);
-        } else {
-            ensuredOptions = options;
-        }
+	private ensureLimits(options?: IReadTextFileOptions): IReadTextFileOptions {
+		let ensuredOptions: IReadTextFileOptions;
+		if (!options) {
+			ensuredOptions = Object.create(null);
+		} else {
+			ensuredOptions = options;
+		}
 
-        let ensuredLimits: IFileReadLimits;
-        if (!ensuredOptions.limits) {
-            ensuredLimits = Object.create(null);
-            ensuredOptions = {
-                ...ensuredOptions,
-                limits: ensuredLimits
-            };
-        } else {
-            ensuredLimits = ensuredOptions.limits;
-        }
+		let ensuredLimits: IFileReadLimits;
+		if (!ensuredOptions.limits) {
+			ensuredLimits = Object.create(null);
+			ensuredOptions = {
+				...ensuredOptions,
+				limits: ensuredLimits
+			};
+		} else {
+			ensuredLimits = ensuredOptions.limits;
+		}
 
-        return ensuredOptions;
-    }
+		return ensuredOptions;
+	}
 }
 
 registerSingleton(ITextFileService, NativeTextFileService, InstantiationType.Eager);

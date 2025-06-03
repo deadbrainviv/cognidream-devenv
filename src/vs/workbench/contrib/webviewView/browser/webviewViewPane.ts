@@ -106,7 +106,7 @@ export class WebviewViewPane extends ViewPane {
 	private readonly _onDidChangeVisibility = this._register(new Emitter<boolean>());
 	readonly onDidChangeVisibility = this._onDidChangeVisibility.event;
 
-	private readonly _onDispose = this._register(new Emitter<cognidream>());
+	private readonly _onDispose = this._register(new Emitter<void>());
 	readonly onDispose = this._onDispose.event;
 
 	override dispose() {
@@ -117,185 +117,185 @@ export class WebviewViewPane extends ViewPane {
 		super.dispose();
 	}
 
-	override focus(cognidreamognidream {
+	override focus(): void {
 		super.focus();
-this._webview.value?.focus();
-    }
+		this._webview.value?.focus();
+	}
 
-    protected override renderBody(container: HTMLElementcognidreamognidream {
-	super.renderBody(container);
+	protected override renderBody(container: HTMLElement): void {
+		super.renderBody(container);
 
-	this._container = container;
-	this._rootContainer = undefined;
+		this._container = container;
+		this._rootContainer = undefined;
 
-	if(!this._resizeObserver) {
-	this._resizeObserver = new ResizeObserver(() => {
-		setTimeout(() => {
+		if (!this._resizeObserver) {
+			this._resizeObserver = new ResizeObserver(() => {
+				setTimeout(() => {
+					this.layoutWebview();
+				}, 0);
+			});
+
+			this._register(toDisposable(() => {
+				this._resizeObserver.disconnect();
+			}));
+			this._resizeObserver.observe(container);
+		}
+	}
+
+	public override saveState() {
+		if (this._webview.value) {
+			this.viewState[storageKeys.webviewState] = this._webview.value.state;
+		}
+
+		this.memento.saveMemento();
+		super.saveState();
+	}
+
+	protected override layoutBody(height: number, width: number): void {
+		super.layoutBody(height, width);
+
+		this.layoutWebview(new Dimension(width, height));
+	}
+
+	private updateTreeVisibility() {
+		if (this.isBodyVisible()) {
+			this.activate();
+			this._webview.value?.claim(this, getWindow(this.element), undefined);
+		} else {
+			this._webview.value?.release(this);
+		}
+	}
+
+	private activate() {
+		if (this._activated) {
+			return;
+		}
+
+		this._activated = true;
+
+		const origin = this.extensionId ? WebviewViewPane.getOriginStore(this.storageService).getOrigin(this.id, this.extensionId) : undefined;
+		const webview = this.webviewService.createWebviewOverlay({
+			origin,
+			providedViewType: this.id,
+			title: this.title,
+			options: { purpose: WebviewContentPurpose.WebviewView },
+			contentOptions: {},
+			extension: this.extensionId ? { id: this.extensionId } : undefined
+		});
+		webview.state = this.viewState[storageKeys.webviewState];
+		this._webview.value = webview;
+
+		if (this._container) {
 			this.layoutWebview();
-		}, 0);
-	});
+		}
 
-	this._register(toDisposable(() => {
-		this._resizeObserver.disconnect();
-	}));
-	this._resizeObserver.observe(container);
-}
-    }
+		this._webviewDisposables.add(toDisposable(() => {
+			this._webview.value?.release(this);
+		}));
 
-    public override saveState() {
-	if (this._webview.value) {
-		this.viewState[storageKeys.webviewState] = this._webview.value.state;
+		this._webviewDisposables.add(webview.onDidUpdateState(() => {
+			this.viewState[storageKeys.webviewState] = webview.state;
+		}));
+
+		// Re-dispatch all drag events back to the drop target to support view drag drop
+		for (const event of [EventType.DRAG, EventType.DRAG_END, EventType.DRAG_ENTER, EventType.DRAG_LEAVE, EventType.DRAG_START]) {
+			this._webviewDisposables.add(addDisposableListener(this._webview.value.container, event, e => {
+				e.preventDefault();
+				e.stopImmediatePropagation();
+				this.dropTargetElement.dispatchEvent(new DragEvent(e.type, e));
+			}));
+		}
+
+		this._webviewDisposables.add(new WebviewWindowDragMonitor(getWindow(this.element), () => this._webview.value));
+
+		const source = this._webviewDisposables.add(new CancellationTokenSource());
+
+		this.withProgress(async () => {
+			await this.extensionService.activateByEvent(`onView:${this.id}`);
+
+			const self = this;
+			const webviewView: WebviewView = {
+				webview,
+				onDidChangeVisibility: this.onDidChangeBodyVisibility,
+				onDispose: this.onDispose,
+
+				get title(): string | undefined { return self.setTitle; },
+				set title(value: string | undefined) { self.updateTitle(value); },
+
+				get description(): string | undefined { return self.titleDescription; },
+				set description(value: string | undefined) { self.updateTitleDescription(value); },
+
+				get badge(): IViewBadge | undefined { return self.badge; },
+				set badge(badge: IViewBadge | undefined) { self.updateBadge(badge); },
+
+				dispose: () => {
+					// Only reset and clear the webview itself. Don't dispose of the view container
+					this._activated = false;
+					this._webview.clear();
+					this._webviewDisposables.clear();
+				},
+
+				show: (preserveFocus) => {
+					this.viewService.openView(this.id, !preserveFocus);
+				}
+			};
+
+			await this.webviewViewService.resolve(this.id, webviewView, source.token);
+		});
 	}
 
-	this.memento.saveMemento();
-	super.saveState();
-}
-
-    protected override layoutBody(height: number, width: numbercognidreamognidream {
-	super.layoutBody(height, width);
-
-	this.layoutWebview(new Dimension(width, height));
-}
-
-    private updateTreeVisibility() {
-	if(this.isBodyVisible()) {
-	this.activate();
-	this._webview.value?.claim(this, getWindow(this.element), undefined);
-} else {
-	this._webview.value?.release(this);
-}
-    }
-
-    private activate() {
-	if (this._activated) {
-		return;
+	protected override updateTitle(value: string | undefined) {
+		this.setTitle = value;
+		super.updateTitle(typeof value === 'string' ? value : this.defaultTitle);
 	}
 
-	this._activated = true;
+	protected updateBadge(badge: IViewBadge | undefined) {
 
-	const origin = this.extensionId ? WebviewViewPane.getOriginStore(this.storageService).getOrigin(this.id, this.extensionId) : undefined;
-	const webview = this.webviewService.createWebviewOverlay({
-		origin,
-		providedViewType: this.id,
-		title: this.title,
-		options: { purpose: WebviewContentPurpose.WebviewView },
-		contentOptions: {},
-		extension: this.extensionId ? { id: this.extensionId } : undefined
-	});
-	webview.state = this.viewState[storageKeys.webviewState];
-	this._webview.value = webview;
+		if (this.badge?.value === badge?.value &&
+			this.badge?.tooltip === badge?.tooltip) {
+			return;
+		}
 
-	if (this._container) {
+		this.badge = badge;
+		if (badge) {
+			const activity = {
+				badge: new NumberBadge(badge.value, () => badge.tooltip),
+				priority: 150
+			};
+			this.activity.value = this.activityService.showViewActivity(this.id, activity);
+		}
+	}
+
+	private async withProgress(task: () => Promise<void>): Promise<void> {
+		return this.progressService.withProgress({ location: this.id, delay: 500 }, task);
+	}
+
+	override onDidScrollRoot() {
 		this.layoutWebview();
 	}
 
-	this._webviewDisposables.add(toDisposable(() => {
-		this._webview.value?.release(this);
-	}));
+	private doLayoutWebview(dimension?: Dimension) {
+		const webviewEntry = this._webview.value;
+		if (!this._container || !webviewEntry) {
+			return;
+		}
 
-	this._webviewDisposables.add(webview.onDidUpdateState(() => {
-		this.viewState[storageKeys.webviewState] = webview.state;
-	}));
+		if (!this._rootContainer || !this._rootContainer.isConnected) {
+			this._rootContainer = this.findRootContainer(this._container);
+		}
 
-	// Re-dispatch all drag events back to the drop target to support view drag drop
-	for (const event of [EventType.DRAG, EventType.DRAG_END, EventType.DRAG_ENTER, EventType.DRAG_LEAVE, EventType.DRAG_START]) {
-		this._webviewDisposables.add(addDisposableListener(this._webview.value.container, event, e => {
-			e.preventDefault();
-			e.stopImmediatePropagation();
-			this.dropTargetElement.dispatchEvent(new DragEvent(e.type, e));
-		}));
+		webviewEntry.layoutWebviewOverElement(this._container, dimension, this._rootContainer);
 	}
 
-	this._webviewDisposables.add(new WebviewWindowDragMonitor(getWindow(this.element), () => this._webview.value));
-
-	const source = this._webviewDisposables.add(new CancellationTokenSource());
-
-	this.withProgress(async () => {
-		await this.extensionService.activateByEvent(`onView:${this.id}`);
-
-		const self = this;
-		const webviewView: WebviewView = {
-			webview,
-			onDidChangeVisibility: this.onDidChangeBodyVisibility,
-			onDispose: this.onDispose,
-
-			get title(): string | undefined { return self.setTitle; },
-			set title(value: string | undefined) { self.updateTitle(value); },
-
-			get description(): string | undefined { return self.titleDescription; },
-			set description(value: string | undefined) { self.updateTitleDescription(value); },
-
-			get badge(): IViewBadge | undefined { return self.badge; },
-			set badge(badge: IViewBadge | undefined) { self.updateBadge(badge); },
-
-			dispose: () => {
-				// Only reset and clear the webview itself. Don't dispose of the view container
-				this._activated = false;
-				this._webview.clear();
-				this._webviewDisposables.clear();
-			},
-
-			show: (preserveFocus) => {
-				this.viewService.openView(this.id, !preserveFocus);
-			}
-		};
-
-		await this.webviewViewService.resolve(this.id, webviewView, source.token);
-	});
-}
-
-    protected override updateTitle(value: string | undefined) {
-	this.setTitle = value;
-	super.updateTitle(typeof value === 'string' ? value : this.defaultTitle);
-}
-
-    protected updateBadge(badge: IViewBadge | undefined) {
-
-	if (this.badge?.value === badge?.value &&
-		this.badge?.tooltip === badge?.tooltip) {
-		return;
+	private layoutWebview(dimension?: Dimension) {
+		this.doLayoutWebview(dimension);
+		// Temporary fix for https://github.com/microsoft/vscode/issues/110450
+		// There is an animation that lasts about 200ms, update the webview positioning once this animation is complete.
+		clearTimeout(this._repositionTimeout);
+		this._repositionTimeout = setTimeout(() => this.doLayoutWebview(dimension), 200);
 	}
 
-	this.badge = badge;
-	if (badge) {
-		const activity = {
-			badge: new NumberBadge(badge.value, () => badge.tooltip),
-			priority: 150
-		};
-		this.activity.value = this.activityService.showViewActivity(this.id, activity);
+	private findRootContainer(container: HTMLElement): HTMLElement | undefined {
+		return findParentWithClass(container, 'monaco-scrollable-element') ?? undefined;
 	}
-}
-
-    private async withProgress(task: () => Promicognidreamognidream >): cognidreammise < cognidream > {
-	return this.progressService.withProgress({ location: this.id, delay: 500 }, task);
-}
-
-    override onDidScrollRoot() {
-	this.layoutWebview();
-}
-
-    private doLayoutWebview(dimension ?: Dimension) {
-	const webviewEntry = this._webview.value;
-	if (!this._container || !webviewEntry) {
-		return;
-	}
-
-	if (!this._rootContainer || !this._rootContainer.isConnected) {
-		this._rootContainer = this.findRootContainer(this._container);
-	}
-
-	webviewEntry.layoutWebviewOverElement(this._container, dimension, this._rootContainer);
-}
-
-    private layoutWebview(dimension ?: Dimension) {
-	this.doLayoutWebview(dimension);
-	// Temporary fix for https://github.com/microsoft/vscode/issues/110450
-	// There is an animation that lasts about 200ms, update the webview positioning once this animation is complete.
-	clearTimeout(this._repositionTimeout);
-	this._repositionTimeout = setTimeout(() => this.doLayoutWebview(dimension), 200);
-}
-
-    private findRootContainer(container: HTMLElement): HTMLElement | undefined {
-	return findParentWithClass(container, 'monaco-scrollable-element') ?? undefined;
-}
 }

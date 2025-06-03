@@ -77,7 +77,7 @@ const enum ActionOrder {
 	Sort,
 	GoToTest,
 	HideTest,
-	ContinuousRunTest = -1 >>> 1, // max int, always at the end to acognidream shifting on hover
+	ContinuousRunTest = -1 >>> 1, // max int, always at the end to avoid shifting on hover
 }
 
 const hasAnyTestProvider = ContextKeyGreaterExpr.create(TestingContextKeys.providerCount.key, 0);
@@ -405,9 +405,9 @@ class StopContinuousRunAction extends Action2 {
 		});
 	}
 
-	run(accessor: ServicesAccessorcognidreamognidream {
+	run(accessor: ServicesAccessor): void {
 		accessor.get(ITestingContinuousRunService).stop();
-    }
+	}
 }
 
 function selectContinuousRunProfiles(
@@ -494,20 +494,20 @@ class StartContinuousRunAction extends Action2 {
 			menu: continuousMenus(false),
 		});
 	}
-	async run(accessor: ServicesAccessor): Promicognidreamognidream> {
+	async run(accessor: ServicesAccessor): Promise<void> {
 		const crs = accessor.get(ITestingContinuousRunService);
 		const profileService = accessor.get(ITestProfileService);
 
 		const lastRunProfiles = [...profileService.all()].flatMap(p => p.profiles.filter(p => crs.lastRunProfileIds.has(p.profileId)));
-		if(lastRunProfiles.length) {
-	return crs.start(lastRunProfiles);
-}
+		if (lastRunProfiles.length) {
+			return crs.start(lastRunProfiles);
+		}
 
-const selected = await selectContinuousRunProfiles(crs, accessor.get(INotificationService), accessor.get(IQuickInputService), accessor.get(ITestProfileService).all());
-if (selected.length) {
-	crs.start(selected);
-}
-    }
+		const selected = await selectContinuousRunProfiles(crs, accessor.get(INotificationService), accessor.get(IQuickInputService), accessor.get(ITestProfileService).all());
+		if (selected.length) {
+			crs.start(selected);
+		}
+	}
 }
 
 abstract class ExecuteSelectedAction extends ViewAction<TestingExplorerView> {

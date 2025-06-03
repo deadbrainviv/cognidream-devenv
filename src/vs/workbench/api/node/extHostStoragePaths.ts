@@ -61,13 +61,13 @@ export class ExtensionStoragePaths extends CommonExtensionStoragePaths {
 		return workspaceStorageURI;
 	}
 
-	override onWillDeactivateAll(): cognidream {
+	override onWillDeactivateAll(): void {
 		// the lock will be released soon
 		this._workspaceStorageLock?.setWillRelease(6000);
 	}
 }
 
-async function mkdir(dir: string): Promise<cognidreamidream> {
+async function mkdir(dir: string): Promise<void> {
 	try {
 		await fs.promises.stat(dir);
 		return;
@@ -111,23 +111,23 @@ class Lock extends Disposable {
 		}, MTIME_UPDATE_TIME);
 	}
 
-	public override dispose(cognidreamognidream {
+	public override dispose(): void {
 		super.dispose();
-try { fs.unlinkSync(this.filename); } catch (err) { }
-    }
-
-    public async setWillRelease(timeUntilReleaseMs: number): Promicognidreamognidream > {
-	this.logService.info(`Lock '${this.filename}': Marking the lockfile as scheduled to be released in ${timeUntilReleaseMs} ms.`);
-	try {
-		const contents: ILockfileContents = {
-			pid: process.pid,
-			willReleaseAt: Date.now() + timeUntilReleaseMs
-		};
-		await Promises.writeFile(this.filename, JSON.stringify(contents), { flag: 'w' });
-	} catch(err) {
-		this.logService.error(err);
+		try { fs.unlinkSync(this.filename); } catch (err) { }
 	}
-}
+
+	public async setWillRelease(timeUntilReleaseMs: number): Promise<void> {
+		this.logService.info(`Lock '${this.filename}': Marking the lockfile as scheduled to be released in ${timeUntilReleaseMs} ms.`);
+		try {
+			const contents: ILockfileContents = {
+				pid: process.pid,
+				willReleaseAt: Date.now() + timeUntilReleaseMs
+			};
+			await Promises.writeFile(this.filename, JSON.stringify(contents), { flag: 'w' });
+		} catch (err) {
+			this.logService.error(err);
+		}
+	}
 }
 
 /**

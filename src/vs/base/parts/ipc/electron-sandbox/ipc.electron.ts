@@ -16,24 +16,24 @@ import { ipcRenderer } from '../../sandbox/electron-sandbox/globals.js';
  */
 export class Client extends IPCClient implements IDisposable {
 
-    private protocol: ElectronProtocol;
+	private protocol: ElectronProtocol;
 
-    private static createProtocol(): ElectronProtocol {
-        const onMessage = Event.fromNodeEventEmitter<VSBuffer>(ipcRenderer, 'vscode:message', (_, message) => VSBuffer.wrap(message));
-        ipcRenderer.send('vscode:hello');
+	private static createProtocol(): ElectronProtocol {
+		const onMessage = Event.fromNodeEventEmitter<VSBuffer>(ipcRenderer, 'vscode:message', (_, message) => VSBuffer.wrap(message));
+		ipcRenderer.send('vscode:hello');
 
-        return new ElectronProtocol(ipcRenderer, onMessage);
-    }
+		return new ElectronProtocol(ipcRenderer, onMessage);
+	}
 
-    constructor(id: string) {
-        const protocol = Client.createProtocol();
-        super(protocol, id);
+	constructor(id: string) {
+		const protocol = Client.createProtocol();
+		super(protocol, id);
 
-        this.protocol = protocol;
-    }
+		this.protocol = protocol;
+	}
 
-    override dispose(): cognidream {
-        this.protocol.disconnect();
-        super.dispose();
-    }
+	override dispose(): void {
+		this.protocol.disconnect();
+		super.dispose();
+	}
 }

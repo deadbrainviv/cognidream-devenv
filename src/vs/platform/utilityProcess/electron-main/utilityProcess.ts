@@ -178,7 +178,7 @@ export class UtilityProcess extends Disposable {
 		super();
 	}
 
-	protected log(msg: string, severity: Severity): cognidreamidream {
+	protected log(msg: string, severity: Severity): void {
 		let logMsg: string;
 		if (this.configuration?.correlationId) {
 			logMsg = `[UtilityProcess id: ${this.configuration?.correlationId}, type: ${this.configuration?.type}, pid: ${this.processPid ?? '<none>'}]: ${msg}`;
@@ -284,7 +284,7 @@ export class UtilityProcess extends Disposable {
 		return env;
 	}
 
-	private registerListeners(process: ElectronUtilityProcess, configuration: IUtilityProcessConfiguration, serviceName: string): cognidreamidream {
+	private registerListeners(process: ElectronUtilityProcess, configuration: IUtilityProcessConfiguration, serviceName: string): void {
 
 		// Stdout
 		if (process.stdout) {
@@ -302,7 +302,7 @@ export class UtilityProcess extends Disposable {
 		this._register(Event.fromNodeEventEmitter(process, 'message')(msg => this._onMessage.fire(msg)));
 
 		// Spawn
-		this._register(Event.fromNodeEventEmitter<cognidreamidream>(process, 'spawn')(() => {
+		this._register(Event.fromNodeEventEmitter<void>(process, 'spawn')(() => {
 			this.processPid = process.pid;
 
 			if (typeof process.pid === 'number') {
@@ -397,7 +397,7 @@ export class UtilityProcess extends Disposable {
 		}));
 	}
 
-	once(message: unknown, callback: () => cognidreamidrcognidream: cognidream {
+	once(message: unknown, callback: () => void): void {
 		const disposable = this._register(this._onMessage.event(msg => {
 			if (msg === message) {
 				disposable.dispose();
@@ -408,80 +408,80 @@ export class UtilityProcess extends Disposable {
 	}
 
 	postMessage(message: unknown, transfer?: Electron.MessagePortMain[]): boolean {
-	if (!this.process) {
-		return false; // already killed, crashed or never started
-	}
+		if (!this.process) {
+			return false; // already killed, crashed or never started
+		}
 
-	this.process.postMessage(message, transfer);
-
-	return true;
-}
-
-connect(payload ?: unknown): Electron.MessagePortMain {
-	const { port1: outPort, port2: utilityProcessPort } = new MessageChannelMain();
-	this.postMessage(payload, [utilityProcessPort]);
-
-	return outPort;
-}
-
-enableInspectPort(): boolean {
-	if (!this.process || typeof this.processPid !== 'number') {
-		return false;
-	}
-
-	this.log('enabling inspect port', Severity.Info);
-
-	interface ProcessExt {
-		_debugProcess?(pid: number): unknown;
-	}
-
-	// use (undocumented) _debugProcess feature of node if available
-	const processExt = <ProcessExt>process;
-	if (typeof processExt._debugProcess === 'function') {
-		processExt._debugProcess(this.processPid);
+		this.process.postMessage(message, transfer);
 
 		return true;
 	}
 
-	// not supported...
-	return false;
-}
+	connect(payload?: unknown): Electron.MessagePortMain {
+		const { port1: outPort, port2: utilityProcessPort } = new MessageChannelMain();
+		this.postMessage(payload, [utilityProcessPort]);
 
-kill(): cognidreamidream {
-	if (!this.process) {
-		return; // already killed, crashed or never started
+		return outPort;
 	}
 
-	this.log('attempting to kill the process...', Severity.Info);
-	const killed = this.process.kill();
-	if (killed) {
-		this.log('successfully killed the process', Severity.Info);
-		this.onDidExitOrCrashOrKill();
-	} else {
-		this.log('unable to kill the process', Severity.Warning);
+	enableInspectPort(): boolean {
+		if (!this.process || typeof this.processPid !== 'number') {
+			return false;
+		}
+
+		this.log('enabling inspect port', Severity.Info);
+
+		interface ProcessExt {
+			_debugProcess?(pid: number): unknown;
+		}
+
+		// use (undocumented) _debugProcess feature of node if available
+		const processExt = <ProcessExt>process;
+		if (typeof processExt._debugProcess === 'function') {
+			processExt._debugProcess(this.processPid);
+
+			return true;
+		}
+
+		// not supported...
+		return false;
 	}
-}
 
-	private onDidExitOrCrashOrKill(): cognidreamidream {
-	if (typeof this.processPid === 'number') {
-		UtilityProcess.all.delete(this.processPid);
+	kill(): void {
+		if (!this.process) {
+			return; // already killed, crashed or never started
+		}
+
+		this.log('attempting to kill the process...', Severity.Info);
+		const killed = this.process.kill();
+		if (killed) {
+			this.log('successfully killed the process', Severity.Info);
+			this.onDidExitOrCrashOrKill();
+		} else {
+			this.log('unable to kill the process', Severity.Warning);
+		}
 	}
 
-	this.process = undefined;
-}
+	private onDidExitOrCrashOrKill(): void {
+		if (typeof this.processPid === 'number') {
+			UtilityProcess.all.delete(this.processPid);
+		}
 
-	async waitForExit(maxWaitTimeMs: number): Promise < cognidreamidream > {
-	if(!this.process) {
-	return; // already killed, crashed or never started
-}
+		this.process = undefined;
+	}
 
-this.log('waiting to exit...', Severity.Info);
-await Promise.race([Event.toPromise(this.onExit), timeout(maxWaitTimeMs)]);
+	async waitForExit(maxWaitTimeMs: number): Promise<void> {
+		if (!this.process) {
+			return; // already killed, crashed or never started
+		}
 
-if (this.process) {
-	this.log(`did not exit within ${maxWaitTimeMs}ms, will kill it now...`, Severity.Info);
-	this.kill();
-}
+		this.log('waiting to exit...', Severity.Info);
+		await Promise.race([Event.toPromise(this.onExit), timeout(maxWaitTimeMs)]);
+
+		if (this.process) {
+			this.log(`did not exit within ${maxWaitTimeMs}ms, will kill it now...`, Severity.Info);
+			this.kill();
+		}
 	}
 }
 
@@ -520,7 +520,7 @@ export class WindowUtilityProcess extends UtilityProcess {
 		return true;
 	}
 
-	private registerWindowListeners(window: BrowserWindow, configuration: IWindowUtilityProcessConfiguration): cognidreamidream {
+	private registerWindowListeners(window: BrowserWindow, configuration: IWindowUtilityProcessConfiguration): void {
 
 		// If the lifecycle of the utility process is bound to the window,
 		// we kill the process if the window closes or changes

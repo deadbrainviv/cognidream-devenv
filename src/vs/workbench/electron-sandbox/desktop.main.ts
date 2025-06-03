@@ -75,7 +75,7 @@ export class DesktopMain extends Disposable {
 		this.init();
 	}
 
-	private init(): cognidream {
+	private init(): void {
 
 		// Massage configuration file URIs
 		this.reviveUris();
@@ -110,7 +110,7 @@ export class DesktopMain extends Disposable {
 		}
 	}
 
-	async open(): Promicognidreamognidream> {
+	async open(): Promise<void> {
 
 		// Init services and wait for DOM to be ready in parallel
 		const [services] = await Promise.all([this.initServices(), domContentLoaded(mainWindow)]);
@@ -137,282 +137,282 @@ export class DesktopMain extends Disposable {
 		this._register(instantiationService.createInstance(NativeWindow));
 	}
 
-    private applyWindowZoomLevel(configurationService: IConfigurationService) {
-	let zoomLevel: number | undefined = undefined;
-	if (this.configuration.isCustomZoomLevel && typeof this.configuration.zoomLevel === 'number') {
-		zoomLevel = this.configuration.zoomLevel;
-	} else {
-		const windowConfig = configurationService.getValue<IWindowsConfiguration>();
-		zoomLevel = typeof windowConfig.window?.zoomLevel === 'number' ? windowConfig.window.zoomLevel : 0;
+	private applyWindowZoomLevel(configurationService: IConfigurationService) {
+		let zoomLevel: number | undefined = undefined;
+		if (this.configuration.isCustomZoomLevel && typeof this.configuration.zoomLevel === 'number') {
+			zoomLevel = this.configuration.zoomLevel;
+		} else {
+			const windowConfig = configurationService.getValue<IWindowsConfiguration>();
+			zoomLevel = typeof windowConfig.window?.zoomLevel === 'number' ? windowConfig.window.zoomLevel : 0;
+		}
+
+		applyZoom(zoomLevel, mainWindow);
 	}
 
-	applyZoom(zoomLevel, mainWindow);
-}
+	private getExtraClasses(): string[] {
+		if (isMacintosh && isBigSurOrNewer(this.configuration.os.release)) {
+			return ['macos-bigsur-or-newer'];
+		}
 
-    private getExtraClasses(): string[] {
-	if (isMacintosh && isBigSurOrNewer(this.configuration.os.release)) {
-		return ['macos-bigsur-or-newer'];
+		return [];
 	}
 
-	return [];
-}
+	private registerListeners(workbench: Workbench, storageService: NativeWorkbenchStorageService): void {
 
-    private registerListeners(workbench: Workbench, storageService: NativeWorkbenchStorageServicecognidreamognidream {
-
-	// Workbench Lifecycle
-	this._register(workbench.onWillShutdown(event => event.join(storageService.close(), { id: 'join.closeStorage', label: localize('join.closeStorage', "Saving UI state") })));
-	this._register(workbench.onDidShutdown(() => this.dispose()));
-}
-
-    private async initServices(): Promise < { serviceCollection: ServiceCollection; logService: ILogService; storageService: NativeWorkbenchStorageService; configurationService: IConfigurationService } > {
-	const serviceCollection = new ServiceCollection();
-
-
-	// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-	//
-	// NOTE: Please do NOT register services here. Use `registerSingleton()`
-	//       from `workbench.common.main.ts` if the service is shared between
-	//       desktop and web or `workbench.desktop.main.ts` if the service
-	//       is desktop only.
-	//
-	// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-
-	// Main Process
-	const mainProcessService = this._register(new ElectronIPCMainProcessService(this.configuration.windowId));
-	serviceCollection.set(IMainProcessService, mainProcessService);
-
-	// Product
-	const productService: IProductService = { _serviceBrand: undefined, ...product };
-	serviceCollection.set(IProductService, productService);
-
-	// Environment
-	const environmentService = new NativeWorkbenchEnvironmentService(this.configuration, productService);
-	serviceCollection.set(INativeWorkbenchEnvironmentService, environmentService);
-
-	// Logger
-	const loggers = this.configuration.loggers.map(loggerResource => ({ ...loggerResource, resource: URI.revive(loggerResource.resource) }));
-	const loggerService = new LoggerChannelClient(this.configuration.windowId, this.configuration.logLevel, environmentService.windowLogsPath, loggers, mainProcessService.getChannel('logger'));
-	serviceCollection.set(ILoggerService, loggerService);
-
-	// Log
-	const logService = this._register(new NativeLogService(loggerService, environmentService));
-	serviceCollection.set(ILogService, logService);
-	if(isCI) {
-		logService.info('workbench#open()'); // marking workbench open helps to diagnose flaky integration/smoke tests
-	}
-        if(logService.getLevel() === LogLevel.Trace) {
-	logService.trace('workbench#open(): with configuration', safeStringify({ ...this.configuration, nls: undefined /* exclude large property */ }));
-}
-
-// Default Account
-const defaultAccountService = this._register(new DefaultAccountService());
-serviceCollection.set(IDefaultAccountService, defaultAccountService);
-
-// Policies
-let policyService: IPolicyService;
-const accountPolicy = new AccountPolicyService(logService, defaultAccountService);
-if (this.configuration.policiesData) {
-	const policyChannel = new PolicyChannelClient(this.configuration.policiesData, mainProcessService.getChannel('policy'));
-	policyService = new MultiplexPolicyService([policyChannel, accountPolicy], logService);
-} else {
-	policyService = accountPolicy;
-}
-serviceCollection.set(IPolicyService, policyService);
-
-// Shared Process
-const sharedProcessService = new SharedProcessService(this.configuration.windowId, logService);
-serviceCollection.set(ISharedProcessService, sharedProcessService);
-
-// Utility Process Worker
-const utilityProcessWorkerWorkbenchService = new UtilityProcessWorkerWorkbenchService(this.configuration.windowId, logService, mainProcessService);
-serviceCollection.set(IUtilityProcessWorkerWorkbenchService, utilityProcessWorkerWorkbenchService);
-
-// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-//
-// NOTE: Please do NOT register services here. Use `registerSingleton()`
-//       from `workbench.common.main.ts` if the service is shared between
-//       desktop and web or `workbench.desktop.main.ts` if the service
-//       is desktop only.
-//
-// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-
-// Sign
-const signService = ProxyChannel.toService<ISignService>(mainProcessService.getChannel('sign'));
-serviceCollection.set(ISignService, signService);
-
-// Files
-const fileService = this._register(new FileService(logService));
-serviceCollection.set(IFileService, fileService);
-
-// Remote
-const remoteAuthorityResolverService = new RemoteAuthorityResolverService(productService, new ElectronRemoteResourceLoader(environmentService.window.id, mainProcessService, fileService));
-serviceCollection.set(IRemoteAuthorityResolverService, remoteAuthorityResolverService);
-
-// Local Files
-const diskFileSystemProvider = this._register(new DiskFileSystemProvider(mainProcessService, utilityProcessWorkerWorkbenchService, logService, loggerService));
-fileService.registerProvider(Schemas.file, diskFileSystemProvider);
-
-// URI Identity
-const uriIdentityService = new UriIdentityService(fileService);
-serviceCollection.set(IUriIdentityService, uriIdentityService);
-
-// User Data Profiles
-const userDataProfilesService = new UserDataProfilesService(this.configuration.profiles.all, URI.revive(this.configuration.profiles.home).with({ scheme: environmentService.userRoamingDataHome.scheme }), mainProcessService.getChannel('userDataProfiles'));
-serviceCollection.set(IUserDataProfilesService, userDataProfilesService);
-const userDataProfileService = new UserDataProfileService(reviveProfile(this.configuration.profiles.profile, userDataProfilesService.profilesHome.scheme));
-serviceCollection.set(IUserDataProfileService, userDataProfileService);
-
-// Use FileUserDataProvider for user data to
-// enable atomic read / write operations.
-fileService.registerProvider(Schemas.vscodeUserData, this._register(new FileUserDataProvider(Schemas.file, diskFileSystemProvider, Schemas.vscodeUserData, userDataProfilesService, uriIdentityService, logService)));
-
-// Remote Agent
-const remoteSocketFactoryService = new RemoteSocketFactoryService();
-remoteSocketFactoryService.register(RemoteConnectionType.WebSocket, new BrowserSocketFactory(null));
-serviceCollection.set(IRemoteSocketFactoryService, remoteSocketFactoryService);
-const remoteAgentService = this._register(new RemoteAgentService(remoteSocketFactoryService, userDataProfileService, environmentService, productService, remoteAuthorityResolverService, signService, logService));
-serviceCollection.set(IRemoteAgentService, remoteAgentService);
-
-// Remote Files
-this._register(RemoteFileSystemProviderClient.register(remoteAgentService, fileService, logService));
-
-// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-//
-// NOTE: Please do NOT register services here. Use `registerSingleton()`
-//       from `workbench.common.main.ts` if the service is shared between
-//       desktop and web or `workbench.desktop.main.ts` if the service
-//       is desktop only.
-//
-// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-// Create services that require resolving in parallel
-const workspace = this.resolveWorkspaceIdentifier(environmentService);
-const [configurationService, storageService] = await Promise.all([
-	this.createWorkspaceService(workspace, environmentService, userDataProfileService, userDataProfilesService, fileService, remoteAgentService, uriIdentityService, logService, policyService).then(service => {
-
-		// Workspace
-		serviceCollection.set(IWorkspaceContextService, service);
-
-		// Configuration
-		serviceCollection.set(IWorkbenchConfigurationService, service);
-
-		return service;
-	}),
-
-	this.createStorageService(workspace, environmentService, userDataProfileService, userDataProfilesService, mainProcessService).then(service => {
-
-		// Storage
-		serviceCollection.set(IStorageService, service);
-
-		return service;
-	}),
-
-	this.createKeyboardLayoutService(mainProcessService).then(service => {
-
-		// KeyboardLayout
-		serviceCollection.set(INativeKeyboardLayoutService, service);
-
-		return service;
-	})
-]);
-
-// Workspace Trust Service
-const workspaceTrustEnablementService = new WorkspaceTrustEnablementService(configurationService, environmentService);
-serviceCollection.set(IWorkspaceTrustEnablementService, workspaceTrustEnablementService);
-
-const workspaceTrustManagementService = new WorkspaceTrustManagementService(configurationService, remoteAuthorityResolverService, storageService, uriIdentityService, environmentService, configurationService, workspaceTrustEnablementService, fileService);
-serviceCollection.set(IWorkspaceTrustManagementService, workspaceTrustManagementService);
-
-// Update workspace trust so that configuration is updated accordingly
-configurationService.updateWorkspaceTrust(workspaceTrustManagementService.isWorkspaceTrusted());
-this._register(workspaceTrustManagementService.onDidChangeTrust(() => configurationService.updateWorkspaceTrust(workspaceTrustManagementService.isWorkspaceTrusted())));
-
-
-// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-//
-// NOTE: Please do NOT register services here. Use `registerSingleton()`
-//       from `workbench.common.main.ts` if the service is shared between
-//       desktop and web or `workbench.desktop.main.ts` if the service
-//       is desktop only.
-//
-// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-
-return { serviceCollection, logService, storageService, configurationService };
-    }
-
-    private resolveWorkspaceIdentifier(environmentService: INativeWorkbenchEnvironmentService): IAnyWorkspaceIdentifier {
-
-	// Return early for when a folder or multi-root is opened
-	if (this.configuration.workspace) {
-		return this.configuration.workspace;
+		// Workbench Lifecycle
+		this._register(workbench.onWillShutdown(event => event.join(storageService.close(), { id: 'join.closeStorage', label: localize('join.closeStorage', "Saving UI state") })));
+		this._register(workbench.onDidShutdown(() => this.dispose()));
 	}
 
-	// Otherwise, workspace is empty, so we derive an identifier
-	return toWorkspaceIdentifier(this.configuration.backupPath, environmentService.isExtensionDevelopment);
-}
+	private async initServices(): Promise<{ serviceCollection: ServiceCollection; logService: ILogService; storageService: NativeWorkbenchStorageService; configurationService: IConfigurationService }> {
+		const serviceCollection = new ServiceCollection();
 
-    private async createWorkspaceService(
-	workspace: IAnyWorkspaceIdentifier,
-	environmentService: INativeWorkbenchEnvironmentService,
-	userDataProfileService: IUserDataProfileService,
-	userDataProfilesService: IUserDataProfilesService,
-	fileService: FileService,
-	remoteAgentService: IRemoteAgentService,
-	uriIdentityService: IUriIdentityService,
-	logService: ILogService,
-	policyService: IPolicyService
-): Promise < WorkspaceService > {
-	const configurationCache = new ConfigurationCache([Schemas.file, Schemas.vscodeUserData] /* Cache all non native resources */, environmentService, fileService);
-	const workspaceService = new WorkspaceService({ remoteAuthority: environmentService.remoteAuthority, configurationCache }, environmentService, userDataProfileService, userDataProfilesService, fileService, remoteAgentService, uriIdentityService, logService, policyService);
 
-	try {
-		await workspaceService.initialize(workspace);
+		// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+		//
+		// NOTE: Please do NOT register services here. Use `registerSingleton()`
+		//       from `workbench.common.main.ts` if the service is shared between
+		//       desktop and web or `workbench.desktop.main.ts` if the service
+		//       is desktop only.
+		//
+		// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-		return workspaceService;
-	} catch(error) {
-		onUnexpectedError(error);
 
-		return workspaceService;
+		// Main Process
+		const mainProcessService = this._register(new ElectronIPCMainProcessService(this.configuration.windowId));
+		serviceCollection.set(IMainProcessService, mainProcessService);
+
+		// Product
+		const productService: IProductService = { _serviceBrand: undefined, ...product };
+		serviceCollection.set(IProductService, productService);
+
+		// Environment
+		const environmentService = new NativeWorkbenchEnvironmentService(this.configuration, productService);
+		serviceCollection.set(INativeWorkbenchEnvironmentService, environmentService);
+
+		// Logger
+		const loggers = this.configuration.loggers.map(loggerResource => ({ ...loggerResource, resource: URI.revive(loggerResource.resource) }));
+		const loggerService = new LoggerChannelClient(this.configuration.windowId, this.configuration.logLevel, environmentService.windowLogsPath, loggers, mainProcessService.getChannel('logger'));
+		serviceCollection.set(ILoggerService, loggerService);
+
+		// Log
+		const logService = this._register(new NativeLogService(loggerService, environmentService));
+		serviceCollection.set(ILogService, logService);
+		if (isCI) {
+			logService.info('workbench#open()'); // marking workbench open helps to diagnose flaky integration/smoke tests
+		}
+		if (logService.getLevel() === LogLevel.Trace) {
+			logService.trace('workbench#open(): with configuration', safeStringify({ ...this.configuration, nls: undefined /* exclude large property */ }));
+		}
+
+		// Default Account
+		const defaultAccountService = this._register(new DefaultAccountService());
+		serviceCollection.set(IDefaultAccountService, defaultAccountService);
+
+		// Policies
+		let policyService: IPolicyService;
+		const accountPolicy = new AccountPolicyService(logService, defaultAccountService);
+		if (this.configuration.policiesData) {
+			const policyChannel = new PolicyChannelClient(this.configuration.policiesData, mainProcessService.getChannel('policy'));
+			policyService = new MultiplexPolicyService([policyChannel, accountPolicy], logService);
+		} else {
+			policyService = accountPolicy;
+		}
+		serviceCollection.set(IPolicyService, policyService);
+
+		// Shared Process
+		const sharedProcessService = new SharedProcessService(this.configuration.windowId, logService);
+		serviceCollection.set(ISharedProcessService, sharedProcessService);
+
+		// Utility Process Worker
+		const utilityProcessWorkerWorkbenchService = new UtilityProcessWorkerWorkbenchService(this.configuration.windowId, logService, mainProcessService);
+		serviceCollection.set(IUtilityProcessWorkerWorkbenchService, utilityProcessWorkerWorkbenchService);
+
+		// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+		//
+		// NOTE: Please do NOT register services here. Use `registerSingleton()`
+		//       from `workbench.common.main.ts` if the service is shared between
+		//       desktop and web or `workbench.desktop.main.ts` if the service
+		//       is desktop only.
+		//
+		// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+
+		// Sign
+		const signService = ProxyChannel.toService<ISignService>(mainProcessService.getChannel('sign'));
+		serviceCollection.set(ISignService, signService);
+
+		// Files
+		const fileService = this._register(new FileService(logService));
+		serviceCollection.set(IFileService, fileService);
+
+		// Remote
+		const remoteAuthorityResolverService = new RemoteAuthorityResolverService(productService, new ElectronRemoteResourceLoader(environmentService.window.id, mainProcessService, fileService));
+		serviceCollection.set(IRemoteAuthorityResolverService, remoteAuthorityResolverService);
+
+		// Local Files
+		const diskFileSystemProvider = this._register(new DiskFileSystemProvider(mainProcessService, utilityProcessWorkerWorkbenchService, logService, loggerService));
+		fileService.registerProvider(Schemas.file, diskFileSystemProvider);
+
+		// URI Identity
+		const uriIdentityService = new UriIdentityService(fileService);
+		serviceCollection.set(IUriIdentityService, uriIdentityService);
+
+		// User Data Profiles
+		const userDataProfilesService = new UserDataProfilesService(this.configuration.profiles.all, URI.revive(this.configuration.profiles.home).with({ scheme: environmentService.userRoamingDataHome.scheme }), mainProcessService.getChannel('userDataProfiles'));
+		serviceCollection.set(IUserDataProfilesService, userDataProfilesService);
+		const userDataProfileService = new UserDataProfileService(reviveProfile(this.configuration.profiles.profile, userDataProfilesService.profilesHome.scheme));
+		serviceCollection.set(IUserDataProfileService, userDataProfileService);
+
+		// Use FileUserDataProvider for user data to
+		// enable atomic read / write operations.
+		fileService.registerProvider(Schemas.vscodeUserData, this._register(new FileUserDataProvider(Schemas.file, diskFileSystemProvider, Schemas.vscodeUserData, userDataProfilesService, uriIdentityService, logService)));
+
+		// Remote Agent
+		const remoteSocketFactoryService = new RemoteSocketFactoryService();
+		remoteSocketFactoryService.register(RemoteConnectionType.WebSocket, new BrowserSocketFactory(null));
+		serviceCollection.set(IRemoteSocketFactoryService, remoteSocketFactoryService);
+		const remoteAgentService = this._register(new RemoteAgentService(remoteSocketFactoryService, userDataProfileService, environmentService, productService, remoteAuthorityResolverService, signService, logService));
+		serviceCollection.set(IRemoteAgentService, remoteAgentService);
+
+		// Remote Files
+		this._register(RemoteFileSystemProviderClient.register(remoteAgentService, fileService, logService));
+
+		// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+		//
+		// NOTE: Please do NOT register services here. Use `registerSingleton()`
+		//       from `workbench.common.main.ts` if the service is shared between
+		//       desktop and web or `workbench.desktop.main.ts` if the service
+		//       is desktop only.
+		//
+		// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+		// Create services that require resolving in parallel
+		const workspace = this.resolveWorkspaceIdentifier(environmentService);
+		const [configurationService, storageService] = await Promise.all([
+			this.createWorkspaceService(workspace, environmentService, userDataProfileService, userDataProfilesService, fileService, remoteAgentService, uriIdentityService, logService, policyService).then(service => {
+
+				// Workspace
+				serviceCollection.set(IWorkspaceContextService, service);
+
+				// Configuration
+				serviceCollection.set(IWorkbenchConfigurationService, service);
+
+				return service;
+			}),
+
+			this.createStorageService(workspace, environmentService, userDataProfileService, userDataProfilesService, mainProcessService).then(service => {
+
+				// Storage
+				serviceCollection.set(IStorageService, service);
+
+				return service;
+			}),
+
+			this.createKeyboardLayoutService(mainProcessService).then(service => {
+
+				// KeyboardLayout
+				serviceCollection.set(INativeKeyboardLayoutService, service);
+
+				return service;
+			})
+		]);
+
+		// Workspace Trust Service
+		const workspaceTrustEnablementService = new WorkspaceTrustEnablementService(configurationService, environmentService);
+		serviceCollection.set(IWorkspaceTrustEnablementService, workspaceTrustEnablementService);
+
+		const workspaceTrustManagementService = new WorkspaceTrustManagementService(configurationService, remoteAuthorityResolverService, storageService, uriIdentityService, environmentService, configurationService, workspaceTrustEnablementService, fileService);
+		serviceCollection.set(IWorkspaceTrustManagementService, workspaceTrustManagementService);
+
+		// Update workspace trust so that configuration is updated accordingly
+		configurationService.updateWorkspaceTrust(workspaceTrustManagementService.isWorkspaceTrusted());
+		this._register(workspaceTrustManagementService.onDidChangeTrust(() => configurationService.updateWorkspaceTrust(workspaceTrustManagementService.isWorkspaceTrusted())));
+
+
+		// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+		//
+		// NOTE: Please do NOT register services here. Use `registerSingleton()`
+		//       from `workbench.common.main.ts` if the service is shared between
+		//       desktop and web or `workbench.desktop.main.ts` if the service
+		//       is desktop only.
+		//
+		// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+
+		return { serviceCollection, logService, storageService, configurationService };
 	}
-}
 
-    private async createStorageService(workspace: IAnyWorkspaceIdentifier, environmentService: INativeWorkbenchEnvironmentService, userDataProfileService: IUserDataProfileService, userDataProfilesService: IUserDataProfilesService, mainProcessService: IMainProcessService): Promise < NativeWorkbenchStorageService > {
-	const storageService = new NativeWorkbenchStorageService(workspace, userDataProfileService, userDataProfilesService, mainProcessService, environmentService);
+	private resolveWorkspaceIdentifier(environmentService: INativeWorkbenchEnvironmentService): IAnyWorkspaceIdentifier {
 
-	try {
-		await storageService.initialize();
+		// Return early for when a folder or multi-root is opened
+		if (this.configuration.workspace) {
+			return this.configuration.workspace;
+		}
 
-		return storageService;
-	} catch(error) {
-		onUnexpectedError(error);
-
-		return storageService;
+		// Otherwise, workspace is empty, so we derive an identifier
+		return toWorkspaceIdentifier(this.configuration.backupPath, environmentService.isExtensionDevelopment);
 	}
-}
 
-    private async createKeyboardLayoutService(mainProcessService: IMainProcessService): Promise < NativeKeyboardLayoutService > {
-	const keyboardLayoutService = new NativeKeyboardLayoutService(mainProcessService);
+	private async createWorkspaceService(
+		workspace: IAnyWorkspaceIdentifier,
+		environmentService: INativeWorkbenchEnvironmentService,
+		userDataProfileService: IUserDataProfileService,
+		userDataProfilesService: IUserDataProfilesService,
+		fileService: FileService,
+		remoteAgentService: IRemoteAgentService,
+		uriIdentityService: IUriIdentityService,
+		logService: ILogService,
+		policyService: IPolicyService
+	): Promise<WorkspaceService> {
+		const configurationCache = new ConfigurationCache([Schemas.file, Schemas.vscodeUserData] /* Cache all non native resources */, environmentService, fileService);
+		const workspaceService = new WorkspaceService({ remoteAuthority: environmentService.remoteAuthority, configurationCache }, environmentService, userDataProfileService, userDataProfilesService, fileService, remoteAgentService, uriIdentityService, logService, policyService);
 
-	try {
-		await keyboardLayoutService.initialize();
+		try {
+			await workspaceService.initialize(workspace);
 
-		return keyboardLayoutService;
-	} catch(error) {
-		onUnexpectedError(error);
+			return workspaceService;
+		} catch (error) {
+			onUnexpectedError(error);
 
-		return keyboardLayoutService;
+			return workspaceService;
+		}
 	}
-}
+
+	private async createStorageService(workspace: IAnyWorkspaceIdentifier, environmentService: INativeWorkbenchEnvironmentService, userDataProfileService: IUserDataProfileService, userDataProfilesService: IUserDataProfilesService, mainProcessService: IMainProcessService): Promise<NativeWorkbenchStorageService> {
+		const storageService = new NativeWorkbenchStorageService(workspace, userDataProfileService, userDataProfilesService, mainProcessService, environmentService);
+
+		try {
+			await storageService.initialize();
+
+			return storageService;
+		} catch (error) {
+			onUnexpectedError(error);
+
+			return storageService;
+		}
+	}
+
+	private async createKeyboardLayoutService(mainProcessService: IMainProcessService): Promise<NativeKeyboardLayoutService> {
+		const keyboardLayoutService = new NativeKeyboardLayoutService(mainProcessService);
+
+		try {
+			await keyboardLayoutService.initialize();
+
+			return keyboardLayoutService;
+		} catch (error) {
+			onUnexpectedError(error);
+
+			return keyboardLayoutService;
+		}
+	}
 }
 
 export interface IDesktopMain {
-	main(configuration: INativeWindowConfiguration): Promicognidreamognidream>;
+	main(configuration: INativeWindowConfiguration): Promise<void>;
 }
 
-export function main(configuration: INativeWindowConfiguration): Promise<cognidreamidream> {
+export function main(configuration: INativeWindowConfiguration): Promise<void> {
 	const workbench = new DesktopMain(configuration);
 
 	return workbench.open();

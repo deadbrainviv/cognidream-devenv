@@ -54,7 +54,7 @@ registerAction2(class NotebookConfigureLayoutAction extends Action2 {
 			]
 		});
 	}
-	run(accessor: ServicesAccessor): cognidream {
+	run(accessor: ServicesAccessor): void {
 		accessor.get(ICommandService).executeCommand('workbench.action.openWalkthrough', { category: 'notebooks', step: 'notebookProfile' }, true);
 	}
 });
@@ -76,9 +76,9 @@ registerAction2(class NotebookConfigureLayoutAction extends Action2 {
 			]
 		});
 	}
-	run(accessor: ServicesAccessorcognidreamognidream {
+	run(accessor: ServicesAccessor): void {
 		accessor.get(IPreferencesService).openSettings({ jsonEditor: false, query: '@tag:notebookLayout' });
-    }
+	}
 });
 
 registerAction2(class NotebookConfigureLayoutFromEditorTitle extends Action2 {
@@ -98,9 +98,9 @@ registerAction2(class NotebookConfigureLayoutFromEditorTitle extends Action2 {
 			]
 		});
 	}
-	run(accessor: ServicesAccessorcognidreamognidream {
+	run(accessor: ServicesAccessor): void {
 		accessor.get(IPreferencesService).openSettings({ jsonEditor: false, query: '@tag:notebookLayout' });
-    }
+	}
 });
 
 MenuRegistry.appendMenuItem(MenuId.EditorTitle, {
@@ -135,9 +135,9 @@ registerAction2(class ToggleLineNumberFromEditorTitle extends Action2 {
 		});
 	}
 
-	async run(accessor: ServicesAccessor): Promicognidreamognidream> {
-	return accessor.get(ICommandService).executeCommand('notebook.toggleLineNumbers');
-}
+	async run(accessor: ServicesAccessor): Promise<void> {
+		return accessor.get(ICommandService).executeCommand('notebook.toggleLineNumbers');
+	}
 });
 
 registerAction2(class ToggleCellToolbarPositionFromEditorTitle extends Action2 {
@@ -155,9 +155,9 @@ registerAction2(class ToggleCellToolbarPositionFromEditorTitle extends Action2 {
 		});
 	}
 
-	async run(accessor: ServicesAccessor, ...args: any[]): Promicognidreamognidream> {
-	return accessor.get(ICommandService).executeCommand('notebook.toggleCellToolbarPosition', ...args);
-}
+	async run(accessor: ServicesAccessor, ...args: any[]): Promise<void> {
+		return accessor.get(ICommandService).executeCommand('notebook.toggleCellToolbarPosition', ...args);
+	}
 });
 
 registerAction2(class ToggleBreadcrumbFromEditorTitle extends Action2 {
@@ -174,9 +174,9 @@ registerAction2(class ToggleBreadcrumbFromEditorTitle extends Action2 {
 		});
 	}
 
-	async run(accessor: ServicesAccessor): Promicognidreamognidream> {
-	return accessor.get(ICommandService).executeCommand('breadcrumbs.toggle');
-}
+	async run(accessor: ServicesAccessor): Promise<void> {
+		return accessor.get(ICommandService).executeCommand('breadcrumbs.toggle');
+	}
 });
 
 registerAction2(class SaveMimeTypeDisplayOrder extends Action2 {
@@ -223,27 +223,27 @@ registerAction2(class NotebookWebviewResetAction extends Action2 {
 			category: NOTEBOOK_ACTIONS_CATEGORY
 		});
 	}
-	run(accessor: ServicesAccessor, args?: UriComponentscognidreamognidream {
+	run(accessor: ServicesAccessor, args?: UriComponents): void {
 		const editorService = accessor.get(IEditorService);
 
-	if(args) {
-		const uri = URI.revive(args);
-		const notebookEditorService = accessor.get(INotebookEditorService);
-		const widgets = notebookEditorService.listNotebookEditors().filter(widget => widget.hasModel() && widget.textModel.uri.toString() === uri.toString());
-		for (const widget of widgets) {
-			if (widget.hasModel()) {
-				widget.getInnerWebview()?.reload();
+		if (args) {
+			const uri = URI.revive(args);
+			const notebookEditorService = accessor.get(INotebookEditorService);
+			const widgets = notebookEditorService.listNotebookEditors().filter(widget => widget.hasModel() && widget.textModel.uri.toString() === uri.toString());
+			for (const widget of widgets) {
+				if (widget.hasModel()) {
+					widget.getInnerWebview()?.reload();
+				}
 			}
-		}
-	} else {
-	const editor = getNotebookEditorFromEditorPane(editorService.activeEditorPane);
-	if(!editor) {
-		return;
-	}
+		} else {
+			const editor = getNotebookEditorFromEditorPane(editorService.activeEditorPane);
+			if (!editor) {
+				return;
+			}
 
-            editor.getInnerWebview()?.reload();
-}
-    }
+			editor.getInnerWebview()?.reload();
+		}
+	}
 });
 
 registerAction2(class ToggleNotebookStickyScroll extends Action2 {
@@ -268,9 +268,9 @@ registerAction2(class ToggleNotebookStickyScroll extends Action2 {
 		});
 	}
 
-	override async run(accessor: ServicesAccessor): Promicognidreamognidream> {
-	const configurationService = accessor.get(IConfigurationService);
-	const newValue = !configurationService.getValue('notebook.stickyScroll.enabled');
-	return configurationService.updateValue('notebook.stickyScroll.enabled', newValue);
-}
+	override async run(accessor: ServicesAccessor): Promise<void> {
+		const configurationService = accessor.get(IConfigurationService);
+		const newValue = !configurationService.getValue('notebook.stickyScroll.enabled');
+		return configurationService.updateValue('notebook.stickyScroll.enabled', newValue);
+	}
 });

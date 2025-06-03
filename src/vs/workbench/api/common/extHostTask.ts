@@ -44,10 +44,10 @@ export interface IExtHostTask extends ExtHostTaskShape {
 	onDidEndTaskProblemMatchers: Event<vscode.TaskProblemMatcherEndedEvent>;
 
 	registerTaskProvider(extension: IExtensionDescription, type: string, provider: vscode.TaskProvider): vscode.Disposable;
-	registerTaskSystem(scheme: string, info: tasks.ITaskSystemInfoDTO): cognidream;
+	registerTaskSystem(scheme: string, info: tasks.ITaskSystemInfoDTO): void;
 	fetchTasks(filter?: vscode.TaskFilter): Promise<vscode.Task[]>;
 	executeTask(extension: IExtensionDescription, task: vscode.Task): Promise<vscode.TaskExecution>;
-	terminateTask(execution: vscode.TaskExecution): Promicognidreamognidream>;
+	terminateTask(execution: vscode.TaskExecution): Promise<void>;
 }
 
 namespace TaskDefinitionDTO {
@@ -369,15 +369,15 @@ class TaskExecutionImpl implements vscode.TaskExecution {
 		return this._task;
 	}
 
-	public terminate(cognidreamognidream {
+	public terminate(): void {
 		this.#tasks.terminateTask(this);
-    }
+	}
 
-    public fireDidStartProcess(value: tasks.ITaskProcessStartedDTOcognidreamognidream {
-		}
+	public fireDidStartProcess(value: tasks.ITaskProcessStartedDTO): void {
+	}
 
-    public fireDidEndProcess(value: tasks.ITaskProcessEndedDTOcognidreamognidream {
-		}
+	public fireDidEndProcess(value: tasks.ITaskProcessEndedDTO): void {
+	}
 }
 
 export interface HandlerData {
@@ -452,284 +452,284 @@ export abstract class ExtHostTaskBase implements ExtHostTaskShape, IExtHostTask 
 		});
 	}
 
-	public registerTaskSystem(scheme: string, info: tasks.ITaskSystemInfoDTOcognidreamognidream {
+	public registerTaskSystem(scheme: string, info: tasks.ITaskSystemInfoDTO): void {
 		this._proxy.$registerTaskSystem(scheme, info);
-    }
+	}
 
-    public fetchTasks(filter ?: vscode.TaskFilter): Promise < vscode.Task[] > {
-	return this._proxy.$fetchTasks(TaskFilterDTO.from(filter)).then(async (values) => {
-		const result: vscode.Task[] = [];
-		for (const value of values) {
-			const task = await TaskDTO.to(value, this._workspaceProvider, this._providedCustomExecutions2);
-			if (task) {
-				result.push(task);
+	public fetchTasks(filter?: vscode.TaskFilter): Promise<vscode.Task[]> {
+		return this._proxy.$fetchTasks(TaskFilterDTO.from(filter)).then(async (values) => {
+			const result: vscode.Task[] = [];
+			for (const value of values) {
+				const task = await TaskDTO.to(value, this._workspaceProvider, this._providedCustomExecutions2);
+				if (task) {
+					result.push(task);
+				}
 			}
-		}
+			return result;
+		});
+	}
+
+	public abstract executeTask(extension: IExtensionDescription, task: vscode.Task): Promise<vscode.TaskExecution>;
+
+	public get taskExecutions(): vscode.TaskExecution[] {
+		const result: vscode.TaskExecution[] = [];
+		this._taskExecutions.forEach(value => result.push(value));
 		return result;
-	});
-}
-
-    public abstract executeTask(extension: IExtensionDescription, task: vscode.Task): Promise<vscode.TaskExecution>;
-
-    public get taskExecutions(): vscode.TaskExecution[] {
-	const result: vscode.TaskExecution[] = [];
-	this._taskExecutions.forEach(value => result.push(value));
-	return result;
-}
-
-    public terminateTask(execution: vscode.TaskExecution): Promicognidreamognidream > {
-	if(!(execution instanceof TaskExecutionImpl)) {
-	throw new Error('No valid task execution provided');
-}
-return this._proxy.$terminateTask((execution as TaskExecutionImpl)._id);
-    }
-
-    public get onDidStartTask(): Event < vscode.TaskStartEvent > {
-	return this._onDidExecuteTask.event;
-}
-
-    public async $onDidStartTask(execution: tasks.ITaskExecutionDTO, terminalId: number, resolvedDefinition: tasks.ITaskDefinitionDTO): Promicognidreamognidream > {
-	const customExecution: types.CustomExecution | undefined = this._providedCustomExecutions2.get(execution.id);
-	if(customExecution) {
-		// Clone the custom execution to keep the original untouched. This is important for multiple runs of the same task.
-		this._activeCustomExecutions2.set(execution.id, customExecution);
-		this._terminalService.attachPtyToTerminal(terminalId, await customExecution.callback(resolvedDefinition));
-	}
-        this._lastStartedTask = execution.id;
-
-	this._onDidExecuteTask.fire({
-		execution: await this.getTaskExecution(execution)
-	});
-}
-
-    public get onDidEndTask(): Event < vscode.TaskEndEvent > {
-	return this._onDidTerminateTask.event;
-}
-
-    public async $OnDidEndTask(execution: tasks.ITaskExecutionDTO): Promicognidreamognidream > {
-	if(!this._taskExecutionPromises.has(execution.id)) {
-	// Event already fired by the main thread
-	// See https://github.com/microsoft/vscode/commit/aaf73920aeae171096d205efb2c58804a32b6846
-	return;
-}
-const _execution = await this.getTaskExecution(execution);
-this._taskExecutionPromises.delete(execution.id);
-this._taskExecutions.delete(execution.id);
-this.customExecutionComplete(execution);
-this._onDidTerminateTask.fire({
-	execution: _execution
-});
-    }
-
-    public get onDidStartTaskProcess(): Event < vscode.TaskProcessStartEvent > {
-	return this._onDidTaskProcessStarted.event;
-}
-
-    public async $onDidStartTaskProcess(value: tasks.ITaskProcessStartedDTO): Promicognidreamognidream > {
-	const execution = await this.getTaskExecution(value.id);
-	this._onDidTaskProcessStarted.fire({
-		execution: execution,
-		processId: value.processId
-	});
-}
-
-    public get onDidEndTaskProcess(): Event < vscode.TaskProcessEndEvent > {
-	return this._onDidTaskProcessEnded.event;
-}
-
-    public async $onDidEndTaskProcess(value: tasks.ITaskProcessEndedDTO): Promicognidreamognidream > {
-	const execution = await this.getTaskExecution(value.id);
-	this._onDidTaskProcessEnded.fire({
-		execution: execution,
-		exitCode: value.exitCode
-	});
-}
-
-    public get onDidStartTaskProblemMatchers(): Event < vscode.TaskProblemMatcherStartedEvent > {
-	return this._onDidStartTaskProblemMatchers.event;
-}
-
-    public async $onDidStartTaskProblemMatchers(value: ITaskProblemMatcherStartedDto): Promicognidreamognidream > {
-	let execution;
-	try {
-		execution = await this.getTaskExecution(value.execution.id);
-	} catch(error) {
-		// The task execution is not available anymore
-		return;
 	}
 
-        this._onDidStartTaskProblemMatchers.fire({ execution });
-}
-
-    public get onDidEndTaskProblemMatchers(): Event < vscode.TaskProblemMatcherEndedEvent > {
-	return this._onDidEndTaskProblemMatchers.event;
-}
-
-    public async $onDidEndTaskProblemMatchers(value: ITaskProblemMatcherEndedDto): Promicognidreamognidream > {
-	let execution;
-	try {
-		execution = await this.getTaskExecution(value.execution.id);
-	} catch(error) {
-		// The task execution is not available anymore
-		return;
+	public terminateTask(execution: vscode.TaskExecution): Promise<void> {
+		if (!(execution instanceof TaskExecutionImpl)) {
+			throw new Error('No valid task execution provided');
+		}
+		return this._proxy.$terminateTask((execution as TaskExecutionImpl)._id);
 	}
 
-        this._onDidEndTaskProblemMatchers.fire({ execution, hasErrors: value.hasErrors });
-}
-
-    protected abstract provideTasksInternal(validTypes: { [key: string]: boolean }, taskIdPromises: Promicognidreamognidream > [], handler: HandlerData, value: vscode.Task[] | null | undefined): { tasks: tasks.ITaskDTO[]; extension: IExtensionDescription };
-
-    public $provideTasks(handle: number, validTypes: { [key: string]: boolean }): Promise < tasks.ITaskSetDTO > {
-	const handler = this._handlers.get(handle);
-	if(!handler) {
-		return Promise.reject(new Error('no handler found'));
+	public get onDidStartTask(): Event<vscode.TaskStartEvent> {
+		return this._onDidExecuteTask.event;
 	}
 
-        // Set up a list of task ID promises that we can wait on
-        // before returning the provided tasks. The ensures that
-        // our task IDs are calculated for any custom execution tasks.
-        // Knowing this ID ahead of time is needed because when a task
-        // start event is fired this is when the custom execution is called.
-        // The task start event is also the first time we see the ID from the main
-        // thread, which is too late for us because we need to save an map
-        // from an ID to the custom execution function. (Kind of a cart before the horse problem).
-        const taskIdPromises: Prcognidreame<cognidream>[] = [];
-	const fetchPromise = asPromise(() => handler.provider.provideTasks(CancellationToken.None)).then(value => {
-		return this.provideTasksInternal(validTypes, taskIdPromises, handler, value);
-	});
+	public async $onDidStartTask(execution: tasks.ITaskExecutionDTO, terminalId: number, resolvedDefinition: tasks.ITaskDefinitionDTO): Promise<void> {
+		const customExecution: types.CustomExecution | undefined = this._providedCustomExecutions2.get(execution.id);
+		if (customExecution) {
+			// Clone the custom execution to keep the original untouched. This is important for multiple runs of the same task.
+			this._activeCustomExecutions2.set(execution.id, customExecution);
+			this._terminalService.attachPtyToTerminal(terminalId, await customExecution.callback(resolvedDefinition));
+		}
+		this._lastStartedTask = execution.id;
 
-	return new Promise((resolve) => {
-		fetchPromise.then((result) => {
-			Promise.all(taskIdPromises).then(() => {
-				resolve(result);
+		this._onDidExecuteTask.fire({
+			execution: await this.getTaskExecution(execution)
+		});
+	}
+
+	public get onDidEndTask(): Event<vscode.TaskEndEvent> {
+		return this._onDidTerminateTask.event;
+	}
+
+	public async $OnDidEndTask(execution: tasks.ITaskExecutionDTO): Promise<void> {
+		if (!this._taskExecutionPromises.has(execution.id)) {
+			// Event already fired by the main thread
+			// See https://github.com/microsoft/vscode/commit/aaf73920aeae171096d205efb2c58804a32b6846
+			return;
+		}
+		const _execution = await this.getTaskExecution(execution);
+		this._taskExecutionPromises.delete(execution.id);
+		this._taskExecutions.delete(execution.id);
+		this.customExecutionComplete(execution);
+		this._onDidTerminateTask.fire({
+			execution: _execution
+		});
+	}
+
+	public get onDidStartTaskProcess(): Event<vscode.TaskProcessStartEvent> {
+		return this._onDidTaskProcessStarted.event;
+	}
+
+	public async $onDidStartTaskProcess(value: tasks.ITaskProcessStartedDTO): Promise<void> {
+		const execution = await this.getTaskExecution(value.id);
+		this._onDidTaskProcessStarted.fire({
+			execution: execution,
+			processId: value.processId
+		});
+	}
+
+	public get onDidEndTaskProcess(): Event<vscode.TaskProcessEndEvent> {
+		return this._onDidTaskProcessEnded.event;
+	}
+
+	public async $onDidEndTaskProcess(value: tasks.ITaskProcessEndedDTO): Promise<void> {
+		const execution = await this.getTaskExecution(value.id);
+		this._onDidTaskProcessEnded.fire({
+			execution: execution,
+			exitCode: value.exitCode
+		});
+	}
+
+	public get onDidStartTaskProblemMatchers(): Event<vscode.TaskProblemMatcherStartedEvent> {
+		return this._onDidStartTaskProblemMatchers.event;
+	}
+
+	public async $onDidStartTaskProblemMatchers(value: ITaskProblemMatcherStartedDto): Promise<void> {
+		let execution;
+		try {
+			execution = await this.getTaskExecution(value.execution.id);
+		} catch (error) {
+			// The task execution is not available anymore
+			return;
+		}
+
+		this._onDidStartTaskProblemMatchers.fire({ execution });
+	}
+
+	public get onDidEndTaskProblemMatchers(): Event<vscode.TaskProblemMatcherEndedEvent> {
+		return this._onDidEndTaskProblemMatchers.event;
+	}
+
+	public async $onDidEndTaskProblemMatchers(value: ITaskProblemMatcherEndedDto): Promise<void> {
+		let execution;
+		try {
+			execution = await this.getTaskExecution(value.execution.id);
+		} catch (error) {
+			// The task execution is not available anymore
+			return;
+		}
+
+		this._onDidEndTaskProblemMatchers.fire({ execution, hasErrors: value.hasErrors });
+	}
+
+	protected abstract provideTasksInternal(validTypes: { [key: string]: boolean }, taskIdPromises: Promise<void>[], handler: HandlerData, value: vscode.Task[] | null | undefined): { tasks: tasks.ITaskDTO[]; extension: IExtensionDescription };
+
+	public $provideTasks(handle: number, validTypes: { [key: string]: boolean }): Promise<tasks.ITaskSetDTO> {
+		const handler = this._handlers.get(handle);
+		if (!handler) {
+			return Promise.reject(new Error('no handler found'));
+		}
+
+		// Set up a list of task ID promises that we can wait on
+		// before returning the provided tasks. The ensures that
+		// our task IDs are calculated for any custom execution tasks.
+		// Knowing this ID ahead of time is needed because when a task
+		// start event is fired this is when the custom execution is called.
+		// The task start event is also the first time we see the ID from the main
+		// thread, which is too late for us because we need to save an map
+		// from an ID to the custom execution function. (Kind of a cart before the horse problem).
+		const taskIdPromises: Promise<void>[] = [];
+		const fetchPromise = asPromise(() => handler.provider.provideTasks(CancellationToken.None)).then(value => {
+			return this.provideTasksInternal(validTypes, taskIdPromises, handler, value);
+		});
+
+		return new Promise((resolve) => {
+			fetchPromise.then((result) => {
+				Promise.all(taskIdPromises).then(() => {
+					resolve(result);
+				});
 			});
 		});
-	});
-}
-
-    protected abstract resolveTaskInternal(resolvedTaskDTO: tasks.ITaskDTO): Promise<tasks.ITaskDTO | undefined>;
-
-    public async $resolveTask(handle: number, taskDTO: tasks.ITaskDTO): Promise < tasks.ITaskDTO | undefined > {
-	const handler = this._handlers.get(handle);
-	if(!handler) {
-		return Promise.reject(new Error('no handler found'));
 	}
 
-        if(taskDTO.definition.type !== handler.type) {
-	throw new Error(`Unexpected: Task of type [${taskDTO.definition.type}] cannot be resolved by provider of type [${handler.type}].`);
-}
+	protected abstract resolveTaskInternal(resolvedTaskDTO: tasks.ITaskDTO): Promise<tasks.ITaskDTO | undefined>;
 
-const task = await TaskDTO.to(taskDTO, this._workspaceProvider, this._providedCustomExecutions2);
-if (!task) {
-	throw new Error('Unexpected: Task cannot be resolved.');
-}
-
-const resolvedTask = await handler.provider.resolveTask(task, CancellationToken.None);
-if (!resolvedTask) {
-	return;
-}
-
-this.checkDeprecation(resolvedTask, handler);
-
-const resolvedTaskDTO: tasks.ITaskDTO | undefined = TaskDTO.from(resolvedTask, handler.extension);
-if (!resolvedTaskDTO) {
-	throw new Error('Unexpected: Task cannot be resolved.');
-}
-
-if (resolvedTask.definition !== task.definition) {
-	throw new Error('Unexpected: The resolved task definition must be the same object as the original task definition. The task definition cannot be changed.');
-}
-
-if (CustomExecutionDTO.is(resolvedTaskDTO.execution)) {
-	await this.addCustomExecution(resolvedTaskDTO, resolvedTask, true);
-}
-
-return await this.resolveTaskInternal(resolvedTaskDTO);
-    }
-
-    public abstract $resolveVariables(uriComponents: UriComponents, toResolve: { process?: { name: string; cwd?: string; path?: string }; variables: string[] }): Promise<{ process?: string; variables: { [key: string]: string } }>;
-
-    private nextHandle(): number {
-	return this._handleCounter++;
-}
-
-    protected async addCustomExecution(taskDTO: tasks.ITaskDTO, task: vscode.Task, isProvided: boolean): Promicognidreamognidream > {
-	const taskId = await this._proxy.$createTaskId(taskDTO);
-	if(!isProvided && !this._providedCustomExecutions2.has(taskId)) {
-	this._notProvidedCustomExecutions.add(taskId);
-	// Also add to active executions when not coming from a provider to prevent timing issue.
-	this._activeCustomExecutions2.set(taskId, <types.CustomExecution>task.execution);
-}
-this._providedCustomExecutions2.set(taskId, <types.CustomExecution>task.execution);
-    }
-
-    protected async getTaskExecution(execution: tasks.ITaskExecutionDTO | string, task ?: vscode.Task): Promise < TaskExecutionImpl > {
-	if(typeof execution === 'string') {
-	const taskExecution = this._taskExecutionPromises.get(execution);
-	if (!taskExecution) {
-		throw new ErrorNoTelemetry('Unexpected: The specified task is missing an execution');
-	}
-	return taskExecution;
-}
-
-const result: Promise<TaskExecutionImpl> | undefined = this._taskExecutionPromises.get(execution.id);
-if (result) {
-	return result;
-}
-
-let executionPromise: Promise<TaskExecutionImpl>;
-if (!task) {
-	executionPromise = TaskDTO.to(execution.task, this._workspaceProvider, this._providedCustomExecutions2).then(t => {
-		if (!t) {
-			throw new ErrorNoTelemetry('Unexpected: Task does not exist.');
+	public async $resolveTask(handle: number, taskDTO: tasks.ITaskDTO): Promise<tasks.ITaskDTO | undefined> {
+		const handler = this._handlers.get(handle);
+		if (!handler) {
+			return Promise.reject(new Error('no handler found'));
 		}
-		return new TaskExecutionImpl(this, execution.id, t);
-	});
-} else {
-	executionPromise = Promise.resolve(new TaskExecutionImpl(this, execution.id, task));
-}
-this._taskExecutionPromises.set(execution.id, executionPromise);
-return executionPromise.then(taskExecution => {
-	this._taskExecutions.set(execution.id, taskExecution);
-	return taskExecution;
-});
-    }
 
-    protected checkDeprecation(task: vscode.Task, handler: HandlerData) {
-	const tTask = (task as types.Task);
-	if (tTask._deprecated) {
-		this._deprecationService.report('Task.constructor', handler.extension, 'Use the Task constructor that takes a `scope` instead.');
+		if (taskDTO.definition.type !== handler.type) {
+			throw new Error(`Unexpected: Task of type [${taskDTO.definition.type}] cannot be resolved by provider of type [${handler.type}].`);
+		}
+
+		const task = await TaskDTO.to(taskDTO, this._workspaceProvider, this._providedCustomExecutions2);
+		if (!task) {
+			throw new Error('Unexpected: Task cannot be resolved.');
+		}
+
+		const resolvedTask = await handler.provider.resolveTask(task, CancellationToken.None);
+		if (!resolvedTask) {
+			return;
+		}
+
+		this.checkDeprecation(resolvedTask, handler);
+
+		const resolvedTaskDTO: tasks.ITaskDTO | undefined = TaskDTO.from(resolvedTask, handler.extension);
+		if (!resolvedTaskDTO) {
+			throw new Error('Unexpected: Task cannot be resolved.');
+		}
+
+		if (resolvedTask.definition !== task.definition) {
+			throw new Error('Unexpected: The resolved task definition must be the same object as the original task definition. The task definition cannot be changed.');
+		}
+
+		if (CustomExecutionDTO.is(resolvedTaskDTO.execution)) {
+			await this.addCustomExecution(resolvedTaskDTO, resolvedTask, true);
+		}
+
+		return await this.resolveTaskInternal(resolvedTaskDTO);
 	}
-}
 
-    private customExecutionComplete(execution: tasks.ITaskExecutionDTOcognidreamognidream {
-	const extensionCallback2: vscode.CustomExecution | undefined = this._activeCustomExecutions2.get(execution.id);
-	if(extensionCallback2) {
-		this._activeCustomExecutions2.delete(execution.id);
+	public abstract $resolveVariables(uriComponents: UriComponents, toResolve: { process?: { name: string; cwd?: string; path?: string }; variables: string[] }): Promise<{ process?: string; variables: { [key: string]: string } }>;
+
+	private nextHandle(): number {
+		return this._handleCounter++;
 	}
 
-        // Technically we don't really need to do this, however, if an extension
-        // is executing a task through "executeTask" over and over again
-        // with different properties in the task definition, then the map of executions
-        // could grow indefinitely, something we don't want.
-        if(this._notProvidedCustomExecutions.has(execution.id) && (this._lastStartedTask !== execution.id)) {
-	this._providedCustomExecutions2.delete(execution.id);
-	this._notProvidedCustomExecutions.delete(execution.id);
-}
-const iterator = this._notProvidedCustomExecutions.values();
-let iteratorResult = iterator.next();
-while (!iteratorResult.done) {
-	if (!this._activeCustomExecutions2.has(iteratorResult.value) && (this._lastStartedTask !== iteratorResult.value)) {
-		this._providedCustomExecutions2.delete(iteratorResult.value);
-		this._notProvidedCustomExecutions.delete(iteratorResult.value);
+	protected async addCustomExecution(taskDTO: tasks.ITaskDTO, task: vscode.Task, isProvided: boolean): Promise<void> {
+		const taskId = await this._proxy.$createTaskId(taskDTO);
+		if (!isProvided && !this._providedCustomExecutions2.has(taskId)) {
+			this._notProvidedCustomExecutions.add(taskId);
+			// Also add to active executions when not coming from a provider to prevent timing issue.
+			this._activeCustomExecutions2.set(taskId, <types.CustomExecution>task.execution);
+		}
+		this._providedCustomExecutions2.set(taskId, <types.CustomExecution>task.execution);
 	}
-	iteratorResult = iterator.next();
-}
-    }
 
-    public abstract $jsonTasksSupported(): Promise<boolean>;
+	protected async getTaskExecution(execution: tasks.ITaskExecutionDTO | string, task?: vscode.Task): Promise<TaskExecutionImpl> {
+		if (typeof execution === 'string') {
+			const taskExecution = this._taskExecutionPromises.get(execution);
+			if (!taskExecution) {
+				throw new ErrorNoTelemetry('Unexpected: The specified task is missing an execution');
+			}
+			return taskExecution;
+		}
 
-    public abstract $findExecutable(command: string, cwd ?: string | undefined, paths ?: string[] | undefined): Promise<string | undefined>;
+		const result: Promise<TaskExecutionImpl> | undefined = this._taskExecutionPromises.get(execution.id);
+		if (result) {
+			return result;
+		}
+
+		let executionPromise: Promise<TaskExecutionImpl>;
+		if (!task) {
+			executionPromise = TaskDTO.to(execution.task, this._workspaceProvider, this._providedCustomExecutions2).then(t => {
+				if (!t) {
+					throw new ErrorNoTelemetry('Unexpected: Task does not exist.');
+				}
+				return new TaskExecutionImpl(this, execution.id, t);
+			});
+		} else {
+			executionPromise = Promise.resolve(new TaskExecutionImpl(this, execution.id, task));
+		}
+		this._taskExecutionPromises.set(execution.id, executionPromise);
+		return executionPromise.then(taskExecution => {
+			this._taskExecutions.set(execution.id, taskExecution);
+			return taskExecution;
+		});
+	}
+
+	protected checkDeprecation(task: vscode.Task, handler: HandlerData) {
+		const tTask = (task as types.Task);
+		if (tTask._deprecated) {
+			this._deprecationService.report('Task.constructor', handler.extension, 'Use the Task constructor that takes a `scope` instead.');
+		}
+	}
+
+	private customExecutionComplete(execution: tasks.ITaskExecutionDTO): void {
+		const extensionCallback2: vscode.CustomExecution | undefined = this._activeCustomExecutions2.get(execution.id);
+		if (extensionCallback2) {
+			this._activeCustomExecutions2.delete(execution.id);
+		}
+
+		// Technically we don't really need to do this, however, if an extension
+		// is executing a task through "executeTask" over and over again
+		// with different properties in the task definition, then the map of executions
+		// could grow indefinitely, something we don't want.
+		if (this._notProvidedCustomExecutions.has(execution.id) && (this._lastStartedTask !== execution.id)) {
+			this._providedCustomExecutions2.delete(execution.id);
+			this._notProvidedCustomExecutions.delete(execution.id);
+		}
+		const iterator = this._notProvidedCustomExecutions.values();
+		let iteratorResult = iterator.next();
+		while (!iteratorResult.done) {
+			if (!this._activeCustomExecutions2.has(iteratorResult.value) && (this._lastStartedTask !== iteratorResult.value)) {
+				this._providedCustomExecutions2.delete(iteratorResult.value);
+				this._notProvidedCustomExecutions.delete(iteratorResult.value);
+			}
+			iteratorResult = iterator.next();
+		}
+	}
+
+	public abstract $jsonTasksSupported(): Promise<boolean>;
+
+	public abstract $findExecutable(command: string, cwd?: string | undefined, paths?: string[] | undefined): Promise<string | undefined>;
 }
 
 export class WorkerExtHostTask extends ExtHostTaskBase {
@@ -776,58 +776,58 @@ export class WorkerExtHostTask extends ExtHostTaskBase {
 		return execution;
 	}
 
-	protected provideTasksInternal(validTypes: { [key: string]: boolean }, taskIdPromises: Promicognidreamognidream> [], handler: HandlerData, value: vscode.Task[] | null | undefined): { tasks: tasks.ITaskDTO[]; extension: IExtensionDescription } {
-	const taskDTOs: tasks.ITaskDTO[] = [];
-	if (value) {
-		for (const task of value) {
-			this.checkDeprecation(task, handler);
-			if (!task.definition || !validTypes[task.definition.type]) {
-				const source = task.source ? task.source : 'No task source';
-				this._logService.warn(`The task [${source}, ${task.name}] uses an undefined task type. The task will be ignored in the future.`);
-			}
+	protected provideTasksInternal(validTypes: { [key: string]: boolean }, taskIdPromises: Promise<void>[], handler: HandlerData, value: vscode.Task[] | null | undefined): { tasks: tasks.ITaskDTO[]; extension: IExtensionDescription } {
+		const taskDTOs: tasks.ITaskDTO[] = [];
+		if (value) {
+			for (const task of value) {
+				this.checkDeprecation(task, handler);
+				if (!task.definition || !validTypes[task.definition.type]) {
+					const source = task.source ? task.source : 'No task source';
+					this._logService.warn(`The task [${source}, ${task.name}] uses an undefined task type. The task will be ignored in the future.`);
+				}
 
-			const taskDTO: tasks.ITaskDTO | undefined = TaskDTO.from(task, handler.extension);
-			if (taskDTO && CustomExecutionDTO.is(taskDTO.execution)) {
-				taskDTOs.push(taskDTO);
-				// The ID is calculated on the main thread task side, so, let's call into it here.
-				// We need the task id's pre-computed for custom task executions because when OnDidStartTask
-				// is invoked, we have to be able to map it back to our data.
-				taskIdPromises.push(this.addCustomExecution(taskDTO, task, true));
-			} else {
-				this._logService.warn('Only custom execution tasks supported.');
+				const taskDTO: tasks.ITaskDTO | undefined = TaskDTO.from(task, handler.extension);
+				if (taskDTO && CustomExecutionDTO.is(taskDTO.execution)) {
+					taskDTOs.push(taskDTO);
+					// The ID is calculated on the main thread task side, so, let's call into it here.
+					// We need the task id's pre-computed for custom task executions because when OnDidStartTask
+					// is invoked, we have to be able to map it back to our data.
+					taskIdPromises.push(this.addCustomExecution(taskDTO, task, true));
+				} else {
+					this._logService.warn('Only custom execution tasks supported.');
+				}
 			}
 		}
+		return {
+			tasks: taskDTOs,
+			extension: handler.extension
+		};
 	}
-	return {
-		tasks: taskDTOs,
-		extension: handler.extension
-	};
-}
 
-    protected async resolveTaskInternal(resolvedTaskDTO: tasks.ITaskDTO): Promise < tasks.ITaskDTO | undefined > {
-	if(CustomExecutionDTO.is(resolvedTaskDTO.execution)) {
-	return resolvedTaskDTO;
-} else {
-	this._logService.warn('Only custom execution tasks supported.');
-}
-return undefined;
-    }
+	protected async resolveTaskInternal(resolvedTaskDTO: tasks.ITaskDTO): Promise<tasks.ITaskDTO | undefined> {
+		if (CustomExecutionDTO.is(resolvedTaskDTO.execution)) {
+			return resolvedTaskDTO;
+		} else {
+			this._logService.warn('Only custom execution tasks supported.');
+		}
+		return undefined;
+	}
 
-    public async $resolveVariables(uriComponents: UriComponents, toResolve: { process?: { name: string; cwd?: string; path?: string }; variables: string[] }): Promise < { process?: string; variables: { [key: string]: string } } > {
-	const result = {
-		process: <unknown>undefined as string,
-		variables: Object.create(null)
-	};
-	return result;
-}
+	public async $resolveVariables(uriComponents: UriComponents, toResolve: { process?: { name: string; cwd?: string; path?: string }; variables: string[] }): Promise<{ process?: string; variables: { [key: string]: string } }> {
+		const result = {
+			process: <unknown>undefined as string,
+			variables: Object.create(null)
+		};
+		return result;
+	}
 
-    public async $jsonTasksSupported(): Promise < boolean > {
-	return false;
-}
+	public async $jsonTasksSupported(): Promise<boolean> {
+		return false;
+	}
 
-    public async $findExecutable(command: string, cwd ?: string | undefined, paths ?: string[] | undefined): Promise < string | undefined > {
-	return undefined;
-}
+	public async $findExecutable(command: string, cwd?: string | undefined, paths?: string[] | undefined): Promise<string | undefined> {
+		return undefined;
+	}
 }
 
 export const IExtHostTask = createDecorator<IExtHostTask>('IExtHostTask');

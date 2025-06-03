@@ -45,10 +45,10 @@ export interface ITerminalStatusList {
 	 * @param duration An optional duration in milliseconds of the status, when specified the status
 	 * will remove itself when the duration elapses unless the status gets re-added.
 	 */
-	add(status: ITerminalStatus, duration?: number): cognidream;
-	remove(status: ITerminalStatuscognidreamognidream;
-		remove(statusId: stringcognidreamognidream;
-			toggle(status: ITerminalStatus, value: booleancognidreamognidream;
+	add(status: ITerminalStatus, duration?: number): void;
+	remove(status: ITerminalStatus): void;
+	remove(statusId: string): void;
+	toggle(status: ITerminalStatus, value: boolean): void;
 }
 
 export class TerminalStatusList extends Disposable implements ITerminalStatusList {
@@ -109,47 +109,47 @@ export class TerminalStatusList extends Disposable implements ITerminalStatusLis
 		}
 	}
 
-	remove(status: ITerminalStatuscognidreamognidream;
-		remove(statusId: stringcognidreamognidream;
-			remove(statusOrId: ITerminalStatus | stringcognidreamognidream {
-				const status = typeof statusOrId === 'string' ? this._statuses.get(statusOrId) : statusOrId;
-				// Verify the status is the same as the one passed in
-				if (status && this._statuses.get(status.id)) {
-	const wasPrimary = this.primary?.id === status.id;
-	this._statuses.delete(status.id);
-	this._onDidRemoveStatus.fire(status);
-	if (wasPrimary) {
-		this._onDidChangePrimaryStatus.fire(this.primary);
+	remove(status: ITerminalStatus): void;
+	remove(statusId: string): void;
+	remove(statusOrId: ITerminalStatus | string): void {
+		const status = typeof statusOrId === 'string' ? this._statuses.get(statusOrId) : statusOrId;
+		// Verify the status is the same as the one passed in
+		if (status && this._statuses.get(status.id)) {
+			const wasPrimary = this.primary?.id === status.id;
+			this._statuses.delete(status.id);
+			this._onDidRemoveStatus.fire(status);
+			if (wasPrimary) {
+				this._onDidChangePrimaryStatus.fire(this.primary);
+			}
+		}
 	}
-}
-    }
 
-toggle(status: ITerminalStatus, value: boolean) {
-	if (value) {
-		this.add(status);
-	} else {
-		this.remove(status);
+	toggle(status: ITerminalStatus, value: boolean) {
+		if (value) {
+			this.add(status);
+		} else {
+			this.remove(status);
+		}
 	}
-}
 
-    private _applyAnimationSetting(status: ITerminalStatus): ITerminalStatus {
-	if (!status.icon || ThemeIcon.getModifier(status.icon) !== 'spin' || this._configurationService.getValue(TerminalSettingId.TabsEnableAnimation)) {
-		return status;
+	private _applyAnimationSetting(status: ITerminalStatus): ITerminalStatus {
+		if (!status.icon || ThemeIcon.getModifier(status.icon) !== 'spin' || this._configurationService.getValue(TerminalSettingId.TabsEnableAnimation)) {
+			return status;
+		}
+		let icon;
+		// Loading without animation is just a curved line that doesn't mean anything
+		if (status.icon.id === spinningLoading.id) {
+			icon = Codicon.play;
+		} else {
+			icon = ThemeIcon.modify(status.icon, undefined);
+		}
+		// Clone the status when changing the icon so that setting changes are applied without a
+		// reload being needed
+		return {
+			...status,
+			icon
+		};
 	}
-	let icon;
-	// Loading without animation is just a curved line that doesn't mean anything
-	if (status.icon.id === spinningLoading.id) {
-		icon = Codicon.play;
-	} else {
-		icon = ThemeIcon.modify(status.icon, undefined);
-	}
-	// Clone the status when changing the icon so that setting changes are applied without a
-	// reload being needed
-	return {
-		...status,
-		icon
-	};
-}
 }
 
 export function getColorForSeverity(severity: Severity): string {

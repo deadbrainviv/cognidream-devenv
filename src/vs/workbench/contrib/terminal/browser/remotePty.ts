@@ -44,77 +44,77 @@ export class RemotePty extends BasePty implements ITerminalChildProcess {
 		return startResult;
 	}
 
-	async detach(forcePersist?: boolean): Promise<cognidream> {
+	async detach(forcePersist?: boolean): Promise<void> {
 		await this._startBarrier.wait();
 		return this._remoteTerminalChannel.detachFromProcess(this.id, forcePersist);
 	}
 
-	shutdown(immediate: booleancognidreamognidream {
+	shutdown(immediate: boolean): void {
 		this._startBarrier.wait().then(_ => {
 			this._remoteTerminalChannel.shutdown(this.id, immediate);
 		});
-    }
+	}
 
-input(data: stringcognidreamognidream {
-	if(this._inReplay) {
-	return;
-}
+	input(data: string): void {
+		if (this._inReplay) {
+			return;
+		}
 
-this._startBarrier.wait().then(_ => {
-	this._remoteTerminalChannel.input(this.id, data);
-});
-    }
+		this._startBarrier.wait().then(_ => {
+			this._remoteTerminalChannel.input(this.id, data);
+		});
+	}
 
-processBinary(e: string): Promicognidreamognidream > {
-	return this._remoteTerminalChannel.processBinary(this.id, e);
-}
+	processBinary(e: string): Promise<void> {
+		return this._remoteTerminalChannel.processBinary(this.id, e);
+	}
 
-resize(cols: number, rows: numbercognidreamognidream {
-	if(this._inReplay || this._lastDimensions.cols === cols && this._lastDimensions.rows === rows) {
-	return;
-}
-this._startBarrier.wait().then(_ => {
-	this._lastDimensions.cols = cols;
-	this._lastDimensions.rows = rows;
-	this._remoteTerminalChannel.resize(this.id, cols, rows);
-});
-    }
+	resize(cols: number, rows: number): void {
+		if (this._inReplay || this._lastDimensions.cols === cols && this._lastDimensions.rows === rows) {
+			return;
+		}
+		this._startBarrier.wait().then(_ => {
+			this._lastDimensions.cols = cols;
+			this._lastDimensions.rows = rows;
+			this._remoteTerminalChannel.resize(this.id, cols, rows);
+		});
+	}
 
-    async clearBuffer(): Promicognidreamognidream > {
-	await this._remoteTerminalChannel.clearBuffer(this.id);
-}
+	async clearBuffer(): Promise<void> {
+		await this._remoteTerminalChannel.clearBuffer(this.id);
+	}
 
-freePortKillProcess(port: string): Promise < { port: string; processId: string } > {
-	if(!this._remoteTerminalChannel.freePortKillProcess) {
-	throw new Error('freePortKillProcess does not exist on the local pty service');
-}
-return this._remoteTerminalChannel.freePortKillProcess(port);
-    }
+	freePortKillProcess(port: string): Promise<{ port: string; processId: string }> {
+		if (!this._remoteTerminalChannel.freePortKillProcess) {
+			throw new Error('freePortKillProcess does not exist on the local pty service');
+		}
+		return this._remoteTerminalChannel.freePortKillProcess(port);
+	}
 
-acknowledgeDataEvent(charCount: numbercognidreamognidream {
-	// Support flow control for server spawned processes
-	if(this._inReplay) {
-	return;
-}
+	acknowledgeDataEvent(charCount: number): void {
+		// Support flow control for server spawned processes
+		if (this._inReplay) {
+			return;
+		}
 
-this._startBarrier.wait().then(_ => {
-	this._remoteTerminalChannel.acknowledgeDataEvent(this.id, charCount);
-});
-    }
+		this._startBarrier.wait().then(_ => {
+			this._remoteTerminalChannel.acknowledgeDataEvent(this.id, charCount);
+		});
+	}
 
-    async setUnicodeVersion(version: '6' | '11'): Promicognidreamognidream > {
-	return this._remoteTerminalChannel.setUnicodeVersion(this.id, version);
-}
+	async setUnicodeVersion(version: '6' | '11'): Promise<void> {
+		return this._remoteTerminalChannel.setUnicodeVersion(this.id, version);
+	}
 
-    async refreshProperty<T extends ProcessPropertyType>(type: T): Promise < IProcessPropertyMap[T] > {
-	return this._remoteTerminalChannel.refreshProperty(this.id, type);
-}
+	async refreshProperty<T extends ProcessPropertyType>(type: T): Promise<IProcessPropertyMap[T]> {
+		return this._remoteTerminalChannel.refreshProperty(this.id, type);
+	}
 
-    async updateProperty<T extends ProcessPropertyType>(type: T, value: IProcessPropertyMap[T]): Promicognidreamognidream > {
-	return this._remoteTerminalChannel.updateProperty(this.id, type, value);
-}
+	async updateProperty<T extends ProcessPropertyType>(type: T, value: IProcessPropertyMap[T]): Promise<void> {
+		return this._remoteTerminalChannel.updateProperty(this.id, type, value);
+	}
 
-handleOrphanQuestion() {
-	this._remoteTerminalChannel.orphanQuestionReply(this.id);
-}
+	handleOrphanQuestion() {
+		this._remoteTerminalChannel.orphanQuestionReply(this.id);
+	}
 }

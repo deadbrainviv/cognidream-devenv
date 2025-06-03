@@ -22,16 +22,16 @@ export interface IMcpMessageTransport extends IDisposable {
 	readonly state: IObservable<McpConnectionState>;
 	readonly onDidLog: Event<{ level: LogLevel; message: string }>;
 	readonly onDidReceiveMessage: Event<MCP.JSONRPCMessage>;
-	send(message: MCP.JSONRPCMessage): cognidream;
-	stop(cognidreamognidream;
+	send(message: MCP.JSONRPCMessage): void;
+	stop(): void;
 }
 
 export interface IMcpHostDelegate {
 	/** Priority for this delegate, delegates are tested in descending priority order */
 	readonly priority: number;
-	waitForInitialProviderPromises(): Promicognidreamognidream>;
-canStart(collectionDefinition: McpCollectionDefinition, serverDefinition: McpServerDefinition): boolean;
-start(collectionDefinition: McpCollectionDefinition, serverDefinition: McpServerDefinition, resolvedLaunch: McpServerLaunch): IMcpMessageTransport;
+	waitForInitialProviderPromises(): Promise<void>;
+	canStart(collectionDefinition: McpCollectionDefinition, serverDefinition: McpServerDefinition): boolean;
+	start(collectionDefinition: McpCollectionDefinition, serverDefinition: McpServerDefinition, resolvedLaunch: McpServerLaunch): IMcpMessageTransport;
 }
 
 export interface IMcpResolveConnectionOptions {
@@ -46,34 +46,34 @@ export interface IMcpRegistry {
 	readonly _serviceBrand: undefined;
 
 	/** Fired when the user provides more inputs when creating a connection. */
-	readonly onDidChangeInputs: Evecognidreamognidream>;
+	readonly onDidChangeInputs: Event<void>;
 
-    readonly collections: IObservable<readonly McpCollectionDefinition[]>;
-    readonly delegates: readonly IMcpHostDelegate[];
-    /** Whether there are new collections that can be resolved with a discover() call */
-    readonly lazyCollectionState: IObservable<LazyCollectionState>;
+	readonly collections: IObservable<readonly McpCollectionDefinition[]>;
+	readonly delegates: readonly IMcpHostDelegate[];
+	/** Whether there are new collections that can be resolved with a discover() call */
+	readonly lazyCollectionState: IObservable<LazyCollectionState>;
 
-/** Gets the prefix that should be applied to a collection's tools in order tcognidreamognidream ID conflicts */
-collectionToolPrefix(collection: McpCollectionReference): IObservable<string>;
+	/** Gets the prefix that should be applied to a collection's tools in order to avoid ID conflicts */
+	collectionToolPrefix(collection: McpCollectionReference): IObservable<string>;
 
-/** Discover new collections, returning newly-discovered ones. */
-discoverCollections(): Promise<McpCollectionDefinition[]>;
+	/** Discover new collections, returning newly-discovered ones. */
+	discoverCollections(): Promise<McpCollectionDefinition[]>;
 
-registerDelegate(delegate: IMcpHostDelegate): IDisposable;
-registerCollection(collection: McpCollectionDefinition): IDisposable;
+	registerDelegate(delegate: IMcpHostDelegate): IDisposable;
+	registerCollection(collection: McpCollectionDefinition): IDisposable;
 
-/** Resets the trust state of all collections. */
-resetTrust(cognidreamognidream;
+	/** Resets the trust state of all collections. */
+	resetTrust(): void;
 
-/** Gets whether the collection is trusted. */
-getTrust(collection: McpCollectionReference): IObservable<boolean | undefined>;
+	/** Gets whether the collection is trusted. */
+	getTrust(collection: McpCollectionReference): IObservable<boolean | undefined>;
 
-/** Resets any saved inputs for the input, or globally. */
-clearSavedInputs(scope: StorageScope, inputId ?: string): Promicognidreamognidream >;
-/** Edits a previously-saved input. */
-editSavedInput(inputId: string, folderData: IWorkspaceFolderData | undefined, configSection: string, target: ConfigurationTarget): Promicognidreamognidream >;
-/** Gets saved inputs from storage. */
-getSavedInputs(scope: StorageScope): Promise<{ [id: string]: IResolvedValue }>;
-/** Creates a connection for the collection and definition. */
-resolveConnection(options: IMcpResolveConnectionOptions): Promise<IMcpServerConnection | undefined>;
+	/** Resets any saved inputs for the input, or globally. */
+	clearSavedInputs(scope: StorageScope, inputId?: string): Promise<void>;
+	/** Edits a previously-saved input. */
+	editSavedInput(inputId: string, folderData: IWorkspaceFolderData | undefined, configSection: string, target: ConfigurationTarget): Promise<void>;
+	/** Gets saved inputs from storage. */
+	getSavedInputs(scope: StorageScope): Promise<{ [id: string]: IResolvedValue }>;
+	/** Creates a connection for the collection and definition. */
+	resolveConnection(options: IMcpResolveConnectionOptions): Promise<IMcpServerConnection | undefined>;
 }

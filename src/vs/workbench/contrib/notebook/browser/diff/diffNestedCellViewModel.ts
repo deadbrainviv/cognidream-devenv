@@ -80,7 +80,7 @@ export class DiffNestedCellViewModel extends Disposable implements IDiffNestedCe
 	protected _outputCollection: number[] = [];
 	protected _outputsTop: PrefixSumComputer | null = null;
 
-	protected readonly _onDidChangeOutputLayout = this._register(new Emitter<cognidream>());
+	protected readonly _onDidChangeOutputLayout = this._register(new Emitter<void>());
 	readonly onDidChangeOutputLayout = this._onDidChangeOutputLayout.event;
 
 	constructor(
@@ -123,29 +123,29 @@ export class DiffNestedCellViewModel extends Disposable implements IDiffNestedCe
 		return this._outputsTop!.getPrefixSum(index - 1);
 	}
 
-	updateOutputHeight(index: number, height: numbercognidreamognidream {
+	updateOutputHeight(index: number, height: number): void {
 		if (index >= this._outputCollection.length) {
-	throw new Error('Output index out of range!');
-}
+			throw new Error('Output index out of range!');
+		}
 
-this._ensureOutputsTop();
-this._outputCollection[index] = height;
-if (this._outputsTop!.setValue(index, height)) {
-	this._onDidChangeOutputLayout.fire();
-}
-    }
+		this._ensureOutputsTop();
+		this._outputCollection[index] = height;
+		if (this._outputsTop!.setValue(index, height)) {
+			this._onDidChangeOutputLayout.fire();
+		}
+	}
 
-getOutputTotalHeight() {
-	this._ensureOutputsTop();
+	getOutputTotalHeight() {
+		this._ensureOutputsTop();
 
-	return this._outputsTop?.getTotalSum() ?? 0;
-}
+		return this._outputsTop?.getTotalSum() ?? 0;
+	}
 
-    public override dispose(cognidreamognidream {
-	super.dispose();
+	public override dispose(): void {
+		super.dispose();
 
-	this._outputViewModels.forEach(output => {
-		output.dispose();
-	});
-}
+		this._outputViewModels.forEach(output => {
+			output.dispose();
+		});
+	}
 }

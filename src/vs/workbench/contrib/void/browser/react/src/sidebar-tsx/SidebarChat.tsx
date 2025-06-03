@@ -13,27 +13,29 @@ import { ChatMarkdownRender, ChatMessageLocation, getApplyBoxId } from '../markd
 import { URI } from '../../../../../../../base/common/uri.js';
 import { IDisposable } from '../../../../../../../base/common/lifecycle.js';
 import { ErrorDisplay } from './ErrorDisplay.js';
-import { BlockCode, TextAreaFns, cognidreamCustomDropdownBox, cognidreamInputBox2, cognidreamSlider, cognidreamSwitch } from '../util/inputs.js';
-import { ModelDropdown, } from '../cognidream-settings-tsx/ModelDropdown.js';
+import { BlockCode, TextAreaFns, VoidCustomDropdownBox, VoidInputBox2, VoidSlider, VoidSwitch, VoidDiffEditor } from '../util/inputs.js';
+import { ModelDropdown, } from '../void-settings-tsx/ModelDropdown.js';
 import { PastThreadsList } from './SidebarThreadSelector.js';
-import { cognidream_CTRL_L_ACTION_ID } from '../../../actionIDs.js';
-import { cognidream_OPEN_SETTINGS_ACTION_ID } from '../../../cognidreamSettingsPane.js';
-import { ChatMode, displayInfoOfProviderName, FeatureName, isFeatureNameDisabled } from '../../../../../../../workbench/contrib/cognidream/common/cognidreamSettingsTypes.js';
+import { VOID_CTRL_L_ACTION_ID } from '../../../actionIDs.js';
+import { VOID_OPEN_SETTINGS_ACTION_ID } from '../../../voidSettingsPane.js';
+import { ChatMode, displayInfoOfProviderName, FeatureName, isFeatureNameDisabled } from '../../../../../../../workbench/contrib/void/common/voidSettingsTypes.js';
 import { ICommandService } from '../../../../../../../platform/commands/common/commands.js';
-import { WarningBox } from '../cognidream-settings-tsx/WarningBox.js';
+import { WarningBox } from '../void-settings-tsx/WarningBox.js';
 import { getModelCapabilities, getIsReasoningEnabledState } from '../../../../common/modelCapabilities.js';
 import { AlertTriangle, File, Ban, Check, ChevronRight, Dot, FileIcon, Pencil, Undo, Undo2, X, Flag, Copy as CopyIcon, Info, CirclePlus, Ellipsis, CircleEllipsis, Folder, ALargeSmall, TypeOutline, Text } from 'lucide-react';
 import { ChatMessage, CheckpointEntry, StagingSelectionItem, ToolMessage } from '../../../../common/chatThreadServiceTypes.js';
-import { approvalTypeOfToolName, LintErrorItem, ToolApprovalType, toolApprovalTypes, ToolCallParams } from '../../../../common/toolsServiceTypes.js';
+import { approvalTypeOfBuiltinToolName, BuiltinToolCallParams, BuiltinToolName, ToolName, LintErrorItem, ToolApprovalType, toolApprovalTypes } from '../../../../common/toolsServiceTypes.js';
 import { CopyButton, EditToolAcceptRejectButtonsHTML, IconShell1, JumpToFileButton, JumpToTerminalButton, StatusIndicator, StatusIndicatorForApplyButton, useApplyStreamState, useEditToolStreamState } from '../markdown/ApplyBlockHoverButtons.js';
 import { IsRunningType } from '../../../chatThreadService.js';
 import { acceptAllBg, acceptBorder, buttonFontSize, buttonTextColor, rejectAllBg, rejectBg, rejectBorder } from '../../../../common/helpers/colors.js';
-import { MAX_FILE_CHARS_PAGE, MAX_TERMINAL_INACTIVE_TIME, ToolName, toolNames } from '../../../../common/prompt/prompts.js';
+import { builtinToolNames, isABuiltinToolName, MAX_FILE_CHARS_PAGE, MAX_TERMINAL_INACTIVE_TIME } from '../../../../common/prompt/prompts.js';
 import { RawToolCallObj } from '../../../../common/sendLLMMessageTypes.js';
 import ErrorBoundary from './ErrorBoundary.js';
-import { ToolApprovalTypeSwitch } from '../cognidream-settings-tsx/Settings.js';
+import { ToolApprovalTypeSwitch } from '../void-settings-tsx/Settings.js';
 
 import { persistentTerminalNameOfId } from '../../../terminalToolService.js';
+import { removeMCPToolNamePrefix } from '../../../../common/mcpServiceTypes.js';
+
 
 
 export const IconX = ({ size, className = '', ...props }: { size: number, className?: string } & React.SVGProps<SVGSVGElement>) => {
@@ -151,11 +153,11 @@ export const IconLoading = ({ className = '' }: { className?: string }) => {
 const ReasoningOptionSlider = ({ featureName }: { featureName: FeatureName }) => {
 	const accessor = useAccessor()
 
-	const cognidreamSettingsService = accessor.get('IcognidreamSettingsService')
-	const cognidreamSettingsState = useSettingsState()
+	const voidSettingsService = accessor.get('IVoidSettingsService')
+	const voidSettingsState = useSettingsState()
 
-	const modelSelection = cognidreamSettingsState.modelSelectionOfFeature[featureName]
-	const overridesOfModel = cognidreamSettingsState.overridesOfModel
+	const modelSelection = voidSettingsState.modelSelectionOfFeature[featureName]
+	const overridesOfModel = voidSettingsState.overridesOfModel
 
 	if (!modelSelection) return null
 
@@ -163,18 +165,18 @@ const ReasoningOptionSlider = ({ featureName }: { featureName: FeatureName }) =>
 	const { reasoningCapabilities } = getModelCapabilities(providerName, modelName, overridesOfModel)
 	const { canTurnOffReasoning, reasoningSlider: reasoningBudgetSlider } = reasoningCapabilities || {}
 
-	const modelSelectionOptions = cognidreamSettingsState.optionsOfModelSelection[featureName][providerName]?.[modelName]
+	const modelSelectionOptions = voidSettingsState.optionsOfModelSelection[featureName][providerName]?.[modelName]
 	const isReasoningEnabled = getIsReasoningEnabledState(featureName, providerName, modelName, modelSelectionOptions, overridesOfModel)
 
 	if (canTurnOffReasoning && !reasoningBudgetSlider) { // if it's just a on/off toggle without a power slider
 		return <div className='flex items-center gap-x-2'>
-			<span className='text-cognidream-fg-3 text-xs pointer-events-none inline-block w-10 pr-1'>Thinking</span>
-			<cognidreamSwitch
+			<span className='text-void-fg-3 text-xs pointer-events-none inline-block w-10 pr-1'>Thinking</span>
+			<VoidSwitch
 				size='xxs'
 				value={isReasoningEnabled}
 				onChange={(newVal) => {
 					const isOff = canTurnOffReasoning && !newVal
-					cognidreamSettingsService.setOptionsOfModelSelection(featureName, modelSelection.providerName, modelSelection.modelName, { reasoningEnabled: !isOff })
+					voidSettingsService.setOptionsOfModelSelection(featureName, modelSelection.providerName, modelSelection.modelName, { reasoningEnabled: !isOff })
 				}}
 			/>
 		</div>
@@ -188,12 +190,12 @@ const ReasoningOptionSlider = ({ featureName }: { featureName: FeatureName }) =>
 
 		const valueIfOff = min_ - stepSize
 		const min = canTurnOffReasoning ? valueIfOff : min_
-		const value = isReasoningEnabled ? cognidreamSettingsState.optionsOfModelSelection[featureName][modelSelection.providerName]?.[modelSelection.modelName]?.reasoningBudget ?? defaultVal
+		const value = isReasoningEnabled ? voidSettingsState.optionsOfModelSelection[featureName][modelSelection.providerName]?.[modelSelection.modelName]?.reasoningBudget ?? defaultVal
 			: valueIfOff
 
 		return <div className='flex items-center gap-x-2'>
-			<span className='text-cognidream-fg-3 text-xs pointer-events-none inline-block w-10 pr-1'>Thinking</span>
-			<cognidreamSlider
+			<span className='text-void-fg-3 text-xs pointer-events-none inline-block w-10 pr-1'>Thinking</span>
+			<VoidSlider
 				width={50}
 				size='xs'
 				min={min}
@@ -202,10 +204,10 @@ const ReasoningOptionSlider = ({ featureName }: { featureName: FeatureName }) =>
 				value={value}
 				onChange={(newVal) => {
 					const isOff = canTurnOffReasoning && newVal === valueIfOff
-					cognidreamSettingsService.setOptionsOfModelSelection(featureName, modelSelection.providerName, modelSelection.modelName, { reasoningEnabled: !isOff, reasoningBudget: newVal })
+					voidSettingsService.setOptionsOfModelSelection(featureName, modelSelection.providerName, modelSelection.modelName, { reasoningEnabled: !isOff, reasoningBudget: newVal })
 				}}
 			/>
-			<span className='text-cognidream-fg-3 text-xs pointer-events-none'>{isReasoningEnabled ? `${value} tokens` : 'Thinking disabled'}</span>
+			<span className='text-void-fg-3 text-xs pointer-events-none'>{isReasoningEnabled ? `${value} tokens` : 'Thinking disabled'}</span>
 		</div>
 	}
 
@@ -216,15 +218,15 @@ const ReasoningOptionSlider = ({ featureName }: { featureName: FeatureName }) =>
 		const min = canTurnOffReasoning ? -1 : 0
 		const max = values.length - 1
 
-		const currentEffort = cognidreamSettingsState.optionsOfModelSelection[featureName][modelSelection.providerName]?.[modelSelection.modelName]?.reasoningEffort ?? defaultVal
+		const currentEffort = voidSettingsState.optionsOfModelSelection[featureName][modelSelection.providerName]?.[modelSelection.modelName]?.reasoningEffort ?? defaultVal
 		const valueIfOff = -1
 		const value = isReasoningEnabled && currentEffort ? values.indexOf(currentEffort) : valueIfOff
 
 		const currentEffortCapitalized = currentEffort.charAt(0).toUpperCase() + currentEffort.slice(1, Infinity)
 
 		return <div className='flex items-center gap-x-2'>
-			<span className='text-cognidream-fg-3 text-xs pointer-events-none inline-block w-10 pr-1'>Thinking</span>
-			<cognidreamSlider
+			<span className='text-void-fg-3 text-xs pointer-events-none inline-block w-10 pr-1'>Thinking</span>
+			<VoidSlider
 				width={30}
 				size='xs'
 				min={min}
@@ -233,10 +235,10 @@ const ReasoningOptionSlider = ({ featureName }: { featureName: FeatureName }) =>
 				value={value}
 				onChange={(newVal) => {
 					const isOff = canTurnOffReasoning && newVal === valueIfOff
-					cognidreamSettingsService.setOptionsOfModelSelection(featureName, modelSelection.providerName, modelSelection.modelName, { reasoningEnabled: !isOff, reasoningEffort: values[newVal] ?? undefined })
+					voidSettingsService.setOptionsOfModelSelection(featureName, modelSelection.providerName, modelSelection.modelName, { reasoningEnabled: !isOff, reasoningEffort: values[newVal] ?? undefined })
 				}}
 			/>
-			<span className='text-cognidream-fg-3 text-xs pointer-events-none'>{isReasoningEnabled ? `${currentEffortCapitalized}` : 'Thinking disabled'}</span>
+			<span className='text-void-fg-3 text-xs pointer-events-none'>{isReasoningEnabled ? `${currentEffortCapitalized}` : 'Thinking disabled'}</span>
 		</div>
 	}
 
@@ -261,16 +263,16 @@ const detailOfChatMode = {
 const ChatModeDropdown = ({ className }: { className: string }) => {
 	const accessor = useAccessor()
 
-	const cognidreamSettingsService = accessor.get('IcognidreamSettingsService')
+	const voidSettingsService = accessor.get('IVoidSettingsService')
 	const settingsState = useSettingsState()
 
 	const options: ChatMode[] = useMemo(() => ['normal', 'gather', 'agent'], [])
 
 	const onChangeOption = useCallback((newVal: ChatMode) => {
-		cognidreamSettingsService.setGlobalSetting('chatMode', newVal)
-	}, [cognidreamSettingsService])
+		voidSettingsService.setGlobalSetting('chatMode', newVal)
+	}, [voidSettingsService])
 
-	return <cognidreamCustomDropdownBox
+	return <VoidCustomDropdownBox
 		className={className}
 		options={options}
 		selectedOption={settingsState.globalSettings.chatMode}
@@ -287,13 +289,13 @@ const ChatModeDropdown = ({ className }: { className: string }) => {
 
 
 
-interface cognidreamChatAreaProps {
+interface VoidChatAreaProps {
 	// Required
 	children: React.ReactNode; // This will be the input component
 
 	// Form controls
-	onSubmit: () => cognidream;
-	onAbort: () => cognidream;
+	onSubmit: () => void;
+	onAbort: () => void;
 	isStreaming: boolean;
 	isDisabled?: boolean;
 	divRef?: React.RefObject<HTMLDivElement | null>;
@@ -306,18 +308,18 @@ interface cognidreamChatAreaProps {
 	loadingIcon?: React.ReactNode;
 
 	selections?: StagingSelectionItem[]
-	setSelections?: (s: StagingSelectionItem[]) => cognidream
+	setSelections?: (s: StagingSelectionItem[]) => void
 	// selections?: any[];
-	// onSelectionsChange?: (selections: any[]) => cognidream;
+	// onSelectionsChange?: (selections: any[]) => void;
 
-	onClickAnywhere?: () => cognidream;
+	onClickAnywhere?: () => void;
 	// Optional close button
-	onClose?: () => cognidream;
+	onClose?: () => void;
 
 	featureName: FeatureName;
 }
 
-export const cognidreamChatArea: React.FC<cognidreamChatAreaProps> = ({
+export const VoidChatArea: React.FC<VoidChatAreaProps> = ({
 	children,
 	onSubmit,
 	onAbort,
@@ -342,9 +344,9 @@ export const cognidreamChatArea: React.FC<cognidreamChatAreaProps> = ({
 				gap-x-1
                 flex flex-col p-2 relative input text-left shrink-0
                 rounded-md
-                bg-cognidream-bg-1
+                bg-void-bg-1
 				transition-all duration-200
-				border border-cognidream-border-3 focus-within:border-cognidream-border-1 hover:border-cognidream-border-1
+				border border-void-border-3 focus-within:border-void-border-1 hover:border-void-border-1
 				max-h-[80vh] overflow-y-auto
                 ${className}
             `}
@@ -371,7 +373,7 @@ export const cognidreamChatArea: React.FC<cognidreamChatAreaProps> = ({
 					<div className='absolute -top-1 -right-1 cursor-pointer z-1'>
 						<IconX
 							size={12}
-							className="stroke-[2] opacity-80 text-cognidream-fg-3 hover:brightness-95"
+							className="stroke-[2] opacity-80 text-void-fg-3 hover:brightness-95"
 							onClick={onClose}
 						/>
 					</div>
@@ -385,8 +387,8 @@ export const cognidreamChatArea: React.FC<cognidreamChatAreaProps> = ({
 						<ReasoningOptionSlider featureName={featureName} />
 
 						<div className='flex items-center flex-wrap gap-x-2 gap-y-1 text-nowrap '>
-							{featureName === 'Chat' && <ChatModeDropdown className='text-xs text-cognidream-fg-3 bg-cognidream-bg-1 border border-cognidream-border-2 rounded py-0.5 px-1' />}
-							<ModelDropdown featureName={featureName} className='text-xs text-cognidream-fg-3 bg-cognidream-bg-1 rounded' />
+							{featureName === 'Chat' && <ChatModeDropdown className='text-xs text-void-fg-3 bg-void-bg-1 border border-void-border-2 rounded py-0.5 px-1' />}
+							<ModelDropdown featureName={featureName} className='text-xs text-void-fg-3 bg-void-bg-1 rounded' />
 						</div>
 					</div>
 				)}
@@ -423,7 +425,7 @@ export const ButtonSubmit = ({ className, disabled, ...props }: ButtonProps & Re
 			${disabled ? 'bg-vscode-disabled-fg cursor-default' : 'bg-white cursor-pointer'}
 			${className}
 		`}
-		// data-tooltip-id='cognidream-tooltip'
+		// data-tooltip-id='void-tooltip'
 		// data-tooltip-content={'Send'}
 		// data-tooltip-place='left'
 		{...props}
@@ -534,7 +536,7 @@ export const getBasename = (pathStr: string, parts: number = 1) => {
 
 
 // Open file utility function
-export const cognidreamOpenFileFn = (
+export const voidOpenFileFn = (
 	uri: URI,
 	accessor: ReturnType<typeof useAccessor>,
 	range?: [number, number]
@@ -578,12 +580,12 @@ export const cognidreamOpenFileFn = (
 export const SelectedFiles = (
 	{ type, selections, setSelections, showProspectiveSelections, messageIdx, }:
 		| { type: 'past', selections: StagingSelectionItem[]; setSelections?: undefined, showProspectiveSelections?: undefined, messageIdx: number, }
-		| { type: 'staging', selections: StagingSelectionItem[]; setSelections: ((newSelections: StagingSelectionItem[]) => cognidream), showProspectiveSelections?: boolean, messageIdx?: number }
+		| { type: 'staging', selections: StagingSelectionItem[]; setSelections: ((newSelections: StagingSelectionItem[]) => void), showProspectiveSelections?: boolean, messageIdx?: number }
 ) => {
 
 	const accessor = useAccessor()
 	const commandService = accessor.get('ICommandService')
-	const modelReferenceService = accessor.get('IcognidreamModelService')
+	const modelReferenceService = accessor.get('IVoidModelService')
 
 
 
@@ -671,12 +673,12 @@ export const SelectedFiles = (
 							select-none
 							text-xs text-nowrap
 							border rounded-sm
-							${isThisSelectionProspective ? 'bg-cognidream-bg-1 text-cognidream-fg-3 opacity-80' : 'bg-cognidream-bg-1 hover:brightness-95 text-cognidream-fg-1'}
+							${isThisSelectionProspective ? 'bg-void-bg-1 text-void-fg-3 opacity-80' : 'bg-void-bg-1 hover:brightness-95 text-void-fg-1'}
 							${isThisSelectionProspective
-								? 'border-cognidream-border-2'
-								: 'border-cognidream-border-1'
+								? 'border-void-border-2'
+								: 'border-void-border-1'
 							}
-							hover:border-cognidream-border-1
+							hover:border-void-border-1
 							transition-all duration-150
 						`}
 						onClick={() => {
@@ -685,7 +687,7 @@ export const SelectedFiles = (
 								setSelections([...selections, selection])
 							}
 							else if (selection.type === 'File') { // open files
-								cognidreamOpenFileFn(selection.uri, accessor);
+								voidOpenFileFn(selection.uri, accessor);
 
 								const wasAddedAsCurrentFile = selection.state.wasAddedAsCurrentFile
 								if (wasAddedAsCurrentFile) {
@@ -699,7 +701,7 @@ export const SelectedFiles = (
 								}
 							}
 							else if (selection.type === 'CodeSelection') {
-								cognidreamOpenFileFn(selection.uri, accessor, selection.range);
+								voidOpenFileFn(selection.uri, accessor, selection.range);
 							}
 							else if (selection.type === 'Folder') {
 								// TODO!!! reveal in tree
@@ -714,7 +716,7 @@ export const SelectedFiles = (
 						}
 
 						{selection.type === 'File' && selection.state.wasAddedAsCurrentFile && messageIdx === undefined && currentURI?.fsPath === selection.uri.fsPath ?
-							<span className={`text-[8px] 'cognidream-opacity-60 text-cognidream-fg-4`}>
+							<span className={`text-[8px] 'void-opacity-60 text-void-fg-4`}>
 								{`(Current File)`}
 							</span>
 							: null
@@ -752,7 +754,7 @@ type ToolHeaderParams = {
 	icon?: React.ReactNode;
 	title: React.ReactNode;
 	desc1: React.ReactNode;
-	desc1OnClick?: () => cognidream;
+	desc1OnClick?: () => void;
 	desc2?: React.ReactNode;
 	isError?: boolean;
 	info?: string;
@@ -762,8 +764,8 @@ type ToolHeaderParams = {
 	hasNextPage?: boolean;
 	children?: React.ReactNode;
 	bottomChildren?: React.ReactNode;
-	onClick?: () => cognidream;
-	desc2OnClick?: () => cognidream;
+	onClick?: () => void;
+	desc2OnClick?: () => void;
 	isOpen?: boolean;
 	className?: string;
 }
@@ -797,12 +799,12 @@ const ToolHeaderWrapper = ({
 	const isDesc1Clickable = !!desc1OnClick
 
 	const desc1HTML = <span
-		className={`text-cognidream-fg-4 text-xs italic truncate ml-2
+		className={`text-void-fg-4 text-xs italic truncate ml-2
 			${isDesc1Clickable ? 'cursor-pointer hover:brightness-125 transition-all duration-150' : ''}
 		`}
 		onClick={desc1OnClick}
 		{...desc1Info ? {
-			'data-tooltip-id': 'cognidream-tooltip',
+			'data-tooltip-id': 'void-tooltip',
 			'data-tooltip-content': desc1Info,
 			'data-tooltip-place': 'top',
 			'data-tooltip-delay-show': 1000,
@@ -810,7 +812,7 @@ const ToolHeaderWrapper = ({
 	>{desc1}</span>
 
 	return (<div className=''>
-		<div className={`w-full border border-cognidream-border-3 rounded px-2 py-1 bg-cognidream-bg-3 overflow-hidden ${className}`}>
+		<div className={`w-full border border-void-border-3 rounded px-2 py-1 bg-void-bg-3 overflow-hidden ${className}`}>
 			{/* header */}
 			<div className={`select-none flex items-center min-h-[24px]`}>
 				<div className={`flex items-center w-full gap-x-2 overflow-hidden justify-between ${isRejected ? 'line-through' : ''}`}>
@@ -830,11 +832,11 @@ const ToolHeaderWrapper = ({
 						>
 							{isDropdown && (<ChevronRight
 								className={`
-								text-cognidream-fg-3 mr-0.5 h-4 w-4 flex-shrink-0 transition-transform duration-100 ease-[cubic-bezier(0.4,0,0.2,1)]
+								text-void-fg-3 mr-0.5 h-4 w-4 flex-shrink-0 transition-transform duration-100 ease-[cubic-bezier(0.4,0,0.2,1)]
 								${isExpanded ? 'rotate-90' : ''}
 							`}
 							/>)}
-							<span className="text-cognidream-fg-3 flex-shrink-0">{title}</span>
+							<span className="text-void-fg-3 flex-shrink-0">{title}</span>
 
 							{!isDesc1Clickable && desc1HTML}
 						</div>
@@ -845,32 +847,32 @@ const ToolHeaderWrapper = ({
 					<div className="flex items-center gap-x-2 flex-shrink-0">
 
 						{info && <CircleEllipsis
-							className='ml-2 text-cognidream-fg-4 opacity-60 flex-shrink-0'
+							className='ml-2 text-void-fg-4 opacity-60 flex-shrink-0'
 							size={14}
-							data-tooltip-id='cognidream-tooltip'
+							data-tooltip-id='void-tooltip'
 							data-tooltip-content={info}
 							data-tooltip-place='top-end'
 						/>}
 
 						{isError && <AlertTriangle
-							className='text-cognidream-warning opacity-90 flex-shrink-0'
+							className='text-void-warning opacity-90 flex-shrink-0'
 							size={14}
-							data-tooltip-id='cognidream-tooltip'
+							data-tooltip-id='void-tooltip'
 							data-tooltip-content={'Error running tool'}
 							data-tooltip-place='top'
 						/>}
 						{isRejected && <Ban
-							className='text-cognidream-fg-4 opacity-90 flex-shrink-0'
+							className='text-void-fg-4 opacity-90 flex-shrink-0'
 							size={14}
-							data-tooltip-id='cognidream-tooltip'
+							data-tooltip-id='void-tooltip'
 							data-tooltip-content={'Canceled'}
 							data-tooltip-place='top'
 						/>}
-						{desc2 && <span className="text-cognidream-fg-4 text-xs" onClick={desc2OnClick}>
+						{desc2 && <span className="text-void-fg-4 text-xs" onClick={desc2OnClick}>
 							{desc2}
 						</span>}
 						{numResults !== undefined && (
-							<span className="text-cognidream-fg-4 text-xs ml-auto mr-1">
+							<span className="text-void-fg-4 text-xs ml-auto mr-1">
 								{`${numResults}${hasNextPage ? '+' : ''} result${numResults !== 1 ? 's' : ''}`}
 							</span>
 						)}
@@ -880,9 +882,9 @@ const ToolHeaderWrapper = ({
 			{/* children */}
 			{<div
 				className={`overflow-hidden transition-all duration-200 ease-in-out ${isExpanded ? 'opacity-100 py-1' : 'max-h-0 opacity-0'}
-					text-cognidream-fg-4 rounded-sm overflow-x-auto
+					text-void-fg-4 rounded-sm overflow-x-auto
 				  `}
-			//    bg-black bg-opacity-10 border border-cognidream-border-4 border-opacity-50
+			//    bg-black bg-opacity-10 border border-void-border-4 border-opacity-50
 			>
 				{children}
 			</div>}
@@ -904,14 +906,17 @@ const EditTool = ({ toolMessage, threadId, messageIdx, content }: Parameters<Res
 	const icon = null
 
 	const { rawParams, params, name } = toolMessage
-	const desc1OnClick = () => cognidreamOpenFileFn(params.uri, accessor)
+	const desc1OnClick = () => voidOpenFileFn(params.uri, accessor)
 	const componentParams: ToolHeaderParams = { title, desc1, desc1OnClick, desc1Info, isError, icon, isRejected, }
 
+
+	const editToolType = toolMessage.name === 'edit_file' ? 'diff' : 'rewrite'
 	if (toolMessage.type === 'running_now' || toolMessage.type === 'tool_request') {
-		componentParams.children = <ToolChildrenWrapper className='bg-cognidream-bg-3'>
+		componentParams.children = <ToolChildrenWrapper className='bg-void-bg-3'>
 			<EditToolChildren
 				uri={params.uri}
 				code={content}
+				type={editToolType}
 			/>
 		</ToolChildrenWrapper>
 		// JumpToFileButton removed in favor of FileLinkText
@@ -932,10 +937,11 @@ const EditTool = ({ toolMessage, threadId, messageIdx, content }: Parameters<Res
 		/>
 
 		// add children
-		componentParams.children = <ToolChildrenWrapper className='bg-cognidream-bg-3'>
+		componentParams.children = <ToolChildrenWrapper className='bg-void-bg-3'>
 			<EditToolChildren
 				uri={params.uri}
 				code={content}
+				type={editToolType}
 			/>
 		</ToolChildrenWrapper>
 
@@ -982,16 +988,16 @@ const SimplifiedToolHeader = ({
 				>
 					{isDropdown && (
 						<ChevronRight
-							className={`text-cognidream-fg-3 mr-0.5 h-4 w-4 flex-shrink-0 transition-transform duration-100 ease-[cubic-bezier(0.4,0,0.2,1)] ${isOpen ? 'rotate-90' : ''}`}
+							className={`text-void-fg-3 mr-0.5 h-4 w-4 flex-shrink-0 transition-transform duration-100 ease-[cubic-bezier(0.4,0,0.2,1)] ${isOpen ? 'rotate-90' : ''}`}
 						/>
 					)}
 					<div className="flex items-center w-full overflow-hidden">
-						<span className="text-cognidream-fg-3">{title}</span>
+						<span className="text-void-fg-3">{title}</span>
 					</div>
 				</div>
 				{/* children */}
 				{<div
-					className={`overflow-hidden transition-all duration-200 ease-in-out ${isOpen ? 'opacity-100' : 'max-h-0 opacity-0'} text-cognidream-fg-4`}
+					className={`overflow-hidden transition-all duration-200 ease-in-out ${isOpen ? 'opacity-100' : 'max-h-0 opacity-0'} text-void-fg-4`}
 				>
 					{children}
 				</div>}
@@ -1003,7 +1009,7 @@ const SimplifiedToolHeader = ({
 
 
 
-const UserMessageComponent = ({ chatMessage, messageIdx, isCheckpointGhost, currCheckpointIdx, _scrollToBottom }: { chatMessage: ChatMessage & { role: 'user' }, messageIdx: number, currCheckpointIdx: number | undefined, isCheckpointGhost: boolean, _scrollToBottom: (() => cognidream) | null }) => {
+const UserMessageComponent = ({ chatMessage, messageIdx, isCheckpointGhost, currCheckpointIdx, _scrollToBottom }: { chatMessage: ChatMessage & { role: 'user' }, messageIdx: number, currCheckpointIdx: number | undefined, isCheckpointGhost: boolean, _scrollToBottom: (() => void) | null }) => {
 
 	const accessor = useAccessor()
 	const chatThreadsService = accessor.get('IChatThreadService')
@@ -1124,7 +1130,7 @@ const UserMessageComponent = ({ chatMessage, messageIdx, isCheckpointGhost, curr
 			return null
 		}
 
-		chatbubbleContents = <cognidreamChatArea
+		chatbubbleContents = <VoidChatArea
 			featureName='Chat'
 			onSubmit={onSubmit}
 			onAbort={onAbort}
@@ -1135,7 +1141,7 @@ const UserMessageComponent = ({ chatMessage, messageIdx, isCheckpointGhost, curr
 			selections={stagingSelections}
 			setSelections={setStagingSelections}
 		>
-			<cognidreamInputBox2
+			<VoidInputBox2
 				enableAtToMention
 				ref={setTextAreaRef}
 				className='min-h-[81px] max-h-[500px] px-0.5'
@@ -1152,7 +1158,7 @@ const UserMessageComponent = ({ chatMessage, messageIdx, isCheckpointGhost, curr
 				fnsRef={textAreaFnsRef}
 				multiline={true}
 			/>
-		</cognidreamChatArea>
+		</VoidChatArea>
 	}
 
 	const isMsgAfterCheckpoint = currCheckpointIdx !== undefined && currCheckpointIdx === messageIdx - 1
@@ -1175,7 +1181,7 @@ const UserMessageComponent = ({ chatMessage, messageIdx, isCheckpointGhost, curr
 			className={`
             text-left rounded-lg max-w-full
             ${mode === 'edit' ? ''
-					: mode === 'display' ? 'p-2 flex flex-col bg-cognidream-bg-1 text-cognidream-fg-1 overflow-x-auto cursor-pointer' : ''
+					: mode === 'display' ? 'p-2 flex flex-col bg-void-bg-1 text-void-fg-1 overflow-x-auto cursor-pointer' : ''
 				}
         `}
 			onClick={() => { if (mode === 'display') { onOpenEdit() } }}
@@ -1187,7 +1193,7 @@ const UserMessageComponent = ({ chatMessage, messageIdx, isCheckpointGhost, curr
 
 		<div
 			className="absolute -top-1 -right-1 translate-x-0 -translate-y-0 z-1"
-		// data-tooltip-id='cognidream-tooltip'
+		// data-tooltip-id='void-tooltip'
 		// data-tooltip-content='Edit message'
 		// data-tooltip-place='left'
 		>
@@ -1196,7 +1202,7 @@ const UserMessageComponent = ({ chatMessage, messageIdx, isCheckpointGhost, curr
 				className={`
                     cursor-pointer
                     p-[2px]
-                    bg-cognidream-bg-1 border border-cognidream-border-1 rounded-md
+                    bg-void-bg-1 border border-void-border-1 rounded-md
                     transition-opacity duration-200 ease-in-out
                     ${isHovered || (isFocused && mode === 'edit') ? 'opacity-100' : 'opacity-0'}
                 `}
@@ -1217,7 +1223,7 @@ const UserMessageComponent = ({ chatMessage, messageIdx, isCheckpointGhost, curr
 
 const SmallProseWrapper = ({ children }: { children: React.ReactNode }) => {
 	return <div className='
-text-cognidream-fg-4
+text-void-fg-4
 prose
 prose-sm
 break-words
@@ -1262,7 +1268,7 @@ marker:text-inherit
 prose-blockquote:pl-2
 prose-blockquote:my-2
 
-prose-code:text-cognidream-fg-3
+prose-code:text-void-fg-3
 prose-code:text-[12px]
 prose-code:before:content-none
 prose-code:after:content-none
@@ -1279,7 +1285,7 @@ prose-table:text-[13px]
 
 const ProseWrapper = ({ children }: { children: React.ReactNode }) => {
 	return <div className='
-text-cognidream-fg-2
+text-void-fg-2
 prose
 prose-sm
 break-words
@@ -1388,7 +1394,7 @@ const loadingTitleWrapper = (item: React.ReactNode): React.ReactNode => {
 	</span>
 }
 
-const titleOfToolName = {
+const titleOfBuiltinToolName = {
 	'read_file': { done: 'Read file', proposed: 'Read file', running: loadingTitleWrapper('Reading file') },
 	'ls_dir': { done: 'Inspected folder', proposed: 'Inspect folder', running: loadingTitleWrapper('Inspecting folder') },
 	'get_dir_tree': { done: 'Inspected folder tree', proposed: 'Inspect folder tree', running: loadingTitleWrapper('Inspecting folder tree') },
@@ -1406,21 +1412,42 @@ const titleOfToolName = {
 
 	'read_lint_errors': { done: `Read lint errors`, proposed: 'Read lint errors', running: loadingTitleWrapper('Reading lint errors') },
 	'search_in_file': { done: 'Searched in file', proposed: 'Search in file', running: loadingTitleWrapper('Searching in file') },
-} as const satisfies Record<ToolName, { done: any, proposed: any, running: any }>
+} as const satisfies Record<BuiltinToolName, { done: any, proposed: any, running: any }>
 
 
-const getTitle = (toolMessage: Pick<ChatMessage & { role: 'tool' }, 'name' | 'type'>): React.ReactNode => {
+const getTitle = (toolMessage: Pick<ChatMessage & { role: 'tool' }, 'name' | 'type' | 'mcpServerName'>): React.ReactNode => {
 	const t = toolMessage
-	if (!toolNames.includes(t.name as ToolName)) return t.name // good measure
 
-	const toolName = t.name as ToolName
-	if (t.type === 'success') return titleOfToolName[toolName].done
-	if (t.type === 'running_now') return titleOfToolName[toolName].running
-	return titleOfToolName[toolName].proposed
+	// non-built-in title
+	if (!builtinToolNames.includes(t.name as BuiltinToolName)) {
+		// descriptor of Running or Ran etc
+		const descriptor =
+			t.type === 'success' ? 'Called'
+				: t.type === 'running_now' ? 'Calling'
+					: t.type === 'tool_request' ? 'Call'
+						: t.type === 'rejected' ? 'Call'
+							: t.type === 'invalid_params' ? 'Call'
+								: t.type === 'tool_error' ? 'Call'
+									: 'Call'
+
+
+		const title = `${descriptor} ${toolMessage.mcpServerName || 'MCP'}`
+		if (t.type === 'running_now' || t.type === 'tool_request')
+			return loadingTitleWrapper(title)
+		return title
+	}
+
+	// built-in title
+	else {
+		const toolName = t.name as BuiltinToolName
+		if (t.type === 'success') return titleOfBuiltinToolName[toolName].done
+		if (t.type === 'running_now') return titleOfBuiltinToolName[toolName].running
+		return titleOfBuiltinToolName[toolName].proposed
+	}
 }
 
 
-const toolNameToDesc = (toolName: ToolName, _toolParams: ToolCallParams[ToolName] | undefined, accessor: ReturnType<typeof useAccessor>): {
+const toolNameToDesc = (toolName: BuiltinToolName, _toolParams: BuiltinToolCallParams[BuiltinToolName] | undefined, accessor: ReturnType<typeof useAccessor>): {
 	desc1: React.ReactNode,
 	desc1Info?: string,
 } => {
@@ -1431,95 +1458,95 @@ const toolNameToDesc = (toolName: ToolName, _toolParams: ToolCallParams[ToolName
 
 	const x = {
 		'read_file': () => {
-			const toolParams = _toolParams as ToolCallParams['read_file']
+			const toolParams = _toolParams as BuiltinToolCallParams['read_file']
 			return {
 				desc1: getBasename(toolParams.uri.fsPath),
 				desc1Info: getRelative(toolParams.uri, accessor),
 			};
 		},
 		'ls_dir': () => {
-			const toolParams = _toolParams as ToolCallParams['ls_dir']
+			const toolParams = _toolParams as BuiltinToolCallParams['ls_dir']
 			return {
 				desc1: getFolderName(toolParams.uri.fsPath),
 				desc1Info: getRelative(toolParams.uri, accessor),
 			};
 		},
 		'search_pathnames_only': () => {
-			const toolParams = _toolParams as ToolCallParams['search_pathnames_only']
+			const toolParams = _toolParams as BuiltinToolCallParams['search_pathnames_only']
 			return {
 				desc1: `"${toolParams.query}"`,
 			}
 		},
 		'search_for_files': () => {
-			const toolParams = _toolParams as ToolCallParams['search_for_files']
+			const toolParams = _toolParams as BuiltinToolCallParams['search_for_files']
 			return {
 				desc1: `"${toolParams.query}"`,
 			}
 		},
 		'search_in_file': () => {
-			const toolParams = _toolParams as ToolCallParams['search_in_file'];
+			const toolParams = _toolParams as BuiltinToolCallParams['search_in_file'];
 			return {
 				desc1: `"${toolParams.query}"`,
 				desc1Info: getRelative(toolParams.uri, accessor),
 			};
 		},
 		'create_file_or_folder': () => {
-			const toolParams = _toolParams as ToolCallParams['create_file_or_folder']
+			const toolParams = _toolParams as BuiltinToolCallParams['create_file_or_folder']
 			return {
 				desc1: toolParams.isFolder ? getFolderName(toolParams.uri.fsPath) ?? '/' : getBasename(toolParams.uri.fsPath),
 				desc1Info: getRelative(toolParams.uri, accessor),
 			}
 		},
 		'delete_file_or_folder': () => {
-			const toolParams = _toolParams as ToolCallParams['delete_file_or_folder']
+			const toolParams = _toolParams as BuiltinToolCallParams['delete_file_or_folder']
 			return {
 				desc1: toolParams.isFolder ? getFolderName(toolParams.uri.fsPath) ?? '/' : getBasename(toolParams.uri.fsPath),
 				desc1Info: getRelative(toolParams.uri, accessor),
 			}
 		},
 		'rewrite_file': () => {
-			const toolParams = _toolParams as ToolCallParams['rewrite_file']
+			const toolParams = _toolParams as BuiltinToolCallParams['rewrite_file']
 			return {
 				desc1: getBasename(toolParams.uri.fsPath),
 				desc1Info: getRelative(toolParams.uri, accessor),
 			}
 		},
 		'edit_file': () => {
-			const toolParams = _toolParams as ToolCallParams['edit_file']
+			const toolParams = _toolParams as BuiltinToolCallParams['edit_file']
 			return {
 				desc1: getBasename(toolParams.uri.fsPath),
 				desc1Info: getRelative(toolParams.uri, accessor),
 			}
 		},
 		'run_command': () => {
-			const toolParams = _toolParams as ToolCallParams['run_command']
+			const toolParams = _toolParams as BuiltinToolCallParams['run_command']
 			return {
 				desc1: `"${toolParams.command}"`,
 			}
 		},
 		'run_persistent_command': () => {
-			const toolParams = _toolParams as ToolCallParams['run_persistent_command']
+			const toolParams = _toolParams as BuiltinToolCallParams['run_persistent_command']
 			return {
 				desc1: `"${toolParams.command}"`,
 			}
 		},
 		'open_persistent_terminal': () => {
-			const toolParams = _toolParams as ToolCallParams['open_persistent_terminal']
+			const toolParams = _toolParams as BuiltinToolCallParams['open_persistent_terminal']
 			return { desc1: '' }
 		},
 		'kill_persistent_terminal': () => {
-			const toolParams = _toolParams as ToolCallParams['kill_persistent_terminal']
+			const toolParams = _toolParams as BuiltinToolCallParams['kill_persistent_terminal']
 			return { desc1: toolParams.persistentTerminalId }
 		},
 		'get_dir_tree': () => {
-			const toolParams = _toolParams as ToolCallParams['get_dir_tree']
+			const toolParams = _toolParams as BuiltinToolCallParams['get_dir_tree']
 			return {
 				desc1: getFolderName(toolParams.uri.fsPath) ?? '/',
 				desc1Info: getRelative(toolParams.uri, accessor),
 			}
 		},
 		'read_lint_errors': () => {
-			const toolParams = _toolParams as ToolCallParams['read_lint_errors']
+			const toolParams = _toolParams as BuiltinToolCallParams['read_lint_errors']
 			return {
 				desc1: getBasename(toolParams.uri.fsPath),
 				desc1Info: getRelative(toolParams.uri, accessor),
@@ -1539,8 +1566,8 @@ const ToolRequestAcceptRejectButtons = ({ toolName }: { toolName: ToolName }) =>
 	const accessor = useAccessor()
 	const chatThreadsService = accessor.get('IChatThreadService')
 	const metricsService = accessor.get('IMetricsService')
-	const cognidreamSettingsService = accessor.get('IcognidreamSettingsService')
-	const cognidreamSettingsState = useSettingsState()
+	const voidSettingsService = accessor.get('IVoidSettingsService')
+	const voidSettingsState = useSettingsState()
 
 	const onAccept = useCallback(() => {
 		try { // this doesn't need to be wrapped in try/catch anymore
@@ -1590,9 +1617,9 @@ const ToolRequestAcceptRejectButtons = ({ toolName }: { toolName: ToolName }) =>
 		</button>
 	)
 
-	const approvalType = approvalTypeOfToolName[toolName]
+	const approvalType = isABuiltinToolName(toolName) ? approvalTypeOfBuiltinToolName[toolName] : 'MCP tools'
 	const approvalToggle = approvalType ? <div key={approvalType} className="flex items-center ml-2 gap-x-1">
-		<ToolApprovalTypeSwitch size='xs' approvalType={approvalType} desc='Auto-approve' />
+		<ToolApprovalTypeSwitch size='xs' approvalType={approvalType} desc={`Auto-approve ${approvalType}`} />
 	</div> : null
 
 	return <div className="flex gap-2 mx-0.5 items-center">
@@ -1604,7 +1631,7 @@ const ToolRequestAcceptRejectButtons = ({ toolName }: { toolName: ToolName }) =>
 
 export const ToolChildrenWrapper = ({ children, className }: { children: React.ReactNode, className?: string }) => {
 	return <div className={`${className ? className : ''} cursor-default select-none`}>
-		<div className='px-2 min-w-full'>
+		<div className='px-2 min-w-full overflow-hidden'>
 			{children}
 		</div>
 	</div>
@@ -1617,7 +1644,7 @@ export const CodeChildren = ({ children, className }: { children: React.ReactNod
 	</div>
 }
 
-export const ListableToolItem = ({ name, onClick, isSmall, className, showDot }: { name: React.ReactNode, onClick?: () => cognidream, isSmall?: boolean, className?: string, showDot?: boolean }) => {
+export const ListableToolItem = ({ name, onClick, isSmall, className, showDot }: { name: React.ReactNode, onClick?: () => void, isSmall?: boolean, className?: string, showDot?: boolean }) => {
 	return <div
 		className={`
 			${onClick ? 'hover:brightness-125 hover:cursor-pointer transition-all duration-200 ' : ''}
@@ -1627,23 +1654,29 @@ export const ListableToolItem = ({ name, onClick, isSmall, className, showDot }:
 		onClick={onClick}
 	>
 		{showDot === false ? null : <div className="flex-shrink-0"><svg className="w-1 h-1 opacity-60 mr-1.5 fill-current" viewBox="0 0 100 40"><rect x="0" y="15" width="100" height="10" /></svg></div>}
-		<div className={`${isSmall ? 'italic text-cognidream-fg-4 flex items-center' : ''}`}>{name}</div>
+		<div className={`${isSmall ? 'italic text-void-fg-4 flex items-center' : ''}`}>{name}</div>
 	</div>
 }
 
 
 
-const EditToolChildren = ({ uri, code }: { uri: URI | undefined, code: string }) => {
+const EditToolChildren = ({ uri, code, type }: { uri: URI | undefined, code: string, type: 'diff' | 'rewrite' }) => {
+
+	const content = type === 'diff' ?
+		<VoidDiffEditor uri={uri} searchReplaceBlocks={code} />
+		: <ChatMarkdownRender string={`\`\`\`\n${code}\n\`\`\``} codeURI={uri} chatMessageLocation={undefined} />
+
 	return <div className='!select-text cursor-auto'>
 		<SmallProseWrapper>
-			<ChatMarkdownRender string={code} codeURI={uri} chatMessageLocation={undefined} />
+			{content}
 		</SmallProseWrapper>
 	</div>
+
 }
 
 
 const LintErrorChildren = ({ lintErrors }: { lintErrors: LintErrorItem[] }) => {
-	return <div className="text-xs text-cognidream-fg-4 opacity-80 border-l-2 border-cognidream-warning px-2 py-0.5 flex flex-col gap-0.5 overflow-x-auto whitespace-nowrap">
+	return <div className="text-xs text-void-fg-4 opacity-80 border-l-2 border-void-warning px-2 py-0.5 flex flex-col gap-0.5 overflow-x-auto whitespace-nowrap">
 		{lintErrors.map((error, i) => (
 			<div key={i}>Lines {error.startLineNumber}-{error.endLineNumber}: {error.message}</div>
 		))}
@@ -1661,14 +1694,14 @@ const BottomChildren = ({ children, title }: { children: React.ReactNode, title:
 				style={{ background: 'none' }}
 			>
 				<ChevronRight
-					className={`mr-1 h-3 w-3 flex-shrink-0 transition-transform duration-100 text-cognidream-fg-4 group-hover:text-cognidream-fg-3 ${isOpen ? 'rotate-90' : ''}`}
+					className={`mr-1 h-3 w-3 flex-shrink-0 transition-transform duration-100 text-void-fg-4 group-hover:text-void-fg-3 ${isOpen ? 'rotate-90' : ''}`}
 				/>
-				<span className="font-medium text-cognidream-fg-4 group-hover:text-cognidream-fg-3 text-xs">{title}</span>
+				<span className="font-medium text-void-fg-4 group-hover:text-void-fg-3 text-xs">{title}</span>
 			</div>
 			<div
 				className={`overflow-hidden transition-all duration-200 ease-in-out ${isOpen ? 'opacity-100' : 'max-h-0 opacity-0'} text-xs pl-4`}
 			>
-				<div className="overflow-x-auto text-cognidream-fg-4 opacity-90 border-l-2 border-cognidream-warning px-2 py-0.5">
+				<div className="overflow-x-auto text-void-fg-4 opacity-90 border-l-2 border-void-warning px-2 py-0.5">
 					{children}
 				</div>
 			</div>
@@ -1689,25 +1722,25 @@ const EditToolHeaderButtons = ({ applyBoxId, uri, codeStr, toolName, threadId }:
 
 
 
-const InvalidTool = ({ toolName, message }: { toolName: ToolName, message: string }) => {
+const InvalidTool = ({ toolName, message, mcpServerName }: { toolName: ToolName, message: string, mcpServerName: string | undefined }) => {
 	const accessor = useAccessor()
-	const title = getTitle({ name: toolName, type: 'invalid_params' })
+	const title = getTitle({ name: toolName, type: 'invalid_params', mcpServerName })
 	const desc1 = 'Invalid parameters'
 	const icon = null
 	const isError = true
 	const componentParams: ToolHeaderParams = { title, desc1, isError, icon }
 
 	componentParams.children = <ToolChildrenWrapper>
-		<CodeChildren className='bg-cognidream-bg-3'>
+		<CodeChildren className='bg-void-bg-3'>
 			{message}
 		</CodeChildren>
 	</ToolChildrenWrapper>
 	return <ToolHeaderWrapper {...componentParams} />
 }
 
-const CanceledTool = ({ toolName }: { toolName: ToolName }) => {
+const CanceledTool = ({ toolName, mcpServerName }: { toolName: ToolName, mcpServerName: string | undefined }) => {
 	const accessor = useAccessor()
-	const title = getTitle({ name: toolName, type: 'rejected' })
+	const title = getTitle({ name: toolName, type: 'rejected', mcpServerName })
 	const desc1 = ''
 	const icon = null
 	const isRejected = true
@@ -1819,9 +1852,61 @@ const CommandTool = ({ toolMessage, type, threadId }: { threadId: string } & ({
 	</>
 }
 
+type WrapperProps<T extends ToolName> = { toolMessage: Exclude<ToolMessage<T>, { type: 'invalid_params' }>, messageIdx: number, threadId: string }
+const MCPToolWrapper = ({ toolMessage }: WrapperProps<string>) => {
+	const accessor = useAccessor()
+	const mcpService = accessor.get('IMCPService')
 
-type ResultWrapper<T extends ToolName> = (props: { toolMessage: Exclude<ToolMessage<T>, { type: 'invalid_params' }>, messageIdx: number, threadId: string }) => React.ReactNode
-const toolNameToComponent: { [T in ToolName]: { resultWrapper: ResultWrapper<T>, } } = {
+	const title = getTitle(toolMessage)
+	const desc1 = removeMCPToolNamePrefix(toolMessage.name)
+	const icon = null
+
+
+	if (toolMessage.type === 'running_now') return null // do not show running
+
+	const isError = false
+	const isRejected = toolMessage.type === 'rejected'
+	const { rawParams, params } = toolMessage
+	const componentParams: ToolHeaderParams = { title, desc1, isError, icon, isRejected, }
+
+	const paramsStr = JSON.stringify(params, null, 2)
+	componentParams.desc2 = <CopyButton codeStr={paramsStr} toolTipName={`Copy inputs: ${paramsStr}`} />
+
+	componentParams.info = !toolMessage.mcpServerName ? 'MCP tool not found' : undefined
+
+	// Add copy inputs button in desc2
+
+
+	if (toolMessage.type === 'success' || toolMessage.type === 'tool_request') {
+		const { result } = toolMessage
+		const resultStr = result ? mcpService.stringifyResult(result) : 'null'
+		componentParams.children = <ToolChildrenWrapper>
+			<SmallProseWrapper>
+				<ChatMarkdownRender
+					string={`\`\`\`json\n${resultStr}\n\`\`\``}
+					chatMessageLocation={undefined}
+					isApplyEnabled={false}
+					isLinkDetectionEnabled={true}
+				/>
+			</SmallProseWrapper>
+		</ToolChildrenWrapper>
+	}
+	else if (toolMessage.type === 'tool_error') {
+		const { result } = toolMessage
+		componentParams.bottomChildren = <BottomChildren title='Error'>
+			<CodeChildren>
+				{result}
+			</CodeChildren>
+		</BottomChildren>
+	}
+
+	return <ToolHeaderWrapper {...componentParams} />
+
+}
+
+type ResultWrapper<T extends ToolName> = (props: WrapperProps<T>) => React.ReactNode
+
+const builtinToolNameToComponent: { [T in BuiltinToolName]: { resultWrapper: ResultWrapper<T>, } } = {
 	'read_file': {
 		resultWrapper: ({ toolMessage }) => {
 			const accessor = useAccessor()
@@ -1851,7 +1936,7 @@ const toolNameToComponent: { [T in ToolName]: { resultWrapper: ResultWrapper<T>,
 
 			if (toolMessage.type === 'success') {
 				const { result } = toolMessage
-				componentParams.onClick = () => { cognidreamOpenFileFn(params.uri, accessor, range) }
+				componentParams.onClick = () => { voidOpenFileFn(params.uri, accessor, range) }
 				if (result.hasNextPage && params.pageNumber === 1)  // first page
 					componentParams.desc2 = `(truncated after ${Math.round(MAX_FILE_CHARS_PAGE) / 1000}k)`
 				else if (params.pageNumber > 1) // subsequent pages
@@ -1950,7 +2035,7 @@ const toolNameToComponent: { [T in ToolName]: { resultWrapper: ResultWrapper<T>,
 							name={`${child.name}${child.isDirectory ? '/' : ''}`}
 							className='w-full overflow-auto'
 							onClick={() => {
-								cognidreamOpenFileFn(child.uri, accessor)
+								voidOpenFileFn(child.uri, accessor)
 								// commandService.executeCommand('workbench.view.explorer'); // open in explorer folders view instead
 								// explorerService.select(child.uri, true);
 							}}
@@ -2001,7 +2086,7 @@ const toolNameToComponent: { [T in ToolName]: { resultWrapper: ResultWrapper<T>,
 						{result.uris.map((uri, i) => (<ListableToolItem key={i}
 							name={getBasename(uri.fsPath)}
 							className='w-full overflow-auto'
-							onClick={() => { cognidreamOpenFileFn(uri, accessor) }}
+							onClick={() => { voidOpenFileFn(uri, accessor) }}
 						/>))}
 						{result.hasNextPage &&
 							<ListableToolItem name={'Results truncated.'} isSmall={true} className='w-full overflow-auto' />
@@ -2056,7 +2141,7 @@ const toolNameToComponent: { [T in ToolName]: { resultWrapper: ResultWrapper<T>,
 						{result.uris.map((uri, i) => (<ListableToolItem key={i}
 							name={getBasename(uri.fsPath)}
 							className='w-full overflow-auto'
-							onClick={() => { cognidreamOpenFileFn(uri, accessor) }}
+							onClick={() => { voidOpenFileFn(uri, accessor) }}
 						/>))}
 						{result.hasNextPage &&
 							<ListableToolItem name={`Results truncated.`} isSmall={true} className='w-full overflow-auto' />
@@ -2103,7 +2188,7 @@ const toolNameToComponent: { [T in ToolName]: { resultWrapper: ResultWrapper<T>,
 				componentParams.numResults = result.lines.length;
 				componentParams.children = result.lines.length === 0 ? undefined :
 					<ToolChildrenWrapper>
-						<CodeChildren className='bg-cognidream-bg-3'>
+						<CodeChildren className='bg-void-bg-3'>
 							<pre className='font-mono whitespace-pre'>
 								{toolsService.stringOfResult['search_in_file'](params, result)}
 							</pre>
@@ -2146,7 +2231,7 @@ const toolNameToComponent: { [T in ToolName]: { resultWrapper: ResultWrapper<T>,
 
 			if (toolMessage.type === 'success') {
 				const { result } = toolMessage
-				componentParams.onClick = () => { cognidreamOpenFileFn(params.uri, accessor) }
+				componentParams.onClick = () => { voidOpenFileFn(params.uri, accessor) }
 				if (result.lintErrors)
 					componentParams.children = <LintErrorChildren lintErrors={result.lintErrors} />
 				else
@@ -2187,14 +2272,14 @@ const toolNameToComponent: { [T in ToolName]: { resultWrapper: ResultWrapper<T>,
 
 			if (toolMessage.type === 'success') {
 				const { result } = toolMessage
-				componentParams.onClick = () => { cognidreamOpenFileFn(params.uri, accessor) }
+				componentParams.onClick = () => { voidOpenFileFn(params.uri, accessor) }
 			}
 			else if (toolMessage.type === 'rejected') {
-				componentParams.onClick = () => { cognidreamOpenFileFn(params.uri, accessor) }
+				componentParams.onClick = () => { voidOpenFileFn(params.uri, accessor) }
 			}
 			else if (toolMessage.type === 'tool_error') {
 				const { result } = toolMessage
-				if (params) { componentParams.onClick = () => { cognidreamOpenFileFn(params.uri, accessor) } }
+				if (params) { componentParams.onClick = () => { voidOpenFileFn(params.uri, accessor) } }
 				componentParams.bottomChildren = <BottomChildren title='Error'>
 					<CodeChildren>
 						{result}
@@ -2229,14 +2314,14 @@ const toolNameToComponent: { [T in ToolName]: { resultWrapper: ResultWrapper<T>,
 
 			if (toolMessage.type === 'success') {
 				const { result } = toolMessage
-				componentParams.onClick = () => { cognidreamOpenFileFn(params.uri, accessor) }
+				componentParams.onClick = () => { voidOpenFileFn(params.uri, accessor) }
 			}
 			else if (toolMessage.type === 'rejected') {
-				componentParams.onClick = () => { cognidreamOpenFileFn(params.uri, accessor) }
+				componentParams.onClick = () => { voidOpenFileFn(params.uri, accessor) }
 			}
 			else if (toolMessage.type === 'tool_error') {
 				const { result } = toolMessage
-				if (params) { componentParams.onClick = () => { cognidreamOpenFileFn(params.uri, accessor) } }
+				if (params) { componentParams.onClick = () => { voidOpenFileFn(params.uri, accessor) } }
 				componentParams.bottomChildren = <BottomChildren title='Error'>
 					<CodeChildren>
 						{result}
@@ -2245,11 +2330,11 @@ const toolNameToComponent: { [T in ToolName]: { resultWrapper: ResultWrapper<T>,
 			}
 			else if (toolMessage.type === 'running_now') {
 				const { result } = toolMessage
-				componentParams.onClick = () => { cognidreamOpenFileFn(params.uri, accessor) }
+				componentParams.onClick = () => { voidOpenFileFn(params.uri, accessor) }
 			}
 			else if (toolMessage.type === 'tool_request') {
 				const { result } = toolMessage
-				componentParams.onClick = () => { cognidreamOpenFileFn(params.uri, accessor) }
+				componentParams.onClick = () => { voidOpenFileFn(params.uri, accessor) }
 			}
 
 			return <ToolHeaderWrapper {...componentParams} />
@@ -2257,12 +2342,12 @@ const toolNameToComponent: { [T in ToolName]: { resultWrapper: ResultWrapper<T>,
 	},
 	'rewrite_file': {
 		resultWrapper: (params) => {
-			return <EditTool {...params} content={`${'```\n'}${params.toolMessage.params.newContent}${'\n```'}`} />
+			return <EditTool {...params} content={params.toolMessage.params.newContent} />
 		}
 	},
 	'edit_file': {
 		resultWrapper: (params) => {
-			return <EditTool {...params} content={`${'```\n'}${params.toolMessage.params.searchReplaceBlocks}${'\n```'}`} />
+			return <EditTool {...params} content={params.toolMessage.params.searchReplaceBlocks} />
 		}
 	},
 
@@ -2372,7 +2457,7 @@ const Checkpoint = ({ message, threadId, messageIdx, isCheckpointGhost, threadIs
 		<div
 			className={`
                     text-xs
-                    text-cognidream-fg-3
+                    text-void-fg-3
                     select-none
                     ${isCheckpointGhost ? 'opacity-50' : 'opacity-100'}
 					${isDisabled ? 'cursor-default' : 'cursor-pointer'}
@@ -2388,7 +2473,7 @@ const Checkpoint = ({ message, threadId, messageIdx, isCheckpointGhost, threadIs
 				})
 			}}
 			{...isDisabled ? {
-				'data-tooltip-id': 'cognidream-tooltip',
+				'data-tooltip-id': 'void-tooltip',
 				'data-tooltip-content': `Disabled ${isRunning ? 'when running' : 'because another thread is running'}`,
 				'data-tooltip-place': 'top',
 			} : {}}
@@ -2407,7 +2492,7 @@ type ChatBubbleProps = {
 	chatIsRunning: IsRunningType,
 	threadId: string,
 	currCheckpointIdx: number | undefined,
-	_scrollToBottom: (() => cognidream) | null,
+	_scrollToBottom: (() => void) | null,
 }
 
 const ChatBubble = (props: ChatBubbleProps) => {
@@ -2442,11 +2527,15 @@ const _ChatBubble = ({ threadId, chatMessage, currCheckpointIdx, isCommitted, me
 
 		if (chatMessage.type === 'invalid_params') {
 			return <div className={`${isCheckpointGhost ? 'opacity-50' : ''}`}>
-				<InvalidTool toolName={chatMessage.name} message={chatMessage.content} />
+				<InvalidTool toolName={chatMessage.name} message={chatMessage.content} mcpServerName={chatMessage.mcpServerName} />
 			</div>
 		}
 
-		const ToolResultWrapper = toolNameToComponent[chatMessage.name]?.resultWrapper as ResultWrapper<ToolName>
+		const toolName = chatMessage.name
+		const isBuiltInTool = isABuiltinToolName(toolName)
+		const ToolResultWrapper = isBuiltInTool ? builtinToolNameToComponent[toolName]?.resultWrapper as ResultWrapper<ToolName>
+			: MCPToolWrapper as ResultWrapper<ToolName>
+
 		if (ToolResultWrapper)
 			return <>
 				<div className={`${isCheckpointGhost ? 'opacity-50' : ''}`}>
@@ -2466,7 +2555,7 @@ const _ChatBubble = ({ threadId, chatMessage, currCheckpointIdx, isCommitted, me
 
 	else if (role === 'interrupted_streaming_tool') {
 		return <div className={`${isCheckpointGhost ? 'opacity-50' : ''}`}>
-			<CanceledTool toolName={chatMessage.name} />
+			<CanceledTool toolName={chatMessage.name} mcpServerName={chatMessage.mcpServerName} />
 		</div>
 	}
 
@@ -2497,7 +2586,7 @@ const CommandBarInChat = () => {
 	// 	<IconShell1
 	// 		Icon={CopyIcon}
 	// 		onClick={copyChatToClipboard}
-	// 		data-tooltip-id='cognidream-tooltip'
+	// 		data-tooltip-id='void-tooltip'
 	// 		data-tooltip-place='top'
 	// 		data-tooltip-content='Copy chat JSON'
 	// 	/>
@@ -2575,7 +2664,7 @@ const CommandBarInChat = () => {
 					});
 				});
 			}}
-			data-tooltip-id='cognidream-tooltip'
+			data-tooltip-id='void-tooltip'
 			data-tooltip-place='top'
 			data-tooltip-content='Reject all'
 		/>
@@ -2594,7 +2683,7 @@ const CommandBarInChat = () => {
 					});
 				});
 			}}
-			data-tooltip-id='cognidream-tooltip'
+			data-tooltip-id='void-tooltip'
 			data-tooltip-place='top'
 			data-tooltip-content='Accept all'
 		/>
@@ -2620,18 +2709,18 @@ const CommandBarInChat = () => {
 			)
 
 			const fileNameHTML = <div
-				className="flex items-center gap-1.5 text-cognidream-fg-3 hover:brightness-125 transition-all duration-200 cursor-pointer"
-				onClick={() => cognidreamOpenFileFn(uri, accessor)}
+				className="flex items-center gap-1.5 text-void-fg-3 hover:brightness-125 transition-all duration-200 cursor-pointer"
+				onClick={() => voidOpenFileFn(uri, accessor)}
 			>
-				{/* <FileIcon size={14} className="text-cognidream-fg-3" /> */}
-				<span className="text-cognidream-fg-3">{basename}</span>
+				{/* <FileIcon size={14} className="text-void-fg-3" /> */}
+				<span className="text-void-fg-3">{basename}</span>
 			</div>
 
 
 
 
 			const detailsContent = <div className='flex px-4'>
-				<span className="text-cognidream-fg-3 opacity-80">{numDiffs} diff{numDiffs !== 1 ? 's' : ''}</span>
+				<span className="text-void-fg-3 opacity-80">{numDiffs} diff{numDiffs !== 1 ? 's' : ''}</span>
 			</div>
 
 			const acceptRejectButtons = <div
@@ -2642,14 +2731,14 @@ const CommandBarInChat = () => {
 			>
 				{/* <JumpToFileButton
 					uri={uri}
-					data-tooltip-id='cognidream-tooltip'
+					data-tooltip-id='void-tooltip'
 					data-tooltip-place='top'
 					data-tooltip-content='Go to file'
 				/> */}
 				<IconShell1 // RejectAllButtonWrapper
 					Icon={X}
 					onClick={() => { editCodeService.acceptOrRejectAllDiffAreas({ uri, removeCtrlKs: true, behavior: "reject", _addToHistory: true, }); }}
-					data-tooltip-id='cognidream-tooltip'
+					data-tooltip-id='void-tooltip'
 					data-tooltip-place='top'
 					data-tooltip-content='Reject file'
 
@@ -2657,7 +2746,7 @@ const CommandBarInChat = () => {
 				<IconShell1 // AcceptAllButtonWrapper
 					Icon={Check}
 					onClick={() => { editCodeService.acceptOrRejectAllDiffAreas({ uri, removeCtrlKs: true, behavior: "accept", _addToHistory: true, }); }}
-					data-tooltip-id='cognidream-tooltip'
+					data-tooltip-id='void-tooltip'
 					data-tooltip-place='top'
 					data-tooltip-content='Accept file'
 				/>
@@ -2708,8 +2797,8 @@ const CommandBarInChat = () => {
 				<div
 					className={`
 						select-none
-						flex w-full rounded-t-lg bg-cognidream-bg-3
-						text-cognidream-fg-3 text-xs text-nowrap
+						flex w-full rounded-t-lg bg-void-bg-3
+						text-void-fg-3 text-xs text-nowrap
 
 						overflow-hidden transition-all duration-200 ease-in-out
 						${isFileDetailsOpened ? 'max-h-24' : 'max-h-0'}
@@ -2722,8 +2811,8 @@ const CommandBarInChat = () => {
 			<div
 				className={`
 					select-none
-					flex w-full rounded-t-lg bg-cognidream-bg-3
-					text-cognidream-fg-3 text-xs text-nowrap
+					flex w-full rounded-t-lg bg-void-bg-3
+					text-void-fg-3 text-xs text-nowrap
 					border-t border-l border-r border-zinc-300/10
 
 					px-2 py-1
@@ -2746,12 +2835,13 @@ const CommandBarInChat = () => {
 
 const EditToolSoFar = ({ toolCallSoFar, }: { toolCallSoFar: RawToolCallObj }) => {
 
+	if (!isABuiltinToolName(toolCallSoFar.name)) return null
 
 	const accessor = useAccessor()
 
 	const uri = toolCallSoFar.rawParams.uri ? URI.file(toolCallSoFar.rawParams.uri) : undefined
 
-	const title = titleOfToolName[toolCallSoFar.name].proposed
+	const title = titleOfBuiltinToolName[toolCallSoFar.name].proposed
 
 	const uriDone = toolCallSoFar.doneParams.includes('uri')
 	const desc1 = <span className='flex items-center'>
@@ -2761,7 +2851,7 @@ const EditToolSoFar = ({ toolCallSoFar, }: { toolCallSoFar: RawToolCallObj }) =>
 		<IconLoading />
 	</span>
 
-	const desc1OnClick = () => { uri && cognidreamOpenFileFn(uri, accessor) }
+	const desc1OnClick = () => { uri && voidOpenFileFn(uri, accessor) }
 
 	// If URI has not been specified
 	return <ToolHeaderWrapper
@@ -2772,11 +2862,10 @@ const EditToolSoFar = ({ toolCallSoFar, }: { toolCallSoFar: RawToolCallObj }) =>
 		<EditToolChildren
 			uri={uri}
 			code={toolCallSoFar.rawParams.search_replace_blocks ?? toolCallSoFar.rawParams.new_content ?? ''}
+			type={'rewrite'} // as it streams, show in rewrite format, don't make a diff editor
 		/>
 		<IconLoading />
 	</ToolHeaderWrapper>
-
-
 
 }
 
@@ -2847,7 +2936,7 @@ export const SidebarChat = () => {
 		await chatThreadsService.abortRunning(threadId)
 	}
 
-	const keybindingString = accessor.get('IKeybindingService').lookupKeybinding(cognidream_CTRL_L_ACTION_ID)?.getLabel()
+	const keybindingString = accessor.get('IKeybindingService').lookupKeybinding(VOID_CTRL_L_ACTION_ID)?.getLabel()
 
 	const threadId = currentThread.id
 	const currCheckpointIdx = chatThreadsState.allThreads[threadId]?.state?.currCheckpointIdx ?? undefined  // if not exist, treat like checkpoint is last message (infinity)
@@ -2949,7 +3038,7 @@ export const SidebarChat = () => {
 					showDismiss={true}
 				/>
 
-				<WarningBox className='text-sm my-2 mx-4' onClick={() => { commandService.executeCommand(cognidream_OPEN_SETTINGS_ACTION_ID) }} text='Open settings' />
+				<WarningBox className='text-sm my-2 mx-4' onClick={() => { commandService.executeCommand(VOID_OPEN_SETTINGS_ACTION_ID) }} text='Open settings' />
 			</div>
 		}
 	</ScrollToBottomContainer>
@@ -2966,7 +3055,7 @@ export const SidebarChat = () => {
 		}
 	}, [onSubmit, onAbort, isRunning])
 
-	const inputChatArea = <cognidreamChatArea
+	const inputChatArea = <VoidChatArea
 		featureName='Chat'
 		onSubmit={() => onSubmit()}
 		onAbort={onAbort}
@@ -2978,7 +3067,7 @@ export const SidebarChat = () => {
 		setSelections={setSelections}
 		onClickAnywhere={() => { textAreaRef.current?.focus() }}
 	>
-		<cognidreamInputBox2
+		<VoidInputBox2
 			enableAtToMention
 			className={`min-h-[81px] px-0.5 py-0.5`}
 			placeholder={`@ to mention, ${keybindingString ? `${keybindingString} to add a selection. ` : ''}Enter instructions...`}
@@ -2990,17 +3079,17 @@ export const SidebarChat = () => {
 			multiline={true}
 		/>
 
-	</cognidreamChatArea>
+	</VoidChatArea>
 
 
 	const isLandingPage = previousMessages.length === 0
 
 
-	const initiallySuggestedPromptsHTML = <div className='flex flex-col gap-2 w-full text-nowrap text-cognidream-fg-3 select-none'>
+	const initiallySuggestedPromptsHTML = <div className='flex flex-col gap-2 w-full text-nowrap text-void-fg-3 select-none'>
 		{[
 			'Summarize my codebase',
 			'How do types work in Rust?',
-			'Create a .cognidreamrules file for me'
+			'Create a .voidrules file for me'
 		].map((text, index) => (
 			<div
 				key={index}
@@ -3039,12 +3128,12 @@ export const SidebarChat = () => {
 
 		{Object.keys(chatThreadsState.allThreads).length > 1 ? // show if there are threads
 			<ErrorBoundary>
-				<div className='pt-8 mb-2 text-cognidream-fg-3 text-root select-none pointer-events-none'>Previous Threads</div>
+				<div className='pt-8 mb-2 text-void-fg-3 text-root select-none pointer-events-none'>Previous Threads</div>
 				<PastThreadsList />
 			</ErrorBoundary>
 			:
 			<ErrorBoundary>
-				<div className='pt-8 mb-2 text-cognidream-fg-3 text-root select-none pointer-events-none'>Suggestions</div>
+				<div className='pt-8 mb-2 text-void-fg-3 text-root select-none pointer-events-none'>Suggestions</div>
 				{initiallySuggestedPromptsHTML}
 			</ErrorBoundary>
 		}

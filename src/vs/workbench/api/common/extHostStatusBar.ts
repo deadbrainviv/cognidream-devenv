@@ -60,9 +60,9 @@ export class ExtHostStatusBarEntry implements vscode.StatusBarItem {
 	private _timeoutHandle: any;
 	private _accessibilityInformation?: vscode.AccessibilityInformation;
 
-	constructor(proxy: MainThreadStatusBarShape, commands: CommandsConverter, staticItems: ReadonlyMap<string, StatusBarItemDto>, extension: IExtensionDescription, id?: string, alignment?: ExtHostStatusBarAlignment, priority?: number, _onDispose?: () => cognidream);
-	constructor(proxy: MainThreadStatusBarShape, commands: CommandsConverter, staticItems: ReadonlyMap<string, StatusBarItemDto>, extension: IExtensionDescription | undefined, id: string, alignment?: ExtHostStatusBarAlignment, priority?: number, _onDispose?: () cognidreamognidream);
-	constructor(proxy: MainThreadStatusBarShape, commands: CommandsConverter, staticItems: ReadonlyMap<string, StatusBarItemDto>, extension?: IExtensionDescription, id?: string, alignment: ExtHostStatusBarAlignment = ExtHostStatusBarAlignment.Left, priority?: number, private _onDispose?: () cognidreamognidream) {
+	constructor(proxy: MainThreadStatusBarShape, commands: CommandsConverter, staticItems: ReadonlyMap<string, StatusBarItemDto>, extension: IExtensionDescription, id?: string, alignment?: ExtHostStatusBarAlignment, priority?: number, _onDispose?: () => void);
+	constructor(proxy: MainThreadStatusBarShape, commands: CommandsConverter, staticItems: ReadonlyMap<string, StatusBarItemDto>, extension: IExtensionDescription | undefined, id: string, alignment?: ExtHostStatusBarAlignment, priority?: number, _onDispose?: () => void);
+	constructor(proxy: MainThreadStatusBarShape, commands: CommandsConverter, staticItems: ReadonlyMap<string, StatusBarItemDto>, extension?: IExtensionDescription, id?: string, alignment: ExtHostStatusBarAlignment = ExtHostStatusBarAlignment.Left, priority?: number, private _onDispose?: () => void) {
 		this.#proxy = proxy;
 		this.#commands = commands;
 
@@ -232,121 +232,121 @@ export class ExtHostStatusBarEntry implements vscode.StatusBarItem {
 		this.update();
 	}
 
-	public show(cognidreamognidream {
+	public show(): void {
 		this._visible = true;
 		this.update();
-    }
-
-    public hide(cognidreamognidream {
-			clearTimeout(this._timeoutHandle);
-this._visible = false;
-this.#proxy.$disposeEntry(this._entryId);
-    }
-
-    private update(cognidreamognidream {
-	if(this._disposed || !this._visible) {
-	return;
-}
-
-clearTimeout(this._timeoutHandle);
-
-// Defer the update so that multiple changes to setters dont cause a redraw each
-this._timeoutHandle = setTimeout(() => {
-	this._timeoutHandle = undefined;
-
-	// If the id is not set, derive it from the extension identifier,
-	// otherwise make sure to prefix it with the extension identifier
-	// to get a more unique value across extensions.
-	let id: string;
-	if (this._extension) {
-		if (this._id) {
-			id = `${this._extension.identifier.value}.${this._id}`;
-		} else {
-			id = this._extension.identifier.value;
-		}
-	} else {
-		id = this._id!;
 	}
 
-	// If the name is not set, derive it from the extension descriptor
-	let name: string;
-	if (this._name) {
-		name = this._name;
-	} else {
-		name = localize('extensionLabel', "{0} (Extension)", this._extension!.displayName || this._extension!.name);
+	public hide(): void {
+		clearTimeout(this._timeoutHandle);
+		this._visible = false;
+		this.#proxy.$disposeEntry(this._entryId);
 	}
 
-	// If a background color is set, the foreground is determined
-	let color = this._color;
-	if (this._backgroundColor) {
-		color = ExtHostStatusBarEntry.ALLOWED_BACKGROUND_COLORS.get(this._backgroundColor.id);
-	}
-
-	let tooltip: undefined | string | htmlContent.IMarkdownString;
-	let hasTooltipProvider: boolean;
-	if (typeof this._tooltip2 === 'function') {
-		tooltip = MarkdownString.fromStrict(this._tooltip);
-		hasTooltipProvider = true;
-	} else {
-		tooltip = MarkdownString.fromStrict(this._tooltip2 ?? this._tooltip);
-		hasTooltipProvider = false;
-	}
-
-	// Set to status bar
-	this.#proxy.$setEntry(this._entryId, id, this._extension?.identifier.value, name, this._text, tooltip, hasTooltipProvider, this._command?.internal, color,
-		this._backgroundColor, this._alignment === ExtHostStatusBarAlignment.Left,
-		this._priority, this._accessibilityInformation);
-
-	// clean-up state commands _after_ updating the UI
-	this._staleCommandRegistrations.clear();
-}, 0);
-    }
-
-    public dispose(cognidreamognidream {
-	this.hide();
-	this._onDispose?.();
-	this._disposed = true;
-}
-}
-
-	class StatusBarMessage {
-
-		private readonly _item: vscode.StatusBarItem;
-		private readonly _messages: { message: string }[] = [];
-
-		constructor(statusBar: ExtHostStatusBar) {
-			this._item = statusBar.createStatusBarEntry(undefined, 'status.extensionMessage', ExtHostStatusBarAlignment.Left, Number.MIN_VALUE);
-			this._item.name = localize('status.extensionMessage', "Extension Status");
+	private update(): void {
+		if (this._disposed || !this._visible) {
+			return;
 		}
 
-		dispose() {
-			this._messages.length = 0;
-			this._item.dispose();
-		}
+		clearTimeout(this._timeoutHandle);
 
-		setMessage(message: string): Disposable {
-			const data: { message: string } = { message }; // use object to not confuse equal strings
-			this._messages.unshift(data);
-			this._update();
+		// Defer the update so that multiple changes to setters dont cause a redraw each
+		this._timeoutHandle = setTimeout(() => {
+			this._timeoutHandle = undefined;
 
-			return new Disposable(() => {
-				const idx = this._messages.indexOf(data);
-				if (idx >= 0) {
-					this._messages.splice(idx, 1);
-					this._update();
+			// If the id is not set, derive it from the extension identifier,
+			// otherwise make sure to prefix it with the extension identifier
+			// to get a more unique value across extensions.
+			let id: string;
+			if (this._extension) {
+				if (this._id) {
+					id = `${this._extension.identifier.value}.${this._id}`;
+				} else {
+					id = this._extension.identifier.value;
 				}
-			});
-		}
-
-		private _update() {
-			if (this._messages.length > 0) {
-				this._item.text = this._messages[0].message;
-				this._item.show();
 			} else {
-				this._item.hide();
+				id = this._id!;
 			}
+
+			// If the name is not set, derive it from the extension descriptor
+			let name: string;
+			if (this._name) {
+				name = this._name;
+			} else {
+				name = localize('extensionLabel', "{0} (Extension)", this._extension!.displayName || this._extension!.name);
+			}
+
+			// If a background color is set, the foreground is determined
+			let color = this._color;
+			if (this._backgroundColor) {
+				color = ExtHostStatusBarEntry.ALLOWED_BACKGROUND_COLORS.get(this._backgroundColor.id);
+			}
+
+			let tooltip: undefined | string | htmlContent.IMarkdownString;
+			let hasTooltipProvider: boolean;
+			if (typeof this._tooltip2 === 'function') {
+				tooltip = MarkdownString.fromStrict(this._tooltip);
+				hasTooltipProvider = true;
+			} else {
+				tooltip = MarkdownString.fromStrict(this._tooltip2 ?? this._tooltip);
+				hasTooltipProvider = false;
+			}
+
+			// Set to status bar
+			this.#proxy.$setEntry(this._entryId, id, this._extension?.identifier.value, name, this._text, tooltip, hasTooltipProvider, this._command?.internal, color,
+				this._backgroundColor, this._alignment === ExtHostStatusBarAlignment.Left,
+				this._priority, this._accessibilityInformation);
+
+			// clean-up state commands _after_ updating the UI
+			this._staleCommandRegistrations.clear();
+		}, 0);
+	}
+
+	public dispose(): void {
+		this.hide();
+		this._onDispose?.();
+		this._disposed = true;
+	}
+}
+
+class StatusBarMessage {
+
+	private readonly _item: vscode.StatusBarItem;
+	private readonly _messages: { message: string }[] = [];
+
+	constructor(statusBar: ExtHostStatusBar) {
+		this._item = statusBar.createStatusBarEntry(undefined, 'status.extensionMessage', ExtHostStatusBarAlignment.Left, Number.MIN_VALUE);
+		this._item.name = localize('status.extensionMessage', "Extension Status");
+	}
+
+	dispose() {
+		this._messages.length = 0;
+		this._item.dispose();
+	}
+
+	setMessage(message: string): Disposable {
+		const data: { message: string } = { message }; // use object to not confuse equal strings
+		this._messages.unshift(data);
+		this._update();
+
+		return new Disposable(() => {
+			const idx = this._messages.indexOf(data);
+			if (idx >= 0) {
+				this._messages.splice(idx, 1);
+				this._update();
+			}
+		});
+	}
+
+	private _update() {
+		if (this._messages.length > 0) {
+			this._item.text = this._messages[0].message;
+			this._item.show();
+		} else {
+			this._item.hide();
 		}
 	}
+}
 
 export class ExtHostStatusBar implements ExtHostStatusBarShape {
 
@@ -362,44 +362,44 @@ export class ExtHostStatusBar implements ExtHostStatusBarShape {
 		this._statusMessage = new StatusBarMessage(this);
 	}
 
-	$acceptStaticEntries(added: StatusBarItemDto[]cognidreamognidream {
+	$acceptStaticEntries(added: StatusBarItemDto[]): void {
 		for (const item of added) {
 			this._existingItems.set(item.entryId, item);
 		}
-    }
-
-    async $provideTooltip(entryId: string, cancellation: vscode.CancellationToken): Promise < string | htmlContent.IMarkdownString | undefined > {
-	const entry = this._entries.get(entryId);
-	if(!entry) {
-		return undefined;
 	}
 
-        const tooltip = typeof entry.tooltip2 === 'function' ? await entry.tooltip2(cancellation) : entry.tooltip2;
-	return !cancellation.isCancellationRequested ? MarkdownString.fromStrict(tooltip) : undefined;
-}
+	async $provideTooltip(entryId: string, cancellation: vscode.CancellationToken): Promise<string | htmlContent.IMarkdownString | undefined> {
+		const entry = this._entries.get(entryId);
+		if (!entry) {
+			return undefined;
+		}
 
-createStatusBarEntry(extension: IExtensionDescription | undefined, id: string, alignment ?: ExtHostStatusBarAlignment, priority ?: number): vscode.StatusBarItem;
-createStatusBarEntry(extension: IExtensionDescription, id ?: string, alignment ?: ExtHostStatusBarAlignment, priority ?: number): vscode.StatusBarItem;
-createStatusBarEntry(extension: IExtensionDescription, id: string, alignment ?: ExtHostStatusBarAlignment, priority ?: number): vscode.StatusBarItem {
-	const entry = new ExtHostStatusBarEntry(this._proxy, this._commands, this._existingItems, extension, id, alignment, priority, () => this._entries.delete(entry.entryId));
-	this._entries.set(entry.entryId, entry);
-
-	return entry;
-}
-
-setStatusBarMessage(text: string, timeoutOrThenable ?: number | Thenable<any>): Disposable {
-	const d = this._statusMessage.setMessage(text);
-	let handle: any;
-
-	if (typeof timeoutOrThenable === 'number') {
-		handle = setTimeout(() => d.dispose(), timeoutOrThenable);
-	} else if (typeof timeoutOrThenable !== 'undefined') {
-		timeoutOrThenable.then(() => d.dispose(), () => d.dispose());
+		const tooltip = typeof entry.tooltip2 === 'function' ? await entry.tooltip2(cancellation) : entry.tooltip2;
+		return !cancellation.isCancellationRequested ? MarkdownString.fromStrict(tooltip) : undefined;
 	}
 
-	return new Disposable(() => {
-		d.dispose();
-		clearTimeout(handle);
-	});
-}
+	createStatusBarEntry(extension: IExtensionDescription | undefined, id: string, alignment?: ExtHostStatusBarAlignment, priority?: number): vscode.StatusBarItem;
+	createStatusBarEntry(extension: IExtensionDescription, id?: string, alignment?: ExtHostStatusBarAlignment, priority?: number): vscode.StatusBarItem;
+	createStatusBarEntry(extension: IExtensionDescription, id: string, alignment?: ExtHostStatusBarAlignment, priority?: number): vscode.StatusBarItem {
+		const entry = new ExtHostStatusBarEntry(this._proxy, this._commands, this._existingItems, extension, id, alignment, priority, () => this._entries.delete(entry.entryId));
+		this._entries.set(entry.entryId, entry);
+
+		return entry;
+	}
+
+	setStatusBarMessage(text: string, timeoutOrThenable?: number | Thenable<any>): Disposable {
+		const d = this._statusMessage.setMessage(text);
+		let handle: any;
+
+		if (typeof timeoutOrThenable === 'number') {
+			handle = setTimeout(() => d.dispose(), timeoutOrThenable);
+		} else if (typeof timeoutOrThenable !== 'undefined') {
+			timeoutOrThenable.then(() => d.dispose(), () => d.dispose());
+		}
+
+		return new Disposable(() => {
+			d.dispose();
+			clearTimeout(handle);
+		});
+	}
 }

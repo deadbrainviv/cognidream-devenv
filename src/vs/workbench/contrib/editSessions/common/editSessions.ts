@@ -27,20 +27,20 @@ export interface IEditSessionsStorageService {
 	readonly SIZE_LIMIT: number;
 
 	readonly isSignedIn: boolean;
-	readonly onDidSignIn: Event<cognidream>;
-	readonly onDidSignOut: Evecognidreamognidream>;
+	readonly onDidSignIn: Event<void>;
+	readonly onDidSignOut: Event<void>;
 
-storeClient: EditSessionsStoreClient | undefined;
+	storeClient: EditSessionsStoreClient | undefined;
 
-lastReadResources: Map<SyncResource, { ref: string; content: string }>;
-lastWrittenResources: Map<SyncResource, { ref: string; content: string }>;
+	lastReadResources: Map<SyncResource, { ref: string; content: string }>;
+	lastWrittenResources: Map<SyncResource, { ref: string; content: string }>;
 
-initialize(reason: 'read' | 'write', silent ?: boolean): Promise<boolean>;
-read(resource: SyncResource, ref: string | undefined): Promise<{ ref: string; content: string } | undefined>;
-write(resource: SyncResource, content: string | EditSession): Promise<string>;
-delete (resource: SyncResource, ref: string | null): Promicognidreamognidream >;
-list(resource: SyncResource): Promise<IResourceRefHandle[]>;
-getMachineById(machineId: string): Promise<string | undefined>;
+	initialize(reason: 'read' | 'write', silent?: boolean): Promise<boolean>;
+	read(resource: SyncResource, ref: string | undefined): Promise<{ ref: string; content: string } | undefined>;
+	write(resource: SyncResource, content: string | EditSession): Promise<string>;
+	delete(resource: SyncResource, ref: string | null): Promise<void>;
+	list(resource: SyncResource): Promise<IResourceRefHandle[]>;
+	getMachineById(machineId: string): Promise<string | undefined>;
 }
 
 export const IEditSessionsLogService = createDecorator<IEditSessionsLogService>('IEditSessionsLogService');

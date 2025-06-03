@@ -168,7 +168,7 @@ export class ChatUsedReferencesListContentPart extends ChatCollapsibleListConten
 		);
 	}
 
-	protected override setExpanded(value: boolean): cognidream {
+	protected override setExpanded(value: boolean): void {
 		const element = this.context.element as IChatResponseViewModel;
 		element.usedReferencesExpanded = !this.isExpanded();
 	}
@@ -329,153 +329,153 @@ class CollapsibleListRenderer implements IListRenderer<IChatCollapsibleListItem,
 		}
 	}
 
-	renderElement(data: IChatCollapsibleListItem, index: number, templateData: ICollapsibleListTemplate, height: number | undefinedcognidreamognidream {
+	renderElement(data: IChatCollapsibleListItem, index: number, templateData: ICollapsibleListTemplate, height: number | undefined): void {
 		if (data.kind === 'warning') {
-	templateData.label.setResource({ name: data.content.value }, { icon: Codicon.warning });
-	return;
-}
+			templateData.label.setResource({ name: data.content.value }, { icon: Codicon.warning });
+			return;
+		}
 
-const reference = data.reference;
-const icon = this.getReferenceIcon(data);
-templateData.label.element.style.display = 'flex';
-let arg: URI | undefined;
-if (typeof reference === 'object' && 'variableName' in reference) {
-	if (reference.value) {
-		const uri = URI.isUri(reference.value) ? reference.value : reference.value.uri;
-		templateData.label.setResource(
-			{
-				resource: uri,
-				name: basenameOrAuthority(uri),
-				description: `#${reference.variableName}`,
-				range: 'range' in reference.value ? reference.value.range : undefined,
-			}, { icon, title: data.options?.status?.description ?? data.title });
-	} else if (reference.variableName.startsWith('kernelVariable')) {
-		const variable = reference.variableName.split(':')[1];
-		const asVariableName = `${variable}`;
-		const label = `Kernel variable`;
-		templateData.label.setLabel(label, asVariableName, { title: data.options?.status?.description });
-	} else {
-		// Nothing else is expected to fall into here
-		templateData.label.setLabel('Unknown variable type');
-	}
-} else if (typeof reference === 'string') {
-	templateData.label.setLabel(reference, undefined, { iconPath: URI.isUri(icon) ? icon : undefined, title: data.options?.status?.description ?? data.title });
+		const reference = data.reference;
+		const icon = this.getReferenceIcon(data);
+		templateData.label.element.style.display = 'flex';
+		let arg: URI | undefined;
+		if (typeof reference === 'object' && 'variableName' in reference) {
+			if (reference.value) {
+				const uri = URI.isUri(reference.value) ? reference.value : reference.value.uri;
+				templateData.label.setResource(
+					{
+						resource: uri,
+						name: basenameOrAuthority(uri),
+						description: `#${reference.variableName}`,
+						range: 'range' in reference.value ? reference.value.range : undefined,
+					}, { icon, title: data.options?.status?.description ?? data.title });
+			} else if (reference.variableName.startsWith('kernelVariable')) {
+				const variable = reference.variableName.split(':')[1];
+				const asVariableName = `${variable}`;
+				const label = `Kernel variable`;
+				templateData.label.setLabel(label, asVariableName, { title: data.options?.status?.description });
+			} else {
+				// Nothing else is expected to fall into here
+				templateData.label.setLabel('Unknown variable type');
+			}
+		} else if (typeof reference === 'string') {
+			templateData.label.setLabel(reference, undefined, { iconPath: URI.isUri(icon) ? icon : undefined, title: data.options?.status?.description ?? data.title });
 
-} else {
-	const uri = 'uri' in reference ? reference.uri : reference;
-	arg = uri;
-	const extraClasses = data.excluded ? ['excluded'] : [];
-	if (uri.scheme === 'https' && isEqualAuthority(uri.authority, 'github.com') && uri.path.includes('/tree/')) {
-		// Parse a nicer label for GitHub URIs that point at a particular commit + file
-		const label = uri.path.split('/').slice(1, 3).join('/');
-		const description = uri.path.split('/').slice(5).join('/');
-		templateData.label.setResource({ resource: uri, name: label, description }, { icon: Codicon.github, title: data.title, strikethrough: data.excluded, extraClasses });
-	} else if (uri.scheme === this.productService.urlProtocol && isEqualAuthority(uri.authority, SETTINGS_AUTHORITY)) {
-		// a nicer label for settings URIs
-		const settingId = uri.path.substring(1);
-		templateData.label.setResource({ resource: uri, name: settingId }, { icon: Codicon.settingsGear, title: localize('setting.hover', "Open setting '{0}'", settingId), strikethrough: data.excluded, extraClasses });
-	} else if (matchesSomeScheme(uri, Schemas.mailto, Schemas.http, Schemas.https)) {
-		templateData.label.setResource({ resource: uri, name: uri.toString() }, { icon: icon ?? Codicon.globe, title: data.options?.status?.description ?? data.title ?? uri.toString(), strikethrough: data.excluded, extraClasses });
-	} else {
-		templateData.label.setFile(uri, {
-			fileKind: FileKind.FILE,
-			// Should not have this live-updating data on a historical reference
-			fileDecorations: undefined,
-			range: 'range' in reference ? reference.range : undefined,
-			title: data.options?.status?.description ?? data.title,
-			strikethrough: data.excluded,
-			extraClasses
-		});
-	}
-}
-
-for (const selector of ['.monaco-icon-suffix-container', '.monaco-icon-name-container']) {
-	const element = templateData.label.element.querySelector(selector);
-	if (element) {
-		if (data.options?.status?.kind === ChatResponseReferencePartStatusKind.Omitted || data.options?.status?.kind === ChatResponseReferencePartStatusKind.Partial) {
-			element.classList.add('warning');
 		} else {
-			element.classList.remove('warning');
+			const uri = 'uri' in reference ? reference.uri : reference;
+			arg = uri;
+			const extraClasses = data.excluded ? ['excluded'] : [];
+			if (uri.scheme === 'https' && isEqualAuthority(uri.authority, 'github.com') && uri.path.includes('/tree/')) {
+				// Parse a nicer label for GitHub URIs that point at a particular commit + file
+				const label = uri.path.split('/').slice(1, 3).join('/');
+				const description = uri.path.split('/').slice(5).join('/');
+				templateData.label.setResource({ resource: uri, name: label, description }, { icon: Codicon.github, title: data.title, strikethrough: data.excluded, extraClasses });
+			} else if (uri.scheme === this.productService.urlProtocol && isEqualAuthority(uri.authority, SETTINGS_AUTHORITY)) {
+				// a nicer label for settings URIs
+				const settingId = uri.path.substring(1);
+				templateData.label.setResource({ resource: uri, name: settingId }, { icon: Codicon.settingsGear, title: localize('setting.hover', "Open setting '{0}'", settingId), strikethrough: data.excluded, extraClasses });
+			} else if (matchesSomeScheme(uri, Schemas.mailto, Schemas.http, Schemas.https)) {
+				templateData.label.setResource({ resource: uri, name: uri.toString() }, { icon: icon ?? Codicon.globe, title: data.options?.status?.description ?? data.title ?? uri.toString(), strikethrough: data.excluded, extraClasses });
+			} else {
+				templateData.label.setFile(uri, {
+					fileKind: FileKind.FILE,
+					// Should not have this live-updating data on a historical reference
+					fileDecorations: undefined,
+					range: 'range' in reference ? reference.range : undefined,
+					title: data.options?.status?.description ?? data.title,
+					strikethrough: data.excluded,
+					extraClasses
+				});
+			}
 		}
-	}
-}
 
-if (data.state !== undefined) {
-	if (templateData.actionBarContainer) {
-		if (data.state === WorkingSetEntryState.Modified && !templateData.actionBarContainer.classList.contains('modified')) {
-			templateData.actionBarContainer.classList.add('modified');
-			templateData.label.element.querySelector('.monaco-icon-name-container')?.classList.add('modified');
-		} else if (data.state !== WorkingSetEntryState.Modified) {
-			templateData.actionBarContainer.classList.remove('modified');
-			templateData.label.element.querySelector('.monaco-icon-name-container')?.classList.remove('modified');
+		for (const selector of ['.monaco-icon-suffix-container', '.monaco-icon-name-container']) {
+			const element = templateData.label.element.querySelector(selector);
+			if (element) {
+				if (data.options?.status?.kind === ChatResponseReferencePartStatusKind.Omitted || data.options?.status?.kind === ChatResponseReferencePartStatusKind.Partial) {
+					element.classList.add('warning');
+				} else {
+					element.classList.remove('warning');
+				}
+			}
 		}
-	}
-	if (templateData.toolbar) {
-		templateData.toolbar.context = arg;
-	}
-	if (templateData.contextKeyService) {
+
 		if (data.state !== undefined) {
-			chatEditingWidgetFileStateContextKey.bindTo(templateData.contextKeyService).set(data.state);
+			if (templateData.actionBarContainer) {
+				if (data.state === WorkingSetEntryState.Modified && !templateData.actionBarContainer.classList.contains('modified')) {
+					templateData.actionBarContainer.classList.add('modified');
+					templateData.label.element.querySelector('.monaco-icon-name-container')?.classList.add('modified');
+				} else if (data.state !== WorkingSetEntryState.Modified) {
+					templateData.actionBarContainer.classList.remove('modified');
+					templateData.label.element.querySelector('.monaco-icon-name-container')?.classList.remove('modified');
+				}
+			}
+			if (templateData.toolbar) {
+				templateData.toolbar.context = arg;
+			}
+			if (templateData.contextKeyService) {
+				if (data.state !== undefined) {
+					chatEditingWidgetFileStateContextKey.bindTo(templateData.contextKeyService).set(data.state);
+				}
+			}
 		}
 	}
-}
-    }
 
-disposeTemplate(templateData: ICollapsibleListTemplatecognidreamognidream {
-	templateData.templateDisposables.dispose();
-}
-}
-
-	function getResourceForElement(element: IChatCollapsibleListItem): URI | null {
-		if (element.kind === 'warning') {
-			return null;
-		}
-		const { reference } = element;
-		if (typeof reference === 'string' || 'variableName' in reference) {
-			return null;
-		} else if (URI.isUri(reference)) {
-			return reference;
-		} else {
-			return reference.uri;
-		}
+	disposeTemplate(templateData: ICollapsibleListTemplate): void {
+		templateData.templateDisposables.dispose();
 	}
+}
+
+function getResourceForElement(element: IChatCollapsibleListItem): URI | null {
+	if (element.kind === 'warning') {
+		return null;
+	}
+	const { reference } = element;
+	if (typeof reference === 'string' || 'variableName' in reference) {
+		return null;
+	} else if (URI.isUri(reference)) {
+		return reference;
+	} else {
+		return reference.uri;
+	}
+}
 
 //#region Resource context menu
 
 registerAction2(class AddToChatAction extends Action2 {
 
-		static readonly id = 'workbench.action.chat.addToChatAction';
+	static readonly id = 'workbench.action.chat.addToChatAction';
 
-		constructor() {
-			super({
-				id: AddToChatAction.id,
-				title: {
-					...localize2('addToChat', "Add File to Chat"),
-				},
-				f1: false,
-				menu: [{
-					id: MenuId.ChatAttachmentsContext,
-					group: 'chat',
-					order: 1,
-					when: ContextKeyExpr.and(ResourceContextKey.IsFileSystemResource, ExplorerFolderContext.negate()),
-				}]
-			});
-		}
+	constructor() {
+		super({
+			id: AddToChatAction.id,
+			title: {
+				...localize2('addToChat', "Add File to Chat"),
+			},
+			f1: false,
+			menu: [{
+				id: MenuId.ChatAttachmentsContext,
+				group: 'chat',
+				order: 1,
+				when: ContextKeyExpr.and(ResourceContextKey.IsFileSystemResource, ExplorerFolderContext.negate()),
+			}]
+		});
+	}
 
-		override async run(accessor: ServicesAccessor, resource: URI): Promicognidreamognidream> {
+	override async run(accessor: ServicesAccessor, resource: URI): Promise<void> {
 		const chatWidgetService = accessor.get(IChatWidgetService);
 		const variablesService = accessor.get(IChatVariablesService);
 
-		if(!resource) {
+		if (!resource) {
 			return;
 		}
 
-        const widget = chatWidgetService.lastFocusedWidget;
-		if(!widget) {
+		const widget = chatWidgetService.lastFocusedWidget;
+		if (!widget) {
 			return;
 		}
 
-        variablesService.attachContext('file', resource, widget.location);
+		variablesService.attachContext('file', resource, widget.location);
 	}
 });
 
@@ -499,9 +499,9 @@ registerAction2(class OpenChatReferenceLinkAction extends Action2 {
 		});
 	}
 
-	override async run(accessor: ServicesAccessor, resource: URI): Promicognidreamognidream> {
-	await accessor.get(IClipboardService).writeResources([resource]);
-}
+	override async run(accessor: ServicesAccessor, resource: URI): Promise<void> {
+		await accessor.get(IClipboardService).writeResources([resource]);
+	}
 });
 
 //#endregion

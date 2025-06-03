@@ -23,27 +23,27 @@ export class EditSessionsLogService extends AbstractLogger implements IEditSessi
 		this.logger = this._register(loggerService.createLogger(joinPath(environmentService.logsHome, `${editSessionsLogId}.log`), { id: editSessionsLogId, name: localize('cloudChangesLog', "Cloud Changes"), group: windowLogGroup }));
 	}
 
-	trace(message: string, ...args: any[]): cognidream {
+	trace(message: string, ...args: any[]): void {
 		this.logger.trace(message, ...args);
 	}
 
-	debug(message: string, ...args: any[]cognidreamognidream {
+	debug(message: string, ...args: any[]): void {
 		this.logger.debug(message, ...args);
-    }
+	}
 
-info(message: string, ...args: any[]cognidreamognidream {
-	this.logger.info(message, ...args);
-}
+	info(message: string, ...args: any[]): void {
+		this.logger.info(message, ...args);
+	}
 
-    warn(message: string, ...args: any[]cognidreamognidream {
-	this.logger.warn(message, ...args);
-}
+	warn(message: string, ...args: any[]): void {
+		this.logger.warn(message, ...args);
+	}
 
-    error(message: string | Error, ...args: any[]cognidreamognidream {
-	this.logger.error(message, ...args);
-}
+	error(message: string | Error, ...args: any[]): void {
+		this.logger.error(message, ...args);
+	}
 
-    flush(cognidreamognidream {
-	this.logger.flush();
-}
+	flush(): void {
+		this.logger.flush();
+	}
 }

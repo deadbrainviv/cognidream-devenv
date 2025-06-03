@@ -63,8 +63,8 @@ export class ExtHostWebview implements vscode.Webview {
 	/* internal */ readonly _onMessageEmitter = new Emitter<any>();
 	public readonly onDidReceiveMessage: Event<any> = this._onMessageEmitter.event;
 
-	readonly #onDidDisposeEmitter = new Emitter<cognidream>();
-	/* internal */ readonly _onDidDispose: Event<cognidreamidream> = this.#onDidDisposeEmitter.event;
+	readonly #onDidDisposeEmitter = new Emitter<void>();
+	/* internal */ readonly _onDidDispose: Event<void> = this.#onDidDisposeEmitter.event;
 
 	public dispose() {
 		this.#isDisposed = true;
@@ -208,53 +208,53 @@ export class ExtHostWebviews extends Disposable implements extHostProtocol.ExtHo
 		this._webviewProxy = mainContext.getProxy(extHostProtocol.MainContext.MainThreadWebviews);
 	}
 
-	public override dispose(cognidreamognidream {
+	public override dispose(): void {
 		super.dispose();
 
-for (const webview of this._webviews.values()) {
-	webview.dispose();
-}
-this._webviews.clear();
-    }
-
-    public $onMessage(
-	handle: extHostProtocol.WebviewHandle,
-	jsonMessage: string,
-	buffers: SerializableObjectWithBuffers<VSBuffer[]>
-    cognidreamognidream {
-	const webview = this.getWebview(handle);
-	if(webview) {
-		const { message } = deserializeWebviewMessage(jsonMessage, buffers.value);
-		webview._onMessageEmitter.fire(message);
+		for (const webview of this._webviews.values()) {
+			webview.dispose();
+		}
+		this._webviews.clear();
 	}
-}
 
-    public $onMissingCsp(
-	_handle: extHostProtocol.WebviewHandle,
-	extensionId: string
-    cognidreamognidream {
-	this._logService.warn(`${extensionId} created a webview without a content security policy: https://aka.ms/vscode-webview-missing-csp`);
-}
+	public $onMessage(
+		handle: extHostProtocol.WebviewHandle,
+		jsonMessage: string,
+		buffers: SerializableObjectWithBuffers<VSBuffer[]>
+	): void {
+		const webview = this.getWebview(handle);
+		if (webview) {
+			const { message } = deserializeWebviewMessage(jsonMessage, buffers.value);
+			webview._onMessageEmitter.fire(message);
+		}
+	}
 
-    public createNewWebview(handle: string, options: extHostProtocol.IWebviewContentOptions, extension: IExtensionDescription): ExtHostWebview {
-	const webview = new ExtHostWebview(handle, this._webviewProxy, reviveOptions(options), this.remoteInfo, this.workspace, extension, this._deprecationService);
-	this._webviews.set(handle, webview);
+	public $onMissingCsp(
+		_handle: extHostProtocol.WebviewHandle,
+		extensionId: string
+	): void {
+		this._logService.warn(`${extensionId} created a webview without a content security policy: https://aka.ms/vscode-webview-missing-csp`);
+	}
 
-	const sub = webview._onDidDispose(() => {
-		sub.dispose();
-		this.deleteWebview(handle);
-	});
+	public createNewWebview(handle: string, options: extHostProtocol.IWebviewContentOptions, extension: IExtensionDescription): ExtHostWebview {
+		const webview = new ExtHostWebview(handle, this._webviewProxy, reviveOptions(options), this.remoteInfo, this.workspace, extension, this._deprecationService);
+		this._webviews.set(handle, webview);
 
-	return webview;
-}
+		const sub = webview._onDidDispose(() => {
+			sub.dispose();
+			this.deleteWebview(handle);
+		});
 
-    public deleteWebview(handle: string) {
-	this._webviews.delete(handle);
-}
+		return webview;
+	}
 
-    private getWebview(handle: extHostProtocol.WebviewHandle): ExtHostWebview | undefined {
-	return this._webviews.get(handle);
-}
+	public deleteWebview(handle: string) {
+		this._webviews.delete(handle);
+	}
+
+	private getWebview(handle: extHostProtocol.WebviewHandle): ExtHostWebview | undefined {
+		return this._webviews.get(handle);
+	}
 }
 
 export function toExtensionData(extension: IExtensionDescription): extHostProtocol.WebviewExtensionDescription {

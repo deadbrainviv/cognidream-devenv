@@ -12,52 +12,52 @@ import { ExtensionIdentifierSet, IExtensionDescription } from '../../../platform
 
 export class ExtHostUrls implements ExtHostUrlsShape {
 
-    private static HandlePool = 0;
-    private readonly _proxy: MainThreadUrlsShape;
+	private static HandlePool = 0;
+	private readonly _proxy: MainThreadUrlsShape;
 
-    private handles = new ExtensionIdentifierSet();
-    private handlers = new Map<number, vscode.UriHandler>();
+	private handles = new ExtensionIdentifierSet();
+	private handlers = new Map<number, vscode.UriHandler>();
 
-    constructor(
-        mainContext: IMainContext
-    ) {
-        this._proxy = mainContext.getProxy(MainContext.MainThreadUrls);
-    }
+	constructor(
+		mainContext: IMainContext
+	) {
+		this._proxy = mainContext.getProxy(MainContext.MainThreadUrls);
+	}
 
-    registerUriHandler(extension: IExtensionDescription, handler: vscode.UriHandler): vscode.Disposable {
-        const extensionId = extension.identifier;
-        if (this.handles.has(extensionId)) {
-            throw new Error(`Protocol handler already registered for extension ${extensionId}`);
-        }
+	registerUriHandler(extension: IExtensionDescription, handler: vscode.UriHandler): vscode.Disposable {
+		const extensionId = extension.identifier;
+		if (this.handles.has(extensionId)) {
+			throw new Error(`Protocol handler already registered for extension ${extensionId}`);
+		}
 
-        const handle = ExtHostUrls.HandlePool++;
-        this.handles.add(extensionId);
-        this.handlers.set(handle, handler);
-        this._proxy.$registerUriHandler(handle, extensionId, extension.displayName || extension.name);
+		const handle = ExtHostUrls.HandlePool++;
+		this.handles.add(extensionId);
+		this.handlers.set(handle, handler);
+		this._proxy.$registerUriHandler(handle, extensionId, extension.displayName || extension.name);
 
-        return toDisposable(() => {
-            this.handles.delete(extensionId);
-            this.handlers.delete(handle);
-            this._proxy.$unregisterUriHandler(handle);
-        });
-    }
+		return toDisposable(() => {
+			this.handles.delete(extensionId);
+			this.handlers.delete(handle);
+			this._proxy.$unregisterUriHandler(handle);
+		});
+	}
 
-    $handleExternalUri(handle: number, uri: UriComponents): Promise<cognidream> {
-        const handler = this.handlers.get(handle);
+	$handleExternalUri(handle: number, uri: UriComponents): Promise<void> {
+		const handler = this.handlers.get(handle);
 
-        if (!handler) {
-            return Promise.resolve(undefined);
-        }
-        try {
-            handler.handleUri(URI.revive(uri));
-        } catch (err) {
-            onUnexpectedError(err);
-        }
+		if (!handler) {
+			return Promise.resolve(undefined);
+		}
+		try {
+			handler.handleUri(URI.revive(uri));
+		} catch (err) {
+			onUnexpectedError(err);
+		}
 
-        return Promise.resolve(undefined);
-    }
+		return Promise.resolve(undefined);
+	}
 
-    async createAppUri(uri: URI): Promise<vscode.Uri> {
-        return URI.revive(await this._proxy.$createAppUri(uri));
-    }
+	async createAppUri(uri: URI): Promise<vscode.Uri> {
+		return URI.revive(await this._proxy.$createAppUri(uri));
+	}
 }

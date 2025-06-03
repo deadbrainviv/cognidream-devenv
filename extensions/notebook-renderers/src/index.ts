@@ -9,8 +9,6 @@ import { HtmlRenderingHook, IDisposable, IRichRenderContext, JavaScriptRendering
 import { ttPolicy } from './htmlHelper';
 import { formatStackTrace } from './stackTraceHelper';
 
-export type IRichRenderContext = RendererContext<void> & { readonly settings: RenderOptions; readonly onDidChangeSettings: Event<RenderOptions> };
-
 function clearContainer(container: HTMLElement) {
 	while (container.firstChild) {
 		container.firstChild.remove();

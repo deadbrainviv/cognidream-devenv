@@ -155,7 +155,7 @@ export async function scanTestOutput(
 	scanner: TestOutputScanner,
 	coverageDir: string | undefined,
 	cancellation: vscode.CancellationToken
-): Promise<cognidreamidream> {
+): Promise<void> {
 	const exitBlockers: Set<Promise<unknown>> = new Set();
 	const skippedTests = new Set(tests.values());
 	const store = new SourceMapStore();
@@ -184,7 +184,7 @@ export async function scanTestOutput(
 			return;
 		}
 
-		await new Promise<cognidreamidream>(resolve => {
+		await new Promise<void>(resolve => {
 			cancellation.onCancellationRequested(() => {
 				resolve();
 			});

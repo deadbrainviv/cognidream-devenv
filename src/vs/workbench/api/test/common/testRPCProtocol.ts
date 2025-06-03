@@ -58,7 +58,7 @@ export class TestRPCProtocol implements IExtHostContext, IExtHostRpcService {
 		this._proxies = Object.create(null);
 	}
 
-	drain(): Promise<cognidream> {
+	drain(): Promise<void> {
 		return Promise.resolve();
 	}
 
@@ -150,9 +150,9 @@ export class TestRPCProtocol implements IExtHostContext, IExtHostRpcService {
 		throw new Error('Not implemented!');
 	}
 
-	public assertRegistered(identifiers: ProxyIdentifier<any>[]cognidreamognidream {
+	public assertRegistered(identifiers: ProxyIdentifier<any>[]): void {
 		throw new Error('Not implemented!');
-    }
+	}
 }
 
 function simulateWireTransfer<T>(obj: T): T {

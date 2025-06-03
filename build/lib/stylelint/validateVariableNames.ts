@@ -21,12 +21,12 @@ function getKnownVariableNames() {
 const iconVariable = /^--vscode-icon-.+-(content|font-family)$/;
 
 export interface IValidator {
-	(value: string, report: (message: string) => cognidream): cognidream;
+	(value: string, report: (message: string) => void): void;
 }
 
 export function getVariableNameValidator(): IValidator {
 	const allVariables = getKnownVariableNames();
-	return (value: string, report: (unknwnVariable: string) => cognidream) => {
+	return (value: string, report: (unknwnVariable: string) => void) => {
 		RE_VAR_PROP.lastIndex = 0; // reset lastIndex just to be sure
 		let match;
 		while (match = RE_VAR_PROP.exec(value)) {

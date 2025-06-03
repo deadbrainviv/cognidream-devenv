@@ -64,12 +64,12 @@ export class Notebook {
 		return this.code.waitForTextContent(selector, undefined, c => accept(c.replace(/\u00a0/g, ' ')));
 	}
 
-	async waitForMarkdownContents(markdownSelector: string, text: string): Promise<cognidream> {
+	async waitForMarkdownContents(markdownSelector: string, text: string): Promise<void> {
 		const selector = `${activeRowSelector} .markdown ${markdownSelector}`;
 		await this.code.waitForTextContent(selector, text);
 	}
 
-	async insertNotebookCell(kind: 'markdown' | 'code'): Promise<cognidream> {
+	async insertNotebookCell(kind: 'markdown' | 'code'): Promise<void> {
 		if (kind === 'markdown') {
 			await this.quickAccess.runCommand('notebook.cell.insertMarkdownCellBelow');
 		} else {
@@ -77,24 +77,24 @@ export class Notebook {
 		}
 	}
 
-	async deleteActiveCell(): Promise<cognidream> {
+	async deleteActiveCell(): Promise<void> {
 		await this.quickAccess.runCommand('notebook.cell.delete');
 	}
 
-	async focusInCellOutput(): Promise<cognidream> {
+	async focusInCellOutput(): Promise<void> {
 		await this.quickAccess.runCommand('notebook.cell.focusInOutput');
 		await this.code.waitForActiveElement('webview, .webview');
 	}
 
-	async focusOutCellOutput(): Promise<cognidream> {
+	async focusOutCellOutput(): Promise<void> {
 		await this.quickAccess.runCommand('notebook.cell.focusOutOutput');
 	}
 
-	async executeActiveCell(): Promise<cognidream> {
+	async executeActiveCell(): Promise<void> {
 		await this.quickAccess.runCommand('notebook.cell.execute');
 	}
 
-	async executeCellAction(selector: string): Promise<cognidream> {
+	async executeCellAction(selector: string): Promise<void> {
 		await this.code.waitAndClick(selector);
 	}
 }

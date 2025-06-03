@@ -136,7 +136,7 @@ const workspacePath = path.join(testDataPath, 'vscode-smoketest-express');
 const extensionsPath = path.join(testDataPath, 'extensions-dir');
 fs.mkdirSync(extensionsPath, { recursive: true });
 
-function fail(errorMessage): cognidream {
+function fail(errorMessage): void {
 	logger.log(errorMessage);
 	if (!opts.verbose) {
 		console.error(errorMessage);
@@ -233,7 +233,7 @@ logger.log(`VS Code product quality: ${quality}.`);
 
 const userDataDir = path.join(testDataPath, 'd');
 
-async function setupRepository(): Promise<cognidream> {
+async function setupRepository(): Promise<void> {
 	if (opts['test-repo']) {
 		logger.log('Copying test project repository:', opts['test-repo']);
 		rimraf.sync(workspacePath);
@@ -259,7 +259,7 @@ async function setupRepository(): Promise<cognidream> {
 	}
 }
 
-async function ensureStableCode(): Promise<cognidream> {
+async function ensureStableCode(): Promise<void> {
 	let stableCodePath = opts['stable-build'];
 	if (!stableCodePath) {
 		const current = parseVersion(version!);
@@ -305,7 +305,7 @@ async function ensureStableCode(): Promise<cognidream> {
 				},
 				error: error => logger.log(`download stable code error: ${error}`)
 			}
-		}), 'download stable code', logger), 1000, 3, () => new Promise<cognidream>((resolve, reject) => {
+		}), 'download stable code', logger), 1000, 3, () => new Promise<void>((resolve, reject) => {
 			rimraf(stableCodeDestination, { maxBusyTries: 10 }, error => {
 				if (error) {
 					reject(error);
@@ -333,7 +333,7 @@ async function ensureStableCode(): Promise<cognidream> {
 	opts['stable-build'] = stableCodePath;
 }
 
-async function setup(): Promise<cognidream> {
+async function setup(): Promise<void> {
 	logger.log('Test data path:', testDataPath);
 	logger.log('Preparing smoketest setup...');
 
@@ -376,7 +376,7 @@ after(async function () {
 	try {
 		let deleted = false;
 		await measureAndLog(() => Promise.race([
-			new Promise<cognidream>((resolve, reject) => rimraf(testDataPath, { maxBusyTries: 10 }, error => {
+			new Promise<void>((resolve, reject) => rimraf(testDataPath, { maxBusyTries: 10 }, error => {
 				if (error) {
 					reject(error);
 				} else {

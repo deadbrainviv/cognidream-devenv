@@ -45,7 +45,7 @@ export class ChatTextEditContentPart extends Disposable implements IChatContentP
 	public readonly domNode: HTMLElement;
 	private readonly comparePart: IDisposableReference<CodeCompareBlockPart> | undefined;
 
-	private readonly _onDidChangeHeight = this._register(new Emitter<cognidream>());
+	private readonly _onDidChangeHeight = this._register(new Emitter<void>());
 	public readonly onDidChangeHeight = this._onDidChangeHeight.event;
 
 	constructor(
@@ -121,18 +121,18 @@ export class ChatTextEditContentPart extends Disposable implements IChatContentP
 		}
 	}
 
-	layout(width: numbercognidreamognidream {
+	layout(width: number): void {
 		this.comparePart?.object.layout(width);
-    }
+	}
 
-hasSameContent(other: IChatProgressRenderableResponseContent): boolean {
-	// No other change allowed for this content type
-	return other.kind === 'textEditGroup';
-}
+	hasSameContent(other: IChatProgressRenderableResponseContent): boolean {
+		// No other change allowed for this content type
+		return other.kind === 'textEditGroup';
+	}
 
-addDisposable(disposable: IDisposablecognidreamognidream {
-	this._register(disposable);
-}
+	addDisposable(disposable: IDisposable): void {
+		this._register(disposable);
+	}
 }
 
 export class DiffEditorPool extends Disposable {

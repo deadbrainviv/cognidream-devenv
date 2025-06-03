@@ -96,7 +96,7 @@ class AuthenticationContribution extends Disposable implements IWorkbenchContrib
 		this._registerActions();
 	}
 
-	private _registerHandlers(): cognidream {
+	private _registerHandlers(): void {
 		this._register(this._authenticationService.onDidRegisterAuthenticationProvider(_e => {
 			this._clearPlaceholderMenuItem();
 		}));
@@ -113,31 +113,31 @@ class AuthenticationContribution extends Disposable implements IWorkbenchContrib
 		}));
 	}
 
-	private _registerActions(cognidreamognidream {
+	private _registerActions(): void {
 		this._register(registerAction2(SignOutOfAccountAction));
-this._register(registerAction2(ManageTrustedExtensionsForAccountAction));
-this._register(registerAction2(ManageAccountPreferencesForExtensionAction));
-    }
-
-    private _clearPlaceholderMenuItem(cognidreamognidream {
-	this._placeholderMenuItem?.dispose();
-	this._placeholderMenuItem = undefined;
-}
-}
-
-	class AuthenticationUsageContribution implements IWorkbenchContribution {
-		static ID = 'workbench.contrib.authenticationUsage';
-
-		constructor(
-			@IAuthenticationUsageService private readonly _authenticationUsageService: IAuthenticationUsageService,
-		) {
-			this._initializeExtensionUsageCache();
-		}
-
-		private async _initializeExtensionUsageCache() {
-			await this._authenticationUsageService.initializeExtensionUsageCache();
-		}
+		this._register(registerAction2(ManageTrustedExtensionsForAccountAction));
+		this._register(registerAction2(ManageAccountPreferencesForExtensionAction));
 	}
+
+	private _clearPlaceholderMenuItem(): void {
+		this._placeholderMenuItem?.dispose();
+		this._placeholderMenuItem = undefined;
+	}
+}
+
+class AuthenticationUsageContribution implements IWorkbenchContribution {
+	static ID = 'workbench.contrib.authenticationUsage';
+
+	constructor(
+		@IAuthenticationUsageService private readonly _authenticationUsageService: IAuthenticationUsageService,
+	) {
+		this._initializeExtensionUsageCache();
+	}
+
+	private async _initializeExtensionUsageCache() {
+		await this._authenticationUsageService.initializeExtensionUsageCache();
+	}
+}
 
 registerWorkbenchContribution2(AuthenticationContribution.ID, AuthenticationContribution, WorkbenchPhase.AfterRestored);
 registerWorkbenchContribution2(AuthenticationUsageContribution.ID, AuthenticationUsageContribution, WorkbenchPhase.Eventually);

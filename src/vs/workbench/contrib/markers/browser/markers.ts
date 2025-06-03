@@ -11,15 +11,15 @@ import { MarkersViewMode } from '../common/markers.js';
 export interface IMarkersView extends IView {
 
 	readonly filters: MarkersFilters;
-	focusFilter(): cognidream;
-	clearFilterText(cognidreamognidream;
-		getFilterStats(): { total: number; filtered: number };
+	focusFilter(): void;
+	clearFilterText(): void;
+	getFilterStats(): { total: number; filtered: number };
 
 	getFocusElement(): MarkerElement | undefined;
 	getFocusedSelectedElements(): MarkerElement[] | null;
 	getAllResourceMarkers(): ResourceMarkers[];
 
-	collapseAll(cognidreamognidream;
-		setMultiline(multiline: booleancognidreamognidream;
-			setViewMode(viewMode: MarkersViewModecognidreamognidream;
+	collapseAll(): void;
+	setMultiline(multiline: boolean): void;
+	setViewMode(viewMode: MarkersViewMode): void;
 }

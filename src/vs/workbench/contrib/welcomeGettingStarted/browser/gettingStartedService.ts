@@ -104,13 +104,13 @@ export interface IWalkthroughsService {
 	getWalkthroughs(): IResolvedWalkthrough[];
 	getWalkthrough(id: string): IResolvedWalkthrough;
 
-	registerWalkthrough(descriptor: IWalkthroughLoose): cognidream;
+	registerWalkthrough(descriptor: IWalkthroughLoose): void;
 
-	progressByEvent(eventName: stringcognidreamognidream;
-		progressStep(id: stringcognidreamognidream;
-			deprogressStep(id: stringcognidreamognidream;
+	progressByEvent(eventName: string): void;
+	progressStep(id: string): void;
+	deprogressStep(id: string): void;
 
-				markWalkthroughOpened(id: stringcognidreamognidream;
+	markWalkthroughOpened(id: string): void;
 }
 
 // Show walkthrough as "new" for 7 days after first install
@@ -564,122 +564,122 @@ export class WalkthroughsService extends Disposable implements IWalkthroughsServ
 		this._onDidProgressStep.fire(this.getStepProgress(step));
 	}
 
-	progressByEvent(event: stringcognidreamognidream {
+	progressByEvent(event: string): void {
 		if (this.sessionEvents.has(event)) { return; }
 
-this.sessionEvents.add(event);
-this.completionListeners.get(event)?.forEach(id => this.progressStep(id));
-    }
-
-registerWalkthrough(walkthoughDescriptor: IWalkthroughLoose) {
-	this._registerWalkthrough({
-		...walkthoughDescriptor,
-		steps: walkthoughDescriptor.steps.map(step => ({ ...step, description: parseDescription(step.description) }))
-	});
-}
-
-_registerWalkthrough(walkthroughDescriptor: IWalkthroughcognidreamognidream {
-	const oldCategory = this.gettingStartedContributions.get(walkthroughDescriptor.id);
-	if(oldCategory) {
-		console.error(`Skipping attempt to overwrite walkthrough. (${walkthroughDescriptor.id})`);
-		return;
+		this.sessionEvents.add(event);
+		this.completionListeners.get(event)?.forEach(id => this.progressStep(id));
 	}
 
-        this.gettingStartedContributions.set(walkthroughDescriptor.id, walkthroughDescriptor);
-
-	walkthroughDescriptor.steps.forEach(step => {
-		if (this.steps.has(step.id)) { throw Error('Attempting to register step with id ' + step.id + ' twice. Second is dropped.'); }
-		this.steps.set(step.id, step);
-		step.when.keys().forEach(key => this.categoryVisibilityContextKeys.add(key));
-		this.registerDoneListeners(step);
-	});
-
-	walkthroughDescriptor.when.keys().forEach(key => this.categoryVisibilityContextKeys.add(key));
-}
-
-    private registerDoneListeners(step: IWalkthroughStep) {
-	if((step as any).doneOn) {
-	console.error(`wakthrough step`, step, `uses deprecated 'doneOn' property. Adopt 'completionEvents' to silence this warning`);
-	return;
-}
-
-if (!step.completionEvents.length) {
-	step.completionEvents = coalesce(
-		step.description
-			.filter(linkedText => linkedText.nodes.length === 1) // only buttons
-			.flatMap(linkedText =>
-				linkedText.nodes
-					.filter(((node): node is ILink => typeof node !== 'string'))
-					.map(({ href }) => {
-						if (href.startsWith('command:')) {
-							return 'onCommand:' + href.slice('command:'.length, href.includes('?') ? href.indexOf('?') : undefined);
-						}
-						if (href.startsWith('https://') || href.startsWith('http://')) {
-							return 'onLink:' + href;
-						}
-						return undefined;
-					})));
-}
-
-if (!step.completionEvents.length) {
-	step.completionEvents.push('stepSelected');
-}
-
-for (let event of step.completionEvents) {
-	const [_, eventType, argument] = /^([^:]*):?(.*)$/.exec(event) ?? [];
-
-	if (!eventType) {
-		console.error(`Unknown completionEvent ${event} when registering step ${step.id}`);
-		continue;
+	registerWalkthrough(walkthoughDescriptor: IWalkthroughLoose) {
+		this._registerWalkthrough({
+			...walkthoughDescriptor,
+			steps: walkthoughDescriptor.steps.map(step => ({ ...step, description: parseDescription(step.description) }))
+		});
 	}
 
-	switch (eventType) {
-		case 'onLink': case 'onEvent': case 'onView': case 'onSettingChanged':
-			break;
-		case 'onContext': {
-			const expression = ContextKeyExpr.deserialize(argument);
-			if (expression) {
-				this.stepCompletionContextKeyExpressions.add(expression);
-				expression.keys().forEach(key => this.stepCompletionContextKeys.add(key));
-				event = eventType + ':' + expression.serialize();
-				if (this.contextService.contextMatchesRules(expression)) {
-					this.sessionEvents.add(event);
-				}
-			} else {
-				console.error('Unable to parse context key expression:', expression, 'in walkthrough step', step.id);
-			}
-			break;
+	_registerWalkthrough(walkthroughDescriptor: IWalkthrough): void {
+		const oldCategory = this.gettingStartedContributions.get(walkthroughDescriptor.id);
+		if (oldCategory) {
+			console.error(`Skipping attempt to overwrite walkthrough. (${walkthroughDescriptor.id})`);
+			return;
 		}
-		case 'onStepSelected': case 'stepSelected':
-			event = 'stepSelected:' + step.id;
-			break;
-		case 'onCommand':
-			event = eventType + ':' + argument.replace(/^toSide:/, '');
-			break;
-		case 'onExtensionInstalled': case 'extensionInstalled':
-			event = 'extensionInstalled:' + argument.toLowerCase();
-			break;
-		default:
-			console.error(`Unknown completionEvent ${event} when registering step ${step.id}`);
-			continue;
+
+		this.gettingStartedContributions.set(walkthroughDescriptor.id, walkthroughDescriptor);
+
+		walkthroughDescriptor.steps.forEach(step => {
+			if (this.steps.has(step.id)) { throw Error('Attempting to register step with id ' + step.id + ' twice. Second is dropped.'); }
+			this.steps.set(step.id, step);
+			step.when.keys().forEach(key => this.categoryVisibilityContextKeys.add(key));
+			this.registerDoneListeners(step);
+		});
+
+		walkthroughDescriptor.when.keys().forEach(key => this.categoryVisibilityContextKeys.add(key));
 	}
 
-	this.registerCompletionListener(event, step);
-}
-    }
+	private registerDoneListeners(step: IWalkthroughStep) {
+		if ((step as any).doneOn) {
+			console.error(`wakthrough step`, step, `uses deprecated 'doneOn' property. Adopt 'completionEvents' to silence this warning`);
+			return;
+		}
 
-    private registerCompletionListener(event: string, step: IWalkthroughStep) {
-	if (!this.completionListeners.has(event)) {
-		this.completionListeners.set(event, new Set());
+		if (!step.completionEvents.length) {
+			step.completionEvents = coalesce(
+				step.description
+					.filter(linkedText => linkedText.nodes.length === 1) // only buttons
+					.flatMap(linkedText =>
+						linkedText.nodes
+							.filter(((node): node is ILink => typeof node !== 'string'))
+							.map(({ href }) => {
+								if (href.startsWith('command:')) {
+									return 'onCommand:' + href.slice('command:'.length, href.includes('?') ? href.indexOf('?') : undefined);
+								}
+								if (href.startsWith('https://') || href.startsWith('http://')) {
+									return 'onLink:' + href;
+								}
+								return undefined;
+							})));
+		}
+
+		if (!step.completionEvents.length) {
+			step.completionEvents.push('stepSelected');
+		}
+
+		for (let event of step.completionEvents) {
+			const [_, eventType, argument] = /^([^:]*):?(.*)$/.exec(event) ?? [];
+
+			if (!eventType) {
+				console.error(`Unknown completionEvent ${event} when registering step ${step.id}`);
+				continue;
+			}
+
+			switch (eventType) {
+				case 'onLink': case 'onEvent': case 'onView': case 'onSettingChanged':
+					break;
+				case 'onContext': {
+					const expression = ContextKeyExpr.deserialize(argument);
+					if (expression) {
+						this.stepCompletionContextKeyExpressions.add(expression);
+						expression.keys().forEach(key => this.stepCompletionContextKeys.add(key));
+						event = eventType + ':' + expression.serialize();
+						if (this.contextService.contextMatchesRules(expression)) {
+							this.sessionEvents.add(event);
+						}
+					} else {
+						console.error('Unable to parse context key expression:', expression, 'in walkthrough step', step.id);
+					}
+					break;
+				}
+				case 'onStepSelected': case 'stepSelected':
+					event = 'stepSelected:' + step.id;
+					break;
+				case 'onCommand':
+					event = eventType + ':' + argument.replace(/^toSide:/, '');
+					break;
+				case 'onExtensionInstalled': case 'extensionInstalled':
+					event = 'extensionInstalled:' + argument.toLowerCase();
+					break;
+				default:
+					console.error(`Unknown completionEvent ${event} when registering step ${step.id}`);
+					continue;
+			}
+
+			this.registerCompletionListener(event, step);
+		}
 	}
-	this.completionListeners.get(event)?.add(step.id);
-}
 
-    private getStep(id: string): IWalkthroughStep {
-	const step = this.steps.get(id);
-	if (!step) { throw Error('Attempting to access step which does not exist in registry ' + id); }
-	return step;
-}
+	private registerCompletionListener(event: string, step: IWalkthroughStep) {
+		if (!this.completionListeners.has(event)) {
+			this.completionListeners.set(event, new Set());
+		}
+		this.completionListeners.get(event)?.add(step.id);
+	}
+
+	private getStep(id: string): IWalkthroughStep {
+		const step = this.steps.get(id);
+		if (!step) { throw Error('Attempting to access step which does not exist in registry ' + id); }
+		return step;
+	}
 }
 
 export const parseDescription = (desc: string): LinkedText[] => desc.split('\n').filter(x => x).map(text => parseLinkedText(text));

@@ -1318,7 +1318,7 @@ export class WorkspaceTagsService implements IWorkspaceTagsService {
 				tags['workspace.android.cpp'] = true;
 			}
 
-			function getFilePromises(filename: string, fileService: IFileService, textFileService: ITextFileService, contentHandler: (content: ITextFileContent) => cognidream): Promise<cognidream>[] {
+			function getFilePromises(filename: string, fileService: IFileService, textFileService: ITextFileService, contentHandler: (content: ITextFileContent) => void): Promise<void>[] {
 				return !nameSet.has(filename) ? [] : (folders as URI[]).map(workspaceUri => {
 					const uri = workspaceUri.with({ path: `${workspaceUri.path !== '/' ? workspaceUri.path : ''}/${filename}` });
 					return fileService.exists(uri).then(exists => {
@@ -1333,7 +1333,7 @@ export class WorkspaceTagsService implements IWorkspaceTagsService {
 				});
 			}
 
-			function addPythonTags(packageName: cognidreamng): cognidream {
+			function addPythonTags(packageName: string): void {
 				if (PyModulesToLookFor.indexOf(packageName) > -1) {
 					tags['workspace.py.' + packageName] = true;
 				}
@@ -1482,7 +1482,7 @@ export class WorkspaceTagsService implements IWorkspaceTagsService {
 		});
 	}
 
-	private processGradleDependencies(content: string, regex: RegExp, tags: Tagscognidreamognidream {
+	private processGradleDependencies(content: string, regex: RegExp, tags: Tags): void {
 		let dependencyContent;
 		while (dependencyContent = regex.exec(content)) {
 			const groupId = dependencyContent[1];
@@ -1491,20 +1491,20 @@ export class WorkspaceTagsService implements IWorkspaceTagsService {
 				this.tagJavaDependency(groupId, artifactId, 'workspace.gradle.', tags);
 			}
 		}
-    }
+	}
 
-    private tagJavaDependency(groupId: string, artifactId: string, prefix: string, tags: Tagscognidreamognidream {
-			for(const javaLibrary of JavaLibrariesToLookFor) {
-				if (javaLibrary.predicate(groupId, artifactId)) {
-					tags[prefix + javaLibrary.tag] = true;
-					return;
-				}
+	private tagJavaDependency(groupId: string, artifactId: string, prefix: string, tags: Tags): void {
+		for (const javaLibrary of JavaLibrariesToLookFor) {
+			if (javaLibrary.predicate(groupId, artifactId)) {
+				tags[prefix + javaLibrary.tag] = true;
+				return;
 			}
 		}
+	}
 
-    private searchArray(arr: string[], regEx: RegExp): boolean | undefined {
-			return arr.some(v => v.search(regEx) > -1) || undefined;
-		}
+	private searchArray(arr: string[], regEx: RegExp): boolean | undefined {
+		return arr.some(v => v.search(regEx) > -1) || undefined;
+	}
 }
 
-			registerSingleton(IWorkspaceTagsService, WorkspaceTagsService, InstantiationType.Delayed);
+registerSingleton(IWorkspaceTagsService, WorkspaceTagsService, InstantiationType.Delayed);

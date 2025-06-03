@@ -35,7 +35,7 @@ export class SetLogLevelAction extends Action {
 		super(id, label);
 	}
 
-	override async run(): Promise<cognidream> {
+	override async run(): Promise<void> {
 		const logLevelOrChannel = await this.selectLogLevelOrChannel();
 		if (logLevelOrChannel !== null) {
 			if (isLogLevel(logLevelOrChannel)) {
@@ -104,7 +104,7 @@ export class SetLogLevelAction extends Action {
 		});
 	}
 
-	private async setLogLevelForChannel(logChannel: LogChannelQuickPickItem): Promicognidreamognidream> {
+	private async setLogLevelForChannel(logChannel: LogChannelQuickPickItem): Promise<void> {
 		const defaultLogLevels = await this.defaultLogLevelsService.getDefaultLogLevels();
 		const defaultLogLevel = defaultLogLevels.extensions.find(e => e[0] === logChannel.channel.extensionId?.toLowerCase())?.[1] ?? defaultLogLevels.default;
 		const entries = this.getLogLevelEntries(defaultLogLevel, this.outputService.getLogLevel(logChannel.channel) ?? defaultLogLevel, !!logChannel.channel.extensionId);
@@ -135,26 +135,26 @@ export class SetLogLevelAction extends Action {
 		});
 	}
 
-    private getLogLevelEntries(defaultLogLevel: LogLevel, currentLogLevel: LogLevel, canSetDefaultLogLevel: boolean): LogLevelQuickPickItem[] {
-	const button: IQuickInputButton | undefined = canSetDefaultLogLevel ? { iconClass: ThemeIcon.asClassName(Codicon.checkAll), tooltip: nls.localize('resetLogLevel', "Set as Default Log Level") } : undefined;
-	return [
-		{ label: this.getLabel(LogLevel.Trace, currentLogLevel), level: LogLevel.Trace, description: this.getDescription(LogLevel.Trace, defaultLogLevel), buttons: button && defaultLogLevel !== LogLevel.Trace ? [button] : undefined },
-		{ label: this.getLabel(LogLevel.Debug, currentLogLevel), level: LogLevel.Debug, description: this.getDescription(LogLevel.Debug, defaultLogLevel), buttons: button && defaultLogLevel !== LogLevel.Debug ? [button] : undefined },
-		{ label: this.getLabel(LogLevel.Info, currentLogLevel), level: LogLevel.Info, description: this.getDescription(LogLevel.Info, defaultLogLevel), buttons: button && defaultLogLevel !== LogLevel.Info ? [button] : undefined },
-		{ label: this.getLabel(LogLevel.Warning, currentLogLevel), level: LogLevel.Warning, description: this.getDescription(LogLevel.Warning, defaultLogLevel), buttons: button && defaultLogLevel !== LogLevel.Warning ? [button] : undefined },
-		{ label: this.getLabel(LogLevel.Error, currentLogLevel), level: LogLevel.Error, description: this.getDescription(LogLevel.Error, defaultLogLevel), buttons: button && defaultLogLevel !== LogLevel.Error ? [button] : undefined },
-		{ label: this.getLabel(LogLevel.Off, currentLogLevel), level: LogLevel.Off, description: this.getDescription(LogLevel.Off, defaultLogLevel), buttons: button && defaultLogLevel !== LogLevel.Off ? [button] : undefined },
-	];
-}
+	private getLogLevelEntries(defaultLogLevel: LogLevel, currentLogLevel: LogLevel, canSetDefaultLogLevel: boolean): LogLevelQuickPickItem[] {
+		const button: IQuickInputButton | undefined = canSetDefaultLogLevel ? { iconClass: ThemeIcon.asClassName(Codicon.checkAll), tooltip: nls.localize('resetLogLevel', "Set as Default Log Level") } : undefined;
+		return [
+			{ label: this.getLabel(LogLevel.Trace, currentLogLevel), level: LogLevel.Trace, description: this.getDescription(LogLevel.Trace, defaultLogLevel), buttons: button && defaultLogLevel !== LogLevel.Trace ? [button] : undefined },
+			{ label: this.getLabel(LogLevel.Debug, currentLogLevel), level: LogLevel.Debug, description: this.getDescription(LogLevel.Debug, defaultLogLevel), buttons: button && defaultLogLevel !== LogLevel.Debug ? [button] : undefined },
+			{ label: this.getLabel(LogLevel.Info, currentLogLevel), level: LogLevel.Info, description: this.getDescription(LogLevel.Info, defaultLogLevel), buttons: button && defaultLogLevel !== LogLevel.Info ? [button] : undefined },
+			{ label: this.getLabel(LogLevel.Warning, currentLogLevel), level: LogLevel.Warning, description: this.getDescription(LogLevel.Warning, defaultLogLevel), buttons: button && defaultLogLevel !== LogLevel.Warning ? [button] : undefined },
+			{ label: this.getLabel(LogLevel.Error, currentLogLevel), level: LogLevel.Error, description: this.getDescription(LogLevel.Error, defaultLogLevel), buttons: button && defaultLogLevel !== LogLevel.Error ? [button] : undefined },
+			{ label: this.getLabel(LogLevel.Off, currentLogLevel), level: LogLevel.Off, description: this.getDescription(LogLevel.Off, defaultLogLevel), buttons: button && defaultLogLevel !== LogLevel.Off ? [button] : undefined },
+		];
+	}
 
-    private getLabel(level: LogLevel, current ?: LogLevel): string {
-	const label = LogLevelToLocalizedString(level).value;
-	return level === current ? `$(check) ${label}` : label;
-}
+	private getLabel(level: LogLevel, current?: LogLevel): string {
+		const label = LogLevelToLocalizedString(level).value;
+		return level === current ? `$(check) ${label}` : label;
+	}
 
-    private getDescription(level: LogLevel, defaultLogLevel: LogLevel): string | undefined {
-	return defaultLogLevel === level ? nls.localize('default', "Default") : undefined;
-}
+	private getDescription(level: LogLevel, defaultLogLevel: LogLevel): string | undefined {
+		return defaultLogLevel === level ? nls.localize('default', "Default") : undefined;
+	}
 
 }
 
@@ -172,7 +172,7 @@ export class OpenWindowSessionLogFileAction extends Action {
 		super(id, label);
 	}
 
-	override async run(): Promicognidreamognidream> {
+	override async run(): Promise<void> {
 		const sessionResult = await this.quickInputService.pick(
 			this.getSessions().then(sessions => sessions.map((s, index): IQuickPickItem => ({
 				id: s.toString(),
@@ -183,7 +183,7 @@ export class OpenWindowSessionLogFileAction extends Action {
 				canPickMany: false,
 				placeHolder: nls.localize('sessions placeholder', "Select Session")
 			});
-		if(sessionResult) {
+		if (sessionResult) {
 			const logFileResult = await this.quickInputService.pick(
 				this.getLogFiles(URI.parse(sessionResult.id!)).then(logFiles => logFiles.map((s): IQuickPickItem => ({
 					id: s.toString(),
@@ -199,26 +199,26 @@ export class OpenWindowSessionLogFileAction extends Action {
 		}
 	}
 
-    private async getSessions(): Promise < URI[] > {
-	const logsPath = this.environmentService.logsHome.with({ scheme: this.environmentService.logFile.scheme });
-	const result: URI[] = [logsPath];
-	const stat = await this.fileService.resolve(dirname(logsPath));
-	if(stat.children) {
-	result.push(...stat.children
-		.filter(stat => !isEqual(stat.resource, logsPath) && stat.isDirectory && /^\d{8}T\d{6}$/.test(stat.name))
-		.sort()
-		.reverse()
-		.map(d => d.resource));
-}
-return result;
-    }
+	private async getSessions(): Promise<URI[]> {
+		const logsPath = this.environmentService.logsHome.with({ scheme: this.environmentService.logFile.scheme });
+		const result: URI[] = [logsPath];
+		const stat = await this.fileService.resolve(dirname(logsPath));
+		if (stat.children) {
+			result.push(...stat.children
+				.filter(stat => !isEqual(stat.resource, logsPath) && stat.isDirectory && /^\d{8}T\d{6}$/.test(stat.name))
+				.sort()
+				.reverse()
+				.map(d => d.resource));
+		}
+		return result;
+	}
 
-    private async getLogFiles(session: URI): Promise < URI[] > {
-	const stat = await this.fileService.resolve(session);
-	if(stat.children) {
-	return stat.children.filter(stat => !stat.isDirectory).map(stat => stat.resource);
-}
-return [];
-    }
+	private async getLogFiles(session: URI): Promise<URI[]> {
+		const stat = await this.fileService.resolve(session);
+		if (stat.children) {
+			return stat.children.filter(stat => !stat.isDirectory).map(stat => stat.resource);
+		}
+		return [];
+	}
 }
 

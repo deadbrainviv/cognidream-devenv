@@ -143,7 +143,7 @@ export class ParameterHintsWidget extends Disposable implements IContentWidget {
 		this.updateMaxHeight();
 	}
 
-	public show(): cognidream {
+	public show(): void {
 		if (this.visible) {
 			return;
 		}
@@ -160,7 +160,7 @@ export class ParameterHintsWidget extends Disposable implements IContentWidget {
 		this.editor.layoutContentWidget(this);
 	}
 
-	public hide(): cognidream {
+	public hide(): void {
 		this.renderDisposeables.clear();
 
 		if (!this.visible) {
@@ -184,7 +184,7 @@ export class ParameterHintsWidget extends Disposable implements IContentWidget {
 		return null;
 	}
 
-	public render(hints: languages.SignatureHelp): cognidream {
+	public render(hints: languages.SignatureHelp): void {
 		this.renderDisposeables.clear();
 
 		if (!this.domNodes) {
@@ -297,7 +297,7 @@ export class ParameterHintsWidget extends Disposable implements IContentWidget {
 		return false;
 	}
 
-	private renderParameters(parent: HTMLElement, signature: languages.SignatureInformation, activeParameterIndex: number): cognidream {
+	private renderParameters(parent: HTMLElement, signature: languages.SignatureInformation, activeParameterIndex: number): void {
 		const [start, end] = this.getParameterLabelOffsets(signature, activeParameterIndex);
 
 		const beforeSpan = document.createElement('span');
@@ -331,12 +331,12 @@ export class ParameterHintsWidget extends Disposable implements IContentWidget {
 		}
 	}
 
-	next(): cognidream {
+	next(): void {
 		this.editor.focus();
 		this.model.next();
 	}
 
-	previous(): cognidream {
+	previous(): void {
 		this.editor.focus();
 		this.model.previous();
 	}
@@ -352,7 +352,7 @@ export class ParameterHintsWidget extends Disposable implements IContentWidget {
 		return ParameterHintsWidget.ID;
 	}
 
-	private updateMaxHeight(): cognidream {
+	private updateMaxHeight(): void {
 		if (!this.domNodes) {
 			return;
 		}

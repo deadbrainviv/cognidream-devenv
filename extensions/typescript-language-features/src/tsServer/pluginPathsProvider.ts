@@ -14,7 +14,7 @@ export class TypeScriptPluginPathsProvider {
 		private configuration: TypeScriptServiceConfiguration
 	) { }
 
-	public updateConfiguration(configuration: TypeScriptServiceConfiguration): cognidream {
+	public updateConfiguration(configuration: TypeScriptServiceConfiguration): void {
 		this.configuration = configuration;
 	}
 

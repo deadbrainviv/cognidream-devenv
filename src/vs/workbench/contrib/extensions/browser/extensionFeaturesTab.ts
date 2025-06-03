@@ -151,7 +151,7 @@ class RuntimeStatusMarkdownRenderer extends Disposable implements IExtensionFeat
 		return container;
 	}
 
-	private renderMarkdown(markdown: IMarkdownString, container: HTMLElement, disposables: DisposableStore): cognidream {
+	private renderMarkdown(markdown: IMarkdownString, container: HTMLElement, disposables: DisposableStore): void {
 		const { element, dispose } = renderMarkdown(
 			{
 				value: markdown.value,
@@ -168,7 +168,7 @@ class RuntimeStatusMarkdownRenderer extends Disposable implements IExtensionFeat
 		append(container, element);
 	}
 
-	private renderRequestsChart(container: HTMLElement, accessTimes: Date[], disposables: DisposableStorecognidreamognidream {
+	private renderRequestsChart(container: HTMLElement, accessTimes: Date[], disposables: DisposableStore): void {
 		const width = 450;
 		const height = 250;
 		const margin = { top: 0, right: 4, bottom: 20, left: 4 };
@@ -191,134 +191,134 @@ class RuntimeStatusMarkdownRenderer extends Disposable implements IExtensionFeat
 			maxCount = Math.max(maxCount, map.get(day)!);
 		}
 
-const now = new Date();
-type Point = { x: number; y: number; date: string; count: number };
-const points: Point[] = [];
-for (let i = 0; i <= 30; i++) {
-	const date = new Date(now);
-	date.setDate(now.getDate() - (30 - i));
-	const dateString = `${date.getDate()} ${date.toLocaleString('default', { month: 'short' })}`;
-	const count = map.get(dateString) ?? 0;
-	const x = (i / 30) * innerWidth;
-	const y = innerHeight - (count / maxCount) * innerHeight;
-	points.push({ x, y, date: dateString, count });
-}
-
-const chart = append(chartContainer, $('.feature-chart'));
-const svg = append(chart, $.SVG('svg'));
-svg.setAttribute('width', `${width}px`);
-svg.setAttribute('height', `${height}px`);
-svg.setAttribute('viewBox', `0 0 ${width} ${height}`);
-
-const g = $.SVG('g');
-g.setAttribute('transform', `translate(${margin.left},${margin.top})`);
-svg.appendChild(g);
-
-const xAxisLine = $.SVG('line');
-xAxisLine.setAttribute('x1', '0');
-xAxisLine.setAttribute('y1', `${innerHeight}`);
-xAxisLine.setAttribute('x2', `${innerWidth}`);
-xAxisLine.setAttribute('y2', `${innerHeight}`);
-xAxisLine.setAttribute('stroke', asCssVariable(chartAxis));
-xAxisLine.setAttribute('stroke-width', '1px');
-g.appendChild(xAxisLine);
-
-for (let i = 1; i <= 30; i += 7) {
-	const date = new Date(now);
-	date.setDate(now.getDate() - (30 - i));
-	const dateString = `${date.getDate()} ${date.toLocaleString('default', { month: 'short' })}`;
-	const x = (i / 30) * innerWidth;
-
-	// Add vertical line
-	const tick = $.SVG('line');
-	tick.setAttribute('x1', `${x}`);
-	tick.setAttribute('y1', `${innerHeight}`);
-	tick.setAttribute('x2', `${x}`);
-	tick.setAttribute('y2', `${innerHeight + 10}`);
-	tick.setAttribute('stroke', asCssVariable(chartAxis));
-	tick.setAttribute('stroke-width', '1px');
-	g.appendChild(tick);
-
-	const ruler = $.SVG('line');
-	ruler.setAttribute('x1', `${x}`);
-	ruler.setAttribute('y1', `0`);
-	ruler.setAttribute('x2', `${x}`);
-	ruler.setAttribute('y2', `${innerHeight}`);
-	ruler.setAttribute('stroke', asCssVariable(chartGuide));
-	ruler.setAttribute('stroke-width', '1px');
-	g.appendChild(ruler);
-
-	const xAxisDate = $.SVG('text');
-	xAxisDate.setAttribute('x', `${x}`);
-	xAxisDate.setAttribute('y', `${height}`); // Adjusted y position to be within the SVG view port
-	xAxisDate.setAttribute('text-anchor', 'middle');
-	xAxisDate.setAttribute('fill', asCssVariable(foreground));
-	xAxisDate.setAttribute('font-size', '10px');
-	xAxisDate.textContent = dateString;
-	g.appendChild(xAxisDate);
-}
-
-const line = $.SVG('polyline');
-line.setAttribute('fill', 'none');
-line.setAttribute('stroke', asCssVariable(chartLine));
-line.setAttribute('stroke-width', `2px`);
-line.setAttribute('points', points.map(p => `${p.x},${p.y}`).join(' '));
-g.appendChild(line);
-
-const highlightCircle = $.SVG('circle');
-highlightCircle.setAttribute('r', `4px`);
-highlightCircle.style.display = 'none';
-g.appendChild(highlightCircle);
-
-const hoverDisposable = disposables.add(new MutableDisposable<IDisposable>());
-const mouseMoveListener = (event: MouseEvcognidream: cognidream => {
-	const rect = svg.getBoundingClientRect();
-	const mouseX = event.clientX - rect.left - margin.left;
-
-	let closestPoint: Point | undefined;
-	let minDistance = Infinity;
-
-	points.forEach(point => {
-		const distance = Math.abs(point.x - mouseX);
-		if (distance < minDistance) {
-			minDistance = distance;
-			closestPoint = point;
+		const now = new Date();
+		type Point = { x: number; y: number; date: string; count: number };
+		const points: Point[] = [];
+		for (let i = 0; i <= 30; i++) {
+			const date = new Date(now);
+			date.setDate(now.getDate() - (30 - i));
+			const dateString = `${date.getDate()} ${date.toLocaleString('default', { month: 'short' })}`;
+			const count = map.get(dateString) ?? 0;
+			const x = (i / 30) * innerWidth;
+			const y = innerHeight - (count / maxCount) * innerHeight;
+			points.push({ x, y, date: dateString, count });
 		}
-	});
 
-	if (closestPoint) {
-		highlightCircle.setAttribute('cx', `${closestPoint.x}`);
-		highlightCircle.setAttribute('cy', `${closestPoint.y}`);
-		highlightCircle.style.display = 'block';
-		tooltip.style.left = `${closestPoint.x + 24}px`;
-		tooltip.style.top = `${closestPoint.y + 14}px`;
-		hoverDisposable.value = this.hoverService.showInstantHover({
-			content: new MarkdownString(`${closestPoint.date}: ${closestPoint.count} requests`),
-			target: tooltip,
-			appearance: {
-				showPointer: true,
-				skipFadeInAnimation: true,
+		const chart = append(chartContainer, $('.feature-chart'));
+		const svg = append(chart, $.SVG('svg'));
+		svg.setAttribute('width', `${width}px`);
+		svg.setAttribute('height', `${height}px`);
+		svg.setAttribute('viewBox', `0 0 ${width} ${height}`);
+
+		const g = $.SVG('g');
+		g.setAttribute('transform', `translate(${margin.left},${margin.top})`);
+		svg.appendChild(g);
+
+		const xAxisLine = $.SVG('line');
+		xAxisLine.setAttribute('x1', '0');
+		xAxisLine.setAttribute('y1', `${innerHeight}`);
+		xAxisLine.setAttribute('x2', `${innerWidth}`);
+		xAxisLine.setAttribute('y2', `${innerHeight}`);
+		xAxisLine.setAttribute('stroke', asCssVariable(chartAxis));
+		xAxisLine.setAttribute('stroke-width', '1px');
+		g.appendChild(xAxisLine);
+
+		for (let i = 1; i <= 30; i += 7) {
+			const date = new Date(now);
+			date.setDate(now.getDate() - (30 - i));
+			const dateString = `${date.getDate()} ${date.toLocaleString('default', { month: 'short' })}`;
+			const x = (i / 30) * innerWidth;
+
+			// Add vertical line
+			const tick = $.SVG('line');
+			tick.setAttribute('x1', `${x}`);
+			tick.setAttribute('y1', `${innerHeight}`);
+			tick.setAttribute('x2', `${x}`);
+			tick.setAttribute('y2', `${innerHeight + 10}`);
+			tick.setAttribute('stroke', asCssVariable(chartAxis));
+			tick.setAttribute('stroke-width', '1px');
+			g.appendChild(tick);
+
+			const ruler = $.SVG('line');
+			ruler.setAttribute('x1', `${x}`);
+			ruler.setAttribute('y1', `0`);
+			ruler.setAttribute('x2', `${x}`);
+			ruler.setAttribute('y2', `${innerHeight}`);
+			ruler.setAttribute('stroke', asCssVariable(chartGuide));
+			ruler.setAttribute('stroke-width', '1px');
+			g.appendChild(ruler);
+
+			const xAxisDate = $.SVG('text');
+			xAxisDate.setAttribute('x', `${x}`);
+			xAxisDate.setAttribute('y', `${height}`); // Adjusted y position to be within the SVG view port
+			xAxisDate.setAttribute('text-anchor', 'middle');
+			xAxisDate.setAttribute('fill', asCssVariable(foreground));
+			xAxisDate.setAttribute('font-size', '10px');
+			xAxisDate.textContent = dateString;
+			g.appendChild(xAxisDate);
+		}
+
+		const line = $.SVG('polyline');
+		line.setAttribute('fill', 'none');
+		line.setAttribute('stroke', asCssVariable(chartLine));
+		line.setAttribute('stroke-width', `2px`);
+		line.setAttribute('points', points.map(p => `${p.x},${p.y}`).join(' '));
+		g.appendChild(line);
+
+		const highlightCircle = $.SVG('circle');
+		highlightCircle.setAttribute('r', `4px`);
+		highlightCircle.style.display = 'none';
+		g.appendChild(highlightCircle);
+
+		const hoverDisposable = disposables.add(new MutableDisposable<IDisposable>());
+		const mouseMoveListener = (event: MouseEvent): void => {
+			const rect = svg.getBoundingClientRect();
+			const mouseX = event.clientX - rect.left - margin.left;
+
+			let closestPoint: Point | undefined;
+			let minDistance = Infinity;
+
+			points.forEach(point => {
+				const distance = Math.abs(point.x - mouseX);
+				if (distance < minDistance) {
+					minDistance = distance;
+					closestPoint = point;
+				}
+			});
+
+			if (closestPoint) {
+				highlightCircle.setAttribute('cx', `${closestPoint.x}`);
+				highlightCircle.setAttribute('cy', `${closestPoint.y}`);
+				highlightCircle.style.display = 'block';
+				tooltip.style.left = `${closestPoint.x + 24}px`;
+				tooltip.style.top = `${closestPoint.y + 14}px`;
+				hoverDisposable.value = this.hoverService.showInstantHover({
+					content: new MarkdownString(`${closestPoint.date}: ${closestPoint.count} requests`),
+					target: tooltip,
+					appearance: {
+						showPointer: true,
+						skipFadeInAnimation: true,
+					}
+				});
+			} else {
+				hoverDisposable.value = undefined;
 			}
-		});
-	} else {
-		hoverDisposable.value = undefined;
-	}
-};
-svg.addEventListener('mousemove', mouseMoveListener);
-disposables.add(toDisposable(() => svg.removeEventListener('mousemove', mouseMoveListener)));
+		};
+		svg.addEventListener('mousemove', mouseMoveListener);
+		disposables.add(toDisposable(() => svg.removeEventListener('mousemove', mouseMoveListener)));
 
-const mouseLeaveListener = () => {
-	highlightCircle.style.display = 'none';
-	hoverDisposable.value = undefined;
-};
-svg.addEventListener('mouseleave', mouseLeaveListener);
-disposables.add(toDisposable(() => svg.removeEventListener('mouseleave', mouseLeaveListener)));
-    }
+		const mouseLeaveListener = () => {
+			highlightCircle.style.display = 'none';
+			hoverDisposable.value = undefined;
+		};
+		svg.addEventListener('mouseleave', mouseLeaveListener);
+		disposables.add(toDisposable(() => svg.removeEventListener('mouseleave', mouseLeaveListener)));
+	}
 }
 
 
 interface ILayoutParticipant {
-	layout(height?: number, width?: numbercognidreamognidream;
+	layout(height?: number, width?: number): void;
 }
 
 const runtimeStatusFeature = {
@@ -353,125 +353,125 @@ export class ExtensionFeaturesTab extends Themable {
 		this.create();
 	}
 
-	layout(height?: number, width?: numbercognidreamognidream {
+	layout(height?: number, width?: number): void {
 		this.layoutParticipants.forEach(participant => participant.layout(height, width));
-    }
-
-    private create(cognidreamognidream {
-			const features = this.getFeatures();
-			if(features.length === 0) {
-	append($('.no-features'), this.domNode).textContent = localize('noFeatures', "No features contributed.");
-	return;
-}
-
-const splitView = this._register(new SplitView<number>(this.domNode, {
-	orientation: Orientation.HORIZONTAL,
-	proportionalLayout: true
-}));
-this.layoutParticipants.push({
-	layout: (height: number, width: number) => {
-		splitView.el.style.height = `${height - 14}px`;
-		splitView.layout(width);
 	}
-});
 
-const featuresListContainer = $('.features-list-container');
-const list = this._register(this.createFeaturesList(featuresListContainer));
-list.splice(0, list.length, features);
+	private create(): void {
+		const features = this.getFeatures();
+		if (features.length === 0) {
+			append($('.no-features'), this.domNode).textContent = localize('noFeatures', "No features contributed.");
+			return;
+		}
 
-const featureViewContainer = $('.feature-view-container');
-this._register(list.onDidChangeSelection(e => {
-	const feature = e.elements[0];
-	if (feature) {
-		this.showFeatureView(feature, featureViewContainer);
+		const splitView = this._register(new SplitView<number>(this.domNode, {
+			orientation: Orientation.HORIZONTAL,
+			proportionalLayout: true
+		}));
+		this.layoutParticipants.push({
+			layout: (height: number, width: number) => {
+				splitView.el.style.height = `${height - 14}px`;
+				splitView.layout(width);
+			}
+		});
+
+		const featuresListContainer = $('.features-list-container');
+		const list = this._register(this.createFeaturesList(featuresListContainer));
+		list.splice(0, list.length, features);
+
+		const featureViewContainer = $('.feature-view-container');
+		this._register(list.onDidChangeSelection(e => {
+			const feature = e.elements[0];
+			if (feature) {
+				this.showFeatureView(feature, featureViewContainer);
+			}
+		}));
+
+		const index = this.feature ? features.findIndex(f => f.id === this.feature) : 0;
+		list.setSelection([index === -1 ? 0 : index]);
+
+		splitView.addView({
+			onDidChange: Event.None,
+			element: featuresListContainer,
+			minimumSize: 100,
+			maximumSize: Number.POSITIVE_INFINITY,
+			layout: (width, _, height) => {
+				featuresListContainer.style.width = `${width}px`;
+				list.layout(height, width);
+			}
+		}, 200, undefined, true);
+
+		splitView.addView({
+			onDidChange: Event.None,
+			element: featureViewContainer,
+			minimumSize: 500,
+			maximumSize: Number.POSITIVE_INFINITY,
+			layout: (width, _, height) => {
+				featureViewContainer.style.width = `${width}px`;
+				this.featureViewDimension = { height, width };
+				this.layoutFeatureView();
+			}
+		}, Sizing.Distribute, undefined, true);
+
+		splitView.style({
+			separatorBorder: this.theme.getColor(PANEL_SECTION_BORDER)!
+		});
 	}
-}));
 
-const index = this.feature ? features.findIndex(f => f.id === this.feature) : 0;
-list.setSelection([index === -1 ? 0 : index]);
-
-splitView.addView({
-	onDidChange: Event.None,
-	element: featuresListContainer,
-	minimumSize: 100,
-	maximumSize: Number.POSITIVE_INFINITY,
-	layout: (width, _, height) => {
-		featuresListContainer.style.width = `${width}px`;
-		list.layout(height, width);
+	private createFeaturesList(container: HTMLElement): WorkbenchList<IExtensionFeatureDescriptor> {
+		const renderer = this.instantiationService.createInstance(ExtensionFeatureItemRenderer, this.extensionId);
+		const delegate = new ExtensionFeatureItemDelegate();
+		const list = this.instantiationService.createInstance(WorkbenchList, 'ExtensionFeaturesList', append(container, $('.features-list-wrapper')), delegate, [renderer], {
+			multipleSelectionSupport: false,
+			setRowLineHeight: false,
+			horizontalScrolling: false,
+			accessibilityProvider: {
+				getAriaLabel(extensionFeature: IExtensionFeatureDescriptor | null): string {
+					return extensionFeature?.label ?? '';
+				},
+				getWidgetAriaLabel(): string {
+					return localize('extension features list', "Extension Features");
+				}
+			},
+			openOnSingleClick: true
+		}) as WorkbenchList<IExtensionFeatureDescriptor>;
+		return list;
 	}
-}, 200, undefined, true);
 
-splitView.addView({
-	onDidChange: Event.None,
-	element: featureViewContainer,
-	minimumSize: 500,
-	maximumSize: Number.POSITIVE_INFINITY,
-	layout: (width, _, height) => {
-		featureViewContainer.style.width = `${width}px`;
-		this.featureViewDimension = { height, width };
+	private layoutFeatureView(): void {
+		this.featureView.value?.layout(this.featureViewDimension?.height, this.featureViewDimension?.width);
+	}
+
+	private showFeatureView(feature: IExtensionFeatureDescriptor, container: HTMLElement): void {
+		if (this.featureView.value?.feature.id === feature.id) {
+			return;
+		}
+		clearNode(container);
+		this.featureView.value = this.instantiationService.createInstance(ExtensionFeatureView, this.extensionId, this.manifest, feature);
+		container.appendChild(this.featureView.value.domNode);
 		this.layoutFeatureView();
 	}
-}, Sizing.Distribute, undefined, true);
 
-splitView.style({
-	separatorBorder: this.theme.getColor(PANEL_SECTION_BORDER)!
-});
-    }
+	private getFeatures(): IExtensionFeatureDescriptor[] {
+		const features = Registry.as<IExtensionFeaturesRegistry>(Extensions.ExtensionFeaturesRegistry)
+			.getExtensionFeatures().filter(feature => {
+				const renderer = this.getRenderer(feature);
+				const shouldRender = renderer?.shouldRender(this.manifest);
+				renderer?.dispose();
+				return shouldRender;
+			}).sort((a, b) => a.label.localeCompare(b.label));
 
-    private createFeaturesList(container: HTMLElement): WorkbenchList < IExtensionFeatureDescriptor > {
-	const renderer = this.instantiationService.createInstance(ExtensionFeatureItemRenderer, this.extensionId);
-	const delegate = new ExtensionFeatureItemDelegate();
-	const list = this.instantiationService.createInstance(WorkbenchList, 'ExtensionFeaturesList', append(container, $('.features-list-wrapper')), delegate, [renderer], {
-		multipleSelectionSupport: false,
-		setRowLineHeight: false,
-		horizontalScrolling: false,
-		accessibilityProvider: {
-			getAriaLabel(extensionFeature: IExtensionFeatureDescriptor | null): string {
-				return extensionFeature?.label ?? '';
-			},
-			getWidgetAriaLabel(): string {
-				return localize('extension features list', "Extension Features");
-			}
-		},
-		openOnSingleClick: true
-	}) as WorkbenchList<IExtensionFeatureDescriptor>;
-	return list;
-}
-
-    private layoutFeatureView(cognidreamognidream {
-	this.featureView.value?.layout(this.featureViewDimension?.height, this.featureViewDimension?.width);
-}
-
-    private showFeatureView(feature: IExtensionFeatureDescriptor, container: HTMLElementcognidreamognidream {
-	if(this.featureView.value?.feature.id === feature.id) {
-	return;
-}
-        clearNode(container);
-this.featureView.value = this.instantiationService.createInstance(ExtensionFeatureView, this.extensionId, this.manifest, feature);
-container.appendChild(this.featureView.value.domNode);
-this.layoutFeatureView();
-    }
-
-    private getFeatures(): IExtensionFeatureDescriptor[] {
-	const features = Registry.as<IExtensionFeaturesRegistry>(Extensions.ExtensionFeaturesRegistry)
-		.getExtensionFeatures().filter(feature => {
-			const renderer = this.getRenderer(feature);
-			const shouldRender = renderer?.shouldRender(this.manifest);
-			renderer?.dispose();
-			return shouldRender;
-		}).sort((a, b) => a.label.localeCompare(b.label));
-
-	const renderer = this.getRenderer(runtimeStatusFeature);
-	if (renderer?.shouldRender(this.manifest)) {
-		features.splice(0, 0, runtimeStatusFeature);
+		const renderer = this.getRenderer(runtimeStatusFeature);
+		if (renderer?.shouldRender(this.manifest)) {
+			features.splice(0, 0, runtimeStatusFeature);
+		}
+		renderer?.dispose();
+		return features;
 	}
-	renderer?.dispose();
-	return features;
-}
 
-    private getRenderer(feature: IExtensionFeatureDescriptor): IExtensionFeatureRenderer | undefined {
-	return feature.renderer ? this.instantiationService.createInstance(feature.renderer) : undefined;
-}
+	private getRenderer(feature: IExtensionFeatureDescriptor): IExtensionFeatureRenderer | undefined {
+		return feature.renderer ? this.instantiationService.createInstance(feature.renderer) : undefined;
+	}
 
 }
 
@@ -534,13 +534,13 @@ class ExtensionFeatureItemRenderer implements IListRenderer<IExtensionFeatureDes
 		}));
 	}
 
-	disposeElement(element: IExtensionFeatureDescriptor, index: number, templateData: IExtensionFeatureItemTemplateData, height: number | undefinedcognidreamognidream {
+	disposeElement(element: IExtensionFeatureDescriptor, index: number, templateData: IExtensionFeatureItemTemplateData, height: number | undefined): void {
 		templateData.disposables.dispose();
-    }
+	}
 
-disposeTemplate(templateData: IExtensionFeatureItemTemplateData) {
-	templateData.disposables.dispose();
-}
+	disposeTemplate(templateData: IExtensionFeatureItemTemplateData) {
+		templateData.disposables.dispose();
+	}
 
 }
 
@@ -564,192 +564,192 @@ class ExtensionFeatureView extends Disposable {
 		this.create(this.domNode);
 	}
 
-	private create(content: HTMLElementcognidreamognidream {
+	private create(content: HTMLElement): void {
 		const header = append(content, $('.feature-header'));
 		const title = append(header, $('.feature-title'));
 		title.textContent = this.feature.label;
 
 		if (this.feature.access.canToggle) {
-	const actionsContainer = append(header, $('.feature-actions'));
-	const button = new Button(actionsContainer, defaultButtonStyles);
-	this.updateButtonLabel(button);
-	this._register(this.extensionFeaturesManagementService.onDidChangeEnablement(({ extension, featureId }) => {
-		if (ExtensionIdentifier.equals(extension, this.extensionId) && featureId === this.feature.id) {
+			const actionsContainer = append(header, $('.feature-actions'));
+			const button = new Button(actionsContainer, defaultButtonStyles);
 			this.updateButtonLabel(button);
+			this._register(this.extensionFeaturesManagementService.onDidChangeEnablement(({ extension, featureId }) => {
+				if (ExtensionIdentifier.equals(extension, this.extensionId) && featureId === this.feature.id) {
+					this.updateButtonLabel(button);
+				}
+			}));
+			this._register(button.onDidClick(async () => {
+				const enabled = this.extensionFeaturesManagementService.isEnabled(this.extensionId, this.feature.id);
+				const confirmationResult = await this.dialogService.confirm({
+					title: localize('accessExtensionFeature', "Enable '{0}' Feature", this.feature.label),
+					message: enabled
+						? localize('disableAccessExtensionFeatureMessage', "Would you like to revoke '{0}' extension to access '{1}' feature?", this.manifest.displayName ?? this.extensionId.value, this.feature.label)
+						: localize('enableAccessExtensionFeatureMessage', "Would you like to allow '{0}' extension to access '{1}' feature?", this.manifest.displayName ?? this.extensionId.value, this.feature.label),
+					custom: true,
+					primaryButton: enabled ? localize('revoke', "Revoke Access") : localize('grant', "Allow Access"),
+					cancelButton: localize('cancel', "Cancel"),
+				});
+				if (confirmationResult.confirmed) {
+					this.extensionFeaturesManagementService.setEnablement(this.extensionId, this.feature.id, !enabled);
+				}
+			}));
 		}
-	}));
-	this._register(button.onDidClick(async () => {
-		const enabled = this.extensionFeaturesManagementService.isEnabled(this.extensionId, this.feature.id);
-		const confirmationResult = await this.dialogService.confirm({
-			title: localize('accessExtensionFeature', "Enable '{0}' Feature", this.feature.label),
-			message: enabled
-				? localize('disableAccessExtensionFeatureMessage', "Would you like to revoke '{0}' extension to access '{1}' feature?", this.manifest.displayName ?? this.extensionId.value, this.feature.label)
-				: localize('enableAccessExtensionFeatureMessage', "Would you like to allow '{0}' extension to access '{1}' feature?", this.manifest.displayName ?? this.extensionId.value, this.feature.label),
-			custom: true,
-			primaryButton: enabled ? localize('revoke', "Revoke Access") : localize('grant', "Allow Access"),
-			cancelButton: localize('cancel', "Cancel"),
-		});
-		if (confirmationResult.confirmed) {
-			this.extensionFeaturesManagementService.setEnablement(this.extensionId, this.feature.id, !enabled);
+
+		const body = append(content, $('.feature-body'));
+
+		const bodyContent = $('.feature-body-content');
+		const scrollableContent = this._register(new DomScrollableElement(bodyContent, {}));
+		append(body, scrollableContent.getDomNode());
+		this.layoutParticipants.push({ layout: () => scrollableContent.scanDomNode() });
+		scrollableContent.scanDomNode();
+
+		if (this.feature.description) {
+			const description = append(bodyContent, $('.feature-description'));
+			description.textContent = this.feature.description;
 		}
-	}));
-}
 
-const body = append(content, $('.feature-body'));
+		const accessData = this.extensionFeaturesManagementService.getAccessData(this.extensionId, this.feature.id);
+		if (accessData?.current?.status) {
+			append(bodyContent, $('.feature-status', undefined,
+				$(`span${ThemeIcon.asCSSSelector(accessData.current.status.severity === Severity.Error ? errorIcon : accessData.current.status.severity === Severity.Warning ? warningIcon : infoIcon)}`, undefined),
+				$('span', undefined, accessData.current.status.message)));
+		}
 
-const bodyContent = $('.feature-body-content');
-const scrollableContent = this._register(new DomScrollableElement(bodyContent, {}));
-append(body, scrollableContent.getDomNode());
-this.layoutParticipants.push({ layout: () => scrollableContent.scanDomNode() });
-scrollableContent.scanDomNode();
-
-if (this.feature.description) {
-	const description = append(bodyContent, $('.feature-description'));
-	description.textContent = this.feature.description;
-}
-
-const accessData = this.extensionFeaturesManagementService.getAccessData(this.extensionId, this.feature.id);
-if (accessData?.current?.status) {
-	append(bodyContent, $('.feature-status', undefined,
-		$(`span${ThemeIcon.asCSSSelector(accessData.current.status.severity === Severity.Error ? errorIcon : accessData.current.status.severity === Severity.Warning ? warningIcon : infoIcon)}`, undefined),
-		$('span', undefined, accessData.current.status.message)));
-}
-
-const featureContentElement = append(bodyContent, $('.feature-content'));
-if (this.feature.renderer) {
-	const renderer = this.instantiationService.createInstance<IExtensionFeatureRenderer>(this.feature.renderer);
-	if (renderer.type === 'table') {
-		this.renderTableData(featureContentElement, <IExtensionFeatureTableRenderer>renderer);
-	} else if (renderer.type === 'markdown') {
-		this.renderMarkdownData(featureContentElement, <IExtensionFeatureMarkdownRenderer>renderer);
-	} else if (renderer.type === 'markdown+table') {
-		this.renderMarkdownAndTableData(featureContentElement, <IExtensionFeatureMarkdownAndTableRenderer>renderer);
-	} else if (renderer.type === 'element') {
-		this.renderElementData(featureContentElement, <IExtensionFeatureElementRenderer>renderer);
+		const featureContentElement = append(bodyContent, $('.feature-content'));
+		if (this.feature.renderer) {
+			const renderer = this.instantiationService.createInstance<IExtensionFeatureRenderer>(this.feature.renderer);
+			if (renderer.type === 'table') {
+				this.renderTableData(featureContentElement, <IExtensionFeatureTableRenderer>renderer);
+			} else if (renderer.type === 'markdown') {
+				this.renderMarkdownData(featureContentElement, <IExtensionFeatureMarkdownRenderer>renderer);
+			} else if (renderer.type === 'markdown+table') {
+				this.renderMarkdownAndTableData(featureContentElement, <IExtensionFeatureMarkdownAndTableRenderer>renderer);
+			} else if (renderer.type === 'element') {
+				this.renderElementData(featureContentElement, <IExtensionFeatureElementRenderer>renderer);
+			}
+		}
 	}
-}
-    }
 
-    private updateButtonLabel(button: Buttoncognidreamognidream {
-	button.label = this.extensionFeaturesManagementService.isEnabled(this.extensionId, this.feature.id) ? localize('revoke', "Revoke Access") : localize('enable', "Allow Access");
-}
+	private updateButtonLabel(button: Button): void {
+		button.label = this.extensionFeaturesManagementService.isEnabled(this.extensionId, this.feature.id) ? localize('revoke', "Revoke Access") : localize('enable', "Allow Access");
+	}
 
-    private renderTableData(container: HTMLElement, renderer: IExtensionFeatureTableRenderercognidreamognidream {
-	const tableData = this._register(renderer.render(this.manifest));
-	const tableDisposable = this._register(new MutableDisposable());
-	if(tableData.onDidChange) {
-	this._register(tableData.onDidChange(data => {
-		clearNode(container);
-		tableDisposable.value = this.renderTable(data, container);
-	}));
-}
-        tableDisposable.value = this.renderTable(tableData.data, container);
-    }
+	private renderTableData(container: HTMLElement, renderer: IExtensionFeatureTableRenderer): void {
+		const tableData = this._register(renderer.render(this.manifest));
+		const tableDisposable = this._register(new MutableDisposable());
+		if (tableData.onDidChange) {
+			this._register(tableData.onDidChange(data => {
+				clearNode(container);
+				tableDisposable.value = this.renderTable(data, container);
+			}));
+		}
+		tableDisposable.value = this.renderTable(tableData.data, container);
+	}
 
-    private renderTable(tableData: ITableData, container: HTMLElement): IDisposable {
-	const disposables = new DisposableStore();
-	append(container,
-		$('table', undefined,
-			$('tr', undefined,
-				...tableData.headers.map(header => $('th', undefined, header))
-			),
-			...tableData.rows
-				.map(row => {
-					return $('tr', undefined,
-						...row.map(rowData => {
-							if (typeof rowData === 'string') {
-								return $('td', undefined, $('p', undefined, rowData));
-							}
-							const data = Array.isArray(rowData) ? rowData : [rowData];
-							return $('td', undefined, ...data.map(item => {
-								const result: Node[] = [];
-								if (isMarkdownString(rowData)) {
-									const element = $('', undefined);
-									this.renderMarkdown(rowData, element);
-									result.push(element);
-								} else if (item instanceof ResolvedKeybinding) {
-									const element = $('');
-									const kbl = disposables.add(new KeybindingLabel(element, OS, defaultKeybindingLabelStyles));
-									kbl.set(item);
-									result.push(element);
-								} else if (item instanceof Color) {
-									result.push($('span', { class: 'colorBox', style: 'background-color: ' + Color.Format.CSS.format(item) }, ''));
-									result.push($('code', undefined, Color.Format.CSS.formatHex(item)));
+	private renderTable(tableData: ITableData, container: HTMLElement): IDisposable {
+		const disposables = new DisposableStore();
+		append(container,
+			$('table', undefined,
+				$('tr', undefined,
+					...tableData.headers.map(header => $('th', undefined, header))
+				),
+				...tableData.rows
+					.map(row => {
+						return $('tr', undefined,
+							...row.map(rowData => {
+								if (typeof rowData === 'string') {
+									return $('td', undefined, $('p', undefined, rowData));
 								}
-								return result;
-							}).flat());
-						})
-					);
-				})));
-	return disposables;
-}
+								const data = Array.isArray(rowData) ? rowData : [rowData];
+								return $('td', undefined, ...data.map(item => {
+									const result: Node[] = [];
+									if (isMarkdownString(rowData)) {
+										const element = $('', undefined);
+										this.renderMarkdown(rowData, element);
+										result.push(element);
+									} else if (item instanceof ResolvedKeybinding) {
+										const element = $('');
+										const kbl = disposables.add(new KeybindingLabel(element, OS, defaultKeybindingLabelStyles));
+										kbl.set(item);
+										result.push(element);
+									} else if (item instanceof Color) {
+										result.push($('span', { class: 'colorBox', style: 'background-color: ' + Color.Format.CSS.format(item) }, ''));
+										result.push($('code', undefined, Color.Format.CSS.formatHex(item)));
+									}
+									return result;
+								}).flat());
+							})
+						);
+					})));
+		return disposables;
+	}
 
-    private renderMarkdownAndTableData(container: HTMLElement, renderer: IExtensionFeatureMarkdownAndTableRenderercognidreamognidream {
-	const markdownAndTableData = this._register(renderer.render(this.manifest));
-	if(markdownAndTableData.onDidChange) {
-	this._register(markdownAndTableData.onDidChange(data => {
-		clearNode(container);
-		this.renderMarkdownAndTable(data, container);
-	}));
-}
-this.renderMarkdownAndTable(markdownAndTableData.data, container);
-    }
+	private renderMarkdownAndTableData(container: HTMLElement, renderer: IExtensionFeatureMarkdownAndTableRenderer): void {
+		const markdownAndTableData = this._register(renderer.render(this.manifest));
+		if (markdownAndTableData.onDidChange) {
+			this._register(markdownAndTableData.onDidChange(data => {
+				clearNode(container);
+				this.renderMarkdownAndTable(data, container);
+			}));
+		}
+		this.renderMarkdownAndTable(markdownAndTableData.data, container);
+	}
 
-    private renderMarkdownData(container: HTMLElement, renderer: IExtensionFeatureMarkdownRenderercognidreamognidream {
-	container.classList.add('markdown');
-	const markdownData = this._register(renderer.render(this.manifest));
-	if(markdownData.onDidChange) {
-	this._register(markdownData.onDidChange(data => {
-		clearNode(container);
-		this.renderMarkdown(data, container);
-	}));
-}
-this.renderMarkdown(markdownData.data, container);
-    }
+	private renderMarkdownData(container: HTMLElement, renderer: IExtensionFeatureMarkdownRenderer): void {
+		container.classList.add('markdown');
+		const markdownData = this._register(renderer.render(this.manifest));
+		if (markdownData.onDidChange) {
+			this._register(markdownData.onDidChange(data => {
+				clearNode(container);
+				this.renderMarkdown(data, container);
+			}));
+		}
+		this.renderMarkdown(markdownData.data, container);
+	}
 
-    private renderMarkdown(markdown: IMarkdownString, container: HTMLElementcognidreamognidream {
-	const { element, dispose } = renderMarkdown(
-		{
-			value: markdown.value,
-			isTrusted: markdown.isTrusted,
-			supportThemeIcons: true
-		},
-		{
-			actionHandler: {
-				callback: (content) => this.openerService.open(content, { allowCommands: !!markdown.isTrusted }).catch(onUnexpectedError),
-				disposables: this._store
+	private renderMarkdown(markdown: IMarkdownString, container: HTMLElement): void {
+		const { element, dispose } = renderMarkdown(
+			{
+				value: markdown.value,
+				isTrusted: markdown.isTrusted,
+				supportThemeIcons: true
 			},
-		});
-	this._register(toDisposable(dispose));
-	append(container, element);
-}
+			{
+				actionHandler: {
+					callback: (content) => this.openerService.open(content, { allowCommands: !!markdown.isTrusted }).catch(onUnexpectedError),
+					disposables: this._store
+				},
+			});
+		this._register(toDisposable(dispose));
+		append(container, element);
+	}
 
-    private renderMarkdownAndTable(data: Array<IMarkdownString | ITableData>, container: HTMLElementcognidreamognidream {
-	for(const markdownOrTable of data) {
-		if (isMarkdownString(markdownOrTable)) {
-			const element = $('', undefined);
-			this.renderMarkdown(markdownOrTable, element);
-			append(container, element);
-		} else {
-			const tableElement = append(container, $('table'));
-			this.renderTable(markdownOrTable, tableElement);
+	private renderMarkdownAndTable(data: Array<IMarkdownString | ITableData>, container: HTMLElement): void {
+		for (const markdownOrTable of data) {
+			if (isMarkdownString(markdownOrTable)) {
+				const element = $('', undefined);
+				this.renderMarkdown(markdownOrTable, element);
+				append(container, element);
+			} else {
+				const tableElement = append(container, $('table'));
+				this.renderTable(markdownOrTable, tableElement);
+			}
 		}
 	}
-}
 
-    private renderElementData(container: HTMLElement, renderer: IExtensionFeatureElementRenderercognidreamognidream {
-	const elementData = renderer.render(this.manifest);
-	if(elementData.onDidChange) {
-	this._register(elementData.onDidChange(data => {
-		clearNode(container);
-		container.appendChild(data);
-	}));
-}
-        container.appendChild(elementData.data);
-    }
+	private renderElementData(container: HTMLElement, renderer: IExtensionFeatureElementRenderer): void {
+		const elementData = renderer.render(this.manifest);
+		if (elementData.onDidChange) {
+			this._register(elementData.onDidChange(data => {
+				clearNode(container);
+				container.appendChild(data);
+			}));
+		}
+		container.appendChild(elementData.data);
+	}
 
-layout(height ?: number, width ?: numbercognidreamognidream {
-	this.layoutParticipants.forEach(p => p.layout(height, width));
-}
+	layout(height?: number, width?: number): void {
+		this.layoutParticipants.forEach(p => p.layout(height, width));
+	}
 
 }

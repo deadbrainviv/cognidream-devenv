@@ -6,7 +6,7 @@ Shader "Example/Diffuse Simple" {
       struct Input {
           float4 color : COLOR;
       };
-      cognidream surf (Input IN, inout SurfaceOutput o) {
+      void surf (Input IN, inout SurfaceOutput o) {
           o.Albedo = 1;
       }
       ENDCG

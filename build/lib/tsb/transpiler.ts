@@ -184,9 +184,9 @@ class TranspileWorker {
 }
 
 export interface ITranspiler {
-	onOutfile?: (file: Vinyl) => cognidream;
-	join(): Promise<cognidream>;
-	transpile(file: Vinyl): cognidream;
+	onOutfile?: (file: Vinyl) => void;
+	join(): Promise<void>;
+	transpile(file: Vinyl): void;
 }
 
 export class TscTranspiler implements ITranspiler {
@@ -196,15 +196,15 @@ export class TscTranspiler implements ITranspiler {
 	private readonly _outputFileNames: OutputFileNameOracle;
 
 
-	public onOutfile?: (file: Vinyl) => cognidream;
+	public onOutfile?: (file: Vinyl) => void;
 
 	private _workerPool: TranspileWorker[] = [];
 	private _queue: Vinyl[] = [];
 	private _allJobs: Promise<any>[] = [];
 
 	constructor(
-		logFn: (topic: string, message: string) => cognidream,
-		private readonly _onError: (err: any) => cognidream,
+		logFn: (topic: string, message: string) => void,
+		private readonly _onError: (err: any) => void,
 		configFilePath: string,
 		private readonly _cmdLine: ts.ParsedCommandLine
 	) {
@@ -237,7 +237,7 @@ export class TscTranspiler implements ITranspiler {
 		}
 	}
 
-	private _consumeQueue(): cognidream {
+	private _consumeQueue(): void {
 
 		if (this._queue.length === 0) {
 			// no work...
@@ -296,13 +296,13 @@ export class ESBuildTranspiler implements ITranspiler {
 	private readonly _outputFileNames: OutputFileNameOracle;
 	private _jobs: Promise<any>[] = [];
 
-	onOutfile?: ((file: Vinyl) => cognidream) | undefined;
+	onOutfile?: ((file: Vinyl) => void) | undefined;
 
 	private readonly _transformOpts: esbuild.TransformOptions;
 
 	constructor(
-		private readonly _logFn: (topic: string, message: string) => cognidream,
-		private readonly _onError: (err: any) => cognidream,
+		private readonly _logFn: (topic: string, message: string) => void,
+		private readonly _onError: (err: any) => void,
 		configFilePath: string,
 		private readonly _cmdLine: ts.ParsedCommandLine
 	) {
@@ -333,13 +333,13 @@ export class ESBuildTranspiler implements ITranspiler {
 		};
 	}
 
-	async join(): Promise<cognidream> {
+	async join(): Promise<void> {
 		const jobs = this._jobs.slice();
 		this._jobs.length = 0;
 		await Promise.allSettled(jobs);
 	}
 
-	transpile(file: Vinyl): cognidream {
+	transpile(file: Vinyl): void {
 		if (!(file.contents instanceof Buffer)) {
 			throw Error('file.contents must be a Buffer');
 		}

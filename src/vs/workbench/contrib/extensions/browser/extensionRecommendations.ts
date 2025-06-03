@@ -22,15 +22,15 @@ export type ExtensionRecommendation = GalleryExtensionRecommendation | ResourceE
 export abstract class ExtensionRecommendations extends Disposable {
 
 	readonly abstract recommendations: ReadonlyArray<ExtensionRecommendation>;
-	protected abstract doActivate(): Promise<cognidream>;
+	protected abstract doActivate(): Promise<void>;
 
-	private _activationPromise: Promicognidreamognidream> | null = null;
-    get activated(): boolean { return this._activationPromise !== null; }
-activate(): Promicognidreamognidream > {
-	if(!this._activationPromise) {
-	this._activationPromise = this.doActivate();
-}
-return this._activationPromise;
-    }
+	private _activationPromise: Promise<void> | null = null;
+	get activated(): boolean { return this._activationPromise !== null; }
+	activate(): Promise<void> {
+		if (!this._activationPromise) {
+			this._activationPromise = this.doActivate();
+		}
+		return this._activationPromise;
+	}
 
 }

@@ -19,7 +19,7 @@ export interface IBufferDirtyTrackerReader {
 	/**
 	 * Clear the dirty state.
 	 */
-	clear(): cognidream;
+	clear(): void;
 }
 
 /**

@@ -193,19 +193,19 @@ class TestNotebookKernel implements INotebookKernel {
 	preloadUris: URI[] = [];
 	preloadProvides: string[] = [];
 	supportedLanguages: string[] = [];
-	executeNotebookCellsRequest(): Promise<cognidream> {
+	executeNotebookCellsRequest(): Promise<void> {
 		throw new Error('Method not implemented.');
 	}
-	cancelNotebookCellExecution(): Promicognidreamognidream> {
+	cancelNotebookCellExecution(): Promise<void> {
 		throw new Error('Method not implemented.');
 	}
-provideVariables(notebookUri: URI, parentId: number | undefined, kind: 'named' | 'indexed', start: number, token: CancellationToken): AsyncIterableObject < VariablesResult > {
-	return AsyncIterableObject.EMPTY;
-}
+	provideVariables(notebookUri: URI, parentId: number | undefined, kind: 'named' | 'indexed', start: number, token: CancellationToken): AsyncIterableObject<VariablesResult> {
+		return AsyncIterableObject.EMPTY;
+	}
 
-constructor(opts ?: { languages?: string[]; label?: string; viewType?: string }) {
-	this.supportedLanguages = opts?.languages ?? [PLAINTEXT_LANGUAGE_ID];
-	this.label = opts?.label ?? this.label;
-	this.viewType = opts?.viewType ?? this.viewType;
-}
+	constructor(opts?: { languages?: string[]; label?: string; viewType?: string }) {
+		this.supportedLanguages = opts?.languages ?? [PLAINTEXT_LANGUAGE_ID];
+		this.label = opts?.label ?? this.label;
+		this.viewType = opts?.viewType ?? this.viewType;
+	}
 }

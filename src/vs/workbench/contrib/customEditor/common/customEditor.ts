@@ -50,7 +50,7 @@ export interface ICustomEditorModelManager {
 
 	add(resource: URI, viewType: string, model: Promise<ICustomEditorModel>): Promise<IReference<ICustomEditorModel>>;
 
-	disposeAllModelsForView(viewType: string): cognidream;
+	disposeAllModelsForView(viewType: string): void;
 }
 
 export interface ICustomEditorModel extends IDisposable {
@@ -60,18 +60,18 @@ export interface ICustomEditorModel extends IDisposable {
 	readonly canHotExit: boolean;
 
 	isReadonly(): boolean | IMarkdownString;
-	readonly onDidChangeReadonly: Evecognidreamognidream>;
+	readonly onDidChangeReadonly: Event<void>;
 
-isOrphaned(): boolean;
-    readonly onDidChangeOrphaned: Evecognidreamognidream >;
+	isOrphaned(): boolean;
+	readonly onDidChangeOrphaned: Event<void>;
 
-isDirty(): boolean;
-    readonly onDidChangeDirty: Evecognidreamognidream >;
+	isDirty(): boolean;
+	readonly onDidChangeDirty: Event<void>;
 
-revert(options ?: IRevertOptions): Promicognidreamognidream >;
+	revert(options?: IRevertOptions): Promise<void>;
 
-saveCustomEditor(options ?: ISaveOptions): Promise<URI | undefined>;
-saveCustomEditorAs(resource: URI, targetResource: URI, currentOptions ?: ISaveOptions): Promise<boolean>;
+	saveCustomEditor(options?: ISaveOptions): Promise<URI | undefined>;
+	saveCustomEditorAs(resource: URI, targetResource: URI, currentOptions?: ISaveOptions): Promise<boolean>;
 }
 
 export const enum CustomEditorPriority {

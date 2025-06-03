@@ -116,7 +116,7 @@ export class MainThreadTerminalService implements MainThreadTerminalServiceShape
 		this._store.add(this._terminalProfileService.onDidChangeAvailableProfiles(() => this._updateDefaultProfile()));
 	}
 
-	public dispose(): cognidream {
+	public dispose(): void {
 		this._store.dispose();
 		for (const provider of this._profileProviders.values()) {
 			provider.dispose();
@@ -140,7 +140,7 @@ export class MainThreadTerminalService implements MainThreadTerminalServiceShape
 		return this._terminalService.getInstanceFromId(id);
 	}
 
-	public async $createTerminal(extHostTerminalId: string, launchConfig: TerminalLaunchConfig): Promicognidreamognidream> {
+	public async $createTerminal(extHostTerminalId: string, launchConfig: TerminalLaunchConfig): Promise<void> {
 		const shellLaunchConfig: IShellLaunchConfig = {
 			name: launchConfig.name,
 			executable: launchConfig.shellPath,
@@ -178,327 +178,327 @@ export class MainThreadTerminalService implements MainThreadTerminalServiceShape
 		}));
 	}
 
-    private async _deserializeParentTerminal(location ?: TerminalLocation | TerminalEditorLocationOptions | { parentTerminal: ExtHostTerminalIdentifier } | { splitActiveTerminal: boolean; location?: TerminalLocation }): Promise < TerminalLocation | TerminalEditorLocationOptions | { parentTerminal: ITerminalInstance } | { splitActiveTerminal: boolean } | undefined > {
-	if(typeof location === 'object' && 'parentTerminal' in location) {
-	const parentTerminal = await this._extHostTerminals.get(location.parentTerminal.toString());
-	return parentTerminal ? { parentTerminal } : undefined;
-}
-return location;
-    }
+	private async _deserializeParentTerminal(location?: TerminalLocation | TerminalEditorLocationOptions | { parentTerminal: ExtHostTerminalIdentifier } | { splitActiveTerminal: boolean; location?: TerminalLocation }): Promise<TerminalLocation | TerminalEditorLocationOptions | { parentTerminal: ITerminalInstance } | { splitActiveTerminal: boolean } | undefined> {
+		if (typeof location === 'object' && 'parentTerminal' in location) {
+			const parentTerminal = await this._extHostTerminals.get(location.parentTerminal.toString());
+			return parentTerminal ? { parentTerminal } : undefined;
+		}
+		return location;
+	}
 
-    public async $show(id: ExtHostTerminalIdentifier, preserveFocus: boolean): Promicognidreamognidream > {
-	const terminalInstance = await this._getTerminalInstance(id);
-	if(terminalInstance) {
-		this._terminalService.setActiveInstance(terminalInstance);
-		if (terminalInstance.target === TerminalLocation.Editor) {
-			await this._terminalEditorService.revealActiveEditor(preserveFocus);
-		} else {
-			await this._terminalGroupService.showPanel(!preserveFocus);
+	public async $show(id: ExtHostTerminalIdentifier, preserveFocus: boolean): Promise<void> {
+		const terminalInstance = await this._getTerminalInstance(id);
+		if (terminalInstance) {
+			this._terminalService.setActiveInstance(terminalInstance);
+			if (terminalInstance.target === TerminalLocation.Editor) {
+				await this._terminalEditorService.revealActiveEditor(preserveFocus);
+			} else {
+				await this._terminalGroupService.showPanel(!preserveFocus);
+			}
 		}
 	}
-}
 
-    public async $hide(id: ExtHostTerminalIdentifier): Promicognidreamognidream > {
-	const instanceToHide = await this._getTerminalInstance(id);
-	const activeInstance = this._terminalService.activeInstance;
-	if(activeInstance && activeInstance.instanceId === instanceToHide?.instanceId && activeInstance.target !== TerminalLocation.Editor) {
-	this._terminalGroupService.hidePanel();
-}
-    }
-
-    public async $dispose(id: ExtHostTerminalIdentifier): Promicognidreamognidream > {
-        (await this._getTerminalInstance(id))?.dispose(TerminalExitReason.Extension);
-    }
-
-    public async $sendText(id: ExtHostTerminalIdentifier, text: string, shouldExecute: boolean): Promicognidreamognidream > {
-	const instance = await this._getTerminalInstance(id);
-	await instance?.sendText(text, shouldExecute);
-}
-
-    public $sendProcessExit(terminalId: number, exitCode: number | undefinedcognidreamognidream {
-	this._terminalProcessProxies.get(terminalId)?.emitExit(exitCode);
-}
-
-    public $startSendingDataEvents(cognidreamognidream {
-	if(!this._dataEventTracker.value) {
-	this._dataEventTracker.value = this._instantiationService.createInstance(TerminalDataEventTracker, (id, data) => {
-		this._onTerminalData(id, data);
-	});
-	// Send initial events if they exist
-	for(const instance of this._terminalService.instances) {
-	for (const data of instance.initialDataEvents || []) {
-		this._onTerminalData(instance.instanceId, data);
+	public async $hide(id: ExtHostTerminalIdentifier): Promise<void> {
+		const instanceToHide = await this._getTerminalInstance(id);
+		const activeInstance = this._terminalService.activeInstance;
+		if (activeInstance && activeInstance.instanceId === instanceToHide?.instanceId && activeInstance.target !== TerminalLocation.Editor) {
+			this._terminalGroupService.hidePanel();
+		}
 	}
-}
-        }
-    }
 
-    public $stopSendingDataEvents(cognidreamognidream {
-	this._dataEventTracker.clear();
-}
+	public async $dispose(id: ExtHostTerminalIdentifier): Promise<void> {
+		(await this._getTerminalInstance(id))?.dispose(TerminalExitReason.Extension);
+	}
 
-    public $startSendingCommandEvents(cognidreamognidream {
-	if(this._sendCommandEventListener.value) {
-	return;
-}
+	public async $sendText(id: ExtHostTerminalIdentifier, text: string, shouldExecute: boolean): Promise<void> {
+		const instance = await this._getTerminalInstance(id);
+		await instance?.sendText(text, shouldExecute);
+	}
 
-        const multiplexer = this._terminalService.createOnInstanceCapabilityEvent(TerminalCapability.CommandDetection, capability => capability.onCommandFinished);
-const sub = multiplexer.event(e => {
-	this._onDidExecuteCommand(e.instance.instanceId, {
-		commandLine: e.data.command,
-		// TODO: Convert to URI if possible
-		cwd: e.data.cwd,
-		exitCode: e.data.exitCode,
-		output: e.data.getOutput()
-	});
-});
-this._sendCommandEventListener.value = combinedDisposable(multiplexer, sub);
-    }
+	public $sendProcessExit(terminalId: number, exitCode: number | undefined): void {
+		this._terminalProcessProxies.get(terminalId)?.emitExit(exitCode);
+	}
 
-    public $stopSendingCommandEvents(cognidreamognidream {
-	this._sendCommandEventListener.clear();
-}
-
-    public $startLinkProvider(cognidreamognidream {
-	this._linkProvider.value = this._terminalLinkProviderService.registerLinkProvider(new ExtensionTerminalLinkProvider(this._proxy));
-}
-
-    public $stopLinkProvider(cognidreamognidream {
-	this._linkProvider.clear();
-}
-
-    public $registerProcessSupport(isSupported: booleancognidreamognidream {
-	this._terminalService.registerProcessSupport(isSupported);
-}
-
-    public $registerCompletionProvider(id: string, extensionIdentifier: string, ...triggerCharacters: string[]cognidreamognidream {
-	this._completionProviders.set(id, this._terminalCompletionService.registerTerminalCompletionProvider(extensionIdentifier, id, {
-		id,
-		provideCompletions: async (commandLine, cursorPosition, allowFallbackCompletions, token) => {
-			const completions = await this._proxy.$provideTerminalCompletions(id, { commandLine, cursorPosition, allowFallbackCompletions }, token);
-			return {
-				items: completions?.items.map(c => ({ ...c, provider: id })),
-				resourceRequestConfig: completions?.resourceRequestConfig
-			};
-		}
-	}, ...triggerCharacters));
-}
-
-    public $unregisterCompletionProvider(id: stringcognidreamognidream {
-	this._completionProviders.get(id)?.dispose();
-	this._completionProviders.delete(id);
-}
-
-    public $registerProfileProvider(id: string, extensionIdentifier: stringcognidreamognidream {
-	// Proxy profile provider requests through the extension host
-	this._profileProviders.set(id, this._terminalProfileService.registerTerminalProfileProvider(extensionIdentifier, id, {
-		createContributedTerminalProfile: async (options) => {
-			return this._proxy.$createContributedProfileTerminal(id, options);
-		}
-	}));
-}
-
-    public $unregisterProfileProvider(id: stringcognidreamognidream {
-	this._profileProviders.get(id)?.dispose();
-	this._profileProviders.delete(id);
-}
-
-    public async $registerQuickFixProvider(id: string, extensionId: string): Promicognidreamognidream > {
-	this._quickFixProviders.set(id, this._terminalQuickFixService.registerQuickFixProvider(id, {
-		provideTerminalQuickFixes: async (terminalCommand, lines, options, token) => {
-			if (token.isCancellationRequested) {
-				return;
-			}
-			if (options.outputMatcher?.length && options.outputMatcher.length > 40) {
-				options.outputMatcher.length = 40;
-				this._logService.warn('Cannot exceed output matcher length of 40');
-			}
-			const commandLineMatch = terminalCommand.command.match(options.commandLineMatcher);
-			if (!commandLineMatch || !lines) {
-				return;
-			}
-			const outputMatcher = options.outputMatcher;
-			let outputMatch;
-			if (outputMatcher) {
-				outputMatch = getOutputMatchForLines(lines, outputMatcher);
-			}
-			if (!outputMatch) {
-				return;
-			}
-			const matchResult = { commandLineMatch, outputMatch, commandLine: terminalCommand.command };
-
-			if (matchResult) {
-				const result = await this._proxy.$provideTerminalQuickFixes(id, matchResult, token);
-				if (result && Array.isArray(result)) {
-					return result.map(r => parseQuickFix(id, extensionId, r));
-				} else if (result) {
-					return parseQuickFix(id, extensionId, result);
+	public $startSendingDataEvents(): void {
+		if (!this._dataEventTracker.value) {
+			this._dataEventTracker.value = this._instantiationService.createInstance(TerminalDataEventTracker, (id, data) => {
+				this._onTerminalData(id, data);
+			});
+			// Send initial events if they exist
+			for (const instance of this._terminalService.instances) {
+				for (const data of instance.initialDataEvents || []) {
+					this._onTerminalData(instance.instanceId, data);
 				}
 			}
+		}
+	}
+
+	public $stopSendingDataEvents(): void {
+		this._dataEventTracker.clear();
+	}
+
+	public $startSendingCommandEvents(): void {
+		if (this._sendCommandEventListener.value) {
 			return;
 		}
-	}));
-}
 
-    public $unregisterQuickFixProvider(id: stringcognidreamognidream {
-	this._quickFixProviders.get(id)?.dispose();
-	this._quickFixProviders.delete(id);
-}
-
-    private _onActiveTerminalChanged(terminalId: number | nullcognidreamognidream {
-	this._proxy.$acceptActiveTerminalChanged(terminalId);
-}
-
-    private _onTerminalData(terminalId: number, data: stringcognidreamognidream {
-	this._proxy.$acceptTerminalProcessData(terminalId, data);
-}
-
-    private _onDidExecuteCommand(terminalId: number, command: ITerminalCommandDtocognidreamognidream {
-	this._proxy.$acceptDidExecuteCommand(terminalId, command);
-}
-
-    private _onTitleChanged(terminalId: number, name: stringcognidreamognidream {
-	this._proxy.$acceptTerminalTitleChange(terminalId, name);
-}
-
-    private _onShellTypeChanged(terminalId: numbercognidreamognidream {
-	const terminalInstance = this._terminalService.getInstanceFromId(terminalId);
-	if(terminalInstance) {
-		this._proxy.$acceptTerminalShellType(terminalId, terminalInstance.shellType);
+		const multiplexer = this._terminalService.createOnInstanceCapabilityEvent(TerminalCapability.CommandDetection, capability => capability.onCommandFinished);
+		const sub = multiplexer.event(e => {
+			this._onDidExecuteCommand(e.instance.instanceId, {
+				commandLine: e.data.command,
+				// TODO: Convert to URI if possible
+				cwd: e.data.cwd,
+				exitCode: e.data.exitCode,
+				output: e.data.getOutput()
+			});
+		});
+		this._sendCommandEventListener.value = combinedDisposable(multiplexer, sub);
 	}
-}
 
-    private _onTerminalDisposed(terminalInstance: ITerminalInstancecognidreamognidream {
-	this._proxy.$acceptTerminalClosed(terminalInstance.instanceId, terminalInstance.exitCode, terminalInstance.exitReason ?? TerminalExitReason.Unknown);
-}
+	public $stopSendingCommandEvents(): void {
+		this._sendCommandEventListener.clear();
+	}
 
-    private _onTerminalOpened(terminalInstance: ITerminalInstancecognidreamognidream {
-	const extHostTerminalId = terminalInstance.shellLaunchConfig.extHostTerminalId;
-	const shellLaunchConfigDto: IShellLaunchConfigDto = {
-		name: terminalInstance.shellLaunchConfig.name,
-		executable: terminalInstance.shellLaunchConfig.executable,
-		args: terminalInstance.shellLaunchConfig.args,
-		cwd: terminalInstance.shellLaunchConfig.cwd,
-		env: terminalInstance.shellLaunchConfig.env,
-		hideFromUser: terminalInstance.shellLaunchConfig.hideFromUser,
-		tabActions: terminalInstance.shellLaunchConfig.tabActions
-	};
-	this._proxy.$acceptTerminalOpened(terminalInstance.instanceId, extHostTerminalId, terminalInstance.title, shellLaunchConfigDto);
-}
+	public $startLinkProvider(): void {
+		this._linkProvider.value = this._terminalLinkProviderService.registerLinkProvider(new ExtensionTerminalLinkProvider(this._proxy));
+	}
 
-    private _onTerminalProcessIdReady(terminalInstance: ITerminalInstancecognidreamognidream {
-	if(terminalInstance.processId === undefined) {
-	return;
-}
-        this._proxy.$acceptTerminalProcessId(terminalInstance.instanceId, terminalInstance.processId);
-    }
+	public $stopLinkProvider(): void {
+		this._linkProvider.clear();
+	}
 
-    private _onInstanceDimensionsChanged(instance: ITerminalInstancecognidreamognidream {
-	this._proxy.$acceptTerminalDimensions(instance.instanceId, instance.cols, instance.rows);
-}
+	public $registerProcessSupport(isSupported: boolean): void {
+		this._terminalService.registerProcessSupport(isSupported);
+	}
 
-    private _onInstanceMaximumDimensionsChanged(instance: ITerminalInstancecognidreamognidream {
-	this._proxy.$acceptTerminalMaximumDimensions(instance.instanceId, instance.maxCols, instance.maxRows);
-}
+	public $registerCompletionProvider(id: string, extensionIdentifier: string, ...triggerCharacters: string[]): void {
+		this._completionProviders.set(id, this._terminalCompletionService.registerTerminalCompletionProvider(extensionIdentifier, id, {
+			id,
+			provideCompletions: async (commandLine, cursorPosition, allowFallbackCompletions, token) => {
+				const completions = await this._proxy.$provideTerminalCompletions(id, { commandLine, cursorPosition, allowFallbackCompletions }, token);
+				return {
+					items: completions?.items.map(c => ({ ...c, provider: id })),
+					resourceRequestConfig: completions?.resourceRequestConfig
+				};
+			}
+		}, ...triggerCharacters));
+	}
 
-    private _onRequestStartExtensionTerminal(request: IStartExtensionTerminalRequestcognidreamognidream {
-	const proxy = request.proxy;
-	this._terminalProcessProxies.set(proxy.instanceId, proxy);
+	public $unregisterCompletionProvider(id: string): void {
+		this._completionProviders.get(id)?.dispose();
+		this._completionProviders.delete(id);
+	}
 
-	// Note that onResize is not being listened to here as it needs to fire when max dimensions
-	// change, excluding the dimension override
-	const initialDimensions: ITerminalDimensionsDto | undefined = request.cols && request.rows ? {
-		columns: request.cols,
-		rows: request.rows
-	} : undefined;
+	public $registerProfileProvider(id: string, extensionIdentifier: string): void {
+		// Proxy profile provider requests through the extension host
+		this._profileProviders.set(id, this._terminalProfileService.registerTerminalProfileProvider(extensionIdentifier, id, {
+			createContributedTerminalProfile: async (options) => {
+				return this._proxy.$createContributedProfileTerminal(id, options);
+			}
+		}));
+	}
 
-this._proxy.$startExtensionTerminal(
-	proxy.instanceId,
-	initialDimensions
-).then(request.callback);
+	public $unregisterProfileProvider(id: string): void {
+		this._profileProviders.get(id)?.dispose();
+		this._profileProviders.delete(id);
+	}
 
-proxy.onInput(data => this._proxy.$acceptProcessInput(proxy.instanceId, data));
-proxy.onShutdown(immediate => this._proxy.$acceptProcessShutdown(proxy.instanceId, immediate));
-proxy.onRequestCwd(() => this._proxy.$acceptProcessRequestCwd(proxy.instanceId));
-proxy.onRequestInitialCwd(() => this._proxy.$acceptProcessRequestInitialCwd(proxy.instanceId));
-    }
+	public async $registerQuickFixProvider(id: string, extensionId: string): Promise<void> {
+		this._quickFixProviders.set(id, this._terminalQuickFixService.registerQuickFixProvider(id, {
+			provideTerminalQuickFixes: async (terminalCommand, lines, options, token) => {
+				if (token.isCancellationRequested) {
+					return;
+				}
+				if (options.outputMatcher?.length && options.outputMatcher.length > 40) {
+					options.outputMatcher.length = 40;
+					this._logService.warn('Cannot exceed output matcher length of 40');
+				}
+				const commandLineMatch = terminalCommand.command.match(options.commandLineMatcher);
+				if (!commandLineMatch || !lines) {
+					return;
+				}
+				const outputMatcher = options.outputMatcher;
+				let outputMatch;
+				if (outputMatcher) {
+					outputMatch = getOutputMatchForLines(lines, outputMatcher);
+				}
+				if (!outputMatch) {
+					return;
+				}
+				const matchResult = { commandLineMatch, outputMatch, commandLine: terminalCommand.command };
 
-    public $sendProcessData(terminalId: number, data: stringcognidreamognidream {
-	this._terminalProcessProxies.get(terminalId)?.emitData(data);
-}
+				if (matchResult) {
+					const result = await this._proxy.$provideTerminalQuickFixes(id, matchResult, token);
+					if (result && Array.isArray(result)) {
+						return result.map(r => parseQuickFix(id, extensionId, r));
+					} else if (result) {
+						return parseQuickFix(id, extensionId, result);
+					}
+				}
+				return;
+			}
+		}));
+	}
 
-    public $sendProcessReady(terminalId: number, pid: number, cwd: string, windowsPty: IProcessReadyWindowsPty | undefinedcognidreamognidream {
-	this._terminalProcessProxies.get(terminalId)?.emitReady(pid, cwd, windowsPty);
-}
+	public $unregisterQuickFixProvider(id: string): void {
+		this._quickFixProviders.get(id)?.dispose();
+		this._quickFixProviders.delete(id);
+	}
 
-    public $sendProcessProperty(terminalId: number, property: IProcessProperty < any > cognidreamognidream {
-	if(property.type === ProcessPropertyType.Title) {
-	const instance = this._terminalService.getInstanceFromId(terminalId);
-	instance?.rename(property.value);
-        }
-this._terminalProcessProxies.get(terminalId)?.emitProcessProperty(property);
-    }
+	private _onActiveTerminalChanged(terminalId: number | null): void {
+		this._proxy.$acceptActiveTerminalChanged(terminalId);
+	}
 
-$setEnvironmentVariableCollection(extensionIdentifier: string, persistent: boolean, collection: ISerializableEnvironmentVariableCollection | undefined, descriptionMap: ISerializableEnvironmentDescriptionMapcognidreamognidream {
-	if(collection) {
-		const translatedCollection = {
-			persistent,
-			map: deserializeEnvironmentVariableCollection(collection),
-			descriptionMap: deserializeEnvironmentDescriptionMap(descriptionMap)
+	private _onTerminalData(terminalId: number, data: string): void {
+		this._proxy.$acceptTerminalProcessData(terminalId, data);
+	}
+
+	private _onDidExecuteCommand(terminalId: number, command: ITerminalCommandDto): void {
+		this._proxy.$acceptDidExecuteCommand(terminalId, command);
+	}
+
+	private _onTitleChanged(terminalId: number, name: string): void {
+		this._proxy.$acceptTerminalTitleChange(terminalId, name);
+	}
+
+	private _onShellTypeChanged(terminalId: number): void {
+		const terminalInstance = this._terminalService.getInstanceFromId(terminalId);
+		if (terminalInstance) {
+			this._proxy.$acceptTerminalShellType(terminalId, terminalInstance.shellType);
+		}
+	}
+
+	private _onTerminalDisposed(terminalInstance: ITerminalInstance): void {
+		this._proxy.$acceptTerminalClosed(terminalInstance.instanceId, terminalInstance.exitCode, terminalInstance.exitReason ?? TerminalExitReason.Unknown);
+	}
+
+	private _onTerminalOpened(terminalInstance: ITerminalInstance): void {
+		const extHostTerminalId = terminalInstance.shellLaunchConfig.extHostTerminalId;
+		const shellLaunchConfigDto: IShellLaunchConfigDto = {
+			name: terminalInstance.shellLaunchConfig.name,
+			executable: terminalInstance.shellLaunchConfig.executable,
+			args: terminalInstance.shellLaunchConfig.args,
+			cwd: terminalInstance.shellLaunchConfig.cwd,
+			env: terminalInstance.shellLaunchConfig.env,
+			hideFromUser: terminalInstance.shellLaunchConfig.hideFromUser,
+			tabActions: terminalInstance.shellLaunchConfig.tabActions
 		};
-		this._environmentVariableService.set(extensionIdentifier, translatedCollection);
-	} else {
-		this._environmentVariableService.delete(extensionIdentifier);
+		this._proxy.$acceptTerminalOpened(terminalInstance.instanceId, extHostTerminalId, terminalInstance.title, shellLaunchConfigDto);
 	}
-}
-}
 
-	/**
-	 * Encapsulates temporary tracking of data events from terminal instances, once disposed all
-	 * listeners are removed.
-	 */
-	class TerminalDataEventTracker extends Disposable {
-		private readonly _bufferer: TerminalDataBufferer;
-
-		constructor(
-			private readonly _callback: (id: number, data: strincognidream> cognidream,
-	@ITerminalService private readonly _terminalService: ITerminalService
-) {
-	super();
-
-	this._register(this._bufferer = new TerminalDataBufferer(this._callback));
-
-	for (const instance of this._terminalService.instances) {
-		this._registerInstance(instance);
-	}
-	this._register(this._terminalService.onDidCreateInstance(instance => this._registerInstance(instance)));
-	this._register(this._terminalService.onDidDisposeInstance(instance => this._bufferer.stopBuffering(instance.instanceId)));
-}
-
-    private _registerInstance(instance: ITerminalInstancecognidreamognidream {
-	// Buffer data events to reduce the amount of messages going to the extension host
-	this._register(this._bufferer.startBuffering(instance.instanceId, instance.onData));
-}
-}
-
-	class ExtensionTerminalLinkProvider implements ITerminalExternalLinkProvider {
-		constructor(
-			private readonly _proxy: ExtHostTerminalServiceShape
-		) {
+	private _onTerminalProcessIdReady(terminalInstance: ITerminalInstance): void {
+		if (terminalInstance.processId === undefined) {
+			return;
 		}
+		this._proxy.$acceptTerminalProcessId(terminalInstance.instanceId, terminalInstance.processId);
+	}
 
-		async provideLinks(instance: ITerminalInstance, line: string): Promise<ITerminalLink[] | undefined> {
-			const proxy = this._proxy;
-			const extHostLinks = await proxy.$provideLinks(instance.instanceId, line);
-			return extHostLinks.map(dto => ({
-				id: dto.id,
-				startIndex: dto.startIndex,
-				length: dto.length,
-				label: dto.label,
-				activate: () => proxy.$activateLink(instance.instanceId, dto.id)
-			}));
+	private _onInstanceDimensionsChanged(instance: ITerminalInstance): void {
+		this._proxy.$acceptTerminalDimensions(instance.instanceId, instance.cols, instance.rows);
+	}
+
+	private _onInstanceMaximumDimensionsChanged(instance: ITerminalInstance): void {
+		this._proxy.$acceptTerminalMaximumDimensions(instance.instanceId, instance.maxCols, instance.maxRows);
+	}
+
+	private _onRequestStartExtensionTerminal(request: IStartExtensionTerminalRequest): void {
+		const proxy = request.proxy;
+		this._terminalProcessProxies.set(proxy.instanceId, proxy);
+
+		// Note that onResize is not being listened to here as it needs to fire when max dimensions
+		// change, excluding the dimension override
+		const initialDimensions: ITerminalDimensionsDto | undefined = request.cols && request.rows ? {
+			columns: request.cols,
+			rows: request.rows
+		} : undefined;
+
+		this._proxy.$startExtensionTerminal(
+			proxy.instanceId,
+			initialDimensions
+		).then(request.callback);
+
+		proxy.onInput(data => this._proxy.$acceptProcessInput(proxy.instanceId, data));
+		proxy.onShutdown(immediate => this._proxy.$acceptProcessShutdown(proxy.instanceId, immediate));
+		proxy.onRequestCwd(() => this._proxy.$acceptProcessRequestCwd(proxy.instanceId));
+		proxy.onRequestInitialCwd(() => this._proxy.$acceptProcessRequestInitialCwd(proxy.instanceId));
+	}
+
+	public $sendProcessData(terminalId: number, data: string): void {
+		this._terminalProcessProxies.get(terminalId)?.emitData(data);
+	}
+
+	public $sendProcessReady(terminalId: number, pid: number, cwd: string, windowsPty: IProcessReadyWindowsPty | undefined): void {
+		this._terminalProcessProxies.get(terminalId)?.emitReady(pid, cwd, windowsPty);
+	}
+
+	public $sendProcessProperty(terminalId: number, property: IProcessProperty<any>): void {
+		if (property.type === ProcessPropertyType.Title) {
+			const instance = this._terminalService.getInstanceFromId(terminalId);
+			instance?.rename(property.value);
+		}
+		this._terminalProcessProxies.get(terminalId)?.emitProcessProperty(property);
+	}
+
+	$setEnvironmentVariableCollection(extensionIdentifier: string, persistent: boolean, collection: ISerializableEnvironmentVariableCollection | undefined, descriptionMap: ISerializableEnvironmentDescriptionMap): void {
+		if (collection) {
+			const translatedCollection = {
+				persistent,
+				map: deserializeEnvironmentVariableCollection(collection),
+				descriptionMap: deserializeEnvironmentDescriptionMap(descriptionMap)
+			};
+			this._environmentVariableService.set(extensionIdentifier, translatedCollection);
+		} else {
+			this._environmentVariableService.delete(extensionIdentifier);
 		}
 	}
+}
+
+/**
+ * Encapsulates temporary tracking of data events from terminal instances, once disposed all
+ * listeners are removed.
+ */
+class TerminalDataEventTracker extends Disposable {
+	private readonly _bufferer: TerminalDataBufferer;
+
+	constructor(
+		private readonly _callback: (id: number, data: string) => void,
+		@ITerminalService private readonly _terminalService: ITerminalService
+	) {
+		super();
+
+		this._register(this._bufferer = new TerminalDataBufferer(this._callback));
+
+		for (const instance of this._terminalService.instances) {
+			this._registerInstance(instance);
+		}
+		this._register(this._terminalService.onDidCreateInstance(instance => this._registerInstance(instance)));
+		this._register(this._terminalService.onDidDisposeInstance(instance => this._bufferer.stopBuffering(instance.instanceId)));
+	}
+
+	private _registerInstance(instance: ITerminalInstance): void {
+		// Buffer data events to reduce the amount of messages going to the extension host
+		this._register(this._bufferer.startBuffering(instance.instanceId, instance.onData));
+	}
+}
+
+class ExtensionTerminalLinkProvider implements ITerminalExternalLinkProvider {
+	constructor(
+		private readonly _proxy: ExtHostTerminalServiceShape
+	) {
+	}
+
+	async provideLinks(instance: ITerminalInstance, line: string): Promise<ITerminalLink[] | undefined> {
+		const proxy = this._proxy;
+		const extHostLinks = await proxy.$provideLinks(instance.instanceId, line);
+		return extHostLinks.map(dto => ({
+			id: dto.id,
+			startIndex: dto.startIndex,
+			length: dto.length,
+			label: dto.label,
+			activate: () => proxy.$activateLink(instance.instanceId, dto.id)
+		}));
+	}
+}
 
 export function getOutputMatchForLines(lines: string[], outputMatcher: ITerminalOutputMatcher): ITerminalOutputMatch | undefined {
 	const match: RegExpMatchArray | null | undefined = lines.join('\n').match(outputMatcher.lineMatcher);

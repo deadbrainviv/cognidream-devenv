@@ -205,7 +205,7 @@ export class MainThreadFileSystemEventService implements MainThreadFileSystemEve
 		this._listener.add(workingCopyFileService.onDidRunWorkingCopyFileOperation(e => this._proxy.$onDidRunFileOperation(e.operation, e.files)));
 	}
 
-	async $watch(extensionId: string, session: number, resource: UriComponents, unvalidatedOpts: IWatchOptions, correlate: boolean): Promise<cognidream> {
+	async $watch(extensionId: string, session: number, resource: UriComponents, unvalidatedOpts: IWatchOptions, correlate: boolean): Promise<void> {
 		const uri = URI.revive(resource);
 
 		const opts: IWatchOptions = {
@@ -255,31 +255,31 @@ export class MainThreadFileSystemEventService implements MainThreadFileSystemEve
 		}
 	}
 
-	$unwatch(session: numbercognidreamognidream {
+	$unwatch(session: number): void {
 		if (this._watches.has(session)) {
-	this._logService.trace(`MainThreadFileSystemEventService#$unwatch(): request to stop watching (session: ${session})`);
-	this._watches.deleteAndDispose(session);
-}
-    }
-
-dispose(cognidreamognidream {
-	this._listener.dispose();
-	this._watches.dispose();
-}
-}
-
-	registerAction2(class ResetMemento extends Action2 {
-		constructor() {
-			super({
-				id: 'files.participants.resetChoice',
-				title: {
-					value: localize('label', "Reset choice for 'File operation needs preview'"),
-					original: `Reset choice for 'File operation needs preview'`
-				},
-				f1: true
-			});
+			this._logService.trace(`MainThreadFileSystemEventService#$unwatch(): request to stop watching (session: ${session})`);
+			this._watches.deleteAndDispose(session);
 		}
-		run(accessor: ServicesAccessor) {
-			accessor.get(IStorageService).remove(MainThreadFileSystemEventService.MementoKeyAdditionalEdits, StorageScope.PROFILE);
-		}
-	});
+	}
+
+	dispose(): void {
+		this._listener.dispose();
+		this._watches.dispose();
+	}
+}
+
+registerAction2(class ResetMemento extends Action2 {
+	constructor() {
+		super({
+			id: 'files.participants.resetChoice',
+			title: {
+				value: localize('label', "Reset choice for 'File operation needs preview'"),
+				original: `Reset choice for 'File operation needs preview'`
+			},
+			f1: true
+		});
+	}
+	run(accessor: ServicesAccessor) {
+		accessor.get(IStorageService).remove(MainThreadFileSystemEventService.MementoKeyAdditionalEdits, StorageScope.PROFILE);
+	}
+});

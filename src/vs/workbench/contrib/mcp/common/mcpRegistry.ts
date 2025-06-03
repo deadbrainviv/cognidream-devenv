@@ -95,7 +95,7 @@ export class McpRegistry extends Disposable implements IMcpRegistry {
 		return this._delegates;
 	}
 
-	private readonly _onDidChangeInputs = this._register(new Emitter<cognidream>());
+	private readonly _onDidChangeInputs = this._register(new Emitter<void>());
 	public readonly onDidChangeInputs = this._onDidChangeInputs.event;
 
 	constructor(
@@ -196,7 +196,7 @@ export class McpRegistry extends Disposable implements IMcpRegistry {
 		this._onDidChangeInputs.fire();
 	}
 
-	public async editSavedInput(inputId: string, folderData: IWorkspaceFolderData | undefined, configSection: string, target: ConfigurationTarget): Promicognidreamognidream> {
+	public async editSavedInput(inputId: string, folderData: IWorkspaceFolderData | undefined, configSection: string, target: ConfigurationTarget): Promise<void> {
 		const storage = this._getInputStorageInConfigTarget(target);
 		const expr = ConfigurationResolverExpression.parse(inputId);
 
@@ -206,167 +206,167 @@ export class McpRegistry extends Disposable implements IMcpRegistry {
 		await this._updateStorageWithExpressionInputs(storage, expr);
 	}
 
-    public getSavedInputs(scope: StorageScope): Promise < { [id: string]: IResolvedValue } > {
-	return this._getInputStorage(scope).getMap();
-}
+	public getSavedInputs(scope: StorageScope): Promise<{ [id: string]: IResolvedValue }> {
+		return this._getInputStorage(scope).getMap();
+	}
 
-    public resetTrust(cognidreamognidream {
-	this._trustMemento.value.set({}, undefined);
-}
+	public resetTrust(): void {
+		this._trustMemento.value.set({}, undefined);
+	}
 
-    public getTrust(collectionRef: McpCollectionReference): IObservable < boolean | undefined > {
-	return derived(reader => {
-		const collection = this._collections.read(reader).find(c => c.id === collectionRef.id);
-		if (!collection || collection.isTrustedByDefault) {
-			return true;
-		}
+	public getTrust(collectionRef: McpCollectionReference): IObservable<boolean | undefined> {
+		return derived(reader => {
+			const collection = this._collections.read(reader).find(c => c.id === collectionRef.id);
+			if (!collection || collection.isTrustedByDefault) {
+				return true;
+			}
 
-		const memento = this._trustMemento.value.read(reader);
-		return memento.hasOwnProperty(collection.id) ? memento[collection.id] : undefined;
-	});
-}
+			const memento = this._trustMemento.value.read(reader);
+			return memento.hasOwnProperty(collection.id) ? memento[collection.id] : undefined;
+		});
+	}
 
-    private _promptForTrust(collection: McpCollectionDefinition): Promise < boolean | undefined > {
-	// Collect all trust prompts for a single config so that concurrently trying to start N
-	// servers in a config don't result in N different dialogs
-	let resultPromise = this._trustPrompts.get(collection.id);
-	resultPromise ??= this._promptForTrustOpenDialog(collection).finally(() => {
-		this._trustPrompts.delete(collection.id);
-	});
-	this._trustPrompts.set(collection.id, resultPromise);
+	private _promptForTrust(collection: McpCollectionDefinition): Promise<boolean | undefined> {
+		// Collect all trust prompts for a single config so that concurrently trying to start N
+		// servers in a config don't result in N different dialogs
+		let resultPromise = this._trustPrompts.get(collection.id);
+		resultPromise ??= this._promptForTrustOpenDialog(collection).finally(() => {
+			this._trustPrompts.delete(collection.id);
+		});
+		this._trustPrompts.set(collection.id, resultPromise);
 
-	return resultPromise;
-}
+		return resultPromise;
+	}
 
-    private async _promptForTrustOpenDialog(collection: McpCollectionDefinition): Promise < boolean | undefined > {
-	const originURI = collection.presentation?.origin;
-	const labelWithOrigin = originURI ? `[\`${basename(originURI)}\`](${originURI})` : collection.label;
+	private async _promptForTrustOpenDialog(collection: McpCollectionDefinition): Promise<boolean | undefined> {
+		const originURI = collection.presentation?.origin;
+		const labelWithOrigin = originURI ? `[\`${basename(originURI)}\`](${originURI})` : collection.label;
 
-	const result = await this._dialogService.prompt(
-		{
-			message: localize('trustTitleWithOrigin', 'Trust MCP servers from {0}?', collection.label),
-			custom: {
-				markdownDetails: [{
-					markdown: new MarkdownString(localize('mcp.trust.details', '{0} discovered Model Context Protocol servers from {1} (`{2}`). {0} can use their capabilities in Chat.\n\nDo you want to allow running MCP servers from {3}?', this._productService.nameShort, collection.label, collection.serverDefinitions.get().map(s => s.label).join('`, `'), labelWithOrigin)),
-					dismissOnLinkClick: true,
-				}]
+		const result = await this._dialogService.prompt(
+			{
+				message: localize('trustTitleWithOrigin', 'Trust MCP servers from {0}?', collection.label),
+				custom: {
+					markdownDetails: [{
+						markdown: new MarkdownString(localize('mcp.trust.details', '{0} discovered Model Context Protocol servers from {1} (`{2}`). {0} can use their capabilities in Chat.\n\nDo you want to allow running MCP servers from {3}?', this._productService.nameShort, collection.label, collection.serverDefinitions.get().map(s => s.label).join('`, `'), labelWithOrigin)),
+						dismissOnLinkClick: true,
+					}]
+				},
+				buttons: [
+					{ label: localize('mcp.trust.yes', 'Trust'), run: () => true },
+					{ label: localize('mcp.trust.no', 'Do not trust'), run: () => false }
+				],
 			},
-			buttons: [
-				{ label: localize('mcp.trust.yes', 'Trust'), run: () => true },
-				{ label: localize('mcp.trust.no', 'Do not trust'), run: () => false }
-			],
-		},
-	);
+		);
 
-	return result.result;
-}
-
-    private async _updateStorageWithExpressionInputs(inputStorage: McpRegistryInputStorage, expr: ConfigurationResolverExpression<unknown>): Promicognidreamognidream > {
-	const secrets: Record<string, IResolvedValue> = {};
-const inputs: Record<string, IResolvedValue> = {};
-for (const [replacement, resolved] of expr.resolved()) {
-	if (resolved.input?.type === 'promptString' && resolved.input.password) {
-		secrets[replacement.id] = resolved;
-	} else {
-		inputs[replacement.id] = resolved;
-	}
-}
-
-inputStorage.setPlainText(inputs);
-await inputStorage.setSecrets(secrets);
-this._onDidChangeInputs.fire();
-    }
-
-    private async _replaceVariablesInLaunch(definition: McpServerDefinition, launch: McpServerLaunch) {
-	if (!definition.variableReplacement) {
-		return launch;
+		return result.result;
 	}
 
-	const { section, target, folder } = definition.variableReplacement;
-	const inputStorage = this._getInputStorageInConfigTarget(target);
-	const previouslyStored = await inputStorage.getMap();
-
-	// pre-fill the variables we already resolvecognidream acognidream extra prompting
-	const expr = ConfigurationResolverExpression.parse(launch);
-	for (const replacement of expr.unresolved()) {
-		if (previouslyStored.hasOwnProperty(replacement.id)) {
-			expr.resolve(replacement, previouslyStored[replacement.id]);
+	private async _updateStorageWithExpressionInputs(inputStorage: McpRegistryInputStorage, expr: ConfigurationResolverExpression<unknown>): Promise<void> {
+		const secrets: Record<string, IResolvedValue> = {};
+		const inputs: Record<string, IResolvedValue> = {};
+		for (const [replacement, resolved] of expr.resolved()) {
+			if (resolved.input?.type === 'promptString' && resolved.input.password) {
+				secrets[replacement.id] = resolved;
+			} else {
+				inputs[replacement.id] = resolved;
+			}
 		}
+
+		inputStorage.setPlainText(inputs);
+		await inputStorage.setSecrets(secrets);
+		this._onDidChangeInputs.fire();
 	}
 
-	// resolve variables requiring user input
-	await this._configurationResolverService.resolveWithInteraction(folder, expr, section, undefined, target);
-
-	await this._updateStorageWithExpressionInputs(inputStorage, expr);
-
-	// resolve other non-interactive variables, returning the final object
-	return await this._configurationResolverService.resolveAsync(folder, expr);
-}
-
-    public async resolveConnection({ collectionRef, definitionRef, forceTrust, logger }: IMcpResolveConnectionOptions): Promise < IMcpServerConnection | undefined > {
-	const collection = this._collections.get().find(c => c.id === collectionRef.id);
-	const definition = collection?.serverDefinitions.get().find(s => s.id === definitionRef.id);
-	if(!collection || !definition) {
-	throw new Error(`Collection or definition not found for ${collectionRef.id} and ${definitionRef.id}`);
-}
-
-const delegate = this._delegates.find(d => d.canStart(collection, definition));
-if (!delegate) {
-	throw new Error('No delegate found that can handle the connection');
-}
-
-if (!collection.isTrustedByDefault) {
-	const memento = this._trustMemento.value.get();
-	const trusted = memento.hasOwnProperty(collection.id) ? memento[collection.id] : undefined;
-
-	if (trusted) {
-		// continue
-	} else if (trusted === undefined || forceTrust) {
-		const trustValue = await this._promptForTrust(collection);
-		if (trustValue !== undefined) {
-			this._trustMemento.value.set({ ...memento, [collection.id]: trustValue }, undefined);
+	private async _replaceVariablesInLaunch(definition: McpServerDefinition, launch: McpServerLaunch) {
+		if (!definition.variableReplacement) {
+			return launch;
 		}
-		if (!trustValue) {
+
+		const { section, target, folder } = definition.variableReplacement;
+		const inputStorage = this._getInputStorageInConfigTarget(target);
+		const previouslyStored = await inputStorage.getMap();
+
+		// pre-fill the variables we already resolved to avoid extra prompting
+		const expr = ConfigurationResolverExpression.parse(launch);
+		for (const replacement of expr.unresolved()) {
+			if (previouslyStored.hasOwnProperty(replacement.id)) {
+				expr.resolve(replacement, previouslyStored[replacement.id]);
+			}
+		}
+
+		// resolve variables requiring user input
+		await this._configurationResolverService.resolveWithInteraction(folder, expr, section, undefined, target);
+
+		await this._updateStorageWithExpressionInputs(inputStorage, expr);
+
+		// resolve other non-interactive variables, returning the final object
+		return await this._configurationResolverService.resolveAsync(folder, expr);
+	}
+
+	public async resolveConnection({ collectionRef, definitionRef, forceTrust, logger }: IMcpResolveConnectionOptions): Promise<IMcpServerConnection | undefined> {
+		const collection = this._collections.get().find(c => c.id === collectionRef.id);
+		const definition = collection?.serverDefinitions.get().find(s => s.id === definitionRef.id);
+		if (!collection || !definition) {
+			throw new Error(`Collection or definition not found for ${collectionRef.id} and ${definitionRef.id}`);
+		}
+
+		const delegate = this._delegates.find(d => d.canStart(collection, definition));
+		if (!delegate) {
+			throw new Error('No delegate found that can handle the connection');
+		}
+
+		if (!collection.isTrustedByDefault) {
+			const memento = this._trustMemento.value.get();
+			const trusted = memento.hasOwnProperty(collection.id) ? memento[collection.id] : undefined;
+
+			if (trusted) {
+				// continue
+			} else if (trusted === undefined || forceTrust) {
+				const trustValue = await this._promptForTrust(collection);
+				if (trustValue !== undefined) {
+					this._trustMemento.value.set({ ...memento, [collection.id]: trustValue }, undefined);
+				}
+				if (!trustValue) {
+					return;
+				}
+			} else /** trusted === false && !forceTrust */ {
+				return undefined;
+			}
+		}
+
+		let launch: McpServerLaunch | undefined;
+		try {
+			launch = await this._replaceVariablesInLaunch(definition, definition.launch);
+		} catch (e) {
+			this._notificationService.notify({
+				severity: Severity.Error,
+				message: localize('mcp.launchError', 'Error starting {0}: {1}', definition.label, String(e)),
+				actions: {
+					primary: collection.presentation?.origin && [
+						{
+							id: 'mcp.launchError.openConfig',
+							class: undefined,
+							enabled: true,
+							tooltip: '',
+							label: localize('mcp.launchError.openConfig', 'Open Configuration'),
+							run: () => this._editorService.openEditor({
+								resource: collection.presentation!.origin,
+								options: { selection: definition.presentation?.origin?.range }
+							}),
+						}
+					]
+				}
+			});
 			return;
 		}
-	} else /** trusted === false && !forceTrust */ {
-		return undefined;
+
+		return this._instantiationService.createInstance(
+			McpServerConnection,
+			collection,
+			definition,
+			delegate,
+			launch,
+			logger,
+		);
 	}
-}
-
-let launch: McpServerLaunch | undefined;
-try {
-	launch = await this._replaceVariablesInLaunch(definition, definition.launch);
-} catch (e) {
-	this._notificationService.notify({
-		severity: Severity.Error,
-		message: localize('mcp.launchError', 'Error starting {0}: {1}', definition.label, String(e)),
-		actions: {
-			primary: collection.presentation?.origin && [
-				{
-					id: 'mcp.launchError.openConfig',
-					class: undefined,
-					enabled: true,
-					tooltip: '',
-					label: localize('mcp.launchError.openConfig', 'Open Configuration'),
-					run: () => this._editorService.openEditor({
-						resource: collection.presentation!.origin,
-						options: { selection: definition.presentation?.origin?.range }
-					}),
-				}
-			]
-		}
-	});
-	return;
-}
-
-return this._instantiationService.createInstance(
-	McpServerConnection,
-	collection,
-	definition,
-	delegate,
-	launch,
-	logger,
-);
-    }
 }

@@ -56,8 +56,8 @@ export class TestSharedProcessService implements ISharedProcessService {
 
 	createRawConnection(): never { throw new Error('Not Implemented'); }
 	getChannel(channelName: string): any { return undefined; }
-	registerChannel(channelName: string, channel: any): cognidreamidream { }
-	notifyRestored(): cognidreamidream { }
+	registerChannel(channelName: string, channel: any): void { }
+	notifyRestored(): void { }
 }
 
 export class TestNativeHostService implements INativeHostService {
@@ -87,36 +87,36 @@ export class TestNativeHostService implements INativeHostService {
 	async getActiveWindowPosition(): Promise<IRectangle | undefined> { return undefined; }
 	async getNativeWindowHandle(windowId: number): Promise<VSBuffer | undefined> { return undefined; }
 
-	openWindow(options?: IOpenEmptyWindowOptions): Promise<cognidreamidream>;
-	openWindow(toOpen: IWindowOpenable[], options?: IOpenWindowOptions): Promise<cognidreamidream>;
-	openWindow(arg1?: IOpenEmptyWindowOptions | IWindowOpenable[], arg2?: IOpenWindowOptions): Promise<cognidreamidream> {
+	openWindow(options?: IOpenEmptyWindowOptions): Promise<void>;
+	openWindow(toOpen: IWindowOpenable[], options?: IOpenWindowOptions): Promise<void>;
+	openWindow(arg1?: IOpenEmptyWindowOptions | IWindowOpenable[], arg2?: IOpenWindowOptions): Promise<void> {
 		throw new Error('Method not implemented.');
 	}
 
-	async toggleFullScreen(): Promise<cognidreamidream> { }
+	async toggleFullScreen(): Promise<void> { }
 	async isMaximized(): Promise<boolean> { return true; }
 	async isFullScreen(): Promise<boolean> { return true; }
-	async maximizeWindow(): Promise<cognidreamidream> { }
-	async unmaximizeWindow(): Promise<cognidreamidream> { }
-	async minimizeWindow(): Promise<cognidreamidream> { }
-	async moveWindowTop(options?: INativeHostOptions): Promise<cognidreamidream> { }
+	async maximizeWindow(): Promise<void> { }
+	async unmaximizeWindow(): Promise<void> { }
+	async minimizeWindow(): Promise<void> { }
+	async moveWindowTop(options?: INativeHostOptions): Promise<void> { }
 	getCursorScreenPoint(): Promise<{ readonly point: IPoint; readonly display: IRectangle }> { throw new Error('Method not implemented.'); }
-	async positionWindow(position: IRectangle, options?: INativeHostOptions): Promise<cognidreamidream> { }
-	async updateWindowControls(options: { height?: number; backgroundColor?: string; foregroundColor?: string }): Promise<cognidreamidream> { }
-	async setMinimumSize(width: number | undefined, height: number | undefined): Promise<cognidreamidream> { }
-	async saveWindowSplash(value: IPartsSplash): Promise<cognidreamidream> { }
-	async focusWindow(options?: INativeHostOptions): Promise<cognidreamidream> { }
+	async positionWindow(position: IRectangle, options?: INativeHostOptions): Promise<void> { }
+	async updateWindowControls(options: { height?: number; backgroundColor?: string; foregroundColor?: string }): Promise<void> { }
+	async setMinimumSize(width: number | undefined, height: number | undefined): Promise<void> { }
+	async saveWindowSplash(value: IPartsSplash): Promise<void> { }
+	async focusWindow(options?: INativeHostOptions): Promise<void> { }
 	async showMessageBox(options: Electron.MessageBoxOptions): Promise<Electron.MessageBoxReturnValue> { throw new Error('Method not implemented.'); }
 	async showSaveDialog(options: Electron.SaveDialogOptions): Promise<Electron.SaveDialogReturnValue> { throw new Error('Method not implemented.'); }
 	async showOpenDialog(options: Electron.OpenDialogOptions): Promise<Electron.OpenDialogReturnValue> { throw new Error('Method not implemented.'); }
-	async pickFileFolderAndOpen(options: INativeOpenDialogOptions): Promise<cognidreamidream> { }
-	async pickFileAndOpen(options: INativeOpenDialogOptions): Promise<cognidreamidream> { }
-	async pickFolderAndOpen(options: INativeOpenDialogOptions): Promise<cognidreamidream> { }
-	async pickWorkspaceAndOpen(options: INativeOpenDialogOptions): Promise<cognidreamidream> { }
-	async showItemInFolder(path: string): Promise<cognidreamidream> { }
-	async setRepresentedFilename(path: string): Promise<cognidreamidream> { }
+	async pickFileFolderAndOpen(options: INativeOpenDialogOptions): Promise<void> { }
+	async pickFileAndOpen(options: INativeOpenDialogOptions): Promise<void> { }
+	async pickFolderAndOpen(options: INativeOpenDialogOptions): Promise<void> { }
+	async pickWorkspaceAndOpen(options: INativeOpenDialogOptions): Promise<void> { }
+	async showItemInFolder(path: string): Promise<void> { }
+	async setRepresentedFilename(path: string): Promise<void> { }
 	async isAdmin(): Promise<boolean> { return false; }
-	async writeElevated(source: URI, target: URI): Promise<cognidreamidream> { }
+	async writeElevated(source: URI, target: URI): Promise<void> { }
 	async isRunningUnderARM64Translation(): Promise<boolean> { return false; }
 	async getOSProperties(): Promise<IOSProperties> { return Object.create(null); }
 	async getOSStatistics(): Promise<IOSStatistics> { return Object.create(null); }
@@ -124,38 +124,38 @@ export class TestNativeHostService implements INativeHostService {
 	async getOSColorScheme(): Promise<IColorScheme> { return { dark: true, highContrast: false }; }
 	async hasWSLFeatureInstalled(): Promise<boolean> { return false; }
 	async getProcessId(): Promise<number> { throw new Error('Method not implemented.'); }
-	async killProcess(): Promise<cognidreamidream> { }
-	async setDocumentEdited(edited: boolean): Promise<cognidreamidream> { }
+	async killProcess(): Promise<void> { }
+	async setDocumentEdited(edited: boolean): Promise<void> { }
 	async openExternal(url: string, defaultApplication?: string): Promise<boolean> { return false; }
-	async updateTouchBar(): Promise<cognidreamidream> { }
-	async moveItemToTrash(): Promise<cognidreamidream> { }
-	async newWindowTab(): Promise<cognidreamidream> { }
-	async showPreviousWindowTab(): Promise<cognidreamidream> { }
-	async showNextWindowTab(): Promise<cognidreamidream> { }
-	async moveWindowTabToNewWindow(): Promise<cognidreamidream> { }
-	async mergeAllWindowTabs(): Promise<cognidreamidream> { }
-	async toggleWindowTabsBar(): Promise<cognidreamidream> { }
-	async installShellCommand(): Promise<cognidreamidream> { }
-	async uninstallShellCommand(): Promise<cognidreamidream> { }
-	async notifyReady(): Promise<cognidreamidream> { }
-	async relaunch(options?: { addArgs?: string[] | undefined; removeArgs?: string[] | undefined } | undefined): Promise<cognidreamidream> { }
-	async reload(): Promise<cognidreamidream> { }
-	async closeWindow(): Promise<cognidreamidream> { }
-	async quit(): Promise<cognidreamidream> { }
-	async exit(code: number): Promise<cognidreamidream> { }
-	async openDevTools(options?: Partial<Electron.OpenDevToolsOptions> & INativeHostOptions | undefined): Promise<cognidreamidream> { }
-	async toggleDevTools(): Promise<cognidreamidream> { }
-	async openGPUInfoWindow(): Promise<cognidreamidream> { }
+	async updateTouchBar(): Promise<void> { }
+	async moveItemToTrash(): Promise<void> { }
+	async newWindowTab(): Promise<void> { }
+	async showPreviousWindowTab(): Promise<void> { }
+	async showNextWindowTab(): Promise<void> { }
+	async moveWindowTabToNewWindow(): Promise<void> { }
+	async mergeAllWindowTabs(): Promise<void> { }
+	async toggleWindowTabsBar(): Promise<void> { }
+	async installShellCommand(): Promise<void> { }
+	async uninstallShellCommand(): Promise<void> { }
+	async notifyReady(): Promise<void> { }
+	async relaunch(options?: { addArgs?: string[] | undefined; removeArgs?: string[] | undefined } | undefined): Promise<void> { }
+	async reload(): Promise<void> { }
+	async closeWindow(): Promise<void> { }
+	async quit(): Promise<void> { }
+	async exit(code: number): Promise<void> { }
+	async openDevTools(options?: Partial<Electron.OpenDevToolsOptions> & INativeHostOptions | undefined): Promise<void> { }
+	async toggleDevTools(): Promise<void> { }
+	async openGPUInfoWindow(): Promise<void> { }
 	async resolveProxy(url: string): Promise<string | undefined> { return undefined; }
 	async lookupAuthorization(authInfo: AuthInfo): Promise<Credentials | undefined> { return undefined; }
 	async lookupKerberosAuthorization(url: string): Promise<string | undefined> { return undefined; }
 	async loadCertificates(): Promise<string[]> { return []; }
 	async findFreePort(startPort: number, giveUpAfter: number, timeout: number, stride?: number): Promise<number> { return -1; }
 	async readClipboardText(type?: 'selection' | 'clipboard' | undefined): Promise<string> { return ''; }
-	async writeClipboardText(text: string, type?: 'selection' | 'clipboard' | undefined): Promise<cognidreamidream> { }
+	async writeClipboardText(text: string, type?: 'selection' | 'clipboard' | undefined): Promise<void> { }
 	async readClipboardFindText(): Promise<string> { return ''; }
-	async writeClipboardFindText(text: string): Promise<cognidreamidream> { }
-	async writeClipboardBuffer(format: string, buffer: VSBuffer, type?: 'selection' | 'clipboard' | undefined): Promise<cognidreamidream> { }
+	async writeClipboardFindText(text: string): Promise<void> { }
+	async writeClipboardBuffer(format: string, buffer: VSBuffer, type?: 'selection' | 'clipboard' | undefined): Promise<void> { }
 	async readImage(): Promise<Uint8Array> { return Uint8Array.from([]); }
 	async readClipboardBuffer(format: string): Promise<VSBuffer> { return VSBuffer.wrap(Uint8Array.from([])); }
 	async hasClipboard(format: string, type?: 'selection' | 'clipboard' | undefined): Promise<boolean> { return false; }
@@ -235,7 +235,7 @@ export class TestNativeWorkingCopyBackupService extends NativeWorkingCopyBackupS
 	private discardBackupJoiners: Function[];
 	discardedBackups: IWorkingCopyIdentifier[];
 	discardedAllBackups: boolean;
-	private pendingBackupsArr: Promise<cognidreamidream>[];
+	private pendingBackupsArr: Promise<void>[];
 
 	constructor() {
 		const environmentService = TestEnvironmentService;
@@ -264,15 +264,15 @@ export class TestNativeWorkingCopyBackupService extends NativeWorkingCopyBackupS
 		return this.fileService;
 	}
 
-	async waitForAllBackups(): Promise<cognidreamidream> {
+	async waitForAllBackups(): Promise<void> {
 		await Promise.all(this.pendingBackupsArr);
 	}
 
-	joinBackupResource(): Promise<cognidreamidream> {
+	joinBackupResource(): Promise<void> {
 		return new Promise(resolve => this.backupResourceJoiners.push(resolve));
 	}
 
-	override async backup(identifier: IWorkingCopyIdentifier, content?: VSBufferReadableStream | VSBufferReadable, versionId?: number, meta?: any, token?: CancellationToken): Promise<cognidreamidream> {
+	override async backup(identifier: IWorkingCopyIdentifier, content?: VSBufferReadableStream | VSBufferReadable, versionId?: number, meta?: any, token?: CancellationToken): Promise<void> {
 		const p = super.backup(identifier, content, versionId, meta, token);
 		const removeFromPendingBackups = insert(this.pendingBackupsArr, p.then(undefined, undefined));
 
@@ -287,11 +287,11 @@ export class TestNativeWorkingCopyBackupService extends NativeWorkingCopyBackupS
 		}
 	}
 
-	joinDiscardBackup(): Promise<cognidreamidream> {
+	joinDiscardBackup(): Promise<void> {
 		return new Promise(resolve => this.discardBackupJoiners.push(resolve));
 	}
 
-	override async discardBackup(identifier: IWorkingCopyIdentifier): Promise<cognidreamidream> {
+	override async discardBackup(identifier: IWorkingCopyIdentifier): Promise<void> {
 		await super.discardBackup(identifier);
 		this.discardedBackups.push(identifier);
 
@@ -300,7 +300,7 @@ export class TestNativeWorkingCopyBackupService extends NativeWorkingCopyBackupS
 		}
 	}
 
-	override async discardBackups(filter?: { except: IWorkingCopyIdentifier[] }): Promise<cognidreamidream> {
+	override async discardBackups(filter?: { except: IWorkingCopyIdentifier[] }): Promise<void> {
 		this.discardedAllBackups = true;
 
 		return super.discardBackups(filter);

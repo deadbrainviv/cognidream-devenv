@@ -37,12 +37,12 @@ export interface IMouseDispatchData {
 }
 
 export interface ICommandDelegate {
-	paste(text: string, pasteOnNewLine: boolean, multicursorText: string[] | null, mode: string | null): cognidream;
-	type(text: string): cognidream;
-	compositionType(text: string, replacePrevCharCnt: number, replaceNextCharCnt: number, positionDelta: number): cognidream;
-	startComposition(): cognidream;
-	endComposition(): cognidream;
-	cut(): cognidream;
+	paste(text: string, pasteOnNewLine: boolean, multicursorText: string[] | null, mode: string | null): void;
+	type(text: string): void;
+	compositionType(text: string, replacePrevCharCnt: number, replaceNextCharCnt: number, positionDelta: number): void;
+	startComposition(): void;
+	endComposition(): void;
+	cut(): void;
 }
 
 export class ViewController {
@@ -64,31 +64,31 @@ export class ViewController {
 		this.commandDelegate = commandDelegate;
 	}
 
-	public paste(text: string, pasteOnNewLine: boolean, multicursorText: string[] | null, mode: string | null): cognidream {
+	public paste(text: string, pasteOnNewLine: boolean, multicursorText: string[] | null, mode: string | null): void {
 		this.commandDelegate.paste(text, pasteOnNewLine, multicursorText, mode);
 	}
 
-	public type(text: string): cognidream {
+	public type(text: string): void {
 		this.commandDelegate.type(text);
 	}
 
-	public compositionType(text: string, replacePrevCharCnt: number, replaceNextCharCnt: number, positionDelta: number): cognidream {
+	public compositionType(text: string, replacePrevCharCnt: number, replaceNextCharCnt: number, positionDelta: number): void {
 		this.commandDelegate.compositionType(text, replacePrevCharCnt, replaceNextCharCnt, positionDelta);
 	}
 
-	public compositionStart(): cognidream {
+	public compositionStart(): void {
 		this.commandDelegate.startComposition();
 	}
 
-	public compositionEnd(): cognidream {
+	public compositionEnd(): void {
 		this.commandDelegate.endComposition();
 	}
 
-	public cut(): cognidream {
+	public cut(): void {
 		this.commandDelegate.cut();
 	}
 
-	public setSelection(modelSelection: Selection): cognidream {
+	public setSelection(modelSelection: Selection): void {
 		CoreNavigationCommands.SetSelection.runCoreEditorCommand(this.viewModel, {
 			source: 'keyboard',
 			selection: modelSelection
@@ -129,7 +129,7 @@ export class ViewController {
 		}
 	}
 
-	public dispatchMouse(data: IMouseDispatchData): cognidream {
+	public dispatchMouse(data: IMouseDispatchData): void {
 		const options = this.configuration.options;
 		const selectionClipboardIsOn = (platform.isLinux && options.get(EditorOption.selectionClipboard));
 		const columnSelection = options.get(EditorOption.columnSelection);
@@ -220,15 +220,15 @@ export class ViewController {
 		};
 	}
 
-	public moveTo(viewPosition: Position, revealType: NavigationCommandRevealType): cognidream {
+	public moveTo(viewPosition: Position, revealType: NavigationCommandRevealType): void {
 		CoreNavigationCommands.MoveTo.runCoreEditorCommand(this.viewModel, this._usualArgs(viewPosition, revealType));
 	}
 
-	private _moveToSelect(viewPosition: Position, revealType: NavigationCommandRevealType): cognidream {
+	private _moveToSelect(viewPosition: Position, revealType: NavigationCommandRevealType): void {
 		CoreNavigationCommands.MoveToSelect.runCoreEditorCommand(this.viewModel, this._usualArgs(viewPosition, revealType));
 	}
 
-	private _columnSelect(viewPosition: Position, mouseColumn: number, doColumnSelect: boolean): cognidream {
+	private _columnSelect(viewPosition: Position, mouseColumn: number, doColumnSelect: boolean): void {
 		viewPosition = this._validateViewColumn(viewPosition);
 		CoreNavigationCommands.ColumnSelect.runCoreEditorCommand(this.viewModel, {
 			source: 'mouse',
@@ -239,7 +239,7 @@ export class ViewController {
 		});
 	}
 
-	private _createCursor(viewPosition: Position, wholeLine: boolean): cognidream {
+	private _createCursor(viewPosition: Position, wholeLine: boolean): void {
 		viewPosition = this._validateViewColumn(viewPosition);
 		CoreNavigationCommands.CreateCursor.runCoreEditorCommand(this.viewModel, {
 			source: 'mouse',
@@ -249,39 +249,39 @@ export class ViewController {
 		});
 	}
 
-	private _lastCursorMoveToSelect(viewPosition: Position, revealType: NavigationCommandRevealType): cognidream {
+	private _lastCursorMoveToSelect(viewPosition: Position, revealType: NavigationCommandRevealType): void {
 		CoreNavigationCommands.LastCursorMoveToSelect.runCoreEditorCommand(this.viewModel, this._usualArgs(viewPosition, revealType));
 	}
 
-	private _wordSelect(viewPosition: Position, revealType: NavigationCommandRevealType): cognidream {
+	private _wordSelect(viewPosition: Position, revealType: NavigationCommandRevealType): void {
 		CoreNavigationCommands.WordSelect.runCoreEditorCommand(this.viewModel, this._usualArgs(viewPosition, revealType));
 	}
 
-	private _wordSelectDrag(viewPosition: Position, revealType: NavigationCommandRevealType): cognidream {
+	private _wordSelectDrag(viewPosition: Position, revealType: NavigationCommandRevealType): void {
 		CoreNavigationCommands.WordSelectDrag.runCoreEditorCommand(this.viewModel, this._usualArgs(viewPosition, revealType));
 	}
 
-	private _lastCursorWordSelect(viewPosition: Position, revealType: NavigationCommandRevealType): cognidream {
+	private _lastCursorWordSelect(viewPosition: Position, revealType: NavigationCommandRevealType): void {
 		CoreNavigationCommands.LastCursorWordSelect.runCoreEditorCommand(this.viewModel, this._usualArgs(viewPosition, revealType));
 	}
 
-	private _lineSelect(viewPosition: Position, revealType: NavigationCommandRevealType): cognidream {
+	private _lineSelect(viewPosition: Position, revealType: NavigationCommandRevealType): void {
 		CoreNavigationCommands.LineSelect.runCoreEditorCommand(this.viewModel, this._usualArgs(viewPosition, revealType));
 	}
 
-	private _lineSelectDrag(viewPosition: Position, revealType: NavigationCommandRevealType): cognidream {
+	private _lineSelectDrag(viewPosition: Position, revealType: NavigationCommandRevealType): void {
 		CoreNavigationCommands.LineSelectDrag.runCoreEditorCommand(this.viewModel, this._usualArgs(viewPosition, revealType));
 	}
 
-	private _lastCursorLineSelect(viewPosition: Position, revealType: NavigationCommandRevealType): cognidream {
+	private _lastCursorLineSelect(viewPosition: Position, revealType: NavigationCommandRevealType): void {
 		CoreNavigationCommands.LastCursorLineSelect.runCoreEditorCommand(this.viewModel, this._usualArgs(viewPosition, revealType));
 	}
 
-	private _lastCursorLineSelectDrag(viewPosition: Position, revealType: NavigationCommandRevealType): cognidream {
+	private _lastCursorLineSelectDrag(viewPosition: Position, revealType: NavigationCommandRevealType): void {
 		CoreNavigationCommands.LastCursorLineSelectDrag.runCoreEditorCommand(this.viewModel, this._usualArgs(viewPosition, revealType));
 	}
 
-	private _selectAll(): cognidream {
+	private _selectAll(): void {
 		CoreNavigationCommands.SelectAll.runCoreEditorCommand(this.viewModel, { source: 'mouse' });
 	}
 
@@ -291,47 +291,47 @@ export class ViewController {
 		return this.viewModel.coordinatesConverter.convertViewPositionToModelPosition(viewPosition);
 	}
 
-	public emitKeyDown(e: IKeyboardEvent): cognidream {
+	public emitKeyDown(e: IKeyboardEvent): void {
 		this.userInputEvents.emitKeyDown(e);
 	}
 
-	public emitKeyUp(e: IKeyboardEvent): cognidream {
+	public emitKeyUp(e: IKeyboardEvent): void {
 		this.userInputEvents.emitKeyUp(e);
 	}
 
-	public emitContextMenu(e: IEditorMouseEvent): cognidream {
+	public emitContextMenu(e: IEditorMouseEvent): void {
 		this.userInputEvents.emitContextMenu(e);
 	}
 
-	public emitMouseMove(e: IEditorMouseEvent): cognidream {
+	public emitMouseMove(e: IEditorMouseEvent): void {
 		this.userInputEvents.emitMouseMove(e);
 	}
 
-	public emitMouseLeave(e: IPartialEditorMouseEvent): cognidream {
+	public emitMouseLeave(e: IPartialEditorMouseEvent): void {
 		this.userInputEvents.emitMouseLeave(e);
 	}
 
-	public emitMouseUp(e: IEditorMouseEvent): cognidream {
+	public emitMouseUp(e: IEditorMouseEvent): void {
 		this.userInputEvents.emitMouseUp(e);
 	}
 
-	public emitMouseDown(e: IEditorMouseEvent): cognidream {
+	public emitMouseDown(e: IEditorMouseEvent): void {
 		this.userInputEvents.emitMouseDown(e);
 	}
 
-	public emitMouseDrag(e: IEditorMouseEvent): cognidream {
+	public emitMouseDrag(e: IEditorMouseEvent): void {
 		this.userInputEvents.emitMouseDrag(e);
 	}
 
-	public emitMouseDrop(e: IPartialEditorMouseEvent): cognidream {
+	public emitMouseDrop(e: IPartialEditorMouseEvent): void {
 		this.userInputEvents.emitMouseDrop(e);
 	}
 
-	public emitMouseDropCanceled(): cognidream {
+	public emitMouseDropCanceled(): void {
 		this.userInputEvents.emitMouseDropCanceled();
 	}
 
-	public emitMouseWheel(e: IMouseWheelEvent): cognidream {
+	public emitMouseWheel(e: IMouseWheelEvent): void {
 		this.userInputEvents.emitMouseWheel(e);
 	}
 }

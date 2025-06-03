@@ -53,7 +53,7 @@ export class NotebookRunSingleCellInSection extends Action2 {
 		});
 	}
 
-	override async run(_accessor: ServicesAccessor, context: any): Promise<cognidream> {
+	override async run(_accessor: ServicesAccessor, context: any): Promise<void> {
 		if (!checkOutlineEntryContext(context)) {
 			return;
 		}
@@ -99,37 +99,37 @@ export class NotebookRunCellsInSection extends Action2 {
 		});
 	}
 
-	override async run(_accessor: ServicesAccessor, context: any): Promicognidreamognidream> {
+	override async run(_accessor: ServicesAccessor, context: any): Promise<void> {
 		let cell: ICellViewModel;
-		if(checkOutlineEntryContext(context)) {
-	cell = context.outlineEntry.cell;
-} else if (checkNotebookCellContext(context)) {
-	cell = context.cell;
-} else {
-	return;
-}
+		if (checkOutlineEntryContext(context)) {
+			cell = context.outlineEntry.cell;
+		} else if (checkNotebookCellContext(context)) {
+			cell = context.cell;
+		} else {
+			return;
+		}
 
-if (cell.getEditState() === CellEditState.Editing) {
-	const foldingController = context.notebookEditor.getContribution<FoldingController>(FoldingController.id);
-	foldingController.recompute();
-}
+		if (cell.getEditState() === CellEditState.Editing) {
+			const foldingController = context.notebookEditor.getContribution<FoldingController>(FoldingController.id);
+			foldingController.recompute();
+		}
 
-const cellIdx = context.notebookEditor.getViewModel()?.getCellIndex(cell);
-if (cellIdx === undefined) {
-	return;
-}
-const sectionIdx = context.notebookEditor.getViewModel()?.getFoldingStartIndex(cellIdx);
-if (sectionIdx === undefined) {
-	return;
-}
-const length = context.notebookEditor.getViewModel()?.getFoldedLength(sectionIdx);
-if (length === undefined) {
-	return;
-}
+		const cellIdx = context.notebookEditor.getViewModel()?.getCellIndex(cell);
+		if (cellIdx === undefined) {
+			return;
+		}
+		const sectionIdx = context.notebookEditor.getViewModel()?.getFoldingStartIndex(cellIdx);
+		if (sectionIdx === undefined) {
+			return;
+		}
+		const length = context.notebookEditor.getViewModel()?.getFoldedLength(sectionIdx);
+		if (length === undefined) {
+			return;
+		}
 
-const cells = context.notebookEditor.getCellsInRange({ start: sectionIdx, end: sectionIdx + length + 1 });
-context.notebookEditor.executeNotebookCells(cells);
-    }
+		const cells = context.notebookEditor.getCellsInRange({ start: sectionIdx, end: sectionIdx + length + 1 });
+		context.notebookEditor.executeNotebookCells(cells);
+	}
 }
 
 export class NotebookFoldSection extends Action2 {
@@ -158,22 +158,22 @@ export class NotebookFoldSection extends Action2 {
 		});
 	}
 
-	override async run(_accessor: ServicesAccessor, context: any): Promicognidreamognidream> {
-		if(!checkOutlineEntryContext(context)) {
-	return;
-}
+	override async run(_accessor: ServicesAccessor, context: any): Promise<void> {
+		if (!checkOutlineEntryContext(context)) {
+			return;
+		}
 
-this.toggleFoldRange(context.outlineEntry, context.notebookEditor);
-    }
+		this.toggleFoldRange(context.outlineEntry, context.notebookEditor);
+	}
 
-    private toggleFoldRange(entry: OutlineEntry, notebookEditor: INotebookEditor) {
-	const foldingController = notebookEditor.getContribution<FoldingController>(FoldingController.id);
-	const index = entry.index;
-	const headerLevel = entry.level;
-	const newFoldingState = CellFoldingState.Collapsed;
+	private toggleFoldRange(entry: OutlineEntry, notebookEditor: INotebookEditor) {
+		const foldingController = notebookEditor.getContribution<FoldingController>(FoldingController.id);
+		const index = entry.index;
+		const headerLevel = entry.level;
+		const newFoldingState = CellFoldingState.Collapsed;
 
-	foldingController.setFoldingStateDown(index, newFoldingState, headerLevel);
-}
+		foldingController.setFoldingStateDown(index, newFoldingState, headerLevel);
+	}
 }
 
 export class NotebookExpandSection extends Action2 {
@@ -202,22 +202,22 @@ export class NotebookExpandSection extends Action2 {
 		});
 	}
 
-	override async run(_accessor: ServicesAccessor, context: any): Promicognidreamognidream> {
-		if(!checkOutlineEntryContext(context)) {
-	return;
-}
+	override async run(_accessor: ServicesAccessor, context: any): Promise<void> {
+		if (!checkOutlineEntryContext(context)) {
+			return;
+		}
 
-this.toggleFoldRange(context.outlineEntry, context.notebookEditor);
-    }
+		this.toggleFoldRange(context.outlineEntry, context.notebookEditor);
+	}
 
-    private toggleFoldRange(entry: OutlineEntry, notebookEditor: INotebookEditor) {
-	const foldingController = notebookEditor.getContribution<FoldingController>(FoldingController.id);
-	const index = entry.index;
-	const headerLevel = entry.level;
-	const newFoldingState = CellFoldingState.Expanded;
+	private toggleFoldRange(entry: OutlineEntry, notebookEditor: INotebookEditor) {
+		const foldingController = notebookEditor.getContribution<FoldingController>(FoldingController.id);
+		const index = entry.index;
+		const headerLevel = entry.level;
+		const newFoldingState = CellFoldingState.Expanded;
 
-	foldingController.setFoldingStateDown(index, newFoldingState, headerLevel);
-}
+		foldingController.setFoldingStateDown(index, newFoldingState, headerLevel);
+	}
 }
 
 /**

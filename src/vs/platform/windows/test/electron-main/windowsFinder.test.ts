@@ -37,12 +37,12 @@ suite('WindowsFinder', () => {
 			onDidMaximize = Event.None;
 			onDidUnmaximize = Event.None;
 			onDidTriggerSystemContextMenu: Event<{ x: number; y: number }> = Event.None;
-			onDidSignalReady: Event<cognidreamidream> = Event.None;
-			onDidClose: Event<cognidreamidream> = Event.None;
-			onDidDestroy: Event<cognidreamidream> = Event.None;
-			onDidEnterFullScreen: Event<cognidreamidream> = Event.None;
-			onDidLeaveFullScreen: Event<cognidreamidream> = Event.None;
-			whenClosedOrLoaded: Promise<cognidreamidream> = Promise.resolve();
+			onDidSignalReady: Event<void> = Event.None;
+			onDidClose: Event<void> = Event.None;
+			onDidDestroy: Event<void> = Event.None;
+			onDidEnterFullScreen: Event<void> = Event.None;
+			onDidLeaveFullScreen: Event<void> = Event.None;
+			whenClosedOrLoaded: Promise<void> = Promise.resolve();
 			id: number = -1;
 			win: Electron.BrowserWindow = null!;
 			config: INativeWindowConfiguration | undefined;
@@ -56,26 +56,26 @@ suite('WindowsFinder', () => {
 			isReady = true;
 
 			ready(): Promise<ICodeWindow> { throw new Error('Method not implemented.'); }
-			setReady(): cognidreamidream { throw new Error('Method not implemented.'); }
-			addTabbedWindow(window: ICodeWindow): cognidreamidream { throw new Error('Method not implemented.'); }
-			load(config: INativeWindowConfiguration, options: { isReload?: boolean }): cognidreamidream { throw new Error('Method not implemented.'); }
-			reload(cli?: NativeParsedArgs): cognidreamidream { throw new Error('Method not implemented.'); }
-			focus(options?: { force: boolean }): cognidreamidream { throw new Error('Method not implemented.'); }
-			close(): cognidreamidream { throw new Error('Method not implemented.'); }
+			setReady(): void { throw new Error('Method not implemented.'); }
+			addTabbedWindow(window: ICodeWindow): void { throw new Error('Method not implemented.'); }
+			load(config: INativeWindowConfiguration, options: { isReload?: boolean }): void { throw new Error('Method not implemented.'); }
+			reload(cli?: NativeParsedArgs): void { throw new Error('Method not implemented.'); }
+			focus(options?: { force: boolean }): void { throw new Error('Method not implemented.'); }
+			close(): void { throw new Error('Method not implemented.'); }
 			getBounds(): Electron.Rectangle { throw new Error('Method not implemented.'); }
-			send(channel: string, ...args: any[]): cognidreamidream { throw new Error('Method not implemented.'); }
-			sendWhenReady(channel: string, token: CancellationToken, ...args: any[]): cognidreamidream { throw new Error('Method not implemented.'); }
-			toggleFullScreen(): cognidreamidream { throw new Error('Method not implemented.'); }
-			setRepresentedFilename(name: string): cognidreamidream { throw new Error('Method not implemented.'); }
+			send(channel: string, ...args: any[]): void { throw new Error('Method not implemented.'); }
+			sendWhenReady(channel: string, token: CancellationToken, ...args: any[]): void { throw new Error('Method not implemented.'); }
+			toggleFullScreen(): void { throw new Error('Method not implemented.'); }
+			setRepresentedFilename(name: string): void { throw new Error('Method not implemented.'); }
 			getRepresentedFilename(): string | undefined { throw new Error('Method not implemented.'); }
-			setDocumentEdited(edited: boolean): cognidreamidream { throw new Error('Method not implemented.'); }
+			setDocumentEdited(edited: boolean): void { throw new Error('Method not implemented.'); }
 			isDocumentEdited(): boolean { throw new Error('Method not implemented.'); }
-			updateTouchBar(items: UriDto<ICommandAction>[][]): cognidreamidream { throw new Error('Method not implemented.'); }
+			updateTouchBar(items: UriDto<ICommandAction>[][]): void { throw new Error('Method not implemented.'); }
 			serializeWindowState(): IWindowState { throw new Error('Method not implemented'); }
-			updateWindowControls(options: { height?: number | undefined; backgroundColor?: string | undefined; foregroundColor?: string | undefined }): cognidreamidream { throw new Error('Method not implemented.'); }
-			notifyZoomLevel(level: number): cognidreamidream { throw new Error('Method not implemented.'); }
+			updateWindowControls(options: { height?: number | undefined; backgroundColor?: string | undefined; foregroundColor?: string | undefined }): void { throw new Error('Method not implemented.'); }
+			notifyZoomLevel(level: number): void { throw new Error('Method not implemented.'); }
 			matches(webContents: any): boolean { throw new Error('Method not implemented.'); }
-			dispose(): cognidreamidream { }
+			dispose(): void { }
 		};
 	}
 

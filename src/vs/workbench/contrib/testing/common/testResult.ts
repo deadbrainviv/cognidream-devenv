@@ -96,13 +96,13 @@ export interface ITestResult {
  */
 export interface ITaskRawOutput {
 	readonly onDidWriteData: Event<VSBuffer>;
-	readonly endPromise: Promise<cognidream>;
+	readonly endPromise: Promise<void>;
 	readonly buffers: VSBuffer[];
 	readonly length: number;
 
 	/** Gets a continuous buffer for the desired range */
 	getRange(start: number, length: number): VSBuffer;
-	/** Gets an iterator of buffers for the range; macognidreamognidream allocation of getRange() */
+	/** Gets an iterator of buffers for the range; may avoid allocation of getRange() */
 	getRangeIter(start: number, length: number): Iterable<VSBuffer>;
 }
 
@@ -117,7 +117,7 @@ const emptyRawOutput: ITaskRawOutput = {
 
 export class TaskRawOutput implements ITaskRawOutput {
 	private readonly writeDataEmitter = new Emitter<VSBuffer>();
-	private readonly endDeferred = new DeferredPromicognidreamognidream > ();
+	private readonly endDeferred = new DeferredPromise<void>();
 	private offset = 0;
 
 	/** @inheritdoc */
@@ -277,7 +277,7 @@ export type TestResultItemChange = { item: TestResultItem; result: ITestResult }
  * and marked as "complete" when the run finishes.
  */
 export class LiveTestResult extends Disposable implements ITestResult {
-	private readonly completeEmitter = this._register(new Emittcognidreamognidream > ());
+	private readonly completeEmitter = this._register(new Emitter<void>());
 	private readonly newTaskEmitter = this._register(new Emitter<number>());
 	private readonly endTaskEmitter = this._register(new Emitter<number>());
 	private readonly changeEmitter = this._register(new Emitter<TestResultItemChange>());
@@ -356,272 +356,272 @@ export class LiveTestResult extends Disposable implements ITestResult {
 	/**
 	 * Appends output that occurred during the test run.
 	 */
-	public appendOutput(output: VSBuffer, taskId: string, location?: IRichLocation, testId?: stringcognidreamognidream {
+	public appendOutput(output: VSBuffer, taskId: string, location?: IRichLocation, testId?: string): void {
 		const preview = output.byteLength > 100 ? output.slice(0, 100).toString() + '…' : output.toString();
 		let marker: number | undefined;
 
-        // currently, the UI only exposes jump-to-message from tests or locations,
-        // so no need to mark outputs that don't come from either of those.
-        if(testId || location) {
-	marker = this.testMarkerCounter++;
-}
+		// currently, the UI only exposes jump-to-message from tests or locations,
+		// so no need to mark outputs that don't come from either of those.
+		if (testId || location) {
+			marker = this.testMarkerCounter++;
+		}
 
-const index = this.mustGetTaskIndex(taskId);
-const task = this.tasks[index];
+		const index = this.mustGetTaskIndex(taskId);
+		const task = this.tasks[index];
 
-const { offset, length } = task.output.append(output, marker);
-const message: ITestOutputMessage = {
-	location,
-	message: preview,
-	offset,
-	length,
-	marker,
-	type: TestMessageType.Output,
-};
+		const { offset, length } = task.output.append(output, marker);
+		const message: ITestOutputMessage = {
+			location,
+			message: preview,
+			offset,
+			length,
+			marker,
+			type: TestMessageType.Output,
+		};
 
-const test = testId && this.testById.get(testId);
-if (test) {
-	test.tasks[index].messages.push(message);
-	this.changeEmitter.fire({ item: test, result: this, reason: TestResultItemChangeReason.NewMessage, message });
-} else {
-	task.otherMessages.push(message);
-}
-    }
-
-    /**
-     * Adds a new run task to the results.
-     */
-    public addTask(task: ITestRunTask) {
-	this.tasks.push({ ...task, coverage: observableValue(this, undefined), otherMessages: [], output: new TaskRawOutput() });
-
-	for (const test of this.tests) {
-		test.tasks.push({ duration: undefined, messages: [], state: TestResultState.Unset });
-	}
-
-	this.newTaskEmitter.fire(this.tasks.length - 1);
-}
-
-    /**
-     * Add the chain of tests to the run. The first test in the chain should
-     * be either a test root, or a previously-known test.
-     */
-    public addTestChainToRun(controllerId: string, chain: ReadonlyArray<ITestItem>) {
-	let parent = this.testById.get(chain[0].extId);
-	if (!parent) { // must be a test root
-		parent = this.addTestToRun(controllerId, chain[0], null);
-	}
-
-	for (let i = 1; i < chain.length; i++) {
-		parent = this.addTestToRun(controllerId, chain[i], parent.item.extId);
-	}
-
-	return undefined;
-}
-
-    /**
-     * Updates the state of the test by its internal ID.
-     */
-    public updateState(testId: string, taskId: string, state: TestResultState, duration ?: number) {
-	const entry = this.testById.get(testId);
-	if (!entry) {
-		return;
-	}
-
-	const index = this.mustGetTaskIndex(taskId);
-
-	const oldTerminalStatePrio = terminalStatePriorities[entry.tasks[index].state];
-	const newTerminalStatePrio = terminalStatePriorities[state];
-
-	// Ignore requests to set the state from one terminal state back to a
-	// "lower" one, e.g. from failed back to passed:
-	if (oldTerminalStatePrio !== undefined &&
-		(newTerminalStatePrio === undefined || newTerminalStatePrio < oldTerminalStatePrio)) {
-		return;
-	}
-
-	this.fireUpdateAndRefresh(entry, index, state, duration);
-}
-
-    /**
-     * Appends a message for the test in the run.
-     */
-    public appendMessage(testId: string, taskId: string, message: ITestMessage) {
-	const entry = this.testById.get(testId);
-	if (!entry) {
-		return;
-	}
-
-	entry.tasks[this.mustGetTaskIndex(taskId)].messages.push(message);
-	this.changeEmitter.fire({ item: entry, result: this, reason: TestResultItemChangeReason.NewMessage, message });
-}
-
-    /**
-     * Marks the task in the test run complete.
-     */
-    public markTaskComplete(taskId: string) {
-	const index = this.mustGetTaskIndex(taskId);
-	const task = this.tasks[index];
-	task.running = false;
-	task.output.end();
-
-	this.setAllToState(
-		TestResultState.Unset,
-		taskId,
-		t => t.state === TestResultState.Queued || t.state === TestResultState.Running,
-	);
-
-	this.endTaskEmitter.fire(index);
-}
-
-    /**
-     * Notifies the service that all tests are complete.
-     */
-    public markComplete() {
-	if (this._completedAt !== undefined) {
-		throw new Error('cannot complete a test result multiple times');
-	}
-
-	for (const task of this.tasks) {
-		if (task.running) {
-			this.markTaskComplete(task.id);
+		const test = testId && this.testById.get(testId);
+		if (test) {
+			test.tasks[index].messages.push(message);
+			this.changeEmitter.fire({ item: test, result: this, reason: TestResultItemChangeReason.NewMessage, message });
+		} else {
+			task.otherMessages.push(message);
 		}
 	}
 
-	this._completedAt = Date.now();
-	this.completeEmitter.fire();
+	/**
+	 * Adds a new run task to the results.
+	 */
+	public addTask(task: ITestRunTask) {
+		this.tasks.push({ ...task, coverage: observableValue(this, undefined), otherMessages: [], output: new TaskRawOutput() });
 
-	this.telemetry.publicLog2<
-		{ failures: number; passes: number; controller: string },
-		{
-			owner: 'connor4312';
-			comment: 'Test outcome metrics. This helps us understand magnitude of feature use and how to build fix suggestions.';
-			failures: { comment: 'Number of test failures'; classification: 'SystemMetaData'; purpose: 'FeatureInsight' };
-			passes: { comment: 'Number of test failures'; classification: 'SystemMetaData'; purpose: 'FeatureInsight' };
-			controller: { comment: 'The test controller being used'; classification: 'SystemMetaData'; purpose: 'FeatureInsight' };
+		for (const test of this.tests) {
+			test.tasks.push({ duration: undefined, messages: [], state: TestResultState.Unset });
 		}
-	>('test.outcomes', {
-		failures: this.counts[TestResultState.Errored] + this.counts[TestResultState.Failed],
-		passes: this.counts[TestResultState.Passed],
-		controller: this.request.targets.map(t => t.controllerId).join(',')
-	});
-}
 
-    /**
-     * Marks the test and all of its children in the run as retired.
-     */
-    public markRetired(testIds: WellDefinedPrefixTree<undefined> | undefined) {
-	for (const [id, test] of this.testById) {
-		if (!test.retired && (!testIds || testIds.hasKeyOrParent(TestId.fromString(id).path))) {
-			test.retired = true;
-			this.changeEmitter.fire({ reason: TestResultItemChangeReason.ComputedStateChange, item: test, result: this });
-		}
-	}
-}
-
-    /**
-     * @inheritdoc
-     */
-    public toJSON(): ISerializedTestResults | undefined {
-	return this.completedAt && this.persist ? this.doSerialize.value : undefined;
-}
-
-    public toJSONWithMessages(): ISerializedTestResults | undefined {
-	return this.completedAt && this.persist ? this.doSerializeWithMessages.value : undefined;
-}
-
-    /**
-     * Updates all tests in the collection to the given state.
-     */
-    protected setAllToState(state: TestResultState, taskId: string, when: (task: ITestTaskState, item: TestResultItem) => boolean) {
-	const index = this.mustGetTaskIndex(taskId);
-	for (const test of this.testById.values()) {
-		if (when(test.tasks[index], test)) {
-			this.fireUpdateAndRefresh(test, index, state);
-		}
-	}
-}
-
-    private fireUpdateAndRefresh(entry: TestResultItem, taskIndex: number, newState: TestResultState, newOwnDuration ?: number) {
-	const previousOwnComputed = entry.ownComputedState;
-	const previousOwnDuration = entry.ownDuration;
-	const changeEvent: TestResultItemChange = {
-		item: entry,
-		result: this,
-		reason: TestResultItemChangeReason.OwnStateChange,
-		previousState: previousOwnComputed,
-		previousOwnDuration: previousOwnDuration,
-	};
-
-	entry.tasks[taskIndex].state = newState;
-	if (newOwnDuration !== undefined) {
-		entry.tasks[taskIndex].duration = newOwnDuration;
-		entry.ownDuration = Math.max(entry.ownDuration || 0, newOwnDuration);
+		this.newTaskEmitter.fire(this.tasks.length - 1);
 	}
 
-	const newOwnComputed = maxPriority(...entry.tasks.map(t => t.state));
-	if (newOwnComputed === previousOwnComputed) {
-		if (newOwnDuration !== previousOwnDuration) {
-			this.changeEmitter.fire(changeEvent); // fire manually since state change won't do it
+	/**
+	 * Add the chain of tests to the run. The first test in the chain should
+	 * be either a test root, or a previously-known test.
+	 */
+	public addTestChainToRun(controllerId: string, chain: ReadonlyArray<ITestItem>) {
+		let parent = this.testById.get(chain[0].extId);
+		if (!parent) { // must be a test root
+			parent = this.addTestToRun(controllerId, chain[0], null);
 		}
-		return;
+
+		for (let i = 1; i < chain.length; i++) {
+			parent = this.addTestToRun(controllerId, chain[i], parent.item.extId);
+		}
+
+		return undefined;
 	}
 
-	entry.ownComputedState = newOwnComputed;
-	this.counts[previousOwnComputed]--;
-	this.counts[newOwnComputed]++;
-	refreshComputedState(this.computedStateAccessor, entry).forEach(t =>
-		this.changeEmitter.fire(t === entry ? changeEvent : {
-			item: t,
+	/**
+	 * Updates the state of the test by its internal ID.
+	 */
+	public updateState(testId: string, taskId: string, state: TestResultState, duration?: number) {
+		const entry = this.testById.get(testId);
+		if (!entry) {
+			return;
+		}
+
+		const index = this.mustGetTaskIndex(taskId);
+
+		const oldTerminalStatePrio = terminalStatePriorities[entry.tasks[index].state];
+		const newTerminalStatePrio = terminalStatePriorities[state];
+
+		// Ignore requests to set the state from one terminal state back to a
+		// "lower" one, e.g. from failed back to passed:
+		if (oldTerminalStatePrio !== undefined &&
+			(newTerminalStatePrio === undefined || newTerminalStatePrio < oldTerminalStatePrio)) {
+			return;
+		}
+
+		this.fireUpdateAndRefresh(entry, index, state, duration);
+	}
+
+	/**
+	 * Appends a message for the test in the run.
+	 */
+	public appendMessage(testId: string, taskId: string, message: ITestMessage) {
+		const entry = this.testById.get(testId);
+		if (!entry) {
+			return;
+		}
+
+		entry.tasks[this.mustGetTaskIndex(taskId)].messages.push(message);
+		this.changeEmitter.fire({ item: entry, result: this, reason: TestResultItemChangeReason.NewMessage, message });
+	}
+
+	/**
+	 * Marks the task in the test run complete.
+	 */
+	public markTaskComplete(taskId: string) {
+		const index = this.mustGetTaskIndex(taskId);
+		const task = this.tasks[index];
+		task.running = false;
+		task.output.end();
+
+		this.setAllToState(
+			TestResultState.Unset,
+			taskId,
+			t => t.state === TestResultState.Queued || t.state === TestResultState.Running,
+		);
+
+		this.endTaskEmitter.fire(index);
+	}
+
+	/**
+	 * Notifies the service that all tests are complete.
+	 */
+	public markComplete() {
+		if (this._completedAt !== undefined) {
+			throw new Error('cannot complete a test result multiple times');
+		}
+
+		for (const task of this.tasks) {
+			if (task.running) {
+				this.markTaskComplete(task.id);
+			}
+		}
+
+		this._completedAt = Date.now();
+		this.completeEmitter.fire();
+
+		this.telemetry.publicLog2<
+			{ failures: number; passes: number; controller: string },
+			{
+				owner: 'connor4312';
+				comment: 'Test outcome metrics. This helps us understand magnitude of feature use and how to build fix suggestions.';
+				failures: { comment: 'Number of test failures'; classification: 'SystemMetaData'; purpose: 'FeatureInsight' };
+				passes: { comment: 'Number of test failures'; classification: 'SystemMetaData'; purpose: 'FeatureInsight' };
+				controller: { comment: 'The test controller being used'; classification: 'SystemMetaData'; purpose: 'FeatureInsight' };
+			}
+		>('test.outcomes', {
+			failures: this.counts[TestResultState.Errored] + this.counts[TestResultState.Failed],
+			passes: this.counts[TestResultState.Passed],
+			controller: this.request.targets.map(t => t.controllerId).join(',')
+		});
+	}
+
+	/**
+	 * Marks the test and all of its children in the run as retired.
+	 */
+	public markRetired(testIds: WellDefinedPrefixTree<undefined> | undefined) {
+		for (const [id, test] of this.testById) {
+			if (!test.retired && (!testIds || testIds.hasKeyOrParent(TestId.fromString(id).path))) {
+				test.retired = true;
+				this.changeEmitter.fire({ reason: TestResultItemChangeReason.ComputedStateChange, item: test, result: this });
+			}
+		}
+	}
+
+	/**
+	 * @inheritdoc
+	 */
+	public toJSON(): ISerializedTestResults | undefined {
+		return this.completedAt && this.persist ? this.doSerialize.value : undefined;
+	}
+
+	public toJSONWithMessages(): ISerializedTestResults | undefined {
+		return this.completedAt && this.persist ? this.doSerializeWithMessages.value : undefined;
+	}
+
+	/**
+	 * Updates all tests in the collection to the given state.
+	 */
+	protected setAllToState(state: TestResultState, taskId: string, when: (task: ITestTaskState, item: TestResultItem) => boolean) {
+		const index = this.mustGetTaskIndex(taskId);
+		for (const test of this.testById.values()) {
+			if (when(test.tasks[index], test)) {
+				this.fireUpdateAndRefresh(test, index, state);
+			}
+		}
+	}
+
+	private fireUpdateAndRefresh(entry: TestResultItem, taskIndex: number, newState: TestResultState, newOwnDuration?: number) {
+		const previousOwnComputed = entry.ownComputedState;
+		const previousOwnDuration = entry.ownDuration;
+		const changeEvent: TestResultItemChange = {
+			item: entry,
 			result: this,
-			reason: TestResultItemChangeReason.ComputedStateChange,
-		}),
-	);
-}
+			reason: TestResultItemChangeReason.OwnStateChange,
+			previousState: previousOwnComputed,
+			previousOwnDuration: previousOwnDuration,
+		};
 
-    private addTestToRun(controllerId: string, item: ITestItem, parent: string | null) {
-	const node = itemToNode(controllerId, item, parent);
-	this.testById.set(item.extId, node);
-	this.counts[TestResultState.Unset]++;
-
-	if (parent) {
-		this.testById.get(parent)?.children.push(node);
-	}
-
-	if (this.tasks.length) {
-		for (let i = 0; i < this.tasks.length; i++) {
-			node.tasks.push({ duration: undefined, messages: [], state: TestResultState.Unset });
+		entry.tasks[taskIndex].state = newState;
+		if (newOwnDuration !== undefined) {
+			entry.tasks[taskIndex].duration = newOwnDuration;
+			entry.ownDuration = Math.max(entry.ownDuration || 0, newOwnDuration);
 		}
+
+		const newOwnComputed = maxPriority(...entry.tasks.map(t => t.state));
+		if (newOwnComputed === previousOwnComputed) {
+			if (newOwnDuration !== previousOwnDuration) {
+				this.changeEmitter.fire(changeEvent); // fire manually since state change won't do it
+			}
+			return;
+		}
+
+		entry.ownComputedState = newOwnComputed;
+		this.counts[previousOwnComputed]--;
+		this.counts[newOwnComputed]++;
+		refreshComputedState(this.computedStateAccessor, entry).forEach(t =>
+			this.changeEmitter.fire(t === entry ? changeEvent : {
+				item: t,
+				result: this,
+				reason: TestResultItemChangeReason.ComputedStateChange,
+			}),
+		);
 	}
 
-	return node;
-}
+	private addTestToRun(controllerId: string, item: ITestItem, parent: string | null) {
+		const node = itemToNode(controllerId, item, parent);
+		this.testById.set(item.extId, node);
+		this.counts[TestResultState.Unset]++;
 
-    private mustGetTaskIndex(taskId: string) {
-	const index = this.tasks.findIndex(t => t.id === taskId);
-	if (index === -1) {
-		throw new Error(`Unknown task ${taskId} in updateState`);
+		if (parent) {
+			this.testById.get(parent)?.children.push(node);
+		}
+
+		if (this.tasks.length) {
+			for (let i = 0; i < this.tasks.length; i++) {
+				node.tasks.push({ duration: undefined, messages: [], state: TestResultState.Unset });
+			}
+		}
+
+		return node;
 	}
 
-	return index;
-}
+	private mustGetTaskIndex(taskId: string) {
+		const index = this.tasks.findIndex(t => t.id === taskId);
+		if (index === -1) {
+			throw new Error(`Unknown task ${taskId} in updateState`);
+		}
 
-    private readonly doSerialize = new Lazy((): ISerializedTestResults => ({
-	id: this.id,
-	completedAt: this.completedAt!,
-	tasks: this.tasks.map(t => ({ id: t.id, name: t.name, ctrlId: t.ctrlId, hasCoverage: !!t.coverage.get() })),
-	name: this.name,
-	request: this.request,
-	items: [...this.testById.values()].map(TestResultItem.serializeWithoutMessages),
-}));
+		return index;
+	}
 
-    private readonly doSerializeWithMessages = new Lazy((): ISerializedTestResults => ({
-	id: this.id,
-	completedAt: this.completedAt!,
-	tasks: this.tasks.map(t => ({ id: t.id, name: t.name, ctrlId: t.ctrlId, hasCoverage: !!t.coverage.get() })),
-	name: this.name,
-	request: this.request,
-	items: [...this.testById.values()].map(TestResultItem.serialize),
-}));
+	private readonly doSerialize = new Lazy((): ISerializedTestResults => ({
+		id: this.id,
+		completedAt: this.completedAt!,
+		tasks: this.tasks.map(t => ({ id: t.id, name: t.name, ctrlId: t.ctrlId, hasCoverage: !!t.coverage.get() })),
+		name: this.name,
+		request: this.request,
+		items: [...this.testById.values()].map(TestResultItem.serializeWithoutMessages),
+	}));
+
+	private readonly doSerializeWithMessages = new Lazy((): ISerializedTestResults => ({
+		id: this.id,
+		completedAt: this.completedAt!,
+		tasks: this.tasks.map(t => ({ id: t.id, name: t.name, ctrlId: t.ctrlId, hasCoverage: !!t.coverage.get() })),
+		name: this.name,
+		request: this.request,
+		items: [...this.testById.values()].map(TestResultItem.serialize),
+	}));
 }
 
 /**

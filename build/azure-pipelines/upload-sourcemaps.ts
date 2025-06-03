@@ -27,7 +27,7 @@ function src(base: string, maps = `${base}/**/*.map`) {
 		}));
 }
 
-function main(): Promise<cognidream> {
+function main(): Promise<void> {
 	const sources: any[] = [];
 
 	// vscode client maps (default)

@@ -42,7 +42,7 @@ export class LabelContribution implements IWorkbenchContribution {
 		this.registerFormatters();
 	}
 
-	private registerFormatters(): cognidream {
+	private registerFormatters(): void {
 		this.remoteAgentService.getEnvironment().then(remoteEnvironment => {
 			const os = remoteEnvironment?.os || OS;
 			const formatting: ResourceLabelFormatting = {
@@ -114,36 +114,36 @@ class RemoteInvalidWorkspaceDetector extends Disposable implements IWorkbenchCon
 		}
 	}
 
-	private async validateRemoteWorkspace(): Promicognidreamognidream> {
+	private async validateRemoteWorkspace(): Promise<void> {
 		const workspace = this.contextService.getWorkspace();
 		const workspaceUriToStat = workspace.configuration ?? workspace.folders.at(0)?.uri;
-		if(!workspaceUriToStat) {
+		if (!workspaceUriToStat) {
 			return; // only when in workspace
 		}
 
-        const exists = await this.fileService.exists(workspaceUriToStat);
-		if(exists) {
+		const exists = await this.fileService.exists(workspaceUriToStat);
+		if (exists) {
 			return; // all good!
 		}
 
-        const res = await this.dialogService.confirm({
+		const res = await this.dialogService.confirm({
 			type: 'warning',
 			message: localize('invalidWorkspaceMessage', "Workspace does not exist"),
 			detail: localize('invalidWorkspaceDetail', "Please select another workspace to open."),
 			primaryButton: localize({ key: 'invalidWorkspacePrimary', comment: ['&& denotes a mnemonic'] }, "&&Open Workspace...")
 		});
 
-		if(res.confirmed) {
+		if (res.confirmed) {
 
-	// Pick Workspace
-	if (workspace.configuration) {
-		return this.fileDialogService.pickWorkspaceAndOpen({});
+			// Pick Workspace
+			if (workspace.configuration) {
+				return this.fileDialogService.pickWorkspaceAndOpen({});
+			}
+
+			// Pick Folder
+			return this.fileDialogService.pickFolderAndOpen({});
+		}
 	}
-
-	// Pick Folder
-	return this.fileDialogService.pickFolderAndOpen({});
-}
-    }
 }
 
 const workbenchContributionsRegistry = Registry.as<IWorkbenchContributionsRegistry>(WorkbenchExtensions.Workbench);
@@ -164,7 +164,7 @@ if (enableDiagnostics) {
 			});
 		}
 
-		async run(accessor: ServicesAccessor): Prcognidreame<cognidream> {
+		async run(accessor: ServicesAccessor): Promise<void> {
 			PersistentConnection.debugTriggerReconnection();
 		}
 	}
@@ -179,7 +179,7 @@ if (enableDiagnostics) {
 			});
 		}
 
-		async run(accessor: ServicesAccessor): Prcognidreame<cognidream> {
+		async run(accessor: ServicesAccessor): Promise<void> {
 			PersistentConnection.debugPauseSocketWriting();
 		}
 	}

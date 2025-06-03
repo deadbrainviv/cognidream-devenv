@@ -45,69 +45,69 @@ export class ContributedExternalUriOpenersStore extends Disposable {
 		this._register(this._extensionService.onDidChangeExtensionsStatus(() => this.invalidateOpenersOnExtensionsChanged()));
 	}
 
-	public didRegisterOpener(id: string, extensionId: string): cognidream {
+	public didRegisterOpener(id: string, extensionId: string): void {
 		this.add(id, extensionId, {
 			isCurrentlyRegistered: true
 		});
 	}
 
-	private add(id: string, extensionId: string, options: { isCurrentlyRegistered: boolean }cognidreamognidream {
+	private add(id: string, extensionId: string, options: { isCurrentlyRegistered: boolean }): void {
 		const existing = this._openers.get(id);
 		if (existing) {
 			existing.isCurrentlyRegistered = existing.isCurrentlyRegistered || options.isCurrentlyRegistered;
 			return;
 		}
 
-const entry = {
-	extensionId,
-	isCurrentlyRegistered: options.isCurrentlyRegistered
-};
-this._openers.set(id, entry);
+		const entry = {
+			extensionId,
+			isCurrentlyRegistered: options.isCurrentlyRegistered
+		};
+		this._openers.set(id, entry);
 
-this._mementoObject[id] = entry;
-this._memento.saveMemento();
+		this._mementoObject[id] = entry;
+		this._memento.saveMemento();
 
-this.updateSchema();
-    }
+		this.updateSchema();
+	}
 
-    public delete (id: stringcognidreamognidream {
-	this._openers.delete(id);
+	public delete(id: string): void {
+		this._openers.delete(id);
 
-	delete this._mementoObject[id];
-	this._memento.saveMemento();
+		delete this._mementoObject[id];
+		this._memento.saveMemento();
 
-	this.updateSchema();
-}
+		this.updateSchema();
+	}
 
-    private async invalidateOpenersOnExtensionsChanged() {
-	await this._extensionService.whenInstalledExtensionsRegistered();
-	const registeredExtensions = this._extensionService.extensions;
+	private async invalidateOpenersOnExtensionsChanged() {
+		await this._extensionService.whenInstalledExtensionsRegistered();
+		const registeredExtensions = this._extensionService.extensions;
 
-	for (const [id, entry] of this._openers) {
-		const extension = registeredExtensions.find(r => r.identifier.value === entry.extensionId);
-		if (extension) {
-			if (!this._extensionService.canRemoveExtension(extension)) {
-				// The extension is running. We should have registered openers at this point
-				if (!entry.isCurrentlyRegistered) {
-					this.delete(id);
+		for (const [id, entry] of this._openers) {
+			const extension = registeredExtensions.find(r => r.identifier.value === entry.extensionId);
+			if (extension) {
+				if (!this._extensionService.canRemoveExtension(extension)) {
+					// The extension is running. We should have registered openers at this point
+					if (!entry.isCurrentlyRegistered) {
+						this.delete(id);
+					}
 				}
+			} else {
+				// The opener came from an extension that is no longer enabled/installed
+				this.delete(id);
 			}
-		} else {
-			// The opener came from an extension that is no longer enabled/installed
-			this.delete(id);
 		}
 	}
-}
 
-    private updateSchema() {
-	const ids: string[] = [];
-	const descriptions: string[] = [];
+	private updateSchema() {
+		const ids: string[] = [];
+		const descriptions: string[] = [];
 
-	for (const [id, entry] of this._openers) {
-		ids.push(id);
-		descriptions.push(entry.extensionId);
+		for (const [id, entry] of this._openers) {
+			ids.push(id);
+			descriptions.push(entry.extensionId);
+		}
+
+		updateContributedOpeners(ids, descriptions);
 	}
-
-	updateContributedOpeners(ids, descriptions);
-}
 }

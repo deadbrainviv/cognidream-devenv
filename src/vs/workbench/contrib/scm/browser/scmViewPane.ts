@@ -164,7 +164,7 @@ function processResourceFilterData(uri: URI, filterData: FuzzyScore | LabelFuzzy
 interface ISCMLayout {
 	height: number | undefined;
 	width: number | undefined;
-	readonly onDidChange: Event<cognidream>;
+	readonly onDidChange: Event<void>;
 }
 
 interface ActionButtonTemplate {
@@ -200,93 +200,93 @@ export class ActionButtonRenderer implements ICompressibleTreeRenderer<ISCMActio
 		return { actionButton, disposable: Disposable.None, templateDisposable: actionButton };
 	}
 
-	renderElement(node: ITreeNode<ISCMActionButton, FuzzyScore>, index: number, templateData: ActionButtonTemplate, height: number | undefinedcognidreamognidream {
+	renderElement(node: ITreeNode<ISCMActionButton, FuzzyScore>, index: number, templateData: ActionButtonTemplate, height: number | undefined): void {
 		templateData.disposable.dispose();
 
-const disposables = new DisposableStore();
-const actionButton = node.element;
-templateData.actionButton.setButton(node.element.button);
+		const disposables = new DisposableStore();
+		const actionButton = node.element;
+		templateData.actionButton.setButton(node.element.button);
 
-// Remember action button
-this.actionButtons.set(actionButton, templateData.actionButton);
-disposables.add({ dispose: () => this.actionButtons.delete(actionButton) });
+		// Remember action button
+		this.actionButtons.set(actionButton, templateData.actionButton);
+		disposables.add({ dispose: () => this.actionButtons.delete(actionButton) });
 
-templateData.disposable = disposables;
-    }
+		templateData.disposable = disposables;
+	}
 
-renderCompressedElements(cognidreamognidream {
-	throw new Error('Should never happen since node is incompressible');
-}
+	renderCompressedElements(): void {
+		throw new Error('Should never happen since node is incompressible');
+	}
 
-    focusActionButton(actionButton: ISCMActionButtoncognidreamognidream {
-	this.actionButtons.get(actionButton)?.focus();
-}
+	focusActionButton(actionButton: ISCMActionButton): void {
+		this.actionButtons.get(actionButton)?.focus();
+	}
 
-    disposeElement(node: ITreeNode<ISCMActionButton, FuzzyScore>, index: number, template: ActionButtonTemplatecognidreamognidream {
-	template.disposable.dispose();
-}
+	disposeElement(node: ITreeNode<ISCMActionButton, FuzzyScore>, index: number, template: ActionButtonTemplate): void {
+		template.disposable.dispose();
+	}
 
-    disposeTemplate(templateData: ActionButtonTemplatecognidreamognidream {
-	templateData.disposable.dispose();
-	templateData.templateDisposable.dispose();
-}
-}
-
-
-	class SCMTreeDragAndDrop implements ITreeDragAndDrop<TreeElement> {
-		constructor(private readonly instantiationService: IInstantiationService) { }
-
-		getDragURI(element: TreeElement): string | null {
-			if (isSCMResource(element)) {
-				return element.sourceUri.toString();
-			}
-
-			return null;
-		}
-
-		onDragStart(data: IDragAndDropData, originalEvent: DragEventcognidreamognidream {
-			const items = SCMTreeDragAndDrop.getResourcesFromDragAndDropData(data as ElementsDragAndDropData<TreeElement, TreeElement[]>);
-		if(originalEvent.dataTransfer && items?.length) {
-	this.instantiationService.invokeFunction(accessor => fillEditorsDragData(accessor, items, originalEvent));
-
-	const fileResources = items.filter(s => s.scheme === Schemas.file).map(r => r.fsPath);
-	if(fileResources.length) {
-	originalEvent.dataTransfer.setData(CodeDataTransfers.FILES, JSON.stringify(fileResources));
-}
-        }
-    }
-
-	getDragLabel(elements: TreeElement[], originalEvent: DragEvent): string | undefined {
-	if(elements.length === 1) {
-		const element = elements[0];
-		if(isSCMResource(element)) {
-	return basename(element.sourceUri);
-}
-        }
-
-return String(elements.length);
-    }
-
-onDragOver(data: IDragAndDropData, targetElement: TreeElement | undefined, targetIndex: number | undefined, targetSector: ListViewTargetSector | undefined, originalEvent: DragEvent): boolean | ITreeDragOverReaction {
-	return true;
-}
-
-drop(data: IDragAndDropData, targetElement: TreeElement | undefined, targetIndex: number | undefined, targetSector: ListViewTargetSector | undefined, originalEvent: DragEventcognidreamognidream {}
-
-    private static getResourcesFromDragAndDropData(data: ElementsDragAndDropData<TreeElement, TreeElement[]>): URI[] {
-	const uris: URI[] = [];
-	for(const element of [...data.context ?? [], ...data.elements]) {
-	if (isSCMResource(element)) {
-		uris.push(element.sourceUri);
+	disposeTemplate(templateData: ActionButtonTemplate): void {
+		templateData.disposable.dispose();
+		templateData.templateDisposable.dispose();
 	}
 }
-return uris;
-    }
 
-dispose(cognidreamognidream {}
+
+class SCMTreeDragAndDrop implements ITreeDragAndDrop<TreeElement> {
+	constructor(private readonly instantiationService: IInstantiationService) { }
+
+	getDragURI(element: TreeElement): string | null {
+		if (isSCMResource(element)) {
+			return element.sourceUri.toString();
+		}
+
+		return null;
+	}
+
+	onDragStart(data: IDragAndDropData, originalEvent: DragEvent): void {
+		const items = SCMTreeDragAndDrop.getResourcesFromDragAndDropData(data as ElementsDragAndDropData<TreeElement, TreeElement[]>);
+		if (originalEvent.dataTransfer && items?.length) {
+			this.instantiationService.invokeFunction(accessor => fillEditorsDragData(accessor, items, originalEvent));
+
+			const fileResources = items.filter(s => s.scheme === Schemas.file).map(r => r.fsPath);
+			if (fileResources.length) {
+				originalEvent.dataTransfer.setData(CodeDataTransfers.FILES, JSON.stringify(fileResources));
+			}
+		}
+	}
+
+	getDragLabel(elements: TreeElement[], originalEvent: DragEvent): string | undefined {
+		if (elements.length === 1) {
+			const element = elements[0];
+			if (isSCMResource(element)) {
+				return basename(element.sourceUri);
+			}
+		}
+
+		return String(elements.length);
+	}
+
+	onDragOver(data: IDragAndDropData, targetElement: TreeElement | undefined, targetIndex: number | undefined, targetSector: ListViewTargetSector | undefined, originalEvent: DragEvent): boolean | ITreeDragOverReaction {
+		return true;
+	}
+
+	drop(data: IDragAndDropData, targetElement: TreeElement | undefined, targetIndex: number | undefined, targetSector: ListViewTargetSector | undefined, originalEvent: DragEvent): void { }
+
+	private static getResourcesFromDragAndDropData(data: ElementsDragAndDropData<TreeElement, TreeElement[]>): URI[] {
+		const uris: URI[] = [];
+		for (const element of [...data.context ?? [], ...data.elements]) {
+			if (isSCMResource(element)) {
+				uris.push(element.sourceUri);
+			}
+		}
+		return uris;
+	}
+
+	dispose(): void { }
 }
 
-	interface InputTemplate {
+interface InputTemplate {
 	readonly inputWidget: SCMInputWidget;
 	inputWidgetHeight: number;
 	readonly elementDisposables: DisposableStore;
@@ -295,126 +295,126 @@ dispose(cognidreamognidream {}
 
 class InputRenderer implements ICompressibleTreeRenderer<ISCMInput, FuzzyScore, InputTemplate> {
 
-		static readonly DEFAULT_HEIGHT = 26;
+	static readonly DEFAULT_HEIGHT = 26;
 
-		static readonly TEMPLATE_ID = 'input';
-		get templateId(): string { return InputRenderer.TEMPLATE_ID; }
+	static readonly TEMPLATE_ID = 'input';
+	get templateId(): string { return InputRenderer.TEMPLATE_ID; }
 
-		private inputWidgets = new Map<ISCMInput, SCMInputWidget>();
-		private contentHeights = new WeakMap<ISCMInput, number>();
-		private editorSelections = new WeakMap<ISCMInput, Selection[]>();
+	private inputWidgets = new Map<ISCMInput, SCMInputWidget>();
+	private contentHeights = new WeakMap<ISCMInput, number>();
+	private editorSelections = new WeakMap<ISCMInput, Selection[]>();
 
-		constructor(
-			private outerLayout: ISCMLayout,
-			private overflowWidgetsDomNode: HTMLElement,
-			private updateHeight: (input: ISCMInput, height: numbecognidream> cognidream,
-	@IInstantiationService private instantiationService: IInstantiationService
-) { }
+	constructor(
+		private outerLayout: ISCMLayout,
+		private overflowWidgetsDomNode: HTMLElement,
+		private updateHeight: (input: ISCMInput, height: number) => void,
+		@IInstantiationService private instantiationService: IInstantiationService
+	) { }
 
-renderTemplate(container: HTMLElement): InputTemplate {
-	// hack
-	(container.parentElement!.parentElement!.querySelector('.monaco-tl-twistie')! as HTMLElement).classList.add('force-no-twistie');
+	renderTemplate(container: HTMLElement): InputTemplate {
+		// hack
+		(container.parentElement!.parentElement!.querySelector('.monaco-tl-twistie')! as HTMLElement).classList.add('force-no-twistie');
 
-	// Disable hover for list item
-	container.parentElement!.parentElement!.classList.add('force-no-hover');
+		// Disable hover for list item
+		container.parentElement!.parentElement!.classList.add('force-no-hover');
 
-	const templateDisposable = new DisposableStore();
-	const inputElement = append(container, $('.scm-input'));
-	const inputWidget = this.instantiationService.createInstance(SCMInputWidget, inputElement, this.overflowWidgetsDomNode);
-	templateDisposable.add(inputWidget);
+		const templateDisposable = new DisposableStore();
+		const inputElement = append(container, $('.scm-input'));
+		const inputWidget = this.instantiationService.createInstance(SCMInputWidget, inputElement, this.overflowWidgetsDomNode);
+		templateDisposable.add(inputWidget);
 
-	return { inputWidget, inputWidgetHeight: InputRenderer.DEFAULT_HEIGHT, elementDisposables: new DisposableStore(), templateDisposable };
-}
-
-renderElement(node: ITreeNode<ISCMInput, FuzzyScore>, index: number, templateData: InputTemplatecognidreamognidream {
-	const input = node.element;
-	templateData.inputWidget.input = input;
-
-	// Remember widget
-	this.inputWidgets.set(input, templateData.inputWidget);
-	templateData.elementDisposables.add({
-		dispose: () => this.inputWidgets.delete(input)
-	});
-
-	// Widget cursor selections
-	const selections = this.editorSelections.get(input);
-
-	if(selections) {
-		templateData.inputWidget.selections = selections;
+		return { inputWidget, inputWidgetHeight: InputRenderer.DEFAULT_HEIGHT, elementDisposables: new DisposableStore(), templateDisposable };
 	}
 
-        templateData.elementDisposables.add(toDisposable(() => {
-		const selections = templateData.inputWidget.selections;
+	renderElement(node: ITreeNode<ISCMInput, FuzzyScore>, index: number, templateData: InputTemplate): void {
+		const input = node.element;
+		templateData.inputWidget.input = input;
+
+		// Remember widget
+		this.inputWidgets.set(input, templateData.inputWidget);
+		templateData.elementDisposables.add({
+			dispose: () => this.inputWidgets.delete(input)
+		});
+
+		// Widget cursor selections
+		const selections = this.editorSelections.get(input);
 
 		if (selections) {
-			this.editorSelections.set(input, selections);
+			templateData.inputWidget.selections = selections;
 		}
-	}));
 
-	// Reset widget height so it's recalculated
-	templateData.inputWidgetHeight = InputRenderer.DEFAULT_HEIGHT;
+		templateData.elementDisposables.add(toDisposable(() => {
+			const selections = templateData.inputWidget.selections;
 
-	// Rerender the element whenever the editor content height changes
-	const onDidChangeContentHeight = () => {
-		const contentHeight = templateData.inputWidget.getContentHeight();
-		this.contentHeights.set(input, contentHeight);
+			if (selections) {
+				this.editorSelections.set(input, selections);
+			}
+		}));
 
-		if (templateData.inputWidgetHeight !== contentHeight) {
-			this.updateHeight(input, contentHeight + 10);
-			templateData.inputWidgetHeight = contentHeight;
-			templateData.inputWidget.layout();
-		}
-	};
+		// Reset widget height so it's recalculated
+		templateData.inputWidgetHeight = InputRenderer.DEFAULT_HEIGHT;
 
-	const startListeningContentHeightChange = () => {
-		templateData.elementDisposables.add(templateData.inputWidget.onDidChangeContentHeight(onDidChangeContentHeight));
-		onDidChangeContentHeight();
-	};
+		// Rerender the element whenever the editor content height changes
+		const onDidChangeContentHeight = () => {
+			const contentHeight = templateData.inputWidget.getContentHeight();
+			this.contentHeights.set(input, contentHeight);
 
-	// Setup height change listener on next tick
-	disposableTimeout(startListeningContentHeightChange, 0, templateData.elementDisposables);
+			if (templateData.inputWidgetHeight !== contentHeight) {
+				this.updateHeight(input, contentHeight + 10);
+				templateData.inputWidgetHeight = contentHeight;
+				templateData.inputWidget.layout();
+			}
+		};
 
-// Layout the editor whenever the outer layout happens
-const layoutEditor = () => templateData.inputWidget.layout();
-templateData.elementDisposables.add(this.outerLayout.onDidChange(layoutEditor));
-layoutEditor();
-    }
+		const startListeningContentHeightChange = () => {
+			templateData.elementDisposables.add(templateData.inputWidget.onDidChangeContentHeight(onDidChangeContentHeight));
+			onDidChangeContentHeight();
+		};
 
-renderCompressedElements(cognidreamognidream {
-	throw new Error('Should never happen since node is incompressible');
-}
+		// Setup height change listener on next tick
+		disposableTimeout(startListeningContentHeightChange, 0, templateData.elementDisposables);
 
-    disposeElement(group: ITreeNode<ISCMInput, FuzzyScore>, index: number, template: InputTemplatecognidreamognidream {
-	template.elementDisposables.clear();
-}
-
-    disposeTemplate(templateData: InputTemplatecognidreamognidream {
-	templateData.templateDisposable.dispose();
-}
-
-    getHeight(input: ISCMInput): number {
-	return(this.contentHeights.get(input) ?? InputRenderer.DEFAULT_HEIGHT) + 10;
-    }
-
-getRenderedInputWidget(input: ISCMInput): SCMInputWidget | undefined {
-	return this.inputWidgets.get(input);
-}
-
-getFocusedInput(): ISCMInput | undefined {
-	for (const [input, inputWidget] of this.inputWidgets) {
-		if (inputWidget.hasFocus()) {
-			return input;
-		}
+		// Layout the editor whenever the outer layout happens
+		const layoutEditor = () => templateData.inputWidget.layout();
+		templateData.elementDisposables.add(this.outerLayout.onDidChange(layoutEditor));
+		layoutEditor();
 	}
 
-	return undefined;
-}
+	renderCompressedElements(): void {
+		throw new Error('Should never happen since node is incompressible');
+	}
 
-clearValidation(cognidreamognidream {
-	for(const [, inputWidget] of this.inputWidgets) {
-	inputWidget.clearValidation();
-}
-    }
+	disposeElement(group: ITreeNode<ISCMInput, FuzzyScore>, index: number, template: InputTemplate): void {
+		template.elementDisposables.clear();
+	}
+
+	disposeTemplate(templateData: InputTemplate): void {
+		templateData.templateDisposable.dispose();
+	}
+
+	getHeight(input: ISCMInput): number {
+		return (this.contentHeights.get(input) ?? InputRenderer.DEFAULT_HEIGHT) + 10;
+	}
+
+	getRenderedInputWidget(input: ISCMInput): SCMInputWidget | undefined {
+		return this.inputWidgets.get(input);
+	}
+
+	getFocusedInput(): ISCMInput | undefined {
+		for (const [input, inputWidget] of this.inputWidgets) {
+			if (inputWidget.hasFocus()) {
+				return input;
+			}
+		}
+
+		return undefined;
+	}
+
+	clearValidation(): void {
+		for (const [, inputWidget] of this.inputWidgets) {
+			inputWidget.clearValidation();
+		}
+	}
 }
 
 interface ResourceGroupTemplate {
@@ -460,33 +460,33 @@ class ResourceGroupRenderer implements ICompressibleTreeRenderer<ISCMResourceGro
 		return { name, count, actionBar, elementDisposables: new DisposableStore(), disposables };
 	}
 
-	renderElement(node: ITreeNode<ISCMResourceGroup, FuzzyScore>, index: number, template: ResourceGroupTemplatecognidreamognidream {
+	renderElement(node: ITreeNode<ISCMResourceGroup, FuzzyScore>, index: number, template: ResourceGroupTemplate): void {
 		const group = node.element;
 		template.name.textContent = group.label;
 		template.count.setCount(group.resources.length);
 
-const menus = this.scmViewService.menus.getRepositoryMenus(group.provider);
-template.elementDisposables.add(connectPrimaryMenu(menus.getResourceGroupMenu(group), primary => {
-	template.actionBar.setActions(primary);
-}, 'inline'));
-template.actionBar.context = group;
-    }
+		const menus = this.scmViewService.menus.getRepositoryMenus(group.provider);
+		template.elementDisposables.add(connectPrimaryMenu(menus.getResourceGroupMenu(group), primary => {
+			template.actionBar.setActions(primary);
+		}, 'inline'));
+		template.actionBar.context = group;
+	}
 
-renderCompressedElements(node: ITreeNode<ICompressedTreeNode<ISCMResourceGroup>, FuzzyScore>, index: number, templateData: ResourceGroupTemplate, height: number | undefinedcognidreamognidream {
-	throw new Error('Should never happen since node is incompressible');
+	renderCompressedElements(node: ITreeNode<ICompressedTreeNode<ISCMResourceGroup>, FuzzyScore>, index: number, templateData: ResourceGroupTemplate, height: number | undefined): void {
+		throw new Error('Should never happen since node is incompressible');
+	}
+
+	disposeElement(group: ITreeNode<ISCMResourceGroup, FuzzyScore>, index: number, template: ResourceGroupTemplate): void {
+		template.elementDisposables.clear();
+	}
+
+	disposeTemplate(template: ResourceGroupTemplate): void {
+		template.elementDisposables.dispose();
+		template.disposables.dispose();
+	}
 }
 
-    disposeElement(group: ITreeNode<ISCMResourceGroup, FuzzyScore>, index: number, template: ResourceGroupTemplatecognidreamognidream {
-	template.elementDisposables.clear();
-}
-
-    disposeTemplate(template: ResourceGroupTemplatecognidreamognidream {
-	template.elementDisposables.dispose();
-	template.disposables.dispose();
-}
-}
-
-	interface ResourceTemplate {
+interface ResourceTemplate {
 	element: HTMLElement;
 	name: HTMLElement;
 	fileLabel: IResourceLabel;
@@ -507,262 +507,262 @@ interface RenderedResourceData {
 
 class RepositoryPaneActionRunner extends ActionRunner {
 
-		constructor(private getSelectedResources: () => (ISCMResourceGroup | ISCMResource | IResourceNode<ISCMResource, ISCMResourceGroup>)[]) {
-			super();
-		}
-
-		protected override async runAction(action: IAction, context: ISCMResourceGroup | ISCMResource | IResourceNode<ISCMResource, ISCMResourceGroup>): Promise<any> {
-			if (!(action instanceof MenuItemAction)) {
-				return super.runAction(action, context);
-			}
-
-			const isContextResourceGroup = isSCMResourceGroup(context);
-			const selection = this.getSelectedResources().filter(r => isSCMResourceGroup(r) === isContextResourceGroup);
-
-			const contextIsSelected = selection.some(s => s === context);
-			const actualContext = contextIsSelected ? selection : [context];
-			const args = actualContext.map(e => ResourceTree.isResourceNode(e) ? ResourceTree.collect(e) : [e]).flat();
-			await action.run(...args);
-		}
+	constructor(private getSelectedResources: () => (ISCMResourceGroup | ISCMResource | IResourceNode<ISCMResource, ISCMResourceGroup>)[]) {
+		super();
 	}
+
+	protected override async runAction(action: IAction, context: ISCMResourceGroup | ISCMResource | IResourceNode<ISCMResource, ISCMResourceGroup>): Promise<any> {
+		if (!(action instanceof MenuItemAction)) {
+			return super.runAction(action, context);
+		}
+
+		const isContextResourceGroup = isSCMResourceGroup(context);
+		const selection = this.getSelectedResources().filter(r => isSCMResourceGroup(r) === isContextResourceGroup);
+
+		const contextIsSelected = selection.some(s => s === context);
+		const actualContext = contextIsSelected ? selection : [context];
+		const args = actualContext.map(e => ResourceTree.isResourceNode(e) ? ResourceTree.collect(e) : [e]).flat();
+		await action.run(...args);
+	}
+}
 
 class ResourceRenderer implements ICompressibleTreeRenderer<ISCMResource | IResourceNode<ISCMResource, ISCMResourceGroup>, FuzzyScore | LabelFuzzyScore, ResourceTemplate> {
 
-		static readonly TEMPLATE_ID = 'resource';
-		get templateId(): string { return ResourceRenderer.TEMPLATE_ID; }
+	static readonly TEMPLATE_ID = 'resource';
+	get templateId(): string { return ResourceRenderer.TEMPLATE_ID; }
 
-		private readonly disposables = new DisposableStore();
-		private renderedResources = new Map<ResourceTemplate, RenderedResourceData>();
+	private readonly disposables = new DisposableStore();
+	private renderedResources = new Map<ResourceTemplate, RenderedResourceData>();
 
-		constructor(
-			private viewMode: () => ViewMode,
-			private labels: ResourceLabels,
-			private actionViewItemProvider: IActionViewItemProvider,
-			private actionRunner: ActionRunner,
-			@ICommandService private commandService: ICommandService,
-			@IContextKeyService private contextKeyService: IContextKeyService,
-			@IContextMenuService private contextMenuService: IContextMenuService,
-			@IKeybindingService private keybindingService: IKeybindingService,
-			@ILabelService private labelService: ILabelService,
-			@IMenuService private menuService: IMenuService,
-			@ISCMViewService private scmViewService: ISCMViewService,
-			@ITelemetryService private telemetryService: ITelemetryService,
-			@IThemeService private themeService: IThemeService
-		) {
-			themeService.onDidColorThemeChange(this.onDidColorThemeChange, this, this.disposables);
-		}
+	constructor(
+		private viewMode: () => ViewMode,
+		private labels: ResourceLabels,
+		private actionViewItemProvider: IActionViewItemProvider,
+		private actionRunner: ActionRunner,
+		@ICommandService private commandService: ICommandService,
+		@IContextKeyService private contextKeyService: IContextKeyService,
+		@IContextMenuService private contextMenuService: IContextMenuService,
+		@IKeybindingService private keybindingService: IKeybindingService,
+		@ILabelService private labelService: ILabelService,
+		@IMenuService private menuService: IMenuService,
+		@ISCMViewService private scmViewService: ISCMViewService,
+		@ITelemetryService private telemetryService: ITelemetryService,
+		@IThemeService private themeService: IThemeService
+	) {
+		themeService.onDidColorThemeChange(this.onDidColorThemeChange, this, this.disposables);
+	}
 
-		renderTemplate(container: HTMLElement): ResourceTemplate {
-			const element = append(container, $('.resource'));
-			const name = append(element, $('.name'));
-			const fileLabel = this.labels.create(name, { supportDescriptionHighlights: true, supportHighlights: true });
-			const actionsContainer = append(fileLabel.element, $('.actions'));
-			const actionBar = new WorkbenchToolBar(actionsContainer, {
-				actionViewItemProvider: this.actionViewItemProvider,
-				actionRunner: this.actionRunner
-			}, this.menuService, this.contextKeyService, this.contextMenuService, this.keybindingService, this.commandService, this.telemetryService);
+	renderTemplate(container: HTMLElement): ResourceTemplate {
+		const element = append(container, $('.resource'));
+		const name = append(element, $('.name'));
+		const fileLabel = this.labels.create(name, { supportDescriptionHighlights: true, supportHighlights: true });
+		const actionsContainer = append(fileLabel.element, $('.actions'));
+		const actionBar = new WorkbenchToolBar(actionsContainer, {
+			actionViewItemProvider: this.actionViewItemProvider,
+			actionRunner: this.actionRunner
+		}, this.menuService, this.contextKeyService, this.contextMenuService, this.keybindingService, this.commandService, this.telemetryService);
 
-			const decorationIcon = append(element, $('.decoration-icon'));
-			const actionBarMenuListener = new MutableDisposable<IDisposable>();
-			const disposables = combinedDisposable(actionBar, fileLabel, actionBarMenuListener);
+		const decorationIcon = append(element, $('.decoration-icon'));
+		const actionBarMenuListener = new MutableDisposable<IDisposable>();
+		const disposables = combinedDisposable(actionBar, fileLabel, actionBarMenuListener);
 
-			return { element, name, fileLabel, decorationIcon, actionBar, actionBarMenu: undefined, actionBarMenuListener, elementDisposables: new DisposableStore(), disposables };
-		}
+		return { element, name, fileLabel, decorationIcon, actionBar, actionBarMenu: undefined, actionBarMenuListener, elementDisposables: new DisposableStore(), disposables };
+	}
 
-		renderElement(node: ITreeNode<ISCMResource, FuzzyScore | LabelFuzzyScore> | ITreeNode<ISCMResource | IResourceNode<ISCMResource, ISCMResourceGroup>, FuzzyScore | LabelFuzzyScore>, index: number, template: ResourceTemplatecognidreamognidream {
-			const resourceOrFolder = node.element;
+	renderElement(node: ITreeNode<ISCMResource, FuzzyScore | LabelFuzzyScore> | ITreeNode<ISCMResource | IResourceNode<ISCMResource, ISCMResourceGroup>, FuzzyScore | LabelFuzzyScore>, index: number, template: ResourceTemplate): void {
+		const resourceOrFolder = node.element;
 		const iconResource = ResourceTree.isResourceNode(resourceOrFolder) ? resourceOrFolder.element : resourceOrFolder;
 		const uri = ResourceTree.isResourceNode(resourceOrFolder) ? resourceOrFolder.uri : resourceOrFolder.sourceUri;
 		const fileKind = ResourceTree.isResourceNode(resourceOrFolder) ? FileKind.FOLDER : FileKind.FILE;
 		const tooltip = !ResourceTree.isResourceNode(resourceOrFolder) && resourceOrFolder.decorations.tooltip || '';
 		const hidePath = this.viewMode() === ViewMode.Tree;
 
-        let matches: IMatch[] | undefined;
-let descriptionMatches: IMatch[] | undefined;
-let strikethrough: boolean | undefined;
+		let matches: IMatch[] | undefined;
+		let descriptionMatches: IMatch[] | undefined;
+		let strikethrough: boolean | undefined;
 
-if (ResourceTree.isResourceNode(resourceOrFolder)) {
-	if (resourceOrFolder.element) {
-		const menus = this.scmViewService.menus.getRepositoryMenus(resourceOrFolder.element.resourceGroup.provider);
-		this._renderActionBar(template, resourceOrFolder, menus.getResourceMenu(resourceOrFolder.element));
+		if (ResourceTree.isResourceNode(resourceOrFolder)) {
+			if (resourceOrFolder.element) {
+				const menus = this.scmViewService.menus.getRepositoryMenus(resourceOrFolder.element.resourceGroup.provider);
+				this._renderActionBar(template, resourceOrFolder, menus.getResourceMenu(resourceOrFolder.element));
 
-		template.element.classList.toggle('faded', resourceOrFolder.element.decorations.faded);
-		strikethrough = resourceOrFolder.element.decorations.strikeThrough;
-	} else {
-		const menus = this.scmViewService.menus.getRepositoryMenus(resourceOrFolder.context.provider);
-		this._renderActionBar(template, resourceOrFolder, menus.getResourceFolderMenu(resourceOrFolder.context));
+				template.element.classList.toggle('faded', resourceOrFolder.element.decorations.faded);
+				strikethrough = resourceOrFolder.element.decorations.strikeThrough;
+			} else {
+				const menus = this.scmViewService.menus.getRepositoryMenus(resourceOrFolder.context.provider);
+				this._renderActionBar(template, resourceOrFolder, menus.getResourceFolderMenu(resourceOrFolder.context));
 
-		matches = createMatches(node.filterData as FuzzyScore | undefined);
-		template.element.classList.remove('faded');
-	}
-} else {
-	const menus = this.scmViewService.menus.getRepositoryMenus(resourceOrFolder.resourceGroup.provider);
-	this._renderActionBar(template, resourceOrFolder, menus.getResourceMenu(resourceOrFolder));
-
-	[matches, descriptionMatches] = processResourceFilterData(uri, node.filterData);
-	template.element.classList.toggle('faded', resourceOrFolder.decorations.faded);
-	strikethrough = resourceOrFolder.decorations.strikeThrough;
-}
-
-const renderedData: RenderedResourceData = {
-	tooltip, uri, fileLabelOptions: { hidePath, fileKind, matches, descriptionMatches, strikethrough }, iconResource
-};
-
-this.renderIcon(template, renderedData);
-
-this.renderedResources.set(template, renderedData);
-template.elementDisposables.add(toDisposable(() => this.renderedResources.delete(template)));
-
-template.element.setAttribute('data-tooltip', tooltip);
-    }
-
-disposeElement(resource: ITreeNode<ISCMResource, FuzzyScore | LabelFuzzyScore> | ITreeNode<IResourceNode<ISCMResource, ISCMResourceGroup>, FuzzyScore | LabelFuzzyScore>, index: number, template: ResourceTemplatecognidreamognidream {
-	template.elementDisposables.clear();
-}
-
-    renderCompressedElements(node: ITreeNode<ICompressedTreeNode<ISCMResource> | ICompressedTreeNode<IResourceNode<ISCMResource, ISCMResourceGroup>>, FuzzyScore | LabelFuzzyScore>, index: number, template: ResourceTemplate, height: number | undefinedcognidreamognidream {
-	const compressed = node.element as ICompressedTreeNode<IResourceNode<ISCMResource, ISCMResourceGroup>>;
-	const folder = compressed.elements[compressed.elements.length - 1];
-
-	const label = compressed.elements.map(e => e.name);
-	const fileKind = FileKind.FOLDER;
-
-	const matches = createMatches(node.filterData as FuzzyScore | undefined);
-	template.fileLabel.setResource({ resource: folder.uri, name: label }, {
-		fileDecorations: { colors: false, badges: true },
-		fileKind,
-		matches,
-		separator: this.labelService.getSeparator(folder.uri.scheme)
-	});
-
-	const menus = this.scmViewService.menus.getRepositoryMenus(folder.context.provider);
-	this._renderActionBar(template, folder, menus.getResourceFolderMenu(folder.context));
-
-	template.name.classList.remove('strike-through');
-	template.element.classList.remove('faded');
-	template.decorationIcon.style.display = 'none';
-	template.decorationIcon.style.backgroundImage = '';
-
-	template.element.setAttribute('data-tooltip', '');
-}
-
-    disposeCompressedElements(node: ITreeNode<ICompressedTreeNode<ISCMResource> | ICompressedTreeNode<IResourceNode<ISCMResource, ISCMResourceGroup>>, FuzzyScore | LabelFuzzyScore>, index: number, template: ResourceTemplate, height: number | undefinedcognidreamognidream {
-	template.elementDisposables.clear();
-}
-
-    disposeTemplate(template: ResourceTemplatecognidreamognidream {
-	template.elementDisposables.dispose();
-	template.disposables.dispose();
-}
-
-    private _renderActionBar(template: ResourceTemplate, resourceOrFolder: ISCMResource | IResourceNode<ISCMResource, ISCMResourceGroup>, menu: IMenucognidreamognidream {
-	if(!template.actionBarMenu || template.actionBarMenu !== menu) {
-	template.actionBarMenu = menu;
-	template.actionBarMenuListener.value = connectPrimaryMenu(menu, primary => {
-		template.actionBar.setActions(primary);
-	}, 'inline');
-}
-
-        template.actionBar.context = resourceOrFolder;
-    }
-
-    private onDidColorThemeChange(cognidreamognidream {
-	for(const [template, data] of this.renderedResources) {
-	this.renderIcon(template, data);
-}
-    }
-
-    private renderIcon(template: ResourceTemplate, data: RenderedResourceDatacognidreamognidream {
-	const theme = this.themeService.getColorTheme();
-	const icon = theme.type === ColorScheme.LIGHT ? data.iconResource?.decorations.icon : data.iconResource?.decorations.iconDark;
-
-	template.fileLabel.setFile(data.uri, {
-		...data.fileLabelOptions,
-		fileDecorations: { colors: false, badges: !icon },
-	});
-
-	if(icon) {
-		if (ThemeIcon.isThemeIcon(icon)) {
-			template.decorationIcon.className = `decoration-icon ${ThemeIcon.asClassName(icon)}`;
-			if (icon.color) {
-				template.decorationIcon.style.color = theme.getColor(icon.color.id)?.toString() ?? '';
+				matches = createMatches(node.filterData as FuzzyScore | undefined);
+				template.element.classList.remove('faded');
 			}
-			template.decorationIcon.style.display = '';
-			template.decorationIcon.style.backgroundImage = '';
+		} else {
+			const menus = this.scmViewService.menus.getRepositoryMenus(resourceOrFolder.resourceGroup.provider);
+			this._renderActionBar(template, resourceOrFolder, menus.getResourceMenu(resourceOrFolder));
+
+			[matches, descriptionMatches] = processResourceFilterData(uri, node.filterData);
+			template.element.classList.toggle('faded', resourceOrFolder.decorations.faded);
+			strikethrough = resourceOrFolder.decorations.strikeThrough;
+		}
+
+		const renderedData: RenderedResourceData = {
+			tooltip, uri, fileLabelOptions: { hidePath, fileKind, matches, descriptionMatches, strikethrough }, iconResource
+		};
+
+		this.renderIcon(template, renderedData);
+
+		this.renderedResources.set(template, renderedData);
+		template.elementDisposables.add(toDisposable(() => this.renderedResources.delete(template)));
+
+		template.element.setAttribute('data-tooltip', tooltip);
+	}
+
+	disposeElement(resource: ITreeNode<ISCMResource, FuzzyScore | LabelFuzzyScore> | ITreeNode<IResourceNode<ISCMResource, ISCMResourceGroup>, FuzzyScore | LabelFuzzyScore>, index: number, template: ResourceTemplate): void {
+		template.elementDisposables.clear();
+	}
+
+	renderCompressedElements(node: ITreeNode<ICompressedTreeNode<ISCMResource> | ICompressedTreeNode<IResourceNode<ISCMResource, ISCMResourceGroup>>, FuzzyScore | LabelFuzzyScore>, index: number, template: ResourceTemplate, height: number | undefined): void {
+		const compressed = node.element as ICompressedTreeNode<IResourceNode<ISCMResource, ISCMResourceGroup>>;
+		const folder = compressed.elements[compressed.elements.length - 1];
+
+		const label = compressed.elements.map(e => e.name);
+		const fileKind = FileKind.FOLDER;
+
+		const matches = createMatches(node.filterData as FuzzyScore | undefined);
+		template.fileLabel.setResource({ resource: folder.uri, name: label }, {
+			fileDecorations: { colors: false, badges: true },
+			fileKind,
+			matches,
+			separator: this.labelService.getSeparator(folder.uri.scheme)
+		});
+
+		const menus = this.scmViewService.menus.getRepositoryMenus(folder.context.provider);
+		this._renderActionBar(template, folder, menus.getResourceFolderMenu(folder.context));
+
+		template.name.classList.remove('strike-through');
+		template.element.classList.remove('faded');
+		template.decorationIcon.style.display = 'none';
+		template.decorationIcon.style.backgroundImage = '';
+
+		template.element.setAttribute('data-tooltip', '');
+	}
+
+	disposeCompressedElements(node: ITreeNode<ICompressedTreeNode<ISCMResource> | ICompressedTreeNode<IResourceNode<ISCMResource, ISCMResourceGroup>>, FuzzyScore | LabelFuzzyScore>, index: number, template: ResourceTemplate, height: number | undefined): void {
+		template.elementDisposables.clear();
+	}
+
+	disposeTemplate(template: ResourceTemplate): void {
+		template.elementDisposables.dispose();
+		template.disposables.dispose();
+	}
+
+	private _renderActionBar(template: ResourceTemplate, resourceOrFolder: ISCMResource | IResourceNode<ISCMResource, ISCMResourceGroup>, menu: IMenu): void {
+		if (!template.actionBarMenu || template.actionBarMenu !== menu) {
+			template.actionBarMenu = menu;
+			template.actionBarMenuListener.value = connectPrimaryMenu(menu, primary => {
+				template.actionBar.setActions(primary);
+			}, 'inline');
+		}
+
+		template.actionBar.context = resourceOrFolder;
+	}
+
+	private onDidColorThemeChange(): void {
+		for (const [template, data] of this.renderedResources) {
+			this.renderIcon(template, data);
+		}
+	}
+
+	private renderIcon(template: ResourceTemplate, data: RenderedResourceData): void {
+		const theme = this.themeService.getColorTheme();
+		const icon = theme.type === ColorScheme.LIGHT ? data.iconResource?.decorations.icon : data.iconResource?.decorations.iconDark;
+
+		template.fileLabel.setFile(data.uri, {
+			...data.fileLabelOptions,
+			fileDecorations: { colors: false, badges: !icon },
+		});
+
+		if (icon) {
+			if (ThemeIcon.isThemeIcon(icon)) {
+				template.decorationIcon.className = `decoration-icon ${ThemeIcon.asClassName(icon)}`;
+				if (icon.color) {
+					template.decorationIcon.style.color = theme.getColor(icon.color.id)?.toString() ?? '';
+				}
+				template.decorationIcon.style.display = '';
+				template.decorationIcon.style.backgroundImage = '';
+			} else {
+				template.decorationIcon.className = 'decoration-icon';
+				template.decorationIcon.style.color = '';
+				template.decorationIcon.style.display = '';
+				template.decorationIcon.style.backgroundImage = asCSSUrl(icon);
+			}
+			template.decorationIcon.title = data.tooltip;
 		} else {
 			template.decorationIcon.className = 'decoration-icon';
 			template.decorationIcon.style.color = '';
-			template.decorationIcon.style.display = '';
-			template.decorationIcon.style.backgroundImage = asCSSUrl(icon);
+			template.decorationIcon.style.display = 'none';
+			template.decorationIcon.style.backgroundImage = '';
+			template.decorationIcon.title = '';
 		}
-		template.decorationIcon.title = data.tooltip;
-	} else {
-		template.decorationIcon.className = 'decoration-icon';
-		template.decorationIcon.style.color = '';
-		template.decorationIcon.style.display = 'none';
-		template.decorationIcon.style.backgroundImage = '';
-		template.decorationIcon.title = '';
+	}
+
+	dispose(): void {
+		this.disposables.dispose();
 	}
 }
 
-    dispose(cognidreamognidream {
-	this.disposables.dispose();
-}
-}
+class ListDelegate implements IListVirtualDelegate<TreeElement> {
 
-	class ListDelegate implements IListVirtualDelegate<TreeElement> {
+	constructor(private readonly inputRenderer: InputRenderer) { }
 
-		constructor(private readonly inputRenderer: InputRenderer) { }
-
-		getHeight(element: TreeElement) {
-			if (isSCMInput(element)) {
-				return this.inputRenderer.getHeight(element);
-			} else if (isSCMActionButton(element)) {
-				return ActionButtonRenderer.DEFAULT_HEIGHT + 8;
-			} else {
-				return 22;
-			}
-		}
-
-		getTemplateId(element: TreeElement) {
-			if (isSCMRepository(element)) {
-				return RepositoryRenderer.TEMPLATE_ID;
-			} else if (isSCMInput(element)) {
-				return InputRenderer.TEMPLATE_ID;
-			} else if (isSCMActionButton(element)) {
-				return ActionButtonRenderer.TEMPLATE_ID;
-			} else if (isSCMResourceGroup(element)) {
-				return ResourceGroupRenderer.TEMPLATE_ID;
-			} else if (isSCMResource(element) || isSCMResourceNode(element)) {
-				return ResourceRenderer.TEMPLATE_ID;
-			} else {
-				throw new Error('Unknown element');
-			}
+	getHeight(element: TreeElement) {
+		if (isSCMInput(element)) {
+			return this.inputRenderer.getHeight(element);
+		} else if (isSCMActionButton(element)) {
+			return ActionButtonRenderer.DEFAULT_HEIGHT + 8;
+		} else {
+			return 22;
 		}
 	}
+
+	getTemplateId(element: TreeElement) {
+		if (isSCMRepository(element)) {
+			return RepositoryRenderer.TEMPLATE_ID;
+		} else if (isSCMInput(element)) {
+			return InputRenderer.TEMPLATE_ID;
+		} else if (isSCMActionButton(element)) {
+			return ActionButtonRenderer.TEMPLATE_ID;
+		} else if (isSCMResourceGroup(element)) {
+			return ResourceGroupRenderer.TEMPLATE_ID;
+		} else if (isSCMResource(element) || isSCMResourceNode(element)) {
+			return ResourceRenderer.TEMPLATE_ID;
+		} else {
+			throw new Error('Unknown element');
+		}
+	}
+}
 
 class SCMTreeCompressionDelegate implements ITreeCompressionDelegate<TreeElement> {
 
-		isIncompressible(element: TreeElement): boolean {
-			if (ResourceTree.isResourceNode(element)) {
-				return element.childrenCount === 0 || !element.parent || !element.parent.parent;
-			}
-
-			return true;
+	isIncompressible(element: TreeElement): boolean {
+		if (ResourceTree.isResourceNode(element)) {
+			return element.childrenCount === 0 || !element.parent || !element.parent.parent;
 		}
 
+		return true;
 	}
+
+}
 
 class SCMTreeFilter implements ITreeFilter<TreeElement> {
 
-		filter(element: TreeElement): boolean {
-			if (isSCMResourceGroup(element)) {
-				return element.resources.length > 0 || !element.hideWhenEmpty;
-			} else {
-				return true;
-			}
+	filter(element: TreeElement): boolean {
+		if (isSCMResourceGroup(element)) {
+			return element.resources.length > 0 || !element.hideWhenEmpty;
+		} else {
+			return true;
 		}
 	}
+}
 
 export class SCMTreeSorter implements ITreeSorter<TreeElement> {
 
@@ -1033,7 +1033,7 @@ class RepositoryVisibilityAction extends Action2 {
 
 interface RepositoryVisibilityItem {
 	readonly contextKey: IContextKey<boolean>;
-	dispose(cognidreamognidream;
+	dispose(): void;
 }
 
 class RepositoryVisibilityActionController {
@@ -1060,7 +1060,7 @@ class RepositoryVisibilityActionController {
 		}
 	}
 
-	private onDidAddRepository(repository: ISCMRepositorycognidreamognidream {
+	private onDidAddRepository(repository: ISCMRepository): void {
 		const action = registerAction2(class extends RepositoryVisibilityAction {
 			constructor() {
 				super(repository);
@@ -1070,49 +1070,49 @@ class RepositoryVisibilityActionController {
 		const contextKey = ContextKeys.RepositoryVisibility(repository).bindTo(this.contextKeyService);
 		contextKey.set(this.scmViewService.isVisible(repository));
 
-this.items.set(repository, {
-	contextKey,
-	dispose() {
-		contextKey.reset();
-		action.dispose();
+		this.items.set(repository, {
+			contextKey,
+			dispose() {
+				contextKey.reset();
+				action.dispose();
+			}
+		});
+
+		this.updateRepositoryContextKeys();
 	}
-});
 
-this.updateRepositoryContextKeys();
-    }
-
-    private onDidRemoveRepository(repository: ISCMRepositorycognidreamognidream {
-	this.items.get(repository)?.dispose();
-	this.items.delete(repository);
-	this.updateRepositoryContextKeys();
-}
-
-    private onDidChangeVisibleRepositories(cognidreamognidream {
-	let count = 0;
-
-	for(const [repository, item] of this.items) {
-	const isVisible = this.scmViewService.isVisible(repository);
-	item.contextKey.set(isVisible);
-
-	if(isVisible) {
-		count++;
+	private onDidRemoveRepository(repository: ISCMRepository): void {
+		this.items.get(repository)?.dispose();
+		this.items.delete(repository);
+		this.updateRepositoryContextKeys();
 	}
-}
 
-        this.repositoryCountContextKey.set(this.items.size);
-this.repositoryVisibilityCountContextKey.set(count);
-    }
+	private onDidChangeVisibleRepositories(): void {
+		let count = 0;
 
-    private updateRepositoryContextKeys(cognidreamognidream {
-	this.repositoryCountContextKey.set(this.items.size);
-	this.repositoryVisibilityCountContextKey.set(Iterable.reduce(this.items.keys(), (r, repository) => r + (this.scmViewService.isVisible(repository) ? 1 : 0), 0));
-}
+		for (const [repository, item] of this.items) {
+			const isVisible = this.scmViewService.isVisible(repository);
+			item.contextKey.set(isVisible);
 
-    dispose(cognidreamognidream {
-	this.disposables.dispose();
-	dispose(this.items.values());
-this.items.clear();
-    }
+			if (isVisible) {
+				count++;
+			}
+		}
+
+		this.repositoryCountContextKey.set(this.items.size);
+		this.repositoryVisibilityCountContextKey.set(count);
+	}
+
+	private updateRepositoryContextKeys(): void {
+		this.repositoryCountContextKey.set(this.items.size);
+		this.repositoryVisibilityCountContextKey.set(Iterable.reduce(this.items.keys(), (r, repository) => r + (this.scmViewService.isVisible(repository) ? 1 : 0), 0));
+	}
+
+	dispose(): void {
+		this.disposables.dispose();
+		dispose(this.items.values());
+		this.items.clear();
+	}
 }
 
 class SetListViewModeAction extends ViewAction<SCMViewPane> {
@@ -1130,7 +1130,7 @@ class SetListViewModeAction extends ViewAction<SCMViewPane> {
 		});
 	}
 
-	async runInView(_: ServicesAccessor, view: SCMViewPane): Promicognidreamognidream> {
+	async runInView(_: ServicesAccessor, view: SCMViewPane): Promise<void> {
 		view.viewMode = ViewMode.List;
 	}
 }
@@ -1164,7 +1164,7 @@ class SetTreeViewModeAction extends ViewAction<SCMViewPane> {
 			});
 	}
 
-	async runInView(_: ServicesAccessor, view: SCMViewPane): Promicognidreamognidream> {
+	async runInView(_: ServicesAccessor, view: SCMViewPane): Promise<void> {
 		view.viewMode = ViewMode.Tree;
 	}
 }
@@ -1249,7 +1249,7 @@ abstract class SetSortKeyAction extends ViewAction<SCMViewPane> {
 		});
 	}
 
-	async runInView(_: ServicesAccessor, view: SCMViewPane): Promicognidreamognidream> {
+	async runInView(_: ServicesAccessor, view: SCMViewPane): Promise<void> {
 		view.viewSortKey = this.sortKey;
 	}
 }
@@ -1293,7 +1293,7 @@ class CollapseAllRepositoriesAction extends ViewAction<SCMViewPane> {
 		});
 	}
 
-	async runInView(_: ServicesAccessor, view: SCMViewPane): Promicognidreamognidream> {
+	async runInView(_: ServicesAccessor, view: SCMViewPane): Promise<void> {
 		view.collapseAllRepositories();
 	}
 }
@@ -1315,7 +1315,7 @@ class ExpandAllRepositoriesAction extends ViewAction<SCMViewPane> {
 		});
 	}
 
-	async runInView(_: ServicesAccessor, view: SCMViewPane): Promicognidreamognidream> {
+	async runInView(_: ServicesAccessor, view: SCMViewPane): Promise<void> {
 		view.expandAllRepositories();
 	}
 }
@@ -1345,39 +1345,39 @@ class SCMInputWidgetActionRunner extends ActionRunner {
 		super();
 	}
 
-	protected override async runAction(action: IAction): Promicognidreamognidream> {
+	protected override async runAction(action: IAction): Promise<void> {
 		try {
 			// Cancel previous action
-			if(this.runningActions.size !== 0) {
-	this._cts?.cancel();
+			if (this.runningActions.size !== 0) {
+				this._cts?.cancel();
 
-	if (action.id === SCMInputWidgetCommandId.CancelAction) {
-		return;
+				if (action.id === SCMInputWidgetCommandId.CancelAction) {
+					return;
+				}
+			}
+
+			// Create action context
+			const context: ISCMInputValueProviderContext[] = [];
+			for (const group of this.input.repository.provider.groups) {
+				context.push({
+					resourceGroupId: group.id,
+					resources: [...group.resources.map(r => r.sourceUri)]
+				});
+			}
+
+			// Run action
+			this._runningActions.add(action);
+			this._cts = new CancellationTokenSource();
+			await action.run(...[this.input.repository.provider.rootUri, context, this._cts.token]);
+		} finally {
+			this._runningActions.delete(action);
+
+			// Save last action
+			if (this._runningActions.size === 0) {
+				this.storageService.store(SCMInputWidgetStorageKey.LastActionId, action.id, StorageScope.PROFILE, StorageTarget.USER);
+			}
+		}
 	}
-}
-
-// Create action context
-const context: ISCMInputValueProviderContext[] = [];
-for (const group of this.input.repository.provider.groups) {
-	context.push({
-		resourceGroupId: group.id,
-		resources: [...group.resources.map(r => r.sourceUri)]
-	});
-}
-
-// Run action
-this._runningActions.add(action);
-this._cts = new CancellationTokenSource();
-await action.run(...[this.input.repository.provider.rootUri, context, this._cts.token]);
-        } finally {
-	this._runningActions.delete(action);
-
-	// Save last action
-	if (this._runningActions.size === 0) {
-		this.storageService.store(SCMInputWidgetStorageKey.LastActionId, action.id, StorageScope.PROFILE, StorageTarget.USER);
-	}
-}
-    }
 
 }
 
@@ -1391,199 +1391,199 @@ class SCMInputWidgetToolbar extends WorkbenchToolBar {
 
 	private _cancelAction: IAction;
 
-	private _onDidChange = new Emittcognidreamognidream > ();
-	readonly onDidChange: Evecognidreamognidream> = this._onDidChange.event;
+	private _onDidChange = new Emitter<void>();
+	readonly onDidChange: Event<void> = this._onDidChange.event;
 
-    private readonly _disposables = this._register(new MutableDisposable<DisposableStore>());
+	private readonly _disposables = this._register(new MutableDisposable<DisposableStore>());
 
-constructor(
-	container: HTMLElement,
-	options: IMenuWorkbenchToolBarOptions | undefined,
-	@IMenuService private readonly menuService: IMenuService,
-	@IContextKeyService private readonly contextKeyService: IContextKeyService,
-	@IContextMenuService contextMenuService: IContextMenuService,
-	@ICommandService commandService: ICommandService,
-	@IKeybindingService keybindingService: IKeybindingService,
-	@IStorageService private readonly storageService: IStorageService,
-	@ITelemetryService telemetryService: ITelemetryService,
-) {
-	super(container, { resetMenu: MenuId.SCMInputBox, ...options }, menuService, contextKeyService, contextMenuService, keybindingService, commandService, telemetryService);
+	constructor(
+		container: HTMLElement,
+		options: IMenuWorkbenchToolBarOptions | undefined,
+		@IMenuService private readonly menuService: IMenuService,
+		@IContextKeyService private readonly contextKeyService: IContextKeyService,
+		@IContextMenuService contextMenuService: IContextMenuService,
+		@ICommandService commandService: ICommandService,
+		@IKeybindingService keybindingService: IKeybindingService,
+		@IStorageService private readonly storageService: IStorageService,
+		@ITelemetryService telemetryService: ITelemetryService,
+	) {
+		super(container, { resetMenu: MenuId.SCMInputBox, ...options }, menuService, contextKeyService, contextMenuService, keybindingService, commandService, telemetryService);
 
-	this._dropdownAction = new Action(
-		'scmInputMoreActions',
-		localize('scmInputMoreActions', "More Actions..."),
-		'codicon-chevron-down');
+		this._dropdownAction = new Action(
+			'scmInputMoreActions',
+			localize('scmInputMoreActions', "More Actions..."),
+			'codicon-chevron-down');
 
-	this._cancelAction = new MenuItemAction({
-		id: SCMInputWidgetCommandId.CancelAction,
-		title: localize('scmInputCancelAction', "Cancel"),
-		icon: Codicon.stopCircle,
-	}, undefined, undefined, undefined, undefined, contextKeyService, commandService);
-}
+		this._cancelAction = new MenuItemAction({
+			id: SCMInputWidgetCommandId.CancelAction,
+			title: localize('scmInputCancelAction', "Cancel"),
+			icon: Codicon.stopCircle,
+		}, undefined, undefined, undefined, undefined, contextKeyService, commandService);
+	}
 
-    public setInput(input: ISCMInputcognidreamognidream {
-	this._disposables.value = new DisposableStore();
+	public setInput(input: ISCMInput): void {
+		this._disposables.value = new DisposableStore();
 
-	const contextKeyService = this.contextKeyService.createOverlay([
-		['scmProvider', input.repository.provider.contextValue],
-		['scmProviderRootUri', input.repository.provider.rootUri?.toString()],
-		['scmProviderHasRootUri', !!input.repository.provider.rootUri]
-	]);
+		const contextKeyService = this.contextKeyService.createOverlay([
+			['scmProvider', input.repository.provider.contextValue],
+			['scmProviderRootUri', input.repository.provider.rootUri?.toString()],
+			['scmProviderHasRootUri', !!input.repository.provider.rootUri]
+		]);
 
-	const menu = this._disposables.value.add(this.menuService.createMenu(MenuId.SCMInputBox, contextKeyService, { emitEventsForSubmenuChanges: true }));
+		const menu = this._disposables.value.add(this.menuService.createMenu(MenuId.SCMInputBox, contextKeyService, { emitEventsForSubmenuChanges: true }));
 
-	const isEnabled = (): boolean => {
-		return input.repository.provider.groups.some(g => g.resources.length > 0);
-	};
+		const isEnabled = (): boolean => {
+			return input.repository.provider.groups.some(g => g.resources.length > 0);
+		};
 
-	const updateToolbar = () => {
-		const actions = getFlatActionBarActions(menu.getActions({ shouldForwardArgs: true }));
+		const updateToolbar = () => {
+			const actions = getFlatActionBarActions(menu.getActions({ shouldForwardArgs: true }));
 
-		for (const action of actions) {
-			action.enabled = isEnabled();
-		}
-		this._dropdownAction.enabled = isEnabled();
+			for (const action of actions) {
+				action.enabled = isEnabled();
+			}
+			this._dropdownAction.enabled = isEnabled();
 
-		let primaryAction: IAction | undefined = undefined;
+			let primaryAction: IAction | undefined = undefined;
 
-		if (actions.length === 1) {
-			primaryAction = actions[0];
-		} else if (actions.length > 1) {
-			const lastActionId = this.storageService.get(SCMInputWidgetStorageKey.LastActionId, StorageScope.PROFILE, '');
-			primaryAction = actions.find(a => a.id === lastActionId) ?? actions[0];
-		}
+			if (actions.length === 1) {
+				primaryAction = actions[0];
+			} else if (actions.length > 1) {
+				const lastActionId = this.storageService.get(SCMInputWidgetStorageKey.LastActionId, StorageScope.PROFILE, '');
+				primaryAction = actions.find(a => a.id === lastActionId) ?? actions[0];
+			}
 
-		this._dropdownActions = actions.length === 1 ? [] : actions;
-		super.setActions(primaryAction ? [primaryAction] : [], []);
+			this._dropdownActions = actions.length === 1 ? [] : actions;
+			super.setActions(primaryAction ? [primaryAction] : [], []);
 
-		this._onDidChange.fire();
-	};
-
-	this._disposables.value.add(menu.onDidChange(() => updateToolbar()));
-	this._disposables.value.add(input.repository.provider.onDidChangeResources(() => updateToolbar()));
-	this._disposables.value.add(this.storageService.onDidChangeValue(StorageScope.PROFILE, SCMInputWidgetStorageKey.LastActionId, this._disposables.value)(() => updateToolbar()));
-
-	this.actionRunner = this._disposables.value.add(new SCMInputWidgetActionRunner(input, this.storageService));
-	this._disposables.value.add(this.actionRunner.onWillRun(e => {
-		if ((this.actionRunner as SCMInputWidgetActionRunner).runningActions.size === 0) {
-			super.setActions([this._cancelAction], []);
 			this._onDidChange.fire();
-		}
-	}));
-	this._disposables.value.add(this.actionRunner.onDidRun(e => {
-		if ((this.actionRunner as SCMInputWidgetActionRunner).runningActions.size === 0) {
-			updateToolbar();
-		}
-	}));
+		};
 
-	updateToolbar();
-}
-}
+		this._disposables.value.add(menu.onDidChange(() => updateToolbar()));
+		this._disposables.value.add(input.repository.provider.onDidChangeResources(() => updateToolbar()));
+		this._disposables.value.add(this.storageService.onDidChangeValue(StorageScope.PROFILE, SCMInputWidgetStorageKey.LastActionId, this._disposables.value)(() => updateToolbar()));
 
-	class SCMInputWidgetEditorOptions {
-
-		private readonly _onDidChange = new Emittcognidreamognidream > ();
-		readonly onDidChange = this._onDidChange.event;
-
-		private readonly defaultInputFontFamily = DEFAULT_FONT_FAMILY;
-
-		private readonly _disposables = new DisposableStore();
-
-		constructor(
-			private readonly overflowWidgetsDomNode: HTMLElement,
-			private readonly configurationService: IConfigurationService) {
-
-			const onDidChangeConfiguration = Event.filter(
-				this.configurationService.onDidChangeConfiguration,
-				e => {
-					return e.affectsConfiguration('editor.accessibilitySupport') ||
-						e.affectsConfiguration('editor.cursorBlinking') ||
-						e.affectsConfiguration('editor.cursorStyle') ||
-						e.affectsConfiguration('editor.cursorWidth') ||
-						e.affectsConfiguration('editor.emptySelectionClipboard') ||
-						e.affectsConfiguration('editor.fontFamily') ||
-						e.affectsConfiguration('editor.rulers') ||
-						e.affectsConfiguration('editor.wordWrap') ||
-						e.affectsConfiguration('scm.inputFontFamily') ||
-						e.affectsConfiguration('scm.inputFontSize');
-				},
-				this._disposables
-			);
-
-			this._disposables.add(onDidChangeConfiguration(() => this._onDidChange.fire()));
-		}
-
-		getEditorConstructionOptions(): IEditorConstructionOptions {
-			return {
-				...getSimpleEditorOptions(this.configurationService),
-				...this.getEditorOptions(),
-				dragAndDrop: true,
-				dropIntoEditor: { enabled: true },
-				formatOnType: true,
-				lineDecorationsWidth: 6,
-				overflowWidgetsDomNode: this.overflowWidgetsDomNode,
-				padding: { top: 2, bottom: 2 },
-				quickSuggestions: false,
-				renderWhitespace: 'none',
-				scrollbar: {
-					alwaysConsumeMouseWheel: false,
-					vertical: 'hidden'
-				},
-				wrappingIndent: 'none',
-				wrappingStrategy: 'advanced',
-			};
-		}
-
-		getEditorOptions(): IEditorOptions {
-			const fontFamily = this._getEditorFontFamily();
-			const fontSize = this._getEditorFontSize();
-			const lineHeight = this._getEditorLineHeight(fontSize);
-			const accessibilitySupport = this.configurationService.getValue<'auto' | 'off' | 'on'>('editor.accessibilitySupport');
-			const cursorBlinking = this.configurationService.getValue<'blink' | 'smooth' | 'phase' | 'expand' | 'solid'>('editor.cursorBlinking');
-			const cursorStyle = this.configurationService.getValue<IEditorOptions['cursorStyle']>('editor.cursorStyle');
-			const cursorWidth = this.configurationService.getValue<IEditorOptions['cursorWidth']>('editor.cursorWidth') ?? 1;
-			const emptySelectionClipboard = this.configurationService.getValue<boolean>('editor.emptySelectionClipboard') === true;
-
-			return { ...this._getEditorLanguageConfiguration(), accessibilitySupport, cursorBlinking, cursorStyle, cursorWidth, fontFamily, fontSize, lineHeight, emptySelectionClipboard };
-		}
-
-		private _getEditorFontFamily(): string {
-			const inputFontFamily = this.configurationService.getValue<string>('scm.inputFontFamily').trim();
-
-			if (inputFontFamily.toLowerCase() === 'editor') {
-				return this.configurationService.getValue<string>('editor.fontFamily').trim();
+		this.actionRunner = this._disposables.value.add(new SCMInputWidgetActionRunner(input, this.storageService));
+		this._disposables.value.add(this.actionRunner.onWillRun(e => {
+			if ((this.actionRunner as SCMInputWidgetActionRunner).runningActions.size === 0) {
+				super.setActions([this._cancelAction], []);
+				this._onDidChange.fire();
 			}
-
-			if (inputFontFamily.length !== 0 && inputFontFamily.toLowerCase() !== 'default') {
-				return inputFontFamily;
+		}));
+		this._disposables.value.add(this.actionRunner.onDidRun(e => {
+			if ((this.actionRunner as SCMInputWidgetActionRunner).runningActions.size === 0) {
+				updateToolbar();
 			}
+		}));
 
-			return this.defaultInputFontFamily;
+		updateToolbar();
+	}
+}
+
+class SCMInputWidgetEditorOptions {
+
+	private readonly _onDidChange = new Emitter<void>();
+	readonly onDidChange = this._onDidChange.event;
+
+	private readonly defaultInputFontFamily = DEFAULT_FONT_FAMILY;
+
+	private readonly _disposables = new DisposableStore();
+
+	constructor(
+		private readonly overflowWidgetsDomNode: HTMLElement,
+		private readonly configurationService: IConfigurationService) {
+
+		const onDidChangeConfiguration = Event.filter(
+			this.configurationService.onDidChangeConfiguration,
+			e => {
+				return e.affectsConfiguration('editor.accessibilitySupport') ||
+					e.affectsConfiguration('editor.cursorBlinking') ||
+					e.affectsConfiguration('editor.cursorStyle') ||
+					e.affectsConfiguration('editor.cursorWidth') ||
+					e.affectsConfiguration('editor.emptySelectionClipboard') ||
+					e.affectsConfiguration('editor.fontFamily') ||
+					e.affectsConfiguration('editor.rulers') ||
+					e.affectsConfiguration('editor.wordWrap') ||
+					e.affectsConfiguration('scm.inputFontFamily') ||
+					e.affectsConfiguration('scm.inputFontSize');
+			},
+			this._disposables
+		);
+
+		this._disposables.add(onDidChangeConfiguration(() => this._onDidChange.fire()));
+	}
+
+	getEditorConstructionOptions(): IEditorConstructionOptions {
+		return {
+			...getSimpleEditorOptions(this.configurationService),
+			...this.getEditorOptions(),
+			dragAndDrop: true,
+			dropIntoEditor: { enabled: true },
+			formatOnType: true,
+			lineDecorationsWidth: 6,
+			overflowWidgetsDomNode: this.overflowWidgetsDomNode,
+			padding: { top: 2, bottom: 2 },
+			quickSuggestions: false,
+			renderWhitespace: 'none',
+			scrollbar: {
+				alwaysConsumeMouseWheel: false,
+				vertical: 'hidden'
+			},
+			wrappingIndent: 'none',
+			wrappingStrategy: 'advanced',
+		};
+	}
+
+	getEditorOptions(): IEditorOptions {
+		const fontFamily = this._getEditorFontFamily();
+		const fontSize = this._getEditorFontSize();
+		const lineHeight = this._getEditorLineHeight(fontSize);
+		const accessibilitySupport = this.configurationService.getValue<'auto' | 'off' | 'on'>('editor.accessibilitySupport');
+		const cursorBlinking = this.configurationService.getValue<'blink' | 'smooth' | 'phase' | 'expand' | 'solid'>('editor.cursorBlinking');
+		const cursorStyle = this.configurationService.getValue<IEditorOptions['cursorStyle']>('editor.cursorStyle');
+		const cursorWidth = this.configurationService.getValue<IEditorOptions['cursorWidth']>('editor.cursorWidth') ?? 1;
+		const emptySelectionClipboard = this.configurationService.getValue<boolean>('editor.emptySelectionClipboard') === true;
+
+		return { ...this._getEditorLanguageConfiguration(), accessibilitySupport, cursorBlinking, cursorStyle, cursorWidth, fontFamily, fontSize, lineHeight, emptySelectionClipboard };
+	}
+
+	private _getEditorFontFamily(): string {
+		const inputFontFamily = this.configurationService.getValue<string>('scm.inputFontFamily').trim();
+
+		if (inputFontFamily.toLowerCase() === 'editor') {
+			return this.configurationService.getValue<string>('editor.fontFamily').trim();
 		}
 
-		private _getEditorFontSize(): number {
-			return this.configurationService.getValue<number>('scm.inputFontSize');
+		if (inputFontFamily.length !== 0 && inputFontFamily.toLowerCase() !== 'default') {
+			return inputFontFamily;
 		}
 
-		private _getEditorLanguageConfiguration(): IEditorOptions {
-			// editor.rulers
-			const rulersConfig = this.configurationService.inspect('editor.rulers', { overrideIdentifier: 'scminput' });
-			const rulers = rulersConfig.overrideIdentifiers?.includes('scminput') ? EditorOptions.rulers.validate(rulersConfig.value) : [];
+		return this.defaultInputFontFamily;
+	}
 
-			// editor.wordWrap
-			const wordWrapConfig = this.configurationService.inspect('editor.wordWrap', { overrideIdentifier: 'scminput' });
-			const wordWrap = wordWrapConfig.overrideIdentifiers?.includes('scminput') ? EditorOptions.wordWrap.validate(wordWrapConfig.value) : 'on';
+	private _getEditorFontSize(): number {
+		return this.configurationService.getValue<number>('scm.inputFontSize');
+	}
 
-			return { rulers, wordWrap };
-		}
+	private _getEditorLanguageConfiguration(): IEditorOptions {
+		// editor.rulers
+		const rulersConfig = this.configurationService.inspect('editor.rulers', { overrideIdentifier: 'scminput' });
+		const rulers = rulersConfig.overrideIdentifiers?.includes('scminput') ? EditorOptions.rulers.validate(rulersConfig.value) : [];
 
-		private _getEditorLineHeight(fontSize: number): number {
-			return Math.round(fontSize * 1.5);
-		}
+		// editor.wordWrap
+		const wordWrapConfig = this.configurationService.inspect('editor.wordWrap', { overrideIdentifier: 'scminput' });
+		const wordWrap = wordWrapConfig.overrideIdentifiers?.includes('scminput') ? EditorOptions.wordWrap.validate(wordWrapConfig.value) : 'on';
 
-		dispose(cognidreamognidream {
-			this._disposables.dispose();
-    }
+		return { rulers, wordWrap };
+	}
+
+	private _getEditorLineHeight(fontSize: number): number {
+		return Math.round(fontSize * 1.5);
+	}
+
+	dispose(): void {
+		this._disposables.dispose();
+	}
 
 }
 
@@ -1619,946 +1619,946 @@ class SCMInputWidget {
 	private lastLayoutWasTrash = false;
 	private shouldFocusAfterLayout = false;
 
-	readonly onDidChangeContentHeight: Evecognidreamognidream>;
+	readonly onDidChangeContentHeight: Event<void>;
 
-    get input(): ISCMInput | undefined {
-	return this.model?.input;
-}
-
-    set input(input: ISCMInput | undefined) {
-	if (input === this.input) {
-		return;
+	get input(): ISCMInput | undefined {
+		return this.model?.input;
 	}
 
-	this.clearValidation();
-	this.element.classList.remove('synthetic-focus');
-
-	this.repositoryDisposables.clear();
-	this.repositoryIdContextKey.set(input?.repository.id);
-
-	if (!input) {
-		this.inputEditor.setModel(undefined);
-		this.model = undefined;
-		return;
-	}
-
-	const textModel = input.repository.provider.inputBoxTextModel;
-	this.inputEditor.setModel(textModel);
-
-	if (this.configurationService.getValue('editor.wordBasedSuggestions', { resource: textModel.uri }) !== 'off') {
-		this.configurationService.updateValue('editor.wordBasedSuggestions', 'off', { resource: textModel.uri }, ConfigurationTarget.MEMORY);
-	}
-
-	// Validation
-	const validationDelayer = new ThrottledDelayer<any>(200);
-	const validate = async () => {
-		const position = this.inputEditor.getSelection()?.getStartPosition();
-		const offset = position && textModel.getOffsetAt(position);
-		const value = textModel.getValue();
-
-		this.setValidation(await input.validateInput(value, offset || 0));
-	};
-
-	const triggerValidation = () => validationDelayer.trigger(validate);
-	this.repositoryDisposables.add(validationDelayer);
-	this.repositoryDisposables.add(this.inputEditor.onDidChangeCursorPosition(triggerValidation));
-
-	// Adaptive indentation rules
-	const opts = this.modelService.getCreationOptions(textModel.getLanguageId(), textModel.uri, textModel.isForSimpleWidget);
-	const onEnter = Event.filter(this.inputEditor.onKeyDown, e => e.keyCode === KeyCode.Enter, this.repositoryDisposables);
-	this.repositoryDisposables.add(onEnter(() => textModel.detectIndentation(opts.insertSpaces, opts.tabSize)));
-
-	// Keep model in sync with API
-	textModel.setValue(input.value);
-	this.repositoryDisposables.add(input.onDidChange(({ value, reason }) => {
-		const currentValue = textModel.getValue();
-		if (value === currentValue) { // circuit breaker
+	set input(input: ISCMInput | undefined) {
+		if (input === this.input) {
 			return;
 		}
 
-		textModel.pushStackElement();
-		textModel.pushEditOperations(null, [EditOperation.replaceMove(textModel.getFullModelRange(), value)], () => []);
-
-		const position = reason === SCMInputChangeReason.HistoryPrevious
-			? textModel.getFullModelRange().getStartPosition()
-			: textModel.getFullModelRange().getEndPosition();
-		this.inputEditor.setPosition(position);
-		this.inputEditor.revealPositionInCenterIfOutsideViewport(position);
-	}));
-	this.repositoryDisposables.add(input.onDidChangeFocus(() => this.focus()));
-	this.repositoryDisposables.add(input.onDidChangeValidationMessage((e) => this.setValidation(e, { focus: true, timeout: true })));
-	this.repositoryDisposables.add(input.onDidChangeValidateInput((e) => triggerValidation()));
-
-	// Keep API in sync with model and validate
-	this.repositoryDisposables.add(textModel.onDidChangeContent(() => {
-		input.setValue(textModel.getValue(), true);
-		triggerValidation();
-	}));
-
-	// Aria label & placeholder text
-	const accessibilityVerbosityConfig = observableConfigValue(
-		AccessibilityVerbositySettingId.SourceControl, true, this.configurationService);
-
-	const getAriaLabel = (placeholder: string, verbosity?: boolean) => {
-		verbosity = verbosity ?? accessibilityVerbosityConfig.get();
-
-		if (!verbosity || !this.accessibilityService.isScreenReaderOptimized()) {
-			return placeholder;
-		}
-
-		const kbLabel = this.keybindingService.lookupKeybinding(AccessibilityCommandId.OpenAccessibilityHelp)?.getLabel();
-		return kbLabel
-			? localize('scmInput.accessibilityHelp', "{0}, Use {1} to open Source Control Accessibility Help.", placeholder, kbLabel)
-			: localize('scmInput.accessibilityHelpNoKb', "{0}, Run the Open Accessibility Help command for more information.", placeholder);
-	};
-
-	const getPlaceholderText = (): string => {
-		const binding = this.keybindingService.lookupKeybinding('scm.acceptInput');
-		const label = binding ? binding.getLabel() : (platform.isMacintosh ? 'Cmd+Enter' : 'Ctrl+Enter');
-		return format(input.placeholder, label);
-	};
-
-	const updatePlaceholderText = () => {
-		const placeholder = getPlaceholderText();
-		const ariaLabel = getAriaLabel(placeholder);
-
-		this.inputEditor.updateOptions({ ariaLabel, placeholder });
-	};
-
-	this.repositoryDisposables.add(input.onDidChangePlaceholder(updatePlaceholderText));
-	this.repositoryDisposables.add(this.keybindingService.onDidUpdateKeybindings(updatePlaceholderText));
-
-	this.repositoryDisposables.add(runOnChange(accessibilityVerbosityConfig, verbosity => {
-		const placeholder = getPlaceholderText();
-		const ariaLabel = getAriaLabel(placeholder, verbosity);
-
-		this.inputEditor.updateOptions({ ariaLabel });
-	}));
-
-	updatePlaceholderText();
-
-	// Update input template
-	let commitTemplate = '';
-	this.repositoryDisposables.add(autorun(reader => {
-		if (!input.visible) {
-			return;
-		}
-
-		const oldCommitTemplate = commitTemplate;
-		commitTemplate = input.repository.provider.commitTemplate.read(reader);
-
-		const value = textModel.getValue();
-		if (value && value !== oldCommitTemplate) {
-			return;
-		}
-
-		textModel.setValue(commitTemplate);
-	}));
-
-	// Update input enablement
-	const updateEnablement = (enabled: boolean) => {
-		this.inputEditor.updateOptions({ readOnly: !enabled });
-	};
-	this.repositoryDisposables.add(input.onDidChangeEnablement(enabled => updateEnablement(enabled)));
-	updateEnablement(input.enabled);
-
-	// Toolbar
-	this.toolbar.setInput(input);
-
-	// Save model
-	this.model = { input, textModel };
-}
-
-    get selections(): Selection[] | null {
-	return this.inputEditor.getSelections();
-}
-
-    set selections(selections: Selection[] | null) {
-	if (selections) {
-		this.inputEditor.setSelections(selections);
-	}
-}
-
-    private setValidation(validation: IInputValidation | undefined, options ?: { focus?: boolean; timeout?: boolean }) {
-	if (this._validationTimer) {
-		clearTimeout(this._validationTimer);
-		this._validationTimer = 0;
-	}
-
-	this.validation = validation;
-	this.renderValidation();
-
-	if (options?.focus && !this.hasFocus()) {
-		this.focus();
-	}
-
-	if (validation && options?.timeout) {
-		this._validationTimer = setTimeout(() => this.setValidation(undefined), SCMInputWidget.ValidationTimeouts[validation.type]);
-	}
-}
-
-constructor(
-	container: HTMLElement,
-	overflowWidgetsDomNode: HTMLElement,
-	@IContextKeyService contextKeyService: IContextKeyService,
-	@IModelService private modelService: IModelService,
-	@IKeybindingService private keybindingService: IKeybindingService,
-	@IConfigurationService private configurationService: IConfigurationService,
-	@IInstantiationService private readonly instantiationService: IInstantiationService,
-	@ISCMViewService private readonly scmViewService: ISCMViewService,
-	@IContextViewService private readonly contextViewService: IContextViewService,
-	@IOpenerService private readonly openerService: IOpenerService,
-	@IAccessibilityService private readonly accessibilityService: IAccessibilityService
-) {
-	this.element = append(container, $('.scm-editor'));
-	this.editorContainer = append(this.element, $('.scm-editor-container'));
-	this.toolbarContainer = append(this.element, $('.scm-editor-toolbar'));
-
-	this.contextKeyService = contextKeyService.createScoped(this.element);
-	this.repositoryIdContextKey = this.contextKeyService.createKey('scmRepository', undefined);
-
-	this.inputEditorOptions = new SCMInputWidgetEditorOptions(overflowWidgetsDomNode, this.configurationService);
-	this.disposables.add(this.inputEditorOptions.onDidChange(this.onDidChangeEditorOptions, this));
-	this.disposables.add(this.inputEditorOptions);
-
-	const codeEditorWidgetOptions: ICodeEditorWidgetOptions = {
-		contributions: EditorExtensionsRegistry.getSomeEditorContributions([
-			CodeActionController.ID,
-			ColorDetector.ID,
-			ContextMenuController.ID,
-			CopyPasteController.ID,
-			DragAndDropController.ID,
-			DropIntoEditorController.ID,
-			EditorDictation.ID,
-			FormatOnType.ID,
-			ContentHoverController.ID,
-			GlyphHoverController.ID,
-			InlineCompletionsController.ID,
-			LinkDetector.ID,
-			MenuPreventer.ID,
-			MessageController.ID,
-			PlaceholderTextContribution.ID,
-			SelectionClipboardContributionID,
-			SnippetController2.ID,
-			SuggestController.ID
-		]),
-		isSimpleWidget: true
-	};
-
-	const services = new ServiceCollection([IContextKeyService, this.contextKeyService]);
-	const instantiationService2 = instantiationService.createChild(services, this.disposables);
-	const editorConstructionOptions = this.inputEditorOptions.getEditorConstructionOptions();
-	this.inputEditor = instantiationService2.createInstance(CodeEditorWidget, this.editorContainer, editorConstructionOptions, codeEditorWidgetOptions);
-	this.disposables.add(this.inputEditor);
-
-	this.disposables.add(this.inputEditor.onDidFocusEditorText(() => {
-		if (this.input?.repository) {
-			this.scmViewService.focus(this.input.repository);
-		}
-
-		this.element.classList.add('synthetic-focus');
-		this.renderValidation();
-	}));
-	this.disposables.add(this.inputEditor.onDidBlurEditorText(() => {
+		this.clearValidation();
 		this.element.classList.remove('synthetic-focus');
 
-		setTimeout(() => {
-			if (!this.validation || !this.validationHasFocus) {
-				this.clearValidation();
-			}
-		}, 0);
-	}));
+		this.repositoryDisposables.clear();
+		this.repositoryIdContextKey.set(input?.repository.id);
 
-	this.disposables.add(this.inputEditor.onDidBlurEditorWidget(() => {
-		CopyPasteController.get(this.inputEditor)?.clearWidgets();
-		DropIntoEditorController.get(this.inputEditor)?.clearWidgets();
-	}));
-
-	const firstLineKey = this.contextKeyService.createKey<boolean>('scmInputIsInFirstPosition', false);
-	const lastLineKey = this.contextKeyService.createKey<boolean>('scmInputIsInLastPosition', false);
-
-	this.disposables.add(this.inputEditor.onDidChangeCursorPosition(({ position }) => {
-		const viewModel = this.inputEditor._getViewModel()!;
-		const lastLineNumber = viewModel.getLineCount();
-		const lastLineCol = viewModel.getLineLength(lastLineNumber) + 1;
-		const viewPosition = viewModel.coordinatesConverter.convertModelPositionToViewPosition(position);
-		firstLineKey.set(viewPosition.lineNumber === 1 && viewPosition.column === 1);
-		lastLineKey.set(viewPosition.lineNumber === lastLineNumber && viewPosition.column === lastLineCol);
-	}));
-	this.disposables.add(this.inputEditor.onDidScrollChange(e => {
-		this.toolbarContainer.classList.toggle('scroll-decoration', e.scrollTop > 0);
-	}));
-
-	Event.filter(this.configurationService.onDidChangeConfiguration, e => e.affectsConfiguration('scm.showInputActionButton'))(() => this.layout(), this, this.disposables);
-
-	this.onDidChangeContentHeight = Event.signal(Event.filter(this.inputEditor.onDidContentSizeChange, e => e.contentHeightChanged, this.disposables));
-
-	// Toolbar
-	this.toolbar = instantiationService2.createInstance(SCMInputWidgetToolbar, this.toolbarContainer, {
-		actionViewItemProvider: (action, options) => {
-			if (action instanceof MenuItemAction && this.toolbar.dropdownActions.length > 1) {
-				return instantiationService.createInstance(DropdownWithPrimaryActionViewItem, action, this.toolbar.dropdownAction, this.toolbar.dropdownActions, '', { actionRunner: this.toolbar.actionRunner, hoverDelegate: options.hoverDelegate });
-			}
-
-			return createActionViewItem(instantiationService, action, options);
-		},
-		menuOptions: {
-			shouldForwardArgs: true
+		if (!input) {
+			this.inputEditor.setModel(undefined);
+			this.model = undefined;
+			return;
 		}
-	});
-	this.disposables.add(this.toolbar.onDidChange(() => this.layout()));
-	this.disposables.add(this.toolbar);
-}
 
-getContentHeight(): number {
-	const lineHeight = this.inputEditor.getOption(EditorOption.lineHeight);
-	const { top, bottom } = this.inputEditor.getOption(EditorOption.padding);
+		const textModel = input.repository.provider.inputBoxTextModel;
+		this.inputEditor.setModel(textModel);
 
-	const inputMinLinesConfig = this.configurationService.getValue('scm.inputMinLineCount');
-	const inputMinLines = typeof inputMinLinesConfig === 'number' ? clamp(inputMinLinesConfig, 1, 50) : 1;
-	const editorMinHeight = inputMinLines * lineHeight + top + bottom;
+		if (this.configurationService.getValue('editor.wordBasedSuggestions', { resource: textModel.uri }) !== 'off') {
+			this.configurationService.updateValue('editor.wordBasedSuggestions', 'off', { resource: textModel.uri }, ConfigurationTarget.MEMORY);
+		}
 
-	const inputMaxLinesConfig = this.configurationService.getValue('scm.inputMaxLineCount');
-	const inputMaxLines = typeof inputMaxLinesConfig === 'number' ? clamp(inputMaxLinesConfig, 1, 50) : 10;
-	const editorMaxHeight = inputMaxLines * lineHeight + top + bottom;
+		// Validation
+		const validationDelayer = new ThrottledDelayer<any>(200);
+		const validate = async () => {
+			const position = this.inputEditor.getSelection()?.getStartPosition();
+			const offset = position && textModel.getOffsetAt(position);
+			const value = textModel.getValue();
 
-	return clamp(this.inputEditor.getContentHeight(), editorMinHeight, editorMaxHeight);
-}
+			this.setValidation(await input.validateInput(value, offset || 0));
+		};
 
-layout(cognidreamognidream {
-	const editorHeight = this.getContentHeight();
-	const toolbarWidth = this.getToolbarWidth();
-	const dimension = new Dimension(this.element.clientWidth - toolbarWidth, editorHeight);
+		const triggerValidation = () => validationDelayer.trigger(validate);
+		this.repositoryDisposables.add(validationDelayer);
+		this.repositoryDisposables.add(this.inputEditor.onDidChangeCursorPosition(triggerValidation));
 
-	if(dimension.width < 0) {
-	this.lastLayoutWasTrash = true;
-	return;
-}
+		// Adaptive indentation rules
+		const opts = this.modelService.getCreationOptions(textModel.getLanguageId(), textModel.uri, textModel.isForSimpleWidget);
+		const onEnter = Event.filter(this.inputEditor.onKeyDown, e => e.keyCode === KeyCode.Enter, this.repositoryDisposables);
+		this.repositoryDisposables.add(onEnter(() => textModel.detectIndentation(opts.insertSpaces, opts.tabSize)));
 
-this.lastLayoutWasTrash = false;
-this.inputEditor.layout(dimension);
-this.renderValidation();
+		// Keep model in sync with API
+		textModel.setValue(input.value);
+		this.repositoryDisposables.add(input.onDidChange(({ value, reason }) => {
+			const currentValue = textModel.getValue();
+			if (value === currentValue) { // circuit breaker
+				return;
+			}
 
-const showInputActionButton = this.configurationService.getValue<boolean>('scm.showInputActionButton') === true;
-this.toolbarContainer.classList.toggle('hidden', !showInputActionButton || this.toolbar?.isEmpty() === true);
+			textModel.pushStackElement();
+			textModel.pushEditOperations(null, [EditOperation.replaceMove(textModel.getFullModelRange(), value)], () => []);
 
-if (this.shouldFocusAfterLayout) {
-	this.shouldFocusAfterLayout = false;
-	this.focus();
-}
-    }
+			const position = reason === SCMInputChangeReason.HistoryPrevious
+				? textModel.getFullModelRange().getStartPosition()
+				: textModel.getFullModelRange().getEndPosition();
+			this.inputEditor.setPosition(position);
+			this.inputEditor.revealPositionInCenterIfOutsideViewport(position);
+		}));
+		this.repositoryDisposables.add(input.onDidChangeFocus(() => this.focus()));
+		this.repositoryDisposables.add(input.onDidChangeValidationMessage((e) => this.setValidation(e, { focus: true, timeout: true })));
+		this.repositoryDisposables.add(input.onDidChangeValidateInput((e) => triggerValidation()));
 
-focus(cognidreamognidream {
-	if(this.lastLayoutWasTrash) {
-	this.lastLayoutWasTrash = false;
-	this.shouldFocusAfterLayout = true;
-	return;
-}
+		// Keep API in sync with model and validate
+		this.repositoryDisposables.add(textModel.onDidChangeContent(() => {
+			input.setValue(textModel.getValue(), true);
+			triggerValidation();
+		}));
 
-this.inputEditor.focus();
-this.element.classList.add('synthetic-focus');
-    }
+		// Aria label & placeholder text
+		const accessibilityVerbosityConfig = observableConfigValue(
+			AccessibilityVerbositySettingId.SourceControl, true, this.configurationService);
 
-hasFocus(): boolean {
-	return this.inputEditor.hasTextFocus();
-}
+		const getAriaLabel = (placeholder: string, verbosity?: boolean) => {
+			verbosity = verbosity ?? accessibilityVerbosityConfig.get();
 
-    private onDidChangeEditorOptions(cognidreamognidream {
-	this.inputEditor.updateOptions(this.inputEditorOptions.getEditorOptions());
-}
+			if (!verbosity || !this.accessibilityService.isScreenReaderOptimized()) {
+				return placeholder;
+			}
 
-    private renderValidation(cognidreamognidream {
-	this.clearValidation();
+			const kbLabel = this.keybindingService.lookupKeybinding(AccessibilityCommandId.OpenAccessibilityHelp)?.getLabel();
+			return kbLabel
+				? localize('scmInput.accessibilityHelp', "{0}, Use {1} to open Source Control Accessibility Help.", placeholder, kbLabel)
+				: localize('scmInput.accessibilityHelpNoKb', "{0}, Run the Open Accessibility Help command for more information.", placeholder);
+		};
 
-	this.element.classList.toggle('validation-info', this.validation?.type === InputValidationType.Information);
-	this.element.classList.toggle('validation-warning', this.validation?.type === InputValidationType.Warning);
-	this.element.classList.toggle('validation-error', this.validation?.type === InputValidationType.Error);
+		const getPlaceholderText = (): string => {
+			const binding = this.keybindingService.lookupKeybinding('scm.acceptInput');
+			const label = binding ? binding.getLabel() : (platform.isMacintosh ? 'Cmd+Enter' : 'Ctrl+Enter');
+			return format(input.placeholder, label);
+		};
 
-	if(!this.validation || !this.inputEditor.hasTextFocus()) {
-	return;
-}
+		const updatePlaceholderText = () => {
+			const placeholder = getPlaceholderText();
+			const ariaLabel = getAriaLabel(placeholder);
 
-        const disposables = new DisposableStore();
+			this.inputEditor.updateOptions({ ariaLabel, placeholder });
+		};
 
-this.validationContextView = this.contextViewService.showContextView({
-	getAnchor: () => this.element,
-	render: container => {
-		this.element.style.borderBottomLeftRadius = '0';
-		this.element.style.borderBottomRightRadius = '0';
+		this.repositoryDisposables.add(input.onDidChangePlaceholder(updatePlaceholderText));
+		this.repositoryDisposables.add(this.keybindingService.onDidUpdateKeybindings(updatePlaceholderText));
 
-		const validationContainer = append(container, $('.scm-editor-validation-container'));
-		validationContainer.classList.toggle('validation-info', this.validation!.type === InputValidationType.Information);
-		validationContainer.classList.toggle('validation-warning', this.validation!.type === InputValidationType.Warning);
-		validationContainer.classList.toggle('validation-error', this.validation!.type === InputValidationType.Error);
-		validationContainer.style.width = `${this.element.clientWidth + 2}px`;
-		const element = append(validationContainer, $('.scm-editor-validation'));
+		this.repositoryDisposables.add(runOnChange(accessibilityVerbosityConfig, verbosity => {
+			const placeholder = getPlaceholderText();
+			const ariaLabel = getAriaLabel(placeholder, verbosity);
 
-		const message = this.validation!.message;
-		if (typeof message === 'string') {
-			element.textContent = message;
-		} else {
-			const tracker = trackFocus(element);
-			disposables.add(tracker);
-			disposables.add(tracker.onDidFocus(() => (this.validationHasFocus = true)));
-			disposables.add(tracker.onDidBlur(() => {
-				this.validationHasFocus = false;
-				this.element.style.borderBottomLeftRadius = '2px';
-				this.element.style.borderBottomRightRadius = '2px';
-				this.contextViewService.hideContextView();
-			}));
+			this.inputEditor.updateOptions({ ariaLabel });
+		}));
 
-			const renderer = this.instantiationService.createInstance(MarkdownRenderer, {});
-			const renderedMarkdown = renderer.render(message, {
-				actionHandler: {
-					callback: (link) => {
-						openLinkFromMarkdown(this.openerService, link, message.isTrusted);
+		updatePlaceholderText();
+
+		// Update input template
+		let commitTemplate = '';
+		this.repositoryDisposables.add(autorun(reader => {
+			if (!input.visible) {
+				return;
+			}
+
+			const oldCommitTemplate = commitTemplate;
+			commitTemplate = input.repository.provider.commitTemplate.read(reader);
+
+			const value = textModel.getValue();
+			if (value && value !== oldCommitTemplate) {
+				return;
+			}
+
+			textModel.setValue(commitTemplate);
+		}));
+
+		// Update input enablement
+		const updateEnablement = (enabled: boolean) => {
+			this.inputEditor.updateOptions({ readOnly: !enabled });
+		};
+		this.repositoryDisposables.add(input.onDidChangeEnablement(enabled => updateEnablement(enabled)));
+		updateEnablement(input.enabled);
+
+		// Toolbar
+		this.toolbar.setInput(input);
+
+		// Save model
+		this.model = { input, textModel };
+	}
+
+	get selections(): Selection[] | null {
+		return this.inputEditor.getSelections();
+	}
+
+	set selections(selections: Selection[] | null) {
+		if (selections) {
+			this.inputEditor.setSelections(selections);
+		}
+	}
+
+	private setValidation(validation: IInputValidation | undefined, options?: { focus?: boolean; timeout?: boolean }) {
+		if (this._validationTimer) {
+			clearTimeout(this._validationTimer);
+			this._validationTimer = 0;
+		}
+
+		this.validation = validation;
+		this.renderValidation();
+
+		if (options?.focus && !this.hasFocus()) {
+			this.focus();
+		}
+
+		if (validation && options?.timeout) {
+			this._validationTimer = setTimeout(() => this.setValidation(undefined), SCMInputWidget.ValidationTimeouts[validation.type]);
+		}
+	}
+
+	constructor(
+		container: HTMLElement,
+		overflowWidgetsDomNode: HTMLElement,
+		@IContextKeyService contextKeyService: IContextKeyService,
+		@IModelService private modelService: IModelService,
+		@IKeybindingService private keybindingService: IKeybindingService,
+		@IConfigurationService private configurationService: IConfigurationService,
+		@IInstantiationService private readonly instantiationService: IInstantiationService,
+		@ISCMViewService private readonly scmViewService: ISCMViewService,
+		@IContextViewService private readonly contextViewService: IContextViewService,
+		@IOpenerService private readonly openerService: IOpenerService,
+		@IAccessibilityService private readonly accessibilityService: IAccessibilityService
+	) {
+		this.element = append(container, $('.scm-editor'));
+		this.editorContainer = append(this.element, $('.scm-editor-container'));
+		this.toolbarContainer = append(this.element, $('.scm-editor-toolbar'));
+
+		this.contextKeyService = contextKeyService.createScoped(this.element);
+		this.repositoryIdContextKey = this.contextKeyService.createKey('scmRepository', undefined);
+
+		this.inputEditorOptions = new SCMInputWidgetEditorOptions(overflowWidgetsDomNode, this.configurationService);
+		this.disposables.add(this.inputEditorOptions.onDidChange(this.onDidChangeEditorOptions, this));
+		this.disposables.add(this.inputEditorOptions);
+
+		const codeEditorWidgetOptions: ICodeEditorWidgetOptions = {
+			contributions: EditorExtensionsRegistry.getSomeEditorContributions([
+				CodeActionController.ID,
+				ColorDetector.ID,
+				ContextMenuController.ID,
+				CopyPasteController.ID,
+				DragAndDropController.ID,
+				DropIntoEditorController.ID,
+				EditorDictation.ID,
+				FormatOnType.ID,
+				ContentHoverController.ID,
+				GlyphHoverController.ID,
+				InlineCompletionsController.ID,
+				LinkDetector.ID,
+				MenuPreventer.ID,
+				MessageController.ID,
+				PlaceholderTextContribution.ID,
+				SelectionClipboardContributionID,
+				SnippetController2.ID,
+				SuggestController.ID
+			]),
+			isSimpleWidget: true
+		};
+
+		const services = new ServiceCollection([IContextKeyService, this.contextKeyService]);
+		const instantiationService2 = instantiationService.createChild(services, this.disposables);
+		const editorConstructionOptions = this.inputEditorOptions.getEditorConstructionOptions();
+		this.inputEditor = instantiationService2.createInstance(CodeEditorWidget, this.editorContainer, editorConstructionOptions, codeEditorWidgetOptions);
+		this.disposables.add(this.inputEditor);
+
+		this.disposables.add(this.inputEditor.onDidFocusEditorText(() => {
+			if (this.input?.repository) {
+				this.scmViewService.focus(this.input.repository);
+			}
+
+			this.element.classList.add('synthetic-focus');
+			this.renderValidation();
+		}));
+		this.disposables.add(this.inputEditor.onDidBlurEditorText(() => {
+			this.element.classList.remove('synthetic-focus');
+
+			setTimeout(() => {
+				if (!this.validation || !this.validationHasFocus) {
+					this.clearValidation();
+				}
+			}, 0);
+		}));
+
+		this.disposables.add(this.inputEditor.onDidBlurEditorWidget(() => {
+			CopyPasteController.get(this.inputEditor)?.clearWidgets();
+			DropIntoEditorController.get(this.inputEditor)?.clearWidgets();
+		}));
+
+		const firstLineKey = this.contextKeyService.createKey<boolean>('scmInputIsInFirstPosition', false);
+		const lastLineKey = this.contextKeyService.createKey<boolean>('scmInputIsInLastPosition', false);
+
+		this.disposables.add(this.inputEditor.onDidChangeCursorPosition(({ position }) => {
+			const viewModel = this.inputEditor._getViewModel()!;
+			const lastLineNumber = viewModel.getLineCount();
+			const lastLineCol = viewModel.getLineLength(lastLineNumber) + 1;
+			const viewPosition = viewModel.coordinatesConverter.convertModelPositionToViewPosition(position);
+			firstLineKey.set(viewPosition.lineNumber === 1 && viewPosition.column === 1);
+			lastLineKey.set(viewPosition.lineNumber === lastLineNumber && viewPosition.column === lastLineCol);
+		}));
+		this.disposables.add(this.inputEditor.onDidScrollChange(e => {
+			this.toolbarContainer.classList.toggle('scroll-decoration', e.scrollTop > 0);
+		}));
+
+		Event.filter(this.configurationService.onDidChangeConfiguration, e => e.affectsConfiguration('scm.showInputActionButton'))(() => this.layout(), this, this.disposables);
+
+		this.onDidChangeContentHeight = Event.signal(Event.filter(this.inputEditor.onDidContentSizeChange, e => e.contentHeightChanged, this.disposables));
+
+		// Toolbar
+		this.toolbar = instantiationService2.createInstance(SCMInputWidgetToolbar, this.toolbarContainer, {
+			actionViewItemProvider: (action, options) => {
+				if (action instanceof MenuItemAction && this.toolbar.dropdownActions.length > 1) {
+					return instantiationService.createInstance(DropdownWithPrimaryActionViewItem, action, this.toolbar.dropdownAction, this.toolbar.dropdownActions, '', { actionRunner: this.toolbar.actionRunner, hoverDelegate: options.hoverDelegate });
+				}
+
+				return createActionViewItem(instantiationService, action, options);
+			},
+			menuOptions: {
+				shouldForwardArgs: true
+			}
+		});
+		this.disposables.add(this.toolbar.onDidChange(() => this.layout()));
+		this.disposables.add(this.toolbar);
+	}
+
+	getContentHeight(): number {
+		const lineHeight = this.inputEditor.getOption(EditorOption.lineHeight);
+		const { top, bottom } = this.inputEditor.getOption(EditorOption.padding);
+
+		const inputMinLinesConfig = this.configurationService.getValue('scm.inputMinLineCount');
+		const inputMinLines = typeof inputMinLinesConfig === 'number' ? clamp(inputMinLinesConfig, 1, 50) : 1;
+		const editorMinHeight = inputMinLines * lineHeight + top + bottom;
+
+		const inputMaxLinesConfig = this.configurationService.getValue('scm.inputMaxLineCount');
+		const inputMaxLines = typeof inputMaxLinesConfig === 'number' ? clamp(inputMaxLinesConfig, 1, 50) : 10;
+		const editorMaxHeight = inputMaxLines * lineHeight + top + bottom;
+
+		return clamp(this.inputEditor.getContentHeight(), editorMinHeight, editorMaxHeight);
+	}
+
+	layout(): void {
+		const editorHeight = this.getContentHeight();
+		const toolbarWidth = this.getToolbarWidth();
+		const dimension = new Dimension(this.element.clientWidth - toolbarWidth, editorHeight);
+
+		if (dimension.width < 0) {
+			this.lastLayoutWasTrash = true;
+			return;
+		}
+
+		this.lastLayoutWasTrash = false;
+		this.inputEditor.layout(dimension);
+		this.renderValidation();
+
+		const showInputActionButton = this.configurationService.getValue<boolean>('scm.showInputActionButton') === true;
+		this.toolbarContainer.classList.toggle('hidden', !showInputActionButton || this.toolbar?.isEmpty() === true);
+
+		if (this.shouldFocusAfterLayout) {
+			this.shouldFocusAfterLayout = false;
+			this.focus();
+		}
+	}
+
+	focus(): void {
+		if (this.lastLayoutWasTrash) {
+			this.lastLayoutWasTrash = false;
+			this.shouldFocusAfterLayout = true;
+			return;
+		}
+
+		this.inputEditor.focus();
+		this.element.classList.add('synthetic-focus');
+	}
+
+	hasFocus(): boolean {
+		return this.inputEditor.hasTextFocus();
+	}
+
+	private onDidChangeEditorOptions(): void {
+		this.inputEditor.updateOptions(this.inputEditorOptions.getEditorOptions());
+	}
+
+	private renderValidation(): void {
+		this.clearValidation();
+
+		this.element.classList.toggle('validation-info', this.validation?.type === InputValidationType.Information);
+		this.element.classList.toggle('validation-warning', this.validation?.type === InputValidationType.Warning);
+		this.element.classList.toggle('validation-error', this.validation?.type === InputValidationType.Error);
+
+		if (!this.validation || !this.inputEditor.hasTextFocus()) {
+			return;
+		}
+
+		const disposables = new DisposableStore();
+
+		this.validationContextView = this.contextViewService.showContextView({
+			getAnchor: () => this.element,
+			render: container => {
+				this.element.style.borderBottomLeftRadius = '0';
+				this.element.style.borderBottomRightRadius = '0';
+
+				const validationContainer = append(container, $('.scm-editor-validation-container'));
+				validationContainer.classList.toggle('validation-info', this.validation!.type === InputValidationType.Information);
+				validationContainer.classList.toggle('validation-warning', this.validation!.type === InputValidationType.Warning);
+				validationContainer.classList.toggle('validation-error', this.validation!.type === InputValidationType.Error);
+				validationContainer.style.width = `${this.element.clientWidth + 2}px`;
+				const element = append(validationContainer, $('.scm-editor-validation'));
+
+				const message = this.validation!.message;
+				if (typeof message === 'string') {
+					element.textContent = message;
+				} else {
+					const tracker = trackFocus(element);
+					disposables.add(tracker);
+					disposables.add(tracker.onDidFocus(() => (this.validationHasFocus = true)));
+					disposables.add(tracker.onDidBlur(() => {
+						this.validationHasFocus = false;
 						this.element.style.borderBottomLeftRadius = '2px';
 						this.element.style.borderBottomRightRadius = '2px';
 						this.contextViewService.hideContextView();
-					},
-					disposables: disposables
-				},
-			});
-			disposables.add(renderedMarkdown);
-			element.appendChild(renderedMarkdown.element);
-		}
-		const actionsContainer = append(validationContainer, $('.scm-editor-validation-actions'));
-		const actionbar = new ActionBar(actionsContainer);
-		const action = new Action('scmInputWidget.validationMessage.close', localize('label.close', "Close"), ThemeIcon.asClassName(Codicon.close), true, () => {
-			this.contextViewService.hideContextView();
-			this.element.style.borderBottomLeftRadius = '2px';
-			this.element.style.borderBottomRightRadius = '2px';
+					}));
+
+					const renderer = this.instantiationService.createInstance(MarkdownRenderer, {});
+					const renderedMarkdown = renderer.render(message, {
+						actionHandler: {
+							callback: (link) => {
+								openLinkFromMarkdown(this.openerService, link, message.isTrusted);
+								this.element.style.borderBottomLeftRadius = '2px';
+								this.element.style.borderBottomRightRadius = '2px';
+								this.contextViewService.hideContextView();
+							},
+							disposables: disposables
+						},
+					});
+					disposables.add(renderedMarkdown);
+					element.appendChild(renderedMarkdown.element);
+				}
+				const actionsContainer = append(validationContainer, $('.scm-editor-validation-actions'));
+				const actionbar = new ActionBar(actionsContainer);
+				const action = new Action('scmInputWidget.validationMessage.close', localize('label.close', "Close"), ThemeIcon.asClassName(Codicon.close), true, () => {
+					this.contextViewService.hideContextView();
+					this.element.style.borderBottomLeftRadius = '2px';
+					this.element.style.borderBottomRightRadius = '2px';
+				});
+				disposables.add(actionbar);
+				actionbar.push(action, { icon: true, label: false });
+
+				return Disposable.None;
+			},
+			onHide: () => {
+				this.validationHasFocus = false;
+				this.element.style.borderBottomLeftRadius = '2px';
+				this.element.style.borderBottomRightRadius = '2px';
+				disposables.dispose();
+			},
+			anchorAlignment: AnchorAlignment.LEFT
 		});
-		disposables.add(actionbar);
-		actionbar.push(action, { icon: true, label: false });
-
-		return Disposable.None;
-	},
-	onHide: () => {
-		this.validationHasFocus = false;
-		this.element.style.borderBottomLeftRadius = '2px';
-		this.element.style.borderBottomRightRadius = '2px';
-		disposables.dispose();
-	},
-	anchorAlignment: AnchorAlignment.LEFT
-});
-    }
-
-    private getToolbarWidth(): number {
-	const showInputActionButton = this.configurationService.getValue<boolean>('scm.showInputActionButton');
-	if (!this.toolbar || !showInputActionButton || this.toolbar?.isEmpty() === true) {
-		return 0;
 	}
 
-	return this.toolbar.dropdownActions.length === 0 ?
-		26 /* 22px action + 4px margin */ :
-		39 /* 35px action + 4px margin */;
-}
+	private getToolbarWidth(): number {
+		const showInputActionButton = this.configurationService.getValue<boolean>('scm.showInputActionButton');
+		if (!this.toolbar || !showInputActionButton || this.toolbar?.isEmpty() === true) {
+			return 0;
+		}
 
-clearValidation(cognidreamognidream {
-	this.validationContextView?.close();
-	this.validationContextView = undefined;
-	this.validationHasFocus = false;
-}
+		return this.toolbar.dropdownActions.length === 0 ?
+			26 /* 22px action + 4px margin */ :
+			39 /* 35px action + 4px margin */;
+	}
 
-    dispose(cognidreamognidream {
-	this.input = undefined;
-	this.repositoryDisposables.dispose();
-	this.clearValidation();
-	this.disposables.dispose();
-}
+	clearValidation(): void {
+		this.validationContextView?.close();
+		this.validationContextView = undefined;
+		this.validationHasFocus = false;
+	}
+
+	dispose(): void {
+		this.input = undefined;
+		this.repositoryDisposables.dispose();
+		this.clearValidation();
+		this.disposables.dispose();
+	}
 }
 
 export class SCMViewPane extends ViewPane {
 
-	private _onDidLayout: Emittcognidreamognidream>;
-    private layoutCache: ISCMLayout;
+	private _onDidLayout: Emitter<void>;
+	private layoutCache: ISCMLayout;
 
-    private treeScrollTop: number | undefined;
-    private treeContainer!: HTMLElement;
-    private tree!: WorkbenchCompressibleAsyncDataTree<ISCMViewService, TreeElement, FuzzyScore>;
+	private treeScrollTop: number | undefined;
+	private treeContainer!: HTMLElement;
+	private tree!: WorkbenchCompressibleAsyncDataTree<ISCMViewService, TreeElement, FuzzyScore>;
 
-    private listLabels!: ResourceLabels;
-    private inputRenderer!: InputRenderer;
-    private actionButtonRenderer!: ActionButtonRenderer;
+	private listLabels!: ResourceLabels;
+	private inputRenderer!: InputRenderer;
+	private actionButtonRenderer!: ActionButtonRenderer;
 
-    private _viewMode: ViewMode;
-    get viewMode(): ViewMode { return this._viewMode; }
-    set viewMode(mode: ViewMode) {
-	if (this._viewMode === mode) {
-		return;
-	}
-
-	this._viewMode = mode;
-
-	// Update sort key based on view mode
-	this.viewSortKey = this.getViewSortKey();
-
-	this.updateChildren();
-	this.onDidActiveEditorChange();
-	this._onDidChangeViewMode.fire(mode);
-	this.viewModeContextKey.set(mode);
-
-	this.updateIndentStyles(this.themeService.getFileIconTheme());
-	this.storageService.store(`scm.viewMode`, mode, StorageScope.WORKSPACE, StorageTarget.USER);
-}
-
-    private readonly _onDidChangeViewMode = new Emitter<ViewMode>();
-    readonly onDidChangeViewMode = this._onDidChangeViewMode.event;
-
-    private _viewSortKey: ViewSortKey;
-    get viewSortKey(): ViewSortKey { return this._viewSortKey; }
-    set viewSortKey(sortKey: ViewSortKey) {
-	if (this._viewSortKey === sortKey) {
-		return;
-	}
-
-	this._viewSortKey = sortKey;
-
-	this.updateChildren();
-	this.viewSortKeyContextKey.set(sortKey);
-	this._onDidChangeViewSortKey.fire(sortKey);
-
-	if (this._viewMode === ViewMode.List) {
-		this.storageService.store(`scm.viewSortKey`, sortKey, StorageScope.WORKSPACE, StorageTarget.USER);
-	}
-}
-
-    private readonly _onDidChangeViewSortKey = new Emitter<ViewSortKey>();
-    readonly onDidChangeViewSortKey = this._onDidChangeViewSortKey.event;
-
-    private readonly items = new DisposableMap<ISCMRepository, IDisposable>();
-    private readonly visibilityDisposables = new DisposableStore();
-
-    private readonly treeOperationSequencer = new Sequencer();
-    private readonly revealResourceThrottler = new Throttler();
-    private readonly updateChildrenThrottler = new Throttler();
-
-    private viewModeContextKey: IContextKey<ViewMode>;
-    private viewSortKeyContextKey: IContextKey<ViewSortKey>;
-    private areAllRepositoriesCollapsedContextKey: IContextKey<boolean>;
-    private isAnyRepositoryCollapsibleContextKey: IContextKey<boolean>;
-
-    private scmProviderContextKey: IContextKey<string | undefined>;
-    private scmProviderRootUriContextKey: IContextKey<string | undefined>;
-    private scmProviderHasRootUriContextKey: IContextKey<boolean>;
-
-    private readonly disposables = new DisposableStore();
-
-constructor(
-	options: IViewPaneOptions,
-	@ICommandService private readonly commandService: ICommandService,
-	@IEditorService private readonly editorService: IEditorService,
-	@IMenuService private readonly menuService: IMenuService,
-	@ISCMService private readonly scmService: ISCMService,
-	@ISCMViewService private readonly scmViewService: ISCMViewService,
-	@IStorageService private readonly storageService: IStorageService,
-	@IUriIdentityService private readonly uriIdentityService: IUriIdentityService,
-	@IKeybindingService keybindingService: IKeybindingService,
-	@IThemeService themeService: IThemeService,
-	@IContextMenuService contextMenuService: IContextMenuService,
-	@IInstantiationService instantiationService: IInstantiationService,
-	@IViewDescriptorService viewDescriptorService: IViewDescriptorService,
-	@IConfigurationService configurationService: IConfigurationService,
-	@IContextKeyService contextKeyService: IContextKeyService,
-	@IOpenerService openerService: IOpenerService,
-	@IHoverService hoverService: IHoverService,
-) {
-	super({ ...options, titleMenuId: MenuId.SCMTitle }, keybindingService, contextMenuService, configurationService, contextKeyService, viewDescriptorService, instantiationService, openerService, themeService, hoverService);
-
-	// View mode and sort key
-	this._viewMode = this.getViewMode();
-	this._viewSortKey = this.getViewSortKey();
-
-	// Context Keys
-	this.viewModeContextKey = ContextKeys.SCMViewMode.bindTo(contextKeyService);
-	this.viewModeContextKey.set(this._viewMode);
-	this.viewSortKeyContextKey = ContextKeys.SCMViewSortKey.bindTo(contextKeyService);
-	this.viewSortKeyContextKey.set(this.viewSortKey);
-	this.areAllRepositoriesCollapsedContextKey = ContextKeys.SCMViewAreAllRepositoriesCollapsed.bindTo(contextKeyService);
-	this.isAnyRepositoryCollapsibleContextKey = ContextKeys.SCMViewIsAnyRepositoryCollapsible.bindTo(contextKeyService);
-	this.scmProviderContextKey = ContextKeys.SCMProvider.bindTo(contextKeyService);
-	this.scmProviderRootUriContextKey = ContextKeys.SCMProviderRootUri.bindTo(contextKeyService);
-	this.scmProviderHasRootUriContextKey = ContextKeys.SCMProviderHasRootUri.bindTo(contextKeyService);
-
-	this._onDidLayout = new Emcognidreamr<cognidream>();
-	this.layoutCache = { height: undefined, width: undefined, onDidChange: this._onDidLayout.event };
-
-	this.storageService.onDidChangeValue(StorageScope.WORKSPACE, undefined, this.disposables)(e => {
-		switch (e.key) {
-			case 'scm.viewMode':
-				this.viewMode = this.getViewMode();
-				break;
-			case 'scm.viewSortKey':
-				this.viewSortKey = this.getViewSortKey();
-				break;
+	private _viewMode: ViewMode;
+	get viewMode(): ViewMode { return this._viewMode; }
+	set viewMode(mode: ViewMode) {
+		if (this._viewMode === mode) {
+			return;
 		}
-	}, this, this.disposables);
 
-	this.storageService.onWillSaveState(e => {
-		this.viewMode = this.getViewMode();
+		this._viewMode = mode;
+
+		// Update sort key based on view mode
 		this.viewSortKey = this.getViewSortKey();
 
-		this.storeTreeViewState();
-	}, this, this.disposables);
+		this.updateChildren();
+		this.onDidActiveEditorChange();
+		this._onDidChangeViewMode.fire(mode);
+		this.viewModeContextKey.set(mode);
 
-	Event.any(this.scmService.onDidAddRepository, this.scmService.onDidRemoveRepository)(() => this._onDidChangeViewWelcomeState.fire(), this, this.disposables);
+		this.updateIndentStyles(this.themeService.getFileIconTheme());
+		this.storageService.store(`scm.viewMode`, mode, StorageScope.WORKSPACE, StorageTarget.USER);
+	}
 
-	this.disposables.add(this.revealResourceThrottler);
-	this.disposables.add(this.updateChildrenThrottler);
-}
+	private readonly _onDidChangeViewMode = new Emitter<ViewMode>();
+	readonly onDidChangeViewMode = this._onDidChangeViewMode.event;
 
-    protected override layoutBody(height: number | undefined = this.layoutCache.height, width: number | undefined = this.layoutCache.widthcognidreamognidream {
-	if(height === undefined) {
-	return;
-}
+	private _viewSortKey: ViewSortKey;
+	get viewSortKey(): ViewSortKey { return this._viewSortKey; }
+	set viewSortKey(sortKey: ViewSortKey) {
+		if (this._viewSortKey === sortKey) {
+			return;
+		}
 
-if (width !== undefined) {
-	super.layoutBody(height, width);
-}
+		this._viewSortKey = sortKey;
 
-this.layoutCache.height = height;
-this.layoutCache.width = width;
-this._onDidLayout.fire();
+		this.updateChildren();
+		this.viewSortKeyContextKey.set(sortKey);
+		this._onDidChangeViewSortKey.fire(sortKey);
 
-this.treeContainer.style.height = `${height}px`;
-this.tree.layout(height, width);
-    }
+		if (this._viewMode === ViewMode.List) {
+			this.storageService.store(`scm.viewSortKey`, sortKey, StorageScope.WORKSPACE, StorageTarget.USER);
+		}
+	}
 
-    protected override renderBody(container: HTMLElementcognidreamognidream {
-	super.renderBody(container);
+	private readonly _onDidChangeViewSortKey = new Emitter<ViewSortKey>();
+	readonly onDidChangeViewSortKey = this._onDidChangeViewSortKey.event;
 
-	// Tree
-	this.treeContainer = append(container, $('.scm-view.show-file-icons'));
-	this.treeContainer.classList.add('file-icon-themable-tree');
-	this.treeContainer.classList.add('show-file-icons');
+	private readonly items = new DisposableMap<ISCMRepository, IDisposable>();
+	private readonly visibilityDisposables = new DisposableStore();
 
-	const updateActionsVisibility = () => this.treeContainer.classList.toggle('show-actions', this.configurationService.getValue<boolean>('scm.alwaysShowActions'));
-	Event.filter(this.configurationService.onDidChangeConfiguration, e => e.affectsConfiguration('scm.alwaysShowActions'), this.disposables)(updateActionsVisibility, this, this.disposables);
-	updateActionsVisibility();
+	private readonly treeOperationSequencer = new Sequencer();
+	private readonly revealResourceThrottler = new Throttler();
+	private readonly updateChildrenThrottler = new Throttler();
 
-        const updateProviderCountVisibility = () => {
-		const value = this.configurationService.getValue<'hidden' | 'auto' | 'visible'>('scm.providerCountBadge');
-		this.treeContainer.classList.toggle('hide-provider-counts', value === 'hidden');
-		this.treeContainer.classList.toggle('auto-provider-counts', value === 'auto');
-	};
-	Event.filter(this.configurationService.onDidChangeConfiguration, e => e.affectsConfiguration('scm.providerCountBadge'), this.disposables)(updateProviderCountVisibility, this, this.disposables);
-	updateProviderCountVisibility();
+	private viewModeContextKey: IContextKey<ViewMode>;
+	private viewSortKeyContextKey: IContextKey<ViewSortKey>;
+	private areAllRepositoriesCollapsedContextKey: IContextKey<boolean>;
+	private isAnyRepositoryCollapsibleContextKey: IContextKey<boolean>;
 
-        const viewState = this.loadTreeViewState();
-	this.createTree(this.treeContainer, viewState);
+	private scmProviderContextKey: IContextKey<string | undefined>;
+	private scmProviderRootUriContextKey: IContextKey<string | undefined>;
+	private scmProviderHasRootUriContextKey: IContextKey<boolean>;
 
-	this.onDidChangeBodyVisibility(async visible => {
-		if (visible) {
-			this.treeOperationSequencer.queue(async () => {
-				await this.tree.setInput(this.scmViewService, viewState);
+	private readonly disposables = new DisposableStore();
 
-				Event.filter(this.configurationService.onDidChangeConfiguration,
-					e =>
-						e.affectsConfiguration('scm.alwaysShowRepositories'),
-					this.visibilityDisposables)
-					(() => {
-						this.updateActions();
-						this.updateChildren();
-					}, this, this.visibilityDisposables);
+	constructor(
+		options: IViewPaneOptions,
+		@ICommandService private readonly commandService: ICommandService,
+		@IEditorService private readonly editorService: IEditorService,
+		@IMenuService private readonly menuService: IMenuService,
+		@ISCMService private readonly scmService: ISCMService,
+		@ISCMViewService private readonly scmViewService: ISCMViewService,
+		@IStorageService private readonly storageService: IStorageService,
+		@IUriIdentityService private readonly uriIdentityService: IUriIdentityService,
+		@IKeybindingService keybindingService: IKeybindingService,
+		@IThemeService themeService: IThemeService,
+		@IContextMenuService contextMenuService: IContextMenuService,
+		@IInstantiationService instantiationService: IInstantiationService,
+		@IViewDescriptorService viewDescriptorService: IViewDescriptorService,
+		@IConfigurationService configurationService: IConfigurationService,
+		@IContextKeyService contextKeyService: IContextKeyService,
+		@IOpenerService openerService: IOpenerService,
+		@IHoverService hoverService: IHoverService,
+	) {
+		super({ ...options, titleMenuId: MenuId.SCMTitle }, keybindingService, contextMenuService, configurationService, contextKeyService, viewDescriptorService, instantiationService, openerService, themeService, hoverService);
 
-				Event.filter(this.configurationService.onDidChangeConfiguration,
-					e =>
-						e.affectsConfiguration('scm.inputMinLineCount') ||
-						e.affectsConfiguration('scm.inputMaxLineCount') ||
-						e.affectsConfiguration('scm.showActionButton'),
-					this.visibilityDisposables)
-					(() => this.updateChildren(), this, this.visibilityDisposables);
+		// View mode and sort key
+		this._viewMode = this.getViewMode();
+		this._viewSortKey = this.getViewSortKey();
 
-				// Add visible repositories
-				this.editorService.onDidActiveEditorChange(this.onDidActiveEditorChange, this, this.visibilityDisposables);
-				this.scmViewService.onDidChangeVisibleRepositories(this.onDidChangeVisibleRepositories, this, this.visibilityDisposables);
-				this.onDidChangeVisibleRepositories({ added: this.scmViewService.visibleRepositories, removed: Iterable.empty() });
+		// Context Keys
+		this.viewModeContextKey = ContextKeys.SCMViewMode.bindTo(contextKeyService);
+		this.viewModeContextKey.set(this._viewMode);
+		this.viewSortKeyContextKey = ContextKeys.SCMViewSortKey.bindTo(contextKeyService);
+		this.viewSortKeyContextKey.set(this.viewSortKey);
+		this.areAllRepositoriesCollapsedContextKey = ContextKeys.SCMViewAreAllRepositoriesCollapsed.bindTo(contextKeyService);
+		this.isAnyRepositoryCollapsibleContextKey = ContextKeys.SCMViewIsAnyRepositoryCollapsible.bindTo(contextKeyService);
+		this.scmProviderContextKey = ContextKeys.SCMProvider.bindTo(contextKeyService);
+		this.scmProviderRootUriContextKey = ContextKeys.SCMProviderRootUri.bindTo(contextKeyService);
+		this.scmProviderHasRootUriContextKey = ContextKeys.SCMProviderHasRootUri.bindTo(contextKeyService);
 
-				// Restore scroll position
-				if (typeof this.treeScrollTop === 'number') {
-					this.tree.scrollTop = this.treeScrollTop;
-					this.treeScrollTop = undefined;
-				}
+		this._onDidLayout = new Emitter<void>();
+		this.layoutCache = { height: undefined, width: undefined, onDidChange: this._onDidLayout.event };
+
+		this.storageService.onDidChangeValue(StorageScope.WORKSPACE, undefined, this.disposables)(e => {
+			switch (e.key) {
+				case 'scm.viewMode':
+					this.viewMode = this.getViewMode();
+					break;
+				case 'scm.viewSortKey':
+					this.viewSortKey = this.getViewSortKey();
+					break;
+			}
+		}, this, this.disposables);
+
+		this.storageService.onWillSaveState(e => {
+			this.viewMode = this.getViewMode();
+			this.viewSortKey = this.getViewSortKey();
+
+			this.storeTreeViewState();
+		}, this, this.disposables);
+
+		Event.any(this.scmService.onDidAddRepository, this.scmService.onDidRemoveRepository)(() => this._onDidChangeViewWelcomeState.fire(), this, this.disposables);
+
+		this.disposables.add(this.revealResourceThrottler);
+		this.disposables.add(this.updateChildrenThrottler);
+	}
+
+	protected override layoutBody(height: number | undefined = this.layoutCache.height, width: number | undefined = this.layoutCache.width): void {
+		if (height === undefined) {
+			return;
+		}
+
+		if (width !== undefined) {
+			super.layoutBody(height, width);
+		}
+
+		this.layoutCache.height = height;
+		this.layoutCache.width = width;
+		this._onDidLayout.fire();
+
+		this.treeContainer.style.height = `${height}px`;
+		this.tree.layout(height, width);
+	}
+
+	protected override renderBody(container: HTMLElement): void {
+		super.renderBody(container);
+
+		// Tree
+		this.treeContainer = append(container, $('.scm-view.show-file-icons'));
+		this.treeContainer.classList.add('file-icon-themable-tree');
+		this.treeContainer.classList.add('show-file-icons');
+
+		const updateActionsVisibility = () => this.treeContainer.classList.toggle('show-actions', this.configurationService.getValue<boolean>('scm.alwaysShowActions'));
+		Event.filter(this.configurationService.onDidChangeConfiguration, e => e.affectsConfiguration('scm.alwaysShowActions'), this.disposables)(updateActionsVisibility, this, this.disposables);
+		updateActionsVisibility();
+
+		const updateProviderCountVisibility = () => {
+			const value = this.configurationService.getValue<'hidden' | 'auto' | 'visible'>('scm.providerCountBadge');
+			this.treeContainer.classList.toggle('hide-provider-counts', value === 'hidden');
+			this.treeContainer.classList.toggle('auto-provider-counts', value === 'auto');
+		};
+		Event.filter(this.configurationService.onDidChangeConfiguration, e => e.affectsConfiguration('scm.providerCountBadge'), this.disposables)(updateProviderCountVisibility, this, this.disposables);
+		updateProviderCountVisibility();
+
+		const viewState = this.loadTreeViewState();
+		this.createTree(this.treeContainer, viewState);
+
+		this.onDidChangeBodyVisibility(async visible => {
+			if (visible) {
+				this.treeOperationSequencer.queue(async () => {
+					await this.tree.setInput(this.scmViewService, viewState);
+
+					Event.filter(this.configurationService.onDidChangeConfiguration,
+						e =>
+							e.affectsConfiguration('scm.alwaysShowRepositories'),
+						this.visibilityDisposables)
+						(() => {
+							this.updateActions();
+							this.updateChildren();
+						}, this, this.visibilityDisposables);
+
+					Event.filter(this.configurationService.onDidChangeConfiguration,
+						e =>
+							e.affectsConfiguration('scm.inputMinLineCount') ||
+							e.affectsConfiguration('scm.inputMaxLineCount') ||
+							e.affectsConfiguration('scm.showActionButton'),
+						this.visibilityDisposables)
+						(() => this.updateChildren(), this, this.visibilityDisposables);
+
+					// Add visible repositories
+					this.editorService.onDidActiveEditorChange(this.onDidActiveEditorChange, this, this.visibilityDisposables);
+					this.scmViewService.onDidChangeVisibleRepositories(this.onDidChangeVisibleRepositories, this, this.visibilityDisposables);
+					this.onDidChangeVisibleRepositories({ added: this.scmViewService.visibleRepositories, removed: Iterable.empty() });
+
+					// Restore scroll position
+					if (typeof this.treeScrollTop === 'number') {
+						this.tree.scrollTop = this.treeScrollTop;
+						this.treeScrollTop = undefined;
+					}
+
+					this.updateRepositoryCollapseAllContextKeys();
+				});
+			} else {
+				this.visibilityDisposables.clear();
+				this.onDidChangeVisibleRepositories({ added: Iterable.empty(), removed: [...this.items.keys()] });
+				this.treeScrollTop = this.tree.scrollTop;
 
 				this.updateRepositoryCollapseAllContextKeys();
-			});
-		} else {
-			this.visibilityDisposables.clear();
-			this.onDidChangeVisibleRepositories({ added: Iterable.empty(), removed: [...this.items.keys()] });
-			this.treeScrollTop = this.tree.scrollTop;
+			}
+		}, this, this.disposables);
 
-			this.updateRepositoryCollapseAllContextKeys();
-		}
-	}, this, this.disposables);
+		this.disposables.add(this.instantiationService.createInstance(RepositoryVisibilityActionController));
 
-	this.disposables.add(this.instantiationService.createInstance(RepositoryVisibilityActionController));
+		this.themeService.onDidFileIconThemeChange(this.updateIndentStyles, this, this.disposables);
+		this.updateIndentStyles(this.themeService.getFileIconTheme());
+	}
 
-	this.themeService.onDidFileIconThemeChange(this.updateIndentStyles, this, this.disposables);
-	this.updateIndentStyles(this.themeService.getFileIconTheme());
-}
+	private createTree(container: HTMLElement, viewState?: IAsyncDataTreeViewState): void {
+		const overflowWidgetsDomNode = $('.scm-overflow-widgets-container.monaco-editor');
 
-    private createTree(container: HTMLElement, viewState ?: IAsyncDataTreeViewStatecognidreamognidream {
-	const overflowWidgetsDomNode = $('.scm-overflow-widgets-container.monaco-editor');
-
-	this.inputRenderer = this.instantiationService.createInstance(InputRenderer, this.layoutCache, overflowWidgetsDomNode, (input, height) => {
-		try {
-			// Attempt to update the input element height. There is an
-			// edge case where the input has already been disposed and
-			// updating the height would fail.
-			this.tree.updateElementHeight(input, height);
-		}
-		catch { }
-	});
-	this.actionButtonRenderer = this.instantiationService.createInstance(ActionButtonRenderer);
-
-	this.listLabels = this.instantiationService.createInstance(ResourceLabels, { onDidChangeVisibility: this.onDidChangeBodyVisibility });
-	this.disposables.add(this.listLabels);
-
-	const resourceActionRunner = new RepositoryPaneActionRunner(() => this.getSelectedResources());
-	resourceActionRunner.onWillRun(() => this.tree.domFocus(), this, this.disposables);
-	this.disposables.add(resourceActionRunner);
-
-	const treeDataSource = this.instantiationService.createInstance(SCMTreeDataSource, () => this.viewMode);
-	this.disposables.add(treeDataSource);
-
-	const compressionEnabled = observableConfigValue('scm.compactFolders', true, this.configurationService);
-
-	this.tree = this.instantiationService.createInstance(
-		WorkbenchCompressibleAsyncDataTree,
-		'SCM Tree Repo',
-		container,
-		new ListDelegate(this.inputRenderer),
-		new SCMTreeCompressionDelegate(),
-		[
-			this.inputRenderer,
-			this.actionButtonRenderer,
-			this.instantiationService.createInstance(RepositoryRenderer, MenuId.SCMTitle, getActionViewItemProvider(this.instantiationService)),
-			this.instantiationService.createInstance(ResourceGroupRenderer, getActionViewItemProvider(this.instantiationService), resourceActionRunner),
-			this.instantiationService.createInstance(ResourceRenderer, () => this.viewMode, this.listLabels, getActionViewItemProvider(this.instantiationService), resourceActionRunner)
-		],
-		treeDataSource,
-		{
-			horizontalScrolling: false,
-			setRowLineHeight: false,
-			transformOptimization: false,
-			filter: new SCMTreeFilter(),
-			dnd: new SCMTreeDragAndDrop(this.instantiationService),
-			identityProvider: new SCMResourceIdentityProvider(),
-			sorter: new SCMTreeSorter(() => this.viewMode, () => this.viewSortKey),
-			keyboardNavigationLabelProvider: this.instantiationService.createInstance(SCMTreeKeyboardNavigationLabelProvider, () => this.viewMode),
-			overrideStyles: this.getLocationBasedColors().listOverrideStyles,
-			compressionEnabled: compressionEnabled.get(),
-			collapseByDefault: (e: unknown) => {
-				// Repository, Resource Group, Resource Folder (Tree)
-				if (isSCMRepository(e) || isSCMResourceGroup(e) || isSCMResourceNode(e)) {
-					return false;
-				}
-
-				// History Item Group, History Item, or History Item Change
-				return (viewState?.expanded ?? []).indexOf(getSCMResourceId(e as TreeElement)) === -1;
-			},
-			accessibilityProvider: this.instantiationService.createInstance(SCMAccessibilityProvider)
-		}) as WorkbenchCompressibleAsyncDataTree<ISCMViewService, TreeElement, FuzzyScore>;
-
-	this.disposables.add(this.tree);
-
-	this.tree.onDidOpen(this.open, this, this.disposables);
-	this.tree.onContextMenu(this.onListContextMenu, this, this.disposables);
-	this.tree.onDidScroll(this.inputRenderer.clearValidation, this.inputRenderer, this.disposables);
-	Event.filter(this.tree.onDidChangeCollapseState, e => isSCMRepository(e.node.element?.element), this.disposables)(this.updateRepositoryCollapseAllContextKeys, this, this.disposables);
-
-	this.disposables.add(autorun(reader => {
-		this.tree.updateOptions({
-			compressionEnabled: compressionEnabled.read(reader)
+		this.inputRenderer = this.instantiationService.createInstance(InputRenderer, this.layoutCache, overflowWidgetsDomNode, (input, height) => {
+			try {
+				// Attempt to update the input element height. There is an
+				// edge case where the input has already been disposed and
+				// updating the height would fail.
+				this.tree.updateElementHeight(input, height);
+			}
+			catch { }
 		});
-	}));
+		this.actionButtonRenderer = this.instantiationService.createInstance(ActionButtonRenderer);
 
-	append(container, overflowWidgetsDomNode);
-}
+		this.listLabels = this.instantiationService.createInstance(ResourceLabels, { onDidChangeVisibility: this.onDidChangeBodyVisibility });
+		this.disposables.add(this.listLabels);
 
-    private async open(e: IOpenEvent<TreeElement | undefined>): Promicognidreamognidream > {
-	if(!e.element) {
-	return;
-} else if (isSCMRepository(e.element)) {
-	this.scmViewService.focus(e.element);
-	return;
-} else if (isSCMInput(e.element)) {
-	this.scmViewService.focus(e.element.repository);
+		const resourceActionRunner = new RepositoryPaneActionRunner(() => this.getSelectedResources());
+		resourceActionRunner.onWillRun(() => this.tree.domFocus(), this, this.disposables);
+		this.disposables.add(resourceActionRunner);
 
-	const widget = this.inputRenderer.getRenderedInputWidget(e.element);
+		const treeDataSource = this.instantiationService.createInstance(SCMTreeDataSource, () => this.viewMode);
+		this.disposables.add(treeDataSource);
 
-	if (widget) {
-		widget.focus();
-		this.tree.setFocus([], e.browserEvent);
+		const compressionEnabled = observableConfigValue('scm.compactFolders', true, this.configurationService);
 
-		const selection = this.tree.getSelection();
-
-		if (selection.length === 1 && selection[0] === e.element) {
-			setTimeout(() => this.tree.setSelection([]));
-		}
-	}
-
-	return;
-} else if (isSCMActionButton(e.element)) {
-	this.scmViewService.focus(e.element.repository);
-
-	// Focus the action button
-	this.actionButtonRenderer.focusActionButton(e.element);
-	this.tree.setFocus([], e.browserEvent);
-
-	return;
-} else if (isSCMResourceGroup(e.element)) {
-	const provider = e.element.provider;
-	const repository = Iterable.find(this.scmService.repositories, r => r.provider === provider);
-	if (repository) {
-		this.scmViewService.focus(repository);
-	}
-	return;
-} else if (isSCMResource(e.element)) {
-	if (e.element.command?.id === API_OPEN_EDITOR_COMMAND_ID || e.element.command?.id === API_OPEN_DIFF_EDITOR_COMMAND_ID) {
-		if (isPointerEvent(e.browserEvent) && e.browserEvent.button === 1) {
-			const resourceGroup = e.element.resourceGroup;
-			const title = `${resourceGroup.provider.label}: ${resourceGroup.label}`;
-			await OpenScmGroupAction.openMultiFileDiffEditor(this.editorService, title, resourceGroup.provider.rootUri, resourceGroup.id, {
-				...e.editorOptions,
-				viewState: {
-					revealData: {
-						resource: {
-							original: e.element.multiDiffEditorOriginalUri,
-							modified: e.element.multiDiffEditorModifiedUri,
-						}
+		this.tree = this.instantiationService.createInstance(
+			WorkbenchCompressibleAsyncDataTree,
+			'SCM Tree Repo',
+			container,
+			new ListDelegate(this.inputRenderer),
+			new SCMTreeCompressionDelegate(),
+			[
+				this.inputRenderer,
+				this.actionButtonRenderer,
+				this.instantiationService.createInstance(RepositoryRenderer, MenuId.SCMTitle, getActionViewItemProvider(this.instantiationService)),
+				this.instantiationService.createInstance(ResourceGroupRenderer, getActionViewItemProvider(this.instantiationService), resourceActionRunner),
+				this.instantiationService.createInstance(ResourceRenderer, () => this.viewMode, this.listLabels, getActionViewItemProvider(this.instantiationService), resourceActionRunner)
+			],
+			treeDataSource,
+			{
+				horizontalScrolling: false,
+				setRowLineHeight: false,
+				transformOptimization: false,
+				filter: new SCMTreeFilter(),
+				dnd: new SCMTreeDragAndDrop(this.instantiationService),
+				identityProvider: new SCMResourceIdentityProvider(),
+				sorter: new SCMTreeSorter(() => this.viewMode, () => this.viewSortKey),
+				keyboardNavigationLabelProvider: this.instantiationService.createInstance(SCMTreeKeyboardNavigationLabelProvider, () => this.viewMode),
+				overrideStyles: this.getLocationBasedColors().listOverrideStyles,
+				compressionEnabled: compressionEnabled.get(),
+				collapseByDefault: (e: unknown) => {
+					// Repository, Resource Group, Resource Folder (Tree)
+					if (isSCMRepository(e) || isSCMResourceGroup(e) || isSCMResourceNode(e)) {
+						return false;
 					}
+
+					// History Item Group, History Item, or History Item Change
+					return (viewState?.expanded ?? []).indexOf(getSCMResourceId(e as TreeElement)) === -1;
 				},
-				preserveFocus: true,
+				accessibilityProvider: this.instantiationService.createInstance(SCMAccessibilityProvider)
+			}) as WorkbenchCompressibleAsyncDataTree<ISCMViewService, TreeElement, FuzzyScore>;
+
+		this.disposables.add(this.tree);
+
+		this.tree.onDidOpen(this.open, this, this.disposables);
+		this.tree.onContextMenu(this.onListContextMenu, this, this.disposables);
+		this.tree.onDidScroll(this.inputRenderer.clearValidation, this.inputRenderer, this.disposables);
+		Event.filter(this.tree.onDidChangeCollapseState, e => isSCMRepository(e.node.element?.element), this.disposables)(this.updateRepositoryCollapseAllContextKeys, this, this.disposables);
+
+		this.disposables.add(autorun(reader => {
+			this.tree.updateOptions({
+				compressionEnabled: compressionEnabled.read(reader)
 			});
-		} else {
-			await this.commandService.executeCommand(e.element.command.id, ...(e.element.command.arguments || []), e);
-		}
-	} else {
-		await e.element.open(!!e.editorOptions.preserveFocus);
-
-		if (e.editorOptions.pinned) {
-			const activeEditorPane = this.editorService.activeEditorPane;
-
-			activeEditorPane?.group.pinEditor(activeEditorPane.input);
-		}
-	}
-
-	const provider = e.element.resourceGroup.provider;
-	const repository = Iterable.find(this.scmService.repositories, r => r.provider === provider);
-
-	if (repository) {
-		this.scmViewService.focus(repository);
-	}
-} else if (isSCMResourceNode(e.element)) {
-	const provider = e.element.context.provider;
-	const repository = Iterable.find(this.scmService.repositories, r => r.provider === provider);
-	if (repository) {
-		this.scmViewService.focus(repository);
-	}
-	return;
-}
-    }
-
-    private onDidActiveEditorChange(cognidreamognidream {
-	if(!this.configurationService.getValue<boolean>('scm.autoReveal')) {
-	return;
-}
-
-const uri = EditorResourceAccessor.getOriginalUri(this.editorService.activeEditor, { supportSideBySide: SideBySideEditor.PRIMARY });
-
-if (!uri) {
-	return;
-}
-
-// Do not set focus/selection when the resource is already focused and selected
-if (this.tree.getFocus().some(e => isSCMResource(e) && this.uriIdentityService.extUri.isEqual(e.sourceUri, uri)) &&
-	this.tree.getSelection().some(e => isSCMResource(e) && this.uriIdentityService.extUri.isEqual(e.sourceUri, uri))) {
-	return;
-}
-
-this.revealResourceThrottler.queue(
-	() => this.treeOperationSequencer.queue(
-		async () => {
-			for (const repository of this.scmViewService.visibleRepositories) {
-				const item = this.items.get(repository);
-
-				if (!item) {
-					continue;
-				}
-
-				// go backwards from last group
-				for (let j = repository.provider.groups.length - 1; j >= 0; j--) {
-					const groupItem = repository.provider.groups[j];
-					const resource = this.viewMode === ViewMode.Tree
-						? groupItem.resourceTree.getNode(uri)?.element
-						: groupItem.resources.find(r => this.uriIdentityService.extUri.isEqual(r.sourceUri, uri));
-
-					if (resource) {
-						await this.tree.expandTo(resource);
-						this.tree.reveal(resource);
-
-						this.tree.setSelection([resource]);
-						this.tree.setFocus([resource]);
-						return;
-					}
-				}
-			}
 		}));
-    }
 
-    private onDidChangeVisibleRepositories({ added, removed }: ISCMViewVisibleRepositoryChangeEventcognidreamognidream {
-			// Added repositories
-			for(const repository of added) {
-				const repositoryDisposables = new DisposableStore();
+		append(container, overflowWidgetsDomNode);
+	}
 
-				repositoryDisposables.add(autorun(reader => {
-					/** @description action button */
-					repository.provider.actionButton.read(reader);
-					this.updateChildren(repository);
-				}));
+	private async open(e: IOpenEvent<TreeElement | undefined>): Promise<void> {
+		if (!e.element) {
+			return;
+		} else if (isSCMRepository(e.element)) {
+			this.scmViewService.focus(e.element);
+			return;
+		} else if (isSCMInput(e.element)) {
+			this.scmViewService.focus(e.element.repository);
 
-				repositoryDisposables.add(repository.input.onDidChangeVisibility(() => this.updateChildren(repository)));
-				repositoryDisposables.add(repository.provider.onDidChangeResourceGroups(() => this.updateChildren(repository)));
+			const widget = this.inputRenderer.getRenderedInputWidget(e.element);
 
-				const resourceGroupDisposables = repositoryDisposables.add(new DisposableMap<ISCMResourceGroup, IDisposable>());
+			if (widget) {
+				widget.focus();
+				this.tree.setFocus([], e.browserEvent);
 
-				const onDidChangeResourceGroups = () => {
-					for (const [resourceGroup] of resourceGroupDisposables) {
-						if (!repository.provider.groups.includes(resourceGroup)) {
-							resourceGroupDisposables.deleteAndDispose(resourceGroup);
-						}
-					}
+				const selection = this.tree.getSelection();
 
-					for (const resourceGroup of repository.provider.groups) {
-						if (!resourceGroupDisposables.has(resourceGroup)) {
-							const disposableStore = new DisposableStore();
-
-							disposableStore.add(resourceGroup.onDidChange(() => this.updateChildren(repository)));
-							disposableStore.add(resourceGroup.onDidChangeResources(() => this.updateChildren(repository)));
-							resourceGroupDisposables.set(resourceGroup, disposableStore);
-						}
-					}
-				};
-
-				repositoryDisposables.add(repository.provider.onDidChangeResourceGroups(onDidChangeResourceGroups));
-				onDidChangeResourceGroups();
-
-				this.items.set(repository, repositoryDisposables);
+				if (selection.length === 1 && selection[0] === e.element) {
+					setTimeout(() => this.tree.setSelection([]));
+				}
 			}
 
-        // Removed repositories
-        for(const repository of removed) {
-				this.items.deleteAndDispose(repository);
+			return;
+		} else if (isSCMActionButton(e.element)) {
+			this.scmViewService.focus(e.element.repository);
+
+			// Focus the action button
+			this.actionButtonRenderer.focusActionButton(e.element);
+			this.tree.setFocus([], e.browserEvent);
+
+			return;
+		} else if (isSCMResourceGroup(e.element)) {
+			const provider = e.element.provider;
+			const repository = Iterable.find(this.scmService.repositories, r => r.provider === provider);
+			if (repository) {
+				this.scmViewService.focus(repository);
+			}
+			return;
+		} else if (isSCMResource(e.element)) {
+			if (e.element.command?.id === API_OPEN_EDITOR_COMMAND_ID || e.element.command?.id === API_OPEN_DIFF_EDITOR_COMMAND_ID) {
+				if (isPointerEvent(e.browserEvent) && e.browserEvent.button === 1) {
+					const resourceGroup = e.element.resourceGroup;
+					const title = `${resourceGroup.provider.label}: ${resourceGroup.label}`;
+					await OpenScmGroupAction.openMultiFileDiffEditor(this.editorService, title, resourceGroup.provider.rootUri, resourceGroup.id, {
+						...e.editorOptions,
+						viewState: {
+							revealData: {
+								resource: {
+									original: e.element.multiDiffEditorOriginalUri,
+									modified: e.element.multiDiffEditorModifiedUri,
+								}
+							}
+						},
+						preserveFocus: true,
+					});
+				} else {
+					await this.commandService.executeCommand(e.element.command.id, ...(e.element.command.arguments || []), e);
+				}
+			} else {
+				await e.element.open(!!e.editorOptions.preserveFocus);
+
+				if (e.editorOptions.pinned) {
+					const activeEditorPane = this.editorService.activeEditorPane;
+
+					activeEditorPane?.group.pinEditor(activeEditorPane.input);
+				}
 			}
 
-        this.updateChildren();
-			this.onDidActiveEditorChange();
+			const provider = e.element.resourceGroup.provider;
+			const repository = Iterable.find(this.scmService.repositories, r => r.provider === provider);
+
+			if (repository) {
+				this.scmViewService.focus(repository);
+			}
+		} else if (isSCMResourceNode(e.element)) {
+			const provider = e.element.context.provider;
+			const repository = Iterable.find(this.scmService.repositories, r => r.provider === provider);
+			if (repository) {
+				this.scmViewService.focus(repository);
+			}
+			return;
+		}
+	}
+
+	private onDidActiveEditorChange(): void {
+		if (!this.configurationService.getValue<boolean>('scm.autoReveal')) {
+			return;
 		}
 
-    private onListContextMenu(e: ITreeContextMenuEvent < TreeElement | null > cognidreamognidream {
-			if(!e.element) {
+		const uri = EditorResourceAccessor.getOriginalUri(this.editorService.activeEditor, { supportSideBySide: SideBySideEditor.PRIMARY });
+
+		if (!uri) {
+			return;
+		}
+
+		// Do not set focus/selection when the resource is already focused and selected
+		if (this.tree.getFocus().some(e => isSCMResource(e) && this.uriIdentityService.extUri.isEqual(e.sourceUri, uri)) &&
+			this.tree.getSelection().some(e => isSCMResource(e) && this.uriIdentityService.extUri.isEqual(e.sourceUri, uri))) {
+			return;
+		}
+
+		this.revealResourceThrottler.queue(
+			() => this.treeOperationSequencer.queue(
+				async () => {
+					for (const repository of this.scmViewService.visibleRepositories) {
+						const item = this.items.get(repository);
+
+						if (!item) {
+							continue;
+						}
+
+						// go backwards from last group
+						for (let j = repository.provider.groups.length - 1; j >= 0; j--) {
+							const groupItem = repository.provider.groups[j];
+							const resource = this.viewMode === ViewMode.Tree
+								? groupItem.resourceTree.getNode(uri)?.element
+								: groupItem.resources.find(r => this.uriIdentityService.extUri.isEqual(r.sourceUri, uri));
+
+							if (resource) {
+								await this.tree.expandTo(resource);
+								this.tree.reveal(resource);
+
+								this.tree.setSelection([resource]);
+								this.tree.setFocus([resource]);
+								return;
+							}
+						}
+					}
+				}));
+	}
+
+	private onDidChangeVisibleRepositories({ added, removed }: ISCMViewVisibleRepositoryChangeEvent): void {
+		// Added repositories
+		for (const repository of added) {
+			const repositoryDisposables = new DisposableStore();
+
+			repositoryDisposables.add(autorun(reader => {
+				/** @description action button */
+				repository.provider.actionButton.read(reader);
+				this.updateChildren(repository);
+			}));
+
+			repositoryDisposables.add(repository.input.onDidChangeVisibility(() => this.updateChildren(repository)));
+			repositoryDisposables.add(repository.provider.onDidChangeResourceGroups(() => this.updateChildren(repository)));
+
+			const resourceGroupDisposables = repositoryDisposables.add(new DisposableMap<ISCMResourceGroup, IDisposable>());
+
+			const onDidChangeResourceGroups = () => {
+				for (const [resourceGroup] of resourceGroupDisposables) {
+					if (!repository.provider.groups.includes(resourceGroup)) {
+						resourceGroupDisposables.deleteAndDispose(resourceGroup);
+					}
+				}
+
+				for (const resourceGroup of repository.provider.groups) {
+					if (!resourceGroupDisposables.has(resourceGroup)) {
+						const disposableStore = new DisposableStore();
+
+						disposableStore.add(resourceGroup.onDidChange(() => this.updateChildren(repository)));
+						disposableStore.add(resourceGroup.onDidChangeResources(() => this.updateChildren(repository)));
+						resourceGroupDisposables.set(resourceGroup, disposableStore);
+					}
+				}
+			};
+
+			repositoryDisposables.add(repository.provider.onDidChangeResourceGroups(onDidChangeResourceGroups));
+			onDidChangeResourceGroups();
+
+			this.items.set(repository, repositoryDisposables);
+		}
+
+		// Removed repositories
+		for (const repository of removed) {
+			this.items.deleteAndDispose(repository);
+		}
+
+		this.updateChildren();
+		this.onDidActiveEditorChange();
+	}
+
+	private onListContextMenu(e: ITreeContextMenuEvent<TreeElement | null>): void {
+		if (!e.element) {
 			const menu = this.menuService.getMenuActions(Menus.ViewSort, this.contextKeyService);
 			const actions = getFlatContextMenuActions(menu);
 
@@ -2569,450 +2569,450 @@ this.revealResourceThrottler.queue(
 			});
 		}
 
-        const element = e.element;
-let context: any = element;
-let actions: IAction[] = [];
-let actionRunner: IActionRunner = new RepositoryPaneActionRunner(() => this.getSelectedResources());
+		const element = e.element;
+		let context: any = element;
+		let actions: IAction[] = [];
+		let actionRunner: IActionRunner = new RepositoryPaneActionRunner(() => this.getSelectedResources());
 
-if (isSCMRepository(element)) {
-	const menus = this.scmViewService.menus.getRepositoryMenus(element.provider);
-	const menu = menus.repositoryContextMenu;
-	context = element.provider;
-	actionRunner = new RepositoryActionRunner(() => this.getSelectedRepositories());
-	actions = collectContextMenuActions(menu);
-} else if (isSCMInput(element) || isSCMActionButton(element)) {
-	// noop
-} else if (isSCMResourceGroup(element)) {
-	const menus = this.scmViewService.menus.getRepositoryMenus(element.provider);
-	const menu = menus.getResourceGroupMenu(element);
-	actions = collectContextMenuActions(menu);
-} else if (isSCMResource(element)) {
-	const menus = this.scmViewService.menus.getRepositoryMenus(element.resourceGroup.provider);
-	const menu = menus.getResourceMenu(element);
-	actions = collectContextMenuActions(menu);
-} else if (isSCMResourceNode(element)) {
-	if (element.element) {
-		const menus = this.scmViewService.menus.getRepositoryMenus(element.element.resourceGroup.provider);
-		const menu = menus.getResourceMenu(element.element);
-		actions = collectContextMenuActions(menu);
-	} else {
-		const menus = this.scmViewService.menus.getRepositoryMenus(element.context.provider);
-		const menu = menus.getResourceFolderMenu(element.context);
-		actions = collectContextMenuActions(menu);
-	}
-}
+		if (isSCMRepository(element)) {
+			const menus = this.scmViewService.menus.getRepositoryMenus(element.provider);
+			const menu = menus.repositoryContextMenu;
+			context = element.provider;
+			actionRunner = new RepositoryActionRunner(() => this.getSelectedRepositories());
+			actions = collectContextMenuActions(menu);
+		} else if (isSCMInput(element) || isSCMActionButton(element)) {
+			// noop
+		} else if (isSCMResourceGroup(element)) {
+			const menus = this.scmViewService.menus.getRepositoryMenus(element.provider);
+			const menu = menus.getResourceGroupMenu(element);
+			actions = collectContextMenuActions(menu);
+		} else if (isSCMResource(element)) {
+			const menus = this.scmViewService.menus.getRepositoryMenus(element.resourceGroup.provider);
+			const menu = menus.getResourceMenu(element);
+			actions = collectContextMenuActions(menu);
+		} else if (isSCMResourceNode(element)) {
+			if (element.element) {
+				const menus = this.scmViewService.menus.getRepositoryMenus(element.element.resourceGroup.provider);
+				const menu = menus.getResourceMenu(element.element);
+				actions = collectContextMenuActions(menu);
+			} else {
+				const menus = this.scmViewService.menus.getRepositoryMenus(element.context.provider);
+				const menu = menus.getResourceFolderMenu(element.context);
+				actions = collectContextMenuActions(menu);
+			}
+		}
 
-actionRunner.onWillRun(() => this.tree.domFocus());
+		actionRunner.onWillRun(() => this.tree.domFocus());
 
-this.contextMenuService.showContextMenu({
-	actionRunner,
-	getAnchor: () => e.anchor,
-	getActions: () => actions,
-	getActionsContext: () => context,
-	onHide: () => actionRunner.dispose()
-});
-    }
-
-    private getSelectedRepositories(): ISCMRepository[] {
-	const focusedRepositories = this.tree.getFocus().filter(r => !!r && isSCMRepository(r))! as ISCMRepository[];
-	const selectedRepositories = this.tree.getSelection().filter(r => !!r && isSCMRepository(r))! as ISCMRepository[];
-
-	return Array.from(new Set<ISCMRepository>([...focusedRepositories, ...selectedRepositories]));
-}
-
-    private getSelectedResources(): (ISCMResourceGroup | ISCMResource | IResourceNode<ISCMResource, ISCMResourceGroup>)[] {
-	return this.tree.getSelection().filter(r => isSCMResourceGroup(r) || isSCMResource(r) || isSCMResourceNode(r));
-}
-
-    private getViewMode(): ViewMode {
-	let mode = this.configurationService.getValue<'tree' | 'list'>('scm.defaultViewMode') === 'list' ? ViewMode.List : ViewMode.Tree;
-	const storageMode = this.storageService.get(`scm.viewMode`, StorageScope.WORKSPACE) as ViewMode;
-	if (typeof storageMode === 'string') {
-		mode = storageMode;
+		this.contextMenuService.showContextMenu({
+			actionRunner,
+			getAnchor: () => e.anchor,
+			getActions: () => actions,
+			getActionsContext: () => context,
+			onHide: () => actionRunner.dispose()
+		});
 	}
 
-	return mode;
-}
+	private getSelectedRepositories(): ISCMRepository[] {
+		const focusedRepositories = this.tree.getFocus().filter(r => !!r && isSCMRepository(r))! as ISCMRepository[];
+		const selectedRepositories = this.tree.getSelection().filter(r => !!r && isSCMRepository(r))! as ISCMRepository[];
 
-    private getViewSortKey(): ViewSortKey {
-	// Tree
-	if (this._viewMode === ViewMode.Tree) {
-		return ViewSortKey.Path;
+		return Array.from(new Set<ISCMRepository>([...focusedRepositories, ...selectedRepositories]));
 	}
 
-	// List
-	let viewSortKey: ViewSortKey;
-	const viewSortKeyString = this.configurationService.getValue<'path' | 'name' | 'status'>('scm.defaultViewSortKey');
-	switch (viewSortKeyString) {
-		case 'name':
-			viewSortKey = ViewSortKey.Name;
-			break;
-		case 'status':
-			viewSortKey = ViewSortKey.Status;
-			break;
-		default:
-			viewSortKey = ViewSortKey.Path;
-			break;
+	private getSelectedResources(): (ISCMResourceGroup | ISCMResource | IResourceNode<ISCMResource, ISCMResourceGroup>)[] {
+		return this.tree.getSelection().filter(r => isSCMResourceGroup(r) || isSCMResource(r) || isSCMResourceNode(r));
 	}
 
-	const storageSortKey = this.storageService.get(`scm.viewSortKey`, StorageScope.WORKSPACE) as ViewSortKey;
-	if (typeof storageSortKey === 'string') {
-		viewSortKey = storageSortKey;
+	private getViewMode(): ViewMode {
+		let mode = this.configurationService.getValue<'tree' | 'list'>('scm.defaultViewMode') === 'list' ? ViewMode.List : ViewMode.Tree;
+		const storageMode = this.storageService.get(`scm.viewMode`, StorageScope.WORKSPACE) as ViewMode;
+		if (typeof storageMode === 'string') {
+			mode = storageMode;
+		}
+
+		return mode;
 	}
 
-	return viewSortKey;
-}
+	private getViewSortKey(): ViewSortKey {
+		// Tree
+		if (this._viewMode === ViewMode.Tree) {
+			return ViewSortKey.Path;
+		}
 
-    private loadTreeViewState(): IAsyncDataTreeViewState | undefined {
-	const storageViewState = this.storageService.get('scm.viewState2', StorageScope.WORKSPACE);
-	if (!storageViewState) {
-		return undefined;
+		// List
+		let viewSortKey: ViewSortKey;
+		const viewSortKeyString = this.configurationService.getValue<'path' | 'name' | 'status'>('scm.defaultViewSortKey');
+		switch (viewSortKeyString) {
+			case 'name':
+				viewSortKey = ViewSortKey.Name;
+				break;
+			case 'status':
+				viewSortKey = ViewSortKey.Status;
+				break;
+			default:
+				viewSortKey = ViewSortKey.Path;
+				break;
+		}
+
+		const storageSortKey = this.storageService.get(`scm.viewSortKey`, StorageScope.WORKSPACE) as ViewSortKey;
+		if (typeof storageSortKey === 'string') {
+			viewSortKey = storageSortKey;
+		}
+
+		return viewSortKey;
 	}
 
-	try {
-		const treeViewState = JSON.parse(storageViewState);
-		return treeViewState;
-	} catch {
-		return undefined;
-	}
-}
+	private loadTreeViewState(): IAsyncDataTreeViewState | undefined {
+		const storageViewState = this.storageService.get('scm.viewState2', StorageScope.WORKSPACE);
+		if (!storageViewState) {
+			return undefined;
+		}
 
-    private storeTreeViewState() {
-	if (this.tree) {
-		this.storageService.store('scm.viewState2', JSON.stringify(this.tree.getViewState()), StorageScope.WORKSPACE, StorageTarget.MACHINE);
-	}
-}
-
-    private updateChildren(element ?: ISCMRepository) {
-	this.updateChildrenThrottler.queue(
-		() => this.treeOperationSequencer.queue(
-			async () => {
-				const focusedInput = this.inputRenderer.getFocusedInput();
-
-				if (element && this.tree.hasNode(element)) {
-					// Refresh specific repository
-					await this.tree.updateChildren(element);
-				} else {
-					// Refresh the entire tree
-					await this.tree.updateChildren(undefined);
-				}
-
-				if (focusedInput) {
-					this.inputRenderer.getRenderedInputWidget(focusedInput)?.focus();
-				}
-
-				this.updateScmProviderContextKeys();
-				this.updateRepositoryCollapseAllContextKeys();
-			}));
-}
-
-    private updateIndentStyles(theme: IFileIconThemecognidreamognidream {
-	this.treeContainer.classList.toggle('list-view-mode', this.viewMode === ViewMode.List);
-	this.treeContainer.classList.toggle('tree-view-mode', this.viewMode === ViewMode.Tree);
-	this.treeContainer.classList.toggle('align-icons-and-twisties', (this.viewMode === ViewMode.List && theme.hasFileIcons) || (theme.hasFileIcons && !theme.hasFolderIcons));
-	this.treeContainer.classList.toggle('hide-arrows', this.viewMode === ViewMode.Tree && theme.hidesExplorerArrows === true);
-}
-
-    private updateScmProviderContextKeys(cognidreamognidream {
-	const alwaysShowRepositories = this.configurationService.getValue<boolean>('scm.alwaysShowRepositories');
-
-	if(!alwaysShowRepositories && this.items.size === 1) {
-	const provider = Iterable.first(this.items.keys())!.provider;
-	this.scmProviderContextKey.set(provider.contextValue);
-	this.scmProviderRootUriContextKey.set(provider.rootUri?.toString());
-	this.scmProviderHasRootUriContextKey.set(!!provider.rootUri);
-} else {
-	this.scmProviderContextKey.set(undefined);
-	this.scmProviderRootUriContextKey.set(undefined);
-	this.scmProviderHasRootUriContextKey.set(false);
-}
-    }
-
-	private updateRepositoryCollapseAllContextKeys(cognidreamognidream {
-		if(!this.isBodyVisible() || this.items.size === 1) {
-	this.isAnyRepositoryCollapsibleContextKey.set(false);
-	this.areAllRepositoriesCollapsedContextKey.set(false);
-	return;
-}
-
-        this.isAnyRepositoryCollapsibleContextKey.set(this.scmViewService.visibleRepositories.some(r => this.tree.hasNode(r) && this.tree.isCollapsible(r)));
-this.areAllRepositoriesCollapsedContextKey.set(this.scmViewService.visibleRepositories.every(r => this.tree.hasNode(r) && (!this.tree.isCollapsible(r) || this.tree.isCollapsed(r))));
-    }
-
-collapseAllRepositories(cognidreamognidream {
-	for(const repository of this.scmViewService.visibleRepositories) {
-	if (this.tree.isCollapsible(repository)) {
-		this.tree.collapse(repository);
-	}
-}
-    }
-
-expandAllRepositories(cognidreamognidream {
-	for(const repository of this.scmViewService.visibleRepositories) {
-	if (this.tree.isCollapsible(repository)) {
-		this.tree.expand(repository);
-	}
-}
-    }
-
-focusPreviousInput(cognidreamognidream {
-	this.treeOperationSequencer.queue(() => this.focusInput(-1));
-}
-
-    focusNextInput(cognidreamognidream {
-	this.treeOperationSequencer.queue(() => this.focusInput(1));
-}
-
-    private async focusInput(delta: number): Promicognidreamognidream > {
-	if(!this.scmViewService.focusedRepository ||
-		this.scmViewService.visibleRepositories.length === 0) {
-	return;
-}
-
-        let input = this.scmViewService.focusedRepository.input;
-const repositories = this.scmViewService.visibleRepositories;
-
-// One visible repository and the input is already focused
-if (repositories.length === 1 && this.inputRenderer.getRenderedInputWidget(input)?.hasFocus() === true) {
-	return;
-}
-
-// Multiple visible repositories and the input already focused
-if (repositories.length > 1 && this.inputRenderer.getRenderedInputWidget(input)?.hasFocus() === true) {
-	const focusedRepositoryIndex = repositories.indexOf(this.scmViewService.focusedRepository);
-	const newFocusedRepositoryIndex = rot(focusedRepositoryIndex + delta, repositories.length);
-	input = repositories[newFocusedRepositoryIndex].input;
-}
-
-await this.tree.expandTo(input);
-
-this.tree.reveal(input);
-this.inputRenderer.getRenderedInputWidget(input)?.focus();
-    }
-
-focusPreviousResourceGroup(cognidreamognidream {
-	this.treeOperationSequencer.queue(() => this.focusResourceGroup(-1));
-}
-
-    focusNextResourceGroup(cognidreamognidream {
-	this.treeOperationSequencer.queue(() => this.focusResourceGroup(1));
-}
-
-    private async focusResourceGroup(delta: number): Promicognidreamognidream > {
-	if(!this.scmViewService.focusedRepository ||
-		this.scmViewService.visibleRepositories.length === 0) {
-	return;
-}
-
-        const treeHasDomFocus = isActiveElement(this.tree.getHTMLElement());
-const resourceGroups = this.scmViewService.focusedRepository.provider.groups;
-const focusedResourceGroup = this.tree.getFocus().find(e => isSCMResourceGroup(e));
-const focusedResourceGroupIndex = treeHasDomFocus && focusedResourceGroup ? resourceGroups.indexOf(focusedResourceGroup) : -1;
-
-let resourceGroupNext: ISCMResourceGroup | undefined;
-
-if (focusedResourceGroupIndex === -1) {
-	// First visible resource group
-	for (const resourceGroup of resourceGroups) {
-		if (this.tree.hasNode(resourceGroup)) {
-			resourceGroupNext = resourceGroup;
-			break;
+		try {
+			const treeViewState = JSON.parse(storageViewState);
+			return treeViewState;
+		} catch {
+			return undefined;
 		}
 	}
-} else {
-	// Next/Previous visible resource group
-	let index = rot(focusedResourceGroupIndex + delta, resourceGroups.length);
-	while (index !== focusedResourceGroupIndex) {
-		if (this.tree.hasNode(resourceGroups[index])) {
-			resourceGroupNext = resourceGroups[index];
-			break;
+
+	private storeTreeViewState() {
+		if (this.tree) {
+			this.storageService.store('scm.viewState2', JSON.stringify(this.tree.getViewState()), StorageScope.WORKSPACE, StorageTarget.MACHINE);
 		}
-		index = rot(index + delta, resourceGroups.length);
 	}
-}
 
-if (resourceGroupNext) {
-	await this.tree.expandTo(resourceGroupNext);
-	this.tree.reveal(resourceGroupNext);
+	private updateChildren(element?: ISCMRepository) {
+		this.updateChildrenThrottler.queue(
+			() => this.treeOperationSequencer.queue(
+				async () => {
+					const focusedInput = this.inputRenderer.getFocusedInput();
 
-	this.tree.setSelection([resourceGroupNext]);
-	this.tree.setFocus([resourceGroupNext]);
-	this.tree.domFocus();
-}
-    }
+					if (element && this.tree.hasNode(element)) {
+						// Refresh specific repository
+						await this.tree.updateChildren(element);
+					} else {
+						// Refresh the entire tree
+						await this.tree.updateChildren(undefined);
+					}
 
-    override shouldShowWelcome(): boolean {
-	return this.scmService.repositoryCount === 0;
-}
+					if (focusedInput) {
+						this.inputRenderer.getRenderedInputWidget(focusedInput)?.focus();
+					}
 
-    override getActionsContext(): unknown {
-	return this.scmViewService.visibleRepositories.length === 1 ? this.scmViewService.visibleRepositories[0].provider : undefined;
-}
+					this.updateScmProviderContextKeys();
+					this.updateRepositoryCollapseAllContextKeys();
+				}));
+	}
 
-    override focus(cognidreamognidream {
-	super.focus();
+	private updateIndentStyles(theme: IFileIconTheme): void {
+		this.treeContainer.classList.toggle('list-view-mode', this.viewMode === ViewMode.List);
+		this.treeContainer.classList.toggle('tree-view-mode', this.viewMode === ViewMode.Tree);
+		this.treeContainer.classList.toggle('align-icons-and-twisties', (this.viewMode === ViewMode.List && theme.hasFileIcons) || (theme.hasFileIcons && !theme.hasFolderIcons));
+		this.treeContainer.classList.toggle('hide-arrows', this.viewMode === ViewMode.Tree && theme.hidesExplorerArrows === true);
+	}
 
-	this.treeOperationSequencer.queue(() => {
-		return newcognidreammise<cognidream>(resolve => {
-			if (this.isExpanded()) {
-				if (this.tree.getFocus().length === 0) {
-					for (const repository of this.scmViewService.visibleRepositories) {
-						const widget = this.inputRenderer.getRenderedInputWidget(repository.input);
+	private updateScmProviderContextKeys(): void {
+		const alwaysShowRepositories = this.configurationService.getValue<boolean>('scm.alwaysShowRepositories');
 
-						if (widget) {
-							widget.focus();
-							resolve();
-							return;
+		if (!alwaysShowRepositories && this.items.size === 1) {
+			const provider = Iterable.first(this.items.keys())!.provider;
+			this.scmProviderContextKey.set(provider.contextValue);
+			this.scmProviderRootUriContextKey.set(provider.rootUri?.toString());
+			this.scmProviderHasRootUriContextKey.set(!!provider.rootUri);
+		} else {
+			this.scmProviderContextKey.set(undefined);
+			this.scmProviderRootUriContextKey.set(undefined);
+			this.scmProviderHasRootUriContextKey.set(false);
+		}
+	}
+
+	private updateRepositoryCollapseAllContextKeys(): void {
+		if (!this.isBodyVisible() || this.items.size === 1) {
+			this.isAnyRepositoryCollapsibleContextKey.set(false);
+			this.areAllRepositoriesCollapsedContextKey.set(false);
+			return;
+		}
+
+		this.isAnyRepositoryCollapsibleContextKey.set(this.scmViewService.visibleRepositories.some(r => this.tree.hasNode(r) && this.tree.isCollapsible(r)));
+		this.areAllRepositoriesCollapsedContextKey.set(this.scmViewService.visibleRepositories.every(r => this.tree.hasNode(r) && (!this.tree.isCollapsible(r) || this.tree.isCollapsed(r))));
+	}
+
+	collapseAllRepositories(): void {
+		for (const repository of this.scmViewService.visibleRepositories) {
+			if (this.tree.isCollapsible(repository)) {
+				this.tree.collapse(repository);
+			}
+		}
+	}
+
+	expandAllRepositories(): void {
+		for (const repository of this.scmViewService.visibleRepositories) {
+			if (this.tree.isCollapsible(repository)) {
+				this.tree.expand(repository);
+			}
+		}
+	}
+
+	focusPreviousInput(): void {
+		this.treeOperationSequencer.queue(() => this.focusInput(-1));
+	}
+
+	focusNextInput(): void {
+		this.treeOperationSequencer.queue(() => this.focusInput(1));
+	}
+
+	private async focusInput(delta: number): Promise<void> {
+		if (!this.scmViewService.focusedRepository ||
+			this.scmViewService.visibleRepositories.length === 0) {
+			return;
+		}
+
+		let input = this.scmViewService.focusedRepository.input;
+		const repositories = this.scmViewService.visibleRepositories;
+
+		// One visible repository and the input is already focused
+		if (repositories.length === 1 && this.inputRenderer.getRenderedInputWidget(input)?.hasFocus() === true) {
+			return;
+		}
+
+		// Multiple visible repositories and the input already focused
+		if (repositories.length > 1 && this.inputRenderer.getRenderedInputWidget(input)?.hasFocus() === true) {
+			const focusedRepositoryIndex = repositories.indexOf(this.scmViewService.focusedRepository);
+			const newFocusedRepositoryIndex = rot(focusedRepositoryIndex + delta, repositories.length);
+			input = repositories[newFocusedRepositoryIndex].input;
+		}
+
+		await this.tree.expandTo(input);
+
+		this.tree.reveal(input);
+		this.inputRenderer.getRenderedInputWidget(input)?.focus();
+	}
+
+	focusPreviousResourceGroup(): void {
+		this.treeOperationSequencer.queue(() => this.focusResourceGroup(-1));
+	}
+
+	focusNextResourceGroup(): void {
+		this.treeOperationSequencer.queue(() => this.focusResourceGroup(1));
+	}
+
+	private async focusResourceGroup(delta: number): Promise<void> {
+		if (!this.scmViewService.focusedRepository ||
+			this.scmViewService.visibleRepositories.length === 0) {
+			return;
+		}
+
+		const treeHasDomFocus = isActiveElement(this.tree.getHTMLElement());
+		const resourceGroups = this.scmViewService.focusedRepository.provider.groups;
+		const focusedResourceGroup = this.tree.getFocus().find(e => isSCMResourceGroup(e));
+		const focusedResourceGroupIndex = treeHasDomFocus && focusedResourceGroup ? resourceGroups.indexOf(focusedResourceGroup) : -1;
+
+		let resourceGroupNext: ISCMResourceGroup | undefined;
+
+		if (focusedResourceGroupIndex === -1) {
+			// First visible resource group
+			for (const resourceGroup of resourceGroups) {
+				if (this.tree.hasNode(resourceGroup)) {
+					resourceGroupNext = resourceGroup;
+					break;
+				}
+			}
+		} else {
+			// Next/Previous visible resource group
+			let index = rot(focusedResourceGroupIndex + delta, resourceGroups.length);
+			while (index !== focusedResourceGroupIndex) {
+				if (this.tree.hasNode(resourceGroups[index])) {
+					resourceGroupNext = resourceGroups[index];
+					break;
+				}
+				index = rot(index + delta, resourceGroups.length);
+			}
+		}
+
+		if (resourceGroupNext) {
+			await this.tree.expandTo(resourceGroupNext);
+			this.tree.reveal(resourceGroupNext);
+
+			this.tree.setSelection([resourceGroupNext]);
+			this.tree.setFocus([resourceGroupNext]);
+			this.tree.domFocus();
+		}
+	}
+
+	override shouldShowWelcome(): boolean {
+		return this.scmService.repositoryCount === 0;
+	}
+
+	override getActionsContext(): unknown {
+		return this.scmViewService.visibleRepositories.length === 1 ? this.scmViewService.visibleRepositories[0].provider : undefined;
+	}
+
+	override focus(): void {
+		super.focus();
+
+		this.treeOperationSequencer.queue(() => {
+			return new Promise<void>(resolve => {
+				if (this.isExpanded()) {
+					if (this.tree.getFocus().length === 0) {
+						for (const repository of this.scmViewService.visibleRepositories) {
+							const widget = this.inputRenderer.getRenderedInputWidget(repository.input);
+
+							if (widget) {
+								widget.focus();
+								resolve();
+								return;
+							}
 						}
 					}
-				}
 
-				this.tree.domFocus();
-				resolve();
-			}
+					this.tree.domFocus();
+					resolve();
+				}
+			});
 		});
-	});
+	}
+
+	override dispose(): void {
+		this.visibilityDisposables.dispose();
+		this.disposables.dispose();
+		this.items.dispose();
+		super.dispose();
+	}
 }
 
-    override dispose(cognidreamognidream {
-	this.visibilityDisposables.dispose();
-	this.disposables.dispose();
-	this.items.dispose();
-	super.dispose();
-}
-}
+class SCMTreeDataSource extends Disposable implements IAsyncDataSource<ISCMViewService, TreeElement> {
+	constructor(
+		private readonly viewMode: () => ViewMode,
+		@IConfigurationService private readonly configurationService: IConfigurationService,
+		@ISCMViewService private readonly scmViewService: ISCMViewService
+	) {
+		super();
+	}
 
-	class SCMTreeDataSource extends Disposable implements IAsyncDataSource<ISCMViewService, TreeElement> {
-		constructor(
-			private readonly viewMode: () => ViewMode,
-			@IConfigurationService private readonly configurationService: IConfigurationService,
-			@ISCMViewService private readonly scmViewService: ISCMViewService
-		) {
-			super();
-		}
+	async getChildren(inputOrElement: ISCMViewService | TreeElement): Promise<Iterable<TreeElement>> {
+		const repositoryCount = this.scmViewService.visibleRepositories.length;
 
-		async getChildren(inputOrElement: ISCMViewService | TreeElement): Promise<Iterable<TreeElement>> {
-			const repositoryCount = this.scmViewService.visibleRepositories.length;
+		const showActionButton = this.configurationService.getValue<boolean>('scm.showActionButton') === true;
+		const alwaysShowRepositories = this.configurationService.getValue<boolean>('scm.alwaysShowRepositories') === true;
 
-			const showActionButton = this.configurationService.getValue<boolean>('scm.showActionButton') === true;
-			const alwaysShowRepositories = this.configurationService.getValue<boolean>('scm.alwaysShowRepositories') === true;
+		if (isSCMViewService(inputOrElement) && (repositoryCount > 1 || alwaysShowRepositories)) {
+			return this.scmViewService.visibleRepositories;
+		} else if ((isSCMViewService(inputOrElement) && repositoryCount === 1 && !alwaysShowRepositories) || isSCMRepository(inputOrElement)) {
+			const children: TreeElement[] = [];
 
-			if (isSCMViewService(inputOrElement) && (repositoryCount > 1 || alwaysShowRepositories)) {
-				return this.scmViewService.visibleRepositories;
-			} else if ((isSCMViewService(inputOrElement) && repositoryCount === 1 && !alwaysShowRepositories) || isSCMRepository(inputOrElement)) {
+			inputOrElement = isSCMRepository(inputOrElement) ? inputOrElement : this.scmViewService.visibleRepositories[0];
+			const actionButton = inputOrElement.provider.actionButton.get();
+			const resourceGroups = inputOrElement.provider.groups;
+
+			// SCM Input
+			if (inputOrElement.input.visible) {
+				children.push(inputOrElement.input);
+			}
+
+			// Action Button
+			if (showActionButton && actionButton) {
+				children.push({
+					type: 'actionButton',
+					repository: inputOrElement,
+					button: actionButton
+				} satisfies ISCMActionButton);
+			}
+
+			// ResourceGroups
+			const hasSomeChanges = resourceGroups.some(group => group.resources.length > 0);
+			if (hasSomeChanges || (repositoryCount === 1 && (!showActionButton || !actionButton))) {
+				children.push(...resourceGroups);
+			}
+
+			return children;
+		} else if (isSCMResourceGroup(inputOrElement)) {
+			if (this.viewMode() === ViewMode.List) {
+				// Resources (List)
+				return inputOrElement.resources;
+			} else if (this.viewMode() === ViewMode.Tree) {
+				// Resources (Tree)
 				const children: TreeElement[] = [];
-
-				inputOrElement = isSCMRepository(inputOrElement) ? inputOrElement : this.scmViewService.visibleRepositories[0];
-				const actionButton = inputOrElement.provider.actionButton.get();
-				const resourceGroups = inputOrElement.provider.groups;
-
-				// SCM Input
-				if (inputOrElement.input.visible) {
-					children.push(inputOrElement.input);
-				}
-
-				// Action Button
-				if (showActionButton && actionButton) {
-					children.push({
-						type: 'actionButton',
-						repository: inputOrElement,
-						button: actionButton
-					} satisfies ISCMActionButton);
-				}
-
-				// ResourceGroups
-				const hasSomeChanges = resourceGroups.some(group => group.resources.length > 0);
-				if (hasSomeChanges || (repositoryCount === 1 && (!showActionButton || !actionButton))) {
-					children.push(...resourceGroups);
-				}
-
-				return children;
-			} else if (isSCMResourceGroup(inputOrElement)) {
-				if (this.viewMode() === ViewMode.List) {
-					// Resources (List)
-					return inputOrElement.resources;
-				} else if (this.viewMode() === ViewMode.Tree) {
-					// Resources (Tree)
-					const children: TreeElement[] = [];
-					for (const node of inputOrElement.resourceTree.root.children) {
-						children.push(node.element && node.childrenCount === 0 ? node.element : node);
-					}
-
-					return children;
-				}
-			} else if (isSCMResourceNode(inputOrElement)) {
-				// Resources (Tree), History item changes (Tree)
-				const children: TreeElement[] = [];
-				for (const node of inputOrElement.children) {
+				for (const node of inputOrElement.resourceTree.root.children) {
 					children.push(node.element && node.childrenCount === 0 ? node.element : node);
 				}
 
 				return children;
 			}
+		} else if (isSCMResourceNode(inputOrElement)) {
+			// Resources (Tree), History item changes (Tree)
+			const children: TreeElement[] = [];
+			for (const node of inputOrElement.children) {
+				children.push(node.element && node.childrenCount === 0 ? node.element : node);
+			}
 
-			return [];
+			return children;
 		}
 
-		getParent(element: TreeElement): ISCMViewService | TreeElement {
-			if (isSCMResourceNode(element)) {
-				if (element.parent === element.context.resourceTree.root) {
-					return element.context;
-				} else if (element.parent) {
-					return element.parent;
-				} else {
-					throw new Error('Invalid element passed to getParent');
-				}
-			} else if (isSCMResource(element)) {
-				if (this.viewMode() === ViewMode.List) {
-					return element.resourceGroup;
-				}
+		return [];
+	}
 
-				const node = element.resourceGroup.resourceTree.getNode(element.sourceUri);
-				const result = node?.parent;
-
-				if (!result) {
-					throw new Error('Invalid element passed to getParent');
-				}
-
-				if (result === element.resourceGroup.resourceTree.root) {
-					return element.resourceGroup;
-				}
-
-				return result;
-			} else if (isSCMInput(element)) {
-				return element.repository;
-			} else if (isSCMResourceGroup(element)) {
-				const repository = this.scmViewService.visibleRepositories.find(r => r.provider === element.provider);
-				if (!repository) {
-					throw new Error('Invalid element passed to getParent');
-				}
-
-				return repository;
+	getParent(element: TreeElement): ISCMViewService | TreeElement {
+		if (isSCMResourceNode(element)) {
+			if (element.parent === element.context.resourceTree.root) {
+				return element.context;
+			} else if (element.parent) {
+				return element.parent;
 			} else {
-				throw new Error('Unexpected call to getParent');
+				throw new Error('Invalid element passed to getParent');
 			}
-		}
+		} else if (isSCMResource(element)) {
+			if (this.viewMode() === ViewMode.List) {
+				return element.resourceGroup;
+			}
 
-		hasChildren(inputOrElement: ISCMViewService | TreeElement): boolean {
-			if (isSCMViewService(inputOrElement)) {
-				return this.scmViewService.visibleRepositories.length !== 0;
-			} else if (isSCMRepository(inputOrElement)) {
-				return true;
-			} else if (isSCMInput(inputOrElement)) {
-				return false;
-			} else if (isSCMActionButton(inputOrElement)) {
-				return false;
-			} else if (isSCMResourceGroup(inputOrElement)) {
-				return true;
-			} else if (isSCMResource(inputOrElement)) {
-				return false;
-			} else if (ResourceTree.isResourceNode(inputOrElement)) {
-				return inputOrElement.childrenCount > 0;
-			} else {
-				throw new Error('hasChildren not implemented.');
+			const node = element.resourceGroup.resourceTree.getNode(element.sourceUri);
+			const result = node?.parent;
+
+			if (!result) {
+				throw new Error('Invalid element passed to getParent');
 			}
+
+			if (result === element.resourceGroup.resourceTree.root) {
+				return element.resourceGroup;
+			}
+
+			return result;
+		} else if (isSCMInput(element)) {
+			return element.repository;
+		} else if (isSCMResourceGroup(element)) {
+			const repository = this.scmViewService.visibleRepositories.find(r => r.provider === element.provider);
+			if (!repository) {
+				throw new Error('Invalid element passed to getParent');
+			}
+
+			return repository;
+		} else {
+			throw new Error('Unexpected call to getParent');
 		}
 	}
+
+	hasChildren(inputOrElement: ISCMViewService | TreeElement): boolean {
+		if (isSCMViewService(inputOrElement)) {
+			return this.scmViewService.visibleRepositories.length !== 0;
+		} else if (isSCMRepository(inputOrElement)) {
+			return true;
+		} else if (isSCMInput(inputOrElement)) {
+			return false;
+		} else if (isSCMActionButton(inputOrElement)) {
+			return false;
+		} else if (isSCMResourceGroup(inputOrElement)) {
+			return true;
+		} else if (isSCMResource(inputOrElement)) {
+			return false;
+		} else if (ResourceTree.isResourceNode(inputOrElement)) {
+			return inputOrElement.childrenCount > 0;
+		} else {
+			throw new Error('hasChildren not implemented.');
+		}
+	}
+}
 
 export class SCMActionButton implements IDisposable {
 	private button: Button | ButtonWithDescription | ButtonWithDropdown | undefined;
@@ -3026,79 +3026,79 @@ export class SCMActionButton implements IDisposable {
 	) {
 	}
 
-	dispose(cognidreamognidream {
+	dispose(): void {
 		this.disposables?.dispose();
-    }
-
-setButton(button: ISCMActionButtonDescriptor | undefinedcognidreamognidream {
-	// Clear old button
-	this.clear();
-	if(!button) {
-		return;
 	}
 
-        if(button.secondaryCommands?.length) {
-	const actions: IAction[] = [];
-	for (let index = 0; index < button.secondaryCommands.length; index++) {
-		const commands = button.secondaryCommands[index];
-		for (const command of commands) {
-			actions.push(toAction({
-				id: command.id,
-				label: command.title,
-				enabled: true,
-				run: async () => {
-					await this.executeCommand(command.id, ...(command.arguments || []));
+	setButton(button: ISCMActionButtonDescriptor | undefined): void {
+		// Clear old button
+		this.clear();
+		if (!button) {
+			return;
+		}
+
+		if (button.secondaryCommands?.length) {
+			const actions: IAction[] = [];
+			for (let index = 0; index < button.secondaryCommands.length; index++) {
+				const commands = button.secondaryCommands[index];
+				for (const command of commands) {
+					actions.push(toAction({
+						id: command.id,
+						label: command.title,
+						enabled: true,
+						run: async () => {
+							await this.executeCommand(command.id, ...(command.arguments || []));
+						}
+					}));
 				}
-			}));
+				if (commands.length) {
+					actions.push(new Separator());
+				}
+			}
+			// Remove last separator
+			actions.pop();
+
+			// ButtonWithDropdown
+			this.button = new ButtonWithDropdown(this.container, {
+				actions: actions,
+				addPrimaryActionToDropdown: false,
+				contextMenuProvider: this.contextMenuService,
+				title: button.command.tooltip,
+				supportIcons: true,
+				...defaultButtonStyles
+			});
+		} else {
+			// Button
+			this.button = new Button(this.container, { supportIcons: true, supportShortLabel: !!button.command.shortTitle, title: button.command.tooltip, ...defaultButtonStyles });
 		}
-		if (commands.length) {
-			actions.push(new Separator());
+
+		this.button.enabled = button.enabled;
+		this.button.label = button.command.title;
+		if (this.button instanceof Button && button.command.shortTitle) {
+			this.button.labelShort = button.command.shortTitle;
+		}
+		this.button.onDidClick(async () => await this.executeCommand(button.command.id, ...(button.command.arguments || [])), null, this.disposables.value);
+
+		this.disposables.value!.add(this.button);
+	}
+
+	focus(): void {
+		this.button?.focus();
+	}
+
+	private clear(): void {
+		this.disposables.value = new DisposableStore();
+		this.button = undefined;
+		clearNode(this.container);
+	}
+
+	private async executeCommand(commandId: string, ...args: any[]): Promise<void> {
+		try {
+			await this.commandService.executeCommand(commandId, ...args);
+		} catch (ex) {
+			this.notificationService.error(ex);
 		}
 	}
-	// Remove last separator
-	actions.pop();
-
-	// ButtonWithDropdown
-	this.button = new ButtonWithDropdown(this.container, {
-		actions: actions,
-		addPrimaryActionToDropdown: false,
-		contextMenuProvider: this.contextMenuService,
-		title: button.command.tooltip,
-		supportIcons: true,
-		...defaultButtonStyles
-	});
-} else {
-	// Button
-	this.button = new Button(this.container, { supportIcons: true, supportShortLabel: !!button.command.shortTitle, title: button.command.tooltip, ...defaultButtonStyles });
-}
-
-this.button.enabled = button.enabled;
-this.button.label = button.command.title;
-if (this.button instanceof Button && button.command.shortTitle) {
-	this.button.labelShort = button.command.shortTitle;
-}
-this.button.onDidClick(async () => await this.executeCommand(button.command.id, ...(button.command.arguments || [])), null, this.disposables.value);
-
-this.disposables.value!.add(this.button);
-    }
-
-focus(cognidreamognidream {
-	this.button?.focus();
-}
-
-    private clear(cognidreamognidream {
-	this.disposables.value = new DisposableStore();
-	this.button = undefined;
-	clearNode(this.container);
-    }
-
-    private async executeCommand(commandId: string, ...args: any[]): Promicognidreamognidream > {
-	try {
-		await this.commandService.executeCommand(commandId, ...args);
-	} catch(ex) {
-		this.notificationService.error(ex);
-	}
-}
 }
 
 setupSimpleEditorSelectionStyling('.scm-view .scm-editor-container');

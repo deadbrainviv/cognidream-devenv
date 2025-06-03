@@ -13,7 +13,7 @@ import { getActiveWindow } from '../../../../base/browser/dom.js';
 
 // Onboarding contribution that mounts the component at startup
 export class MiscWorkbenchContribs extends Disposable implements IWorkbenchContribution {
-	static readonly ID = 'workbench.contrib.cognidreamMiscWorkbenchContribs';
+	static readonly ID = 'workbench.contrib.voidMiscWorkbenchContribs';
 
 	constructor(
 		@IExtensionTransferService private readonly extensionTransferService: IExtensionTransferService,
@@ -23,27 +23,27 @@ export class MiscWorkbenchContribs extends Disposable implements IWorkbenchContr
 		this.initialize();
 	}
 
-	private initialize(cognidreamognidream {
+	private initialize(): void {
 
 		// delete blacklisted extensions once (this is for people who already installed them)
-		const deleteExtensionsStoragecognidream 'cognidream-deleted-blacklist-2'
-        const alreadyDeleted = this.storageService.get(deleteExtensionsStorageId, StorageScope.APPLICATION)
-        if (!alreadyDeleted) {
-	this.storageService.store(deleteExtensionsStorageId, 'true', StorageScope.APPLICATION, StorageTarget.MACHINE)
-	this.extensionTransferService.deleteBlacklistExtensions(os)
-}
+		const deleteExtensionsStorageId = 'void-deleted-blacklist-2'
+		const alreadyDeleted = this.storageService.get(deleteExtensionsStorageId, StorageScope.APPLICATION)
+		if (!alreadyDeleted) {
+			this.storageService.store(deleteExtensionsStorageId, 'true', StorageScope.APPLICATION, StorageTarget.MACHINE)
+			this.extensionTransferService.deleteBlacklistExtensions(os)
+		}
 
 
-// after some time, trigger a resize event for the blank screen error
-timeout(5_000).then(() => {
-	// Get the active window reference for multi-window support
-	const targetWindow = getActiveWindow();
-	// Trigger a window resize event to ensure proper layout calculations
-	targetWindow.dispatchEvent(new Event('resize'))
+		// after some time, trigger a resize event for the blank screen error
+		timeout(5_000).then(() => {
+			// Get the active window reference for multi-window support
+			const targetWindow = getActiveWindow();
+			// Trigger a window resize event to ensure proper layout calculations
+			targetWindow.dispatchEvent(new Event('resize'))
 
-})
+		})
 
-    }
+	}
 }
 
 registerWorkbenchContribution2(MiscWorkbenchContribs.ID, MiscWorkbenchContribs, WorkbenchPhase.Eventually);

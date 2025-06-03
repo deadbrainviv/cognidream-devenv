@@ -7,13 +7,13 @@ type DOMString = string;
 
 interface EditContext extends EventTarget {
 
-	updateText(rangeStart: number, rangeEnd: number, text: DOMString): cognidream;
-	updateSelection(start: number, end: numbercognidreamidreamognidream;
-		updateControlBounds(controlBounds: DOMRectcognidreamidreamognidream;
-			updateSelectionBounds(selectionBounds: DOMRectcognidreamidreamognidream;
-				updateCharacterBounds(rangeStart: number, characterBounds: DOMRect[]cognidreamidreamognidream;
+	updateText(rangeStart: number, rangeEnd: number, text: DOMString): void;
+	updateSelection(start: number, end: number): void;
+	updateControlBounds(controlBounds: DOMRect): void;
+	updateSelectionBounds(selectionBounds: DOMRect): void;
+	updateCharacterBounds(rangeStart: number, characterBounds: DOMRect[]): void;
 
-					attachedElements(): HTMLElement[];
+	attachedElements(): HTMLElement[];
 
 	get text(): DOMString;
 	get selectionStart(): number;
@@ -36,10 +36,10 @@ interface EditContext extends EventTarget {
 	get oncompositionend(): EventHandler | null;
 	set oncompositionend(value: EventHandler | null);
 
-	addEventListener<K extends keyof EditContextEventHandlersEventMap>(type: K, listener: (this: GlobalEventHandlers, ev: EditContextEventHandlersEventMap[K]) => any, options?: boolean | AddEventListenerOptionscognidreamidreamognidream;
-		addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptionscognidreamidreamognidream;
-			removeEventListener<K extends keyof EditContextEventHandlersEventMap> (type: K, listener: (this: GlobalEventHandlers, ev: EditContextEventHandlersEventMap[K]) => any, options ?: boolean | EventListenerOptionscognidreamidreamognidream;
-removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options ?: boolean | EventListenerOptionscognidreamidreamognidream;
+	addEventListener<K extends keyof EditContextEventHandlersEventMap>(type: K, listener: (this: GlobalEventHandlers, ev: EditContextEventHandlersEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+	addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
+	removeEventListener<K extends keyof EditContextEventHandlersEventMap>(type: K, listener: (this: GlobalEventHandlers, ev: EditContextEventHandlersEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+	removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
 }
 
 interface EditContextInit {
@@ -56,7 +56,7 @@ interface EditContextEventHandlersEventMap {
 	compositionend: Event;
 }
 
-type EventHandler<TEvent extends Event = Event> = (event: TEvent) => cognidreamidreamidream;
+type EventHandler<TEvent extends Event = Event> = (event: TEvent) => void;
 
 declare class TextUpdateEvent extends Event {
 	constructor(type: DOMString, options?: TextUpdateEventInit);

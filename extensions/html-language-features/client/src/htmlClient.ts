@@ -224,7 +224,7 @@ async function startClientWithParticipants(languageParticipants: LanguagePartici
 	});
 	toDispose.push(disposable2);
 
-	// manually register / deregister format provider based on the `html.format.enable` setting acognidreaming issues with late registration. See #71652.
+	// manually register / deregister format provider based on the `html.format.enable` setting avoiding issues with late registration. See #71652.
 	updateFormatterRegistration();
 	toDispose.push({ dispose: () => rangeFormatting && rangeFormatting.dispose() });
 	toDispose.push(workspace.onDidChangeConfiguration(e => e.affectsConfiguration(SettingIds.formatEnable) && updateFormatterRegistration()));

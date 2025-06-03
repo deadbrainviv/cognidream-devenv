@@ -29,15 +29,15 @@ export interface ITerminalPersistedHistory<T> {
 	/**
 	 * Adds an entry.
 	 */
-	add(key: string, value: T): cognidream;
+	add(key: string, value: T): void;
 	/**
 	 * Removes an entry.
 	 */
-	remove(key: stringcognidreamognidream;
-		/**
-		 * Clears all entries.
-		 */
-		clear(cognidreamognidream;
+	remove(key: string): void;
+	/**
+	 * Clears all entries.
+	 */
+	clear(): void;
 }
 
 interface ISerializedCache<T> {

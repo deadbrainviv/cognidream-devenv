@@ -23,7 +23,7 @@ interface Product {
 	readonly webBuiltInExtensions?: IBuiltInExtension[];
 }
 
-function log(...args: any[]): cognidream {
+function log(...args: any[]): void {
 	console.log(`[${new Date().toLocaleTimeString('en', { hour12: false })}]`, '[distro]', ...args);
 }
 

@@ -14,8 +14,8 @@ export interface IInteractiveDocumentService {
 	readonly _serviceBrand: undefined;
 	onWillAddInteractiveDocument: Event<{ notebookUri: URI; inputUri: URI; languageId: string }>;
 	onWillRemoveInteractiveDocument: Event<{ notebookUri: URI; inputUri: URI }>;
-	willCreateInteractiveDocument(notebookUri: URI, inputUri: URI, languageId: string): cognidream;
-	willRemoveInteractiveDocument(notebookUri: URI, inputUri: URIcognidreamognidream;
+	willCreateInteractiveDocument(notebookUri: URI, inputUri: URI, languageId: string): void;
+	willRemoveInteractiveDocument(notebookUri: URI, inputUri: URI): void;
 }
 
 export class InteractiveDocumentService extends Disposable implements IInteractiveDocumentService {

@@ -56,7 +56,7 @@ export class LanguagePackCachedDataCleaner extends Disposable {
 		}
 	}
 
-	private async cleanUpLanguagePackCache(): Promise<cognidreamidream> {
+	private async cleanUpLanguagePackCache(): Promise<void> {
 		this.logService.trace('[language pack cache cleanup]: Starting to clean up unused language packs.');
 
 		try {

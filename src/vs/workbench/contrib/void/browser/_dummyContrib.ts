@@ -29,23 +29,23 @@ registerAction2(class extends Action2 {
 	constructor() {
 		super({
 			f1: true,
-			id: 'cognidream.dummy',
+			id: 'void.dummy',
 			title: localize2('dummy', 'dummy: Init'),
 			keybinding: {
 				primary: KeyMod.CtrlCmd | KeyCode.Digit0,
-				weight: KeybicognidreamgWeight.cognidreamExtension,
+				weight: KeybindingWeight.VoidExtension,
 			}
 		});
 	}
-	async run(accessor: ServicesAccessor): Promicognidreamognidream> {
-	const n = accessor.get(IDummyService)
-        console.log('Hi', n._serviceBrand)
-}
+	async run(accessor: ServicesAccessor): Promise<void> {
+		const n = accessor.get(IDummyService)
+		console.log('Hi', n._serviceBrand)
+	}
 })
 
 
 class DummyService extends Disposable implements IWorkbenchContribution, IDummyService {
-	static readonly ID = 'workbench.contrcognidreamognidream.dummy' // workbenchContributions need this, services do not
+	static readonly ID = 'workbench.contrib.void.dummy' // workbenchContributions need this, services do not
 	_serviceBrand: undefined;
 
 	constructor(

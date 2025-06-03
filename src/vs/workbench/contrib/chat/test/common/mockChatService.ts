@@ -30,7 +30,7 @@ export class MockChatService implements IChatService {
 	startSession(location: ChatAgentLocation, token: CancellationToken): ChatModel {
 		throw new Error('Method not implemented.');
 	}
-	addSession(session: IChatModel): cognidream {
+	addSession(session: IChatModel): void {
 		this.sessions.set(session.sessionId, session);
 	}
 	getSession(sessionId: string): IChatModel | undefined {
@@ -49,62 +49,62 @@ export class MockChatService implements IChatService {
 	sendRequest(sessionId: string, message: string): Promise<IChatSendRequestData | undefined> {
 		throw new Error('Method not implemented.');
 	}
-	resendRequest(request: IChatRequestModel, options?: IChatSendRequestOptions | undefined): Promicognidreamognidream> {
+	resendRequest(request: IChatRequestModel, options?: IChatSendRequestOptions | undefined): Promise<void> {
 		throw new Error('Method not implemented.');
 	}
-adoptRequest(sessionId: string, request: IChatRequestModel): Promicognidreamognidream > {
-	throw new Error('Method not implemented.');
-}
-removeRequest(sessionid: string, requestId: string): Promicognidreamognidream > {
-	throw new Error('Method not implemented.');
-}
-cancelCurrentRequestForSession(sessionId: stringcognidreamognidream {
-	throw new Error('Method not implemented.');
-}
-    clearSession(sessionId: string): Promicognidreamognidream > {
-	throw new Error('Method not implemented.');
-}
-    addCompleteRequest(sessionId: string, message: IParsedChatRequest | string, variableData: IChatRequestVariableData | undefined, attempt: number | undefined, response: IChatCompleteResponsecognidreamognidream {
-	throw new Error('Method not implemented.');
-}
-    async getHistory(): Promise < IChatDetail[] > {
-	throw new Error('Method not implemented.');
-}
-    async clearAllHistoryEntries() {
-	throw new Error('Method not implemented.');
-}
-    async removeHistoryEntry(sessionId: string) {
-	throw new Error('Method not implemented.');
-}
+	adoptRequest(sessionId: string, request: IChatRequestModel): Promise<void> {
+		throw new Error('Method not implemented.');
+	}
+	removeRequest(sessionid: string, requestId: string): Promise<void> {
+		throw new Error('Method not implemented.');
+	}
+	cancelCurrentRequestForSession(sessionId: string): void {
+		throw new Error('Method not implemented.');
+	}
+	clearSession(sessionId: string): Promise<void> {
+		throw new Error('Method not implemented.');
+	}
+	addCompleteRequest(sessionId: string, message: IParsedChatRequest | string, variableData: IChatRequestVariableData | undefined, attempt: number | undefined, response: IChatCompleteResponse): void {
+		throw new Error('Method not implemented.');
+	}
+	async getHistory(): Promise<IChatDetail[]> {
+		throw new Error('Method not implemented.');
+	}
+	async clearAllHistoryEntries() {
+		throw new Error('Method not implemented.');
+	}
+	async removeHistoryEntry(sessionId: string) {
+		throw new Error('Method not implemented.');
+	}
 
-    onDidPerformUserAction: Event<IChatUserActionEvent> = undefined!;
-notifyUserAction(event: IChatUserActionEventcognidreamognidream {
-	throw new Error('Method not implemented.');
-}
-    onDidDisposeSession: Event<{ sessionId: string; reason: 'initializationFailed' | 'cleared' }> = undefined!;
+	onDidPerformUserAction: Event<IChatUserActionEvent> = undefined!;
+	notifyUserAction(event: IChatUserActionEvent): void {
+		throw new Error('Method not implemented.');
+	}
+	onDidDisposeSession: Event<{ sessionId: string; reason: 'initializationFailed' | 'cleared' }> = undefined!;
 
-transferChatSession(transferredSessionData: IChatTransferredSessionData, toWorkspace: URIcognidreamognidream {
-	throw new Error('Method not implemented.');
-}
+	transferChatSession(transferredSessionData: IChatTransferredSessionData, toWorkspace: URI): void {
+		throw new Error('Method not implemented.');
+	}
 
-    setChatSessionTitle(sessionId: string, title: stringcognidreamognidream {
-	throw new Error('Method not implemented.');
-}
+	setChatSessionTitle(sessionId: string, title: string): void {
+		throw new Error('Method not implemented.');
+	}
 
-    unifiedViewEnabled = false;
-isEditingLocation(location: ChatAgentLocation): boolean {
-	throw new Error('Method not implemented.');
-}
+	unifiedViewEnabled = false;
+	isEditingLocation(location: ChatAgentLocation): boolean {
+		throw new Error('Method not implemented.');
+	}
 
-getChatStorageFolder(): URI {
-	throw new Error('Method not implemented.');
-}
+	getChatStorageFolder(): URI {
+		throw new Error('Method not implemented.');
+	}
 
-logChatIndex(cognidreamognidream {
-	throw new Error('Method not implemented.');
-}
+	logChatIndex(): void {
+		throw new Error('Method not implemented.');
+	}
 
-    isPersistedSessionEmpty(sessionId: string): boolean {
-	throw new Error('Method not implemented.');
-}
+	isPersistedSessionEmpty(sessionId: string): boolean {
+		throw new Error('Method not implemented.');
+	}
 }

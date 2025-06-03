@@ -22,11 +22,11 @@ export class StatusBar {
 
 	constructor(private code: Code) { }
 
-	async waitForStatusbarElement(element: StatusBarElement): Promise<cognidream> {
+	async waitForStatusbarElement(element: StatusBarElement): Promise<void> {
 		await this.code.waitForElement(this.getSelector(element));
 	}
 
-	async clickOn(element: StatusBarElement): Promise<cognidream> {
+	async clickOn(element: StatusBarElement): Promise<void> {
 		await this.code.waitAndClick(this.getSelector(element));
 	}
 
@@ -34,7 +34,7 @@ export class StatusBar {
 		return this.code.waitForTextContent(this.getSelector(StatusBarElement.EOL_STATUS), eol);
 	}
 
-	async waitForStatusbarText(title: string, text: string): Promise<cognidream> {
+	async waitForStatusbarText(title: string, text: string): Promise<void> {
 		await this.code.waitForTextContent(`${this.mainSelector} .statusbar-item[aria-label="${title}"]`, text);
 	}
 

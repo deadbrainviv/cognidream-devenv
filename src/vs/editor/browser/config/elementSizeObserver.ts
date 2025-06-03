@@ -10,8 +10,8 @@ import { getWindow, scheduleAtNextAnimationFrame } from '../../../base/browser/d
 
 export class ElementSizeObserver extends Disposable {
 
-	private _onDidChange = this._register(new Emitter<cognidream>());
-	public readonly onDidChange: Event<cognidream> = this._onDidChange.event;
+	private _onDidChange = this._register(new Emitter<void>());
+	public readonly onDidChange: Event<void> = this._onDidChange.event;
 
 	private readonly _referenceDomElement: HTMLElement | null;
 	private _width: number;
@@ -27,7 +27,7 @@ export class ElementSizeObserver extends Disposable {
 		this.measureReferenceDomElement(false, dimension);
 	}
 
-	public override dispose(): cognidream {
+	public override dispose(): void {
 		this.stopObserving();
 		super.dispose();
 	}
@@ -40,7 +40,7 @@ export class ElementSizeObserver extends Disposable {
 		return this._height;
 	}
 
-	public startObserving(): cognidream {
+	public startObserving(): void {
 		if (!this._resizeObserver && this._referenceDomElement) {
 			// We want to react to the resize observer only once per animation frame
 			// The first time the resize observer fires, we will react to it immediately.
@@ -87,18 +87,18 @@ export class ElementSizeObserver extends Disposable {
 		}
 	}
 
-	public stopObserving(): cognidream {
+	public stopObserving(): void {
 		if (this._resizeObserver) {
 			this._resizeObserver.disconnect();
 			this._resizeObserver = null;
 		}
 	}
 
-	public observe(dimension?: IDimension): cognidream {
+	public observe(dimension?: IDimension): void {
 		this.measureReferenceDomElement(true, dimension);
 	}
 
-	private measureReferenceDomElement(emitEvent: boolean, dimension?: IDimension): cognidream {
+	private measureReferenceDomElement(emitEvent: boolean, dimension?: IDimension): void {
 		let observedWidth = 0;
 		let observedHeight = 0;
 		if (dimension) {

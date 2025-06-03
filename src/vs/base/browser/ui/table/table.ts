@@ -7,21 +7,21 @@ import { IListContextMenuEvent, IListEvent, IListGestureEvent, IListMouseEvent, 
 import { Event } from '../../../common/event.js';
 
 export interface ITableColumn<TRow, TCell> {
-    readonly label: string;
-    readonly tooltip?: string;
-    readonly weight: number;
-    readonly templateId: string;
+	readonly label: string;
+	readonly tooltip?: string;
+	readonly weight: number;
+	readonly templateId: string;
 
-    readonly minimumWidth?: number;
-    readonly maximumWidth?: number;
-    readonly onDidChangeWidthConstraints?: Event<cognidream>;
+	readonly minimumWidth?: number;
+	readonly maximumWidth?: number;
+	readonly onDidChangeWidthConstraints?: Event<void>;
 
-    project(row: TRow): TCell;
+	project(row: TRow): TCell;
 }
 
 export interface ITableVirtualDelegate<TRow> {
-    readonly headerRowHeight: number;
-    getHeight(row: TRow): number;
+	readonly headerRowHeight: number;
+	getHeight(row: TRow): number;
 }
 
 export interface ITableRenderer<TCell, TTemplateData> extends IListRenderer<TCell, TTemplateData> { }
@@ -34,7 +34,7 @@ export interface ITableContextMenuEvent<TRow> extends IListContextMenuEvent<TRow
 
 export class TableError extends Error {
 
-    constructor(user: string, message: string) {
-        super(`TableError [${user}] ${message}`);
-    }
+	constructor(user: string, message: string) {
+		super(`TableError [${user}] ${message}`);
+	}
 }

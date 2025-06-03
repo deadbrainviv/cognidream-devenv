@@ -169,11 +169,11 @@ export interface ITypeScriptServiceClient {
 	readonly onTypesInstallerInitializationFailed: vscode.Event<Proto.TypesInstallerInitializationFailedEventBody>;
 
 	readonly capabilities: ClientCapabilities;
-	readonly onDidChangeCapabilities: vscode.Event<cognidream>;
+	readonly onDidChangeCapabilities: vscode.Event<void>;
 
-	onReady(f: () => cognidream): Promise<cognidream>;
+	onReady(f: () => void): Promise<void>;
 
-	showVersionPicker(): cognidream;
+	showVersionPicker(): void;
 
 	readonly apiVersion: API;
 
@@ -192,7 +192,7 @@ export interface ITypeScriptServiceClient {
 	executeWithoutWaitingForResponse<K extends keyof NoResponseTsServerRequests>(
 		command: K,
 		args: NoResponseTsServerRequests[K][0]
-	): cognidream;
+	): void;
 
 	executeAsync<K extends keyof AsyncTsServerRequests>(
 		command: K,

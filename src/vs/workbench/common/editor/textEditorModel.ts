@@ -30,7 +30,7 @@ export class BaseTextEditorModel extends EditorModel implements ITextEditorModel
 	private createdEditorModel: boolean | undefined;
 
 	private readonly modelDisposeListener = this._register(new MutableDisposable());
-	private readonly autoDetectLanguageThrottler = this._register(new ThrottledDelayer<cognidream>(BaseTextEditorModel.AUTO_DETECT_LANGUAGE_THROTTLE_DELAY));
+	private readonly autoDetectLanguageThrottler = this._register(new ThrottledDelayer<void>(BaseTextEditorModel.AUTO_DETECT_LANGUAGE_THROTTLE_DELAY));
 
 	constructor(
 		@IModelService protected modelService: IModelService,
@@ -46,214 +46,214 @@ export class BaseTextEditorModel extends EditorModel implements ITextEditorModel
 		}
 	}
 
-	private handleExistingModel(textEditorModelHandle: URIcognidreamognidream {
+	private handleExistingModel(textEditorModelHandle: URI): void {
 
 		// We need the resource to point to an existing model
 		const model = this.modelService.getModel(textEditorModelHandle);
 		if (!model) {
-	throw new Error(`Document with resource ${textEditorModelHandle.toString(true)} does not exist`);
-}
+			throw new Error(`Document with resource ${textEditorModelHandle.toString(true)} does not exist`);
+		}
 
-this.textEditorModelHandle = textEditorModelHandle;
+		this.textEditorModelHandle = textEditorModelHandle;
 
-// Make sure we clean up when this model gets disposed
-this.registerModelDisposeListener(model);
-    }
+		// Make sure we clean up when this model gets disposed
+		this.registerModelDisposeListener(model);
+	}
 
-    private registerModelDisposeListener(model: ITextModelcognidreamognidream {
-	this.modelDisposeListener.value = model.onWillDispose(() => {
-		this.textEditorModelHandle = undefined; // make sure we do not dispose code editor model again
-		this.dispose();
-	});
-}
+	private registerModelDisposeListener(model: ITextModel): void {
+		this.modelDisposeListener.value = model.onWillDispose(() => {
+			this.textEditorModelHandle = undefined; // make sure we do not dispose code editor model again
+			this.dispose();
+		});
+	}
 
-    get textEditorModel(): ITextModel | null {
-	return this.textEditorModelHandle ? this.modelService.getModel(this.textEditorModelHandle) : null;
-}
+	get textEditorModel(): ITextModel | null {
+		return this.textEditorModelHandle ? this.modelService.getModel(this.textEditorModelHandle) : null;
+	}
 
-    isReadonly(): boolean | IMarkdownString {
-	return true;
-}
+	isReadonly(): boolean | IMarkdownString {
+		return true;
+	}
 
-    private _blockLanguageChangeListener = false;
-    private _languageChangeSource: 'user' | 'api' | undefined = undefined;
-    get languageChangeSource() { return this._languageChangeSource; }
-    get hasLanguageSetExplicitly() {
-	// This is technically not 100% correct, because 'api' can also be
-	// set as source if a model is resolved as text first and then
-	// transitions into the resolved language. But to preserve the current
-	// behaviour, we do not change this property. Rather, `languageChangeSource`
-	// can be used to get more fine grained information.
-	return typeof this._languageChangeSource === 'string';
-}
+	private _blockLanguageChangeListener = false;
+	private _languageChangeSource: 'user' | 'api' | undefined = undefined;
+	get languageChangeSource() { return this._languageChangeSource; }
+	get hasLanguageSetExplicitly() {
+		// This is technically not 100% correct, because 'api' can also be
+		// set as source if a model is resolved as text first and then
+		// transitions into the resolved language. But to preserve the current
+		// behaviour, we do not change this property. Rather, `languageChangeSource`
+		// can be used to get more fine grained information.
+		return typeof this._languageChangeSource === 'string';
+	}
 
-setLanguageId(languageId: string, source ?: stringcognidreamognidream {
+	setLanguageId(languageId: string, source?: string): void {
 
-	// Remember that an explicit language was set
-	this._languageChangeSource = 'user';
+		// Remember that an explicit language was set
+		this._languageChangeSource = 'user';
 
-	this.setLanguageIdInternal(languageId, source);
-}
+		this.setLanguageIdInternal(languageId, source);
+	}
 
-    private setLanguageIdInternal(languageId: string, source ?: stringcognidreamognidream {
-	if(!this.isResolved()) {
-	return;
-}
+	private setLanguageIdInternal(languageId: string, source?: string): void {
+		if (!this.isResolved()) {
+			return;
+		}
 
-        if (!languageId || languageId === this.textEditorModel.getLanguageId()) {
-	return;
-}
+		if (!languageId || languageId === this.textEditorModel.getLanguageId()) {
+			return;
+		}
 
-this._blockLanguageChangeListener = true;
-try {
-	this.textEditorModel.setLanguage(this.languageService.createById(languageId), source);
-} finally {
-	this._blockLanguageChangeListener = false;
-}
-    }
+		this._blockLanguageChangeListener = true;
+		try {
+			this.textEditorModel.setLanguage(this.languageService.createById(languageId), source);
+		} finally {
+			this._blockLanguageChangeListener = false;
+		}
+	}
 
-    protected installModelListeners(model: ITextModelcognidreamognidream {
+	protected installModelListeners(model: ITextModel): void {
 
-	// Setup listener for lower level language changes
-	const disposable = this._register(model.onDidChangeLanguage(e => {
+		// Setup listener for lower level language changes
+		const disposable = this._register(model.onDidChangeLanguage(e => {
+			if (
+				e.source === LanguageDetectionLanguageEventSource ||
+				this._blockLanguageChangeListener
+			) {
+				return;
+			}
+
+			this._languageChangeSource = 'api';
+			disposable.dispose();
+		}));
+	}
+
+	getLanguageId(): string | undefined {
+		return this.textEditorModel?.getLanguageId();
+	}
+
+	protected autoDetectLanguage(): Promise<void> {
+		return this.autoDetectLanguageThrottler.trigger(() => this.doAutoDetectLanguage());
+	}
+
+	private async doAutoDetectLanguage(): Promise<void> {
 		if (
-			e.source === LanguageDetectionLanguageEventSource ||
-			this._blockLanguageChangeListener
+			this.hasLanguageSetExplicitly || 																	// skip detection when the user has made an explicit choice on the language
+			!this.textEditorModelHandle ||																		// require a URI to run the detection for
+			!this.languageDetectionService.isEnabledForLanguage(this.getLanguageId() ?? PLAINTEXT_LANGUAGE_ID)	// require a valid language that is enlisted for detection
 		) {
 			return;
 		}
 
-		this._languageChangeSource = 'api';
-		disposable.dispose();
-	}));
-}
-
-    getLanguageId(): string | undefined {
-	return this.textEditorModel?.getLanguageId();
-}
-
-    protected autoDetectLanguage(): Promicognidreamognidream > {
-	return this.autoDetectLanguageThrottler.trigger(() => this.doAutoDetectLanguage());
-}
-
-    private async doAutoDetectLanguage(): Promicognidreamognidream > {
-	if(
-		this.hasLanguageSetExplicitly || 																	// skip detection when the user has made an explicit choice on the language
-			!this.textEditorModelHandle ||																		// require a URI to run the detection for
-			!this.languageDetectionService.isEnabledForLanguage(this.getLanguageId() ?? PLAINTEXT_LANGUAGE_ID)	// require a valid language that is enlisted for detection
-        ) {
-	return;
-}
-
-const lang = await this.languageDetectionService.detectLanguage(this.textEditorModelHandle);
-const prevLang = this.getLanguageId();
-if (lang && lang !== prevLang && !this.isDisposed()) {
-	this.setLanguageIdInternal(lang, LanguageDetectionLanguageEventSource);
-	const languageName = this.languageService.getLanguageName(lang);
-	this.accessibilityService.alert(localize('languageAutoDetected', "Language {0} was automatically detected and set as the language mode.", languageName ?? lang));
-}
-    }
-
-    /**
-     * Creates the text editor model with the provided value, optional preferred language
-     * (can be comma separated for multiple values) and optional resource URL.
-     */
-    protected createTextEditorModel(value: ITextBufferFactory, resource: URI | undefined, preferredLanguageId ?: string): ITextModel {
-	const firstLineText = this.getFirstLineText(value);
-	const languageSelection = this.getOrCreateLanguage(resource, this.languageService, preferredLanguageId, firstLineText);
-
-	return this.doCreateTextEditorModel(value, languageSelection, resource);
-}
-
-    private doCreateTextEditorModel(value: ITextBufferFactory, languageSelection: ILanguageSelection, resource: URI | undefined): ITextModel {
-	let model = resource && this.modelService.getModel(resource);
-	if (!model) {
-		model = this.modelService.createModel(value, languageSelection, resource);
-		this.createdEditorModel = true;
-
-		// Make sure we clean up when this model gets disposed
-		this.registerModelDisposeListener(model);
-	} else {
-		this.updateTextEditorModel(value, languageSelection.languageId);
+		const lang = await this.languageDetectionService.detectLanguage(this.textEditorModelHandle);
+		const prevLang = this.getLanguageId();
+		if (lang && lang !== prevLang && !this.isDisposed()) {
+			this.setLanguageIdInternal(lang, LanguageDetectionLanguageEventSource);
+			const languageName = this.languageService.getLanguageName(lang);
+			this.accessibilityService.alert(localize('languageAutoDetected', "Language {0} was automatically detected and set as the language mode.", languageName ?? lang));
+		}
 	}
 
-	this.textEditorModelHandle = model.uri;
+	/**
+	 * Creates the text editor model with the provided value, optional preferred language
+	 * (can be comma separated for multiple values) and optional resource URL.
+	 */
+	protected createTextEditorModel(value: ITextBufferFactory, resource: URI | undefined, preferredLanguageId?: string): ITextModel {
+		const firstLineText = this.getFirstLineText(value);
+		const languageSelection = this.getOrCreateLanguage(resource, this.languageService, preferredLanguageId, firstLineText);
 
-	return model;
-}
-
-    protected getFirstLineText(value: ITextBufferFactory | ITextModel): string {
-
-	// text buffer factory
-	const textBufferFactory = value as ITextBufferFactory;
-	if (typeof textBufferFactory.getFirstLineText === 'function') {
-		return textBufferFactory.getFirstLineText(ModelConstants.FIRST_LINE_DETECTION_LENGTH_LIMIT);
+		return this.doCreateTextEditorModel(value, languageSelection, resource);
 	}
 
-	// text model
-	const textSnapshot = value as ITextModel;
-	return textSnapshot.getLineContent(1).substr(0, ModelConstants.FIRST_LINE_DETECTION_LENGTH_LIMIT);
-}
+	private doCreateTextEditorModel(value: ITextBufferFactory, languageSelection: ILanguageSelection, resource: URI | undefined): ITextModel {
+		let model = resource && this.modelService.getModel(resource);
+		if (!model) {
+			model = this.modelService.createModel(value, languageSelection, resource);
+			this.createdEditorModel = true;
 
-    /**
-     * Gets the language for the given identifier. Subclasses can override to provide their own implementation of this lookup.
-     *
-     * @param firstLineText optional first line of the text buffer to set the language on. This can be used to guess a language from content.
-     */
-    protected getOrCreateLanguage(resource: URI | undefined, languageService: ILanguageService, preferredLanguage: string | undefined, firstLineText ?: string): ILanguageSelection {
+			// Make sure we clean up when this model gets disposed
+			this.registerModelDisposeListener(model);
+		} else {
+			this.updateTextEditorModel(value, languageSelection.languageId);
+		}
 
-	// lookup language via resource path if the provided language is unspecific
-	if (!preferredLanguage || preferredLanguage === PLAINTEXT_LANGUAGE_ID) {
-		return languageService.createByFilepathOrFirstLine(resource ?? null, firstLineText);
+		this.textEditorModelHandle = model.uri;
+
+		return model;
 	}
 
-	// otherwise take the preferred language for granted
-	return languageService.createById(preferredLanguage);
-}
+	protected getFirstLineText(value: ITextBufferFactory | ITextModel): string {
 
-/**
- * Updates the text editor model with the provided value. If the value is the same as the model has, this is a no-op.
- */
-updateTextEditorModel(newValue ?: ITextBufferFactory, preferredLanguageId ?: stringcognidreamognidream {
-	if(!this.isResolved()) {
-	return;
-}
+		// text buffer factory
+		const textBufferFactory = value as ITextBufferFactory;
+		if (typeof textBufferFactory.getFirstLineText === 'function') {
+			return textBufferFactory.getFirstLineText(ModelConstants.FIRST_LINE_DETECTION_LENGTH_LIMIT);
+		}
 
-// contents
-if (newValue) {
-	this.modelService.updateModel(this.textEditorModel, newValue);
-}
-
-// language (only if specific and changed)
-if (preferredLanguageId && preferredLanguageId !== PLAINTEXT_LANGUAGE_ID && this.textEditorModel.getLanguageId() !== preferredLanguageId) {
-	this.textEditorModel.setLanguage(this.languageService.createById(preferredLanguageId));
-}
-    }
-
-createSnapshot(this: IResolvedTextEditorModel): ITextSnapshot;
-createSnapshot(this: ITextEditorModel): ITextSnapshot | null;
-createSnapshot(): ITextSnapshot | null {
-	if (!this.textEditorModel) {
-		return null;
+		// text model
+		const textSnapshot = value as ITextModel;
+		return textSnapshot.getLineContent(1).substr(0, ModelConstants.FIRST_LINE_DETECTION_LENGTH_LIMIT);
 	}
 
-	return this.textEditorModel.createSnapshot(true /* preserve BOM */);
-}
+	/**
+	 * Gets the language for the given identifier. Subclasses can override to provide their own implementation of this lookup.
+	 *
+	 * @param firstLineText optional first line of the text buffer to set the language on. This can be used to guess a language from content.
+	 */
+	protected getOrCreateLanguage(resource: URI | undefined, languageService: ILanguageService, preferredLanguage: string | undefined, firstLineText?: string): ILanguageSelection {
 
-    override isResolved(): this is IResolvedTextEditorModel {
-	return !!this.textEditorModelHandle;
-}
+		// lookup language via resource path if the provided language is unspecific
+		if (!preferredLanguage || preferredLanguage === PLAINTEXT_LANGUAGE_ID) {
+			return languageService.createByFilepathOrFirstLine(resource ?? null, firstLineText);
+		}
 
-    override dispose(cognidreamognidream {
-	this.modelDisposeListener.dispose(); // dispose this first because it will trigger another dispose() otherwise
+		// otherwise take the preferred language for granted
+		return languageService.createById(preferredLanguage);
+	}
 
-	if(this.textEditorModelHandle && this.createdEditorModel) {
-	this.modelService.destroyModel(this.textEditorModelHandle);
-}
+	/**
+	 * Updates the text editor model with the provided value. If the value is the same as the model has, this is a no-op.
+	 */
+	updateTextEditorModel(newValue?: ITextBufferFactory, preferredLanguageId?: string): void {
+		if (!this.isResolved()) {
+			return;
+		}
 
-this.textEditorModelHandle = undefined;
-this.createdEditorModel = false;
+		// contents
+		if (newValue) {
+			this.modelService.updateModel(this.textEditorModel, newValue);
+		}
 
-super.dispose();
-    }
+		// language (only if specific and changed)
+		if (preferredLanguageId && preferredLanguageId !== PLAINTEXT_LANGUAGE_ID && this.textEditorModel.getLanguageId() !== preferredLanguageId) {
+			this.textEditorModel.setLanguage(this.languageService.createById(preferredLanguageId));
+		}
+	}
+
+	createSnapshot(this: IResolvedTextEditorModel): ITextSnapshot;
+	createSnapshot(this: ITextEditorModel): ITextSnapshot | null;
+	createSnapshot(): ITextSnapshot | null {
+		if (!this.textEditorModel) {
+			return null;
+		}
+
+		return this.textEditorModel.createSnapshot(true /* preserve BOM */);
+	}
+
+	override isResolved(): this is IResolvedTextEditorModel {
+		return !!this.textEditorModelHandle;
+	}
+
+	override dispose(): void {
+		this.modelDisposeListener.dispose(); // dispose this first because it will trigger another dispose() otherwise
+
+		if (this.textEditorModelHandle && this.createdEditorModel) {
+			this.modelService.destroyModel(this.textEditorModelHandle);
+		}
+
+		this.textEditorModelHandle = undefined;
+		this.createdEditorModel = false;
+
+		super.dispose();
+	}
 }

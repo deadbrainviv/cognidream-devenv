@@ -19,8 +19,8 @@ const IEditorCancellationTokens = createDecorator<IEditorCancellationTokens>('IE
 
 interface IEditorCancellationTokens {
 	readonly _serviceBrand: undefined;
-	add(editor: ICodeEditor, cts: CancellationTokenSource): () => cognidream;
-	cancel(editor: ICodeEditor): cognidream;
+	add(editor: ICodeEditor, cts: CancellationTokenSource): () => void;
+	cancel(editor: ICodeEditor): void;
 }
 
 const ctxCancellableOperation = new RawContextKey('cancellableOperation', false, localize('cancellableOperation', 'Whether the editor runs a cancellable operation, e.g. like \'Peek References\''));
@@ -31,7 +31,7 @@ registerSingleton(IEditorCancellationTokens, class implements IEditorCancellatio
 
 	private readonly _tokens = new WeakMap<ICodeEditor, { key: IContextKey<boolean>; tokens: LinkedList<CancellationTokenSource> }>();
 
-	add(editor: ICodeEditor, cts: CancellationTokenSource): () => cognidream {
+	add(editor: ICodeEditor, cts: CancellationTokenSource): () => void {
 		let data = this._tokens.get(editor);
 		if (!data) {
 			data = editor.invokeWithinContext(accessor => {
@@ -57,7 +57,7 @@ registerSingleton(IEditorCancellationTokens, class implements IEditorCancellatio
 		};
 	}
 
-	cancel(editor: ICodeEditor): cognidream {
+	cancel(editor: ICodeEditor): void {
 		const data = this._tokens.get(editor);
 		if (!data) {
 			return;
@@ -81,7 +81,7 @@ export class EditorKeybindingCancellationTokenSource extends CancellationTokenSo
 		this._unregister = editor.invokeWithinContext(accessor => accessor.get(IEditorCancellationTokens).add(editor, this));
 	}
 
-	override dispose(): cognidream {
+	override dispose(): void {
 		this._unregister();
 		super.dispose();
 	}
@@ -100,7 +100,7 @@ registerEditorCommand(new class extends EditorCommand {
 		});
 	}
 
-	runEditorCommand(accessor: ServicesAccessor, editor: ICodeEditor): cognidream {
+	runEditorCommand(accessor: ServicesAccessor, editor: ICodeEditor): void {
 		accessor.get(IEditorCancellationTokens).cancel(editor);
 	}
 });

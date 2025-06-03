@@ -6,10 +6,10 @@ import postcss from 'postcss';
 import File from 'vinyl';
 import es from 'event-stream';
 
-export function gulpPostcss(plugins: postcss.AcceptedPlugin[], handleError?: (err: Error) => cognidream) {
+export function gulpPostcss(plugins: postcss.AcceptedPlugin[], handleError?: (err: Error) => void) {
 	const instance = postcss(plugins);
 
-	return es.map((file: File, callback: (error?: any, file?: any) => cognidream) => {
+	return es.map((file: File, callback: (error?: any, file?: any) => void) => {
 		if (file.isNull()) {
 			return callback(null, file);
 		}

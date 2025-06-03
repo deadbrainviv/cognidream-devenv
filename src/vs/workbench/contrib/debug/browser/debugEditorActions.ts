@@ -57,7 +57,7 @@ class ToggleBreakpointAction extends Action2 {
 		});
 	}
 
-	async run(accessor: ServicesAccessor): Promise<cognidream> {
+	async run(accessor: ServicesAccessor): Promise<void> {
 		const editorService = accessor.get(IEditorService);
 		const debugService = accessor.get(IDebugService);
 
@@ -112,14 +112,14 @@ class ConditionalBreakpointAction extends EditorAction {
 		});
 	}
 
-	async run(accessor: ServicesAccessor, editor: ICodeEditor): Promicognidreamognidream> {
+	async run(accessor: ServicesAccessor, editor: ICodeEditor): Promise<void> {
 		const debugService = accessor.get(IDebugService);
 
 		const position = editor.getPosition();
-		if(position && editor.hasModel() && debugService.canSetBreakpointsIn(editor.getModel())) {
-	editor.getContribution<IBreakpointEditorContribution>(BREAKPOINT_EDITOR_CONTRIBUTION_ID)?.showBreakpointWidget(position.lineNumber, undefined, BreakpointWidgetContext.CONDITION);
-}
-    }
+		if (position && editor.hasModel() && debugService.canSetBreakpointsIn(editor.getModel())) {
+			editor.getContribution<IBreakpointEditorContribution>(BREAKPOINT_EDITOR_CONTRIBUTION_ID)?.showBreakpointWidget(position.lineNumber, undefined, BreakpointWidgetContext.CONDITION);
+		}
+	}
 }
 
 class LogPointAction extends EditorAction {
@@ -141,14 +141,14 @@ class LogPointAction extends EditorAction {
 		});
 	}
 
-	async run(accessor: ServicesAccessor, editor: ICodeEditor): Promicognidreamognidream> {
+	async run(accessor: ServicesAccessor, editor: ICodeEditor): Promise<void> {
 		const debugService = accessor.get(IDebugService);
 
 		const position = editor.getPosition();
-		if(position && editor.hasModel() && debugService.canSetBreakpointsIn(editor.getModel())) {
-	editor.getContribution<IBreakpointEditorContribution>(BREAKPOINT_EDITOR_CONTRIBUTION_ID)?.showBreakpointWidget(position.lineNumber, position.column, BreakpointWidgetContext.LOG_MESSAGE);
-}
-    }
+		if (position && editor.hasModel() && debugService.canSetBreakpointsIn(editor.getModel())) {
+			editor.getContribution<IBreakpointEditorContribution>(BREAKPOINT_EDITOR_CONTRIBUTION_ID)?.showBreakpointWidget(position.lineNumber, position.column, BreakpointWidgetContext.LOG_MESSAGE);
+		}
+	}
 }
 
 class TriggerByBreakpointAction extends EditorAction {
@@ -171,14 +171,14 @@ class TriggerByBreakpointAction extends EditorAction {
 		});
 	}
 
-	async run(accessor: ServicesAccessor, editor: ICodeEditor): Promicognidreamognidream> {
+	async run(accessor: ServicesAccessor, editor: ICodeEditor): Promise<void> {
 		const debugService = accessor.get(IDebugService);
 
 		const position = editor.getPosition();
-		if(position && editor.hasModel() && debugService.canSetBreakpointsIn(editor.getModel())) {
-	editor.getContribution<IBreakpointEditorContribution>(BREAKPOINT_EDITOR_CONTRIBUTION_ID)?.showBreakpointWidget(position.lineNumber, position.column, BreakpointWidgetContext.TRIGGER_POINT);
-}
-    }
+		if (position && editor.hasModel() && debugService.canSetBreakpointsIn(editor.getModel())) {
+			editor.getContribution<IBreakpointEditorContribution>(BREAKPOINT_EDITOR_CONTRIBUTION_ID)?.showBreakpointWidget(position.lineNumber, position.column, BreakpointWidgetContext.TRIGGER_POINT);
+		}
+	}
 }
 
 class EditBreakpointAction extends EditorAction {
@@ -198,32 +198,32 @@ class EditBreakpointAction extends EditorAction {
 		});
 	}
 
-	async run(accessor: ServicesAccessor, editor: ICodeEditor): Promicognidreamognidream> {
+	async run(accessor: ServicesAccessor, editor: ICodeEditor): Promise<void> {
 		const debugService = accessor.get(IDebugService);
 
 		const position = editor.getPosition();
 		const debugModel = debugService.getModel();
-		if(!(editor.hasModel() && position)) {
-	return;
-}
+		if (!(editor.hasModel() && position)) {
+			return;
+		}
 
-const lineBreakpoints = debugModel.getBreakpoints({ lineNumber: position.lineNumber });
-if (lineBreakpoints.length === 0) {
-	return;
-}
+		const lineBreakpoints = debugModel.getBreakpoints({ lineNumber: position.lineNumber });
+		if (lineBreakpoints.length === 0) {
+			return;
+		}
 
-const breakpointDistances = lineBreakpoints.map(b => {
-	if (!b.column) {
-		return position.column;
+		const breakpointDistances = lineBreakpoints.map(b => {
+			if (!b.column) {
+				return position.column;
+			}
+
+			return Math.abs(b.column - position.column);
+		});
+		const closestBreakpointIndex = breakpointDistances.indexOf(Math.min(...breakpointDistances));
+		const closestBreakpoint = lineBreakpoints[closestBreakpointIndex];
+
+		editor.getContribution<IBreakpointEditorContribution>(BREAKPOINT_EDITOR_CONTRIBUTION_ID)?.showBreakpointWidget(closestBreakpoint.lineNumber, closestBreakpoint.column);
 	}
-
-	return Math.abs(b.column - position.column);
-});
-const closestBreakpointIndex = breakpointDistances.indexOf(Math.min(...breakpointDistances));
-const closestBreakpoint = lineBreakpoints[closestBreakpointIndex];
-
-editor.getContribution<IBreakpointEditorContribution>(BREAKPOINT_EDITOR_CONTRIBUTION_ID)?.showBreakpointWidget(closestBreakpoint.lineNumber, closestBreakpoint.column);
-    }
 }
 
 class OpenDisassemblyViewAction extends Action2 {
@@ -259,10 +259,10 @@ class OpenDisassemblyViewAction extends Action2 {
 		});
 	}
 
-	run(accessor: ServicesAccessorcognidreamognidream {
+	run(accessor: ServicesAccessor): void {
 		const editorService = accessor.get(IEditorService);
 		editorService.openEditor(DisassemblyViewInput.instance, { pinned: true, revealIfOpened: true });
-    }
+	}
 }
 
 class ToggleDisassemblyViewSourceCodeAction extends Action2 {
@@ -284,13 +284,13 @@ class ToggleDisassemblyViewSourceCodeAction extends Action2 {
 		});
 	}
 
-	run(accessor: ServicesAccessor, editor: ICodeEditor, ...args: any[]cognidreamognidream {
+	run(accessor: ServicesAccessor, editor: ICodeEditor, ...args: any[]): void {
 		const configService = accessor.get(IConfigurationService);
 		if (configService) {
 			const value = configService.getValue<IDebugConfiguration>('debug').disassemblyView.showSourceCode;
 			configService.updateValue(ToggleDisassemblyViewSourceCodeAction.configID, !value);
 		}
-    }
+	}
 }
 
 export class RunToCursorAction extends EditorAction {
@@ -317,26 +317,26 @@ export class RunToCursorAction extends EditorAction {
 		});
 	}
 
-	async run(accessor: ServicesAccessor, editor: ICodeEditor): Promicognidreamognidream> {
+	async run(accessor: ServicesAccessor, editor: ICodeEditor): Promise<void> {
 		const position = editor.getPosition();
-		if(!(editor.hasModel() && position)) {
-	return;
-}
-const uri = editor.getModel().uri;
+		if (!(editor.hasModel() && position)) {
+			return;
+		}
+		const uri = editor.getModel().uri;
 
-const debugService = accessor.get(IDebugService);
-const viewModel = debugService.getViewModel();
-const uriIdentityService = accessor.get(IUriIdentityService);
+		const debugService = accessor.get(IDebugService);
+		const viewModel = debugService.getViewModel();
+		const uriIdentityService = accessor.get(IUriIdentityService);
 
-let column: number | undefined = undefined;
-const focusedStackFrame = viewModel.focusedStackFrame;
-if (focusedStackFrame && uriIdentityService.extUri.isEqual(focusedStackFrame.source.uri, uri) && focusedStackFrame.range.startLineNumber === position.lineNumber) {
-	// If the cursor is on a line different than the one the debugger is currently paused on, then send the breakpoint on the line without a column
-	// otherwise set it at the precise column #102199
-	column = position.column;
-}
-await debugService.runTo(uri, position.lineNumber, column);
-    }
+		let column: number | undefined = undefined;
+		const focusedStackFrame = viewModel.focusedStackFrame;
+		if (focusedStackFrame && uriIdentityService.extUri.isEqual(focusedStackFrame.source.uri, uri) && focusedStackFrame.range.startLineNumber === position.lineNumber) {
+			// If the cursor is on a line different than the one the debugger is currently paused on, then send the breakpoint on the line without a column
+			// otherwise set it at the precise column #102199
+			column = position.column;
+		}
+		await debugService.runTo(uri, position.lineNumber, column);
+	}
 }
 
 export class SelectionToReplAction extends EditorAction {
@@ -360,26 +360,26 @@ export class SelectionToReplAction extends EditorAction {
 		});
 	}
 
-	async run(accessor: ServicesAccessor, editor: ICodeEditor): Promicognidreamognidream> {
+	async run(accessor: ServicesAccessor, editor: ICodeEditor): Promise<void> {
 		const debugService = accessor.get(IDebugService);
 		const viewsService = accessor.get(IViewsService);
 		const viewModel = debugService.getViewModel();
 		const session = viewModel.focusedSession;
-		if(!editor.hasModel() || !session) {
-	return;
-}
+		if (!editor.hasModel() || !session) {
+			return;
+		}
 
-const selection = editor.getSelection();
-let text: string;
-if (selection.isEmpty()) {
-	text = editor.getModel().getLineContent(selection.selectionStartLineNumber).trim();
-} else {
-	text = editor.getModel().getValueInRange(selection);
-}
+		const selection = editor.getSelection();
+		let text: string;
+		if (selection.isEmpty()) {
+			text = editor.getModel().getLineContent(selection.selectionStartLineNumber).trim();
+		} else {
+			text = editor.getModel().getValueInRange(selection);
+		}
 
-const replView = await viewsService.openView(REPL_VIEW_ID, false) as Repl | undefined;
-replView?.sendReplInput(text);
-    }
+		const replView = await viewsService.openView(REPL_VIEW_ID, false) as Repl | undefined;
+		replView?.sendReplInput(text);
+	}
 }
 
 export class SelectionToWatchExpressionsAction extends EditorAction {
@@ -403,37 +403,37 @@ export class SelectionToWatchExpressionsAction extends EditorAction {
 		});
 	}
 
-	async run(accessor: ServicesAccessor, editor: ICodeEditor): Promicognidreamognidream> {
+	async run(accessor: ServicesAccessor, editor: ICodeEditor): Promise<void> {
 		const debugService = accessor.get(IDebugService);
 		const viewsService = accessor.get(IViewsService);
 		const languageFeaturesService = accessor.get(ILanguageFeaturesService);
-		if(!editor.hasModel()) {
-	return;
-}
+		if (!editor.hasModel()) {
+			return;
+		}
 
-let expression: string | undefined = undefined;
+		let expression: string | undefined = undefined;
 
-const model = editor.getModel();
-const selection = editor.getSelection();
+		const model = editor.getModel();
+		const selection = editor.getSelection();
 
-if (!selection.isEmpty()) {
-	expression = model.getValueInRange(selection);
-} else {
-	const position = editor.getPosition();
-	const evaluatableExpression = await getEvaluatableExpressionAtPosition(languageFeaturesService, model, position);
-	if (!evaluatableExpression) {
-		return;
+		if (!selection.isEmpty()) {
+			expression = model.getValueInRange(selection);
+		} else {
+			const position = editor.getPosition();
+			const evaluatableExpression = await getEvaluatableExpressionAtPosition(languageFeaturesService, model, position);
+			if (!evaluatableExpression) {
+				return;
+			}
+			expression = evaluatableExpression.matchingExpression;
+		}
+
+		if (!expression) {
+			return;
+		}
+
+		await viewsService.openView(WATCH_VIEW_ID);
+		debugService.addWatchExpression(expression);
 	}
-	expression = evaluatableExpression.matchingExpression;
-}
-
-if (!expression) {
-	return;
-}
-
-await viewsService.openView(WATCH_VIEW_ID);
-debugService.addWatchExpression(expression);
-    }
 }
 
 class ShowDebugHoverAction extends EditorAction {
@@ -451,14 +451,14 @@ class ShowDebugHoverAction extends EditorAction {
 		});
 	}
 
-	async run(accessor: ServicesAccessor, editor: ICodeEditor): Promicognidreamognidream> {
+	async run(accessor: ServicesAccessor, editor: ICodeEditor): Promise<void> {
 		const position = editor.getPosition();
-		if(!position || !editor.hasModel()) {
-	return;
-}
+		if (!position || !editor.hasModel()) {
+			return;
+		}
 
-return editor.getContribution<IDebugEditorContribution>(EDITOR_CONTRIBUTION_ID)?.showHover(position, true);
-    }
+		return editor.getContribution<IDebugEditorContribution>(EDITOR_CONTRIBUTION_ID)?.showHover(position, true);
+	}
 }
 
 const NO_TARGETS_MESSAGE = nls.localize('editor.debug.action.stepIntoTargets.notAvailable', "Step targets are not available here");
@@ -481,7 +481,7 @@ class StepIntoTargetsAction extends EditorAction {
 		});
 	}
 
-	async run(accessor: ServicesAccessor, editor: ICodeEditor): Promicognidreamognidream> {
+	async run(accessor: ServicesAccessor, editor: ICodeEditor): Promise<void> {
 		const debugService = accessor.get(IDebugService);
 		const contextMenuService = accessor.get(IContextMenuService);
 		const uriIdentityService = accessor.get(IUriIdentityService);
@@ -491,60 +491,60 @@ class StepIntoTargetsAction extends EditorAction {
 
 		const targetPosition = selection?.getPosition() || (frame && { lineNumber: frame.range.startLineNumber, column: frame.range.startColumn });
 
-		if(!session || !frame || !editor.hasModel() || !uriIdentityService.extUri.isEqual(editor.getModel().uri, frame.source.uri)) {
-	if (targetPosition) {
-		MessageController.get(editor)?.showMessage(NO_TARGETS_MESSAGE, targetPosition);
-	}
-	return;
-}
-
-
-const targets = await session.stepInTargets(frame.frameId);
-if (!targets?.length) {
-	MessageController.get(editor)?.showMessage(NO_TARGETS_MESSAGE, targetPosition!);
-	return;
-}
-
-// If there is a selection, try to find the best target with a position to step into.
-if (selection) {
-	const positionalTargets: { start: Position; end?: Position; target: DebugProtocol.StepInTarget }[] = [];
-	for (const target of targets) {
-		if (target.line) {
-			positionalTargets.push({
-				start: new Position(target.line, target.column || 1),
-				end: target.endLine ? new Position(target.endLine, target.endColumn || 1) : undefined,
-				target
-			});
+		if (!session || !frame || !editor.hasModel() || !uriIdentityService.extUri.isEqual(editor.getModel().uri, frame.source.uri)) {
+			if (targetPosition) {
+				MessageController.get(editor)?.showMessage(NO_TARGETS_MESSAGE, targetPosition);
+			}
+			return;
 		}
+
+
+		const targets = await session.stepInTargets(frame.frameId);
+		if (!targets?.length) {
+			MessageController.get(editor)?.showMessage(NO_TARGETS_MESSAGE, targetPosition!);
+			return;
+		}
+
+		// If there is a selection, try to find the best target with a position to step into.
+		if (selection) {
+			const positionalTargets: { start: Position; end?: Position; target: DebugProtocol.StepInTarget }[] = [];
+			for (const target of targets) {
+				if (target.line) {
+					positionalTargets.push({
+						start: new Position(target.line, target.column || 1),
+						end: target.endLine ? new Position(target.endLine, target.endColumn || 1) : undefined,
+						target
+					});
+				}
+			}
+
+			positionalTargets.sort((a, b) => b.start.lineNumber - a.start.lineNumber || b.start.column - a.start.column);
+
+			const needle = selection.getPosition();
+
+			// Try to find a target with a start and end that is around the cursor
+			// position. Or, if none, whatever is before the cursor.
+			const best = positionalTargets.find(t => t.end && needle.isBefore(t.end) && t.start.isBeforeOrEqual(needle)) || positionalTargets.find(t => t.end === undefined && t.start.isBeforeOrEqual(needle));
+			if (best) {
+				session.stepIn(frame.thread.threadId, best.target.id);
+				return;
+			}
+		}
+
+		// Otherwise, show a context menu and have the user pick a target
+		editor.revealLineInCenterIfOutsideViewport(frame.range.startLineNumber);
+		const cursorCoords = editor.getScrolledVisiblePosition(targetPosition!);
+		const editorCoords = getDomNodePagePosition(editor.getDomNode());
+		const x = editorCoords.left + cursorCoords.left;
+		const y = editorCoords.top + cursorCoords.top + cursorCoords.height;
+
+		contextMenuService.showContextMenu({
+			getAnchor: () => ({ x, y }),
+			getActions: () => {
+				return targets.map(t => new Action(`stepIntoTarget:${t.id}`, t.label, undefined, true, () => session.stepIn(frame.thread.threadId, t.id)));
+			}
+		});
 	}
-
-	positionalTargets.sort((a, b) => b.start.lineNumber - a.start.lineNumber || b.start.column - a.start.column);
-
-	const needle = selection.getPosition();
-
-	// Try to find a target with a start and end that is around the cursor
-	// position. Or, if none, whatever is before the cursor.
-	const best = positionalTargets.find(t => t.end && needle.isBefore(t.end) && t.start.isBeforeOrEqual(needle)) || positionalTargets.find(t => t.end === undefined && t.start.isBeforeOrEqual(needle));
-	if (best) {
-		session.stepIn(frame.thread.threadId, best.target.id);
-		return;
-	}
-}
-
-// Otherwise, show a context menu and have the user pick a target
-editor.revealLineInCenterIfOutsideViewport(frame.range.startLineNumber);
-const cursorCoords = editor.getScrolledVisiblePosition(targetPosition!);
-const editorCoords = getDomNodePagePosition(editor.getDomNode());
-const x = editorCoords.left + cursorCoords.left;
-const y = editorCoords.top + cursorCoords.top + cursorCoords.height;
-
-contextMenuService.showContextMenu({
-	getAnchor: () => ({ x, y }),
-	getActions: () => {
-		return targets.map(t => new Action(`stepIntoTarget:${t.id}`, t.label, undefined, true, () => session.stepIn(frame.thread.threadId, t.id)));
-	}
-});
-    }
 }
 
 class GoToBreakpointAction extends EditorAction {
@@ -623,7 +623,7 @@ class CloseExceptionWidgetAction extends EditorAction {
 		});
 	}
 
-	async run(_accessor: ServicesAccessor, editor: ICodeEditor): Promicognidreamognidream> {
+	async run(_accessor: ServicesAccessor, editor: ICodeEditor): Promise<void> {
 		const contribution = editor.getContribution<IDebugEditorContribution>(EDITOR_CONTRIBUTION_ID);
 		contribution?.closeExceptionWidget();
 	}

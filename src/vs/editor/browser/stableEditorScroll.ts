@@ -35,7 +35,7 @@ export class StableEditorScrollState {
 	) {
 	}
 
-	public restore(editor: ICodeEditor): cognidream {
+	public restore(editor: ICodeEditor): void {
 		if (this._initialContentHeight === editor.getContentHeight() && this._initialScrollTop === editor.getScrollTop()) {
 			// The editor's content height and scroll top haven't changed, so we don't need to do anything
 			return;
@@ -47,7 +47,7 @@ export class StableEditorScrollState {
 		}
 	}
 
-	public restoreRelativeVerticalPositionOfCursor(editor: ICodeEditor): cognidream {
+	public restoreRelativeVerticalPositionOfCursor(editor: ICodeEditor): void {
 		if (this._initialContentHeight === editor.getContentHeight() && this._initialScrollTop === editor.getScrollTop()) {
 			// The editor's content height and scroll top haven't changed, so we don't need to do anything
 			return;
@@ -92,7 +92,7 @@ export class StableEditorBottomScrollState {
 	) {
 	}
 
-	public restore(editor: ICodeEditor): cognidream {
+	public restore(editor: ICodeEditor): void {
 		if (this._initialContentHeight === editor.getContentHeight() && this._initialScrollTop === editor.getScrollTop()) {
 			// The editor's content height and scroll top haven't changed, so we don't need to do anything
 			return;

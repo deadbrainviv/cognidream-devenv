@@ -29,7 +29,7 @@ class TestTelemetryAppender implements ITelemetryAppender {
 		this.isDisposed = false;
 	}
 
-	public log(eventName: string, data?: any): cognidreamidream {
+	public log(eventName: string, data?: any): void {
 		this.events.push({ eventName, data });
 	}
 

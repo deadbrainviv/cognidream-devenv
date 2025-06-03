@@ -142,152 +142,152 @@ export class NotebookEditorWidgetService implements INotebookEditorService {
 
 	// --- group-based editor borrowing...
 
-	private _disposeWidget(widget: NotebookEditorWidget): cognidream {
+	private _disposeWidget(widget: NotebookEditorWidget): void {
 		widget.onWillHide();
 		const domNode = widget.getDomNode();
 		widget.dispose();
 		domNode.remove();
 	}
 
-	private _allowWidgetMove(input: NotebookEditorInput, sourceID: GroupIdentifier, targetID: GroupIdentifiercognidreamognidream {
+	private _allowWidgetMove(input: NotebookEditorInput, sourceID: GroupIdentifier, targetID: GroupIdentifier): void {
 		const sourcePart = this.editorGroupService.getPart(sourceID);
 		const targetPart = this.editorGroupService.getPart(targetID);
 
 		if (sourcePart.windowId !== targetPart.windowId) {
-	return;
-}
-
-const target = this._borrowableEditors.get(targetID)?.get(input.resource)?.findIndex(widget => widget.editorType === input.typeId);
-if (target !== undefined && target !== -1) {
-	// not needed, a separate widget is already there
-	return;
-}
-
-const widget = this._borrowableEditors.get(sourceID)?.get(input.resource)?.find(widget => widget.editorType === input.typeId);
-if (!widget) {
-	throw new Error('no widget at source group');
-}
-
-// don't allow the widget to be retrieved at its previous location any more
-const sourceWidgets = this._borrowableEditors.get(sourceID)?.get(input.resource);
-if (sourceWidgets) {
-	const indexToRemove = sourceWidgets.findIndex(widget => widget.editorType === input.typeId);
-	if (indexToRemove !== -1) {
-		sourceWidgets.splice(indexToRemove, 1);
-	}
-}
-
-// allow the widget to be retrieved at its new location
-let targetMap = this._borrowableEditors.get(targetID);
-if (!targetMap) {
-	targetMap = new ResourceMap();
-	this._borrowableEditors.set(targetID, targetMap);
-}
-const widgetsAtTarget = targetMap.get(input.resource) ?? [];
-widgetsAtTarget?.push(widget);
-targetMap.set(input.resource, widgetsAtTarget);
-    }
-
-retrieveExistingWidgetFromURI(resource: URI): IBorrowValue<NotebookEditorWidget> | undefined {
-	for (const widgetInfo of this._borrowableEditors.values()) {
-		const widgets = widgetInfo.get(resource);
-		if (widgets && widgets.length > 0) {
-			return this._createBorrowValue(widgets[0].token!, widgets[0]);
+			return;
 		}
-	}
-	return undefined;
-}
 
-retrieveAllExistingWidgets(): IBorrowValue < NotebookEditorWidget > [] {
-	const ret: IBorrowValue<NotebookEditorWidget>[] = [];
-	for (const widgetInfo of this._borrowableEditors.values()) {
-		for (const widgets of widgetInfo.values()) {
-			for (const widget of widgets) {
-				ret.push(this._createBorrowValue(widget.token!, widget));
+		const target = this._borrowableEditors.get(targetID)?.get(input.resource)?.findIndex(widget => widget.editorType === input.typeId);
+		if (target !== undefined && target !== -1) {
+			// not needed, a separate widget is already there
+			return;
+		}
+
+		const widget = this._borrowableEditors.get(sourceID)?.get(input.resource)?.find(widget => widget.editorType === input.typeId);
+		if (!widget) {
+			throw new Error('no widget at source group');
+		}
+
+		// don't allow the widget to be retrieved at its previous location any more
+		const sourceWidgets = this._borrowableEditors.get(sourceID)?.get(input.resource);
+		if (sourceWidgets) {
+			const indexToRemove = sourceWidgets.findIndex(widget => widget.editorType === input.typeId);
+			if (indexToRemove !== -1) {
+				sourceWidgets.splice(indexToRemove, 1);
 			}
 		}
-	}
-	return ret;
-}
 
-retrieveWidget(accessor: ServicesAccessor, groupId: number, input: { resource: URI; typeId: string }, creationOptions ?: INotebookEditorCreationOptions, initialDimension ?: Dimension, codeWindow ?: CodeWindow): IBorrowValue < NotebookEditorWidget > {
-
-	let value = this._borrowableEditors.get(groupId)?.get(input.resource)?.find(widget => widget.editorType === input.typeId);
-
-	if(!value) {
-		// NEW widget
-		const editorGroupContextKeyService = accessor.get(IContextKeyService);
-		const editorGroupEditorProgressService = accessor.get(IEditorProgressService);
-		const widgetDisposeStore = new DisposableStore();
-		const widget = this.createWidget(editorGroupContextKeyService, widgetDisposeStore, editorGroupEditorProgressService, creationOptions, codeWindow, initialDimension);
-		const token = this._tokenPool++;
-		value = { widget, editorType: input.typeId, token, disposableStore: widgetDisposeStore };
-
-		let map = this._borrowableEditors.get(groupId);
-		if (!map) {
-			map = new ResourceMap();
-			this._borrowableEditors.set(groupId, map);
+		// allow the widget to be retrieved at its new location
+		let targetMap = this._borrowableEditors.get(targetID);
+		if (!targetMap) {
+			targetMap = new ResourceMap();
+			this._borrowableEditors.set(targetID, targetMap);
 		}
-		const values = map.get(input.resource) ?? [];
-		values.push(value);
-		map.set(input.resource, values);
-	} else {
-		// reuse a widget which was either free'ed before or which
-		// is simply being reused...
-		value.token = this._tokenPool++;
+		const widgetsAtTarget = targetMap.get(input.resource) ?? [];
+		widgetsAtTarget?.push(widget);
+		targetMap.set(input.resource, widgetsAtTarget);
 	}
 
-        return this._createBorrowValue(value.token!, value);
-}
-
-    // protected for unit testing overrides
-    protected createWidget(editorGroupContextKeyService: IContextKeyService, widgetDisposeStore: DisposableStore, editorGroupEditorProgressService: IEditorProgressService, creationOptions ?: INotebookEditorCreationOptions, codeWindow ?: CodeWindow, initialDimension ?: Dimension) {
-	const notebookInstantiationService = widgetDisposeStore.add(this.instantiationService.createChild(new ServiceCollection(
-		[IContextKeyService, editorGroupContextKeyService],
-		[IEditorProgressService, editorGroupEditorProgressService])));
-	const ctorOptions = creationOptions ?? getDefaultNotebookCreationOptions();
-	const widget = notebookInstantiationService.createInstance(NotebookEditorWidget, {
-		...ctorOptions,
-		codeWindow: codeWindow ?? ctorOptions.codeWindow,
-	}, initialDimension);
-	return widget;
-}
-
-    private _createBorrowValue(myToken: number, widget: { widget: NotebookEditorWidget; token: number | undefined }): IBorrowValue < NotebookEditorWidget > {
-	return {
-		get value() {
-			return widget.token === myToken ? widget.widget : undefined;
+	retrieveExistingWidgetFromURI(resource: URI): IBorrowValue<NotebookEditorWidget> | undefined {
+		for (const widgetInfo of this._borrowableEditors.values()) {
+			const widgets = widgetInfo.get(resource);
+			if (widgets && widgets.length > 0) {
+				return this._createBorrowValue(widgets[0].token!, widgets[0]);
+			}
 		}
-	};
-}
+		return undefined;
+	}
 
-// --- editor management
+	retrieveAllExistingWidgets(): IBorrowValue<NotebookEditorWidget>[] {
+		const ret: IBorrowValue<NotebookEditorWidget>[] = [];
+		for (const widgetInfo of this._borrowableEditors.values()) {
+			for (const widgets of widgetInfo.values()) {
+				for (const widget of widgets) {
+					ret.push(this._createBorrowValue(widget.token!, widget));
+				}
+			}
+		}
+		return ret;
+	}
 
-addNotebookEditor(editor: INotebookEditorcognidreamognidream {
-	this._notebookEditors.set(editor.getId(), editor);
-	this._onNotebookEditorAdd.fire(editor);
-}
+	retrieveWidget(accessor: ServicesAccessor, groupId: number, input: { resource: URI; typeId: string }, creationOptions?: INotebookEditorCreationOptions, initialDimension?: Dimension, codeWindow?: CodeWindow): IBorrowValue<NotebookEditorWidget> {
 
-    removeNotebookEditor(editor: INotebookEditorcognidreamognidream {
-	const notebookUri = editor.getViewModel()?.notebookDocument.uri;
-	if(this._notebookEditors.has(editor.getId())) {
-	this._notebookEditors.delete(editor.getId());
-	this._onNotebookEditorsRemove.fire(editor);
-}
-        if (this._mostRecentRepl.get() === notebookUri?.toString()) {
-	this._mostRecentRepl.reset();
-}
-    }
+		let value = this._borrowableEditors.get(groupId)?.get(input.resource)?.find(widget => widget.editorType === input.typeId);
 
-getNotebookEditor(editorId: string): INotebookEditor | undefined {
-	return this._notebookEditors.get(editorId);
-}
+		if (!value) {
+			// NEW widget
+			const editorGroupContextKeyService = accessor.get(IContextKeyService);
+			const editorGroupEditorProgressService = accessor.get(IEditorProgressService);
+			const widgetDisposeStore = new DisposableStore();
+			const widget = this.createWidget(editorGroupContextKeyService, widgetDisposeStore, editorGroupEditorProgressService, creationOptions, codeWindow, initialDimension);
+			const token = this._tokenPool++;
+			value = { widget, editorType: input.typeId, token, disposableStore: widgetDisposeStore };
 
-listNotebookEditors(): readonly INotebookEditor[] {
-	return [...this._notebookEditors].map(e => e[1]);
-}
+			let map = this._borrowableEditors.get(groupId);
+			if (!map) {
+				map = new ResourceMap();
+				this._borrowableEditors.set(groupId, map);
+			}
+			const values = map.get(input.resource) ?? [];
+			values.push(value);
+			map.set(input.resource, values);
+		} else {
+			// reuse a widget which was either free'ed before or which
+			// is simply being reused...
+			value.token = this._tokenPool++;
+		}
 
-updateReplContextKey(uri: stringcognidreamognidream {
-	this._mostRecentRepl.set(uri);
-}
+		return this._createBorrowValue(value.token!, value);
+	}
+
+	// protected for unit testing overrides
+	protected createWidget(editorGroupContextKeyService: IContextKeyService, widgetDisposeStore: DisposableStore, editorGroupEditorProgressService: IEditorProgressService, creationOptions?: INotebookEditorCreationOptions, codeWindow?: CodeWindow, initialDimension?: Dimension) {
+		const notebookInstantiationService = widgetDisposeStore.add(this.instantiationService.createChild(new ServiceCollection(
+			[IContextKeyService, editorGroupContextKeyService],
+			[IEditorProgressService, editorGroupEditorProgressService])));
+		const ctorOptions = creationOptions ?? getDefaultNotebookCreationOptions();
+		const widget = notebookInstantiationService.createInstance(NotebookEditorWidget, {
+			...ctorOptions,
+			codeWindow: codeWindow ?? ctorOptions.codeWindow,
+		}, initialDimension);
+		return widget;
+	}
+
+	private _createBorrowValue(myToken: number, widget: { widget: NotebookEditorWidget; token: number | undefined }): IBorrowValue<NotebookEditorWidget> {
+		return {
+			get value() {
+				return widget.token === myToken ? widget.widget : undefined;
+			}
+		};
+	}
+
+	// --- editor management
+
+	addNotebookEditor(editor: INotebookEditor): void {
+		this._notebookEditors.set(editor.getId(), editor);
+		this._onNotebookEditorAdd.fire(editor);
+	}
+
+	removeNotebookEditor(editor: INotebookEditor): void {
+		const notebookUri = editor.getViewModel()?.notebookDocument.uri;
+		if (this._notebookEditors.has(editor.getId())) {
+			this._notebookEditors.delete(editor.getId());
+			this._onNotebookEditorsRemove.fire(editor);
+		}
+		if (this._mostRecentRepl.get() === notebookUri?.toString()) {
+			this._mostRecentRepl.reset();
+		}
+	}
+
+	getNotebookEditor(editorId: string): INotebookEditor | undefined {
+		return this._notebookEditors.get(editorId);
+	}
+
+	listNotebookEditors(): readonly INotebookEditor[] {
+		return [...this._notebookEditors].map(e => e[1]);
+	}
+
+	updateReplContextKey(uri: string): void {
+		this._mostRecentRepl.set(uri);
+	}
 }

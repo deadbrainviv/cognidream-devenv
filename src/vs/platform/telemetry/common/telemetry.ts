@@ -35,22 +35,22 @@ export interface ITelemetryService {
 	/**
 	 * @deprecated Use publicLog2 and the typescript GDPR annotation where possible
 	 */
-	publicLog(eventName: string, data?: ITelemetryData): cognidreamidream;
+	publicLog(eventName: string, data?: ITelemetryData): void;
 
 	/**
 	 * Sends a telemetry event that has been privacy approved.
 	 * Do not call this unless you have been given approval.
 	 */
-	publicLog2<E extends ClassifiedEvent<OmitMetadata<T>> = never, T extends IGDPRProperty = never>(eventName: string, data?: StrictPropertyCheck<T, E>): cognidreamidream;
+	publicLog2<E extends ClassifiedEvent<OmitMetadata<T>> = never, T extends IGDPRProperty = never>(eventName: string, data?: StrictPropertyCheck<T, E>): void;
 
 	/**
 	 * @deprecated Use publicLogError2 and the typescript GDPR annotation where possible
 	 */
-	publicLogError(errorEventName: string, data?: ITelemetryData): cognidreamidream;
+	publicLogError(errorEventName: string, data?: ITelemetryData): void;
 
-	publicLogError2<E extends ClassifiedEvent<OmitMetadata<T>> = never, T extends IGDPRProperty = never>(eventName: string, data?: StrictPropertyCheck<T, E>): cognidreamidream;
+	publicLogError2<E extends ClassifiedEvent<OmitMetadata<T>> = never, T extends IGDPRProperty = never>(eventName: string, data?: StrictPropertyCheck<T, E>): void;
 
-	setExperimentProperty(name: string, value: string): cognidreamidream;
+	setExperimentProperty(name: string, value: string): void;
 }
 
 export interface ITelemetryEndpoint {
@@ -64,8 +64,8 @@ export const ICustomEndpointTelemetryService = createDecorator<ICustomEndpointTe
 export interface ICustomEndpointTelemetryService {
 	readonly _serviceBrand: undefined;
 
-	publicLog(endpoint: ITelemetryEndpoint, eventName: string, data?: ITelemetryData): cognidreamidream;
-	publicLogError(endpoint: ITelemetryEndpoint, errorEventName: string, data?: ITelemetryData): cognidreamidream;
+	publicLog(endpoint: ITelemetryEndpoint, eventName: string, data?: ITelemetryData): void;
+	publicLogError(endpoint: ITelemetryEndpoint, errorEventName: string, data?: ITelemetryData): void;
 }
 
 // Keys

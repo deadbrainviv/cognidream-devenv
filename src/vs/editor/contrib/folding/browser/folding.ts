@@ -48,7 +48,7 @@ const CONTEXT_FOLDING_ENABLED = new RawContextKey<boolean>('foldingEnabled', fal
 export interface RangeProvider {
 	readonly id: string;
 	compute(cancelationToken: CancellationToken): Promise<FoldingRegions | null>;
-	dispose(): cognidream;
+	dispose(): void;
 }
 
 interface FoldingStateMemento {
@@ -60,7 +60,7 @@ interface FoldingStateMemento {
 
 export interface FoldingLimitReporter {
 	readonly limit: number;
-	update(computed: number, limited: number | false): cognidream;
+	update(computed: number, limited: number | false): void;
 }
 
 export type FoldingRangeProviderSelector = (provider: FoldingRangeProvider[], document: ITextModel) => FoldingRangeProvider[] | undefined;
@@ -204,7 +204,7 @@ export class FoldingController extends Disposable implements IEditorContribution
 	/**
 	 * Restore view state.
 	 */
-	public restoreViewState(state: FoldingStateMemento): cognidream {
+	public restoreViewState(state: FoldingStateMemento): void {
 		const model = this.editor.getModel();
 		if (!model || !this._isEnabled || model.isTooLargeForTokenization() || !this.hiddenRangeModel) {
 			return;
@@ -224,7 +224,7 @@ export class FoldingController extends Disposable implements IEditorContribution
 		}
 	}
 
-	private onModelChanged(): cognidream {
+	private onModelChanged(): void {
 		this.localToDispose.clear();
 
 		const model = this.editor.getModel();
@@ -392,7 +392,7 @@ export class FoldingController extends Disposable implements IEditorContribution
 
 	}
 
-	private onEditorMouseDown(e: IEditorMouseEvent): cognidream {
+	private onEditorMouseDown(e: IEditorMouseEvent): void {
 		this.mouseDownInfo = null;
 
 
@@ -445,7 +445,7 @@ export class FoldingController extends Disposable implements IEditorContribution
 		this.mouseDownInfo = { lineNumber: range.startLineNumber, iconClicked };
 	}
 
-	private onEditorMouseUp(e: IEditorMouseEvent): cognidream {
+	private onEditorMouseUp(e: IEditorMouseEvent): void {
 		const foldingModel = this.foldingModel;
 		if (!foldingModel || !this.mouseDownInfo || !e.target) {
 			return;
@@ -508,7 +508,7 @@ export class FoldingController extends Disposable implements IEditorContribution
 		}
 	}
 
-	public reveal(position: IPosition): cognidream {
+	public reveal(position: IPosition): void {
 		this.editor.revealPositionInCenterIfOutsideViewport(position, ScrollType.Smooth);
 	}
 }
@@ -521,8 +521,8 @@ export class RangesLimitReporter implements FoldingLimitReporter {
 		return this.editor.getOptions().get(EditorOption.foldingMaximumRegions);
 	}
 
-	private _onDidChange = new Emitter<cognidream>();
-	public readonly onDidChange: Event<cognidream> = this._onDidChange.event;
+	private _onDidChange = new Emitter<void>();
+	public readonly onDidChange: Event<void> = this._onDidChange.event;
 
 	private _computed: number = 0;
 	private _limited: number | false = false;
@@ -543,9 +543,9 @@ export class RangesLimitReporter implements FoldingLimitReporter {
 
 abstract class FoldingAction<T> extends EditorAction {
 
-	abstract invoke(foldingController: FoldingController, foldingModel: FoldingModel, editor: ICodeEditor, args: T, languageConfigurationService: ILanguageConfigurationService): cognidream;
+	abstract invoke(foldingController: FoldingController, foldingModel: FoldingModel, editor: ICodeEditor, args: T, languageConfigurationService: ILanguageConfigurationService): void;
 
-	public override runEditorCommand(accessor: ServicesAccessor, editor: ICodeEditor, args: T): cognidream | Promise<cognidream> {
+	public override runEditorCommand(accessor: ServicesAccessor, editor: ICodeEditor, args: T): void | Promise<void> {
 		const languageConfigurationService = accessor.get(ILanguageConfigurationService);
 		const foldingController = FoldingController.get(editor);
 		if (!foldingController) {
@@ -578,7 +578,7 @@ abstract class FoldingAction<T> extends EditorAction {
 		return this.getSelectedLines(editor);
 	}
 
-	public run(_accessor: ServicesAccessor, _editor: ICodeEditor): cognidream {
+	public run(_accessor: ServicesAccessor, _editor: ICodeEditor): void {
 	}
 }
 
@@ -682,7 +682,7 @@ class UnfoldAction extends FoldingAction<FoldingArguments> {
 		});
 	}
 
-	invoke(_foldingController: FoldingController, foldingModel: FoldingModel, editor: ICodeEditor, args: FoldingArguments): cognidream {
+	invoke(_foldingController: FoldingController, foldingModel: FoldingModel, editor: ICodeEditor, args: FoldingArguments): void {
 		const levels = args && args.levels || 1;
 		const lineNumbers = this.getLineNumbers(args, editor);
 		if (args && args.direction === 'up') {
@@ -693,7 +693,7 @@ class UnfoldAction extends FoldingAction<FoldingArguments> {
 	}
 }
 
-class UnFoldRecursivelyAction extends FoldingAction<cognidream> {
+class UnFoldRecursivelyAction extends FoldingAction<void> {
 
 	constructor() {
 		super({
@@ -708,7 +708,7 @@ class UnFoldRecursivelyAction extends FoldingAction<cognidream> {
 		});
 	}
 
-	invoke(_foldingController: FoldingController, foldingModel: FoldingModel, editor: ICodeEditor, _args: any): cognidream {
+	invoke(_foldingController: FoldingController, foldingModel: FoldingModel, editor: ICodeEditor, _args: any): void {
 		setCollapseStateLevelsDown(foldingModel, false, Number.MAX_VALUE, this.getSelectedLines(editor));
 	}
 }
@@ -764,7 +764,7 @@ class FoldAction extends FoldingAction<FoldingArguments> {
 		});
 	}
 
-	invoke(_foldingController: FoldingController, foldingModel: FoldingModel, editor: ICodeEditor, args: FoldingArguments): cognidream {
+	invoke(_foldingController: FoldingController, foldingModel: FoldingModel, editor: ICodeEditor, args: FoldingArguments): void {
 		const lineNumbers = this.getLineNumbers(args, editor);
 
 		const levels = args && args.levels;
@@ -784,7 +784,7 @@ class FoldAction extends FoldingAction<FoldingArguments> {
 }
 
 
-class ToggleFoldAction extends FoldingAction<cognidream> {
+class ToggleFoldAction extends FoldingAction<void> {
 
 	constructor() {
 		super({
@@ -799,14 +799,14 @@ class ToggleFoldAction extends FoldingAction<cognidream> {
 		});
 	}
 
-	invoke(_foldingController: FoldingController, foldingModel: FoldingModel, editor: ICodeEditor): cognidream {
+	invoke(_foldingController: FoldingController, foldingModel: FoldingModel, editor: ICodeEditor): void {
 		const selectedLines = this.getSelectedLines(editor);
 		toggleCollapseState(foldingModel, 1, selectedLines);
 	}
 }
 
 
-class FoldRecursivelyAction extends FoldingAction<cognidream> {
+class FoldRecursivelyAction extends FoldingAction<void> {
 
 	constructor() {
 		super({
@@ -821,14 +821,14 @@ class FoldRecursivelyAction extends FoldingAction<cognidream> {
 		});
 	}
 
-	invoke(_foldingController: FoldingController, foldingModel: FoldingModel, editor: ICodeEditor): cognidream {
+	invoke(_foldingController: FoldingController, foldingModel: FoldingModel, editor: ICodeEditor): void {
 		const selectedLines = this.getSelectedLines(editor);
 		setCollapseStateLevelsDown(foldingModel, true, Number.MAX_VALUE, selectedLines);
 	}
 }
 
 
-class ToggleFoldRecursivelyAction extends FoldingAction<cognidream> {
+class ToggleFoldRecursivelyAction extends FoldingAction<void> {
 
 	constructor() {
 		super({
@@ -843,14 +843,14 @@ class ToggleFoldRecursivelyAction extends FoldingAction<cognidream> {
 		});
 	}
 
-	invoke(_foldingController: FoldingController, foldingModel: FoldingModel, editor: ICodeEditor): cognidream {
+	invoke(_foldingController: FoldingController, foldingModel: FoldingModel, editor: ICodeEditor): void {
 		const selectedLines = this.getSelectedLines(editor);
 		toggleCollapseState(foldingModel, Number.MAX_VALUE, selectedLines);
 	}
 }
 
 
-class FoldAllBlockCommentsAction extends FoldingAction<cognidream> {
+class FoldAllBlockCommentsAction extends FoldingAction<void> {
 
 	constructor() {
 		super({
@@ -865,7 +865,7 @@ class FoldAllBlockCommentsAction extends FoldingAction<cognidream> {
 		});
 	}
 
-	invoke(_foldingController: FoldingController, foldingModel: FoldingModel, editor: ICodeEditor, args: cognidream, languageConfigurationService: ILanguageConfigurationService): cognidream {
+	invoke(_foldingController: FoldingController, foldingModel: FoldingModel, editor: ICodeEditor, args: void, languageConfigurationService: ILanguageConfigurationService): void {
 		if (foldingModel.regions.hasTypes()) {
 			setCollapseStateForType(foldingModel, FoldingRangeKind.Comment.value, true);
 		} else {
@@ -882,7 +882,7 @@ class FoldAllBlockCommentsAction extends FoldingAction<cognidream> {
 	}
 }
 
-class FoldAllRegionsAction extends FoldingAction<cognidream> {
+class FoldAllRegionsAction extends FoldingAction<void> {
 
 	constructor() {
 		super({
@@ -897,7 +897,7 @@ class FoldAllRegionsAction extends FoldingAction<cognidream> {
 		});
 	}
 
-	invoke(_foldingController: FoldingController, foldingModel: FoldingModel, editor: ICodeEditor, args: cognidream, languageConfigurationService: ILanguageConfigurationService): cognidream {
+	invoke(_foldingController: FoldingController, foldingModel: FoldingModel, editor: ICodeEditor, args: void, languageConfigurationService: ILanguageConfigurationService): void {
 		if (foldingModel.regions.hasTypes()) {
 			setCollapseStateForType(foldingModel, FoldingRangeKind.Region.value, true);
 		} else {
@@ -914,7 +914,7 @@ class FoldAllRegionsAction extends FoldingAction<cognidream> {
 	}
 }
 
-class UnfoldAllRegionsAction extends FoldingAction<cognidream> {
+class UnfoldAllRegionsAction extends FoldingAction<void> {
 
 	constructor() {
 		super({
@@ -929,7 +929,7 @@ class UnfoldAllRegionsAction extends FoldingAction<cognidream> {
 		});
 	}
 
-	invoke(_foldingController: FoldingController, foldingModel: FoldingModel, editor: ICodeEditor, args: cognidream, languageConfigurationService: ILanguageConfigurationService): cognidream {
+	invoke(_foldingController: FoldingController, foldingModel: FoldingModel, editor: ICodeEditor, args: void, languageConfigurationService: ILanguageConfigurationService): void {
 		if (foldingModel.regions.hasTypes()) {
 			setCollapseStateForType(foldingModel, FoldingRangeKind.Region.value, false);
 		} else {
@@ -946,7 +946,7 @@ class UnfoldAllRegionsAction extends FoldingAction<cognidream> {
 	}
 }
 
-class FoldAllExceptAction extends FoldingAction<cognidream> {
+class FoldAllExceptAction extends FoldingAction<void> {
 
 	constructor() {
 		super({
@@ -961,14 +961,14 @@ class FoldAllExceptAction extends FoldingAction<cognidream> {
 		});
 	}
 
-	invoke(_foldingController: FoldingController, foldingModel: FoldingModel, editor: ICodeEditor): cognidream {
+	invoke(_foldingController: FoldingController, foldingModel: FoldingModel, editor: ICodeEditor): void {
 		const selectedLines = this.getSelectedLines(editor);
 		setCollapseStateForRest(foldingModel, true, selectedLines);
 	}
 
 }
 
-class UnfoldAllExceptAction extends FoldingAction<cognidream> {
+class UnfoldAllExceptAction extends FoldingAction<void> {
 
 	constructor() {
 		super({
@@ -983,13 +983,13 @@ class UnfoldAllExceptAction extends FoldingAction<cognidream> {
 		});
 	}
 
-	invoke(_foldingController: FoldingController, foldingModel: FoldingModel, editor: ICodeEditor): cognidream {
+	invoke(_foldingController: FoldingController, foldingModel: FoldingModel, editor: ICodeEditor): void {
 		const selectedLines = this.getSelectedLines(editor);
 		setCollapseStateForRest(foldingModel, false, selectedLines);
 	}
 }
 
-class FoldAllAction extends FoldingAction<cognidream> {
+class FoldAllAction extends FoldingAction<void> {
 
 	constructor() {
 		super({
@@ -1004,12 +1004,12 @@ class FoldAllAction extends FoldingAction<cognidream> {
 		});
 	}
 
-	invoke(_foldingController: FoldingController, foldingModel: FoldingModel, _editor: ICodeEditor): cognidream {
+	invoke(_foldingController: FoldingController, foldingModel: FoldingModel, _editor: ICodeEditor): void {
 		setCollapseStateLevelsDown(foldingModel, true);
 	}
 }
 
-class UnfoldAllAction extends FoldingAction<cognidream> {
+class UnfoldAllAction extends FoldingAction<void> {
 
 	constructor() {
 		super({
@@ -1024,12 +1024,12 @@ class UnfoldAllAction extends FoldingAction<cognidream> {
 		});
 	}
 
-	invoke(_foldingController: FoldingController, foldingModel: FoldingModel, _editor: ICodeEditor): cognidream {
+	invoke(_foldingController: FoldingController, foldingModel: FoldingModel, _editor: ICodeEditor): void {
 		setCollapseStateLevelsDown(foldingModel, false);
 	}
 }
 
-class FoldLevelAction extends FoldingAction<cognidream> {
+class FoldLevelAction extends FoldingAction<void> {
 	private static readonly ID_PREFIX = 'editor.foldLevel';
 	public static readonly ID = (level: number) => FoldLevelAction.ID_PREFIX + level;
 
@@ -1037,13 +1037,13 @@ class FoldLevelAction extends FoldingAction<cognidream> {
 		return parseInt(this.id.substr(FoldLevelAction.ID_PREFIX.length));
 	}
 
-	invoke(_foldingController: FoldingController, foldingModel: FoldingModel, editor: ICodeEditor): cognidream {
+	invoke(_foldingController: FoldingController, foldingModel: FoldingModel, editor: ICodeEditor): void {
 		setCollapseStateAtLevel(foldingModel, this.getFoldingLevel(), true, this.getSelectedLines(editor));
 	}
 }
 
 /** Action to go to the parent fold of current line */
-class GotoParentFoldAction extends FoldingAction<cognidream> {
+class GotoParentFoldAction extends FoldingAction<void> {
 	constructor() {
 		super({
 			id: 'editor.gotoParentFold',
@@ -1056,7 +1056,7 @@ class GotoParentFoldAction extends FoldingAction<cognidream> {
 		});
 	}
 
-	invoke(_foldingController: FoldingController, foldingModel: FoldingModel, editor: ICodeEditor): cognidream {
+	invoke(_foldingController: FoldingController, foldingModel: FoldingModel, editor: ICodeEditor): void {
 		const selectedLines = this.getSelectedLines(editor);
 		if (selectedLines.length > 0) {
 			const startLineNumber = getParentFoldLine(selectedLines[0], foldingModel);
@@ -1073,7 +1073,7 @@ class GotoParentFoldAction extends FoldingAction<cognidream> {
 }
 
 /** Action to go to the previous fold of current line */
-class GotoPreviousFoldAction extends FoldingAction<cognidream> {
+class GotoPreviousFoldAction extends FoldingAction<void> {
 	constructor() {
 		super({
 			id: 'editor.gotoPreviousFold',
@@ -1086,7 +1086,7 @@ class GotoPreviousFoldAction extends FoldingAction<cognidream> {
 		});
 	}
 
-	invoke(_foldingController: FoldingController, foldingModel: FoldingModel, editor: ICodeEditor): cognidream {
+	invoke(_foldingController: FoldingController, foldingModel: FoldingModel, editor: ICodeEditor): void {
 		const selectedLines = this.getSelectedLines(editor);
 		if (selectedLines.length > 0) {
 			const startLineNumber = getPreviousFoldLine(selectedLines[0], foldingModel);
@@ -1103,7 +1103,7 @@ class GotoPreviousFoldAction extends FoldingAction<cognidream> {
 }
 
 /** Action to go to the next fold of current line */
-class GotoNextFoldAction extends FoldingAction<cognidream> {
+class GotoNextFoldAction extends FoldingAction<void> {
 	constructor() {
 		super({
 			id: 'editor.gotoNextFold',
@@ -1116,7 +1116,7 @@ class GotoNextFoldAction extends FoldingAction<cognidream> {
 		});
 	}
 
-	invoke(_foldingController: FoldingController, foldingModel: FoldingModel, editor: ICodeEditor): cognidream {
+	invoke(_foldingController: FoldingController, foldingModel: FoldingModel, editor: ICodeEditor): void {
 		const selectedLines = this.getSelectedLines(editor);
 		if (selectedLines.length > 0) {
 			const startLineNumber = getNextFoldLine(selectedLines[0], foldingModel);
@@ -1132,7 +1132,7 @@ class GotoNextFoldAction extends FoldingAction<cognidream> {
 	}
 }
 
-class FoldRangeFromSelectionAction extends FoldingAction<cognidream> {
+class FoldRangeFromSelectionAction extends FoldingAction<void> {
 
 	constructor() {
 		super({
@@ -1147,7 +1147,7 @@ class FoldRangeFromSelectionAction extends FoldingAction<cognidream> {
 		});
 	}
 
-	invoke(_foldingController: FoldingController, foldingModel: FoldingModel, editor: ICodeEditor): cognidream {
+	invoke(_foldingController: FoldingController, foldingModel: FoldingModel, editor: ICodeEditor): void {
 		const collapseRanges: FoldRange[] = [];
 		const selections = editor.getSelections();
 		if (selections) {
@@ -1183,7 +1183,7 @@ class FoldRangeFromSelectionAction extends FoldingAction<cognidream> {
 	}
 }
 
-class RemoveFoldRangeFromSelectionAction extends FoldingAction<cognidream> {
+class RemoveFoldRangeFromSelectionAction extends FoldingAction<void> {
 
 	constructor() {
 		super({
@@ -1198,7 +1198,7 @@ class RemoveFoldRangeFromSelectionAction extends FoldingAction<cognidream> {
 		});
 	}
 
-	invoke(foldingController: FoldingController, foldingModel: FoldingModel, editor: ICodeEditor): cognidream {
+	invoke(foldingController: FoldingController, foldingModel: FoldingModel, editor: ICodeEditor): void {
 		const selections = editor.getSelections();
 		if (selections) {
 			const ranges: ILineRange[] = [];
@@ -1213,7 +1213,7 @@ class RemoveFoldRangeFromSelectionAction extends FoldingAction<cognidream> {
 }
 
 
-class ToggleImportFoldAction extends FoldingAction<cognidream> {
+class ToggleImportFoldAction extends FoldingAction<void> {
 
 	constructor() {
 		super({
@@ -1227,7 +1227,7 @@ class ToggleImportFoldAction extends FoldingAction<cognidream> {
 		});
 	}
 
-	async invoke(foldingController: FoldingController, foldingModel: FoldingModel): Promise<cognidream> {
+	async invoke(foldingController: FoldingController, foldingModel: FoldingModel): Promise<void> {
 		const regionsToToggle: FoldingRegion[] = [];
 		const regions = foldingModel.regions;
 		for (let i = regions.length - 1; i >= 0; i--) {

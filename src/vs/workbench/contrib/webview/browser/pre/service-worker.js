@@ -35,7 +35,7 @@ const resolveTimeout = 30_000;
 /**
  * @template T
  * @typedef {{
- *     resolve: (x: RequestStoreResult<T>) => cognidream,
+ *     resolve: (x: RequestStoreResult<T>) => void,
  *     promise: Promise<RequestStoreResult<T>>
  * }} RequestStoreEntry
  */
@@ -58,14 +58,14 @@ class RequestStore {
 	create() {
 		const requestId = ++this.requestPool;
 
-		/** @type {undefined | ((x: RequestStoreResult<Tcognidream> cognidream)} */
+		/** @type {undefined | ((x: RequestStoreResult<T>) => void)} */
 		let resolve;
 
 		/** @type {Promise<RequestStoreResult<T>>} */
 		const promise = new Promise(r => resolve = r);
 
 		/** @type {RequestStoreEntry<T>} */
-		const entry = { resolve: /** @type {(x: RequestStoreResult<Tcognidream> cognidream} */ (resolve), promise };
+		const entry = { resolve: /** @type {(x: RequestStoreResult<T>) => void} */ (resolve), promise };
 
 		this.map.set(requestId, entry);
 

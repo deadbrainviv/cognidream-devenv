@@ -14,30 +14,30 @@ import { Disposable, toDisposable, type IDisposable } from '../../../base/common
 export interface ITaskQueue extends IDisposable {
 	/**
 	 * Adds a task to the queue which will run in a future idle callback.
-	 * To acognidream perceivable stalls on the mainthread, tasks with heavy workload
+	 * To avoid perceivable stalls on the mainthread, tasks with heavy workload
 	 * should split their work into smaller pieces and return `true` to get
 	 * called again until the work is done (on falsy return value).
 	 */
-	enqueue(task: () => boolean | cognidream): cognidream;
+	enqueue(task: () => boolean | void): void;
 
 	/**
 	 * Flushes the queue, running all remaining tasks synchronously.
 	 */
-	flush(): cognidream;
+	flush(): void;
 
 	/**
 	 * Clears any remaining tasks from the queue, these will not be run.
 	 */
-	clear(): cognidream;
+	clear(): void;
 }
 
 interface ITaskDeadline {
 	timeRemaining(): number;
 }
-type CallbackWithDeadline = (deadline: ITaskDeadline) => cognidream;
+type CallbackWithDeadline = (deadline: ITaskDeadline) => void;
 
 abstract class TaskQueue extends Disposable implements ITaskQueue {
-	private _tasks: (() => boolean | cognidream)[] = [];
+	private _tasks: (() => boolean | void)[] = [];
 	private _idleCallback?: number;
 	private _i = 0;
 
@@ -47,14 +47,14 @@ abstract class TaskQueue extends Disposable implements ITaskQueue {
 	}
 
 	protected abstract _requestCallback(callback: CallbackWithDeadline): number;
-	protected abstract _cancelCallback(identifier: number): cognidream;
+	protected abstract _cancelCallback(identifier: number): void;
 
-	public enqueue(task: () => boolean | cognidream): cognidream {
+	public enqueue(task: () => boolean | void): void {
 		this._tasks.push(task);
 		this._start();
 	}
 
-	public flush(): cognidream {
+	public flush(): void {
 		while (this._i < this._tasks.length) {
 			if (!this._tasks[this._i]()) {
 				this._i++;
@@ -63,7 +63,7 @@ abstract class TaskQueue extends Disposable implements ITaskQueue {
 		this.clear();
 	}
 
-	public clear(): cognidream {
+	public clear(): void {
 		if (this._idleCallback) {
 			this._cancelCallback(this._idleCallback);
 			this._idleCallback = undefined;
@@ -72,13 +72,13 @@ abstract class TaskQueue extends Disposable implements ITaskQueue {
 		this._tasks.length = 0;
 	}
 
-	private _start(): cognidream {
+	private _start(): void {
 		if (!this._idleCallback) {
 			this._idleCallback = this._requestCallback(this._process.bind(this));
 		}
 	}
 
-	private _process(deadline: ITaskDeadline): cognidream {
+	private _process(deadline: ITaskDeadline): void {
 		this._idleCallback = undefined;
 		let taskDuration = 0;
 		let longestTask = 0;
@@ -95,7 +95,7 @@ abstract class TaskQueue extends Disposable implements ITaskQueue {
 			taskDuration = Math.max(1, Date.now() - taskDuration);
 			longestTask = Math.max(taskDuration, longestTask);
 			// Guess the following task will take a similar time to the longest task in this batch, allow
-			// additional room to try acognidream exceeding the deadline
+			// additional room to try avoid exceeding the deadline
 			deadlineRemaining = deadline.timeRemaining();
 			if (longestTask * 1.5 > deadlineRemaining) {
 				// Warn when the time exceeding the deadline is over 20ms, if this happens in practice the
@@ -122,7 +122,7 @@ export class PriorityTaskQueue extends TaskQueue {
 		return getActiveWindow().setTimeout(() => callback(this._createDeadline(16)));
 	}
 
-	protected _cancelCallback(identifier: number): cognidream {
+	protected _cancelCallback(identifier: number): void {
 		getActiveWindow().clearTimeout(identifier);
 	}
 
@@ -139,7 +139,7 @@ class IdleTaskQueueInternal extends TaskQueue {
 		return getActiveWindow().requestIdleCallback(callback);
 	}
 
-	protected _cancelCallback(identifier: number): cognidream {
+	protected _cancelCallback(identifier: number): void {
 		getActiveWindow().cancelIdleCallback(identifier);
 	}
 }
@@ -165,12 +165,12 @@ export class DebouncedIdleTask {
 		this._queue = new IdleTaskQueue();
 	}
 
-	public set(task: () => boolean | cognidream): cognidream {
+	public set(task: () => boolean | void): void {
 		this._queue.clear();
 		this._queue.enqueue(task);
 	}
 
-	public flush(): cognidream {
+	public flush(): void {
 		this._queue.flush();
 	}
 }

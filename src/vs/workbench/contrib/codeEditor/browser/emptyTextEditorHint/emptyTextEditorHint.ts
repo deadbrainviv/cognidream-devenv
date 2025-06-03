@@ -136,7 +136,7 @@ export class EmptyTextEditorHintContribution implements IEditorContribution {
 		return hasEditorAgents || shouldRenderDefaultHint;
 	}
 
-	protected update(): cognidream {
+	protected update(): void {
 		const shouldRenderHint = this._shouldRenderHint();
 		if (shouldRenderHint && !this.textHintContentWidget) {
 			this.textHintContentWidget = new EmptyTextEditorHintContentWidget(
@@ -158,10 +158,10 @@ export class EmptyTextEditorHintContribution implements IEditorContribution {
 		}
 	}
 
-	dispose(cognidreamidreamognidream {
+	dispose(): void {
 		dispose(this.toDispose);
-this.textHintContentWidget?.dispose();
-    }
+		this.textHintContentWidget?.dispose();
+	}
 }
 
 class EmptyTextEditorHintContentWidget implements IContentWidget {
@@ -434,10 +434,10 @@ class EmptyTextEditorHintContentWidget implements IContentWidget {
 		};
 	}
 
-	dispose(cognidreamidreamognidream {
+	dispose(): void {
 		this.editor.removeContentWidget(this);
-dispose(this.toDispose);
-    }
+		dispose(this.toDispose);
+	}
 }
 
 registerEditorContribution(EmptyTextEditorHintContribution.ID, EmptyTextEditorHintContribution, EditorContributionInstantiation.Eager); // eager because it needs to render a help message

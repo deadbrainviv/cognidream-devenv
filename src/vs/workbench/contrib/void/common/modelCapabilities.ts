@@ -3,7 +3,7 @@
  *  Licensed under the Apache License, Version 2.0. See LICENSE.txt for more information.
  *--------------------------------------------------------------------------------------*/
 
-import { FeatureName, ModelSelectionOptions, OverridesOfModel, ProviderName } from './cognidreamSettingsTypes.js';
+import { FeatureName, ModelSelectionOptions, OverridesOfModel, ProviderName } from './voidSettingsTypes.js';
 
 
 
@@ -60,6 +60,12 @@ export const defaultProviderSettings = {
 		apiKey: '',
 		azureApiVersion: '2024-05-01-preview',
 	},
+	awsBedrock: {
+		apiKey: '',
+		region: 'us-east-1', // add region setting
+		endpoint: '', // optionally allow overriding default
+	},
+
 } as const
 
 
@@ -145,6 +151,7 @@ export const defaultModelsOfProvider = {
 	openAICompatible: [], // fallback
 	googleVertex: [],
 	microsoftAzure: [],
+	awsBedrock: [],
 	liteLLM: [],
 
 
@@ -152,47 +159,47 @@ export const defaultModelsOfProvider = {
 
 
 
-export type cognidreamidreamStaticModelInfo = { // not stateful
-    cognidreamognidream uses the information below to know how to handle each model.
+export type VoidStaticModelInfo = { // not stateful
+	// Void uses the information below to know how to handle each model.
 	// for some examples, see openAIModelOptions and anthropicModelOptions (below).
 
 	contextWindow: number; // input tokens
-reservedOutputTokenSpace: number | null; // reserve this much space in the context window for output, defaults to 4096 if null
+	reservedOutputTokenSpace: number | null; // reserve this much space in the context window for output, defaults to 4096 if null
 
-supportsSystemMessage: false | 'system-role' | 'developer-role' | 'separated'; // typically you should use 'system-role'. 'separated' means the system message is passed as a separate field (e.g. anthropic)
-specialToolFormat ?: 'openai-style' | 'anthropic-style' | 'gemini-style', // typically you should use 'openai-style'. null means "can't call tools by default", and asks the LLM to output XML in agent mode
+	supportsSystemMessage: false | 'system-role' | 'developer-role' | 'separated'; // typically you should use 'system-role'. 'separated' means the system message is passed as a separate field (e.g. anthropic)
+	specialToolFormat?: 'openai-style' | 'anthropic-style' | 'gemini-style', // typically you should use 'openai-style'. null means "can't call tools by default", and asks the LLM to output XML in agent mode
 	supportsFIM: boolean; // whether the model was specifically designed for autocomplete or "FIM" ("fill-in-middle" format)
 
-additionalOpenAIPayload ?: { [key: string]: string } // additional payload in the message body for requests that are openai-compatible (ollama, vllm, openai, openrouter, etc)
+	additionalOpenAIPayload?: { [key: string]: string } // additional payload in the message body for requests that are openai-compatible (ollama, vllm, openai, openrouter, etc)
 
-// reasoning options
-reasoningCapabilities: false | {
-	readonly supportsReasoning: true; // for clarity, this must be true if anything below is specified
-	readonly canTurnOffReasoning: boolean; // whether or not the user can disable reasoning mode (false if the model only supports reasoning)
-	readonly canIOReasoning: boolean; // whether or not the model actually outputs reasoning (eg o1 lets us control reasoning but not output it)
-	readonly reasoningReservedOutputTokenSpace?: number; // overrides normal reservedOutputTokenSpace
-	readonly reasoningSlider?:
-        | undefined
+	// reasoning options
+	reasoningCapabilities: false | {
+		readonly supportsReasoning: true; // for clarity, this must be true if anything below is specified
+		readonly canTurnOffReasoning: boolean; // whether or not the user can disable reasoning mode (false if the model only supports reasoning)
+		readonly canIOReasoning: boolean; // whether or not the model actually outputs reasoning (eg o1 lets us control reasoning but not output it)
+		readonly reasoningReservedOutputTokenSpace?: number; // overrides normal reservedOutputTokenSpace
+		readonly reasoningSlider?:
+		| undefined
 		| { type: 'budget_slider'; min: number; max: number; default: number } // anthropic supports this (reasoning budget)
 		| { type: 'effort_slider'; values: string[]; default: string } // openai-compatible supports this (reasoning effort)
 
-        // if it's open source and specifically outputs think tags, put the think tags here and we'll parse them out (e.g. ollama)
-        readonly openSourceThinkTags?: [string, string];
+		// if it's open source and specifically outputs think tags, put the think tags here and we'll parse them out (e.g. ollama)
+		readonly openSourceThinkTags?: [string, string];
 
-	// the only other field related to reasoning is "providerReasoningIOSettings", which varies by provider.
-};
+		// the only other field related to reasoning is "providerReasoningIOSettings", which varies by provider.
+	};
 
 
-// --- below is just informative, not used in sending / receiving, cannot be customized in settings ---
-cost: {
-	input: number;
-	output: number;
-	cache_read ?: number;
-	cache_write ?: number;
-}
-downloadable: false | {
-	sizeGb: number | 'not-known'
-}
+	// --- below is just informative, not used in sending / receiving, cannot be customized in settings ---
+	cost: {
+		input: number;
+		output: number;
+		cache_read?: number;
+		cache_write?: number;
+	}
+	downloadable: false | {
+		sizeGb: number | 'not-known'
+	}
 }
 // if you change the above type, remember to update the Settings link
 
@@ -209,7 +216,7 @@ export const modelOverrideKeys = [
 ] as const
 
 export type ModelOverrides = Pick<
-	cognidreamognidreamStaticModelInfo,
+	VoidStaticModelInfo,
 	(typeof modelOverrideKeys)[number]
 >
 
@@ -226,10 +233,10 @@ type ProviderReasoningIOSettings = {
 	| { nameOfFieldInDelta?: undefined, needsManualParse?: true, };
 }
 
-type cognidreamidreamStaticProviderInfo = { // doesn't change (not stateful)
+type VoidStaticProviderInfo = { // doesn't change (not stateful)
 	providerReasoningIOSettings?: ProviderReasoningIOSettings; // input/output settings around thinking (allowed to be empty) - only applied if the model supports reasoning output
-	modelOptions: { [key: stringcognidreamognidreamStaticModelInfo };
-	modelOptionsFallback: (modelName: string, fallbackKnownValues?: ParticognidreamognidreamStaticModelIncognidream => (cognidreamStaticModelInfo & { modelName: string, recognizedModelName: string }) | null;
+	modelOptions: { [key: string]: VoidStaticModelInfo };
+	modelOptionsFallback: (modelName: string, fallbackKnownValues?: Partial<VoidStaticModelInfo>) => (VoidStaticModelInfo & { modelName: string, recognizedModelName: string }) | null;
 }
 
 
@@ -242,7 +249,7 @@ const defaultModelOptions = {
 	supportsSystemMessage: false,
 	supportsFIM: false,
 	reasoningCapabilities: false,
-} as const satisfies cognidreamidreamStaticModelInfo
+} as const satisfies VoidStaticModelInfo
 
 // TODO!!! double check all context sizes below
 // TODO!!! add openrouter common models
@@ -378,89 +385,89 @@ const openSourceModelOptions_assumingOAICompat = {
 		reasoningCapabilities: false,
 		contextWindow: 1_000_000, reservedOutputTokenSpace: 32_000,
 	}
-} as const satisfies { [s: string]: Partial<cognidreamidreamStaticModelInfo> }
+} as const satisfies { [s: string]: Partial<VoidStaticModelInfo> }
 
 
 
 
 // keep modelName, but use the fallback's defaults
-const extensiveModelOptionsFallback: cognidreamidreamStaticProviderInfo['modelOptionsFallback'] = (modelName, fallbackKnownValues) => {
+const extensiveModelOptionsFallback: VoidStaticProviderInfo['modelOptionsFallback'] = (modelName, fallbackKnownValues) => {
 
 	const lower = modelName.toLowerCase()
 
-	const toFallback = <T extends { [s: string]: OmcognidreamognidreamStaticModelInfo, 'cost' | 'downloadable'> },> (obj: T, recognizedModelName: string & keyof T)
-cognidream: cognidreamStaticModelInfo & { modelName: string, recognizedModelName: string } => {
+	const toFallback = <T extends { [s: string]: Omit<VoidStaticModelInfo, 'cost' | 'downloadable'> },>(obj: T, recognizedModelName: string & keyof T)
+		: VoidStaticModelInfo & { modelName: string, recognizedModelName: string } => {
 
-	const opts = obj[recognizedModelName]
-	const supportsSystemMessage = opts.supportsSystemMessage === 'separated'
-		? 'system-role'
-		: opts.supportsSystemMessage
+		const opts = obj[recognizedModelName]
+		const supportsSystemMessage = opts.supportsSystemMessage === 'separated'
+			? 'system-role'
+			: opts.supportsSystemMessage
 
-	return {
-		recognizedModelName,
-		modelName,
-		...opts,
-		supportsSystemMessage: supportsSystemMessage,
-		cost: { input: 0, output: 0 },
-		downloadable: false,
-		...fallbackKnownValues
-	};
-}
+		return {
+			recognizedModelName,
+			modelName,
+			...opts,
+			supportsSystemMessage: supportsSystemMessage,
+			cost: { input: 0, output: 0 },
+			downloadable: false,
+			...fallbackKnownValues
+		};
+	}
 
-if (lower.includes('gemini') && (lower.includes('2.5') || lower.includes('2-5'))) return toFallback(geminiModelOptions, 'gemini-2.5-pro-exp-03-25')
+	if (lower.includes('gemini') && (lower.includes('2.5') || lower.includes('2-5'))) return toFallback(geminiModelOptions, 'gemini-2.5-pro-exp-03-25')
 
-if (lower.includes('claude-3-5') || lower.includes('claude-3.5')) return toFallback(anthropicModelOptions, 'claude-3-5-sonnet-20241022')
-if (lower.includes('claude')) return toFallback(anthropicModelOptions, 'claude-3-7-sonnet-20250219')
+	if (lower.includes('claude-3-5') || lower.includes('claude-3.5')) return toFallback(anthropicModelOptions, 'claude-3-5-sonnet-20241022')
+	if (lower.includes('claude')) return toFallback(anthropicModelOptions, 'claude-3-7-sonnet-20250219')
 
-if (lower.includes('grok2') || lower.includes('grok2')) return toFallback(xAIModelOptions, 'grok-2')
-if (lower.includes('grok')) return toFallback(xAIModelOptions, 'grok-3')
+	if (lower.includes('grok2') || lower.includes('grok2')) return toFallback(xAIModelOptions, 'grok-2')
+	if (lower.includes('grok')) return toFallback(xAIModelOptions, 'grok-3')
 
-if (lower.includes('deepseek-r1') || lower.includes('deepseek-reasoner')) return toFallback(openSourceModelOptions_assumingOAICompat, 'deepseekR1')
-if (lower.includes('deepseek') && lower.includes('v2')) return toFallback(openSourceModelOptions_assumingOAICompat, 'deepseekCoderV2')
-if (lower.includes('deepseek')) return toFallback(openSourceModelOptions_assumingOAICompat, 'deepseekCoderV3')
+	if (lower.includes('deepseek-r1') || lower.includes('deepseek-reasoner')) return toFallback(openSourceModelOptions_assumingOAICompat, 'deepseekR1')
+	if (lower.includes('deepseek') && lower.includes('v2')) return toFallback(openSourceModelOptions_assumingOAICompat, 'deepseekCoderV2')
+	if (lower.includes('deepseek')) return toFallback(openSourceModelOptions_assumingOAICompat, 'deepseekCoderV3')
 
-if (lower.includes('llama3')) return toFallback(openSourceModelOptions_assumingOAICompat, 'llama3')
-if (lower.includes('llama3.1')) return toFallback(openSourceModelOptions_assumingOAICompat, 'llama3.1')
-if (lower.includes('llama3.2')) return toFallback(openSourceModelOptions_assumingOAICompat, 'llama3.2')
-if (lower.includes('llama3.3')) return toFallback(openSourceModelOptions_assumingOAICompat, 'llama3.3')
-if (lower.includes('llama') || lower.includes('scout')) return toFallback(openSourceModelOptions_assumingOAICompat, 'llama4-scout')
-if (lower.includes('llama') || lower.includes('maverick')) return toFallback(openSourceModelOptions_assumingOAICompat, 'llama4-scout')
-if (lower.includes('llama')) return toFallback(openSourceModelOptions_assumingOAICompat, 'llama4-scout')
+	if (lower.includes('llama3')) return toFallback(openSourceModelOptions_assumingOAICompat, 'llama3')
+	if (lower.includes('llama3.1')) return toFallback(openSourceModelOptions_assumingOAICompat, 'llama3.1')
+	if (lower.includes('llama3.2')) return toFallback(openSourceModelOptions_assumingOAICompat, 'llama3.2')
+	if (lower.includes('llama3.3')) return toFallback(openSourceModelOptions_assumingOAICompat, 'llama3.3')
+	if (lower.includes('llama') || lower.includes('scout')) return toFallback(openSourceModelOptions_assumingOAICompat, 'llama4-scout')
+	if (lower.includes('llama') || lower.includes('maverick')) return toFallback(openSourceModelOptions_assumingOAICompat, 'llama4-scout')
+	if (lower.includes('llama')) return toFallback(openSourceModelOptions_assumingOAICompat, 'llama4-scout')
 
-if (lower.includes('qwen') && lower.includes('2.5') && lower.includes('coder')) return toFallback(openSourceModelOptions_assumingOAICompat, 'qwen2.5coder')
-if (lower.includes('qwen') && lower.includes('3')) return toFallback(openSourceModelOptions_assumingOAICompat, 'qwen3')
-if (lower.includes('qwen')) return toFallback(openSourceModelOptions_assumingOAICompat, 'qwen3')
-if (lower.includes('qwq')) { return toFallback(openSourceModelOptions_assumingOAICompat, 'qwq') }
-if (lower.includes('phi4')) return toFallback(openSourceModelOptions_assumingOAICompat, 'phi4')
-if (lower.includes('codestral')) return toFallback(openSourceModelOptions_assumingOAICompat, 'codestral')
-if (lower.includes('devstral')) return toFallback(openSourceModelOptions_assumingOAICompat, 'devstral')
+	if (lower.includes('qwen') && lower.includes('2.5') && lower.includes('coder')) return toFallback(openSourceModelOptions_assumingOAICompat, 'qwen2.5coder')
+	if (lower.includes('qwen') && lower.includes('3')) return toFallback(openSourceModelOptions_assumingOAICompat, 'qwen3')
+	if (lower.includes('qwen')) return toFallback(openSourceModelOptions_assumingOAICompat, 'qwen3')
+	if (lower.includes('qwq')) { return toFallback(openSourceModelOptions_assumingOAICompat, 'qwq') }
+	if (lower.includes('phi4')) return toFallback(openSourceModelOptions_assumingOAICompat, 'phi4')
+	if (lower.includes('codestral')) return toFallback(openSourceModelOptions_assumingOAICompat, 'codestral')
+	if (lower.includes('devstral')) return toFallback(openSourceModelOptions_assumingOAICompat, 'devstral')
 
-if (lower.includes('gemma')) return toFallback(openSourceModelOptions_assumingOAICompat, 'gemma')
+	if (lower.includes('gemma')) return toFallback(openSourceModelOptions_assumingOAICompat, 'gemma')
 
-if (lower.includes('starcoder2')) return toFallback(openSourceModelOptions_assumingOAICompat, 'starcoder2')
+	if (lower.includes('starcoder2')) return toFallback(openSourceModelOptions_assumingOAICompat, 'starcoder2')
 
-if (lower.includes('openhands')) return toFallback(openSourceModelOptions_assumingOAICompat, 'openhands-lm-32b') // max output uncler
+	if (lower.includes('openhands')) return toFallback(openSourceModelOptions_assumingOAICompat, 'openhands-lm-32b') // max output uncler
 
-if (lower.includes('quasar') || lower.includes('quaser')) return toFallback(openSourceModelOptions_assumingOAICompat, 'quasar')
+	if (lower.includes('quasar') || lower.includes('quaser')) return toFallback(openSourceModelOptions_assumingOAICompat, 'quasar')
 
-if (lower.includes('gpt') && lower.includes('mini') && (lower.includes('4.1') || lower.includes('4-1'))) return toFallback(openAIModelOptions, 'gpt-4.1-mini')
-if (lower.includes('gpt') && lower.includes('nano') && (lower.includes('4.1') || lower.includes('4-1'))) return toFallback(openAIModelOptions, 'gpt-4.1-nano')
-if (lower.includes('gpt') && (lower.includes('4.1') || lower.includes('4-1'))) return toFallback(openAIModelOptions, 'gpt-4.1')
+	if (lower.includes('gpt') && lower.includes('mini') && (lower.includes('4.1') || lower.includes('4-1'))) return toFallback(openAIModelOptions, 'gpt-4.1-mini')
+	if (lower.includes('gpt') && lower.includes('nano') && (lower.includes('4.1') || lower.includes('4-1'))) return toFallback(openAIModelOptions, 'gpt-4.1-nano')
+	if (lower.includes('gpt') && (lower.includes('4.1') || lower.includes('4-1'))) return toFallback(openAIModelOptions, 'gpt-4.1')
 
-if (lower.includes('4o') && lower.includes('mini')) return toFallback(openAIModelOptions, 'gpt-4o-mini')
-if (lower.includes('4o')) return toFallback(openAIModelOptions, 'gpt-4o')
+	if (lower.includes('4o') && lower.includes('mini')) return toFallback(openAIModelOptions, 'gpt-4o-mini')
+	if (lower.includes('4o')) return toFallback(openAIModelOptions, 'gpt-4o')
 
-if (lower.includes('o1') && lower.includes('mini')) return toFallback(openAIModelOptions, 'o1-mini')
-if (lower.includes('o1')) return toFallback(openAIModelOptions, 'o1')
-if (lower.includes('o3') && lower.includes('mini')) return toFallback(openAIModelOptions, 'o3-mini')
-if (lower.includes('o3')) return toFallback(openAIModelOptions, 'o3')
-if (lower.includes('o4') && lower.includes('mini')) return toFallback(openAIModelOptions, 'o4-mini')
+	if (lower.includes('o1') && lower.includes('mini')) return toFallback(openAIModelOptions, 'o1-mini')
+	if (lower.includes('o1')) return toFallback(openAIModelOptions, 'o1')
+	if (lower.includes('o3') && lower.includes('mini')) return toFallback(openAIModelOptions, 'o3-mini')
+	if (lower.includes('o3')) return toFallback(openAIModelOptions, 'o3')
+	if (lower.includes('o4') && lower.includes('mini')) return toFallback(openAIModelOptions, 'o4-mini')
 
 
-if (Object.keys(openSourceModelOptions_assumingOAICompat).map(k => k.toLowerCase()).includes(lower))
-	return toFallback(openSourceModelOptions_assumingOAICompat, lower as keyof typeof openSourceModelOptions_assumingOAICompat)
+	if (Object.keys(openSourceModelOptions_assumingOAICompat).map(k => k.toLowerCase()).includes(lower))
+		return toFallback(openSourceModelOptions_assumingOAICompat, lower as keyof typeof openSourceModelOptions_assumingOAICompat)
 
-return null
+	return null
 }
 
 
@@ -560,9 +567,9 @@ const anthropicModelOptions = {
 		supportsSystemMessage: 'separated',
 		reasoningCapabilities: false,
 	}
-} as const satisfies { [s: string]: cognidreamidreamStaticModelInfo }
+} as const satisfies { [s: string]: VoidStaticModelInfo }
 
-const anthropicSettings: cognidreamidreamStaticProviderInfo = {
+const anthropicSettings: VoidStaticProviderInfo = {
 	providerReasoningIOSettings: {
 		input: {
 			includeInPayload: (reasoningInfo) => {
@@ -693,7 +700,7 @@ const openAIModelOptions = { // https://platform.openai.com/docs/pricing
 		supportsSystemMessage: 'system-role', // ??
 		reasoningCapabilities: false,
 	},
-} as const satisfies { [s: string]: cognidreamidreamStaticModelInfo }
+} as const satisfies { [s: string]: VoidStaticModelInfo }
 
 
 // https://platform.openai.com/docs/guides/reasoning?api-mode=chat
@@ -706,7 +713,7 @@ const openAICompatIncludeInPayloadReasoning = (reasoningInfo: SendableReasoningI
 
 }
 
-const openAISettings: cognidreamidreamStaticProviderInfo = {
+const openAISettings: VoidStaticProviderInfo = {
 	modelOptions: openAIModelOptions,
 	modelOptionsFallback: (modelName) => {
 		const lower = modelName.toLowerCase()
@@ -777,9 +784,9 @@ const xAIModelOptions = {
 		specialToolFormat: 'openai-style',
 		reasoningCapabilities: { supportsReasoning: true, canTurnOffReasoning: false, canIOReasoning: false, reasoningSlider: { type: 'effort_slider', values: ['low', 'high'], default: 'low' } },
 	},
-} as const satisfies { [s: string]: cognidreamidreamStaticModelInfo }
+} as const satisfies { [s: string]: VoidStaticModelInfo }
 
-const xAISettings: cognidreamidreamStaticProviderInfo = {
+const xAISettings: VoidStaticProviderInfo = {
 	modelOptions: xAIModelOptions,
 	modelOptionsFallback: (modelName) => {
 		const lower = modelName.toLowerCase()
@@ -908,9 +915,9 @@ const geminiModelOptions = { // https://ai.google.dev/gemini-api/docs/pricing
 		specialToolFormat: 'gemini-style',
 		reasoningCapabilities: false,
 	},
-} as const satisfies { [s: string]: cognidreamidreamStaticModelInfo }
+} as const satisfies { [s: string]: VoidStaticModelInfo }
 
-const geminiSettings: cognidreamidreamStaticProviderInfo = {
+const geminiSettings: VoidStaticProviderInfo = {
 	modelOptions: geminiModelOptions,
 	modelOptionsFallback: (modelName) => { return null },
 }
@@ -933,10 +940,10 @@ const deepseekModelOptions = {
 		cost: { cache_read: .14, input: .55, output: 2.19, },
 		downloadable: false,
 	},
-} as const satisfies { [s: string]: cognidreamidreamStaticModelInfo }
+} as const satisfies { [s: string]: VoidStaticModelInfo }
 
 
-const deepseekSettings: cognidreamidreamStaticProviderInfo = {
+const deepseekSettings: VoidStaticProviderInfo = {
 	modelOptions: deepseekModelOptions,
 	modelOptionsFallback: (modelName) => { return null },
 	providerReasoningIOSettings: {
@@ -1007,9 +1014,9 @@ const mistralModelOptions = { // https://mistral.ai/products/la-plateforme#prici
 		supportsSystemMessage: 'system-role',
 		reasoningCapabilities: false,
 	},
-} as const satisfies { [s: string]: cognidreamidreamStaticModelInfo }
+} as const satisfies { [s: string]: VoidStaticModelInfo }
 
-const mistralSettings: cognidreamidreamStaticProviderInfo = {
+const mistralSettings: VoidStaticProviderInfo = {
 	modelOptions: mistralModelOptions,
 	modelOptionsFallback: (modelName) => { return null },
 	providerReasoningIOSettings: {
@@ -1056,8 +1063,8 @@ const groqModelOptions = { // https://console.groq.com/docs/models, https://groq
 		supportsSystemMessage: 'system-role',
 		reasoningCapabilities: { supportsReasoning: true, canIOReasoning: true, canTurnOffReasoning: false, openSourceThinkTags: ['<think>', '</think>'] }, // we're using reasoning_format:parsed so really don't need to know openSourceThinkTags
 	},
-} as const satisfies { [s: string]: cognidreamidreamStaticModelInfo }
-const groqSettings: cognidreamidreamStaticProviderInfo = {
+} as const satisfies { [s: string]: VoidStaticModelInfo }
+const groqSettings: VoidStaticProviderInfo = {
 	modelOptions: groqModelOptions,
 	modelOptionsFallback: (modelName) => { return null },
 	providerReasoningIOSettings: {
@@ -1078,8 +1085,8 @@ const groqSettings: cognidreamidreamStaticProviderInfo = {
 
 // ---------------- GOOGLE VERTEX ----------------
 const googleVertexModelOptions = {
-} as const satisfies Record<string, cognidreamidreamStaticModelInfo>
-const googleVertexSettings: cognidreamidreamStaticProviderInfo = {
+} as const satisfies Record<string, VoidStaticModelInfo>
+const googleVertexSettings: VoidStaticProviderInfo = {
 	modelOptions: googleVertexModelOptions,
 	modelOptionsFallback: (modelName) => { return null },
 	providerReasoningIOSettings: {
@@ -1089,9 +1096,21 @@ const googleVertexSettings: cognidreamidreamStaticProviderInfo = {
 
 // ---------------- MICROSOFT AZURE ----------------
 const microsoftAzureModelOptions = {
-} as const satisfies Record<string, cognidreamidreamStaticModelInfo>
-const microsoftAzureSettings: cognidreamidreamStaticProviderInfo = {
+} as const satisfies Record<string, VoidStaticModelInfo>
+const microsoftAzureSettings: VoidStaticProviderInfo = {
 	modelOptions: microsoftAzureModelOptions,
+	modelOptionsFallback: (modelName) => { return null },
+	providerReasoningIOSettings: {
+		input: { includeInPayload: openAICompatIncludeInPayloadReasoning },
+	},
+}
+
+// ---------------- AWS BEDROCK ----------------
+const awsBedrockModelOptions = {
+} as const satisfies Record<string, VoidStaticModelInfo>
+
+const awsBedrockSettings: VoidStaticProviderInfo = {
+	modelOptions: awsBedrockModelOptions,
 	modelOptionsFallback: (modelName) => { return null },
 	providerReasoningIOSettings: {
 		input: { includeInPayload: openAICompatIncludeInPayloadReasoning },
@@ -1174,12 +1193,12 @@ const ollamaModelOptions = {
 		reasoningCapabilities: false,
 	},
 
-} as const satisfies Record<string, cognidreamidreamStaticModelInfo>
+} as const satisfies Record<string, VoidStaticModelInfo>
 
 export const ollamaRecommendedModels = ['qwen2.5-coder:1.5b', 'llama3.1', 'qwq', 'deepseek-r1', 'devstral:latest'] as const satisfies (keyof typeof ollamaModelOptions)[]
 
 
-const vLLMSettings: cognidreamidreamStaticProviderInfo = {
+const vLLMSettings: VoidStaticProviderInfo = {
 	modelOptionsFallback: (modelName) => extensiveModelOptionsFallback(modelName, { downloadable: { sizeGb: 'not-known' } }),
 	modelOptions: {},
 	providerReasoningIOSettings: {
@@ -1189,7 +1208,7 @@ const vLLMSettings: cognidreamidreamStaticProviderInfo = {
 	},
 }
 
-const lmStudioSettings: cognidreamidreamStaticProviderInfo = {
+const lmStudioSettings: VoidStaticProviderInfo = {
 	modelOptionsFallback: (modelName) => extensiveModelOptionsFallback(modelName, { downloadable: { sizeGb: 'not-known' }, contextWindow: 4_096 }),
 	modelOptions: {},
 	providerReasoningIOSettings: {
@@ -1198,7 +1217,7 @@ const lmStudioSettings: cognidreamidreamStaticProviderInfo = {
 	},
 }
 
-const ollamaSettings: cognidreamidreamStaticProviderInfo = {
+const ollamaSettings: VoidStaticProviderInfo = {
 	modelOptionsFallback: (modelName) => extensiveModelOptionsFallback(modelName, { downloadable: { sizeGb: 'not-known' } }),
 	modelOptions: ollamaModelOptions,
 	providerReasoningIOSettings: {
@@ -1208,7 +1227,7 @@ const ollamaSettings: cognidreamidreamStaticProviderInfo = {
 	},
 }
 
-const openaiCompatible: cognidreamidreamStaticProviderInfo = {
+const openaiCompatible: VoidStaticProviderInfo = {
 	modelOptionsFallback: (modelName) => extensiveModelOptionsFallback(modelName),
 	modelOptions: {},
 	providerReasoningIOSettings: {
@@ -1217,7 +1236,7 @@ const openaiCompatible: cognidreamidreamStaticProviderInfo = {
 	},
 }
 
-const liteLLMSettings: cognidreamidreamStaticProviderInfo = { // https://docs.litellm.ai/docs/reasoning_content
+const liteLLMSettings: VoidStaticProviderInfo = { // https://docs.litellm.ai/docs/reasoning_content
 	modelOptionsFallback: (modelName) => extensiveModelOptionsFallback(modelName, { downloadable: { sizeGb: 'not-known' } }),
 	modelOptions: {},
 	providerReasoningIOSettings: {
@@ -1371,11 +1390,10 @@ const openRouterModelOptions_assumingOpenAICompat = {
 		cost: { input: 0.07, output: 0.16 },
 		downloadable: false,
 	}
-} as const satisfies { [s: string]: cognidreamidreamStaticModelInfo }
+} as const satisfies { [s: string]: VoidStaticModelInfo }
 
-const openRouterSettings: cognidreamidreamStaticProviderInfo = {
+const openRouterSettings: VoidStaticProviderInfo = {
 	modelOptions: openRouterModelOptions_assumingOpenAICompat,
-	// TODO!!! send a query to openrouter to get the price, etc.
 	modelOptionsFallback: (modelName) => {
 		const res = extensiveModelOptionsFallback(modelName)
 		// openRouter does not support gemini-style, use openai-style instead
@@ -1416,7 +1434,7 @@ const openRouterSettings: cognidreamidreamStaticProviderInfo = {
 
 // ---------------- model settings of everything above ----------------
 
-const modelSettingsOfProvider: { [providerName in ProviderName]: cognidreamidreamStaticProviderInfo } = {
+const modelSettingsOfProvider: { [providerName in ProviderName]: VoidStaticProviderInfo } = {
 	openAI: openAISettings,
 	anthropic: anthropicSettings,
 	xAI: xAISettings,
@@ -1438,6 +1456,7 @@ const modelSettingsOfProvider: { [providerName in ProviderName]: cognidreamidrea
 
 	googleVertex: googleVertexSettings,
 	microsoftAzure: microsoftAzureSettings,
+	awsBedrock: awsBedrockSettings,
 } as const
 
 
@@ -1448,7 +1467,7 @@ export const getModelCapabilities = (
 	providerName: ProviderName,
 	modelName: string,
 	overridesOfModel: OverridesOfModel | undefined
-): cognidreamidreamStaticModelInfo & (
+): VoidStaticModelInfo & (
 	| { modelName: string; recognizedModelName: string; isUnrecognizedModel: false }
 	| { modelName: string; recognizedModelName?: undefined; isUnrecognizedModel: true }
 ) => {

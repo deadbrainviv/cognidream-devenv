@@ -32,8 +32,8 @@ export interface IResourceUndoRedoElement {
 	 * Show a message to the user confirming when trying to undo this element
 	 */
 	readonly confirmBeforeUndo?: boolean;
-	undo(): Promise<cognidreamidrecognidream | cognidream;
-	redo(): Promise<cognidreamidrecognidream | cognidream;
+	undo(): Promise<void> | void;
+	redo(): Promise<void> | void;
 }
 
 export interface IWorkspaceUndoRedoElement {
@@ -54,8 +54,8 @@ export interface IWorkspaceUndoRedoElement {
 	 * Show a message to the user confirming when trying to undo this element
 	 */
 	readonly confirmBeforeUndo?: boolean;
-	undo(): Promise<cognidreamidrecognidream | cognidream;
-	redo(): Promise<cognidreamidrecognidream | cognidream;
+	undo(): Promise<void> | void;
+	redo(): Promise<void> | void;
 
 	/**
 	 * If implemented, indicates that this undo/redo element can be split into multiple per resource elements.
@@ -67,7 +67,7 @@ export interface IWorkspaceUndoRedoElement {
 	 * This is a good place to prepare everything such that the calls to `undo()` or `redo()` are synchronous.
 	 * If a disposable is returned, it will be invoked to clean things up.
 	 */
-	prepareUndoRedo?(): Promise<IDisposable> | IDisposable | cognidreamidream;
+	prepareUndoRedo?(): Promise<IDisposable> | IDisposable | void;
 }
 
 export type IUndoRedoElement = IResourceUndoRedoElement | IWorkspaceUndoRedoElement;
@@ -149,7 +149,7 @@ export interface IUndoRedoService {
 	 * Add a new element to the `undo` stack.
 	 * This will destroy the `redo` stack.
 	 */
-	pushElement(element: IUndoRedoElement, group?: UndoRedoGroup, source?: UndoRedoSource): cognidreamidream;
+	pushElement(element: IUndoRedoElement, group?: UndoRedoGroup, source?: UndoRedoSource): void;
 
 	/**
 	 * Get the last pushed element for a resource.
@@ -166,12 +166,12 @@ export interface IUndoRedoService {
 	/**
 	 * Validate or invalidate stack elements associated with a resource.
 	 */
-	setElementsValidFlag(resource: URI, isValid: boolean, filter: (element: IUndoRedoElement) => boolean): cognidreamidream;
+	setElementsValidFlag(resource: URI, isValid: boolean, filter: (element: IUndoRedoElement) => boolean): void;
 
 	/**
 	 * Remove elements that target `resource`.
 	 */
-	removeElements(resource: URI): cognidreamidream;
+	removeElements(resource: URI): void;
 
 	/**
 	 * Create a snapshot of the current elements on the undo-redo stack for a resource.
@@ -180,11 +180,11 @@ export interface IUndoRedoService {
 	/**
 	 * Attempt (as best as possible) to restore a certain snapshot previously created with `createSnapshot` for a resource.
 	 */
-	restoreSnapshot(snapshot: ResourceEditStackSnapshot): cognidreamidream;
+	restoreSnapshot(snapshot: ResourceEditStackSnapshot): void;
 
 	canUndo(resource: URI | UndoRedoSource): boolean;
-	undo(resource: URI | UndoRedoSource): Promise<cognidreamidrecognidream | cognidream;
+	undo(resource: URI | UndoRedoSource): Promise<void> | void;
 
 	canRedo(resource: URI | UndoRedoSource): boolean;
-	redo(resource: URI | UndoRedoSource): Promise<cognidreamidrecognidream | cognidream;
+	redo(resource: URI | UndoRedoSource): Promise<void> | void;
 }

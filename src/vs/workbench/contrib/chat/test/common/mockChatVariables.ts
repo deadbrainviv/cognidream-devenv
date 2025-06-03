@@ -9,19 +9,19 @@ import { IChatVariablesService, IDynamicVariable } from '../../common/chatVariab
 import { ChatAgentLocation } from '../../common/constants.js';
 
 export class MockChatVariablesService implements IChatVariablesService {
-    _serviceBrand: undefined;
+	_serviceBrand: undefined;
 
-    getDynamicVariables(sessionId: string): readonly IDynamicVariable[] {
-        return [];
-    }
+	getDynamicVariables(sessionId: string): readonly IDynamicVariable[] {
+		return [];
+	}
 
-    resolveVariables(prompt: IParsedChatRequest, attachedContextVariables: IChatRequestVariableEntry[] | undefined): IChatRequestVariableData {
-        return {
-            variables: []
-        };
-    }
+	resolveVariables(prompt: IParsedChatRequest, attachedContextVariables: IChatRequestVariableEntry[] | undefined): IChatRequestVariableData {
+		return {
+			variables: []
+		};
+	}
 
-    attachContext(name: string, value: unknown, location: ChatAgentLocation): cognidream {
-        throw new Error('Method not implemented.');
-    }
+	attachContext(name: string, value: unknown, location: ChatAgentLocation): void {
+		throw new Error('Method not implemented.');
+	}
 }

@@ -364,7 +364,7 @@ class CommentingRangeDecorator {
 		return (decorations.length > 0 ? (decorations[0].getActiveRange() ?? undefined) : undefined);
 	}
 
-	public dispose(): cognidreamidream {
+	public dispose(): void {
 		this.commentingRangeDecorations = [];
 	}
 }
@@ -398,7 +398,7 @@ export function moveToNextCommentInThread(commentInfo: { thread: languages.Comme
 }
 
 export function revealCommentThread(commentService: ICommentService, editorService: IEditorService, uriIdentityService: IUriIdentityService,
-	commentThread: languages.CommentThread<IRange>, comment: languages.Comment | undefined, focusReply?: boolean, pinned?: boolean, preserveFocus?: boolean, sideBySide?: boolean): cognidreamidream {
+	commentThread: languages.CommentThread<IRange>, comment: languages.Comment | undefined, focusReply?: boolean, pinned?: boolean, preserveFocus?: boolean, sideBySide?: boolean): void {
 	if (!commentThread.resource) {
 		return;
 	}
@@ -460,7 +460,7 @@ export class CommentController implements IEditorContribution {
 	private _commentingRangeSpaceReserved = false;
 	private _commentingRangeAmountReserved = 0;
 	private _computePromise: CancelablePromise<Array<ICommentInfo | null>> | null;
-	private _computeAndSetPromise: Promise<cognidreamidream> | undefined;
+	private _computeAndSetPromise: Promise<void> | undefined;
 	private _addInProgress!: boolean;
 	private _emptyThreadsToAddQueue: [Range | undefined, IEditorMouseEvent | undefined][] = [];
 	private _computeCommentingRangePromise!: CancelablePromise<ICommentInfo[]> | null;
@@ -620,7 +620,7 @@ export class CommentController implements IEditorContribution {
 		this._commentingRangeDecorator.updateHover();
 	}
 
-	private onEditorMouseMove(e: IEditorMouseEvent): cognidreamidream {
+	private onEditorMouseMove(e: IEditorMouseEvent): void {
 		const position = e.target.position?.lineNumber;
 		if (e.event.leftButton.valueOf() && position && this.mouseDownInfo) {
 			this._commentingRangeDecorator.updateSelection(position, new Range(this.mouseDownInfo.lineNumber, 1, position, 1));
@@ -629,7 +629,7 @@ export class CommentController implements IEditorContribution {
 		}
 	}
 
-	private onEditorChangeCursorSelection(e?: ICursorSelectionChangedEvent): cognidreamidream {
+	private onEditorChangeCursorSelection(e?: ICursorSelectionChangedEvent): void {
 		const position = this.editor?.getPosition()?.lineNumber;
 		if (position) {
 			this._commentingRangeDecorator.updateSelection(position, e?.selection);
@@ -673,7 +673,7 @@ export class CommentController implements IEditorContribution {
 		return !!foundEditor;
 	}
 
-	private beginCompute(): Promise<cognidreamidream> {
+	private beginCompute(): Promise<void> {
 		this._computePromise = createCancelablePromise(token => {
 			const editorURI = this.editor && this.editor.hasModel() && this.editor.getModel().uri;
 
@@ -723,7 +723,7 @@ export class CommentController implements IEditorContribution {
 		return editor.getContribution<CommentController>(ID);
 	}
 
-	public revealCommentThread(threadId: string, commentUniqueId: number | undefined, fetchOnceIfNotExist: boolean, focus: CommentWidgetFocus): cognidreamidream {
+	public revealCommentThread(threadId: string, commentUniqueId: number | undefined, fetchOnceIfNotExist: boolean, focus: CommentWidgetFocus): void {
 		const commentThreadWidget = this._commentWidgets.filter(widget => widget.commentThread.threadId === threadId);
 		if (commentThreadWidget.length === 1) {
 			commentThreadWidget[0].reveal(commentUniqueId, focus);
@@ -740,19 +740,19 @@ export class CommentController implements IEditorContribution {
 		}
 	}
 
-	public collapseAll(): cognidreamidream {
+	public collapseAll(): void {
 		for (const widget of this._commentWidgets) {
 			widget.collapse(true);
 		}
 	}
 
-	public expandAll(): cognidreamidream {
+	public expandAll(): void {
 		for (const widget of this._commentWidgets) {
 			widget.expand();
 		}
 	}
 
-	public expandUnresolved(): cognidreamidream {
+	public expandUnresolved(): void {
 		for (const widget of this._commentWidgets) {
 			if (widget.commentThread.state === languages.CommentThreadState.Unresolved) {
 				widget.expand();
@@ -760,11 +760,11 @@ export class CommentController implements IEditorContribution {
 		}
 	}
 
-	public nextCommentThread(focusThread: boolean): cognidreamidream {
+	public nextCommentThread(focusThread: boolean): void {
 		this._findNearestCommentThread(focusThread);
 	}
 
-	private _findNearestCommentThread(focusThread: boolean, reverse?: boolean): cognidreamidream {
+	private _findNearestCommentThread(focusThread: boolean, reverse?: boolean): void {
 		if (!this._commentWidgets.length || !this.editor?.hasModel()) {
 			return;
 		}
@@ -827,11 +827,11 @@ export class CommentController implements IEditorContribution {
 		}
 	}
 
-	public previousCommentThread(focusThread: boolean): cognidreamidream {
+	public previousCommentThread(focusThread: boolean): void {
 		this._findNearestCommentThread(focusThread, true);
 	}
 
-	private _findNearestCommentingRange(reverse?: boolean): cognidreamidream {
+	private _findNearestCommentingRange(reverse?: boolean): void {
 		if (!this.editor?.hasModel()) {
 			return;
 		}
@@ -853,15 +853,15 @@ export class CommentController implements IEditorContribution {
 		}
 	}
 
-	public nextCommentingRange(): cognidreamidream {
+	public nextCommentingRange(): void {
 		this._findNearestCommentingRange();
 	}
 
-	public previousCommentingRange(): cognidreamidream {
+	public previousCommentingRange(): void {
 		this._findNearestCommentingRange(true);
 	}
 
-	public dispose(): cognidreamidream {
+	public dispose(): void {
 		this.globalToDispose.dispose();
 		this.localToDispose.dispose();
 		dispose(this._editorDisposables);
@@ -870,13 +870,13 @@ export class CommentController implements IEditorContribution {
 		this.editor = null!; // Strict null override - nulling out in dispose
 	}
 
-	private onWillChangeModel(e: IModelChangedEvent): cognidreamidream {
+	private onWillChangeModel(e: IModelChangedEvent): void {
 		if (e.newModelUrl) {
 			this.tryUpdateReservedSpace(e.newModelUrl);
 		}
 	}
 
-	private async handleCommentAdded(editorId: string | undefined, uniqueOwner: string, thread: languages.AddedCommentThread): Promise<cognidreamidream> {
+	private async handleCommentAdded(editorId: string | undefined, uniqueOwner: string, thread: languages.AddedCommentThread): Promise<void> {
 		const matchedZones = this._commentWidgets.filter(zoneWidget => zoneWidget.uniqueOwner === uniqueOwner && zoneWidget.commentThread.threadId === thread.threadId);
 		if (matchedZones.length) {
 			return;
@@ -910,7 +910,7 @@ export class CommentController implements IEditorContribution {
 		this.tryUpdateReservedSpace();
 	}
 
-	public onModelChanged(): cognidreamidream {
+	public onModelChanged(): void {
 		this.localToDispose.clear();
 		this.tryUpdateReservedSpace();
 
@@ -1028,7 +1028,7 @@ export class CommentController implements IEditorContribution {
 		}
 	}
 
-	private beginComputeAndHandleEditorChange(): cognidreamidream {
+	private beginComputeAndHandleEditorChange(): void {
 		this.beginCompute().then(() => {
 			if (!this._hasRespondedToEditorChange) {
 				if (this._commentInfos.some(commentInfo => commentInfo.commentingRanges.ranges.length > 0 || commentInfo.commentingRanges.fileComments)) {
@@ -1064,7 +1064,7 @@ export class CommentController implements IEditorContribution {
 		return undefined;
 	}
 
-	private async displayCommentThread(uniqueOwner: string, thread: languages.CommentThread, shouldReveal: boolean, pendingComment: languages.PendingComment | undefined, pendingEdits: { [key: number]: languages.PendingComment } | undefined): Promise<cognidreamidream> {
+	private async displayCommentThread(uniqueOwner: string, thread: languages.CommentThread, shouldReveal: boolean, pendingComment: languages.PendingComment | undefined, pendingEdits: { [key: number]: languages.PendingComment } | undefined): Promise<void> {
 		const editor = this.editor?.getModel();
 		if (!editor) {
 			return;
@@ -1083,11 +1083,11 @@ export class CommentController implements IEditorContribution {
 		this.openCommentsView(thread);
 	}
 
-	private onEditorMouseDown(e: IEditorMouseEvent): cognidreamidream {
+	private onEditorMouseDown(e: IEditorMouseEvent): void {
 		this.mouseDownInfo = this._activeEditorHasCommentingRange.get() ? parseMouseDownInfoFromEvent(e) : null;
 	}
 
-	private onEditorMouseUp(e: IEditorMouseEvent): cognidreamidream {
+	private onEditorMouseUp(e: IEditorMouseEvent): void {
 		const matchedLineNumber = isMouseUpEventDragFromMouseDown(this.mouseDownInfo, e);
 		this.mouseDownInfo = null;
 
@@ -1127,7 +1127,7 @@ export class CommentController implements IEditorContribution {
 		return this._commentWidgets.filter(widget => widget.getGlyphPosition() === (commentRange ? commentRange.endLineNumber : 0));
 	}
 
-	public async addOrToggleCommentAtLine(commentRange: Range | undefined, e: IEditorMouseEvent | undefined): Promise<cognidreamidream> {
+	public async addOrToggleCommentAtLine(commentRange: Range | undefined, e: IEditorMouseEvent | undefined): Promise<void> {
 		// If an add is already in progress, queue the next add and process it after the current one finishes to
 		// prevent empty comment threads from being added to the same line.
 		if (!this._addInProgress) {
@@ -1147,7 +1147,7 @@ export class CommentController implements IEditorContribution {
 		}
 	}
 
-	private processNextThreadToAdd(): cognidreamidream {
+	private processNextThreadToAdd(): void {
 		this._addInProgress = false;
 		const info = this._emptyThreadsToAddQueue.shift();
 		if (info) {
@@ -1165,7 +1165,7 @@ export class CommentController implements IEditorContribution {
 		return userRange;
 	}
 
-	public addCommentAtLine(range: Range | undefined, e: IEditorMouseEvent | undefined): Promise<cognidreamidream> {
+	public addCommentAtLine(range: Range | undefined, e: IEditorMouseEvent | undefined): Promise<void> {
 		const newCommentInfos = this._commentingRangeDecorator.getMatchedCommentAction(range);
 		if (!newCommentInfos.length || !this.editor?.hasModel()) {
 			this._addInProgress = false;
@@ -1347,7 +1347,7 @@ export class CommentController implements IEditorContribution {
 		}
 	}
 
-	private async setComments(commentInfos: ICommentInfo[]): Promise<cognidreamidream> {
+	private async setComments(commentInfos: ICommentInfo[]): Promise<void> {
 		if (!this.editor || !this.commentService.isCommentingEnabled) {
 			return;
 		}
@@ -1394,7 +1394,7 @@ export class CommentController implements IEditorContribution {
 		}
 	}
 
-	public collapseAndFocusRange(threadId: string): cognidreamidream {
+	public collapseAndFocusRange(threadId: string): void {
 		this._commentWidgets?.find(widget => widget.commentThread.threadId === threadId)?.collapseAndFocusRange();
 	}
 

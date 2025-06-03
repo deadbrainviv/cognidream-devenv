@@ -21,10 +21,10 @@ export interface IServerConfig {
 	version: string;
 	commit: string;
 	quality: string;
-	release?: string; // cognidream-like specific
+	release?: string; // void-like specific
 	serverApplicationName: string;
 	serverDataFolderName: string;
-	serverDownloadUrlTemplate?: string; // cognidream-like specific
+	serverDownloadUrlTemplate?: string; // void-like specific
 }
 
 export async function getVSCodeServerConfig(): Promise<IServerConfig> {

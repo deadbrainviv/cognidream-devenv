@@ -141,10 +141,10 @@ export interface IPickOptions<T extends IQuickPickItem> {
 	 */
 	activeItem?: Promise<T> | T;
 
-	onKeyMods?: (keyMods: IKeyMods) => cognidream;
-	onDidFocus?: (entry: T) => cognidream;
-	onDidTriggerItemButton?: (context: IQuickPickItemButtonContext<T>) => cognidream;
-	onDidTriggerSeparatorButton?: (context: IQuickPickSeparatorButtonEvent) => cognidream;
+	onKeyMods?: (keyMods: IKeyMods) => void;
+	onDidFocus?: (entry: T) => void;
+	onDidTriggerItemButton?: (context: IQuickPickItemButtonContext<T>) => void;
+	onDidTriggerSeparatorButton?: (context: IQuickPickSeparatorButtonEvent) => void;
 }
 
 export interface IInputOptions {
@@ -244,7 +244,7 @@ export interface IQuickInput extends IDisposable {
 	/**
 	 * An event that is fired when the quick input is disposed.
 	 */
-	readonly onDispose: Event<cognidream>;
+	readonly onDispose: Event<void>;
 
 	/**
 	 * The title of the quick input.
@@ -305,24 +305,24 @@ export interface IQuickInput extends IDisposable {
 	/**
 	 * Shows the quick input.
 	 */
-	show(): cognidream;
+	show(): void;
 
 	/**
 	 * Hides the quick input.
 	 */
-	hide(): cognidream;
+	hide(): void;
 
 	/**
 	 * Notifies that the quick input has been hidden.
 	 * @param reason The reason why the quick input was hidden.
 	 */
-	didHide(reason?: QuickInputHideReason): cognidream;
+	didHide(reason?: QuickInputHideReason): void;
 
 	/**
 	 * Notifies that the quick input will be hidden.
 	 * @param reason The reason why the quick input will be hidden.
 	 */
-	willHide(reason?: QuickInputHideReason): cognidream;
+	willHide(reason?: QuickInputHideReason): void;
 }
 
 export interface IQuickWidget extends IQuickInput {
@@ -346,7 +346,7 @@ export interface IQuickPickWillAcceptEvent {
 	 * of the picker. If `veto` is called, the picker
 	 * will not trigger the `onDidAccept` event.
 	 */
-	veto(): cognidream;
+	veto(): void;
 }
 
 export interface IQuickPickDidAcceptEvent {
@@ -488,7 +488,7 @@ export interface IQuickPick<T extends IQuickPickItem, O extends { useSeparators:
 	/**
 	 * An event that is fired when the custom button is triggered. The custom button is a button with text rendered to the right of the input.
 	 */
-	readonly onDidCustom: Event<cognidream>;
+	readonly onDidCustom: Event<void>;
 
 	/**
 	 * Whether to show the custom button. The custom button is a button with text rendered to the right of the input.
@@ -615,7 +615,7 @@ export interface IQuickPick<T extends IQuickPickItem, O extends { useSeparators:
 	/**
 	 * Focuses on the quick pick input.
 	 */
-	focusOnInput(): cognidream;
+	focusOnInput(): void;
 
 	/**
 	 * Hides the input box from the picker UI. This is typically used in combination with quick-navigation where no search UI should be presented.
@@ -641,13 +641,13 @@ export interface IQuickPick<T extends IQuickPickItem, O extends { useSeparators:
 	 * Focus a particular item in the list. Used internally for keyboard navigation.
 	 * @param focus The focus behavior.
 	 */
-	focus(focus: QuickPickFocus): cognidream;
+	focus(focus: QuickPickFocus): void;
 
 	/**
 	 * Programmatically accepts an item. Used internally for keyboard navigation.
 	 * @param inBackground Whether you are accepting an item in the background and keeping the picker open.
 	 */
-	accept(inBackground?: boolean): cognidream;
+	accept(inBackground?: boolean): void;
 }
 
 /**
@@ -699,7 +699,7 @@ export interface IInputBox extends IQuickInput {
 	/**
 	 * Event called when the user submits the input.
 	 */
-	readonly onDidAccept: Event<cognidream>;
+	readonly onDidAccept: Event<void>;
 
 	/**
 	 * Text show below the input box.
@@ -797,7 +797,7 @@ export interface IQuickPickItemButtonContext<T extends IQuickPickItem> extends I
 	/**
 	 * Removes the associated item from the quick pick.
 	 */
-	removeItem(): cognidream;
+	removeItem(): void;
 }
 
 export type QuickPickInput<T = IQuickPickItem> = T | IQuickPickSeparator;
@@ -861,12 +861,12 @@ export interface IQuickInputService {
 	/**
 	 * Allows to register on the event that quick input is showing.
 	 */
-	readonly onShow: Event<cognidream>;
+	readonly onShow: Event<void>;
 
 	/**
 	 * Allows to register on the event that quick input is hiding.
 	 */
-	readonly onHide: Event<cognidream>;
+	readonly onHide: Event<void>;
 
 	/**
 	 * Opens the quick input box for selecting items and returns a promise
@@ -900,22 +900,22 @@ export interface IQuickInputService {
 	/**
 	 * Moves focus into quick input.
 	 */
-	focus(): cognidream;
+	focus(): void;
 
 	/**
 	 * Toggle the checked state of the selected item.
 	 */
-	toggle(): cognidream;
+	toggle(): void;
 
 	/**
 	 * Navigate inside the opened quick input list.
 	 */
-	navigate(next: boolean, quickNavigate?: IQuickNavigateConfiguration): cognidream;
+	navigate(next: boolean, quickNavigate?: IQuickNavigateConfiguration): void;
 
 	/**
 	 * Navigate back in a multi-step quick input.
 	 */
-	back(): Promise<cognidream>;
+	back(): Promise<void>;
 
 	/**
 	 * Accept the selected item.
@@ -923,17 +923,17 @@ export interface IQuickInputService {
 	 * @param keyMods allows to override the state of key
 	 * modifiers that should be present when invoking.
 	 */
-	accept(keyMods?: IKeyMods): Promise<cognidream>;
+	accept(keyMods?: IKeyMods): Promise<void>;
 
 	/**
 	 * Cancels quick input and closes it.
 	 */
-	cancel(): Promise<cognidream>;
+	cancel(): Promise<void>;
 
 	/**
 	 * Toggles hover for the current quick input item
 	 */
-	toggleHover(): cognidream;
+	toggleHover(): void;
 
 	/**
 	 * The current quick pick that is visible. Undefined if none is open.
@@ -944,5 +944,5 @@ export interface IQuickInputService {
 	 * Set the alignment of the quick input.
 	 * @param alignment either a preset or a custom alignment
 	 */
-	setAlignment(alignment: 'top' | 'center' | { top: number; left: number }): cognidream;
+	setAlignment(alignment: 'top' | 'center' | { top: number; left: number }): void;
 }

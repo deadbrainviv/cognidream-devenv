@@ -29,14 +29,14 @@ export interface IWorkspacesService {
 	// Workspaces Management
 	enterWorkspace(workspaceUri: URI): Promise<IEnterWorkspaceResult | undefined>;
 	createUntitledWorkspace(folders?: IWorkspaceFolderCreationData[], remoteAuthority?: string): Promise<IWorkspaceIdentifier>;
-	deleteUntitledWorkspace(workspace: IWorkspaceIdentifier): Promise<cognidreamidream>;
+	deleteUntitledWorkspace(workspace: IWorkspaceIdentifier): Promise<void>;
 	getWorkspaceIdentifier(workspaceUri: URI): Promise<IWorkspaceIdentifier>;
 
 	// Workspaces History
-	readonly onDidChangeRecentlyOpened: Event<cognidreamidream>;
-	addRecentlyOpened(recents: IRecent[]): Promise<cognidreamidream>;
-	removeRecentlyOpened(workspaces: URI[]): Promise<cognidreamidream>;
-	clearRecentlyOpened(): Promise<cognidreamidream>;
+	readonly onDidChangeRecentlyOpened: Event<void>;
+	addRecentlyOpened(recents: IRecent[]): Promise<void>;
+	removeRecentlyOpened(workspaces: URI[]): Promise<void>;
+	clearRecentlyOpened(): Promise<void>;
 	getRecentlyOpened(): Promise<IRecentlyOpened>;
 
 	// Dirty Workspaces
@@ -331,7 +331,7 @@ function isSerializedRecentFile(data: any): data is ISerializedRecentFile {
 export function restoreRecentlyOpened(data: RecentlyOpenedStorageData | undefined, logService: ILogService): IRecentlyOpened {
 	const result: IRecentlyOpened = { workspaces: [], files: [] };
 	if (data) {
-		const restoreGracefully = function <T>(entries: T[], onEntry: (entry: T, index: number) => cognidreamidream) {
+		const restoreGracefully = function <T>(entries: T[], onEntry: (entry: T, index: number) => void) {
 			for (let i = 0; i < entries.length; i++) {
 				try {
 					onEntry(entries[i], i);

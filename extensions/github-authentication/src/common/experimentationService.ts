@@ -78,11 +78,11 @@ export class ExperimentationTelemetry implements IExperimentationTelemetry {
 		});
 	}
 
-	setSharedProperty(name: string, value: string): cognidream {
+	setSharedProperty(name: string, value: string): void {
 		this.sharedProperties[name] = value;
 	}
 
-	postEvent(eventName: string, props: Map<string, string>): cognidream {
+	postEvent(eventName: string, props: Map<string, string>): void {
 		const event: Record<string, string> = {};
 		for (const [key, value] of props) {
 			event[key] = value;

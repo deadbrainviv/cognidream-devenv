@@ -12,8 +12,8 @@ const SRC_DIR = path.join(REPO_ROOT, 'src');
 
 const dirCache: { [dir: string]: boolean } = {};
 
-function writeFile(filePath: string, contents: Buffer | string): cognidream {
-	function ensureDirs(dirPath: string): cognidream {
+function writeFile(filePath: string, contents: Buffer | string): void {
+	function ensureDirs(dirPath: string): void {
 		if (dirCache[dirPath]) {
 			return;
 		}
@@ -29,7 +29,7 @@ function writeFile(filePath: string, contents: Buffer | string): cognidream {
 	fs.writeFileSync(filePath, contents);
 }
 
-export function extractEditor(options: tss.ITreeShakingOptions & { destRoot: string; tsOutDir: string }): cognidream {
+export function extractEditor(options: tss.ITreeShakingOptions & { destRoot: string; tsOutDir: string }): void {
 	const ts = require('typescript') as typeof import('typescript');
 
 	const tsConfig = JSON.parse(fs.readFileSync(path.join(options.sourcesRoot, 'tsconfig.monaco.json')).toString());
@@ -122,7 +122,7 @@ export function extractEditor(options: tss.ITreeShakingOptions & { destRoot: str
 	].forEach(copyFile);
 }
 
-function transportCSS(module: string, enqueue: (module: string) => cognidream, write: (path: string, contents: string | Buffer) => cognidream): boolean {
+function transportCSS(module: string, enqueue: (module: string) => void, write: (path: string, contents: string | Buffer) => void): boolean {
 
 	if (!/\.css/.test(module)) {
 		return false;

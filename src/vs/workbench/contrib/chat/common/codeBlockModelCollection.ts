@@ -52,7 +52,7 @@ export class CodeBlockModelCollection extends Disposable {
 		super();
 	}
 
-	public override dispose(): cognidream {
+	public override dispose(): void {
 		super.dispose();
 		this.clear();
 	}
@@ -106,146 +106,146 @@ export class CodeBlockModelCollection extends Disposable {
 		this._models.delete(key);
 	}
 
-	clear(cognidreamognidream {
+	clear(): void {
 		this._models.forEach(async entry => (await entry.model).dispose());
-this._models.clear();
-    }
-
-updateSync(sessionId: string, chat: IChatRequestViewModel | IChatResponseViewModel, codeBlockIndex: number, content: CodeBlockContent): CodeBlockEntry {
-	const entry = this.getOrCreate(sessionId, chat, codeBlockIndex);
-
-	const extractedVulns = extractVulnerabilitiesFromText(content.text);
-	const newText = fixCodeText(extractedVulns.newText, content.languageId);
-	this.setVulns(sessionId, chat, codeBlockIndex, extractedVulns.vulnerabilities);
-
-	const codeblockUri = extractCodeblockUrisFromText(newText);
-	if (codeblockUri) {
-		this.setCodemapperUri(sessionId, chat, codeBlockIndex, codeblockUri.uri, codeblockUri.isEdit);
+		this._models.clear();
 	}
 
-	if (content.isComplete) {
-		this.markCodeBlockCompleted(sessionId, chat, codeBlockIndex);
+	updateSync(sessionId: string, chat: IChatRequestViewModel | IChatResponseViewModel, codeBlockIndex: number, content: CodeBlockContent): CodeBlockEntry {
+		const entry = this.getOrCreate(sessionId, chat, codeBlockIndex);
+
+		const extractedVulns = extractVulnerabilitiesFromText(content.text);
+		const newText = fixCodeText(extractedVulns.newText, content.languageId);
+		this.setVulns(sessionId, chat, codeBlockIndex, extractedVulns.vulnerabilities);
+
+		const codeblockUri = extractCodeblockUrisFromText(newText);
+		if (codeblockUri) {
+			this.setCodemapperUri(sessionId, chat, codeBlockIndex, codeblockUri.uri, codeblockUri.isEdit);
+		}
+
+		if (content.isComplete) {
+			this.markCodeBlockCompleted(sessionId, chat, codeBlockIndex);
+		}
+
+		return this.get(sessionId, chat, codeBlockIndex) ?? entry;
 	}
 
-	return this.get(sessionId, chat, codeBlockIndex) ?? entry;
-}
-
-markCodeBlockCompleted(sessionId: string, chat: IChatRequestViewModel | IChatResponseViewModel, codeBlockIndex: numbercognidreamognidream {
-	const entry = this._models.get(this.getKey(sessionId, chat, codeBlockIndex));
-	if(!entry) {
-		return;
-	}
-	// TODO: fill this in once we've implemented https://github.com/microsoft/vscode/issues/232538
-}
-
-    async update(sessionId: string, chat: IChatRequestViewModel | IChatResponseViewModel, codeBlockIndex: number, content: CodeBlockContent): Promise < CodeBlockEntry > {
-	const entry = this.getOrCreate(sessionId, chat, codeBlockIndex);
-
-	const extractedVulns = extractVulnerabilitiesFromText(content.text);
-	let newText = fixCodeText(extractedVulns.newText, content.languageId);
-	this.setVulns(sessionId, chat, codeBlockIndex, extractedVulns.vulnerabilities);
-
-	const codeblockUri = extractCodeblockUrisFromText(newText);
-	if(codeblockUri) {
-		this.setCodemapperUri(sessionId, chat, codeBlockIndex, codeblockUri.uri, codeblockUri.isEdit);
-		newText = codeblockUri.textWithoutResult;
+	markCodeBlockCompleted(sessionId: string, chat: IChatRequestViewModel | IChatResponseViewModel, codeBlockIndex: number): void {
+		const entry = this._models.get(this.getKey(sessionId, chat, codeBlockIndex));
+		if (!entry) {
+			return;
+		}
+		// TODO: fill this in once we've implemented https://github.com/microsoft/vscode/issues/232538
 	}
 
-        if(content.isComplete) {
-	this.markCodeBlockCompleted(sessionId, chat, codeBlockIndex);
-}
+	async update(sessionId: string, chat: IChatRequestViewModel | IChatResponseViewModel, codeBlockIndex: number, content: CodeBlockContent): Promise<CodeBlockEntry> {
+		const entry = this.getOrCreate(sessionId, chat, codeBlockIndex);
 
-const textModel = await entry.model;
-if (textModel.isDisposed()) {
-	return entry;
-}
+		const extractedVulns = extractVulnerabilitiesFromText(content.text);
+		let newText = fixCodeText(extractedVulns.newText, content.languageId);
+		this.setVulns(sessionId, chat, codeBlockIndex, extractedVulns.vulnerabilities);
 
-if (content.languageId) {
-	const vscodeLanguageId = this.languageService.getLanguageIdByLanguageName(content.languageId);
-	if (vscodeLanguageId && vscodeLanguageId !== textModel.getLanguageId()) {
-		textModel.setLanguage(vscodeLanguageId);
-	}
-}
+		const codeblockUri = extractCodeblockUrisFromText(newText);
+		if (codeblockUri) {
+			this.setCodemapperUri(sessionId, chat, codeBlockIndex, codeblockUri.uri, codeblockUri.isEdit);
+			newText = codeblockUri.textWithoutResult;
+		}
 
-const currentText = textModel.getValue(EndOfLinePreference.LF);
-if (newText === currentText) {
-	return entry;
-}
+		if (content.isComplete) {
+			this.markCodeBlockCompleted(sessionId, chat, codeBlockIndex);
+		}
 
-if (newText.startsWith(currentText)) {
-	const text = newText.slice(currentText.length);
-	const lastLine = textModel.getLineCount();
-	const lastCol = textModel.getLineMaxColumn(lastLine);
-	textModel.applyEdits([{ range: new Range(lastLine, lastCol, lastLine, lastCol), text }]);
-} else {
-	// console.log(`Failed to optimize setText`);
-	textModel.setValue(newText);
-}
+		const textModel = await entry.model;
+		if (textModel.isDisposed()) {
+			return entry;
+		}
 
-return entry;
-    }
-
-    private setCodemapperUri(sessionId: string, chat: IChatRequestViewModel | IChatResponseViewModel, codeBlockIndex: number, codemapperUri: URI, isEdit ?: boolean) {
-	const entry = this._models.get(this.getKey(sessionId, chat, codeBlockIndex));
-	if (entry) {
-		entry.codemapperUri = codemapperUri;
-		entry.isEdit = isEdit;
-	}
-}
-
-    private setVulns(sessionId: string, chat: IChatRequestViewModel | IChatResponseViewModel, codeBlockIndex: number, vulnerabilities: IMarkdownVulnerability[]) {
-	const entry = this._models.get(this.getKey(sessionId, chat, codeBlockIndex));
-	if (entry) {
-		entry.vulns = vulnerabilities;
-	}
-}
-
-    private getKey(sessionId: string, chat: IChatRequestViewModel | IChatResponseViewModel, index: number): string {
-	return `${sessionId}/${chat.id}/${index}`;
-}
-
-    private getCodeBlockUri(sessionId: string, chat: IChatRequestViewModel | IChatResponseViewModel, index: number): URI {
-	const metadata = this.getUriMetaData(chat);
-	const indexPart = this.tag ? `${this.tag}-${index}` : `${index}`;
-	return URI.from({
-		scheme: Schemas.vscodeChatCodeBlock,
-		authority: sessionId,
-		path: `/${chat.id}/${indexPart}`,
-		fragment: metadata ? JSON.stringify(metadata) : undefined,
-	});
-}
-
-    private getUriMetaData(chat: IChatRequestViewModel | IChatResponseViewModel) {
-	if (!isResponseVM(chat)) {
-		return undefined;
-	}
-
-	return {
-		references: chat.contentReferences.map(ref => {
-			if (typeof ref.reference === 'string') {
-				return;
+		if (content.languageId) {
+			const vscodeLanguageId = this.languageService.getLanguageIdByLanguageName(content.languageId);
+			if (vscodeLanguageId && vscodeLanguageId !== textModel.getLanguageId()) {
+				textModel.setLanguage(vscodeLanguageId);
 			}
+		}
 
-			const uriOrLocation = 'variableName' in ref.reference ?
-				ref.reference.value :
-				ref.reference;
-			if (!uriOrLocation) {
-				return;
-			}
+		const currentText = textModel.getValue(EndOfLinePreference.LF);
+		if (newText === currentText) {
+			return entry;
+		}
 
-			if (URI.isUri(uriOrLocation)) {
+		if (newText.startsWith(currentText)) {
+			const text = newText.slice(currentText.length);
+			const lastLine = textModel.getLineCount();
+			const lastCol = textModel.getLineMaxColumn(lastLine);
+			textModel.applyEdits([{ range: new Range(lastLine, lastCol, lastLine, lastCol), text }]);
+		} else {
+			// console.log(`Failed to optimize setText`);
+			textModel.setValue(newText);
+		}
+
+		return entry;
+	}
+
+	private setCodemapperUri(sessionId: string, chat: IChatRequestViewModel | IChatResponseViewModel, codeBlockIndex: number, codemapperUri: URI, isEdit?: boolean) {
+		const entry = this._models.get(this.getKey(sessionId, chat, codeBlockIndex));
+		if (entry) {
+			entry.codemapperUri = codemapperUri;
+			entry.isEdit = isEdit;
+		}
+	}
+
+	private setVulns(sessionId: string, chat: IChatRequestViewModel | IChatResponseViewModel, codeBlockIndex: number, vulnerabilities: IMarkdownVulnerability[]) {
+		const entry = this._models.get(this.getKey(sessionId, chat, codeBlockIndex));
+		if (entry) {
+			entry.vulns = vulnerabilities;
+		}
+	}
+
+	private getKey(sessionId: string, chat: IChatRequestViewModel | IChatResponseViewModel, index: number): string {
+		return `${sessionId}/${chat.id}/${index}`;
+	}
+
+	private getCodeBlockUri(sessionId: string, chat: IChatRequestViewModel | IChatResponseViewModel, index: number): URI {
+		const metadata = this.getUriMetaData(chat);
+		const indexPart = this.tag ? `${this.tag}-${index}` : `${index}`;
+		return URI.from({
+			scheme: Schemas.vscodeChatCodeBlock,
+			authority: sessionId,
+			path: `/${chat.id}/${indexPart}`,
+			fragment: metadata ? JSON.stringify(metadata) : undefined,
+		});
+	}
+
+	private getUriMetaData(chat: IChatRequestViewModel | IChatResponseViewModel) {
+		if (!isResponseVM(chat)) {
+			return undefined;
+		}
+
+		return {
+			references: chat.contentReferences.map(ref => {
+				if (typeof ref.reference === 'string') {
+					return;
+				}
+
+				const uriOrLocation = 'variableName' in ref.reference ?
+					ref.reference.value :
+					ref.reference;
+				if (!uriOrLocation) {
+					return;
+				}
+
+				if (URI.isUri(uriOrLocation)) {
+					return {
+						uri: uriOrLocation.toJSON()
+					};
+				}
+
 				return {
-					uri: uriOrLocation.toJSON()
+					uri: uriOrLocation.uri.toJSON(),
+					range: uriOrLocation.range,
 				};
-			}
-
-			return {
-				uri: uriOrLocation.uri.toJSON(),
-				range: uriOrLocation.range,
-			};
-		})
-	};
-}
+			})
+		};
+	}
 }
 
 function fixCodeText(text: string, languageId: string | undefined): string {

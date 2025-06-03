@@ -61,12 +61,12 @@ class ViewZoneDelegate implements IViewZone {
 	readonly showInHiddenAreas: boolean | undefined;
 	readonly ordinal: number | undefined;
 
-	private readonly _onDomNodeTop: (top: number) => cognidream;
-	private readonly _onComputedHeight: (height: number) => cognidream;
+	private readonly _onDomNodeTop: (top: number) => void;
+	private readonly _onComputedHeight: (height: number) => void;
 
 	constructor(domNode: HTMLElement, afterLineNumber: number, afterColumn: number, heightInLines: number,
-		onDomNodeTop: (top: number) => cognidream,
-		onComputedHeight: (height: number) => cognidream,
+		onDomNodeTop: (top: number) => void,
+		onComputedHeight: (height: number) => void,
 		showInHiddenAreas: boolean | undefined,
 		ordinal: number | undefined
 	) {
@@ -80,11 +80,11 @@ class ViewZoneDelegate implements IViewZone {
 		this._onComputedHeight = onComputedHeight;
 	}
 
-	onDomNodeTop(top: number): cognidream {
+	onDomNodeTop(top: number): void {
 		this._onDomNodeTop(top);
 	}
 
-	onComputedHeight(height: number): cognidream {
+	onComputedHeight(height: number): void {
 		this._onComputedHeight(height);
 	}
 }
@@ -127,7 +127,7 @@ class Arrow {
 		this._decorations = this._editor.createDecorationsCollection();
 	}
 
-	dispose(): cognidream {
+	dispose(): void {
 		this.hide();
 		domStylesheetsJs.removeCSSRulesContainingSelector(this._ruleName);
 	}
@@ -146,7 +146,7 @@ class Arrow {
 		}
 	}
 
-	private _updateStyle(): cognidream {
+	private _updateStyle(): void {
 		domStylesheetsJs.removeCSSRulesContainingSelector(this._ruleName);
 		domStylesheetsJs.createCSSRule(
 			`.monaco-editor ${this._ruleName}`,
@@ -154,7 +154,7 @@ class Arrow {
 		);
 	}
 
-	show(where: IPosition): cognidream {
+	show(where: IPosition): void {
 
 		if (where.column === 1) {
 			// the arrow isn't pretty at column 1 and we need to push it out a little
@@ -171,7 +171,7 @@ class Arrow {
 		}]);
 	}
 
-	hide(): cognidream {
+	hide(): void {
 		this._decorations.clear();
 	}
 }
@@ -212,7 +212,7 @@ export abstract class ZoneWidget implements IHorizontalSashLayoutProvider {
 		}));
 	}
 
-	dispose(): cognidream {
+	dispose(): void {
 		if (this._overlayWidget) {
 			this.editor.removeOverlayWidget(this._overlayWidget);
 			this._overlayWidget = null;
@@ -232,7 +232,7 @@ export abstract class ZoneWidget implements IHorizontalSashLayoutProvider {
 		this._disposables.dispose();
 	}
 
-	create(): cognidream {
+	create(): void {
 
 		this.domNode.classList.add('zone-widget');
 		if (this.options.className) {
@@ -251,7 +251,7 @@ export abstract class ZoneWidget implements IHorizontalSashLayoutProvider {
 		this._applyStyles();
 	}
 
-	style(styles: IStyles): cognidream {
+	style(styles: IStyles): void {
 		if (styles.frameColor) {
 			this.options.frameColor = styles.frameColor;
 		}
@@ -261,7 +261,7 @@ export abstract class ZoneWidget implements IHorizontalSashLayoutProvider {
 		this._applyStyles();
 	}
 
-	protected _applyStyles(): cognidream {
+	protected _applyStyles(): void {
 		if (this.container && this.options.frameColor) {
 			const frameColor = this.options.frameColor.toString();
 			this.container.style.borderTopColor = frameColor;
@@ -285,11 +285,11 @@ export abstract class ZoneWidget implements IHorizontalSashLayoutProvider {
 		return 0;
 	}
 
-	private _onViewZoneTop(top: number): cognidream {
+	private _onViewZoneTop(top: number): void {
 		this.domNode.style.top = top + 'px';
 	}
 
-	private _onViewZoneHeight(height: number): cognidream {
+	private _onViewZoneHeight(height: number): void {
 		this.domNode.style.height = `${height}px`;
 
 		if (this.container) {
@@ -316,7 +316,7 @@ export abstract class ZoneWidget implements IHorizontalSashLayoutProvider {
 
 	protected _isShowing: boolean = false;
 
-	show(rangeOrPos: IRange | IPosition, heightInLines: number): cognidream {
+	show(rangeOrPos: IRange | IPosition, heightInLines: number): void {
 		const range = Range.isIRange(rangeOrPos) ? Range.lift(rangeOrPos) : Range.fromPositions(rangeOrPos);
 		this._isShowing = true;
 		this._showImpl(range, heightInLines);
@@ -324,7 +324,7 @@ export abstract class ZoneWidget implements IHorizontalSashLayoutProvider {
 		this._positionMarkerId.set([{ range, options: ModelDecorationOptions.EMPTY }]);
 	}
 
-	updatePositionAndHeight(rangeOrPos: IRange | IPosition, heightInLines?: number): cognidream {
+	updatePositionAndHeight(rangeOrPos: IRange | IPosition, heightInLines?: number): void {
 		if (this._viewZone) {
 			rangeOrPos = Range.isIRange(rangeOrPos) ? Range.getStartPosition(rangeOrPos) : rangeOrPos;
 			this._viewZone.afterLineNumber = rangeOrPos.lineNumber;
@@ -342,7 +342,7 @@ export abstract class ZoneWidget implements IHorizontalSashLayoutProvider {
 		}
 	}
 
-	hide(): cognidream {
+	hide(): void {
 		if (this._viewZone) {
 			this.editor.changeViewZones(accessor => {
 				if (this._viewZone) {
@@ -382,7 +382,7 @@ export abstract class ZoneWidget implements IHorizontalSashLayoutProvider {
 		return Math.max(12, (this.editor.getLayoutInfo().height / this.editor.getOption(EditorOption.lineHeight)) * 0.8);
 	}
 
-	private _showImpl(where: Range, heightInLines: number): cognidream {
+	private _showImpl(where: Range, heightInLines: number): void {
 		const position = where.getStartPosition();
 		const layoutInfo = this.editor.getLayoutInfo();
 		const width = this._getWidth(layoutInfo);
@@ -476,7 +476,7 @@ export abstract class ZoneWidget implements IHorizontalSashLayoutProvider {
 		}
 	}
 
-	protected setCssClass(className: string, classToReplace?: string): cognidream {
+	protected setCssClass(className: string, classToReplace?: string): void {
 		if (!this.container) {
 			return;
 		}
@@ -489,17 +489,17 @@ export abstract class ZoneWidget implements IHorizontalSashLayoutProvider {
 
 	}
 
-	protected abstract _fillContainer(container: HTMLElement): cognidream;
+	protected abstract _fillContainer(container: HTMLElement): void;
 
-	protected _onWidth(widthInPixel: number): cognidream {
+	protected _onWidth(widthInPixel: number): void {
 		// implement in subclass
 	}
 
-	protected _doLayout(heightInPixel: number, widthInPixel: number): cognidream {
+	protected _doLayout(heightInPixel: number, widthInPixel: number): void {
 		// implement in subclass
 	}
 
-	protected _relayout(_newHeightInLines: number, useMax?: boolean): cognidream {
+	protected _relayout(_newHeightInLines: number, useMax?: boolean): void {
 		const maxHeightInLines = this._getMaximumHeightInLines();
 		const newHeightInLines = (useMax && (maxHeightInLines !== undefined)) ? Math.min(maxHeightInLines, _newHeightInLines) : _newHeightInLines;
 		if (this._viewZone && this._viewZone.heightInLines !== newHeightInLines) {
@@ -515,7 +515,7 @@ export abstract class ZoneWidget implements IHorizontalSashLayoutProvider {
 
 	// --- sash
 
-	private _initSash(): cognidream {
+	private _initSash(): void {
 		if (this._resizeSash) {
 			return;
 		}
@@ -554,7 +554,7 @@ export abstract class ZoneWidget implements IHorizontalSashLayoutProvider {
 		}));
 	}
 
-	private _updateSashEnablement(): cognidream {
+	private _updateSashEnablement(): void {
 		if (this._resizeSash) {
 			const { minLines, maxLines } = this._getResizeBounds();
 			this._resizeSash.state = minLines === maxLines ? SashState.Disabled : SashState.Enabled;

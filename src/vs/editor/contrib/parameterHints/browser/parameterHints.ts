@@ -55,19 +55,19 @@ export class ParameterHintsController extends Disposable implements IEditorContr
 		this.widget = new Lazy(() => this._register(instantiationService.createInstance(ParameterHintsWidget, this.editor, this.model)));
 	}
 
-	cancel(): cognidream {
+	cancel(): void {
 		this.model.cancel();
 	}
 
-	previous(): cognidream {
+	previous(): void {
 		this.widget.rawValue?.previous();
 	}
 
-	next(): cognidream {
+	next(): void {
 		this.widget.rawValue?.next();
 	}
 
-	trigger(context: TriggerContext): cognidream {
+	trigger(context: TriggerContext): void {
 		this.model.trigger(context, 0);
 	}
 }
@@ -87,7 +87,7 @@ export class TriggerParameterHintsAction extends EditorAction {
 		});
 	}
 
-	public run(accessor: ServicesAccessor, editor: ICodeEditor): cognidream {
+	public run(accessor: ServicesAccessor, editor: ICodeEditor): void {
 		const controller = ParameterHintsController.get(editor);
 		controller?.trigger({
 			triggerKind: languages.SignatureHelpTriggerKind.Invoke

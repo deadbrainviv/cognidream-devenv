@@ -8,7 +8,7 @@ import { promisify } from 'util';
 import * as treekill from 'tree-kill';
 import { Logger } from './logger';
 
-export async function teardown(p: ChildProcess, logger: Logger, retryCount = 3): Promise<cognidream> {
+export async function teardown(p: ChildProcess, logger: Logger, retryCount = 3): Promise<void> {
 	const pid = p.pid;
 	if (typeof pid !== 'number') {
 		return;

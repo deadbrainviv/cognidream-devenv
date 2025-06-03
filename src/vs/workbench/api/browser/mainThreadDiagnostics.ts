@@ -28,13 +28,13 @@ export class MainThreadDiagnostics implements MainThreadDiagnosticsShape {
 		this._markerListener = this._markerService.onMarkerChanged(this._forwardMarkers, this);
 	}
 
-	dispose(): cognidream {
+	dispose(): void {
 		this._markerListener.dispose();
 		this._activeOwners.forEach(owner => this._markerService.changeAll(owner, []));
 		this._activeOwners.clear();
 	}
 
-	private _forwardMarkers(resources: readonly URI[]cognidreamognidream {
+	private _forwardMarkers(resources: readonly URI[]): void {
 		const data: [UriComponents, IMarkerData[]][] = [];
 		for (const resource of resources) {
 			const allMarkerData = this._markerService.read({ resource });
@@ -47,33 +47,33 @@ export class MainThreadDiagnostics implements MainThreadDiagnosticsShape {
 				}
 			}
 		}
-if (data.length > 0) {
-	this._proxy.$acceptMarkersChange(data);
-}
-    }
+		if (data.length > 0) {
+			this._proxy.$acceptMarkersChange(data);
+		}
+	}
 
-$changeMany(owner: string, entries: [UriComponents, IMarkerData[]][]cognidreamognidream {
-	for(const entry of entries) {
-		const [uri, markers] = entry;
-		if (markers) {
-			for (const marker of markers) {
-				if (marker.relatedInformation) {
-					for (const relatedInformation of marker.relatedInformation) {
-						relatedInformation.resource = URI.revive(relatedInformation.resource);
+	$changeMany(owner: string, entries: [UriComponents, IMarkerData[]][]): void {
+		for (const entry of entries) {
+			const [uri, markers] = entry;
+			if (markers) {
+				for (const marker of markers) {
+					if (marker.relatedInformation) {
+						for (const relatedInformation of marker.relatedInformation) {
+							relatedInformation.resource = URI.revive(relatedInformation.resource);
+						}
+					}
+					if (marker.code && typeof marker.code !== 'string') {
+						marker.code.target = URI.revive(marker.code.target);
 					}
 				}
-				if (marker.code && typeof marker.code !== 'string') {
-					marker.code.target = URI.revive(marker.code.target);
-				}
 			}
+			this._markerService.changeOne(owner, this._uriIdentService.asCanonicalUri(URI.revive(uri)), markers);
 		}
-		this._markerService.changeOne(owner, this._uriIdentService.asCanonicalUri(URI.revive(uri)), markers);
+		this._activeOwners.add(owner);
 	}
-        this._activeOwners.add(owner);
-}
 
-    $clear(owner: stringcognidreamognidream {
-	this._markerService.changeAll(owner, []);
-	this._activeOwners.delete(owner);
-}
+	$clear(owner: string): void {
+		this._markerService.changeAll(owner, []);
+		this._activeOwners.delete(owner);
+	}
 }

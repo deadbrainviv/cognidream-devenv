@@ -124,7 +124,7 @@ registerAction2(class RemoveFileFromWorkingSet extends WorkingSetAction {
 		});
 	}
 
-	async runWorkingSetAction(accessor: ServicesAccessor, currentEditingSession: IChatEditingSession, chatWidget: IChatWidget, ...uris: URI[]): Promise<cognidream> {
+	async runWorkingSetAction(accessor: ServicesAccessor, currentEditingSession: IChatEditingSession, chatWidget: IChatWidget, ...uris: URI[]): Promise<void> {
 		const dialogService = accessor.get(IDialogService);
 
 		const pendingEntries = currentEditingSession.entries.get().filter((entry) => uris.includes(entry.modifiedURI) && entry.state.get() === WorkingSetEntryState.Modified);
@@ -175,20 +175,20 @@ registerAction2(class OpenFileInDiffAction extends WorkingSetAction {
 		});
 	}
 
-	async runWorkingSetAction(accessor: ServicesAccessor, currentEditingSession: IChatEditingSession, _chatWidget: IChatWidget, ...uris: URI[]): Promicognidreamognidream> {
-	const editorService = accessor.get(IEditorService);
-	for(const uri of uris) {
-		const editedFile = currentEditingSession.getEntry(uri);
-		if (editedFile?.state.get() === WorkingSetEntryState.Modified) {
-			await editorService.openEditor({
-				original: { resource: URI.from(editedFile.originalURI, true) },
-				modified: { resource: URI.from(editedFile.modifiedURI, true) },
-			});
-		} else {
-			await editorService.openEditor({ resource: uri });
+	async runWorkingSetAction(accessor: ServicesAccessor, currentEditingSession: IChatEditingSession, _chatWidget: IChatWidget, ...uris: URI[]): Promise<void> {
+		const editorService = accessor.get(IEditorService);
+		for (const uri of uris) {
+			const editedFile = currentEditingSession.getEntry(uri);
+			if (editedFile?.state.get() === WorkingSetEntryState.Modified) {
+				await editorService.openEditor({
+					original: { resource: URI.from(editedFile.originalURI, true) },
+					modified: { resource: URI.from(editedFile.modifiedURI, true) },
+				});
+			} else {
+				await editorService.openEditor({ resource: uri });
+			}
 		}
 	}
-}
 });
 
 registerAction2(class AcceptAction extends WorkingSetAction {
@@ -212,9 +212,9 @@ registerAction2(class AcceptAction extends WorkingSetAction {
 		});
 	}
 
-	async runWorkingSetAction(accessor: ServicesAccessor, currentEditingSession: IChatEditingSession, chatWidget: IChatWidget, ...uris: URI[]): Promicognidreamognidream> {
-	await currentEditingSession.accept(...uris);
-}
+	async runWorkingSetAction(accessor: ServicesAccessor, currentEditingSession: IChatEditingSession, chatWidget: IChatWidget, ...uris: URI[]): Promise<void> {
+		await currentEditingSession.accept(...uris);
+	}
 });
 
 registerAction2(class DiscardAction extends WorkingSetAction {
@@ -238,9 +238,9 @@ registerAction2(class DiscardAction extends WorkingSetAction {
 		});
 	}
 
-	async runWorkingSetAction(accessor: ServicesAccessor, currentEditingSession: IChatEditingSession, chatWidget: IChatWidget, ...uris: URI[]): Promicognidreamognidream> {
-	await currentEditingSession.reject(...uris);
-}
+	async runWorkingSetAction(accessor: ServicesAccessor, currentEditingSession: IChatEditingSession, chatWidget: IChatWidget, ...uris: URI[]): Promise<void> {
+		await currentEditingSession.reject(...uris);
+	}
 });
 
 export class ChatEditingAcceptAllAction extends EditingSessionAction {
@@ -351,7 +351,7 @@ export class ChatEditingRemoveAllFilesAction extends EditingSessionAction {
 		});
 	}
 
-	override async runEditingSessionAction(accessor: ServicesAccessor, editingSession: IChatEditingSession, chatWidget: IChatWidget, ...args: any[]): Promicognidreamognidream> {
+	override async runEditingSessionAction(accessor: ServicesAccessor, editingSession: IChatEditingSession, chatWidget: IChatWidget, ...args: any[]): Promise<void> {
 		// Remove all files from working set
 		const uris = [...editingSession.entries.get()].map((e) => e.modifiedURI);
 		editingSession.remove(WorkingSetEntryRemovalReason.User, ...uris);
@@ -387,7 +387,7 @@ export class ChatEditingShowChangesAction extends EditingSessionAction {
 		});
 	}
 
-	override async runEditingSessionAction(accessor: ServicesAccessor, editingSession: IChatEditingSession, chatWidget: IChatWidget, ...args: any[]): Promicognidreamognidream> {
+	override async runEditingSessionAction(accessor: ServicesAccessor, editingSession: IChatEditingSession, chatWidget: IChatWidget, ...args: any[]): Promise<void> {
 		await editingSession.show();
 	}
 }
@@ -404,35 +404,35 @@ registerAction2(class AddFilesToWorkingSetAction extends EditingSessionAction {
 		});
 	}
 
-	override async runEditingSessionAction(accessor: ServicesAccessor, editingSession: IChatEditingSession, chatWidget: IChatWidget, ...args: any[]): Promicognidreamognidream> {
-	const listService = accessor.get(IListService);
-	const editorGroupService = accessor.get(IEditorGroupsService);
+	override async runEditingSessionAction(accessor: ServicesAccessor, editingSession: IChatEditingSession, chatWidget: IChatWidget, ...args: any[]): Promise<void> {
+		const listService = accessor.get(IListService);
+		const editorGroupService = accessor.get(IEditorGroupsService);
 
-	const uris: URI[] = [];
+		const uris: URI[] = [];
 
-	for(const group of editorGroupService.getGroups(GroupsOrder.MOST_RECENTLY_ACTIVE)) {
-	for (const selection of group.selectedEditors) {
-		if (selection.resource) {
-			uris.push(selection.resource);
-		}
-	}
-}
-
-if (uris.length === 0) {
-	const selection = listService.lastFocusedList?.getSelection();
-	if (selection?.length) {
-		for (const file of selection) {
-			if (!!file && typeof file === 'object' && 'resource' in file && URI.isUri(file.resource)) {
-				uris.push(file.resource);
+		for (const group of editorGroupService.getGroups(GroupsOrder.MOST_RECENTLY_ACTIVE)) {
+			for (const selection of group.selectedEditors) {
+				if (selection.resource) {
+					uris.push(selection.resource);
+				}
 			}
 		}
-	}
-}
 
-for (const file of uris) {
-	await chatWidget.attachmentModel.addFile(file);
-}
-    }
+		if (uris.length === 0) {
+			const selection = listService.lastFocusedList?.getSelection();
+			if (selection?.length) {
+				for (const file of selection) {
+					if (!!file && typeof file === 'object' && 'resource' in file && URI.isUri(file.resource)) {
+						uris.push(file.resource);
+					}
+				}
+			}
+		}
+
+		for (const file of uris) {
+			await chatWidget.attachmentModel.addFile(file);
+		}
+	}
 });
 
 registerAction2(class RemoveAction extends Action2 {
@@ -557,15 +557,15 @@ registerAction2(class OpenWorkingSetHistoryAction extends Action2 {
 		});
 	}
 
-	override async run(accessor: ServicesAccessor, ...args: any[]): Promicognidreamognidream> {
-	const context: { sessionId: string; requestId: string; uri: URI; stopId: string | undefined } | undefined = args[0];
-if (!context?.sessionId) {
-	return;
-}
+	override async run(accessor: ServicesAccessor, ...args: any[]): Promise<void> {
+		const context: { sessionId: string; requestId: string; uri: URI; stopId: string | undefined } | undefined = args[0];
+		if (!context?.sessionId) {
+			return;
+		}
 
-const editorService = accessor.get(IEditorService);
-await editorService.openEditor({ resource: context.uri });
-    }
+		const editorService = accessor.get(IEditorService);
+		await editorService.openEditor({ resource: context.uri });
+	}
 });
 
 registerAction2(class OpenWorkingSetHistoryAction extends Action2 {
@@ -583,29 +583,29 @@ registerAction2(class OpenWorkingSetHistoryAction extends Action2 {
 		});
 	}
 
-	override async run(accessor: ServicesAccessor, ...args: any[]): Promicognidreamognidream> {
-	const context: { sessionId: string; requestId: string; uri: URI; stopId: string | undefined } | undefined = args[0];
-if (!context?.sessionId) {
-	return;
-}
+	override async run(accessor: ServicesAccessor, ...args: any[]): Promise<void> {
+		const context: { sessionId: string; requestId: string; uri: URI; stopId: string | undefined } | undefined = args[0];
+		if (!context?.sessionId) {
+			return;
+		}
 
-const chatService = accessor.get(IChatService);
-const chatEditingService = accessor.get(IChatEditingService);
-const editorService = accessor.get(IEditorService);
+		const chatService = accessor.get(IChatService);
+		const chatEditingService = accessor.get(IChatEditingService);
+		const editorService = accessor.get(IEditorService);
 
-const chatModel = chatService.getSession(context.sessionId);
-if (!chatModel) {
-	return;
-}
+		const chatModel = chatService.getSession(context.sessionId);
+		if (!chatModel) {
+			return;
+		}
 
-const snapshot = chatEditingService.getEditingSession(chatModel.sessionId)?.getSnapshotUri(context.requestId, context.uri, context.stopId);
-if (snapshot) {
-	const editor = await editorService.openEditor({ resource: snapshot, label: localize('chatEditing.snapshot', '{0} (Snapshot)', basename(context.uri)), options: { transient: true, activation: EditorActivation.ACTIVATE } });
-	if (isCodeEditor(editor)) {
-		editor.updateOptions({ readOnly: true });
+		const snapshot = chatEditingService.getEditingSession(chatModel.sessionId)?.getSnapshotUri(context.requestId, context.uri, context.stopId);
+		if (snapshot) {
+			const editor = await editorService.openEditor({ resource: snapshot, label: localize('chatEditing.snapshot', '{0} (Snapshot)', basename(context.uri)), options: { transient: true, activation: EditorActivation.ACTIVATE } });
+			if (isCodeEditor(editor)) {
+				editor.updateOptions({ readOnly: true });
+			}
+		}
 	}
-}
-    }
 });
 
 registerAction2(class ResolveSymbolsContextAction extends EditingSessionAction {
@@ -624,66 +624,66 @@ registerAction2(class ResolveSymbolsContextAction extends EditingSessionAction {
 		});
 	}
 
-	override async runEditingSessionAction(accessor: ServicesAccessor, editingSession: IChatEditingSession, chatWidget: IChatWidget, ...args: any[]): Promicognidreamognidream> {
-	if(args.length === 0 || !isLocation(args[0])) {
-	return;
-}
+	override async runEditingSessionAction(accessor: ServicesAccessor, editingSession: IChatEditingSession, chatWidget: IChatWidget, ...args: any[]): Promise<void> {
+		if (args.length === 0 || !isLocation(args[0])) {
+			return;
+		}
 
-const textModelService = accessor.get(ITextModelService);
-const languageFeaturesService = accessor.get(ILanguageFeaturesService);
-const symbol = args[0] as Location;
+		const textModelService = accessor.get(ITextModelService);
+		const languageFeaturesService = accessor.get(ILanguageFeaturesService);
+		const symbol = args[0] as Location;
 
-const modelReference = await textModelService.createModelReference(symbol.uri);
-const textModel = modelReference.object.textEditorModel;
-if (!textModel) {
-	return;
-}
+		const modelReference = await textModelService.createModelReference(symbol.uri);
+		const textModel = modelReference.object.textEditorModel;
+		if (!textModel) {
+			return;
+		}
 
-const position = new Position(symbol.range.startLineNumber, symbol.range.startColumn);
+		const position = new Position(symbol.range.startLineNumber, symbol.range.startColumn);
 
-const [references, definitions, implementations] = await Promise.all([
-	this.getReferences(position, textModel, languageFeaturesService),
-	this.getDefinitions(position, textModel, languageFeaturesService),
-	this.getImplementations(position, textModel, languageFeaturesService)
-]);
+		const [references, definitions, implementations] = await Promise.all([
+			this.getReferences(position, textModel, languageFeaturesService),
+			this.getDefinitions(position, textModel, languageFeaturesService),
+			this.getImplementations(position, textModel, languageFeaturesService)
+		]);
 
-// Sort the references, definitions and implementations by
-// how important it is that they make it into the working set as it has limited size
-const attachments = [];
-for (const reference of [...definitions, ...implementations, ...references]) {
-	attachments.push(chatWidget.attachmentModel.asVariableEntry(reference.uri));
-}
+		// Sort the references, definitions and implementations by
+		// how important it is that they make it into the working set as it has limited size
+		const attachments = [];
+		for (const reference of [...definitions, ...implementations, ...references]) {
+			attachments.push(chatWidget.attachmentModel.asVariableEntry(reference.uri));
+		}
 
-chatWidget.attachmentModel.addContext(...attachments);
-    }
+		chatWidget.attachmentModel.addContext(...attachments);
+	}
 
-    private async getReferences(position: Position, textModel: ITextModel, languageFeaturesService: ILanguageFeaturesService): Promise < Location[] > {
-	const referenceProviders = languageFeaturesService.referenceProvider.all(textModel);
+	private async getReferences(position: Position, textModel: ITextModel, languageFeaturesService: ILanguageFeaturesService): Promise<Location[]> {
+		const referenceProviders = languageFeaturesService.referenceProvider.all(textModel);
 
-	const references = await Promise.all(referenceProviders.map(async (referenceProvider) => {
-		return await referenceProvider.provideReferences(textModel, position, { includeDeclaration: true }, CancellationToken.None) ?? [];
-	}));
+		const references = await Promise.all(referenceProviders.map(async (referenceProvider) => {
+			return await referenceProvider.provideReferences(textModel, position, { includeDeclaration: true }, CancellationToken.None) ?? [];
+		}));
 
-	return references.flat();
-}
+		return references.flat();
+	}
 
-    private async getDefinitions(position: Position, textModel: ITextModel, languageFeaturesService: ILanguageFeaturesService): Promise < Location[] > {
-	const definitionProviders = languageFeaturesService.definitionProvider.all(textModel);
+	private async getDefinitions(position: Position, textModel: ITextModel, languageFeaturesService: ILanguageFeaturesService): Promise<Location[]> {
+		const definitionProviders = languageFeaturesService.definitionProvider.all(textModel);
 
-	const definitions = await Promise.all(definitionProviders.map(async (definitionProvider) => {
-		return await definitionProvider.provideDefinition(textModel, position, CancellationToken.None) ?? [];
-	}));
+		const definitions = await Promise.all(definitionProviders.map(async (definitionProvider) => {
+			return await definitionProvider.provideDefinition(textModel, position, CancellationToken.None) ?? [];
+		}));
 
-	return definitions.flat();
-}
+		return definitions.flat();
+	}
 
-    private async getImplementations(position: Position, textModel: ITextModel, languageFeaturesService: ILanguageFeaturesService): Promise < Location[] > {
-	const implementationProviders = languageFeaturesService.implementationProvider.all(textModel);
+	private async getImplementations(position: Position, textModel: ITextModel, languageFeaturesService: ILanguageFeaturesService): Promise<Location[]> {
+		const implementationProviders = languageFeaturesService.implementationProvider.all(textModel);
 
-	const implementations = await Promise.all(implementationProviders.map(async (implementationProvider) => {
-		return await implementationProvider.provideImplementation(textModel, position, CancellationToken.None) ?? [];
-	}));
+		const implementations = await Promise.all(implementationProviders.map(async (implementationProvider) => {
+			return await implementationProvider.provideImplementation(textModel, position, CancellationToken.None) ?? [];
+		}));
 
-	return implementations.flat();
-}
+		return implementations.flat();
+	}
 });

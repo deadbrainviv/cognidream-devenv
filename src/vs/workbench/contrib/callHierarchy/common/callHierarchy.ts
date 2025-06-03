@@ -47,7 +47,7 @@ export interface OutgoingCall {
 
 export interface CallHierarchySession {
 	roots: CallHierarchyItem[];
-	dispose(): cognidream;
+	dispose(): void;
 }
 
 export interface CallHierarchyProvider {
@@ -87,42 +87,42 @@ export class CallHierarchyModel {
 		this.root = roots[0];
 	}
 
-	dispose(cognidreamognidream {
+	dispose(): void {
 		this.ref.release();
-    }
+	}
 
-fork(item: CallHierarchyItem): CallHierarchyModel {
-	const that = this;
-	return new class extends CallHierarchyModel {
-		constructor() {
-			super(that.id, that.provider, [item], that.ref.acquire());
+	fork(item: CallHierarchyItem): CallHierarchyModel {
+		const that = this;
+		return new class extends CallHierarchyModel {
+			constructor() {
+				super(that.id, that.provider, [item], that.ref.acquire());
+			}
+		};
+	}
+
+	async resolveIncomingCalls(item: CallHierarchyItem, token: CancellationToken): Promise<IncomingCall[]> {
+		try {
+			const result = await this.provider.provideIncomingCalls(item, token);
+			if (isNonEmptyArray(result)) {
+				return result;
+			}
+		} catch (e) {
+			onUnexpectedExternalError(e);
 		}
-	};
-}
+		return [];
+	}
 
-    async resolveIncomingCalls(item: CallHierarchyItem, token: CancellationToken): Promise < IncomingCall[] > {
-	try {
-		const result = await this.provider.provideIncomingCalls(item, token);
-		if(isNonEmptyArray(result)) {
-	return result;
-}
-        } catch (e) {
-	onUnexpectedExternalError(e);
-}
-return [];
-    }
-
-    async resolveOutgoingCalls(item: CallHierarchyItem, token: CancellationToken): Promise < OutgoingCall[] > {
-	try {
-		const result = await this.provider.provideOutgoingCalls(item, token);
-		if(isNonEmptyArray(result)) {
-	return result;
-}
-        } catch (e) {
-	onUnexpectedExternalError(e);
-}
-return [];
-    }
+	async resolveOutgoingCalls(item: CallHierarchyItem, token: CancellationToken): Promise<OutgoingCall[]> {
+		try {
+			const result = await this.provider.provideOutgoingCalls(item, token);
+			if (isNonEmptyArray(result)) {
+				return result;
+			}
+		} catch (e) {
+			onUnexpectedExternalError(e);
+		}
+		return [];
+	}
 }
 
 // --- API command support

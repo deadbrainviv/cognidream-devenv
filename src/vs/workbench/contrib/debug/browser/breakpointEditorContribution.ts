@@ -252,7 +252,7 @@ export class BreakpointEditorContribution implements IBreakpointEditorContributi
 		return this.getContextMenuActions(breakpoints, model.uri, lineNumber);
 	}
 
-	private registerListeners(): cognidream {
+	private registerListeners(): void {
 		this.toDispose.push(this.editor.onMouseDown(async (e: IEditorMouseEvent) => {
 			if (!this.debugService.getAdapterManager().hasEnabledDebuggers()) {
 				return;
@@ -514,7 +514,7 @@ export class BreakpointEditorContribution implements IBreakpointEditorContributi
 		return true;
 	}
 
-	private ensureBreakpointHintDecoration(showBreakpointHintAtLineNumber: numbercognidreamognidream {
+	private ensureBreakpointHintDecoration(showBreakpointHintAtLineNumber: number): void {
 		this.editor.changeDecorations((accessor) => {
 			if (this.breakpointHintDecoration) {
 				accessor.removeDecoration(this.breakpointHintDecoration);
@@ -530,159 +530,159 @@ export class BreakpointEditorContribution implements IBreakpointEditorContributi
 				);
 			}
 		});
-    }
+	}
 
-    private async setDecorations(): Promicognidreamognidream > {
-	if(!this.editor.hasModel()) {
-	return;
-}
-
-const setCandidateDecorations = (changeAccessor: IModelDecorationsChangeAccessor, desiredCandidatePositions: BreakpointsForLine[]) => {
-	const desiredCandidateDecorations = createCandidateDecorations(model, this.breakpointDecorations, desiredCandidatePositions);
-	const candidateDecorationIds = changeAccessor.deltaDecorations(this.candidateDecorations.map(c => c.decorationId), desiredCandidateDecorations);
-	this.candidateDecorations.forEach(candidate => {
-		candidate.inlineWidget.dispose();
-	});
-	this.candidateDecorations = candidateDecorationIds.map((decorationId, index) => {
-		const candidate = desiredCandidateDecorations[index];
-		// Candidate decoration has a breakpoint attached when a breakpoint is already at that location and we did not yet set a decoration there
-		// In practice this happens for the first breakpoint that was set on a line
-		// We could have also rendered this first decoration as part of desiredBreakpointDecorations however at that moment we have no location information
-		const icon = candidate.breakpoint ? getBreakpointMessageAndIcon(this.debugService.state, this.debugService.getModel().areBreakpointsActivated(), candidate.breakpoint, this.labelService, this.debugService.getModel()).icon : icons.breakpoint.disabled;
-		const contextMenuActions = () => this.getContextMenuActions(candidate.breakpoint ? [candidate.breakpoint] : [], activeCodeEditor.getModel().uri, candidate.range.startLineNumber, candidate.range.startColumn);
-		const inlineWidget = new InlineBreakpointWidget(activeCodeEditor, decorationId, ThemeIcon.asClassName(icon), candidate.breakpoint, this.debugService, this.contextMenuService, contextMenuActions);
-
-		return {
-			decorationId,
-			inlineWidget
-		};
-	});
-};
-
-const activeCodeEditor = this.editor;
-const model = activeCodeEditor.getModel();
-const breakpoints = this.debugService.getModel().getBreakpoints({ uri: model.uri });
-const debugSettings = this.configurationService.getValue<IDebugConfiguration>('debug');
-const desiredBreakpointDecorations = this.instantiationService.invokeFunction(accessor => createBreakpointDecorations(accessor, model, breakpoints, this.debugService.state, this.debugService.getModel().areBreakpointsActivated(), debugSettings.showBreakpointsInOverviewRuler));
-
-// try to set breakpoint location candidates in the same changeDecorations()
-// calcognidream acognidream flickering, if the DA responds reasonably quickly.
-const session = this.debugService.getViewModel().focusedSession;
-const desiredCandidatePositions = debugSettings.showInlineBreakpointCandidates && session ? requestBreakpointCandidateLocations(this.editor.getModel(), desiredBreakpointDecorations.map(bp => bp.range.startLineNumber), session) : Promise.resolve([]);
-const desiredCandidatePositionsRaced = await Promise.race([desiredCandidatePositions, timeout(500).then(() => undefined)]);
-if (desiredCandidatePositionsRaced === undefined) { // the timeout resolved first
-	desiredCandidatePositions.then(v => activeCodeEditor.changeDecorations(d => setCandidateDecorations(d, v)));
-}
-
-try {
-	this.ignoreDecorationsChangedEvent = true;
-
-	// Set breakpoint decorations
-	activeCodeEditor.changeDecorations((changeAccessor) => {
-		const decorationIds = changeAccessor.deltaDecorations(this.breakpointDecorations.map(bpd => bpd.decorationId), desiredBreakpointDecorations);
-		this.breakpointDecorations.forEach(bpd => {
-			bpd.inlineWidget?.dispose();
-		});
-		this.breakpointDecorations = decorationIds.map((decorationId, index) => {
-			let inlineWidget: InlineBreakpointWidget | undefined = undefined;
-			const breakpoint = breakpoints[index];
-			if (desiredBreakpointDecorations[index].options.before) {
-				const contextMenuActions = () => this.getContextMenuActions([breakpoint], activeCodeEditor.getModel().uri, breakpoint.lineNumber, breakpoint.column);
-				inlineWidget = new InlineBreakpointWidget(activeCodeEditor, decorationId, desiredBreakpointDecorations[index].options.glyphMarginClassName, breakpoint, this.debugService, this.contextMenuService, contextMenuActions);
-			}
-
-			return {
-				decorationId,
-				breakpoint,
-				range: desiredBreakpointDecorations[index].range,
-				inlineWidget
-			};
-		});
-
-		if (desiredCandidatePositionsRaced) {
-			setCandidateDecorations(changeAccessor, desiredCandidatePositionsRaced);
+	private async setDecorations(): Promise<void> {
+		if (!this.editor.hasModel()) {
+			return;
 		}
-	});
-} finally {
-	this.ignoreDecorationsChangedEvent = false;
-}
 
-for (const d of this.breakpointDecorations) {
-	if (d.inlineWidget) {
-		this.editor.layoutContentWidget(d.inlineWidget);
-	}
-}
-    }
-
-    private async onModelDecorationsChanged(): Promicognidreamognidream > {
-	if(this.breakpointDecorations.length === 0 || this.ignoreDecorationsChangedEvent || !this.editor.hasModel()) {
-	// I have no decorations
-	return;
-}
-let somethingChanged = false;
-const model = this.editor.getModel();
-this.breakpointDecorations.forEach(breakpointDecoration => {
-	if (somethingChanged) {
-		return;
-	}
-	const newBreakpointRange = model.getDecorationRange(breakpointDecoration.decorationId);
-	if (newBreakpointRange && (!breakpointDecoration.range.equalsRange(newBreakpointRange))) {
-		somethingChanged = true;
-		breakpointDecoration.range = newBreakpointRange;
-	}
-});
-if (!somethingChanged) {
-	// nothing to do, my decorations did not change.
-	return;
-}
-
-const data = new Map<string, IBreakpointUpdateData>();
-for (let i = 0, len = this.breakpointDecorations.length; i < len; i++) {
-	const breakpointDecoration = this.breakpointDecorations[i];
-	const decorationRange = model.getDecorationRange(breakpointDecoration.decorationId);
-	// check if the line got deleted.
-	if (decorationRange) {
-		// since we know it is collapsed, it cannot grow to multiple lines
-		if (breakpointDecoration.breakpoint) {
-			data.set(breakpointDecoration.breakpoint.getId(), {
-				lineNumber: decorationRange.startLineNumber,
-				column: breakpointDecoration.breakpoint.column ? decorationRange.startColumn : undefined,
+		const setCandidateDecorations = (changeAccessor: IModelDecorationsChangeAccessor, desiredCandidatePositions: BreakpointsForLine[]) => {
+			const desiredCandidateDecorations = createCandidateDecorations(model, this.breakpointDecorations, desiredCandidatePositions);
+			const candidateDecorationIds = changeAccessor.deltaDecorations(this.candidateDecorations.map(c => c.decorationId), desiredCandidateDecorations);
+			this.candidateDecorations.forEach(candidate => {
+				candidate.inlineWidget.dispose();
 			});
+			this.candidateDecorations = candidateDecorationIds.map((decorationId, index) => {
+				const candidate = desiredCandidateDecorations[index];
+				// Candidate decoration has a breakpoint attached when a breakpoint is already at that location and we did not yet set a decoration there
+				// In practice this happens for the first breakpoint that was set on a line
+				// We could have also rendered this first decoration as part of desiredBreakpointDecorations however at that moment we have no location information
+				const icon = candidate.breakpoint ? getBreakpointMessageAndIcon(this.debugService.state, this.debugService.getModel().areBreakpointsActivated(), candidate.breakpoint, this.labelService, this.debugService.getModel()).icon : icons.breakpoint.disabled;
+				const contextMenuActions = () => this.getContextMenuActions(candidate.breakpoint ? [candidate.breakpoint] : [], activeCodeEditor.getModel().uri, candidate.range.startLineNumber, candidate.range.startColumn);
+				const inlineWidget = new InlineBreakpointWidget(activeCodeEditor, decorationId, ThemeIcon.asClassName(icon), candidate.breakpoint, this.debugService, this.contextMenuService, contextMenuActions);
+
+				return {
+					decorationId,
+					inlineWidget
+				};
+			});
+		};
+
+		const activeCodeEditor = this.editor;
+		const model = activeCodeEditor.getModel();
+		const breakpoints = this.debugService.getModel().getBreakpoints({ uri: model.uri });
+		const debugSettings = this.configurationService.getValue<IDebugConfiguration>('debug');
+		const desiredBreakpointDecorations = this.instantiationService.invokeFunction(accessor => createBreakpointDecorations(accessor, model, breakpoints, this.debugService.state, this.debugService.getModel().areBreakpointsActivated(), debugSettings.showBreakpointsInOverviewRuler));
+
+		// try to set breakpoint location candidates in the same changeDecorations()
+		// call to avoid flickering, if the DA responds reasonably quickly.
+		const session = this.debugService.getViewModel().focusedSession;
+		const desiredCandidatePositions = debugSettings.showInlineBreakpointCandidates && session ? requestBreakpointCandidateLocations(this.editor.getModel(), desiredBreakpointDecorations.map(bp => bp.range.startLineNumber), session) : Promise.resolve([]);
+		const desiredCandidatePositionsRaced = await Promise.race([desiredCandidatePositions, timeout(500).then(() => undefined)]);
+		if (desiredCandidatePositionsRaced === undefined) { // the timeout resolved first
+			desiredCandidatePositions.then(v => activeCodeEditor.changeDecorations(d => setCandidateDecorations(d, v)));
+		}
+
+		try {
+			this.ignoreDecorationsChangedEvent = true;
+
+			// Set breakpoint decorations
+			activeCodeEditor.changeDecorations((changeAccessor) => {
+				const decorationIds = changeAccessor.deltaDecorations(this.breakpointDecorations.map(bpd => bpd.decorationId), desiredBreakpointDecorations);
+				this.breakpointDecorations.forEach(bpd => {
+					bpd.inlineWidget?.dispose();
+				});
+				this.breakpointDecorations = decorationIds.map((decorationId, index) => {
+					let inlineWidget: InlineBreakpointWidget | undefined = undefined;
+					const breakpoint = breakpoints[index];
+					if (desiredBreakpointDecorations[index].options.before) {
+						const contextMenuActions = () => this.getContextMenuActions([breakpoint], activeCodeEditor.getModel().uri, breakpoint.lineNumber, breakpoint.column);
+						inlineWidget = new InlineBreakpointWidget(activeCodeEditor, decorationId, desiredBreakpointDecorations[index].options.glyphMarginClassName, breakpoint, this.debugService, this.contextMenuService, contextMenuActions);
+					}
+
+					return {
+						decorationId,
+						breakpoint,
+						range: desiredBreakpointDecorations[index].range,
+						inlineWidget
+					};
+				});
+
+				if (desiredCandidatePositionsRaced) {
+					setCandidateDecorations(changeAccessor, desiredCandidatePositionsRaced);
+				}
+			});
+		} finally {
+			this.ignoreDecorationsChangedEvent = false;
+		}
+
+		for (const d of this.breakpointDecorations) {
+			if (d.inlineWidget) {
+				this.editor.layoutContentWidget(d.inlineWidget);
+			}
 		}
 	}
-}
 
-try {
-	this.ignoreBreakpointsChangeEvent = true;
-	await this.debugService.updateBreakpoints(model.uri, data, true);
-} finally {
-	this.ignoreBreakpointsChangeEvent = false;
-}
-    }
+	private async onModelDecorationsChanged(): Promise<void> {
+		if (this.breakpointDecorations.length === 0 || this.ignoreDecorationsChangedEvent || !this.editor.hasModel()) {
+			// I have no decorations
+			return;
+		}
+		let somethingChanged = false;
+		const model = this.editor.getModel();
+		this.breakpointDecorations.forEach(breakpointDecoration => {
+			if (somethingChanged) {
+				return;
+			}
+			const newBreakpointRange = model.getDecorationRange(breakpointDecoration.decorationId);
+			if (newBreakpointRange && (!breakpointDecoration.range.equalsRange(newBreakpointRange))) {
+				somethingChanged = true;
+				breakpointDecoration.range = newBreakpointRange;
+			}
+		});
+		if (!somethingChanged) {
+			// nothing to do, my decorations did not change.
+			return;
+		}
 
-// breakpoint widget
-showBreakpointWidget(lineNumber: number, column: number | undefined, context ?: BreakpointWidgetContextcognidreamognidream {
-	this.breakpointWidget?.dispose();
+		const data = new Map<string, IBreakpointUpdateData>();
+		for (let i = 0, len = this.breakpointDecorations.length; i < len; i++) {
+			const breakpointDecoration = this.breakpointDecorations[i];
+			const decorationRange = model.getDecorationRange(breakpointDecoration.decorationId);
+			// check if the line got deleted.
+			if (decorationRange) {
+				// since we know it is collapsed, it cannot grow to multiple lines
+				if (breakpointDecoration.breakpoint) {
+					data.set(breakpointDecoration.breakpoint.getId(), {
+						lineNumber: decorationRange.startLineNumber,
+						column: breakpointDecoration.breakpoint.column ? decorationRange.startColumn : undefined,
+					});
+				}
+			}
+		}
 
-	this.breakpointWidget = this.instantiationService.createInstance(BreakpointWidget, this.editor, lineNumber, column, context);
-	this.breakpointWidget.show({ lineNumber, column: 1 });
-	this.breakpointWidgetVisible.set(true);
-}
+		try {
+			this.ignoreBreakpointsChangeEvent = true;
+			await this.debugService.updateBreakpoints(model.uri, data, true);
+		} finally {
+			this.ignoreBreakpointsChangeEvent = false;
+		}
+	}
 
-    closeBreakpointWidget(cognidreamognidream {
-	if(this.breakpointWidget) {
-	this.breakpointWidget.dispose();
-	this.breakpointWidget = undefined;
-	this.breakpointWidgetVisible.reset();
-	this.editor.focus();
-}
-    }
+	// breakpoint widget
+	showBreakpointWidget(lineNumber: number, column: number | undefined, context?: BreakpointWidgetContext): void {
+		this.breakpointWidget?.dispose();
 
-	dispose(cognidreamognidream {
+		this.breakpointWidget = this.instantiationService.createInstance(BreakpointWidget, this.editor, lineNumber, column, context);
+		this.breakpointWidget.show({ lineNumber, column: 1 });
+		this.breakpointWidgetVisible.set(true);
+	}
+
+	closeBreakpointWidget(): void {
+		if (this.breakpointWidget) {
+			this.breakpointWidget.dispose();
+			this.breakpointWidget = undefined;
+			this.breakpointWidgetVisible.reset();
+			this.editor.focus();
+		}
+	}
+
+	dispose(): void {
 		this.breakpointWidget?.dispose();
 		this.editor.removeDecorations(this.breakpointDecorations.map(bpd => bpd.decorationId));
 		dispose(this.toDispose);
-    }
+	}
 }
 
 GutterActionsRegistry.registerGutterActionsGenerator(({ lineNumber, editor, accessor }, result) => {
@@ -738,76 +738,76 @@ class InlineBreakpointWidget implements IContentWidget, IDisposable {
 		this.editor.layoutContentWidget(this);
 	}
 
-	private create(cssClass: string | null | undefinedcognidreamognidream {
+	private create(cssClass: string | null | undefined): void {
 		this.domNode = $('.inline-breakpoint-widget');
 		if (cssClass) {
 			this.domNode.classList.add(...cssClass.split(' '));
 		}
-this.toDispose.push(dom.addDisposableListener(this.domNode, dom.EventType.CLICK, async e => {
-	switch (this.breakpoint?.enabled) {
-		case undefined:
-			await this.debugService.addBreakpoints(this.editor.getModel().uri, [{ lineNumber: this.range!.startLineNumber, column: this.range!.startColumn }]);
-			break;
-		case true:
-			await this.debugService.removeBreakpoints(this.breakpoint.getId());
-			break;
-		case false:
-			this.debugService.enableOrDisableBreakpoints(true, this.breakpoint);
-			break;
-	}
-}));
-this.toDispose.push(dom.addDisposableListener(this.domNode, dom.EventType.CONTEXT_MENU, e => {
-	const event = new StandardMouseEvent(dom.getWindow(this.domNode), e);
-	const actions = this.getContextMenuActions();
-	this.contextMenuService.showContextMenu({
-		getAnchor: () => event,
-		getActions: () => actions,
-		getActionsContext: () => this.breakpoint,
-		onHide: () => disposeIfDisposable(actions)
-	});
-}));
+		this.toDispose.push(dom.addDisposableListener(this.domNode, dom.EventType.CLICK, async e => {
+			switch (this.breakpoint?.enabled) {
+				case undefined:
+					await this.debugService.addBreakpoints(this.editor.getModel().uri, [{ lineNumber: this.range!.startLineNumber, column: this.range!.startColumn }]);
+					break;
+				case true:
+					await this.debugService.removeBreakpoints(this.breakpoint.getId());
+					break;
+				case false:
+					this.debugService.enableOrDisableBreakpoints(true, this.breakpoint);
+					break;
+			}
+		}));
+		this.toDispose.push(dom.addDisposableListener(this.domNode, dom.EventType.CONTEXT_MENU, e => {
+			const event = new StandardMouseEvent(dom.getWindow(this.domNode), e);
+			const actions = this.getContextMenuActions();
+			this.contextMenuService.showContextMenu({
+				getAnchor: () => event,
+				getActions: () => actions,
+				getActionsContext: () => this.breakpoint,
+				onHide: () => disposeIfDisposable(actions)
+			});
+		}));
 
-const updateSize = () => {
-	const lineHeight = this.editor.getOption(EditorOption.lineHeight);
-	this.domNode.style.height = `${lineHeight}px`;
-	this.domNode.style.width = `${Math.ceil(0.8 * lineHeight)}px`;
-	this.domNode.style.marginLeft = `4px`;
-};
-updateSize();
-
-this.toDispose.push(this.editor.onDidChangeConfiguration(c => {
-	if (c.hasChanged(EditorOption.fontSize) || c.hasChanged(EditorOption.lineHeight)) {
+		const updateSize = () => {
+			const lineHeight = this.editor.getOption(EditorOption.lineHeight);
+			this.domNode.style.height = `${lineHeight}px`;
+			this.domNode.style.width = `${Math.ceil(0.8 * lineHeight)}px`;
+			this.domNode.style.marginLeft = `4px`;
+		};
 		updateSize();
+
+		this.toDispose.push(this.editor.onDidChangeConfiguration(c => {
+			if (c.hasChanged(EditorOption.fontSize) || c.hasChanged(EditorOption.lineHeight)) {
+				updateSize();
+			}
+		}));
 	}
-}));
-    }
 
-@memoize
-getId(): string {
-	return generateUuid();
-}
-
-getDomNode(): HTMLElement {
-	return this.domNode;
-}
-
-getPosition(): IContentWidgetPosition | null {
-	if (!this.range) {
-		return null;
+	@memoize
+	getId(): string {
+		return generateUuid();
 	}
-	// Workaround: since the content widget can not be placed before the first column we need to force the left position
-	this.domNode.classList.toggle('line-start', this.range.startColumn === 1);
 
-	return {
-		position: { lineNumber: this.range.startLineNumber, column: this.range.startColumn - 1 },
-		preference: [ContentWidgetPositionPreference.EXACT]
-	};
-}
+	getDomNode(): HTMLElement {
+		return this.domNode;
+	}
 
-dispose(cognidreamognidream {
-	this.editor.removeContentWidget(this);
-	dispose(this.toDispose);
-    }
+	getPosition(): IContentWidgetPosition | null {
+		if (!this.range) {
+			return null;
+		}
+		// Workaround: since the content widget can not be placed before the first column we need to force the left position
+		this.domNode.classList.toggle('line-start', this.range.startColumn === 1);
+
+		return {
+			position: { lineNumber: this.range.startLineNumber, column: this.range.startColumn - 1 },
+			preference: [ContentWidgetPositionPreference.EXACT]
+		};
+	}
+
+	dispose(): void {
+		this.editor.removeContentWidget(this);
+		dispose(this.toDispose);
+	}
 }
 
 registerThemingParticipant((theme, collector) => {

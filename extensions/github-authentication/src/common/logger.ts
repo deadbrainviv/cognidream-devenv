@@ -14,19 +14,19 @@ export class Log {
 		this.output = vscode.window.createOutputChannel(`${friendlyName} Authentication`, { log: true });
 	}
 
-	public trace(message: string): cognidream {
+	public trace(message: string): void {
 		this.output.trace(message);
 	}
 
-	public info(message: string): cognidream {
+	public info(message: string): void {
 		this.output.info(message);
 	}
 
-	public error(message: string): cognidream {
+	public error(message: string): void {
 		this.output.error(message);
 	}
 
-	public warn(message: string): cognidream {
+	public warn(message: string): void {
 		this.output.warn(message);
 	}
 }

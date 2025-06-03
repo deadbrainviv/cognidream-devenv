@@ -64,7 +64,7 @@ export class DebugStorage extends Disposable {
 		return this.storageService.get(DEBUG_UX_STATE_KEY, StorageScope.WORKSPACE, 'default') as 'simple' | 'default';
 	}
 
-	storeDebugUxState(value: 'simple' | 'default'): cognidream {
+	storeDebugUxState(value: 'simple' | 'default'): void {
 		this.storageService.store(DEBUG_UX_STATE_KEY, value, StorageScope.WORKSPACE, StorageTarget.MACHINE);
 	}
 
@@ -130,45 +130,45 @@ export class DebugStorage extends Disposable {
 		return mapValues(obj, (value): IChosenEnvironment => typeof value === 'string' ? { type: value } : value);
 	}
 
-	storeChosenEnvironments(environments: Record<string, IChosenEnvironment>cognidreamognidream {
+	storeChosenEnvironments(environments: Record<string, IChosenEnvironment>): void {
 		this.storageService.store(DEBUG_CHOSEN_ENVIRONMENTS_KEY, JSON.stringify(environments), StorageScope.WORKSPACE, StorageTarget.MACHINE);
-    }
+	}
 
-storeWatchExpressions(watchExpressions: (IExpression & IEvaluate)[]cognidreamognidream {
-	if(watchExpressions.length) {
-	this.storageService.store(DEBUG_WATCH_EXPRESSIONS_KEY, JSON.stringify(watchExpressions.map(we => ({ name: we.name, id: we.getId() }))), StorageScope.WORKSPACE, StorageTarget.MACHINE);
-} else {
-	this.storageService.remove(DEBUG_WATCH_EXPRESSIONS_KEY, StorageScope.WORKSPACE);
-}
-    }
+	storeWatchExpressions(watchExpressions: (IExpression & IEvaluate)[]): void {
+		if (watchExpressions.length) {
+			this.storageService.store(DEBUG_WATCH_EXPRESSIONS_KEY, JSON.stringify(watchExpressions.map(we => ({ name: we.name, id: we.getId() }))), StorageScope.WORKSPACE, StorageTarget.MACHINE);
+		} else {
+			this.storageService.remove(DEBUG_WATCH_EXPRESSIONS_KEY, StorageScope.WORKSPACE);
+		}
+	}
 
-storeBreakpoints(debugModel: IDebugModelcognidreamognidream {
-	const breakpoints = debugModel.getBreakpoints();
-	if(breakpoints.length) {
-	this.storageService.store(DEBUG_BREAKPOINTS_KEY, JSON.stringify(breakpoints), StorageScope.WORKSPACE, StorageTarget.MACHINE);
-} else {
-	this.storageService.remove(DEBUG_BREAKPOINTS_KEY, StorageScope.WORKSPACE);
-}
+	storeBreakpoints(debugModel: IDebugModel): void {
+		const breakpoints = debugModel.getBreakpoints();
+		if (breakpoints.length) {
+			this.storageService.store(DEBUG_BREAKPOINTS_KEY, JSON.stringify(breakpoints), StorageScope.WORKSPACE, StorageTarget.MACHINE);
+		} else {
+			this.storageService.remove(DEBUG_BREAKPOINTS_KEY, StorageScope.WORKSPACE);
+		}
 
-const functionBreakpoints = debugModel.getFunctionBreakpoints();
-if (functionBreakpoints.length) {
-	this.storageService.store(DEBUG_FUNCTION_BREAKPOINTS_KEY, JSON.stringify(functionBreakpoints), StorageScope.WORKSPACE, StorageTarget.MACHINE);
-} else {
-	this.storageService.remove(DEBUG_FUNCTION_BREAKPOINTS_KEY, StorageScope.WORKSPACE);
-}
+		const functionBreakpoints = debugModel.getFunctionBreakpoints();
+		if (functionBreakpoints.length) {
+			this.storageService.store(DEBUG_FUNCTION_BREAKPOINTS_KEY, JSON.stringify(functionBreakpoints), StorageScope.WORKSPACE, StorageTarget.MACHINE);
+		} else {
+			this.storageService.remove(DEBUG_FUNCTION_BREAKPOINTS_KEY, StorageScope.WORKSPACE);
+		}
 
-const dataBreakpoints = debugModel.getDataBreakpoints().filter(dbp => dbp.canPersist);
-if (dataBreakpoints.length) {
-	this.storageService.store(DEBUG_DATA_BREAKPOINTS_KEY, JSON.stringify(dataBreakpoints), StorageScope.WORKSPACE, StorageTarget.MACHINE);
-} else {
-	this.storageService.remove(DEBUG_DATA_BREAKPOINTS_KEY, StorageScope.WORKSPACE);
-}
+		const dataBreakpoints = debugModel.getDataBreakpoints().filter(dbp => dbp.canPersist);
+		if (dataBreakpoints.length) {
+			this.storageService.store(DEBUG_DATA_BREAKPOINTS_KEY, JSON.stringify(dataBreakpoints), StorageScope.WORKSPACE, StorageTarget.MACHINE);
+		} else {
+			this.storageService.remove(DEBUG_DATA_BREAKPOINTS_KEY, StorageScope.WORKSPACE);
+		}
 
-const exceptionBreakpoints = debugModel.getExceptionBreakpoints();
-if (exceptionBreakpoints.length) {
-	this.storageService.store(DEBUG_EXCEPTION_BREAKPOINTS_KEY, JSON.stringify(exceptionBreakpoints), StorageScope.WORKSPACE, StorageTarget.MACHINE);
-} else {
-	this.storageService.remove(DEBUG_EXCEPTION_BREAKPOINTS_KEY, StorageScope.WORKSPACE);
-}
-    }
+		const exceptionBreakpoints = debugModel.getExceptionBreakpoints();
+		if (exceptionBreakpoints.length) {
+			this.storageService.store(DEBUG_EXCEPTION_BREAKPOINTS_KEY, JSON.stringify(exceptionBreakpoints), StorageScope.WORKSPACE, StorageTarget.MACHINE);
+		} else {
+			this.storageService.remove(DEBUG_EXCEPTION_BREAKPOINTS_KEY, StorageScope.WORKSPACE);
+		}
+	}
 }

@@ -40,7 +40,7 @@ import { ILogService } from '../../../../platform/log/common/log.js';
 export class DebugViewPaneContainer extends ViewPaneContainer {
 
 	private startDebugActionViewItem: StartDebugActionViewItem | undefined;
-	private progressResolve: (() => cognidream) | undefined;
+	private progressResolve: (() => void) | undefined;
 	private breakpointView: ViewPane | undefined;
 	private paneListeners = new Map<string, IDisposable>();
 
@@ -82,114 +82,114 @@ export class DebugViewPaneContainer extends ViewPaneContainer {
 		}));
 	}
 
-	override create(parent: HTMLElementcognidreamognidream {
+	override create(parent: HTMLElement): void {
 		super.create(parent);
-parent.classList.add('debug-viewlet');
-    }
-
-    override focus(cognidreamognidream {
-	super.focus();
-
-	if(this.startDebugActionViewItem) {
-	this.startDebugActionViewItem.focus();
-} else {
-	this.focusView(WelcomeView.ID);
-}
-    }
-
-    override getActionViewItem(action: IAction, options: IBaseActionViewItemOptions): IActionViewItem | undefined {
-	if (action.id === DEBUG_START_COMMAND_ID) {
-		this.startDebugActionViewItem = this.instantiationService.createInstance(StartDebugActionViewItem, null, action, options);
-		return this.startDebugActionViewItem;
-	}
-	if (action.id === FOCUS_SESSION_ID) {
-		return new FocusSessionActionViewItem(action, undefined, this.debugService, this.contextViewService, this.configurationService);
+		parent.classList.add('debug-viewlet');
 	}
 
-	if (action.id === STOP_ID || action.id === DISCONNECT_ID) {
-		this.stopActionViewItemDisposables.clear();
-		const item = this.instantiationService.invokeFunction(accessor => createDisconnectMenuItemAction(action as MenuItemAction, this.stopActionViewItemDisposables, accessor, { hoverDelegate: options.hoverDelegate }));
-		if (item) {
-			return item;
-		}
-	}
+	override focus(): void {
+		super.focus();
 
-	return createActionViewItem(this.instantiationService, action, options);
-}
-
-focusView(id: stringcognidreamognidream {
-	const view = this.getView(id);
-	if(view) {
-		view.focus();
-	}
-}
-
-    private onDebugServiceStateChange(state: Statecognidreamognidream {
-	if(this.progressResolve) {
-	this.progressResolve();
-	this.progressResolve = undefined;
-}
-
-        if (state === State.Initializing) {
-	this.progressService.withProgress({ location: VIEWLET_ID, }, _progress => {
-		return cognidreamPromise<cognidream>(resolve => this.progressResolve = resolve);
-	});
-}
-    }
-
-    override addPanes(panes: { pane: ViewPane; size: number; index?: number; disposable: IDisposable }[]cognidreamognidream {
-	super.addPanes(panes);
-
-	for(const { pane: pane } of panes) {
-		// attach event listener to
-		if (pane.id === BREAKPOINTS_VIEW_ID) {
-			this.breakpointView = pane;
-			this.updateBreakpointsMaxSize();
+		if (this.startDebugActionViewItem) {
+			this.startDebugActionViewItem.focus();
 		} else {
-			this.paneListeners.set(pane.id, pane.onDidChange(() => this.updateBreakpointsMaxSize()));
+			this.focusView(WelcomeView.ID);
+		}
+	}
+
+	override getActionViewItem(action: IAction, options: IBaseActionViewItemOptions): IActionViewItem | undefined {
+		if (action.id === DEBUG_START_COMMAND_ID) {
+			this.startDebugActionViewItem = this.instantiationService.createInstance(StartDebugActionViewItem, null, action, options);
+			return this.startDebugActionViewItem;
+		}
+		if (action.id === FOCUS_SESSION_ID) {
+			return new FocusSessionActionViewItem(action, undefined, this.debugService, this.contextViewService, this.configurationService);
+		}
+
+		if (action.id === STOP_ID || action.id === DISCONNECT_ID) {
+			this.stopActionViewItemDisposables.clear();
+			const item = this.instantiationService.invokeFunction(accessor => createDisconnectMenuItemAction(action as MenuItemAction, this.stopActionViewItemDisposables, accessor, { hoverDelegate: options.hoverDelegate }));
+			if (item) {
+				return item;
+			}
+		}
+
+		return createActionViewItem(this.instantiationService, action, options);
+	}
+
+	focusView(id: string): void {
+		const view = this.getView(id);
+		if (view) {
+			view.focus();
+		}
+	}
+
+	private onDebugServiceStateChange(state: State): void {
+		if (this.progressResolve) {
+			this.progressResolve();
+			this.progressResolve = undefined;
+		}
+
+		if (state === State.Initializing) {
+			this.progressService.withProgress({ location: VIEWLET_ID, }, _progress => {
+				return new Promise<void>(resolve => this.progressResolve = resolve);
+			});
+		}
+	}
+
+	override addPanes(panes: { pane: ViewPane; size: number; index?: number; disposable: IDisposable }[]): void {
+		super.addPanes(panes);
+
+		for (const { pane: pane } of panes) {
+			// attach event listener to
+			if (pane.id === BREAKPOINTS_VIEW_ID) {
+				this.breakpointView = pane;
+				this.updateBreakpointsMaxSize();
+			} else {
+				this.paneListeners.set(pane.id, pane.onDidChange(() => this.updateBreakpointsMaxSize()));
+			}
+		}
+	}
+
+	override removePanes(panes: ViewPane[]): void {
+		super.removePanes(panes);
+		for (const pane of panes) {
+			dispose(this.paneListeners.get(pane.id));
+			this.paneListeners.delete(pane.id);
+		}
+	}
+
+	private updateBreakpointsMaxSize(): void {
+		if (this.breakpointView) {
+			// We need to update the breakpoints view since all other views are collapsed #25384
+			const allOtherCollapsed = this.panes.every(view => !view.isExpanded() || view === this.breakpointView);
+			this.breakpointView.maximumBodySize = allOtherCollapsed ? Number.POSITIVE_INFINITY : this.breakpointView.minimumBodySize;
 		}
 	}
 }
 
-    override removePanes(panes: ViewPane[]cognidreamognidream {
-	super.removePanes(panes);
-	for(const pane of panes) {
-		dispose(this.paneListeners.get(pane.id));
-		this.paneListeners.delete(pane.id);
-	}
-}
-
-    private updateBreakpointsMaxSize(cognidreamognidream {
-	if(this.breakpointView) {
-	// We need to update the breakpoints view since all other views are collapsed #25384
-	const allOtherCollapsed = this.panes.every(view => !view.isExpanded() || view === this.breakpointView);
-	this.breakpointView.maximumBodySize = allOtherCollapsed ? Number.POSITIVE_INFINITY : this.breakpointView.minimumBodySize;
-}
-    }
-}
-
-	MenuRegistry.appendMenuItem(MenuId.ViewContainerTitle, {
-		when: ContextKeyExpr.and(
-			ContextKeyExpr.equals('viewContainer', VIEWLET_ID),
-			CONTEXT_DEBUG_UX.notEqualsTo('simple'),
-			WorkbenchStateContext.notEqualsTo('empty'),
-			ContextKeyExpr.or(
-				CONTEXT_DEBUG_STATE.isEqualTo('inactive'),
-				ContextKeyExpr.notEquals('config.debug.toolBarLocation', 'docked')
-			),
-			ContextKeyExpr.or(
-				ContextKeyExpr.not('config.debug.hideLauncherWhileDebugging'),
-				ContextKeyExpr.not('inDebugMode')
-			)
+MenuRegistry.appendMenuItem(MenuId.ViewContainerTitle, {
+	when: ContextKeyExpr.and(
+		ContextKeyExpr.equals('viewContainer', VIEWLET_ID),
+		CONTEXT_DEBUG_UX.notEqualsTo('simple'),
+		WorkbenchStateContext.notEqualsTo('empty'),
+		ContextKeyExpr.or(
+			CONTEXT_DEBUG_STATE.isEqualTo('inactive'),
+			ContextKeyExpr.notEquals('config.debug.toolBarLocation', 'docked')
 		),
-		order: 10,
-		group: 'navigation',
-		command: {
-			precondition: CONTEXT_DEBUG_STATE.notEqualsTo(getStateLabel(State.Initializing)),
-			id: DEBUG_START_COMMAND_ID,
-			title: DEBUG_START_LABEL
-		}
-	});
+		ContextKeyExpr.or(
+			ContextKeyExpr.not('config.debug.hideLauncherWhileDebugging'),
+			ContextKeyExpr.not('inDebugMode')
+		)
+	),
+	order: 10,
+	group: 'navigation',
+	command: {
+		precondition: CONTEXT_DEBUG_STATE.notEqualsTo(getStateLabel(State.Initializing)),
+		id: DEBUG_START_COMMAND_ID,
+		title: DEBUG_START_LABEL
+	}
+});
 
 registerAction2(class extends Action2 {
 	constructor() {
@@ -226,39 +226,39 @@ registerAction2(class extends Action2 {
 		});
 	}
 
-	async run(accessor: ServicesAccessor, opts?: { addNew?: boolean }): Promicognidreamognidream> {
-	const debugService = accessor.get(IDebugService);
-	const quickInputService = accessor.get(IQuickInputService);
-	const configurationManager = debugService.getConfigurationManager();
-	let launch: ILaunch | undefined;
-	if(configurationManager.selectedConfiguration.name) {
-	launch = configurationManager.selectedConfiguration.launch;
-} else {
-	const launches = configurationManager.getLaunches().filter(l => !l.hidden);
-	if (launches.length === 1) {
-		launch = launches[0];
-	} else {
-		const picks = launches.map(l => ({ label: l.name, launch: l }));
-		const picked = await quickInputService.pick<{ label: string; launch: ILaunch }>(picks, {
-			activeItem: picks[0],
-			placeHolder: nls.localize({ key: 'selectWorkspaceFolder', comment: ['User picks a workspace folder or a workspace configuration file here. Workspace configuration files can contain settings and thus a launch.json configuration can be written into one.'] }, "Select a workspace folder to create a launch.json file in or add it to the workspace config file")
-		});
-		if (picked) {
-			launch = picked.launch;
+	async run(accessor: ServicesAccessor, opts?: { addNew?: boolean }): Promise<void> {
+		const debugService = accessor.get(IDebugService);
+		const quickInputService = accessor.get(IQuickInputService);
+		const configurationManager = debugService.getConfigurationManager();
+		let launch: ILaunch | undefined;
+		if (configurationManager.selectedConfiguration.name) {
+			launch = configurationManager.selectedConfiguration.launch;
+		} else {
+			const launches = configurationManager.getLaunches().filter(l => !l.hidden);
+			if (launches.length === 1) {
+				launch = launches[0];
+			} else {
+				const picks = launches.map(l => ({ label: l.name, launch: l }));
+				const picked = await quickInputService.pick<{ label: string; launch: ILaunch }>(picks, {
+					activeItem: picks[0],
+					placeHolder: nls.localize({ key: 'selectWorkspaceFolder', comment: ['User picks a workspace folder or a workspace configuration file here. Workspace configuration files can contain settings and thus a launch.json configuration can be written into one.'] }, "Select a workspace folder to create a launch.json file in or add it to the workspace config file")
+				});
+				if (picked) {
+					launch = picked.launch;
+				}
+			}
 		}
-	}
-}
 
-if (launch) {
-	const { editor } = await launch.openConfigFile({ preserveFocus: false });
-	if (editor && opts?.addNew) {
-		const codeEditor = <ICodeEditor>editor.getControl();
-		if (codeEditor) {
-			await codeEditor.getContribution<IDebugEditorContribution>(EDITOR_CONTRIBUTION_ID)?.addLaunchConfiguration();
+		if (launch) {
+			const { editor } = await launch.openConfigFile({ preserveFocus: false });
+			if (editor && opts?.addNew) {
+				const codeEditor = <ICodeEditor>editor.getControl();
+				if (codeEditor) {
+					await codeEditor.getContribution<IDebugEditorContribution>(EDITOR_CONTRIBUTION_ID)?.addLaunchConfiguration();
+				}
+			}
 		}
 	}
-}
-    }
 });
 
 
@@ -277,14 +277,14 @@ registerAction2(class extends Action2 {
 		});
 	}
 
-	async run(accessor: ServicesAccessor): Promicognidreamognidream> {
-	const viewsService = accessor.get(IViewsService);
-	if(viewsService.isViewVisible(REPL_VIEW_ID)) {
-	viewsService.closeView(REPL_VIEW_ID);
-} else {
-	await viewsService.openView(REPL_VIEW_ID);
-}
-    }
+	async run(accessor: ServicesAccessor): Promise<void> {
+		const viewsService = accessor.get(IViewsService);
+		if (viewsService.isViewVisible(REPL_VIEW_ID)) {
+			viewsService.closeView(REPL_VIEW_ID);
+		} else {
+			await viewsService.openView(REPL_VIEW_ID);
+		}
+	}
 });
 
 MenuRegistry.appendMenuItem(MenuId.ViewContainerTitle, {

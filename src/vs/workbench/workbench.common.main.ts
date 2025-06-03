@@ -12,8 +12,8 @@ import './browser/workbench.contribution.js';
 
 //#endregion
 
-//#region --- cognidream
-import './contrib/cognidreamidreamidrcognidreambrcognidreamr/cognidrecognidreamontributcognidreamjs'; // cognidream added this
+//#region --- Void
+import './contrib/void/browser/void.contribution.js'; // Void added this
 //#endregion
 
 //#region --- workbench actions
@@ -192,7 +192,7 @@ import './contrib/notebook/browser/notebook.contribution.js';
 import './contrib/speech/browser/speech.contribution.js';
 
 // Chat
-// cognidreamidreamidream - this is still regcognidreamrecognidream acognidream console errors, we just commented it out in chatParticipant.contribution.ts
+// Void - this is still registered to avoid console errors, we just commented it out in chatParticipant.contribution.ts
 import './contrib/chat/browser/chat.contribution.js';
 import './contrib/inlineChat/browser/inlineChat.contribution.js';
 import './contrib/mcp/browser/mcp.contribution.js';
@@ -328,7 +328,7 @@ import './contrib/surveys/browser/nps.contribution.js';
 import './contrib/surveys/browser/languageSurveys.contribution.js';
 
 // Welcome
-// cognidreamidreamidream commented this out
+// Void commented this out
 // import './contrib/welcomeGettingStarted/browser/gettingStarted.contribution.js';
 import './contrib/welcomeWalkthrough/browser/walkThrough.contribution.js';
 import './contrib/welcomeViews/common/viewsWelcome.contribution.js';

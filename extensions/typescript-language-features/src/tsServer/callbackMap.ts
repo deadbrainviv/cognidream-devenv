@@ -7,8 +7,8 @@ import { ServerResponse } from '../typescriptService';
 import type * as Proto from './protocol/protocol';
 
 export interface CallbackItem<R> {
-	readonly onSuccess: (value: R) => cognidream;
-	readonly onError: (err: Error) => cognidream;
+	readonly onSuccess: (value: R) => void;
+	readonly onError: (err: Error) => void;
 	readonly queuingStartTime: number;
 	readonly isAsync: boolean;
 }
@@ -17,7 +17,7 @@ export class CallbackMap<R extends Proto.Response> {
 	private readonly _callbacks = new Map<number, CallbackItem<ServerResponse.Response<R> | undefined>>();
 	private readonly _asyncCallbacks = new Map<number, CallbackItem<ServerResponse.Response<R> | undefined>>();
 
-	public destroy(cause: string): cognidream {
+	public destroy(cause: string): void {
 		const cancellation = new ServerResponse.Cancelled(cause);
 		for (const callback of this._callbacks.values()) {
 			callback.onSuccess(cancellation);

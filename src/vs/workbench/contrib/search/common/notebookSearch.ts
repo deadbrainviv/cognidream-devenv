@@ -12,11 +12,11 @@ export const INotebookSearchService = createDecorator<INotebookSearchService>('n
 
 export interface INotebookSearchService {
 
-    readonly _serviceBrand: undefined;
+	readonly _serviceBrand: undefined;
 
-    notebookSearch(query: ITextQuery, token: CancellationToken | undefined, searchInstanceID: string, onProgress?: (result: ISearchProgressItem) => cognidream): {
-        openFilesToScan: ResourceSet;
-        completeData: Promise<ISearchComplete>;
-        allScannedFiles: Promise<ResourceSet>;
-    };
+	notebookSearch(query: ITextQuery, token: CancellationToken | undefined, searchInstanceID: string, onProgress?: (result: ISearchProgressItem) => void): {
+		openFilesToScan: ResourceSet;
+		completeData: Promise<ISearchComplete>;
+		allScannedFiles: Promise<ResourceSet>;
+	};
 }

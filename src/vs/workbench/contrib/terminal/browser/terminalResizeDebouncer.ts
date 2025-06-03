@@ -25,60 +25,60 @@ export class TerminalResizeDebouncer extends Disposable {
 	constructor(
 		private readonly _isVisible: () => boolean,
 		private readonly _getXterm: () => XtermTerminal | undefined,
-		private readonly _resizeBothCallback: (cols: number, rows: number) => cognidream,
-		private readonly _resizeXCallback: (cols: numbecognidream> cognidream,
-			private readonly _resizeYCallback: (rows: numbecognidream> cognidream,
-    ) {
-	super();
-}
+		private readonly _resizeBothCallback: (cols: number, rows: number) => void,
+		private readonly _resizeXCallback: (cols: number) => void,
+		private readonly _resizeYCallback: (rows: number) => void,
+	) {
+		super();
+	}
 
-    async resize(cols: number, rows: number, immediate: boolean): Promicognidreamognidream > {
-	this._latestX = cols;
-	this._latestY = rows;
+	async resize(cols: number, rows: number, immediate: boolean): Promise<void> {
+		this._latestX = cols;
+		this._latestY = rows;
 
-	// Resize immediately if requested explicitly or if the buffer is small
-	if(immediate || this._getXterm()!.raw.buffer.normal.length < Constants.StartDebouncingThreshold) {
-	this._resizeXJob.clear();
-	this._resizeYJob.clear();
-	this._resizeBothCallback(cols, rows);
-	return;
-}
-
-// Resize in an idle callback if the terminal is not visible
-const win = getWindow(this._getXterm()!.raw.element);
-if (win && !this._isVisible()) {
-	if (!this._resizeXJob.value) {
-		this._resizeXJob.value = runWhenWindowIdle(win, async () => {
-			this._resizeXCallback(this._latestX);
+		// Resize immediately if requested explicitly or if the buffer is small
+		if (immediate || this._getXterm()!.raw.buffer.normal.length < Constants.StartDebouncingThreshold) {
 			this._resizeXJob.clear();
-		});
-	}
-	if (!this._resizeYJob.value) {
-		this._resizeYJob.value = runWhenWindowIdle(win, async () => {
-			this._resizeYCallback(this._latestY);
 			this._resizeYJob.clear();
-		});
+			this._resizeBothCallback(cols, rows);
+			return;
+		}
+
+		// Resize in an idle callback if the terminal is not visible
+		const win = getWindow(this._getXterm()!.raw.element);
+		if (win && !this._isVisible()) {
+			if (!this._resizeXJob.value) {
+				this._resizeXJob.value = runWhenWindowIdle(win, async () => {
+					this._resizeXCallback(this._latestX);
+					this._resizeXJob.clear();
+				});
+			}
+			if (!this._resizeYJob.value) {
+				this._resizeYJob.value = runWhenWindowIdle(win, async () => {
+					this._resizeYCallback(this._latestY);
+					this._resizeYJob.clear();
+				});
+			}
+			return;
+		}
+
+		// Update dimensions independently as vertical resize is cheap and horizontal resize is
+		// expensive due to reflow.
+		this._resizeYCallback(rows);
+		this._latestX = cols;
+		this._debounceResizeX(cols);
 	}
-	return;
-}
 
-// Update dimensions independently as vertical resize is cheap and horizontal resize is
-// expensive due to reflow.
-this._resizeYCallback(rows);
-this._latestX = cols;
-this._debounceResizeX(cols);
-    }
+	flush(): void {
+		if (this._resizeXJob.value || this._resizeYJob.value) {
+			this._resizeXJob.clear();
+			this._resizeYJob.clear();
+			this._resizeBothCallback(this._latestX, this._latestY);
+		}
+	}
 
-flush(cognidreamognidream {
-	if(this._resizeXJob.value || this._resizeYJob.value) {
-	this._resizeXJob.clear();
-	this._resizeYJob.clear();
-	this._resizeBothCallback(this._latestX, this._latestY);
-}
-    }
-
-@debounce(100)
-private _debounceResizeX(cols: number) {
-	this._resizeXCallback(cols);
-}
+	@debounce(100)
+	private _debounceResizeX(cols: number) {
+		this._resizeXCallback(cols);
+	}
 }

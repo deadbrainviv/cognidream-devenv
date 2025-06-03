@@ -79,7 +79,7 @@ export class MainThreadEditorTabs implements MainThreadEditorTabsShape {
 		this._editorGroupsService.whenReady.then(() => this._createTabsModel());
 	}
 
-	dispose(): cognidream {
+	dispose(): void {
 		this._groupLookup.clear();
 		this._tabInfoLookup.clear();
 		this._dispoables.dispose();
@@ -496,206 +496,206 @@ export class MainThreadEditorTabs implements MainThreadEditorTabsShape {
 	/**
 	 * Builds the model from scratch based on the current state of the editor service.
 	 */
-	private _createTabsModel(cognidreamognidream {
+	private _createTabsModel(): void {
 		if (this._editorGroupsService.groups.length === 0) {
-	return; // skip this invalid state, it may happen when the entire editor area is transitioning to other state ("editor working sets")
-}
+			return; // skip this invalid state, it may happen when the entire editor area is transitioning to other state ("editor working sets")
+		}
 
-this._tabGroupModel = [];
-this._groupLookup.clear();
-this._tabInfoLookup.clear();
-let tabs: IEditorTabDto[] = [];
-for (const group of this._editorGroupsService.groups) {
-	const currentTabGroupModel: IEditorTabGroupDto = {
-		groupId: group.id,
-		isActive: group.id === this._editorGroupsService.activeGroup.id,
-		viewColumn: editorGroupToColumn(this._editorGroupsService, group),
-		tabs: []
-	};
-	group.editors.forEach((editor, editorIndex) => {
-		const tab = this._buildTabObject(group, editor, editorIndex);
-		tabs.push(tab);
-		// Add information about the tab to the lookup
-		this._tabInfoLookup.set(this._generateTabId(editor, group.id), {
-			group,
-			tab,
-			editorInput: editor
-		});
-	});
-	currentTabGroupModel.tabs = tabs;
-	this._tabGroupModel.push(currentTabGroupModel);
-	this._groupLookup.set(group.id, currentTabGroupModel);
-	tabs = [];
-}
-// notify the ext host of the new model
-this._proxy.$acceptEditorTabModel(this._tabGroupModel);
-    }
+		this._tabGroupModel = [];
+		this._groupLookup.clear();
+		this._tabInfoLookup.clear();
+		let tabs: IEditorTabDto[] = [];
+		for (const group of this._editorGroupsService.groups) {
+			const currentTabGroupModel: IEditorTabGroupDto = {
+				groupId: group.id,
+				isActive: group.id === this._editorGroupsService.activeGroup.id,
+				viewColumn: editorGroupToColumn(this._editorGroupsService, group),
+				tabs: []
+			};
+			group.editors.forEach((editor, editorIndex) => {
+				const tab = this._buildTabObject(group, editor, editorIndex);
+				tabs.push(tab);
+				// Add information about the tab to the lookup
+				this._tabInfoLookup.set(this._generateTabId(editor, group.id), {
+					group,
+					tab,
+					editorInput: editor
+				});
+			});
+			currentTabGroupModel.tabs = tabs;
+			this._tabGroupModel.push(currentTabGroupModel);
+			this._groupLookup.set(group.id, currentTabGroupModel);
+			tabs = [];
+		}
+		// notify the ext host of the new model
+		this._proxy.$acceptEditorTabModel(this._tabGroupModel);
+	}
 
-    // TODOD @lramos15 Remove this after done finishing the tab model code
-    // private _eventToString(event: IEditorsChangeEvent | IEditorsMoveEvent): string {
-    // 	let eventString = '';
-    // 	switch (event.kind) {
-    // 		case GroupModelChangeKind.GROUP_INDEX: eventString += 'GROUP_INDEX'; break;
-    // 		case GroupModelChangeKind.EDITOR_ACTIVE: eventString += 'EDITOR_ACTIVE'; break;
-    // 		case GroupModelChangeKind.EDITOR_PIN: eventString += 'EDITOR_PIN'; break;
-    // 		case GroupModelChangeKind.EDITOR_OPEN: eventString += 'EDITOR_OPEN'; break;
-    // 		case GroupModelChangeKind.EDITOR_CLOSE: eventString += 'EDITOR_CLOSE'; break;
-    // 		case GroupModelChangeKind.EDITOR_MOVE: eventString += 'EDITOR_MOVE'; break;
-    // 		case GroupModelChangeKind.EDITOR_LABEL: eventString += 'EDITOR_LABEL'; break;
-    // 		case GroupModelChangeKind.GROUP_ACTIVE: eventString += 'GROUP_ACTIVE'; break;
-    // 		case GroupModelChangeKind.GROUP_LOCKED: eventString += 'GROUP_LOCKED'; break;
-    // 		case GroupModelChangeKind.EDITOR_DIRTY: eventString += 'EDITOR_DIRTY'; break;
-    // 		case GroupModelChangeKind.EDITOR_STICKY: eventString += 'EDITOR_STICKY'; break;
-    // 		default: eventString += `UNKNOWN: ${event.kind}`; break;
-    // 	}
-    // 	return eventString;
-    // }
+	// TODOD @lramos15 Remove this after done finishing the tab model code
+	// private _eventToString(event: IEditorsChangeEvent | IEditorsMoveEvent): string {
+	// 	let eventString = '';
+	// 	switch (event.kind) {
+	// 		case GroupModelChangeKind.GROUP_INDEX: eventString += 'GROUP_INDEX'; break;
+	// 		case GroupModelChangeKind.EDITOR_ACTIVE: eventString += 'EDITOR_ACTIVE'; break;
+	// 		case GroupModelChangeKind.EDITOR_PIN: eventString += 'EDITOR_PIN'; break;
+	// 		case GroupModelChangeKind.EDITOR_OPEN: eventString += 'EDITOR_OPEN'; break;
+	// 		case GroupModelChangeKind.EDITOR_CLOSE: eventString += 'EDITOR_CLOSE'; break;
+	// 		case GroupModelChangeKind.EDITOR_MOVE: eventString += 'EDITOR_MOVE'; break;
+	// 		case GroupModelChangeKind.EDITOR_LABEL: eventString += 'EDITOR_LABEL'; break;
+	// 		case GroupModelChangeKind.GROUP_ACTIVE: eventString += 'GROUP_ACTIVE'; break;
+	// 		case GroupModelChangeKind.GROUP_LOCKED: eventString += 'GROUP_LOCKED'; break;
+	// 		case GroupModelChangeKind.EDITOR_DIRTY: eventString += 'EDITOR_DIRTY'; break;
+	// 		case GroupModelChangeKind.EDITOR_STICKY: eventString += 'EDITOR_STICKY'; break;
+	// 		default: eventString += `UNKNOWN: ${event.kind}`; break;
+	// 	}
+	// 	return eventString;
+	// }
 
-    /**
-     * The main handler for the tab events
-     * @param events The list of events to process
-     */
-    private _updateTabsModel(changeEvent: IEditorsChangeEventcognidreamognidream {
-	const event = changeEvent.event;
-	const groupId = changeEvent.groupId;
-	switch(event.kind) {
-            case GroupModelChangeKind.GROUP_ACTIVE:
-	if (groupId === this._editorGroupsService.activeGroup.id) {
-		this._onDidGroupActivate();
-		break;
-	} else {
-		return;
+	/**
+	 * The main handler for the tab events
+	 * @param events The list of events to process
+	 */
+	private _updateTabsModel(changeEvent: IEditorsChangeEvent): void {
+		const event = changeEvent.event;
+		const groupId = changeEvent.groupId;
+		switch (event.kind) {
+			case GroupModelChangeKind.GROUP_ACTIVE:
+				if (groupId === this._editorGroupsService.activeGroup.id) {
+					this._onDidGroupActivate();
+					break;
+				} else {
+					return;
+				}
+			case GroupModelChangeKind.EDITOR_LABEL:
+				if (event.editor !== undefined && event.editorIndex !== undefined) {
+					this._onDidTabLabelChange(groupId, event.editor, event.editorIndex);
+					break;
+				}
+			case GroupModelChangeKind.EDITOR_OPEN:
+				if (event.editor !== undefined && event.editorIndex !== undefined) {
+					this._onDidTabOpen(groupId, event.editor, event.editorIndex);
+					break;
+				}
+			case GroupModelChangeKind.EDITOR_CLOSE:
+				if (event.editorIndex !== undefined) {
+					this._onDidTabClose(groupId, event.editorIndex);
+					break;
+				}
+			case GroupModelChangeKind.EDITOR_ACTIVE:
+				if (event.editorIndex !== undefined) {
+					this._onDidTabActiveChange(groupId, event.editorIndex);
+					break;
+				}
+			case GroupModelChangeKind.EDITOR_DIRTY:
+				if (event.editorIndex !== undefined && event.editor !== undefined) {
+					this._onDidTabDirty(groupId, event.editorIndex, event.editor);
+					break;
+				}
+			case GroupModelChangeKind.EDITOR_STICKY:
+				if (event.editorIndex !== undefined && event.editor !== undefined) {
+					this._onDidTabPinChange(groupId, event.editorIndex, event.editor);
+					break;
+				}
+			case GroupModelChangeKind.EDITOR_PIN:
+				if (event.editorIndex !== undefined && event.editor !== undefined) {
+					this._onDidTabPreviewChange(groupId, event.editorIndex, event.editor);
+					break;
+				}
+			case GroupModelChangeKind.EDITOR_TRANSIENT:
+				// Currently not exposed in the API
+				break;
+			case GroupModelChangeKind.EDITOR_MOVE:
+				if (isGroupEditorMoveEvent(event) && event.editor && event.editorIndex !== undefined && event.oldEditorIndex !== undefined) {
+					this._onDidTabMove(groupId, event.editorIndex, event.oldEditorIndex, event.editor);
+					break;
+				}
+			default:
+				// If it's not an optimized case we rebuild the tabs model from scratch
+				this._createTabsModel();
+		}
 	}
-            case GroupModelChangeKind.EDITOR_LABEL:
-	if (event.editor !== undefined && event.editorIndex !== undefined) {
-		this._onDidTabLabelChange(groupId, event.editor, event.editorIndex);
-		break;
-	}
-            case GroupModelChangeKind.EDITOR_OPEN:
-	if (event.editor !== undefined && event.editorIndex !== undefined) {
-		this._onDidTabOpen(groupId, event.editor, event.editorIndex);
-		break;
-	}
-            case GroupModelChangeKind.EDITOR_CLOSE:
-	if (event.editorIndex !== undefined) {
-		this._onDidTabClose(groupId, event.editorIndex);
-		break;
-	}
-            case GroupModelChangeKind.EDITOR_ACTIVE:
-	if (event.editorIndex !== undefined) {
-		this._onDidTabActiveChange(groupId, event.editorIndex);
-		break;
-	}
-            case GroupModelChangeKind.EDITOR_DIRTY:
-	if (event.editorIndex !== undefined && event.editor !== undefined) {
-		this._onDidTabDirty(groupId, event.editorIndex, event.editor);
-		break;
-	}
-            case GroupModelChangeKind.EDITOR_STICKY:
-	if (event.editorIndex !== undefined && event.editor !== undefined) {
-		this._onDidTabPinChange(groupId, event.editorIndex, event.editor);
-		break;
-	}
-            case GroupModelChangeKind.EDITOR_PIN:
-	if (event.editorIndex !== undefined && event.editor !== undefined) {
-		this._onDidTabPreviewChange(groupId, event.editorIndex, event.editor);
-		break;
-	}
-            case GroupModelChangeKind.EDITOR_TRANSIENT:
-	// Currently not exposed in the API
-	break;
-            case GroupModelChangeKind.EDITOR_MOVE:
-	if (isGroupEditorMoveEvent(event) && event.editor && event.editorIndex !== undefined && event.oldEditorIndex !== undefined) {
-		this._onDidTabMove(groupId, event.editorIndex, event.oldEditorIndex, event.editor);
-		break;
-	}
-            default:
-	// If it's not an optimized case we rebuild the tabs model from scratch
-	this._createTabsModel();
-}
-    }
-//#region Messages received from Ext Host
-$moveTab(tabId: string, index: number, viewColumn: EditorGroupColumn, preserveFocus ?: booleancognidreamognidream {
-	const groupId = columnToEditorGroup(this._editorGroupsService, this._configurationService, viewColumn);
-	const tabInfo = this._tabInfoLookup.get(tabId);
-	const tab = tabInfo?.tab;
-	if(!tab) {
-		throw new Error(`Attempted to close tab with id ${tabId} which does not exist`);
-	}
-        let targetGroup: IEditorGroup | undefined;
-	const sourceGroup = this._editorGroupsService.getGroup(tabInfo.group.id);
-	if(!sourceGroup) {
-		return;
-	}
-        // If group index is out of bounds then we make a new one that's to the right of the last group
-        if(this._groupLookup.get(groupId) === undefined) {
-	let direction = GroupDirection.RIGHT;
-	// Make sure we respect the user's preferred side direction
-	if (viewColumn === SIDE_GROUP) {
-		direction = preferredSideBySideGroupDirection(this._configurationService);
-	}
-	targetGroup = this._editorGroupsService.addGroup(this._editorGroupsService.groups[this._editorGroupsService.groups.length - 1], direction);
-} else {
-	targetGroup = this._editorGroupsService.getGroup(groupId);
-}
-if (!targetGroup) {
-	return;
-}
-
-// Similar logic to if index is out of bounds we place it at the end
-if (index < 0 || index > targetGroup.editors.length) {
-	index = targetGroup.editors.length;
-}
-// Find the correct EditorInput using the tab info
-const editorInput = tabInfo?.editorInput;
-if (!editorInput) {
-	return;
-}
-// Move the editor to the target group
-sourceGroup.moveEditor(editorInput, targetGroup, { index, preserveFocus });
-return;
-    }
-
-    async $closeTab(tabIds: string[], preserveFocus ?: boolean): Promise < boolean > {
-	const groups: Map<IEditorGroup, EditorInput[]> = new Map();
-	for(const tabId of tabIds) {
+	//#region Messages received from Ext Host
+	$moveTab(tabId: string, index: number, viewColumn: EditorGroupColumn, preserveFocus?: boolean): void {
+		const groupId = columnToEditorGroup(this._editorGroupsService, this._configurationService, viewColumn);
 		const tabInfo = this._tabInfoLookup.get(tabId);
 		const tab = tabInfo?.tab;
-		const group = tabInfo?.group;
-		const editorTab = tabInfo?.editorInput;
-		// If not found skip
-		if (!group || !tab || !tabInfo || !editorTab) {
-			continue;
+		if (!tab) {
+			throw new Error(`Attempted to close tab with id ${tabId} which does not exist`);
 		}
-		const groupEditors = groups.get(group);
-		if (!groupEditors) {
-			groups.set(group, [editorTab]);
+		let targetGroup: IEditorGroup | undefined;
+		const sourceGroup = this._editorGroupsService.getGroup(tabInfo.group.id);
+		if (!sourceGroup) {
+			return;
+		}
+		// If group index is out of bounds then we make a new one that's to the right of the last group
+		if (this._groupLookup.get(groupId) === undefined) {
+			let direction = GroupDirection.RIGHT;
+			// Make sure we respect the user's preferred side direction
+			if (viewColumn === SIDE_GROUP) {
+				direction = preferredSideBySideGroupDirection(this._configurationService);
+			}
+			targetGroup = this._editorGroupsService.addGroup(this._editorGroupsService.groups[this._editorGroupsService.groups.length - 1], direction);
 		} else {
-			groupEditors.push(editorTab);
+			targetGroup = this._editorGroupsService.getGroup(groupId);
 		}
-	}
-        // Loop over keys of the groups map and call closeEditors
-        const results: boolean[] = [];
-	for(const [group, editors] of groups) {
-		results.push(await group.closeEditors(editors, { preserveFocus }));
-	}
-        // TODO @jrieken This isn't quite right how can we say true for some but not others?
-        return results.every(result => result);
-}
+		if (!targetGroup) {
+			return;
+		}
 
-    async $closeGroup(groupIds: number[], preserveFocus ?: boolean): Promise < boolean > {
-	const groupCloseResults: boolean[] = [];
-	for(const groupId of groupIds) {
-		const group = this._editorGroupsService.getGroup(groupId);
-		if (group) {
-			groupCloseResults.push(await group.closeAllEditors());
-			// Make sure group is empty but still there before removing it
-			if (group.count === 0 && this._editorGroupsService.getGroup(group.id)) {
-				this._editorGroupsService.removeGroup(group);
+		// Similar logic to if index is out of bounds we place it at the end
+		if (index < 0 || index > targetGroup.editors.length) {
+			index = targetGroup.editors.length;
+		}
+		// Find the correct EditorInput using the tab info
+		const editorInput = tabInfo?.editorInput;
+		if (!editorInput) {
+			return;
+		}
+		// Move the editor to the target group
+		sourceGroup.moveEditor(editorInput, targetGroup, { index, preserveFocus });
+		return;
+	}
+
+	async $closeTab(tabIds: string[], preserveFocus?: boolean): Promise<boolean> {
+		const groups: Map<IEditorGroup, EditorInput[]> = new Map();
+		for (const tabId of tabIds) {
+			const tabInfo = this._tabInfoLookup.get(tabId);
+			const tab = tabInfo?.tab;
+			const group = tabInfo?.group;
+			const editorTab = tabInfo?.editorInput;
+			// If not found skip
+			if (!group || !tab || !tabInfo || !editorTab) {
+				continue;
+			}
+			const groupEditors = groups.get(group);
+			if (!groupEditors) {
+				groups.set(group, [editorTab]);
+			} else {
+				groupEditors.push(editorTab);
 			}
 		}
+		// Loop over keys of the groups map and call closeEditors
+		const results: boolean[] = [];
+		for (const [group, editors] of groups) {
+			results.push(await group.closeEditors(editors, { preserveFocus }));
+		}
+		// TODO @jrieken This isn't quite right how can we say true for some but not others?
+		return results.every(result => result);
 	}
-        return groupCloseResults.every(result => result);
-}
-    //#endregion
+
+	async $closeGroup(groupIds: number[], preserveFocus?: boolean): Promise<boolean> {
+		const groupCloseResults: boolean[] = [];
+		for (const groupId of groupIds) {
+			const group = this._editorGroupsService.getGroup(groupId);
+			if (group) {
+				groupCloseResults.push(await group.closeAllEditors());
+				// Make sure group is empty but still there before removing it
+				if (group.count === 0 && this._editorGroupsService.getGroup(group.id)) {
+					this._editorGroupsService.removeGroup(group);
+				}
+			}
+		}
+		return groupCloseResults.every(result => result);
+	}
+	//#endregion
 }

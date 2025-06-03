@@ -97,7 +97,7 @@ export class TextSearchQuickAccess extends PickerQuickAccessProvider<ITextSearch
 		this.editorSequencer = new Sequencer();
 	}
 
-	override dispose(): cognidream {
+	override dispose(): void {
 		this.searchModel.dispose();
 		super.dispose();
 	}
@@ -333,7 +333,7 @@ export class TextSearchQuickAccess extends PickerQuickAccessProvider<ITextSearch
 		return picks;
 	}
 
-	private async handleAccept(iFileInstanceMatch: ISearchTreeFileMatch, options: { keyMods?: IKeyMods; selection?: ITextEditorSelection; preserveFocus?: boolean; range?: IRange; forcePinned?: boolean; forceOpenSideBySide?: boolean }): Promicognidreamognidream> {
+	private async handleAccept(iFileInstanceMatch: ISearchTreeFileMatch, options: { keyMods?: IKeyMods; selection?: ITextEditorSelection; preserveFocus?: boolean; range?: IRange; forcePinned?: boolean; forceOpenSideBySide?: boolean }): Promise<void> {
 		const editorOptions = {
 			preserveFocus: options.preserveFocus,
 			pinned: options.keyMods?.ctrlCmd || options.forcePinned || this.configuration.openEditorPinned,
@@ -349,53 +349,53 @@ export class TextSearchQuickAccess extends PickerQuickAccessProvider<ITextSearch
 		}, targetGroup);
 	}
 
-    protected _getPicks(contentPattern: string, disposables: DisposableStore, token: CancellationToken): Picks<IQuickPickItem> | Promise<Picks<IQuickPickItem> | FastAndSlowPicks<IQuickPickItem>> | FastAndSlowPicks<IQuickPickItem> | null {
+	protected _getPicks(contentPattern: string, disposables: DisposableStore, token: CancellationToken): Picks<IQuickPickItem> | Promise<Picks<IQuickPickItem> | FastAndSlowPicks<IQuickPickItem>> | FastAndSlowPicks<IQuickPickItem> | null {
 
-	const searchModelAtTimeOfSearch = this.searchModel;
-	if (contentPattern === '') {
+		const searchModelAtTimeOfSearch = this.searchModel;
+		if (contentPattern === '') {
 
-		this.searchModel.searchResult.clear();
-		return [{
-			label: localize('enterSearchTerm', "Enter a term to search for across your files.")
-		}];
-	}
-
-	const conditionalTokenCts = disposables.add(new CancellationTokenSource());
-
-	disposables.add(token.onCancellationRequested(() => {
-		if (searchModelAtTimeOfSearch.location === SearchModelLocation.QUICK_ACCESS) {
-			// if the search model has not been imported to the panel, you can cancel
-			conditionalTokenCts.cancel();
+			this.searchModel.searchResult.clear();
+			return [{
+				label: localize('enterSearchTerm', "Enter a term to search for across your files.")
+			}];
 		}
-	}));
-	const allMatches = this.doSearch(contentPattern, conditionalTokenCts.token);
 
-	if (!allMatches) {
-		return null;
+		const conditionalTokenCts = disposables.add(new CancellationTokenSource());
+
+		disposables.add(token.onCancellationRequested(() => {
+			if (searchModelAtTimeOfSearch.location === SearchModelLocation.QUICK_ACCESS) {
+				// if the search model has not been imported to the panel, you can cancel
+				conditionalTokenCts.cancel();
+			}
+		}));
+		const allMatches = this.doSearch(contentPattern, conditionalTokenCts.token);
+
+		if (!allMatches) {
+			return null;
+		}
+		const matches = allMatches.syncResults;
+		const syncResult = this._getPicksFromMatches(matches, MAX_FILES_SHOWN, this._editorService.activeEditor?.resource);
+		if (syncResult.length > 0) {
+			this.searchModel.searchResult.toggleHighlights(true);
+		}
+
+		if (matches.length >= MAX_FILES_SHOWN) {
+			return syncResult;
+		}
+
+		return {
+			picks: syncResult,
+			additionalPicks: allMatches.asyncResults
+				.then(asyncResults => (asyncResults.length + syncResult.length === 0) ? [{
+					label: localize('noAnythingResults', "No matching results")
+				}] : this._getPicksFromMatches(asyncResults, MAX_FILES_SHOWN - matches.length))
+				.then(picks => {
+					if (picks.length > 0) {
+						this.searchModel.searchResult.toggleHighlights(true);
+					}
+					return picks;
+				})
+		};
+
 	}
-	const matches = allMatches.syncResults;
-	const syncResult = this._getPicksFromMatches(matches, MAX_FILES_SHOWN, this._editorService.activeEditor?.resource);
-	if (syncResult.length > 0) {
-		this.searchModel.searchResult.toggleHighlights(true);
-	}
-
-	if (matches.length >= MAX_FILES_SHOWN) {
-		return syncResult;
-	}
-
-	return {
-		picks: syncResult,
-		additionalPicks: allMatches.asyncResults
-			.then(asyncResults => (asyncResults.length + syncResult.length === 0) ? [{
-				label: localize('noAnythingResults', "No matching results")
-			}] : this._getPicksFromMatches(asyncResults, MAX_FILES_SHOWN - matches.length))
-			.then(picks => {
-				if (picks.length > 0) {
-					this.searchModel.searchResult.toggleHighlights(true);
-				}
-				return picks;
-			})
-	};
-
-}
 }

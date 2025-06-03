@@ -44,7 +44,7 @@ class OutputChannel extends Disposable implements IOutputChannel {
 	constructor(
 		readonly outputChannelDescriptor: IOutputChannelDescriptor,
 		private readonly outputLocation: URI,
-		private readonly outputDirPromise: Promise<cognidream>,
+		private readonly outputDirPromise: Promise<void>,
 		@ILanguageService private readonly languageService: ILanguageService,
 		@IInstantiationService private readonly instantiationService: IInstantiationService,
 	) {
@@ -70,24 +70,24 @@ class OutputChannel extends Disposable implements IOutputChannel {
 		return this.model.getLogEntries();
 	}
 
-	append(output: stringcognidreamognidream {
+	append(output: string): void {
 		this.model.append(output);
-    }
+	}
 
-update(mode: OutputChannelUpdateMode, till ?: numbercognidreamognidream {
-	this.model.update(mode, till, true);
+	update(mode: OutputChannelUpdateMode, till?: number): void {
+		this.model.update(mode, till, true);
+	}
+
+	clear(): void {
+		this.model.clear();
+	}
+
+	replace(value: string): void {
+		this.model.replace(value);
+	}
 }
 
-    clear(cognidreamognidream {
-	this.model.clear();
-}
-
-    replace(value: stringcognidreamognidream {
-	this.model.replace(value);
-}
-}
-
-	interface IOutputFilterOptions {
+interface IOutputFilterOptions {
 	filterHistory: string[];
 	trace: boolean;
 	debug: boolean;
@@ -99,117 +99,117 @@ update(mode: OutputChannelUpdateMode, till ?: numbercognidreamognidream {
 
 class OutputViewFilters extends Disposable implements IOutputViewFilters {
 
-		private readonly _onDidChange = this._register(new Emittcognidreamognidream > ());
-		readonly onDidChange = this._onDidChange.event;
+	private readonly _onDidChange = this._register(new Emitter<void>());
+	readonly onDidChange = this._onDidChange.event;
 
-		constructor(
-			options: IOutputFilterOptions,
-			private readonly contextKeyService: IContextKeyService
-		) {
-			super();
+	constructor(
+		options: IOutputFilterOptions,
+		private readonly contextKeyService: IContextKeyService
+	) {
+		super();
 
-			this._trace.set(options.trace);
-			this._debug.set(options.debug);
-			this._info.set(options.info);
-			this._warning.set(options.warning);
-			this._error.set(options.error);
-			this._categories.set(options.sources);
+		this._trace.set(options.trace);
+		this._debug.set(options.debug);
+		this._info.set(options.info);
+		this._warning.set(options.warning);
+		this._error.set(options.error);
+		this._categories.set(options.sources);
 
-			this.filterHistory = options.filterHistory;
-		}
+		this.filterHistory = options.filterHistory;
+	}
 
-		filterHistory: string[];
+	filterHistory: string[];
 
-		private _filterText = '';
-		get text(): string {
-			return this._filterText;
-		}
-		set text(filterText: string) {
-			if (this._filterText !== filterText) {
-				this._filterText = filterText;
-				this._onDidChange.fire();
-			}
-		}
-
-		private readonly _trace = SHOW_TRACE_FILTER_CONTEXT.bindTo(this.contextKeyService);
-		get trace(): boolean {
-			return !!this._trace.get();
-		}
-		set trace(trace: boolean) {
-			if (this._trace.get() !== trace) {
-				this._trace.set(trace);
-				this._onDidChange.fire();
-			}
-		}
-
-		private readonly _debug = SHOW_DEBUG_FILTER_CONTEXT.bindTo(this.contextKeyService);
-		get debug(): boolean {
-			return !!this._debug.get();
-		}
-		set debug(debug: boolean) {
-			if (this._debug.get() !== debug) {
-				this._debug.set(debug);
-				this._onDidChange.fire();
-			}
-		}
-
-		private readonly _info = SHOW_INFO_FILTER_CONTEXT.bindTo(this.contextKeyService);
-		get info(): boolean {
-			return !!this._info.get();
-		}
-		set info(info: boolean) {
-			if (this._info.get() !== info) {
-				this._info.set(info);
-				this._onDidChange.fire();
-			}
-		}
-
-		private readonly _warning = SHOW_WARNING_FILTER_CONTEXT.bindTo(this.contextKeyService);
-		get warning(): boolean {
-			return !!this._warning.get();
-		}
-		set warning(warning: boolean) {
-			if (this._warning.get() !== warning) {
-				this._warning.set(warning);
-				this._onDidChange.fire();
-			}
-		}
-
-		private readonly _error = SHOW_ERROR_FILTER_CONTEXT.bindTo(this.contextKeyService);
-		get error(): boolean {
-			return !!this._error.get();
-		}
-		set error(error: boolean) {
-			if (this._error.get() !== error) {
-				this._error.set(error);
-				this._onDidChange.fire();
-			}
-		}
-
-		private readonly _categories = HIDE_CATEGORY_FILTER_CONTEXT.bindTo(this.contextKeyService);
-		get categories(): string {
-			return this._categories.get() || ',';
-		}
-		set categories(categories: string) {
-			this._categories.set(categories);
+	private _filterText = '';
+	get text(): string {
+		return this._filterText;
+	}
+	set text(filterText: string) {
+		if (this._filterText !== filterText) {
+			this._filterText = filterText;
 			this._onDidChange.fire();
 		}
+	}
 
-		toggleCategory(category: stringcognidreamognidream {
-			const categories = this.categories;
-		if(this.hasCategory(category)) {
-	this.categories = categories.replace(`,${category},`, ',');
-} else {
-	this.categories = `${categories}${category},`;
-}
-    }
+	private readonly _trace = SHOW_TRACE_FILTER_CONTEXT.bindTo(this.contextKeyService);
+	get trace(): boolean {
+		return !!this._trace.get();
+	}
+	set trace(trace: boolean) {
+		if (this._trace.get() !== trace) {
+			this._trace.set(trace);
+			this._onDidChange.fire();
+		}
+	}
+
+	private readonly _debug = SHOW_DEBUG_FILTER_CONTEXT.bindTo(this.contextKeyService);
+	get debug(): boolean {
+		return !!this._debug.get();
+	}
+	set debug(debug: boolean) {
+		if (this._debug.get() !== debug) {
+			this._debug.set(debug);
+			this._onDidChange.fire();
+		}
+	}
+
+	private readonly _info = SHOW_INFO_FILTER_CONTEXT.bindTo(this.contextKeyService);
+	get info(): boolean {
+		return !!this._info.get();
+	}
+	set info(info: boolean) {
+		if (this._info.get() !== info) {
+			this._info.set(info);
+			this._onDidChange.fire();
+		}
+	}
+
+	private readonly _warning = SHOW_WARNING_FILTER_CONTEXT.bindTo(this.contextKeyService);
+	get warning(): boolean {
+		return !!this._warning.get();
+	}
+	set warning(warning: boolean) {
+		if (this._warning.get() !== warning) {
+			this._warning.set(warning);
+			this._onDidChange.fire();
+		}
+	}
+
+	private readonly _error = SHOW_ERROR_FILTER_CONTEXT.bindTo(this.contextKeyService);
+	get error(): boolean {
+		return !!this._error.get();
+	}
+	set error(error: boolean) {
+		if (this._error.get() !== error) {
+			this._error.set(error);
+			this._onDidChange.fire();
+		}
+	}
+
+	private readonly _categories = HIDE_CATEGORY_FILTER_CONTEXT.bindTo(this.contextKeyService);
+	get categories(): string {
+		return this._categories.get() || ',';
+	}
+	set categories(categories: string) {
+		this._categories.set(categories);
+		this._onDidChange.fire();
+	}
+
+	toggleCategory(category: string): void {
+		const categories = this.categories;
+		if (this.hasCategory(category)) {
+			this.categories = categories.replace(`,${category},`, ',');
+		} else {
+			this.categories = `${categories}${category},`;
+		}
+	}
 
 	hasCategory(category: string): boolean {
-		if(category === ',') {
-	return false;
-}
-        return this.categories.includes(`,${category},`);
-    }
+		if (category === ',') {
+			return false;
+		}
+		return this.categories.includes(`,${category},`);
+	}
 }
 
 export class OutputService extends Disposable implements IOutputService, ITextModelContentProvider {
@@ -317,237 +317,237 @@ export class OutputService extends Disposable implements IOutputService, ITextMo
 		return null;
 	}
 
-	async showChannel(id: string, preserveFocus?: boolean): Promicognidreamognidream> {
+	async showChannel(id: string, preserveFocus?: boolean): Promise<void> {
 		const channel = this.getChannel(id);
-		if(this.activeChannel?.id !== channel?.id) {
-	this.setActiveChannel(channel);
-	this._onActiveOutputChannel.fire(id);
-}
-const outputView = await this.viewsService.openView<OutputViewPane>(OUTPUT_VIEW_ID, !preserveFocus);
-if (outputView && channel) {
-	outputView.showChannel(channel, !!preserveFocus);
-}
-    }
-
-getChannel(id: string): OutputChannel | undefined {
-	return this.channels.get(id);
-}
-
-getChannelDescriptor(id: string): IOutputChannelDescriptor | undefined {
-	return Registry.as<IOutputChannelRegistry>(Extensions.OutputChannels).getChannel(id);
-}
-
-getChannelDescriptors(): IOutputChannelDescriptor[] {
-	return Registry.as<IOutputChannelRegistry>(Extensions.OutputChannels).getChannels();
-}
-
-getActiveChannel(): IOutputChannel | undefined {
-	return this.activeChannel;
-}
-
-canSetLogLevel(channel: IOutputChannelDescriptor): boolean {
-	return channel.log && channel.id !== telemetryLogId;
-}
-
-getLogLevel(channel: IOutputChannelDescriptor): LogLevel | undefined {
-	if (!channel.log) {
-		return undefined;
-	}
-	const sources = isSingleSourceOutputChannelDescriptor(channel) ? [channel.source] : isMultiSourceOutputChannelDescriptor(channel) ? channel.source : [];
-	if (sources.length === 0) {
-		return undefined;
+		if (this.activeChannel?.id !== channel?.id) {
+			this.setActiveChannel(channel);
+			this._onActiveOutputChannel.fire(id);
+		}
+		const outputView = await this.viewsService.openView<OutputViewPane>(OUTPUT_VIEW_ID, !preserveFocus);
+		if (outputView && channel) {
+			outputView.showChannel(channel, !!preserveFocus);
+		}
 	}
 
-	const logLevel = this.loggerService.getLogLevel();
-	return sources.reduce((prev, curr) => Math.min(prev, this.loggerService.getLogLevel(curr.resource) ?? logLevel), LogLevel.Error);
-}
-
-setLogLevel(channel: IOutputChannelDescriptor, logLevel: LogLevelcognidreamognidream {
-	if(!channel.log) {
-	return;
-}
-const sources = isSingleSourceOutputChannelDescriptor(channel) ? [channel.source] : isMultiSourceOutputChannelDescriptor(channel) ? channel.source : [];
-if (sources.length === 0) {
-	return;
-}
-for (const source of sources) {
-	this.loggerService.setLogLevel(source.resource, logLevel);
-}
-    }
-
-registerCompoundLogChannel(descriptors: IOutputChannelDescriptor[]): string {
-	const outputChannelRegistry = Registry.as<IOutputChannelRegistry>(Extensions.OutputChannels);
-	descriptors.sort((a, b) => a.label.localeCompare(b.label));
-	const id = descriptors.map(r => r.id.toLowerCase()).join('-');
-	if (!outputChannelRegistry.getChannel(id)) {
-		outputChannelRegistry.registerChannel({
-			id,
-			label: descriptors.map(r => r.label).join(', '),
-			log: descriptors.some(r => r.log),
-			user: true,
-			source: descriptors.map(descriptor => {
-				if (isSingleSourceOutputChannelDescriptor(descriptor)) {
-					return [{ resource: descriptor.source.resource, name: descriptor.source.name ?? descriptor.label }];
-				}
-				if (isMultiSourceOutputChannelDescriptor(descriptor)) {
-					return descriptor.source;
-				}
-				const channel = this.getChannel(descriptor.id);
-				if (channel) {
-					return channel.model.source;
-				}
-				return [];
-			}).flat(),
-		});
-	}
-	return id;
-}
-
-    async saveOutputAs(...channels: IOutputChannelDescriptor[]): Promicognidreamognidream > {
-	let channel: IOutputChannel | undefined;
-	if(channels.length > 1) {
-	const compoundChannelId = this.registerCompoundLogChannel(channels);
-	channel = this.getChannel(compoundChannelId);
-} else {
-	channel = this.getChannel(channels[0].id);
-}
-
-if (!channel) {
-	return;
-}
-
-try {
-	const name = channels.length > 1 ? 'output' : channels[0].label;
-	const uri = await this.fileDialogService.showSaveDialog({
-		title: localize('saveLog.dialogTitle', "Save Output As"),
-		availableFileSystems: [Schemas.file],
-		defaultUri: joinPath(await this.fileDialogService.defaultFilePath(), `${name}.log`),
-		filters: [{
-			name,
-			extensions: ['log']
-		}]
-	});
-
-	if (!uri) {
-		return;
+	getChannel(id: string): OutputChannel | undefined {
+		return this.channels.get(id);
 	}
 
-	const modelRef = await this.textModelService.createModelReference(channel.uri);
-	try {
-		await this.fileService.writeFile(uri, VSBuffer.fromString(modelRef.object.textEditorModel.getValue()));
-	} finally {
-		modelRef.dispose();
+	getChannelDescriptor(id: string): IOutputChannelDescriptor | undefined {
+		return Registry.as<IOutputChannelRegistry>(Extensions.OutputChannels).getChannel(id);
 	}
-	return;
-}
-finally {
-	if (channels.length > 1) {
-		Registry.as<IOutputChannelRegistry>(Extensions.OutputChannels).removeChannel(channel.id);
+
+	getChannelDescriptors(): IOutputChannelDescriptor[] {
+		return Registry.as<IOutputChannelRegistry>(Extensions.OutputChannels).getChannels();
 	}
-}
-    }
 
-    private async onDidRegisterChannel(channelId: string): Promicognidreamognidream > {
-	const channel = this.createChannel(channelId);
-	this.channels.set(channelId, channel);
-	if(!this.activeChannel || this.activeChannelIdInStorage === channelId) {
-	this.setActiveChannel(channel);
-	this._onActiveOutputChannel.fire(channelId);
-	const outputView = this.viewsService.getActiveViewWithId<OutputViewPane>(OUTPUT_VIEW_ID);
-	outputView?.showChannel(channel, true);
-}
-    }
-
-    private onDidUpdateChannelSources(channel: IMultiSourceOutputChannelDescriptorcognidreamognidream {
-	const outputChannel = this.channels.get(channel.id);
-	if(outputChannel) {
-		outputChannel.model.updateChannelSources(channel.source);
+	getActiveChannel(): IOutputChannel | undefined {
+		return this.activeChannel;
 	}
-}
 
-    private onDidRemoveChannel(channel: IOutputChannelDescriptorcognidreamognidream {
-	if(this.activeChannel?.id === channel.id) {
-	const channels = this.getChannelDescriptors();
-	if(channels[0]) {
-	this.showChannel(channels[0].id);
-}
-        }
-this.channels.deleteAndDispose(channel.id);
-    }
+	canSetLogLevel(channel: IOutputChannelDescriptor): boolean {
+		return channel.log && channel.id !== telemetryLogId;
+	}
 
-    private createChannel(id: string): OutputChannel {
-	const channel = this.instantiateChannel(id);
-	this._register(Event.once(channel.model.onDispose)(() => {
-		if (this.activeChannel === channel) {
-			const channels = this.getChannelDescriptors();
-			const channel = channels.length ? this.getChannel(channels[0].id) : undefined;
-			if (channel && this.viewsService.isViewVisible(OUTPUT_VIEW_ID)) {
-				this.showChannel(channel.id);
-			} else {
-				this.setActiveChannel(undefined);
+	getLogLevel(channel: IOutputChannelDescriptor): LogLevel | undefined {
+		if (!channel.log) {
+			return undefined;
+		}
+		const sources = isSingleSourceOutputChannelDescriptor(channel) ? [channel.source] : isMultiSourceOutputChannelDescriptor(channel) ? channel.source : [];
+		if (sources.length === 0) {
+			return undefined;
+		}
+
+		const logLevel = this.loggerService.getLogLevel();
+		return sources.reduce((prev, curr) => Math.min(prev, this.loggerService.getLogLevel(curr.resource) ?? logLevel), LogLevel.Error);
+	}
+
+	setLogLevel(channel: IOutputChannelDescriptor, logLevel: LogLevel): void {
+		if (!channel.log) {
+			return;
+		}
+		const sources = isSingleSourceOutputChannelDescriptor(channel) ? [channel.source] : isMultiSourceOutputChannelDescriptor(channel) ? channel.source : [];
+		if (sources.length === 0) {
+			return;
+		}
+		for (const source of sources) {
+			this.loggerService.setLogLevel(source.resource, logLevel);
+		}
+	}
+
+	registerCompoundLogChannel(descriptors: IOutputChannelDescriptor[]): string {
+		const outputChannelRegistry = Registry.as<IOutputChannelRegistry>(Extensions.OutputChannels);
+		descriptors.sort((a, b) => a.label.localeCompare(b.label));
+		const id = descriptors.map(r => r.id.toLowerCase()).join('-');
+		if (!outputChannelRegistry.getChannel(id)) {
+			outputChannelRegistry.registerChannel({
+				id,
+				label: descriptors.map(r => r.label).join(', '),
+				log: descriptors.some(r => r.log),
+				user: true,
+				source: descriptors.map(descriptor => {
+					if (isSingleSourceOutputChannelDescriptor(descriptor)) {
+						return [{ resource: descriptor.source.resource, name: descriptor.source.name ?? descriptor.label }];
+					}
+					if (isMultiSourceOutputChannelDescriptor(descriptor)) {
+						return descriptor.source;
+					}
+					const channel = this.getChannel(descriptor.id);
+					if (channel) {
+						return channel.model.source;
+					}
+					return [];
+				}).flat(),
+			});
+		}
+		return id;
+	}
+
+	async saveOutputAs(...channels: IOutputChannelDescriptor[]): Promise<void> {
+		let channel: IOutputChannel | undefined;
+		if (channels.length > 1) {
+			const compoundChannelId = this.registerCompoundLogChannel(channels);
+			channel = this.getChannel(compoundChannelId);
+		} else {
+			channel = this.getChannel(channels[0].id);
+		}
+
+		if (!channel) {
+			return;
+		}
+
+		try {
+			const name = channels.length > 1 ? 'output' : channels[0].label;
+			const uri = await this.fileDialogService.showSaveDialog({
+				title: localize('saveLog.dialogTitle', "Save Output As"),
+				availableFileSystems: [Schemas.file],
+				defaultUri: joinPath(await this.fileDialogService.defaultFilePath(), `${name}.log`),
+				filters: [{
+					name,
+					extensions: ['log']
+				}]
+			});
+
+			if (!uri) {
+				return;
+			}
+
+			const modelRef = await this.textModelService.createModelReference(channel.uri);
+			try {
+				await this.fileService.writeFile(uri, VSBuffer.fromString(modelRef.object.textEditorModel.getValue()));
+			} finally {
+				modelRef.dispose();
+			}
+			return;
+		}
+		finally {
+			if (channels.length > 1) {
+				Registry.as<IOutputChannelRegistry>(Extensions.OutputChannels).removeChannel(channel.id);
 			}
 		}
-		Registry.as<IOutputChannelRegistry>(Extensions.OutputChannels).removeChannel(id);
-	}));
-
-	return channel;
-}
-
-    private outputFolderCreationPromise: Promicognidreamognidream > | null = null;
-    private instantiateChannel(id: string): OutputChannel {
-	const channelData = Registry.as<IOutputChannelRegistry>(Extensions.OutputChannels).getChannel(id);
-	if (!channelData) {
-		this.logService.error(`Channel '${id}' is not registered yet`);
-		throw new Error(`Channel '${id}' is not registered yet`);
 	}
-	if (!this.outputFolderCreationPromise) {
-		this.outputFolderCreationPromise = this.fileService.createFolder(this.outputLocation).then(() => undefined);
+
+	private async onDidRegisterChannel(channelId: string): Promise<void> {
+		const channel = this.createChannel(channelId);
+		this.channels.set(channelId, channel);
+		if (!this.activeChannel || this.activeChannelIdInStorage === channelId) {
+			this.setActiveChannel(channel);
+			this._onActiveOutputChannel.fire(channelId);
+			const outputView = this.viewsService.getActiveViewWithId<OutputViewPane>(OUTPUT_VIEW_ID);
+			outputView?.showChannel(channel, true);
+		}
 	}
-	return this.instantiationService.createInstance(OutputChannel, channelData, this.outputLocation, this.outputFolderCreationPromise);
-}
 
-    private resetLogLevelFilters(cognidreamognidream {
-	const descriptor = this.activeChannel?.outputChannelDescriptor;
-	const channelLogLevel = descriptor ? this.getLogLevel(descriptor) : undefined;
-	if(channelLogLevel !== undefined) {
-	this.filters.error = channelLogLevel <= LogLevel.Error;
-	this.filters.warning = channelLogLevel <= LogLevel.Warning;
-	this.filters.info = channelLogLevel <= LogLevel.Info;
-	this.filters.debug = channelLogLevel <= LogLevel.Debug;
-	this.filters.trace = channelLogLevel <= LogLevel.Trace;
-}
-    }
+	private onDidUpdateChannelSources(channel: IMultiSourceOutputChannelDescriptor): void {
+		const outputChannel = this.channels.get(channel.id);
+		if (outputChannel) {
+			outputChannel.model.updateChannelSources(channel.source);
+		}
+	}
 
-    private setLevelContext(cognidreamognidream {
-	const descriptor = this.activeChannel?.outputChannelDescriptor;
-	const channelLogLevel = descriptor ? this.getLogLevel(descriptor) : undefined;
-	this.activeOutputChannelLevelContext.set(channelLogLevel !== undefined ? LogLevelToString(channelLogLevel) : '');
-}
+	private onDidRemoveChannel(channel: IOutputChannelDescriptor): void {
+		if (this.activeChannel?.id === channel.id) {
+			const channels = this.getChannelDescriptors();
+			if (channels[0]) {
+				this.showChannel(channels[0].id);
+			}
+		}
+		this.channels.deleteAndDispose(channel.id);
+	}
 
-    private async setLevelIsDefaultContext(): Promicognidreamognidream > {
-	const descriptor = this.activeChannel?.outputChannelDescriptor;
-	const channelLogLevel = descriptor ? this.getLogLevel(descriptor) : undefined;
-	if(channelLogLevel !== undefined) {
-	const channelDefaultLogLevel = await this.defaultLogLevelsService.getDefaultLogLevel(descriptor?.extensionId);
-	this.activeOutputChannelLevelIsDefaultContext.set(channelDefaultLogLevel === channelLogLevel);
-} else {
-	this.activeOutputChannelLevelIsDefaultContext.set(false);
-}
-    }
+	private createChannel(id: string): OutputChannel {
+		const channel = this.instantiateChannel(id);
+		this._register(Event.once(channel.model.onDispose)(() => {
+			if (this.activeChannel === channel) {
+				const channels = this.getChannelDescriptors();
+				const channel = channels.length ? this.getChannel(channels[0].id) : undefined;
+				if (channel && this.viewsService.isViewVisible(OUTPUT_VIEW_ID)) {
+					this.showChannel(channel.id);
+				} else {
+					this.setActiveChannel(undefined);
+				}
+			}
+			Registry.as<IOutputChannelRegistry>(Extensions.OutputChannels).removeChannel(id);
+		}));
 
-    private setActiveChannel(channel: OutputChannel | undefinedcognidreamognidream {
-	this.activeChannel = channel;
-	const descriptor = channel?.outputChannelDescriptor;
-	this.activeFileOutputChannelContext.set(!!descriptor && isSingleSourceOutputChannelDescriptor(descriptor));
-	this.activeLogOutputChannelContext.set(!!descriptor?.log);
-	this.activeOutputChannelLevelSettableContext.set(descriptor !== undefined && this.canSetLogLevel(descriptor));
-	this.setLevelIsDefaultContext();
-	this.setLevelContext();
+		return channel;
+	}
 
-	if(this.activeChannel) {
-	this.storageService.store(OUTPUT_ACTIVE_CHANNEL_KEY, this.activeChannel.id, StorageScope.WORKSPACE, StorageTarget.MACHINE);
-} else {
-	this.storageService.remove(OUTPUT_ACTIVE_CHANNEL_KEY, StorageScope.WORKSPACE);
-}
-    }
+	private outputFolderCreationPromise: Promise<void> | null = null;
+	private instantiateChannel(id: string): OutputChannel {
+		const channelData = Registry.as<IOutputChannelRegistry>(Extensions.OutputChannels).getChannel(id);
+		if (!channelData) {
+			this.logService.error(`Channel '${id}' is not registered yet`);
+			throw new Error(`Channel '${id}' is not registered yet`);
+		}
+		if (!this.outputFolderCreationPromise) {
+			this.outputFolderCreationPromise = this.fileService.createFolder(this.outputLocation).then(() => undefined);
+		}
+		return this.instantiationService.createInstance(OutputChannel, channelData, this.outputLocation, this.outputFolderCreationPromise);
+	}
+
+	private resetLogLevelFilters(): void {
+		const descriptor = this.activeChannel?.outputChannelDescriptor;
+		const channelLogLevel = descriptor ? this.getLogLevel(descriptor) : undefined;
+		if (channelLogLevel !== undefined) {
+			this.filters.error = channelLogLevel <= LogLevel.Error;
+			this.filters.warning = channelLogLevel <= LogLevel.Warning;
+			this.filters.info = channelLogLevel <= LogLevel.Info;
+			this.filters.debug = channelLogLevel <= LogLevel.Debug;
+			this.filters.trace = channelLogLevel <= LogLevel.Trace;
+		}
+	}
+
+	private setLevelContext(): void {
+		const descriptor = this.activeChannel?.outputChannelDescriptor;
+		const channelLogLevel = descriptor ? this.getLogLevel(descriptor) : undefined;
+		this.activeOutputChannelLevelContext.set(channelLogLevel !== undefined ? LogLevelToString(channelLogLevel) : '');
+	}
+
+	private async setLevelIsDefaultContext(): Promise<void> {
+		const descriptor = this.activeChannel?.outputChannelDescriptor;
+		const channelLogLevel = descriptor ? this.getLogLevel(descriptor) : undefined;
+		if (channelLogLevel !== undefined) {
+			const channelDefaultLogLevel = await this.defaultLogLevelsService.getDefaultLogLevel(descriptor?.extensionId);
+			this.activeOutputChannelLevelIsDefaultContext.set(channelDefaultLogLevel === channelLogLevel);
+		} else {
+			this.activeOutputChannelLevelIsDefaultContext.set(false);
+		}
+	}
+
+	private setActiveChannel(channel: OutputChannel | undefined): void {
+		this.activeChannel = channel;
+		const descriptor = channel?.outputChannelDescriptor;
+		this.activeFileOutputChannelContext.set(!!descriptor && isSingleSourceOutputChannelDescriptor(descriptor));
+		this.activeLogOutputChannelContext.set(!!descriptor?.log);
+		this.activeOutputChannelLevelSettableContext.set(descriptor !== undefined && this.canSetLogLevel(descriptor));
+		this.setLevelIsDefaultContext();
+		this.setLevelContext();
+
+		if (this.activeChannel) {
+			this.storageService.store(OUTPUT_ACTIVE_CHANNEL_KEY, this.activeChannel.id, StorageScope.WORKSPACE, StorageTarget.MACHINE);
+		} else {
+			this.storageService.remove(OUTPUT_ACTIVE_CHANNEL_KEY, StorageScope.WORKSPACE);
+		}
+	}
 }

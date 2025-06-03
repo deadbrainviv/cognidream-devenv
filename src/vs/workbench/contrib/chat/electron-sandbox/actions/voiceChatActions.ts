@@ -90,15 +90,15 @@ interface IVoiceChatSessionController {
 	readonly context: VoiceChatSessionContext;
 	readonly scopedContextKeyService: IContextKeyService;
 
-	updateState(state: VoiceChatSessionState): cognidream;
+	updateState(state: VoiceChatSessionState): void;
 
-	focusInput(cognidreamognidream;
-		acceptInput(): Promise<IChatResponseModel | undefined>;
-	updateInput(text: stringcognidreamognidream;
-		getInput(): string;
+	focusInput(): void;
+	acceptInput(): Promise<IChatResponseModel | undefined>;
+	updateInput(text: string): void;
+	getInput(): string;
 
-	setInputPlaceholder(text: stringcognidreamognidream;
-		clearInputPlaceholder(cognidreamognidream;
+	setInputPlaceholder(text: string): void;
+	clearInputPlaceholder(): void;
 }
 
 class VoiceChatSessionControllerFactory {
@@ -170,7 +170,7 @@ class VoiceChatSessionControllerFactory {
 		return undefined;
 	}
 
-	private static createChatContextKeyController(contextKeyService: IContextKeyService, context: VoiceChatSessionContext): (state: VoiceChatSessionState) cognidreamognidream {
+	private static createChatContextKeyController(contextKeyService: IContextKeyService, context: VoiceChatSessionContext): (state: VoiceChatSessionState) => void {
 		const contextVoiceChatGettingReady = ScopedVoiceChatGettingReady.bindTo(contextKeyService);
 		const contextVoiceChatInProgress = ScopedVoiceChatInProgress.bindTo(contextKeyService);
 
@@ -210,10 +210,10 @@ class VoiceChatSessionControllerFactory {
 }
 
 interface IVoiceChatSession {
-	setTimeoutDisabled(disabled: booleancognidreamognidream;
+	setTimeoutDisabled(disabled: boolean): void;
 
-		accept(cognidreamognidream;
-			stop(cognidreamognidream;
+	accept(): void;
+	stop(): void;
 }
 
 interface IActiveVoiceChatSession extends IVoiceChatSession {
@@ -321,79 +321,79 @@ class VoiceChatSessions {
 		return session;
 	}
 
-	private onDidSpeechToTextSessionStart(controller: IVoiceChatSessionController, disposables: DisposableStorecognidreamognidream {
+	private onDidSpeechToTextSessionStart(controller: IVoiceChatSessionController, disposables: DisposableStore): void {
 		controller.updateState(VoiceChatSessionState.Started);
 
-let dotCount = 0;
+		let dotCount = 0;
 
-const updatePlaceholder = () => {
-	dotCount = (dotCount + 1) % 4;
-	controller.setInputPlaceholder(`${localize('listening', "I'm listening")}${'.'.repeat(dotCount)}`);
-	placeholderScheduler.schedule();
-};
+		const updatePlaceholder = () => {
+			dotCount = (dotCount + 1) % 4;
+			controller.setInputPlaceholder(`${localize('listening', "I'm listening")}${'.'.repeat(dotCount)}`);
+			placeholderScheduler.schedule();
+		};
 
-const placeholderScheduler = disposables.add(new RunOnceScheduler(updatePlaceholder, 500));
-updatePlaceholder();
-    }
-
-stop(voiceChatSessionId = this.voiceChatSessionIds, context ?: VoiceChatSessionContextcognidreamognidream {
-	if(
-            !this.currentVoiceChatSession ||
-		this.voiceChatSessionIds !== voiceChatSessionId ||
-		(context && this.currentVoiceChatSession.controller.context !== context)
-        ) {
-	return;
-}
-
-this.currentVoiceChatSession.controller.clearInputPlaceholder();
-
-this.currentVoiceChatSession.controller.updateState(VoiceChatSessionState.Stopped);
-
-this.currentVoiceChatSession.disposables.dispose();
-this.currentVoiceChatSession = undefined;
-    }
-
-    async accept(voiceChatSessionId = this.voiceChatSessionIds): Promicognidreamognidream > {
-	if(
-            !this.currentVoiceChatSession ||
-		this.voiceChatSessionIds !== voiceChatSessionId
-        ) {
-	return;
-}
-
-if (!this.currentVoiceChatSession.hasRecognizedInput) {
-	// If we have an active session but without recognized
-	// input, we do not want to just accept the input that
-	// was maybe typed before. But we still want to stop the
-	// voice session because `acceptInput` would do that.
-	this.stop(voiceChatSessionId, this.currentVoiceChatSession.controller.context);
-	return;
-}
-
-const controller = this.currentVoiceChatSession.controller;
-const response = await controller.acceptInput();
-if (!response) {
-	return;
-}
-const autoSynthesize = this.configurationService.getValue<'on' | 'off'>(AccessibilityVoiceSettingId.AutoSynthesize);
-if (autoSynthesize === 'on' || (autoSynthesize !== 'off' && !this.accessibilityService.isScreenReaderOptimized())) {
-	let context: IVoiceChatSessionController | 'focused';
-	if (controller.context === 'inline') {
-		// This is ugly, but the lightweight inline chat turns into
-		// a different widget as soon as a response comes in, so we fallback to
-		// picking up from the focused chat widget
-		context = 'focused';
-	} else {
-		context = controller;
+		const placeholderScheduler = disposables.add(new RunOnceScheduler(updatePlaceholder, 500));
+		updatePlaceholder();
 	}
-	ChatSynthesizerSessions.getInstance(this.instantiationService).start(this.instantiationService.invokeFunction(accessor => ChatSynthesizerSessionController.create(accessor, context, response)));
-}
-    }
+
+	stop(voiceChatSessionId = this.voiceChatSessionIds, context?: VoiceChatSessionContext): void {
+		if (
+			!this.currentVoiceChatSession ||
+			this.voiceChatSessionIds !== voiceChatSessionId ||
+			(context && this.currentVoiceChatSession.controller.context !== context)
+		) {
+			return;
+		}
+
+		this.currentVoiceChatSession.controller.clearInputPlaceholder();
+
+		this.currentVoiceChatSession.controller.updateState(VoiceChatSessionState.Stopped);
+
+		this.currentVoiceChatSession.disposables.dispose();
+		this.currentVoiceChatSession = undefined;
+	}
+
+	async accept(voiceChatSessionId = this.voiceChatSessionIds): Promise<void> {
+		if (
+			!this.currentVoiceChatSession ||
+			this.voiceChatSessionIds !== voiceChatSessionId
+		) {
+			return;
+		}
+
+		if (!this.currentVoiceChatSession.hasRecognizedInput) {
+			// If we have an active session but without recognized
+			// input, we do not want to just accept the input that
+			// was maybe typed before. But we still want to stop the
+			// voice session because `acceptInput` would do that.
+			this.stop(voiceChatSessionId, this.currentVoiceChatSession.controller.context);
+			return;
+		}
+
+		const controller = this.currentVoiceChatSession.controller;
+		const response = await controller.acceptInput();
+		if (!response) {
+			return;
+		}
+		const autoSynthesize = this.configurationService.getValue<'on' | 'off'>(AccessibilityVoiceSettingId.AutoSynthesize);
+		if (autoSynthesize === 'on' || (autoSynthesize !== 'off' && !this.accessibilityService.isScreenReaderOptimized())) {
+			let context: IVoiceChatSessionController | 'focused';
+			if (controller.context === 'inline') {
+				// This is ugly, but the lightweight inline chat turns into
+				// a different widget as soon as a response comes in, so we fallback to
+				// picking up from the focused chat widget
+				context = 'focused';
+			} else {
+				context = controller;
+			}
+			ChatSynthesizerSessions.getInstance(this.instantiationService).start(this.instantiationService.invokeFunction(accessor => ChatSynthesizerSessionController.create(accessor, context, response)));
+		}
+	}
 }
 
 export const VOICE_KEY_HOLD_THRESHOLD = 500;
 
-async function startVoiceChatWithHoldMode(id: string, accessor: ServicesAccessor, target: 'view' | 'inline' | 'quick' | 'focused', context?: IChatExecuteActionContext): Promise<cognidreamidream> {
+async function startVoiceChatWithHoldMode(id: string, accessor: ServicesAccessor, target: 'view' | 'inline' | 'quick' | 'focused', context?: IChatExecuteActionContext): Promise<void> {
 	const instantiationService = accessor.get(IInstantiationService);
 	const keybindingService = accessor.get(IKeybindingService);
 
@@ -425,7 +425,7 @@ class VoiceChatWithHoldModeAction extends Action2 {
 		super(desc);
 	}
 
-	run(accessor: ServicesAccessor, context?: IChatExecuteActionContext): Promicognidreamognidream> {
+	run(accessor: ServicesAccessor, context?: IChatExecuteActionContext): Promise<void> {
 		return startVoiceChatWithHoldMode(this.desc.id, accessor, this.target, context);
 	}
 }
@@ -471,7 +471,7 @@ export class HoldToVoiceChatInChatViewAction extends Action2 {
 		});
 	}
 
-	override async run(accessor: ServicesAccessor, context?: IChatExecuteActionContext): Promicognidreamognidream> {
+	override async run(accessor: ServicesAccessor, context?: IChatExecuteActionContext): Promise<void> {
 
 		// The intent of this action is to provide 2 modes to align with what `Ctrlcmd+I` in inline chat:
 		// - if the user press and holds, we start voice chat in the chat view
@@ -492,15 +492,15 @@ export class HoldToVoiceChatInChatViewAction extends Action2 {
 			}
 		}, VOICE_KEY_HOLD_THRESHOLD);
 
-        (await showChatView(viewsService))?.focusInput();
+		(await showChatView(viewsService))?.focusInput();
 
-await holdMode;
-handle.dispose();
+		await holdMode;
+		handle.dispose();
 
-if (session) {
-	session.accept();
-}
-    }
+		if (session) {
+			session.accept();
+		}
+	}
 }
 
 export class InlineVoiceChatAction extends VoiceChatWithHoldModeAction {
@@ -591,9 +591,9 @@ export class StartVoiceChatAction extends Action2 {
 		});
 	}
 
-	async run(accessor: ServicesAccessor, context?: IChatExecuteActionContext): Promicognidreamognidream> {
+	async run(accessor: ServicesAccessor, context?: IChatExecuteActionContext): Promise<void> {
 		const widget = context?.widget;
-		if(widget) {
+		if (widget) {
 			// if we already get a context when the action is executed
 			// from a toolbar within the chat widget, then make sure
 			// to move focus into the input field so that the controller
@@ -601,7 +601,7 @@ export class StartVoiceChatAction extends Action2 {
 			widget.focusInput();
 		}
 
-        return startVoiceChatWithHoldMode(this.desc.id, accessor, 'focused', context);
+		return startVoiceChatWithHoldMode(this.desc.id, accessor, 'focused', context);
 	}
 }
 
@@ -626,7 +626,7 @@ export class StopListeningAction extends Action2 {
 		});
 	}
 
-	async run(accessor: ServicesAccessor): Promicognidreamognidream> {
+	async run(accessor: ServicesAccessor): Promise<void> {
 		VoiceChatSessions.getInstance(accessor.get(IInstantiationService)).stop();
 	}
 }
@@ -653,9 +653,9 @@ export class StopListeningAndSubmitAction extends Action2 {
 		});
 	}
 
-	run(accessor: ServicesAccessorcognidreamognidream {
+	run(accessor: ServicesAccessor): void {
 		VoiceChatSessions.getInstance(accessor.get(IInstantiationService)).accept();
-    }
+	}
 }
 
 //#endregion
@@ -727,7 +727,7 @@ class ChatSynthesizerSessions {
 		@IInstantiationService private readonly instantiationService: IInstantiationService
 	) { }
 
-	async start(controller: IChatSynthesizerSessionController): Promicognidreamognidream> {
+	async start(controller: IChatSynthesizerSessionController): Promise<void> {
 
 		// Stop running text-to-speech or speech-to-text sessions in chats
 		this.stop();
@@ -740,103 +740,103 @@ class ChatSynthesizerSessions {
 
 		const session = await this.speechService.createTextToSpeechSession(activeSession.token, 'chat');
 
-		if(activeSession.token.isCancellationRequested) {
-	return;
-}
-
-disposables.add(controller.onDidHideChat(() => this.stop()));
-
-const scopedChatToSpeechInProgress = ScopedChatSynthesisInProgress.bindTo(controller.contextKeyService);
-disposables.add(toDisposable(() => scopedChatToSpeechInProgress.reset()));
-
-disposables.add(session.onDidChange(e => {
-	switch (e.status) {
-		case TextToSpeechStatus.Started:
-			scopedChatToSpeechInProgress.set(true);
-			break;
-		case TextToSpeechStatus.Stopped:
-			scopedChatToSpeechInProgress.reset();
-			break;
-	}
-}));
-
-for await (const chunk of this.nextChatResponseChunk(controller.response, activeSession.token)) {
-	if (activeSession.token.isCancellationRequested) {
-		return;
-	}
-
-	await raceCancellation(session.synthesize(chunk), activeSession.token);
-}
-    }
-
-    private async * nextChatResponseChunk(response: IChatResponseModel, token: CancellationToken): AsyncIterable < string > {
-	const context: IChatSynthesizerContext = {
-		ignoreCodeBlocks: this.configurationService.getValue<boolean>(AccessibilityVoiceSettingId.IgnoreCodeBlocks),
-		insideCodeBlock: false
-	};
-
-	let totalOffset = 0;
-	let complete = false;
-	do {
-		const responseLength = response.response.toString().length;
-		const { chunk, offset } = this.parseNextChatResponseChunk(response, totalOffset, context);
-		totalOffset = offset;
-		complete = response.isComplete;
-
-		if(chunk) {
-			yield chunk;
+		if (activeSession.token.isCancellationRequested) {
+			return;
 		}
 
-            if(token.isCancellationRequested) {
-	return;
-}
+		disposables.add(controller.onDidHideChat(() => this.stop()));
 
-if (!complete && responseLength === response.response.toString().length) {
-	await raceCancellation(Event.toPromise(response.onDidChange), token); // wait for the response to change
-}
-        } while (!token.isCancellationRequested && !complete);
-    }
+		const scopedChatToSpeechInProgress = ScopedChatSynthesisInProgress.bindTo(controller.contextKeyService);
+		disposables.add(toDisposable(() => scopedChatToSpeechInProgress.reset()));
 
-    private parseNextChatResponseChunk(response: IChatResponseModel, offset: number, context: IChatSynthesizerContext): { readonly chunk: string | undefined; readonly offset: number } {
-	let chunk: string | undefined = undefined;
-
-	const text = response.response.toString();
-
-	if (response.isComplete) {
-		chunk = text.substring(offset);
-		offset = text.length + 1;
-	} else {
-		const res = parseNextChatResponseChunk(text, offset);
-		chunk = res.chunk;
-		offset = res.offset;
-	}
-
-	if (chunk && context.ignoreCodeBlocks) {
-		chunk = this.filterCodeBlocks(chunk, context);
-	}
-
-	return {
-		chunk: chunk ? renderStringAsPlaintext({ value: chunk }) : chunk, // convert markdown to plain text
-		offset
-	};
-}
-
-    private filterCodeBlocks(chunk: string, context: IChatSynthesizerContext): string {
-	return chunk.split('\n')
-		.filter(line => {
-			if (line.trimStart().startsWith('```')) {
-				context.insideCodeBlock = !context.insideCodeBlock;
-				return false;
+		disposables.add(session.onDidChange(e => {
+			switch (e.status) {
+				case TextToSpeechStatus.Started:
+					scopedChatToSpeechInProgress.set(true);
+					break;
+				case TextToSpeechStatus.Stopped:
+					scopedChatToSpeechInProgress.reset();
+					break;
 			}
-			return !context.insideCodeBlock;
-		})
-		.join('\n');
-}
+		}));
 
-stop(cognidreamognidream {
-	this.activeSession?.dispose(true);
-	this.activeSession = undefined;
-}
+		for await (const chunk of this.nextChatResponseChunk(controller.response, activeSession.token)) {
+			if (activeSession.token.isCancellationRequested) {
+				return;
+			}
+
+			await raceCancellation(session.synthesize(chunk), activeSession.token);
+		}
+	}
+
+	private async *nextChatResponseChunk(response: IChatResponseModel, token: CancellationToken): AsyncIterable<string> {
+		const context: IChatSynthesizerContext = {
+			ignoreCodeBlocks: this.configurationService.getValue<boolean>(AccessibilityVoiceSettingId.IgnoreCodeBlocks),
+			insideCodeBlock: false
+		};
+
+		let totalOffset = 0;
+		let complete = false;
+		do {
+			const responseLength = response.response.toString().length;
+			const { chunk, offset } = this.parseNextChatResponseChunk(response, totalOffset, context);
+			totalOffset = offset;
+			complete = response.isComplete;
+
+			if (chunk) {
+				yield chunk;
+			}
+
+			if (token.isCancellationRequested) {
+				return;
+			}
+
+			if (!complete && responseLength === response.response.toString().length) {
+				await raceCancellation(Event.toPromise(response.onDidChange), token); // wait for the response to change
+			}
+		} while (!token.isCancellationRequested && !complete);
+	}
+
+	private parseNextChatResponseChunk(response: IChatResponseModel, offset: number, context: IChatSynthesizerContext): { readonly chunk: string | undefined; readonly offset: number } {
+		let chunk: string | undefined = undefined;
+
+		const text = response.response.toString();
+
+		if (response.isComplete) {
+			chunk = text.substring(offset);
+			offset = text.length + 1;
+		} else {
+			const res = parseNextChatResponseChunk(text, offset);
+			chunk = res.chunk;
+			offset = res.offset;
+		}
+
+		if (chunk && context.ignoreCodeBlocks) {
+			chunk = this.filterCodeBlocks(chunk, context);
+		}
+
+		return {
+			chunk: chunk ? renderStringAsPlaintext({ value: chunk }) : chunk, // convert markdown to plain text
+			offset
+		};
+	}
+
+	private filterCodeBlocks(chunk: string, context: IChatSynthesizerContext): string {
+		return chunk.split('\n')
+			.filter(line => {
+				if (line.trimStart().startsWith('```')) {
+					context.insideCodeBlock = !context.insideCodeBlock;
+					return false;
+				}
+				return !context.insideCodeBlock;
+			})
+			.join('\n');
+	}
+
+	stop(): void {
+		this.activeSession?.dispose(true);
+		this.activeSession = undefined;
+	}
 }
 
 const sentenceDelimiter = ['.', '!', '?', ':'];
@@ -1053,204 +1053,204 @@ export class KeywordActivationContribution extends Disposable implements IWorkbe
 		this.registerListeners();
 	}
 
-	private registerListeners(cognidreamognidream {
+	private registerListeners(): void {
 		this._register(Event.runAndSubscribe(this.speechService.onDidChangeHasSpeechProvider, () => {
 			this.updateConfiguration();
 			this.handleKeywordActivation();
 		}));
 
-const onDidAddDefaultAgent = this._register(this.chatAgentService.onDidChangeAgents(() => {
-	if (this.chatAgentService.getDefaultAgent(ChatAgentLocation.Panel)) {
-		this.updateConfiguration();
-		this.handleKeywordActivation();
+		const onDidAddDefaultAgent = this._register(this.chatAgentService.onDidChangeAgents(() => {
+			if (this.chatAgentService.getDefaultAgent(ChatAgentLocation.Panel)) {
+				this.updateConfiguration();
+				this.handleKeywordActivation();
 
-		onDidAddDefaultAgent.dispose();
-	}
-}));
-
-this._register(this.speechService.onDidStartSpeechToTextSession(() => this.handleKeywordActivation()));
-this._register(this.speechService.onDidEndSpeechToTextSession(() => this.handleKeywordActivation()));
-
-this._register(this.configurationService.onDidChangeConfiguration(e => {
-	if (e.affectsConfiguration(KEYWORD_ACTIVIATION_SETTING_ID)) {
-		this.handleKeywordActivation();
-	}
-}));
-    }
-
-    private updateConfiguration(cognidreamognidream {
-	if(!this.speechService.hasSpeechProvider || !this.chatAgentService.getDefaultAgent(ChatAgentLocation.Panel)) {
-	return; // these settings require a speech and chat provider
-}
-
-const registry = Registry.as<IConfigurationRegistry>(Extensions.Configuration);
-registry.registerConfiguration({
-	...accessibilityConfigurationNodeBase,
-	properties: {
-		[KEYWORD_ACTIVIATION_SETTING_ID]: {
-			'type': 'string',
-			'enum': [
-				KeywordActivationContribution.SETTINGS_VALUE.OFF,
-				KeywordActivationContribution.SETTINGS_VALUE.VIEW_CHAT,
-				KeywordActivationContribution.SETTINGS_VALUE.QUICK_CHAT,
-				KeywordActivationContribution.SETTINGS_VALUE.INLINE_CHAT,
-				KeywordActivationContribution.SETTINGS_VALUE.CHAT_IN_CONTEXT
-			],
-			'enumDescriptions': [
-				localize('voice.keywordActivation.off', "Keyword activation is disabled."),
-				localize('voice.keywordActivation.chatInView', "Keyword activation is enabled and listening for 'Hey Code' to start a voice chat session in the chat view."),
-				localize('voice.keywordActivation.quickChat', "Keyword activation is enabled and listening for 'Hey Code' to start a voice chat session in the quick chat."),
-				localize('voice.keywordActivation.inlineChat', "Keyword activation is enabled and listening for 'Hey Code' to start a voice chat session in the active editor if possible."),
-				localize('voice.keywordActivation.chatInContext', "Keyword activation is enabled and listening for 'Hey Code' to start a voice chat session in the active editor or view depending on keyboard focus.")
-			],
-			'description': localize('voice.keywordActivation', "Controls whether the keyword phrase 'Hey Code' is recognized to start a voice chat session. Enabling this will start recording from the microphone but the audio is processed locally and never sent to a server."),
-			'default': 'off',
-			'tags': ['accessibility']
-		}
-	}
-});
-    }
-
-    private handleKeywordActivation(cognidreamognidream {
-	const enabled =
-		supportsKeywordActivation(this.configurationService, this.speechService, this.chatAgentService) &&
-		!this.speechService.hasActiveSpeechToTextSession;
-	if(
-            (enabled && this.activeSession) ||
-	(!enabled && !this.activeSession)
-) {
-	return; // already running or stopped
-}
-
-// Start keyword activation
-if (enabled) {
-	this.enableKeywordActivation();
-}
-
-// Stop keyword activation
-else {
-	this.disableKeywordActivation();
-}
-    }
-
-    private async enableKeywordActivation(): Promicognidreamognidream > {
-	const session = this.activeSession = new CancellationTokenSource();
-	const result = await this.speechService.recognizeKeyword(session.token);
-	if(session.token.isCancellationRequested || session !== this.activeSession) {
-	return; // cancelled
-}
-
-this.activeSession = undefined;
-
-if (result === KeywordRecognitionStatus.Recognized) {
-	if (this.hostService.hasFocus) {
-		this.commandService.executeCommand(this.getKeywordCommand());
-	}
-
-	// Immediately start another keyboard activation session
-	// because we cannot assume that the command we execute
-	// will trigger a speech recognition session.
-
-	this.handleKeywordActivation();
-}
-    }
-
-    private getKeywordCommand(): string {
-	const setting = this.configurationService.getValue(KEYWORD_ACTIVIATION_SETTING_ID);
-	switch (setting) {
-		case KeywordActivationContribution.SETTINGS_VALUE.INLINE_CHAT:
-			return InlineVoiceChatAction.ID;
-		case KeywordActivationContribution.SETTINGS_VALUE.QUICK_CHAT:
-			return QuickVoiceChatAction.ID;
-		case KeywordActivationContribution.SETTINGS_VALUE.CHAT_IN_CONTEXT: {
-			const activeCodeEditor = getCodeEditor(this.editorService.activeTextEditorControl);
-			if (activeCodeEditor?.hasWidgetFocus()) {
-				return InlineVoiceChatAction.ID;
+				onDidAddDefaultAgent.dispose();
 			}
+		}));
+
+		this._register(this.speechService.onDidStartSpeechToTextSession(() => this.handleKeywordActivation()));
+		this._register(this.speechService.onDidEndSpeechToTextSession(() => this.handleKeywordActivation()));
+
+		this._register(this.configurationService.onDidChangeConfiguration(e => {
+			if (e.affectsConfiguration(KEYWORD_ACTIVIATION_SETTING_ID)) {
+				this.handleKeywordActivation();
+			}
+		}));
+	}
+
+	private updateConfiguration(): void {
+		if (!this.speechService.hasSpeechProvider || !this.chatAgentService.getDefaultAgent(ChatAgentLocation.Panel)) {
+			return; // these settings require a speech and chat provider
 		}
-		default:
-			return VoiceChatInChatViewAction.ID;
+
+		const registry = Registry.as<IConfigurationRegistry>(Extensions.Configuration);
+		registry.registerConfiguration({
+			...accessibilityConfigurationNodeBase,
+			properties: {
+				[KEYWORD_ACTIVIATION_SETTING_ID]: {
+					'type': 'string',
+					'enum': [
+						KeywordActivationContribution.SETTINGS_VALUE.OFF,
+						KeywordActivationContribution.SETTINGS_VALUE.VIEW_CHAT,
+						KeywordActivationContribution.SETTINGS_VALUE.QUICK_CHAT,
+						KeywordActivationContribution.SETTINGS_VALUE.INLINE_CHAT,
+						KeywordActivationContribution.SETTINGS_VALUE.CHAT_IN_CONTEXT
+					],
+					'enumDescriptions': [
+						localize('voice.keywordActivation.off', "Keyword activation is disabled."),
+						localize('voice.keywordActivation.chatInView', "Keyword activation is enabled and listening for 'Hey Code' to start a voice chat session in the chat view."),
+						localize('voice.keywordActivation.quickChat', "Keyword activation is enabled and listening for 'Hey Code' to start a voice chat session in the quick chat."),
+						localize('voice.keywordActivation.inlineChat', "Keyword activation is enabled and listening for 'Hey Code' to start a voice chat session in the active editor if possible."),
+						localize('voice.keywordActivation.chatInContext', "Keyword activation is enabled and listening for 'Hey Code' to start a voice chat session in the active editor or view depending on keyboard focus.")
+					],
+					'description': localize('voice.keywordActivation', "Controls whether the keyword phrase 'Hey Code' is recognized to start a voice chat session. Enabling this will start recording from the microphone but the audio is processed locally and never sent to a server."),
+					'default': 'off',
+					'tags': ['accessibility']
+				}
+			}
+		});
+	}
+
+	private handleKeywordActivation(): void {
+		const enabled =
+			supportsKeywordActivation(this.configurationService, this.speechService, this.chatAgentService) &&
+			!this.speechService.hasActiveSpeechToTextSession;
+		if (
+			(enabled && this.activeSession) ||
+			(!enabled && !this.activeSession)
+		) {
+			return; // already running or stopped
+		}
+
+		// Start keyword activation
+		if (enabled) {
+			this.enableKeywordActivation();
+		}
+
+		// Stop keyword activation
+		else {
+			this.disableKeywordActivation();
+		}
+	}
+
+	private async enableKeywordActivation(): Promise<void> {
+		const session = this.activeSession = new CancellationTokenSource();
+		const result = await this.speechService.recognizeKeyword(session.token);
+		if (session.token.isCancellationRequested || session !== this.activeSession) {
+			return; // cancelled
+		}
+
+		this.activeSession = undefined;
+
+		if (result === KeywordRecognitionStatus.Recognized) {
+			if (this.hostService.hasFocus) {
+				this.commandService.executeCommand(this.getKeywordCommand());
+			}
+
+			// Immediately start another keyboard activation session
+			// because we cannot assume that the command we execute
+			// will trigger a speech recognition session.
+
+			this.handleKeywordActivation();
+		}
+	}
+
+	private getKeywordCommand(): string {
+		const setting = this.configurationService.getValue(KEYWORD_ACTIVIATION_SETTING_ID);
+		switch (setting) {
+			case KeywordActivationContribution.SETTINGS_VALUE.INLINE_CHAT:
+				return InlineVoiceChatAction.ID;
+			case KeywordActivationContribution.SETTINGS_VALUE.QUICK_CHAT:
+				return QuickVoiceChatAction.ID;
+			case KeywordActivationContribution.SETTINGS_VALUE.CHAT_IN_CONTEXT: {
+				const activeCodeEditor = getCodeEditor(this.editorService.activeTextEditorControl);
+				if (activeCodeEditor?.hasWidgetFocus()) {
+					return InlineVoiceChatAction.ID;
+				}
+			}
+			default:
+				return VoiceChatInChatViewAction.ID;
+		}
+	}
+
+	private disableKeywordActivation(): void {
+		this.activeSession?.dispose(true);
+		this.activeSession = undefined;
+	}
+
+	override dispose(): void {
+		this.activeSession?.dispose();
+
+		super.dispose();
 	}
 }
 
-    private disableKeywordActivation(cognidreamognidream {
-	this.activeSession?.dispose(true);
-	this.activeSession = undefined;
-}
+class KeywordActivationStatusEntry extends Disposable {
 
-    override dispose(cognidreamognidream {
-	this.activeSession?.dispose();
+	private readonly entry = this._register(new MutableDisposable<IStatusbarEntryAccessor>());
 
-	super.dispose();
-}
-}
+	private static STATUS_NAME = localize('keywordActivation.status.name', "Voice Keyword Activation");
+	private static STATUS_COMMAND = 'keywordActivation.status.command';
+	private static STATUS_ACTIVE = localize('keywordActivation.status.active', "Listening to 'Hey Code'...");
+	private static STATUS_INACTIVE = localize('keywordActivation.status.inactive', "Waiting for voice chat to end...");
 
-	class KeywordActivationStatusEntry extends Disposable {
+	constructor(
+		@ISpeechService private readonly speechService: ISpeechService,
+		@IStatusbarService private readonly statusbarService: IStatusbarService,
+		@ICommandService private readonly commandService: ICommandService,
+		@IConfigurationService private readonly configurationService: IConfigurationService,
+		@IChatAgentService private readonly chatAgentService: IChatAgentService
+	) {
+		super();
 
-		private readonly entry = this._register(new MutableDisposable<IStatusbarEntryAccessor>());
+		this._register(CommandsRegistry.registerCommand(KeywordActivationStatusEntry.STATUS_COMMAND, () => this.commandService.executeCommand('workbench.action.openSettings', KEYWORD_ACTIVIATION_SETTING_ID)));
 
-		private static STATUS_NAME = localize('keywordActivation.status.name', "Voice Keyword Activation");
-		private static STATUS_COMMAND = 'keywordActivation.status.command';
-		private static STATUS_ACTIVE = localize('keywordActivation.status.active', "Listening to 'Hey Code'...");
-		private static STATUS_INACTIVE = localize('keywordActivation.status.inactive', "Waiting for voice chat to end...");
-
-		constructor(
-			@ISpeechService private readonly speechService: ISpeechService,
-			@IStatusbarService private readonly statusbarService: IStatusbarService,
-			@ICommandService private readonly commandService: ICommandService,
-			@IConfigurationService private readonly configurationService: IConfigurationService,
-			@IChatAgentService private readonly chatAgentService: IChatAgentService
-		) {
-			super();
-
-			this._register(CommandsRegistry.registerCommand(KeywordActivationStatusEntry.STATUS_COMMAND, () => this.commandService.executeCommand('workbench.action.openSettings', KEYWORD_ACTIVIATION_SETTING_ID)));
-
-			this.registerListeners();
-			this.updateStatusEntry();
-		}
-
-		private registerListeners(cognidreamognidream {
-			this._register(this.speechService.onDidStartKeywordRecognition(() => this.updateStatusEntry()));
-this._register(this.speechService.onDidEndKeywordRecognition(() => this.updateStatusEntry()));
-this._register(this.configurationService.onDidChangeConfiguration(e => {
-	if (e.affectsConfiguration(KEYWORD_ACTIVIATION_SETTING_ID)) {
+		this.registerListeners();
 		this.updateStatusEntry();
 	}
-}));
-    }
 
-    private updateStatusEntry(cognidreamognidream {
-	const visible = supportsKeywordActivation(this.configurationService, this.speechService, this.chatAgentService);
-	if(visible) {
-		if (!this.entry.value) {
-			this.createStatusEntry();
-		}
-
-		this.updateStatusLabel();
-	} else {
-		this.entry.clear();
+	private registerListeners(): void {
+		this._register(this.speechService.onDidStartKeywordRecognition(() => this.updateStatusEntry()));
+		this._register(this.speechService.onDidEndKeywordRecognition(() => this.updateStatusEntry()));
+		this._register(this.configurationService.onDidChangeConfiguration(e => {
+			if (e.affectsConfiguration(KEYWORD_ACTIVIATION_SETTING_ID)) {
+				this.updateStatusEntry();
+			}
+		}));
 	}
-}
 
-    private createStatusEntry() {
-	this.entry.value = this.statusbarService.addEntry(this.getStatusEntryProperties(), 'status.voiceKeywordActivation', StatusbarAlignment.RIGHT, 103);
-}
+	private updateStatusEntry(): void {
+		const visible = supportsKeywordActivation(this.configurationService, this.speechService, this.chatAgentService);
+		if (visible) {
+			if (!this.entry.value) {
+				this.createStatusEntry();
+			}
 
-    private getStatusEntryProperties(): IStatusbarEntry {
-	return {
-		name: KeywordActivationStatusEntry.STATUS_NAME,
-		text: this.speechService.hasActiveKeywordRecognition ? '$(mic-filled)' : '$(mic)',
-		tooltip: this.speechService.hasActiveKeywordRecognition ? KeywordActivationStatusEntry.STATUS_ACTIVE : KeywordActivationStatusEntry.STATUS_INACTIVE,
-		ariaLabel: this.speechService.hasActiveKeywordRecognition ? KeywordActivationStatusEntry.STATUS_ACTIVE : KeywordActivationStatusEntry.STATUS_INACTIVE,
-		command: KeywordActivationStatusEntry.STATUS_COMMAND,
-		kind: 'prominent',
-		showInAllWindows: true
-	};
-}
+			this.updateStatusLabel();
+		} else {
+			this.entry.clear();
+		}
+	}
 
-    private updateStatusLabel(cognidreamognidream {
-	this.entry.value?.update(this.getStatusEntryProperties());
-}
+	private createStatusEntry() {
+		this.entry.value = this.statusbarService.addEntry(this.getStatusEntryProperties(), 'status.voiceKeywordActivation', StatusbarAlignment.RIGHT, 103);
+	}
+
+	private getStatusEntryProperties(): IStatusbarEntry {
+		return {
+			name: KeywordActivationStatusEntry.STATUS_NAME,
+			text: this.speechService.hasActiveKeywordRecognition ? '$(mic-filled)' : '$(mic)',
+			tooltip: this.speechService.hasActiveKeywordRecognition ? KeywordActivationStatusEntry.STATUS_ACTIVE : KeywordActivationStatusEntry.STATUS_INACTIVE,
+			ariaLabel: this.speechService.hasActiveKeywordRecognition ? KeywordActivationStatusEntry.STATUS_ACTIVE : KeywordActivationStatusEntry.STATUS_INACTIVE,
+			command: KeywordActivationStatusEntry.STATUS_COMMAND,
+			kind: 'prominent',
+			showInAllWindows: true
+		};
+	}
+
+	private updateStatusLabel(): void {
+		this.entry.value?.update(this.getStatusEntryProperties());
+	}
 }
 
 //#endregion
@@ -1263,7 +1263,7 @@ abstract class BaseInstallSpeechProviderAction extends Action2 {
 
 	private static readonly SPEECH_EXTENSION_ID = 'ms-vscode.vscode-speech';
 
-	async run(accessor: ServicesAccessor): Promicognidreamognidream> {
+	async run(accessor: ServicesAccessor): Promise<void> {
 		const contextKeyService = accessor.get(IContextKeyService);
 		const extensionsWorkbenchService = accessor.get(IExtensionsWorkbenchService);
 		const dialogService = accessor.get(IDialogService);
@@ -1275,26 +1275,26 @@ abstract class BaseInstallSpeechProviderAction extends Action2 {
 		}
 	}
 
-    private async installExtension(extensionsWorkbenchService: IExtensionsWorkbenchService, dialogService: IDialogService): Promicognidreamognidream > {
-	try {
-		await extensionsWorkbenchService.install(BaseInstallSpeechProviderAction.SPEECH_EXTENSION_ID, {
-			justification: this.getJustification(),
-			enable: true
-		}, ProgressLocation.Notification);
-	} catch(error) {
-		const { confirmed } = await dialogService.confirm({
-			type: Severity.Error,
-			message: localize('unknownSetupError', "An error occurred while setting up voice chat. Would you like to try again?"),
-			detail: error && !isCancellationError(error) ? toErrorMessage(error) : undefined,
-			primaryButton: localize('retry', "Retry")
-		});
-		if (confirmed) {
-			return this.installExtension(extensionsWorkbenchService, dialogService);
+	private async installExtension(extensionsWorkbenchService: IExtensionsWorkbenchService, dialogService: IDialogService): Promise<void> {
+		try {
+			await extensionsWorkbenchService.install(BaseInstallSpeechProviderAction.SPEECH_EXTENSION_ID, {
+				justification: this.getJustification(),
+				enable: true
+			}, ProgressLocation.Notification);
+		} catch (error) {
+			const { confirmed } = await dialogService.confirm({
+				type: Severity.Error,
+				message: localize('unknownSetupError', "An error occurred while setting up voice chat. Would you like to try again?"),
+				detail: error && !isCancellationError(error) ? toErrorMessage(error) : undefined,
+				primaryButton: localize('retry', "Retry")
+			});
+			if (confirmed) {
+				return this.installExtension(extensionsWorkbenchService, dialogService);
+			}
 		}
 	}
-}
 
-    protected abstract getJustification(): string;
+	protected abstract getJustification(): string;
 }
 
 export class InstallSpeechProviderForVoiceChatAction extends BaseInstallSpeechProviderAction {

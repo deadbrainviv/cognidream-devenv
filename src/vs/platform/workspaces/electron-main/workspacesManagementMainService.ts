@@ -44,7 +44,7 @@ export interface IWorkspacesManagementMainService {
 
 	createUntitledWorkspace(folders?: IWorkspaceFolderCreationData[], remoteAuthority?: string): Promise<IWorkspaceIdentifier>;
 
-	deleteUntitledWorkspace(workspace: IWorkspaceIdentifier): Promise<cognidreamidream>;
+	deleteUntitledWorkspace(workspace: IWorkspaceIdentifier): Promise<void>;
 
 	getUntitledWorkspaces(): IUntitledWorkspaceInfo[];
 	isUntitledWorkspace(workspace: IWorkspaceIdentifier): boolean;
@@ -80,7 +80,7 @@ export class WorkspacesManagementMainService extends Disposable implements IWork
 		this.untitledWorkspacesHome = this.environmentMainService.untitledWorkspacesHome;
 	}
 
-	async initialize(): Promise<cognidreamidream> {
+	async initialize(): Promise<void> {
 
 		// Reset
 		this.untitledWorkspaces = [];
@@ -205,7 +205,7 @@ export class WorkspacesManagementMainService extends Disposable implements IWork
 		return isUntitledWorkspace(workspace.configPath, this.environmentMainService);
 	}
 
-	async deleteUntitledWorkspace(workspace: IWorkspaceIdentifier): Promise<cognidreamidream> {
+	async deleteUntitledWorkspace(workspace: IWorkspaceIdentifier): Promise<void> {
 		if (!this.isUntitledWorkspace(workspace)) {
 			return; // only supported for untitled workspaces
 		}
@@ -220,7 +220,7 @@ export class WorkspacesManagementMainService extends Disposable implements IWork
 		this._onDidDeleteUntitledWorkspace.fire(workspace);
 	}
 
-	private async doDeleteUntitledWorkspace(workspace: IWorkspaceIdentifier): Promise<cognidreamidream> {
+	private async doDeleteUntitledWorkspace(workspace: IWorkspaceIdentifier): Promise<void> {
 		const configPath = originalFSPath(workspace.configPath);
 		try {
 

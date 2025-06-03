@@ -39,7 +39,7 @@ class LastRenderedData {
 		return this._currentVisibleRange;
 	}
 
-	public setCurrentVisibleRange(currentVisibleRange: Range): cognidream {
+	public setCurrentVisibleRange(currentVisibleRange: Range): void {
 		this._currentVisibleRange = currentVisibleRange;
 	}
 }
@@ -172,7 +172,7 @@ export class ViewLines extends ViewPart implements IViewLines {
 		this._maxNumberStickyLines = options.get(EditorOption.stickyScroll).maxLineCount;
 	}
 
-	public override dispose(): cognidream {
+	public override dispose(): void {
 		this._asyncUpdateLineWidths.dispose();
 		this._asyncCheckMonospaceFontAssumptions.dispose();
 		super.dispose();
@@ -501,7 +501,7 @@ export class ViewLines extends ViewPart implements IViewLines {
 
 	// --- implementation
 
-	public updateLineWidths(): cognidream {
+	public updateLineWidths(): void {
 		this._updateLineWidths(false);
 	}
 
@@ -514,7 +514,7 @@ export class ViewLines extends ViewPart implements IViewLines {
 		return this._updateLineWidths(true);
 	}
 
-	private _updateLineWidthsSlow(): cognidream {
+	private _updateLineWidthsSlow(): void {
 		this._updateLineWidths(false);
 	}
 
@@ -522,7 +522,7 @@ export class ViewLines extends ViewPart implements IViewLines {
 	 * Update the line widths using DOM layout information after someone else
 	 * has caused a synchronous layout.
 	 */
-	private _updateLineWidthsSlowIfDomDidLayout(domReadingContext: DomReadingContext): cognidream {
+	private _updateLineWidthsSlowIfDomDidLayout(domReadingContext: DomReadingContext): void {
 		if (!domReadingContext.didDomLayout) {
 			// only proceed if we just did a layout
 			return;
@@ -563,7 +563,7 @@ export class ViewLines extends ViewPart implements IViewLines {
 		return allWidthsComputed;
 	}
 
-	private _checkMonospaceFontAssumptions(): cognidream {
+	private _checkMonospaceFontAssumptions(): void {
 		// Problems with monospace assumptions are more apparent for longer lines,
 		// as small rounding errors start to sum up, so we will select the longest
 		// line for a closer inspection
@@ -594,15 +594,15 @@ export class ViewLines extends ViewPart implements IViewLines {
 		}
 	}
 
-	public prepareRender(): cognidream {
+	public prepareRender(): void {
 		throw new Error('Not supported');
 	}
 
-	public render(): cognidream {
+	public render(): void {
 		throw new Error('Not supported');
 	}
 
-	public renderText(viewportData: ViewportData): cognidream {
+	public renderText(viewportData: ViewportData): void {
 		// (1) render lines - ensures lines are in the DOM
 		this._visibleLines.renderLines(viewportData);
 		this._lastRenderedData.setCurrentVisibleRange(viewportData.visibleRange);
@@ -670,7 +670,7 @@ export class ViewLines extends ViewPart implements IViewLines {
 
 	// --- width
 
-	private _ensureMaxLineWidth(lineWidth: number): cognidream {
+	private _ensureMaxLineWidth(lineWidth: number): void {
 		const iLineWidth = Math.ceil(lineWidth);
 		if (this._maxLineWidth < iLineWidth) {
 			this._maxLineWidth = iLineWidth;

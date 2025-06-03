@@ -207,7 +207,7 @@ registerAction2(class extends Action2 {
 		});
 	}
 
-	async run(accessor: ServicesAccessor, args?: { index: number; levels: number; direction: 'up' | 'down' }): Promise<cognidream> {
+	async run(accessor: ServicesAccessor, args?: { index: number; levels: number; direction: 'up' | 'down' }): Promise<void> {
 		const editorService = accessor.get(IEditorService);
 
 		const editor = getNotebookEditorFromEditorPane(editorService.activeEditorPane);
@@ -277,35 +277,35 @@ registerAction2(class extends Action2 {
 		});
 	}
 
-	async run(accessor: ServicesAccessor, args?: { index: number; levels: number; direction: 'up' | 'down' }): Promicognidreamognidream> {
-	const editorService = accessor.get(IEditorService);
+	async run(accessor: ServicesAccessor, args?: { index: number; levels: number; direction: 'up' | 'down' }): Promise<void> {
+		const editorService = accessor.get(IEditorService);
 
-	const editor = getNotebookEditorFromEditorPane(editorService.activeEditorPane);
-	if(!editor) {
-		return;
-	}
-
-        const levels = args && args.levels || 1;
-	const direction = args && args.direction === 'up' ? 'up' : 'down';
-	let index: number | undefined = undefined;
-
-	if(args) {
-		index = args.index;
-	} else {
-		const activeCell = editor.getActiveCell();
-		if(!activeCell) {
+		const editor = getNotebookEditorFromEditorPane(editorService.activeEditorPane);
+		if (!editor) {
 			return;
 		}
-            index = editor.getCellIndex(activeCell);
-	}
 
-        const controller = editor.getContribution<FoldingController>(FoldingController.id);
-	if(index !== undefined) {
-	if (direction === 'up') {
-		controller.setFoldingStateUp(index, CellFoldingState.Expanded, levels);
-	} else {
-		controller.setFoldingStateDown(index, CellFoldingState.Expanded, levels);
+		const levels = args && args.levels || 1;
+		const direction = args && args.direction === 'up' ? 'up' : 'down';
+		let index: number | undefined = undefined;
+
+		if (args) {
+			index = args.index;
+		} else {
+			const activeCell = editor.getActiveCell();
+			if (!activeCell) {
+				return;
+			}
+			index = editor.getCellIndex(activeCell);
+		}
+
+		const controller = editor.getContribution<FoldingController>(FoldingController.id);
+		if (index !== undefined) {
+			if (direction === 'up') {
+				controller.setFoldingStateUp(index, CellFoldingState.Expanded, levels);
+			} else {
+				controller.setFoldingStateDown(index, CellFoldingState.Expanded, levels);
+			}
+		}
 	}
-}
-    }
 });

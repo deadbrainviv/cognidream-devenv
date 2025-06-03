@@ -159,7 +159,7 @@ export class Renderer implements IPagedRenderer<IExtension, ITemplateData> {
 		};
 	}
 
-	renderPlaceholder(index: number, data: ITemplateData): cognidream {
+	renderPlaceholder(index: number, data: ITemplateData): void {
 		data.element.classList.add('loading');
 
 		data.root.removeAttribute('aria-label');
@@ -173,74 +173,74 @@ export class Renderer implements IPagedRenderer<IExtension, ITemplateData> {
 		data.extension = null;
 	}
 
-	renderElement(extension: IExtension, index: number, data: ITemplateDatacognidreamognidream {
+	renderElement(extension: IExtension, index: number, data: ITemplateData): void {
 		data.element.classList.remove('loading');
-data.root.setAttribute('data-extension-id', extension.identifier.id);
+		data.root.setAttribute('data-extension-id', extension.identifier.id);
 
-if (extension.state !== ExtensionState.Uninstalled && !extension.server) {
-	// Get the extension if it is installed and has no server information
-	extension = this.extensionsWorkbenchService.local.filter(e => e.server === extension.server && areSameExtensions(e.identifier, extension.identifier))[0] || extension;
-}
-
-data.extensionDisposables = dispose(data.extensionDisposables);
-
-const updateEnablement = () => {
-	const disabled = extension.state === ExtensionState.Installed && extension.local && !this.extensionEnablementService.isEnabled(extension.local);
-	const deprecated = !!extension.deprecationInfo;
-	data.element.classList.toggle('deprecated', deprecated);
-	data.root.classList.toggle('disabled', disabled);
-};
-updateEnablement();
-this.extensionService.onDidChangeExtensions(() => updateEnablement(), this, data.extensionDisposables);
-
-data.extensionDisposables.push(addDisposableListener(data.icon, 'error', () => data.icon.src = extension.iconUrlFallback, { once: true }));
-data.icon.src = extension.iconUrl;
-
-if (!data.icon.complete) {
-	data.icon.style.visibility = 'hidden';
-	data.icon.onload = () => data.icon.style.visibility = 'inherit';
-} else {
-	data.icon.style.visibility = 'inherit';
-}
-
-data.name.textContent = extension.displayName;
-data.description.textContent = extension.description;
-
-data.installCount.style.display = '';
-data.ratings.style.display = '';
-data.extension = extension;
-
-if (extension.gallery && extension.gallery.properties && extension.gallery.properties.localizedLanguages && extension.gallery.properties.localizedLanguages.length) {
-	data.description.textContent = extension.gallery.properties.localizedLanguages.map(name => name[0].toLocaleUpperCase() + name.slice(1)).join(', ');
-}
-
-this.extensionViewState.onFocus(e => {
-	if (areSameExtensions(extension.identifier, e.identifier)) {
-		data.actionbar.setFocusable(true);
-	}
-}, this, data.extensionDisposables);
-
-this.extensionViewState.onBlur(e => {
-	if (areSameExtensions(extension.identifier, e.identifier)) {
-		data.actionbar.setFocusable(false);
-	}
-}, this, data.extensionDisposables);
-    }
-
-disposeElement(extension: IExtension, index: number, data: ITemplateDatacognidreamognidream {
-	data.extensionDisposables = dispose(data.extensionDisposables);
-}
-
-    disposeTemplate(data: ITemplateDatacognidreamognidream {
-	data.extensionDisposables = dispose(data.extensionDisposables);
-	data.disposables = dispose(data.disposables);
-}
-}
-
-	registerThemingParticipant((theme: IColorTheme, collector: ICssStyleCollector) => {
-		const verifiedPublisherIconColor = theme.getColor(extensionVerifiedPublisherIconColor);
-		if (verifiedPublisherIconColor) {
-			const disabledVerifiedPublisherIconColor = verifiedPublisherIconColor.transparent(.5).makeOpaque(WORKBENCH_BACKGROUND(theme));
-			collector.addRule(`.extensions-list .monaco-list .monaco-list-row.disabled:not(.selected) .author .verified-publisher ${ThemeIcon.asCSSSelector(verifiedPublisherIcon)} { color: ${disabledVerifiedPublisherIconColor}; }`);
+		if (extension.state !== ExtensionState.Uninstalled && !extension.server) {
+			// Get the extension if it is installed and has no server information
+			extension = this.extensionsWorkbenchService.local.filter(e => e.server === extension.server && areSameExtensions(e.identifier, extension.identifier))[0] || extension;
 		}
-	});
+
+		data.extensionDisposables = dispose(data.extensionDisposables);
+
+		const updateEnablement = () => {
+			const disabled = extension.state === ExtensionState.Installed && extension.local && !this.extensionEnablementService.isEnabled(extension.local);
+			const deprecated = !!extension.deprecationInfo;
+			data.element.classList.toggle('deprecated', deprecated);
+			data.root.classList.toggle('disabled', disabled);
+		};
+		updateEnablement();
+		this.extensionService.onDidChangeExtensions(() => updateEnablement(), this, data.extensionDisposables);
+
+		data.extensionDisposables.push(addDisposableListener(data.icon, 'error', () => data.icon.src = extension.iconUrlFallback, { once: true }));
+		data.icon.src = extension.iconUrl;
+
+		if (!data.icon.complete) {
+			data.icon.style.visibility = 'hidden';
+			data.icon.onload = () => data.icon.style.visibility = 'inherit';
+		} else {
+			data.icon.style.visibility = 'inherit';
+		}
+
+		data.name.textContent = extension.displayName;
+		data.description.textContent = extension.description;
+
+		data.installCount.style.display = '';
+		data.ratings.style.display = '';
+		data.extension = extension;
+
+		if (extension.gallery && extension.gallery.properties && extension.gallery.properties.localizedLanguages && extension.gallery.properties.localizedLanguages.length) {
+			data.description.textContent = extension.gallery.properties.localizedLanguages.map(name => name[0].toLocaleUpperCase() + name.slice(1)).join(', ');
+		}
+
+		this.extensionViewState.onFocus(e => {
+			if (areSameExtensions(extension.identifier, e.identifier)) {
+				data.actionbar.setFocusable(true);
+			}
+		}, this, data.extensionDisposables);
+
+		this.extensionViewState.onBlur(e => {
+			if (areSameExtensions(extension.identifier, e.identifier)) {
+				data.actionbar.setFocusable(false);
+			}
+		}, this, data.extensionDisposables);
+	}
+
+	disposeElement(extension: IExtension, index: number, data: ITemplateData): void {
+		data.extensionDisposables = dispose(data.extensionDisposables);
+	}
+
+	disposeTemplate(data: ITemplateData): void {
+		data.extensionDisposables = dispose(data.extensionDisposables);
+		data.disposables = dispose(data.disposables);
+	}
+}
+
+registerThemingParticipant((theme: IColorTheme, collector: ICssStyleCollector) => {
+	const verifiedPublisherIconColor = theme.getColor(extensionVerifiedPublisherIconColor);
+	if (verifiedPublisherIconColor) {
+		const disabledVerifiedPublisherIconColor = verifiedPublisherIconColor.transparent(.5).makeOpaque(WORKBENCH_BACKGROUND(theme));
+		collector.addRule(`.extensions-list .monaco-list .monaco-list-row.disabled:not(.selected) .author .verified-publisher ${ThemeIcon.asCSSSelector(verifiedPublisherIcon)} { color: ${disabledVerifiedPublisherIconColor}; }`);
+	}
+});

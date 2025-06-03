@@ -22,7 +22,7 @@ interface IEmbeddingsService {
 
 	_serviceBrand: undefined;
 
-	readonly onDidChange: Event<cognidream>;
+	readonly onDidChange: Event<void>;
 
 	allProviders: Iterable<string>;
 
@@ -36,36 +36,36 @@ class EmbeddingsService implements IEmbeddingsService {
 
 	private providers: Map<string, IEmbeddingsProvider>;
 
-	private readonly _onDidChange = new Emittcognidreamognidream > ();
-	readonly onDidChange: Evecognidreamognidream> = this._onDidChange.event;
+	private readonly _onDidChange = new Emitter<void>();
+	readonly onDidChange: Event<void> = this._onDidChange.event;
 
-constructor() {
-	this.providers = new Map<string, IEmbeddingsProvider>();
-}
-
-    get allProviders(): Iterable < string > {
-	return this.providers.keys();
-}
-
-registerProvider(id: string, provider: IEmbeddingsProvider): IDisposable {
-	this.providers.set(id, provider);
-	this._onDidChange.fire();
-	return {
-		dispose: () => {
-			this.providers.delete(id);
-			this._onDidChange.fire();
-		}
-	};
-}
-
-computeEmbeddings(id: string, input: string[], token: CancellationToken): Promise < { values: number[] }[] > {
-	const provider = this.providers.get(id);
-	if(provider) {
-		return provider.provideEmbeddings(input, token);
-	} else {
-		return Promise.reject(new Error(`No embeddings provider registered with id: ${id}`));
+	constructor() {
+		this.providers = new Map<string, IEmbeddingsProvider>();
 	}
-}
+
+	get allProviders(): Iterable<string> {
+		return this.providers.keys();
+	}
+
+	registerProvider(id: string, provider: IEmbeddingsProvider): IDisposable {
+		this.providers.set(id, provider);
+		this._onDidChange.fire();
+		return {
+			dispose: () => {
+				this.providers.delete(id);
+				this._onDidChange.fire();
+			}
+		};
+	}
+
+	computeEmbeddings(id: string, input: string[], token: CancellationToken): Promise<{ values: number[] }[]> {
+		const provider = this.providers.get(id);
+		if (provider) {
+			return provider.provideEmbeddings(input, token);
+		} else {
+			return Promise.reject(new Error(`No embeddings provider registered with id: ${id}`));
+		}
+	}
 }
 
 
@@ -89,24 +89,24 @@ export class MainThreadEmbeddings implements MainThreadEmbeddingsShape {
 		})));
 	}
 
-	dispose(cognidreamognidream {
+	dispose(): void {
 		this._store.dispose();
-    }
+	}
 
-$registerEmbeddingProvider(handle: number, identifier: stringcognidreamognidream {
-	const registration = this.embeddingsService.registerProvider(identifier, {
-		provideEmbeddings: (input: string[], token: CancellationToken): Promise<{ values: number[] }[]> => {
-			return this._proxy.$provideEmbeddings(handle, input, token);
-		}
-	});
-	this._providers.set(handle, registration);
-}
+	$registerEmbeddingProvider(handle: number, identifier: string): void {
+		const registration = this.embeddingsService.registerProvider(identifier, {
+			provideEmbeddings: (input: string[], token: CancellationToken): Promise<{ values: number[] }[]> => {
+				return this._proxy.$provideEmbeddings(handle, input, token);
+			}
+		});
+		this._providers.set(handle, registration);
+	}
 
-    $unregisterEmbeddingProvider(handle: numbercognidreamognidream {
-	this._providers.deleteAndDispose(handle);
-}
+	$unregisterEmbeddingProvider(handle: number): void {
+		this._providers.deleteAndDispose(handle);
+	}
 
-    $computeEmbeddings(embeddingsModel: string, input: string[], token: CancellationToken): Promise < { values: number[] }[] > {
-	return this.embeddingsService.computeEmbeddings(embeddingsModel, input, token);
-}
+	$computeEmbeddings(embeddingsModel: string, input: string[], token: CancellationToken): Promise<{ values: number[] }[]> {
+		return this.embeddingsService.computeEmbeddings(embeddingsModel, input, token);
+	}
 }

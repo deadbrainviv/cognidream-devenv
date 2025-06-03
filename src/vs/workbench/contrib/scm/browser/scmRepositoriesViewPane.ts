@@ -59,7 +59,7 @@ export class SCMRepositoriesViewPane extends ViewPane {
 		super({ ...options, titleMenuId: MenuId.SCMSourceControlTitle }, keybindingService, contextMenuService, configurationService, contextKeyService, viewDescriptorService, instantiationService, openerService, themeService, hoverService);
 	}
 
-	protected override renderBody(container: HTMLElement): cognidream {
+	protected override renderBody(container: HTMLElement): void {
 		super.renderBody(container);
 
 		const listContainer = append(container, $('.scm-view.scm-repositories-view'));
@@ -110,102 +110,102 @@ export class SCMRepositoriesViewPane extends ViewPane {
 		this.updateListSelection();
 	}
 
-	private onDidChangeRepositories(cognidreamognidream {
+	private onDidChangeRepositories(): void {
 		this.list.splice(0, this.list.length, this.scmViewService.repositories);
-this.updateBodySize();
-    }
-
-    override focus(cognidreamognidream {
-	super.focus();
-	this.list.domFocus();
-}
-
-    protected override layoutBody(height: number, width: numbercognidreamognidream {
-	super.layoutBody(height, width);
-	this.list.layout(height, width);
-}
-
-    private updateBodySize(cognidreamognidream {
-	if(this.orientation === Orientation.HORIZONTAL) {
-	return;
-}
-
-        const visibleCount = this.configurationService.getValue<number>('scm.repositories.visible');
-const empty = this.list.length === 0;
-const size = Math.min(this.list.length, visibleCount) * 22;
-
-this.minimumBodySize = visibleCount === 0 ? 22 : size;
-this.maximumBodySize = visibleCount === 0 ? Number.POSITIVE_INFINITY : empty ? Number.POSITIVE_INFINITY : size;
-    }
-
-    private onListContextMenu(e: IListContextMenuEvent < ISCMRepository > cognidreamognidream {
-	if(!e.element) {
-	return;
-}
-
-const provider = e.element.provider;
-const menus = this.scmViewService.menus.getRepositoryMenus(provider);
-const menu = menus.repositoryContextMenu;
-const actions = collectContextMenuActions(menu);
-
-const actionRunner = new RepositoryActionRunner(() => {
-	return this.list.getSelectedElements();
-});
-actionRunner.onWillRun(() => this.list.domFocus());
-
-this.contextMenuService.showContextMenu({
-	actionRunner,
-	getAnchor: () => e.anchor,
-	getActions: () => actions,
-	getActionsContext: () => provider,
-	onHide: () => actionRunner.dispose()
-});
-    }
-
-    private onListSelectionChange(e: IListEvent < ISCMRepository > cognidreamognidream {
-	if(e.browserEvent && e.elements.length > 0) {
-	const scrollTop = this.list.scrollTop;
-	this.scmViewService.visibleRepositories = e.elements;
-	this.list.scrollTop = scrollTop;
-}
-    }
-
-    private onDidChangeFocus(e: IListEvent < ISCMRepository > cognidreamognidream {
-	if(e.browserEvent && e.elements.length > 0) {
-	this.scmViewService.focus(e.elements[0]);
-}
-    }
-
-    private updateListSelection(cognidreamognidream {
-	const oldSelection = this.list.getSelection();
-	const oldSet = new Set(Iterable.map(oldSelection, i => this.list.element(i)));
-	const set = new Set(this.scmViewService.visibleRepositories);
-	const added = new Set(Iterable.filter(set, r => !oldSet.has(r)));
-	const removed = new Set(Iterable.filter(oldSet, r => !set.has(r)));
-
-	if(added.size === 0 && removed.size === 0) {
-	return;
-}
-
-const selection = oldSelection
-	.filter(i => !removed.has(this.list.element(i)));
-
-for (let i = 0; i < this.list.length; i++) {
-	if (added.has(this.list.element(i))) {
-		selection.push(i);
+		this.updateBodySize();
 	}
-}
 
-this.list.setSelection(selection);
+	override focus(): void {
+		super.focus();
+		this.list.domFocus();
+	}
 
-if (selection.length > 0 && selection.indexOf(this.list.getFocus()[0]) === -1) {
-	this.list.setAnchor(selection[0]);
-	this.list.setFocus([selection[0]]);
-}
-    }
+	protected override layoutBody(height: number, width: number): void {
+		super.layoutBody(height, width);
+		this.list.layout(height, width);
+	}
 
-    override dispose(cognidreamognidream {
-	this.disposables.dispose();
-	super.dispose();
-}
+	private updateBodySize(): void {
+		if (this.orientation === Orientation.HORIZONTAL) {
+			return;
+		}
+
+		const visibleCount = this.configurationService.getValue<number>('scm.repositories.visible');
+		const empty = this.list.length === 0;
+		const size = Math.min(this.list.length, visibleCount) * 22;
+
+		this.minimumBodySize = visibleCount === 0 ? 22 : size;
+		this.maximumBodySize = visibleCount === 0 ? Number.POSITIVE_INFINITY : empty ? Number.POSITIVE_INFINITY : size;
+	}
+
+	private onListContextMenu(e: IListContextMenuEvent<ISCMRepository>): void {
+		if (!e.element) {
+			return;
+		}
+
+		const provider = e.element.provider;
+		const menus = this.scmViewService.menus.getRepositoryMenus(provider);
+		const menu = menus.repositoryContextMenu;
+		const actions = collectContextMenuActions(menu);
+
+		const actionRunner = new RepositoryActionRunner(() => {
+			return this.list.getSelectedElements();
+		});
+		actionRunner.onWillRun(() => this.list.domFocus());
+
+		this.contextMenuService.showContextMenu({
+			actionRunner,
+			getAnchor: () => e.anchor,
+			getActions: () => actions,
+			getActionsContext: () => provider,
+			onHide: () => actionRunner.dispose()
+		});
+	}
+
+	private onListSelectionChange(e: IListEvent<ISCMRepository>): void {
+		if (e.browserEvent && e.elements.length > 0) {
+			const scrollTop = this.list.scrollTop;
+			this.scmViewService.visibleRepositories = e.elements;
+			this.list.scrollTop = scrollTop;
+		}
+	}
+
+	private onDidChangeFocus(e: IListEvent<ISCMRepository>): void {
+		if (e.browserEvent && e.elements.length > 0) {
+			this.scmViewService.focus(e.elements[0]);
+		}
+	}
+
+	private updateListSelection(): void {
+		const oldSelection = this.list.getSelection();
+		const oldSet = new Set(Iterable.map(oldSelection, i => this.list.element(i)));
+		const set = new Set(this.scmViewService.visibleRepositories);
+		const added = new Set(Iterable.filter(set, r => !oldSet.has(r)));
+		const removed = new Set(Iterable.filter(oldSet, r => !set.has(r)));
+
+		if (added.size === 0 && removed.size === 0) {
+			return;
+		}
+
+		const selection = oldSelection
+			.filter(i => !removed.has(this.list.element(i)));
+
+		for (let i = 0; i < this.list.length; i++) {
+			if (added.has(this.list.element(i))) {
+				selection.push(i);
+			}
+		}
+
+		this.list.setSelection(selection);
+
+		if (selection.length > 0 && selection.indexOf(this.list.getFocus()[0]) === -1) {
+			this.list.setAnchor(selection[0]);
+			this.list.setFocus([selection[0]]);
+		}
+	}
+
+	override dispose(): void {
+		this.disposables.dispose();
+		super.dispose();
+	}
 }

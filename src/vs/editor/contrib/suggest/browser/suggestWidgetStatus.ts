@@ -39,14 +39,14 @@ export class SuggestWidgetStatus {
 		this._rightActions.domNode.classList.add('right');
 	}
 
-	dispose(): cognidream {
+	dispose(): void {
 		this._menuDisposables.dispose();
 		this._leftActions.dispose();
 		this._rightActions.dispose();
 		this.element.remove();
 	}
 
-	show(): cognidream {
+	show(): void {
 		const menu = this._menuService.createMenu(this._menuId, this._contextKeyService);
 		const renderMenu = () => {
 			const left: IAction[] = [];
@@ -67,7 +67,7 @@ export class SuggestWidgetStatus {
 		this._menuDisposables.add(menu);
 	}
 
-	hide(): cognidream {
+	hide(): void {
 		this._menuDisposables.clear();
 	}
 }

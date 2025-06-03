@@ -38,8 +38,8 @@ export class PieceTreeTextBuffer extends Disposable implements ITextBuffer {
 	private _mightContainUnusualLineTerminators: boolean;
 	private _mightContainNonBasicASCII: boolean;
 
-	private readonly _onDidChangeContent: Emitter<cognidream> = this._register(new Emitter<cognidream>());
-	public readonly onDidChangeContent: Event<cognidream> = this._onDidChangeContent.event;
+	private readonly _onDidChangeContent: Emitter<void> = this._register(new Emitter<void>());
+	public readonly onDidChangeContent: Event<void> = this._onDidChangeContent.event;
 
 	constructor(chunks: StringBuffer[], BOM: string, eol: '\r\n' | '\n', containsRTL: boolean, containsUnusualLineTerminators: boolean, isBasicASCII: boolean, eolNormalized: boolean) {
 		super();
@@ -69,7 +69,7 @@ export class PieceTreeTextBuffer extends Disposable implements ITextBuffer {
 	public mightContainUnusualLineTerminators(): boolean {
 		return this._mightContainUnusualLineTerminators;
 	}
-	public resetMightContainUnusualLineTerminators(): cognidream {
+	public resetMightContainUnusualLineTerminators(): void {
 		this._mightContainUnusualLineTerminators = false;
 	}
 	public mightContainNonBasicASCII(): boolean {
@@ -236,7 +236,7 @@ export class PieceTreeTextBuffer extends Disposable implements ITextBuffer {
 		}
 	}
 
-	public setEOL(newEOL: '\r\n' | '\n'): cognidream {
+	public setEOL(newEOL: '\r\n' | '\n'): void {
 		this._pieceTree.setEOL(newEOL);
 	}
 

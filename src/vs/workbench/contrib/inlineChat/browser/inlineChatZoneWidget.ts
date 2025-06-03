@@ -96,7 +96,7 @@ export class InlineChatZoneWidget extends ZoneWidget {
 		});
 		this._disposables.add(this.widget);
 
-		let revealFn: (() => cognidream) | undefined;
+		let revealFn: (() => void) | undefined;
 		this._disposables.add(this.widget.chatWidget.onWillMaybeChangeHeight(() => {
 			if (this.position) {
 				revealFn = this._createZoneAndScrollRestoreFn(this.position);
@@ -144,198 +144,198 @@ export class InlineChatZoneWidget extends ZoneWidget {
 		updateCursorIsAboveContextKey();
 	}
 
-	protected override _fillContainer(container: HTMLElementcognidreamognidream {
+	protected override _fillContainer(container: HTMLElement): void {
 
 		container.style.setProperty('--vscode-inlineChat-background', 'var(--vscode-editor-background)');
 
-container.appendChild(this.widget.domNode);
-    }
+		container.appendChild(this.widget.domNode);
+	}
 
-    protected override _doLayout(heightInPixel: numbercognidreamognidream {
+	protected override _doLayout(heightInPixel: number): void {
 
-	this._updatePadding();
+		this._updatePadding();
 
-	const info = this.editor.getLayoutInfo();
-	const width = info.contentWidth - info.verticalScrollbarWidth;
-	// width = Math.min(850, width);
+		const info = this.editor.getLayoutInfo();
+		const width = info.contentWidth - info.verticalScrollbarWidth;
+		// width = Math.min(850, width);
 
-	this._dimension = new Dimension(width, heightInPixel);
-	this.widget.layout(this._dimension);
-}
+		this._dimension = new Dimension(width, heightInPixel);
+		this.widget.layout(this._dimension);
+	}
 
-    private _computeHeight(): { linesValue: number; pixelsValue: number } {
-	const chatContentHeight = this.widget.contentHeight;
-	const editorHeight = this.editor.getLayoutInfo().height;
+	private _computeHeight(): { linesValue: number; pixelsValue: number } {
+		const chatContentHeight = this.widget.contentHeight;
+		const editorHeight = this.editor.getLayoutInfo().height;
 
-	const contentHeight = this._decoratingElementsHeight() + Math.min(chatContentHeight, Math.max(this.widget.minHeight, editorHeight * 0.42));
-	const heightInLines = contentHeight / this.editor.getOption(EditorOption.lineHeight);
-	return { linesValue: heightInLines, pixelsValue: contentHeight };
-}
+		const contentHeight = this._decoratingElementsHeight() + Math.min(chatContentHeight, Math.max(this.widget.minHeight, editorHeight * 0.42));
+		const heightInLines = contentHeight / this.editor.getOption(EditorOption.lineHeight);
+		return { linesValue: heightInLines, pixelsValue: contentHeight };
+	}
 
-    protected override _getResizeBounds(): { minLines: number; maxLines: number } {
-	const lineHeight = this.editor.getOption(EditorOption.lineHeight);
-	const decoHeight = this._decoratingElementsHeight();
+	protected override _getResizeBounds(): { minLines: number; maxLines: number } {
+		const lineHeight = this.editor.getOption(EditorOption.lineHeight);
+		const decoHeight = this._decoratingElementsHeight();
 
-	const minHeightPx = decoHeight + this.widget.minHeight;
-	const maxHeightPx = decoHeight + this.widget.contentHeight;
+		const minHeightPx = decoHeight + this.widget.minHeight;
+		const maxHeightPx = decoHeight + this.widget.contentHeight;
 
-	return {
-		minLines: minHeightPx / lineHeight,
-		maxLines: maxHeightPx / lineHeight
-	};
-}
+		return {
+			minLines: minHeightPx / lineHeight,
+			maxLines: maxHeightPx / lineHeight
+		};
+	}
 
-    protected override _onWidth(_widthInPixel: numbercognidreamognidream {
-	if(this._dimension) {
-	this._doLayout(this._dimension.height);
-}
-    }
+	protected override _onWidth(_widthInPixel: number): void {
+		if (this._dimension) {
+			this._doLayout(this._dimension.height);
+		}
+	}
 
-	override show(position: Positioncognidreamognidream {
+	override show(position: Position): void {
 		assertType(this.container);
 
-this._updatePadding();
+		this._updatePadding();
 
-const revealZone = this._createZoneAndScrollRestoreFn(position);
-super.show(position, this._computeHeight().linesValue);
-this.widget.chatWidget.setVisible(true);
-this.widget.focus();
+		const revealZone = this._createZoneAndScrollRestoreFn(position);
+		super.show(position, this._computeHeight().linesValue);
+		this.widget.chatWidget.setVisible(true);
+		this.widget.focus();
 
-revealZone();
-this._scrollUp.enable();
-    }
-
-    private _updatePadding() {
-	assertType(this.container);
-
-	const info = this.editor.getLayoutInfo();
-	const marginWithoutIndentation = info.glyphMarginWidth + info.lineNumbersWidth + info.decorationsWidth;
-	this.container.style.paddingLeft = `${marginWithoutIndentation}px`;
-}
-
-reveal(position: Position) {
-	const stickyScroll = this.editor.getOption(EditorOption.stickyScroll);
-	const magicValue = stickyScroll.enabled ? stickyScroll.maxLineCount : 0;
-	this.editor.revealLines(position.lineNumber + magicValue, position.lineNumber + magicValue, ScrollType.Immediate);
-	this._scrollUp.reset();
-	this.updatePositionAndHeight(position);
-}
-
-    override updatePositionAndHeight(position: Positioncognidreamognidream {
-	const revealZone = this._createZoneAndScrollRestoreFn(position);
-	super.updatePositionAndHeight(position, !this._usesResizeHeight ? this._computeHeight().linesValue : undefined);
-	revealZone();
-}
-
-    private _createZoneAndScrollRestoreFn(position: Position): () cognidreamognidream {
-
-	const scrollState = StableEditorBottomScrollState.capture(this.editor);
-
-	const lineNumber = position.lineNumber <= 1 ? 1 : 1 + position.lineNumber;
-	const scrollTop = this.editor.getScrollTop();
-	const lineTop = this.editor.getTopForLineNumber(lineNumber);
-	const zoneTop = lineTop - this._computeHeight().pixelsValue;
-
-	const hasResponse = this.widget.chatWidget.viewModel?.getItems().find(candidate => {
-		return isResponseVM(candidate) && candidate.response.value.length > 0;
-	});
-
-	if(hasResponse && zoneTop < scrollTop || this._scrollUp.didScrollUpOrDown) {
-	// don't reveal the zone if it is already out of view (unless we are still getting ready)
-	// or if an outside scroll-up happened (e.g the user scrolled up/down to see the new content)
-	return this._scrollUp.runIgnored(() => {
-		scrollState.restore(this.editor);
-	});
-}
-
-return this._scrollUp.runIgnored(() => {
-	scrollState.restore(this.editor);
-
-	const scrollTop = this.editor.getScrollTop();
-	const lineTop = this.editor.getTopForLineNumber(lineNumber);
-	const zoneTop = lineTop - this._computeHeight().pixelsValue;
-	const editorHeight = this.editor.getLayoutInfo().height;
-	const lineBottom = this.editor.getBottomForLineNumber(lineNumber);
-
-	let newScrollTop = zoneTop;
-	let forceScrollTop = false;
-
-	if (lineBottom >= (scrollTop + editorHeight)) {
-		// revealing the top of the zone would push out the line we are interested in and
-		// therefore we keep the line in the viewport
-		newScrollTop = lineBottom - editorHeight;
-		forceScrollTop = true;
+		revealZone();
+		this._scrollUp.enable();
 	}
 
-	if (newScrollTop < scrollTop || forceScrollTop) {
-		this._logService.trace('[IE] REVEAL zone', { zoneTop, lineTop, lineBottom, scrollTop, newScrollTop, forceScrollTop });
-		this.editor.setScrollTop(newScrollTop, ScrollType.Immediate);
+	private _updatePadding() {
+		assertType(this.container);
+
+		const info = this.editor.getLayoutInfo();
+		const marginWithoutIndentation = info.glyphMarginWidth + info.lineNumbersWidth + info.decorationsWidth;
+		this.container.style.paddingLeft = `${marginWithoutIndentation}px`;
 	}
-});
-    }
 
-    protected override revealRange(range: Range, isLastLine: booleancognidreamognidream {
-	// noop
-}
+	reveal(position: Position) {
+		const stickyScroll = this.editor.getOption(EditorOption.stickyScroll);
+		const magicValue = stickyScroll.enabled ? stickyScroll.maxLineCount : 0;
+		this.editor.revealLines(position.lineNumber + magicValue, position.lineNumber + magicValue, ScrollType.Immediate);
+		this._scrollUp.reset();
+		this.updatePositionAndHeight(position);
+	}
 
-    override hide(cognidreamognidream {
-	const scrollState = StableEditorBottomScrollState.capture(this.editor);
-	this._scrollUp.disable();
-	this._ctxCursorPosition.reset();
-	this.widget.reset();
-	this.widget.chatWidget.setVisible(false);
-	super.hide();
-	aria.status(localize('inlineChatClosed', 'Closed inline chat widget'));
-	scrollState.restore(this.editor);
-}
-}
+	override updatePositionAndHeight(position: Position): void {
+		const revealZone = this._createZoneAndScrollRestoreFn(position);
+		super.updatePositionAndHeight(position, !this._usesResizeHeight ? this._computeHeight().linesValue : undefined);
+		revealZone();
+	}
 
-	class ScrollUpState {
+	private _createZoneAndScrollRestoreFn(position: Position): () => void {
 
-		private _didScrollUpOrDown?: boolean;
-		private _ignoreEvents = false;
+		const scrollState = StableEditorBottomScrollState.capture(this.editor);
 
-		private readonly _listener = new MutableDisposable();
+		const lineNumber = position.lineNumber <= 1 ? 1 : 1 + position.lineNumber;
+		const scrollTop = this.editor.getScrollTop();
+		const lineTop = this.editor.getTopForLineNumber(lineNumber);
+		const zoneTop = lineTop - this._computeHeight().pixelsValue;
 
-		constructor(private readonly _editor: ICodeEditor) { }
+		const hasResponse = this.widget.chatWidget.viewModel?.getItems().find(candidate => {
+			return isResponseVM(candidate) && candidate.response.value.length > 0;
+		});
 
-		dispose(cognidreamognidream {
-			this._listener.dispose();
-    }
-
-reset(cognidreamognidream {
-	this._didScrollUpOrDown = undefined;
-}
-
-    enable(cognidreamognidream {
-	this._didScrollUpOrDown = undefined;
-	this._listener.value = this._editor.onDidScrollChange(e => {
-		if (!e.scrollTopChanged || this._ignoreEvents) {
-			return;
+		if (hasResponse && zoneTop < scrollTop || this._scrollUp.didScrollUpOrDown) {
+			// don't reveal the zone if it is already out of view (unless we are still getting ready)
+			// or if an outside scroll-up happened (e.g the user scrolled up/down to see the new content)
+			return this._scrollUp.runIgnored(() => {
+				scrollState.restore(this.editor);
+			});
 		}
-		this._listener.clear();
-		this._didScrollUpOrDown = true;
-	});
-}
 
-    disable(cognidreamognidream {
-	this._listener.clear();
-	this._didScrollUpOrDown = undefined;
-}
+		return this._scrollUp.runIgnored(() => {
+			scrollState.restore(this.editor);
 
-    runIgnored(callback: () cognidreamognidreamcognidream) => cognidream {
-	return() => {
-	this._ignoreEvents = true;
-	try {
-		return callback();
-	} finally {
-		this._ignoreEvents = false;
+			const scrollTop = this.editor.getScrollTop();
+			const lineTop = this.editor.getTopForLineNumber(lineNumber);
+			const zoneTop = lineTop - this._computeHeight().pixelsValue;
+			const editorHeight = this.editor.getLayoutInfo().height;
+			const lineBottom = this.editor.getBottomForLineNumber(lineNumber);
+
+			let newScrollTop = zoneTop;
+			let forceScrollTop = false;
+
+			if (lineBottom >= (scrollTop + editorHeight)) {
+				// revealing the top of the zone would push out the line we are interested in and
+				// therefore we keep the line in the viewport
+				newScrollTop = lineBottom - editorHeight;
+				forceScrollTop = true;
+			}
+
+			if (newScrollTop < scrollTop || forceScrollTop) {
+				this._logService.trace('[IE] REVEAL zone', { zoneTop, lineTop, lineBottom, scrollTop, newScrollTop, forceScrollTop });
+				this.editor.setScrollTop(newScrollTop, ScrollType.Immediate);
+			}
+		});
 	}
-};
-    }
 
-    get didScrollUpOrDown(): boolean | undefined {
-	return this._didScrollUpOrDown;
+	protected override revealRange(range: Range, isLastLine: boolean): void {
+		// noop
+	}
+
+	override hide(): void {
+		const scrollState = StableEditorBottomScrollState.capture(this.editor);
+		this._scrollUp.disable();
+		this._ctxCursorPosition.reset();
+		this.widget.reset();
+		this.widget.chatWidget.setVisible(false);
+		super.hide();
+		aria.status(localize('inlineChatClosed', 'Closed inline chat widget'));
+		scrollState.restore(this.editor);
+	}
 }
+
+class ScrollUpState {
+
+	private _didScrollUpOrDown?: boolean;
+	private _ignoreEvents = false;
+
+	private readonly _listener = new MutableDisposable();
+
+	constructor(private readonly _editor: ICodeEditor) { }
+
+	dispose(): void {
+		this._listener.dispose();
+	}
+
+	reset(): void {
+		this._didScrollUpOrDown = undefined;
+	}
+
+	enable(): void {
+		this._didScrollUpOrDown = undefined;
+		this._listener.value = this._editor.onDidScrollChange(e => {
+			if (!e.scrollTopChanged || this._ignoreEvents) {
+				return;
+			}
+			this._listener.clear();
+			this._didScrollUpOrDown = true;
+		});
+	}
+
+	disable(): void {
+		this._listener.clear();
+		this._didScrollUpOrDown = undefined;
+	}
+
+	runIgnored(callback: () => void): () => void {
+		return () => {
+			this._ignoreEvents = true;
+			try {
+				return callback();
+			} finally {
+				this._ignoreEvents = false;
+			}
+		};
+	}
+
+	get didScrollUpOrDown(): boolean | undefined {
+		return this._didScrollUpOrDown;
+	}
 
 }

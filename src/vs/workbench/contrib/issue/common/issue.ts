@@ -118,25 +118,25 @@ export interface IIssueFormService {
 	readonly _serviceBrand: undefined;
 
 	// Used by the issue reporter
-	openReporter(data: IssueReporterData): Promise<cognidream>;
-	reloadWithExtensionsDisabled(): Promicognidreamognidream>;
-showConfirmCloseDialog(): Promicognidreamognidream >;
-showClipboardDialog(): Promise<boolean>;
-sendReporterMenu(extensionId: string): Promise<IssueReporterData | undefined>;
-closeReporter(): Promicognidreamognidream >;
+	openReporter(data: IssueReporterData): Promise<void>;
+	reloadWithExtensionsDisabled(): Promise<void>;
+	showConfirmCloseDialog(): Promise<void>;
+	showClipboardDialog(): Promise<boolean>;
+	sendReporterMenu(extensionId: string): Promise<IssueReporterData | undefined>;
+	closeReporter(): Promise<void>;
 }
 
 export const IWorkbenchIssueService = createDecorator<IWorkbenchIssueService>('workbenchIssueService');
 
 export interface IWorkbenchIssueService {
 	readonly _serviceBrand: undefined;
-	openReporter(dataOverrides?: Partial<IssueReporterData>): Promicognidreamognidream>;
+	openReporter(dataOverrides?: Partial<IssueReporterData>): Promise<void>;
 }
 
 export const IWorkbenchProcessService = createDecorator<IWorkbenchProcessService>('workbenchProcessService');
 
 export interface IWorkbenchProcessService {
 	readonly _serviceBrand: undefined;
-	openProcessExplorer(): Promicognidreamognidream>;
+	openProcessExplorer(): Promise<void>;
 }
 

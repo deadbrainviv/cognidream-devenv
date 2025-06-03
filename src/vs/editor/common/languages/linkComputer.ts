@@ -53,7 +53,7 @@ class Uint8Matrix {
 		return this._data[row * this.cols + col];
 	}
 
-	public set(row: number, col: number, value: number): cognidream {
+	public set(row: number, col: number, value: number): void {
 		this._data[row * this.cols + col] = value;
 	}
 }

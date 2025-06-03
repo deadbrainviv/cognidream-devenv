@@ -17,24 +17,24 @@ import { NativeWorkingCopyBackupTracker } from './workingCopyBackupTracker.js';
 
 export class NativeWorkingCopyBackupService extends WorkingCopyBackupService {
 
-    constructor(
-        @INativeWorkbenchEnvironmentService environmentService: INativeWorkbenchEnvironmentService,
-        @IFileService fileService: IFileService,
-        @ILogService logService: ILogService,
-        @ILifecycleService private readonly lifecycleService: ILifecycleService
-    ) {
-        super(environmentService.backupPath ? URI.file(environmentService.backupPath).with({ scheme: environmentService.userRoamingDataHome.scheme }) : undefined, fileService, logService);
+	constructor(
+		@INativeWorkbenchEnvironmentService environmentService: INativeWorkbenchEnvironmentService,
+		@IFileService fileService: IFileService,
+		@ILogService logService: ILogService,
+		@ILifecycleService private readonly lifecycleService: ILifecycleService
+	) {
+		super(environmentService.backupPath ? URI.file(environmentService.backupPath).with({ scheme: environmentService.userRoamingDataHome.scheme }) : undefined, fileService, logService);
 
-        this.registerListeners();
-    }
+		this.registerListeners();
+	}
 
-    private registerListeners(): cognidream {
+	private registerListeners(): void {
 
-        // Lifecycle: ensure to prolong the shutdown for as long
-        // as pending backup operations have not finished yet.
-        // Otherwise, we risk writing partial backups to disk.
-        this._register(this.lifecycleService.onWillShutdown(event => event.join(this.joinBackups(), { id: 'join.workingCopyBackups', label: localize('join.workingCopyBackups', "Backup working copies") })));
-    }
+		// Lifecycle: ensure to prolong the shutdown for as long
+		// as pending backup operations have not finished yet.
+		// Otherwise, we risk writing partial backups to disk.
+		this._register(this.lifecycleService.onWillShutdown(event => event.join(this.joinBackups(), { id: 'join.workingCopyBackups', label: localize('join.workingCopyBackups', "Backup working copies") })));
+	}
 }
 
 // Register Service

@@ -28,51 +28,51 @@ export const ATTACH_PROMPT_ACTION_ID = 'workbench.action.chat.attach.prompt';
  * Options for the {@link AttachPromptAction} action.
  */
 export interface IChatAttachPromptActionOptions extends Pick<
-    ISelectPromptOptions, 'resource' | 'widget'
+	ISelectPromptOptions, 'resource' | 'widget'
 > { }
 
 /**
  * Action to attach a prompt to a chat widget input.
  */
 export class AttachPromptAction extends Action2 {
-    constructor() {
-        super({
-            id: ATTACH_PROMPT_ACTION_ID,
-            title: localize2('workbench.action.chat.attach.prompt.label', "Use Prompt"),
-            f1: false,
-            precondition: ChatContextKeys.enabled,
-            category: CHAT_CATEGORY,
-        });
-    }
+	constructor() {
+		super({
+			id: ATTACH_PROMPT_ACTION_ID,
+			title: localize2('workbench.action.chat.attach.prompt.label', "Use Prompt"),
+			f1: false,
+			precondition: ChatContextKeys.enabled,
+			category: CHAT_CATEGORY,
+		});
+	}
 
-    public override async run(
-        accessor: ServicesAccessor,
-        options: IChatAttachPromptActionOptions,
-    ): Promise<cognidream> {
-        const fileService = accessor.get(IFileService);
-        const chatService = accessor.get(IChatService);
-        const labelService = accessor.get(ILabelService);
-        const viewsService = accessor.get(IViewsService);
-        const openerService = accessor.get(IOpenerService);
-        const dialogService = accessor.get(IDialogService);
-        const promptsService = accessor.get(IPromptsService);
-        const commandService = accessor.get(ICommandService);
-        const quickInputService = accessor.get(IQuickInputService);
+	public override async run(
+		accessor: ServicesAccessor,
+		options: IChatAttachPromptActionOptions,
+	): Promise<void> {
+		const fileService = accessor.get(IFileService);
+		const chatService = accessor.get(IChatService);
+		const labelService = accessor.get(ILabelService);
+		const viewsService = accessor.get(IViewsService);
+		const openerService = accessor.get(IOpenerService);
+		const dialogService = accessor.get(IDialogService);
+		const promptsService = accessor.get(IPromptsService);
+		const commandService = accessor.get(ICommandService);
+		const quickInputService = accessor.get(IQuickInputService);
 
-        // find all prompt files in the user workspace
-        const promptFiles = await promptsService.listPromptFiles();
+		// find all prompt files in the user workspace
+		const promptFiles = await promptsService.listPromptFiles();
 
-        await askToSelectPrompt({
-            ...options,
-            promptFiles,
-            chatService,
-            fileService,
-            viewsService,
-            labelService,
-            dialogService,
-            openerService,
-            commandService,
-            quickInputService,
-        });
-    }
+		await askToSelectPrompt({
+			...options,
+			promptFiles,
+			chatService,
+			fileService,
+			viewsService,
+			labelService,
+			dialogService,
+			openerService,
+			commandService,
+			quickInputService,
+		});
+	}
 }

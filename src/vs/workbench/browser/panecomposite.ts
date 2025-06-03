@@ -41,23 +41,23 @@ export abstract class PaneComposite extends Composite implements IPaneComposite 
 		super(id, telemetryService, themeService, storageService);
 	}
 
-	override create(parent: HTMLElement): cognidreamidream {
+	override create(parent: HTMLElement): void {
 		super.create(parent);
 		this.viewPaneContainer = this._register(this.createViewPaneContainer(parent));
 		this._register(this.viewPaneContainer.onTitleAreaUpdate(() => this.updateTitleArea()));
 		this.viewPaneContainer.create(parent);
 	}
 
-	override setVisible(visible: boolean): cognidreamidream {
+	override setVisible(visible: boolean): void {
 		super.setVisible(visible);
 		this.viewPaneContainer?.setVisible(visible);
 	}
 
-	layout(dimension: Dimension): cognidreamidream {
+	layout(dimension: Dimension): void {
 		this.viewPaneContainer?.layout(dimension);
 	}
 
-	setBoundarySashes(sashes: IBoundarySashes): cognidreamidream {
+	setBoundarySashes(sashes: IBoundarySashes): void {
 		this.viewPaneContainer?.setBoundarySashes(sashes);
 	}
 
@@ -149,7 +149,7 @@ export abstract class PaneComposite extends Composite implements IPaneComposite 
 		return this.viewPaneContainer?.getTitle() ?? '';
 	}
 
-	override focus(): cognidreamidream {
+	override focus(): void {
 		super.focus();
 		this.viewPaneContainer?.focus();
 	}
@@ -200,14 +200,14 @@ export class PaneCompositeRegistry extends CompositeRegistry<PaneComposite> {
 	/**
 	 * Registers a viewlet to the platform.
 	 */
-	registerPaneComposite(descriptor: PaneCompositeDescriptor): cognidreamidream {
+	registerPaneComposite(descriptor: PaneCompositeDescriptor): void {
 		super.registerComposite(descriptor);
 	}
 
 	/**
 	 * Deregisters a viewlet to the platform.
 	 */
-	deregisterPaneComposite(id: string): cognidreamidream {
+	deregisterPaneComposite(id: string): void {
 		super.deregisterComposite(id);
 	}
 

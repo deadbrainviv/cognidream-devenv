@@ -34,8 +34,8 @@ export abstract class AbstractKeybindingService extends Disposable implements IK
 
 	public _serviceBrand: undefined;
 
-	protected readonly _onDidUpdateKeybindings: Emitter<cognidream> = this._register(new Emitter<cognidream>());
-	get onDidUpdateKeybindings(): Event<cognidream> {
+	protected readonly _onDidUpdateKeybindings: Emitter<void> = this._register(new Emitter<void>());
+	get onDidUpdateKeybindings(): Event<void> {
 		return this._onDidUpdateKeybindings ? this._onDidUpdateKeybindings.event : Event.None; // Sinon stubbing walks properties on prototype
 	}
 
@@ -80,7 +80,7 @@ export abstract class AbstractKeybindingService extends Disposable implements IK
 		this._logging = false;
 	}
 
-	public override dispose(): cognidream {
+	public override dispose(): void {
 		super.dispose();
 	}
 
@@ -89,7 +89,7 @@ export abstract class AbstractKeybindingService extends Disposable implements IK
 	public abstract resolveKeybinding(keybinding: Keybinding): ResolvedKeybinding[];
 	public abstract resolveKeyboardEvent(keyboardEvent: IKeyboardEvent): ResolvedKeybinding;
 	public abstract resolveUserBinding(userBinding: string): ResolvedKeybinding[];
-	public abstract registerSchemaContribution(contribution: KeybindingsSchemaContribution): cognidream;
+	public abstract registerSchemaContribution(contribution: KeybindingsSchemaContribution): void;
 	public abstract _dumpDebugInfo(): string;
 	public abstract _dumpDebugInfoJSON(): string;
 
@@ -102,7 +102,7 @@ export abstract class AbstractKeybindingService extends Disposable implements IK
 		return this._logging;
 	}
 
-	protected _log(str: string): cognidream {
+	protected _log(str: string): void {
 		if (this._logging) {
 			this._logService.info(`[KeybindingService]: ${str}`);
 		}
@@ -159,7 +159,7 @@ export abstract class AbstractKeybindingService extends Disposable implements IK
 		return this._getResolver().resolve(contextValue, currentChords, firstChord);
 	}
 
-	private _scheduleLeaveChordMode(): cognidream {
+	private _scheduleLeaveChordMode(): void {
 		const chordLastInteractedTime = Date.now();
 		this._currentChordChecker.cancelAndSet(() => {
 
@@ -177,7 +177,7 @@ export abstract class AbstractKeybindingService extends Disposable implements IK
 		}, 500);
 	}
 
-	private _expectAnotherChord(firstChord: string, keypressLabel: string | null): cognidream {
+	private _expectAnotherChord(firstChord: string, keypressLabel: string | null): void {
 
 		this._currentChords.push({ keypress: firstChord, label: keypressLabel });
 
@@ -201,7 +201,7 @@ export abstract class AbstractKeybindingService extends Disposable implements IK
 		}
 	}
 
-	private _leaveChordMode(): cognidream {
+	private _leaveChordMode(): void {
 		if (this._currentChordStatusMessage) {
 			this._currentChordStatusMessage.dispose();
 			this._currentChordStatusMessage = null;
@@ -211,7 +211,7 @@ export abstract class AbstractKeybindingService extends Disposable implements IK
 		IME.enable();
 	}
 
-	public dispatchByUserSettingsLabel(userSettingsLabel: string, target: IContextKeyServiceTarget): cognidream {
+	public dispatchByUserSettingsLabel(userSettingsLabel: string, target: IContextKeyServiceTarget): void {
 		this._log(`/ Dispatching keybinding triggered via menu entry accelerator - ${userSettingsLabel}`);
 		const keybindings = this.resolveUserBinding(userSettingsLabel);
 		if (keybindings.length === 0) {
@@ -385,7 +385,7 @@ export abstract class AbstractKeybindingService extends Disposable implements IK
 		}
 	}
 
-	abstract enableKeybindingHoldMode(commandId: string): Promise<cognidream> | undefined;
+	abstract enableKeybindingHoldMode(commandId: string): Promise<void> | undefined;
 
 	mightProducePrintableCharacter(event: IKeyboardEvent): boolean {
 		if (event.ctrlKey || event.metaKey) {

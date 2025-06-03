@@ -77,12 +77,12 @@ export interface ITitlebarPart extends IDisposable {
 	/**
 	 * Update some environmental title properties.
 	 */
-	updateProperties(properties: ITitleProperties): cognidreamidream;
+	updateProperties(properties: ITitleProperties): void;
 
 	/**
 	 * Adds variables to be supported in the window title.
 	 */
-	registerVariables(variables: ITitleVariable[]): cognidreamidream;
+	registerVariables(variables: ITitleVariable[]): void;
 }
 
 export class BrowserTitleService extends MultiWindowParts<BrowserTitlebarPart> implements ITitleService {
@@ -110,7 +110,7 @@ export class BrowserTitleService extends MultiWindowParts<BrowserTitlebarPart> i
 		return this.instantiationService.createInstance(MainBrowserTitlebarPart);
 	}
 
-	private registerActions(): cognidreamidream {
+	private registerActions(): void {
 
 		// Focus action
 		const that = this;
@@ -126,13 +126,13 @@ export class BrowserTitleService extends MultiWindowParts<BrowserTitlebarPart> i
 				});
 			}
 
-			run(): cognidreamidream {
+			run(): void {
 				that.getPartByDocument(getActiveDocument())?.focus();
 			}
 		}));
 	}
 
-	private registerAPICommands(): cognidreamidream {
+	private registerAPICommands(): void {
 		this._register(CommandsRegistry.registerCommand({
 			id: 'registerWindowTitleVariable',
 			handler: (accessor: ServicesAccessor, name: string, contextKey: string) => {
@@ -189,7 +189,7 @@ export class BrowserTitleService extends MultiWindowParts<BrowserTitlebarPart> i
 
 	private properties: ITitleProperties | undefined = undefined;
 
-	updateProperties(properties: ITitleProperties): cognidreamidream {
+	updateProperties(properties: ITitleProperties): void {
 		this.properties = properties;
 
 		for (const part of this.parts) {
@@ -199,7 +199,7 @@ export class BrowserTitleService extends MultiWindowParts<BrowserTitlebarPart> i
 
 	private readonly variables = new Map<string, ITitleVariable>();
 
-	registerVariables(variables: ITitleVariable[]): cognidreamidream {
+	registerVariables(variables: ITitleVariable[]): void {
 		const newVariables: ITitleVariable[] = [];
 
 		for (const variable of variables) {
@@ -243,7 +243,7 @@ export class BrowserTitlebarPart extends Part implements ITitlebarPart {
 	private _onMenubarVisibilityChange = this._register(new Emitter<boolean>());
 	readonly onMenubarVisibilityChange = this._onMenubarVisibilityChange.event;
 
-	private readonly _onWillDispose = this._register(new Emitter<cognidreamidream>());
+	private readonly _onWillDispose = this._register(new Emitter<void>());
 	readonly onWillDispose = this._onWillDispose.event;
 
 	//#endregion
@@ -325,26 +325,26 @@ export class BrowserTitlebarPart extends Part implements ITitlebarPart {
 		this.registerListeners(getWindowId(targetWindow));
 	}
 
-	private registerListeners(targetWindowId: number): cognidreamidream {
+	private registerListeners(targetWindowId: number): void {
 		this._register(this.hostService.onDidChangeFocus(focused => focused ? this.onFocus() : this.onBlur()));
 		this._register(this.hostService.onDidChangeActiveWindow(windowId => windowId === targetWindowId ? this.onFocus() : this.onBlur()));
 		this._register(this.configurationService.onDidChangeConfiguration(e => this.onConfigurationChanged(e)));
 		this._register(this.editorGroupService.onDidChangeEditorPartOptions(e => this.onEditorPartConfigurationChange(e)));
 	}
 
-	private onBlur(): cognidreamidream {
+	private onBlur(): void {
 		this.isInactive = true;
 
 		this.updateStyles();
 	}
 
-	private onFocus(): cognidreamidream {
+	private onFocus(): void {
 		this.isInactive = false;
 
 		this.updateStyles();
 	}
 
-	private onEditorPartConfigurationChange({ oldPartOptions, newPartOptions }: IEditorPartOptionsChangeEvent): cognidreamidream {
+	private onEditorPartConfigurationChange({ oldPartOptions, newPartOptions }: IEditorPartOptionsChangeEvent): void {
 		if (
 			oldPartOptions.editorActionsLocation !== newPartOptions.editorActionsLocation ||
 			oldPartOptions.showTabs !== newPartOptions.showTabs
@@ -357,7 +357,7 @@ export class BrowserTitlebarPart extends Part implements ITitlebarPart {
 		}
 	}
 
-	protected onConfigurationChanged(event: IConfigurationChangeEvent): cognidreamidream {
+	protected onConfigurationChanged(event: IConfigurationChangeEvent): void {
 
 		// Custom menu bar (disabled if auxiliary)
 		if (!this.isAuxiliary && !hasNativeTitlebar(this.configurationService, this.titleBarStyle) && (!isMacintosh || isWeb)) {
@@ -390,7 +390,7 @@ export class BrowserTitlebarPart extends Part implements ITitlebarPart {
 		}
 	}
 
-	protected installMenubar(): cognidreamidream {
+	protected installMenubar(): void {
 		if (this.menubar) {
 			return; // If the menubar is already installed, skip
 		}
@@ -405,7 +405,7 @@ export class BrowserTitlebarPart extends Part implements ITitlebarPart {
 		this.customMenubar.create(this.menubar);
 	}
 
-	private uninstallMenubar(): cognidreamidream {
+	private uninstallMenubar(): void {
 		this.customMenubar?.dispose();
 		this.customMenubar = undefined;
 
@@ -415,7 +415,7 @@ export class BrowserTitlebarPart extends Part implements ITitlebarPart {
 		this.onMenubarVisibilityChanged(false);
 	}
 
-	protected onMenubarVisibilityChanged(visible: boolean): cognidreamidream {
+	protected onMenubarVisibilityChanged(visible: boolean): void {
 		if (isWeb || isWindows || isLinux) {
 			if (this.lastLayoutDimensions) {
 				this.layout(this.lastLayoutDimensions.width, this.lastLayoutDimensions.height);
@@ -425,11 +425,11 @@ export class BrowserTitlebarPart extends Part implements ITitlebarPart {
 		}
 	}
 
-	updateProperties(properties: ITitleProperties): cognidreamidream {
+	updateProperties(properties: ITitleProperties): void {
 		this.windowTitle.updateProperties(properties);
 	}
 
-	registerVariables(variables: ITitleVariable[]): cognidreamidream {
+	registerVariables(variables: ITitleVariable[]): void {
 		this.windowTitle.registerVariables(variables);
 	}
 
@@ -540,7 +540,7 @@ export class BrowserTitlebarPart extends Part implements ITitlebarPart {
 		return this.element;
 	}
 
-	private createTitle(): cognidreamidream {
+	private createTitle(): void {
 		this.titleDisposables.clear();
 
 		// Text Title
@@ -716,7 +716,7 @@ export class BrowserTitlebarPart extends Part implements ITitlebarPart {
 		updateToolBarActions();
 	}
 
-	override updateStyles(): cognidreamidream {
+	override updateStyles(): void {
 		super.updateStyles();
 
 		// Part container
@@ -754,7 +754,7 @@ export class BrowserTitlebarPart extends Part implements ITitlebarPart {
 		}
 	}
 
-	protected onContextMenu(e: MouseEvent, menuId: MenuId): cognidreamidream {
+	protected onContextMenu(e: MouseEvent, menuId: MenuId): void {
 		const event = new StandardMouseEvent(getWindow(this.element), e);
 
 		// Show it
@@ -810,13 +810,13 @@ export class BrowserTitlebarPart extends Part implements ITitlebarPart {
 		return getZoomFactor(getWindow(this.element)) < 1 || !this.hasZoomableElements;
 	}
 
-	override layout(width: number, height: number): cognidreamidream {
+	override layout(width: number, height: number): void {
 		this.updateLayout(new Dimension(width, height));
 
 		super.layoutContents(width, height);
 	}
 
-	private updateLayout(dimension: Dimension): cognidreamidream {
+	private updateLayout(dimension: Dimension): void {
 		this.lastLayoutDimensions = dimension;
 
 		if (hasCustomTitlebar(this.configurationService, this.titleBarStyle)) {
@@ -832,7 +832,7 @@ export class BrowserTitlebarPart extends Part implements ITitlebarPart {
 		}
 	}
 
-	focus(): cognidreamidream {
+	focus(): void {
 		if (this.customMenubar) {
 			this.customMenubar.toggleFocus();
 		} else {
@@ -846,7 +846,7 @@ export class BrowserTitlebarPart extends Part implements ITitlebarPart {
 		};
 	}
 
-	override dispose(): cognidreamidream {
+	override dispose(): void {
 		this._onWillDispose.fire();
 
 		super.dispose();

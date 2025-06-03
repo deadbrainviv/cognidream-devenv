@@ -45,6 +45,7 @@ export class DocumentMergeConflict implements interfaces.IDocumentMergeConflict 
 		this.telemetryReporter.sendTelemetryEvent('mergeMarkers.accept', { resolution: commitTypeToString(type) });
 
 		if (edit) {
+
 			this.applyEdit(type, editor.document, edit);
 			return Promise.resolve(true);
 		}

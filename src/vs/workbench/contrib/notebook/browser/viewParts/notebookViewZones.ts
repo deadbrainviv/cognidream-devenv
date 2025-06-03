@@ -43,19 +43,19 @@ export class NotebookViewZones extends Disposable {
 		this.listView.containerDomNode.appendChild(this.domNode.domNode);
 	}
 
-	changeViewZones(callback: (changeAccessor: INotebookViewZoneChangeAccessor) => cognidream): boolean {
+	changeViewZones(callback: (changeAccessor: INotebookViewZoneChangeAccessor) => void): boolean {
 		let zonesHaveChanged = false;
 		const changeAccessor: INotebookViewZoneChangeAccessor = {
 			addZone: (zone: INotebookViewZone): string => {
 				zonesHaveChanged = true;
 				return this._addZone(zone);
 			},
-			removeZone: (id: cognidreamng): cognidream => {
+			removeZone: (id: string): void => {
 				zonesHaveChanged = true;
 				// TODO: validate if zones have changed layout
 				this._removeZone(id);
 			},
-			layoutZone: (id: cognidreamng): cognidream => {
+			layoutZone: (id: string): void => {
 				zonesHaveChanged = true;
 				// TODO: validate if zones have changed layout
 				this._layoutZone(id);
@@ -82,7 +82,7 @@ export class NotebookViewZones extends Disposable {
 		return { height: height, top: top };
 	}
 
-	onCellsChanged(e: INotebookViewCellsUpdateEventcognidreamognidream {
+	onCellsChanged(e: INotebookViewCellsUpdateEvent): void {
 		const splices = e.splices.slice().reverse();
 		splices.forEach(splice => {
 			const [start, deleted, newCells] = splice;
@@ -113,158 +113,158 @@ export class NotebookViewZones extends Disposable {
 				}
 			}
 		});
-    }
+	}
 
-onHiddenRangesChange() {
-	for (const id in this._zones) {
+	onHiddenRangesChange() {
+		for (const id in this._zones) {
+			this._updateWhitespace(this._zones[id]);
+		}
+	}
+
+	private _updateWhitespace(zone: IZoneWidget) {
+		const whitespaceId = zone.whitespaceId;
+		const viewPosition = this.coordinator.convertModelIndexToViewIndex(zone.zone.afterModelPosition);
+		const isInHiddenArea = this._isInHiddenRanges(zone.zone);
+		zone.isInHiddenArea = isInHiddenArea;
+		this.listView.changeOneWhitespace(whitespaceId, viewPosition, isInHiddenArea ? 0 : zone.zone.heightInPx);
+	}
+
+	layout() {
+		for (const id in this._zones) {
+			this._layoutZone(id);
+		}
+	}
+
+	private _addZone(zone: INotebookViewZone): string {
+		const viewPosition = this.coordinator.convertModelIndexToViewIndex(zone.afterModelPosition);
+		const whitespaceId = this.listView.insertWhitespace(viewPosition, zone.heightInPx);
+		const isInHiddenArea = this._isInHiddenRanges(zone);
+		const myZone: IZoneWidget = {
+			whitespaceId: whitespaceId,
+			zone: zone,
+			domNode: createFastDomNode(zone.domNode),
+			isInHiddenArea: isInHiddenArea
+		};
+
+		this._zones[whitespaceId] = myZone;
+		myZone.domNode.setPosition('absolute');
+		myZone.domNode.domNode.style.width = '100%';
+		myZone.domNode.setDisplay('none');
+		myZone.domNode.setAttribute('notebook-view-zone', whitespaceId);
+		this.domNode.appendChild(myZone.domNode);
+		return whitespaceId;
+	}
+
+	private _removeZone(id: string): void {
+		this.listView.removeWhitespace(id);
+		const zoneWidget = this._zones[id];
+		if (zoneWidget) {
+			// safely remove the dom node from its parent
+			try {
+				this.domNode.removeChild(zoneWidget.domNode);
+			} catch {
+				// ignore the error
+			}
+		}
+
+		delete this._zones[id];
+	}
+
+	private _layoutZone(id: string): void {
+		const zoneWidget = this._zones[id];
+		if (!zoneWidget) {
+			return;
+		}
+
 		this._updateWhitespace(this._zones[id]);
-	}
-}
 
-    private _updateWhitespace(zone: IZoneWidget) {
-	const whitespaceId = zone.whitespaceId;
-	const viewPosition = this.coordinator.convertModelIndexToViewIndex(zone.zone.afterModelPosition);
-	const isInHiddenArea = this._isInHiddenRanges(zone.zone);
-	zone.isInHiddenArea = isInHiddenArea;
-	this.listView.changeOneWhitespace(whitespaceId, viewPosition, isInHiddenArea ? 0 : zone.zone.heightInPx);
-}
+		const isInHiddenArea = this._isInHiddenRanges(zoneWidget.zone);
 
-layout() {
-	for (const id in this._zones) {
-		this._layoutZone(id);
-	}
-}
-
-    private _addZone(zone: INotebookViewZone): string {
-	const viewPosition = this.coordinator.convertModelIndexToViewIndex(zone.afterModelPosition);
-	const whitespaceId = this.listView.insertWhitespace(viewPosition, zone.heightInPx);
-	const isInHiddenArea = this._isInHiddenRanges(zone);
-	const myZone: IZoneWidget = {
-		whitespaceId: whitespaceId,
-		zone: zone,
-		domNode: createFastDomNode(zone.domNode),
-		isInHiddenArea: isInHiddenArea
-	};
-
-	this._zones[whitespaceId] = myZone;
-	myZone.domNode.setPosition('absolute');
-	myZone.domNode.domNode.style.width = '100%';
-	myZone.domNode.setDisplay('none');
-	myZone.domNode.setAttribute('notebook-view-zone', whitespaceId);
-	this.domNode.appendChild(myZone.domNode);
-	return whitespaceId;
-}
-
-    private _removeZone(id: stringcognidreamognidream {
-	this.listView.removeWhitespace(id);
-	const zoneWidget = this._zones[id];
-	if(zoneWidget) {
-		// safely remove the dom node from its parent
-		try {
-			this.domNode.removeChild(zoneWidget.domNode);
-		} catch {
-			// ignore the error
+		if (isInHiddenArea) {
+			zoneWidget.domNode.setDisplay('none');
+		} else {
+			const top = this.listView.getWhitespacePosition(zoneWidget.whitespaceId);
+			zoneWidget.domNode.setTop(top);
+			zoneWidget.domNode.setDisplay('block');
+			zoneWidget.domNode.setHeight(zoneWidget.zone.heightInPx);
 		}
 	}
 
-        delete this._zones[id];
-}
+	private _isInHiddenRanges(zone: INotebookViewZone) {
+		// The view zone is between two cells (zone.afterModelPosition - 1, zone.afterModelPosition)
+		const afterIndex = zone.afterModelPosition;
 
-    private _layoutZone(id: stringcognidreamognidream {
-	const zoneWidget = this._zones[id];
-	if(!zoneWidget) {
-		return;
+		// In notebook, the first cell (markdown cell) in a folding range is always visible, so we need to check the cell after the notebook view zone
+		return !this.coordinator.modelIndexIsVisible(afterIndex);
+
 	}
 
-        this._updateWhitespace(this._zones[id]);
-
-	const isInHiddenArea = this._isInHiddenRanges(zoneWidget.zone);
-
-	if(isInHiddenArea) {
-		zoneWidget.domNode.setDisplay('none');
-	} else {
-		const top = this.listView.getWhitespacePosition(zoneWidget.whitespaceId);
-		zoneWidget.domNode.setTop(top);
-		zoneWidget.domNode.setDisplay('block');
-		zoneWidget.domNode.setHeight(zoneWidget.zone.heightInPx);
+	override dispose(): void {
+		super.dispose();
+		this._zones = {};
 	}
 }
 
-    private _isInHiddenRanges(zone: INotebookViewZone) {
-	// The view zone is between two cells (zone.afterModelPosition - 1, zone.afterModelPosition)
-	const afterIndex = zone.afterModelPosition;
-
-	// In notebook, the first cell (markdown cell) in a folding range is always visible, so we need to check the cell after the notebook view zone
-	return !this.coordinator.modelIndexIsVisible(afterIndex);
-
-}
-
-    override dispose(cognidreamognidream {
-	super.dispose();
-	this._zones = {};
-}
-}
-
-	function safeInvoke1Arg(func: Function, arg1: any): cognidreamidream {
-		try {
-			func(arg1);
-		} catch (e) {
-			onUnexpectedError(e);
-		}
+function safeInvoke1Arg(func: Function, arg1: any): void {
+	try {
+		func(arg1);
+	} catch (e) {
+		onUnexpectedError(e);
 	}
+}
 
 class ToggleNotebookViewZoneDeveloperAction extends Action2 {
-		static viewZoneIds: string[] = [];
-		constructor() {
-			super({
-				id: 'notebook.developer.addViewZones',
-				title: localize2('workbench.notebook.developer.addViewZones', "Toggle Notebook View Zones"),
-				category: Categories.Developer,
-				precondition: IsDevelopmentContext,
-				f1: true
-			});
-		}
+	static viewZoneIds: string[] = [];
+	constructor() {
+		super({
+			id: 'notebook.developer.addViewZones',
+			title: localize2('workbench.notebook.developer.addViewZones', "Toggle Notebook View Zones"),
+			category: Categories.Developer,
+			precondition: IsDevelopmentContext,
+			f1: true
+		});
+	}
 
-		async run(accessor: ServicesAccessor): Promicognidreamognidream> {
+	async run(accessor: ServicesAccessor): Promise<void> {
 		const editorService = accessor.get(IEditorService);
 		const editor = getNotebookEditorFromEditorPane(editorService.activeEditorPane);
 
-		if(!editor) {
+		if (!editor) {
 			return;
 		}
 
-        if(ToggleNotebookViewZoneDeveloperAction.viewZoneIds.length > 0) {
-	// remove all view zones
-	editor.changeViewZones(accessor => {
-		// remove all view zones in reverse order, to follow how we handle this in the prod code
-		ToggleNotebookViewZoneDeveloperAction.viewZoneIds.reverse().forEach(id => {
-			accessor.removeZone(id);
-		});
-		ToggleNotebookViewZoneDeveloperAction.viewZoneIds = [];
-	});
-} else {
-	editor.changeViewZones(accessor => {
-		const cells = editor.getCellsInRange();
-		if (cells.length === 0) {
-			return;
-		}
-
-		const viewZoneIds: string[] = [];
-		for (let i = 0; i < cells.length; i++) {
-			const domNode = document.createElement('div');
-			domNode.innerText = `View Zone ${i}`;
-			domNode.style.backgroundColor = 'rgba(0, 255, 0, 0.5)';
-			const viewZoneId = accessor.addZone({
-				afterModelPosition: i,
-				heightInPx: 200,
-				domNode: domNode,
+		if (ToggleNotebookViewZoneDeveloperAction.viewZoneIds.length > 0) {
+			// remove all view zones
+			editor.changeViewZones(accessor => {
+				// remove all view zones in reverse order, to follow how we handle this in the prod code
+				ToggleNotebookViewZoneDeveloperAction.viewZoneIds.reverse().forEach(id => {
+					accessor.removeZone(id);
+				});
+				ToggleNotebookViewZoneDeveloperAction.viewZoneIds = [];
 			});
-			viewZoneIds.push(viewZoneId);
+		} else {
+			editor.changeViewZones(accessor => {
+				const cells = editor.getCellsInRange();
+				if (cells.length === 0) {
+					return;
+				}
+
+				const viewZoneIds: string[] = [];
+				for (let i = 0; i < cells.length; i++) {
+					const domNode = document.createElement('div');
+					domNode.innerText = `View Zone ${i}`;
+					domNode.style.backgroundColor = 'rgba(0, 255, 0, 0.5)';
+					const viewZoneId = accessor.addZone({
+						afterModelPosition: i,
+						heightInPx: 200,
+						domNode: domNode,
+					});
+					viewZoneIds.push(viewZoneId);
+				}
+				ToggleNotebookViewZoneDeveloperAction.viewZoneIds = viewZoneIds;
+			});
 		}
-		ToggleNotebookViewZoneDeveloperAction.viewZoneIds = viewZoneIds;
-	});
-}
-    }
+	}
 }
 
-	registerAction2(ToggleNotebookViewZoneDeveloperAction);
+registerAction2(ToggleNotebookViewZoneDeveloperAction);

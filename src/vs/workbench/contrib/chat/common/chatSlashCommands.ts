@@ -31,7 +31,7 @@ export interface IChatSlashData {
 export interface IChatSlashFragment {
 	content: string | { treeData: IChatResponseProgressFileTreeData };
 }
-export type IChatSlashCallback = { (prompt: string, progress: IProgress<IChatProgress>, history: IChatMessage[], location: ChatAgentLocation, token: CancellationToken): Promise<{ followUp: IChatFollowup[] } | cognidream> };
+export type IChatSlashCallback = { (prompt: string, progress: IProgress<IChatProgress>, history: IChatMessage[], location: ChatAgentLocation, token: CancellationToken): Promise<{ followUp: IChatFollowup[] } | void> };
 
 export const IChatSlashCommandService = createDecorator<IChatSlashCommandService>('chatSlashCommandService');
 
@@ -40,11 +40,11 @@ export const IChatSlashCommandService = createDecorator<IChatSlashCommandService
  */
 export interface IChatSlashCommandService {
 	_serviceBrand: undefined;
-	readonly onDidChangeCommands: Evecognidreamognidream>;
-registerSlashCommand(data: IChatSlashData, command: IChatSlashCallback): IDisposable;
-executeCommand(id: string, prompt: string, progress: IProgress<IChatProgress>, history: IChatMessage[], location: ChatAgentLocation, token: CancellationToken): Promise < { followUp: IChatFollowup[] }cognidreamognidream >;
-getCommands(location: ChatAgentLocation, mode: ChatMode): Array<IChatSlashData>;
-hasCommand(id: string): boolean;
+	readonly onDidChangeCommands: Event<void>;
+	registerSlashCommand(data: IChatSlashData, command: IChatSlashCallback): IDisposable;
+	executeCommand(id: string, prompt: string, progress: IProgress<IChatProgress>, history: IChatMessage[], location: ChatAgentLocation, token: CancellationToken): Promise<{ followUp: IChatFollowup[] } | void>;
+	getCommands(location: ChatAgentLocation, mode: ChatMode): Array<IChatSlashData>;
+	hasCommand(id: string): boolean;
 }
 
 type Tuple = { data: IChatSlashData; command?: IChatSlashCallback };
@@ -55,55 +55,55 @@ export class ChatSlashCommandService extends Disposable implements IChatSlashCom
 
 	private readonly _commands = new Map<string, Tuple>();
 
-	private readonly _onDidChangeCommands = this._register(new Emittcognidreamognidream > ());
-	readonly onDidChangeCommands: Evecognidreamognidream> = this._onDidChangeCommands.event;
+	private readonly _onDidChangeCommands = this._register(new Emitter<void>());
+	readonly onDidChangeCommands: Event<void> = this._onDidChangeCommands.event;
 
-constructor(@IExtensionService private readonly _extensionService: IExtensionService) {
-	super();
-}
+	constructor(@IExtensionService private readonly _extensionService: IExtensionService) {
+		super();
+	}
 
-    override dispose(cognidreamognidream {
-	super.dispose();
-	this._commands.clear();
-}
+	override dispose(): void {
+		super.dispose();
+		this._commands.clear();
+	}
 
-    registerSlashCommand(data: IChatSlashData, command: IChatSlashCallback): IDisposable {
-	if(this._commands.has(data.command)) {
-	throw new Error(`Already registered a command with id ${data.command}}`);
-}
+	registerSlashCommand(data: IChatSlashData, command: IChatSlashCallback): IDisposable {
+		if (this._commands.has(data.command)) {
+			throw new Error(`Already registered a command with id ${data.command}}`);
+		}
 
-this._commands.set(data.command, { data, command });
-this._onDidChangeCommands.fire();
-
-return toDisposable(() => {
-	if (this._commands.delete(data.command)) {
+		this._commands.set(data.command, { data, command });
 		this._onDidChangeCommands.fire();
+
+		return toDisposable(() => {
+			if (this._commands.delete(data.command)) {
+				this._onDidChangeCommands.fire();
+			}
+		});
 	}
-});
-    }
 
-getCommands(location: ChatAgentLocation, mode: ChatMode): Array < IChatSlashData > {
-	return Array
-		.from(this._commands.values(), v => v.data)
-		.filter(c => c.locations.includes(location) && (!c.modes || c.modes.includes(mode)));
-}
-
-hasCommand(id: string): boolean {
-	return this._commands.has(id);
-}
-
-    async executeCommand(id: string, prompt: string, progress: IProgress<IChatProgress>, history: IChatMessage[], location: ChatAgentLocation, token: CancellationToken): Promise < { followUp: IChatFollowup[] }cognidreamognidream > {
-	const data = this._commands.get(id);
-	if(!data) {
-		throw new Error('No command with id ${id} NOT registered');
+	getCommands(location: ChatAgentLocation, mode: ChatMode): Array<IChatSlashData> {
+		return Array
+			.from(this._commands.values(), v => v.data)
+			.filter(c => c.locations.includes(location) && (!c.modes || c.modes.includes(mode)));
 	}
-        if(!data.command) {
-	await this._extensionService.activateByEvent(`onSlash:${id}`);
-}
-if (!data.command) {
-	throw new Error(`No command with id ${id} NOT resolved`);
-}
 
-return await data.command(prompt, progress, history, location, token);
-    }
+	hasCommand(id: string): boolean {
+		return this._commands.has(id);
+	}
+
+	async executeCommand(id: string, prompt: string, progress: IProgress<IChatProgress>, history: IChatMessage[], location: ChatAgentLocation, token: CancellationToken): Promise<{ followUp: IChatFollowup[] } | void> {
+		const data = this._commands.get(id);
+		if (!data) {
+			throw new Error('No command with id ${id} NOT registered');
+		}
+		if (!data.command) {
+			await this._extensionService.activateByEvent(`onSlash:${id}`);
+		}
+		if (!data.command) {
+			throw new Error(`No command with id ${id} NOT resolved`);
+		}
+
+		return await data.command(prompt, progress, history, location, token);
+	}
 }

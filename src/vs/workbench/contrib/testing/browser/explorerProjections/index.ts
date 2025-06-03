@@ -26,7 +26,7 @@ export interface ITestTreeProjection extends IDisposable {
 	/**
 	 * Event that fires when the projection changes.
 	 */
-	onUpdate: Event<cognidream>;
+	onUpdate: Event<void>;
 
 	/**
 	 * State to use for applying default collapse state of items.
@@ -36,17 +36,17 @@ export interface ITestTreeProjection extends IDisposable {
 	/**
 	 * Fired when an element in the tree is expanded.
 	 */
-	expandElement(element: TestItemTreeElement, depth: numbercognidreamognidream;
+	expandElement(element: TestItemTreeElement, depth: number): void;
 
-		/**
-		 * Gets an element by its extension-assigned ID.
-		 */
-		getElementByTestId(testId: string): TestItemTreeElement | undefined;
+	/**
+	 * Gets an element by its extension-assigned ID.
+	 */
+	getElementByTestId(testId: string): TestItemTreeElement | undefined;
 
 	/**
 	 * Applies pending update to the tree.
 	 */
-	applyTo(tree: ObjectTree<TestExplorerTreeElement, FuzzyScore>cognidreamognidream;
+	applyTo(tree: ObjectTree<TestExplorerTreeElement, FuzzyScore>): void;
 }
 
 let idCounter = 0;
@@ -54,7 +54,7 @@ let idCounter = 0;
 const getId = () => String(idCounter++);
 
 export abstract class TestItemTreeElement {
-	protected readonly changeEmitter = new Emittcognidreamognidream > ();
+	protected readonly changeEmitter = new Emitter<void>();
 
 	/**
 	 * Fired whenever the element or test properties change.

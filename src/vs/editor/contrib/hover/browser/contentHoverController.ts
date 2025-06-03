@@ -37,7 +37,7 @@ interface IHoverSettings {
 
 export class ContentHoverController extends Disposable implements IEditorContribution {
 
-	private readonly _onHoverContentsChanged = this._register(new Emitter<cognidream>());
+	private readonly _onHoverContentsChanged = this._register(new Emitter<void>());
 	public readonly onHoverContentsChanged = this._onHoverContentsChanged.event;
 
 	public static readonly ID = 'editor.contrib.contentHover';
@@ -80,7 +80,7 @@ export class ContentHoverController extends Disposable implements IEditorContrib
 		return editor.getContribution<ContentHoverController>(ContentHoverController.ID);
 	}
 
-	private _hookListeners(): cognidream {
+	private _hookListeners(): void {
 		const hoverOpts = this._editor.getOption(EditorOption.hover);
 		this._hoverSettings = {
 			enabled: hoverOpts.enabled,
@@ -100,11 +100,11 @@ export class ContentHoverController extends Disposable implements IEditorContrib
 		this._listenersStore.add(this._editor.onDidScrollChange((e: IScrollEvent) => this._onEditorScrollChanged(e)));
 	}
 
-	private _unhookListeners(): cognidream {
+	private _unhookListeners(): void {
 		this._listenersStore.clear();
 	}
 
-	private _cancelSchedulerAndHide(): cognidream {
+	private _cancelSchedulerAndHide(): void {
 		this._cancelScheduler();
 		this.hideContentHover();
 	}
@@ -114,13 +114,13 @@ export class ContentHoverController extends Disposable implements IEditorContrib
 		this._reactToEditorMouseMoveRunner.cancel();
 	}
 
-	private _onEditorScrollChanged(e: IScrollEvent): cognidream {
+	private _onEditorScrollChanged(e: IScrollEvent): void {
 		if (e.scrollTopChanged || e.scrollLeftChanged) {
 			this.hideContentHover();
 		}
 	}
 
-	private _onEditorMouseDown(mouseEvent: IEditorMouseEvent): cognidream {
+	private _onEditorMouseDown(mouseEvent: IEditorMouseEvent): void {
 		this._isMouseDown = true;
 		const shouldKeepHoverWidgetVisible = this._shouldKeepHoverWidgetVisible(mouseEvent);
 		if (shouldKeepHoverWidgetVisible) {
@@ -140,11 +140,11 @@ export class ContentHoverController extends Disposable implements IEditorContrib
 		return isMousePositionWithinElement(this._contentWidget.getDomNode(), mouseEvent.event.posx, mouseEvent.event.posy);
 	}
 
-	private _onEditorMouseUp(): cognidream {
+	private _onEditorMouseUp(): void {
 		this._isMouseDown = false;
 	}
 
-	private _onEditorMouseLeave(mouseEvent: IPartialEditorMouseEvent): cognidream {
+	private _onEditorMouseLeave(mouseEvent: IPartialEditorMouseEvent): void {
 		if (this.shouldKeepOpenOnEditorMouseMoveOrLeave) {
 			return;
 		}
@@ -197,7 +197,7 @@ export class ContentHoverController extends Disposable implements IEditorContrib
 			|| isTextSelectedWithinContentHoverWidget(mouseEvent, isHoverSticky);
 	}
 
-	private _onEditorMouseMove(mouseEvent: IEditorMouseEvent): cognidream {
+	private _onEditorMouseMove(mouseEvent: IEditorMouseEvent): void {
 		this._mouseMoveEvent = mouseEvent;
 		const shouldKeepCurrentHover = this._shouldKeepCurrentHover(mouseEvent);
 		if (shouldKeepCurrentHover) {
@@ -222,7 +222,7 @@ export class ContentHoverController extends Disposable implements IEditorContrib
 		return isContentHoverWidgetVisible && this._hoverSettings.sticky && hidingDelay > 0;
 	}
 
-	private _reactToEditorMouseMove(mouseEvent: IEditorMouseEvent): cognidream {
+	private _reactToEditorMouseMove(mouseEvent: IEditorMouseEvent): void {
 		if (this._hoverSettings.enabled) {
 			const contentWidget: ContentHoverWidgetWrapper = this._getOrCreateContentWidget();
 			if (contentWidget.showsOrWillShow(mouseEvent)) {
@@ -235,7 +235,7 @@ export class ContentHoverController extends Disposable implements IEditorContrib
 		this.hideContentHover();
 	}
 
-	private _onKeyDown(e: IKeyboardEvent): cognidream {
+	private _onKeyDown(e: IKeyboardEvent): void {
 		if (!this._contentWidget) {
 			return;
 		}
@@ -271,7 +271,7 @@ export class ContentHoverController extends Disposable implements IEditorContrib
 			|| e.keyCode === KeyCode.Shift;
 	}
 
-	public hideContentHover(): cognidream {
+	public hideContentHover(): void {
 		if (_sticky) {
 			return;
 		}
@@ -294,7 +294,7 @@ export class ContentHoverController extends Disposable implements IEditorContrib
 		mode: HoverStartMode,
 		source: HoverStartSource,
 		focus: boolean
-	): cognidream {
+	): void {
 		this._getOrCreateContentWidget().startShowingAtRange(range, mode, source, focus);
 	}
 
@@ -310,47 +310,47 @@ export class ContentHoverController extends Disposable implements IEditorContrib
 		return this._getOrCreateContentWidget().doesHoverAtIndexSupportVerbosityAction(index, action);
 	}
 
-	public updateHoverVerbosityLevel(action: HoverVerbosityAction, index: number, focus?: boolean): cognidream {
+	public updateHoverVerbosityLevel(action: HoverVerbosityAction, index: number, focus?: boolean): void {
 		this._getOrCreateContentWidget().updateHoverVerbosityLevel(action, index, focus);
 	}
 
-	public focus(): cognidream {
+	public focus(): void {
 		this._contentWidget?.focus();
 	}
 
-	public focusHoverPartWithIndex(index: number): cognidream {
+	public focusHoverPartWithIndex(index: number): void {
 		this._contentWidget?.focusHoverPartWithIndex(index);
 	}
 
-	public scrollUp(): cognidream {
+	public scrollUp(): void {
 		this._contentWidget?.scrollUp();
 	}
 
-	public scrollDown(): cognidream {
+	public scrollDown(): void {
 		this._contentWidget?.scrollDown();
 	}
 
-	public scrollLeft(): cognidream {
+	public scrollLeft(): void {
 		this._contentWidget?.scrollLeft();
 	}
 
-	public scrollRight(): cognidream {
+	public scrollRight(): void {
 		this._contentWidget?.scrollRight();
 	}
 
-	public pageUp(): cognidream {
+	public pageUp(): void {
 		this._contentWidget?.pageUp();
 	}
 
-	public pageDown(): cognidream {
+	public pageDown(): void {
 		this._contentWidget?.pageDown();
 	}
 
-	public goToTop(): cognidream {
+	public goToTop(): void {
 		this._contentWidget?.goToTop();
 	}
 
-	public goToBottom(): cognidream {
+	public goToBottom(): void {
 		this._contentWidget?.goToBottom();
 	}
 
@@ -374,7 +374,7 @@ export class ContentHoverController extends Disposable implements IEditorContrib
 		return this._contentWidget?.isVisible;
 	}
 
-	public override dispose(): cognidream {
+	public override dispose(): void {
 		super.dispose();
 		this._unhookListeners();
 		this._listenersStore.dispose();

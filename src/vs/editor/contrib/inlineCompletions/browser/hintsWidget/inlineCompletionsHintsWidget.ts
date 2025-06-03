@@ -200,7 +200,7 @@ export class InlineSuggestionHintsContentWidget extends Disposable implements IC
 		private readonly _suggestionCount: IObservable<number | undefined>,
 		private readonly _extraCommands: IObservable<Command[]>,
 		private readonly _warning: IObservable<InlineCompletionWarning | undefined>,
-		private readonly _relayout: () => cognidream,
+		private readonly _relayout: () => void,
 		@ICommandService private readonly _commandService: ICommandService,
 		@IInstantiationService instantiationService: IInstantiationService,
 		@IKeybindingService private readonly keybindingService: IKeybindingService,
@@ -317,18 +317,18 @@ export class InlineSuggestionHintsContentWidget extends Disposable implements IC
 class ActionViewItemWithClassName extends ActionViewItem {
 	private _className: string | undefined = undefined;
 
-	setClass(className: string | undefined): cognidream {
+	setClass(className: string | undefined): void {
 		this._className = className;
 	}
 
-	override render(container: HTMLElement): cognidream {
+	override render(container: HTMLElement): void {
 		super.render(container);
 		if (this._className) {
 			container.classList.add(this._className);
 		}
 	}
 
-	protected override updateTooltip(): cognidream {
+	protected override updateTooltip(): void {
 		// NOOP, disable tooltip
 	}
 }
@@ -350,7 +350,7 @@ class StatusBarViewItem extends MenuEntryActionViewItem {
 		}
 	}
 
-	protected override updateTooltip(): cognidream {
+	protected override updateTooltip(): void {
 		// NOOP, disable tooltip
 	}
 }
@@ -378,7 +378,7 @@ export class CustomizedMenuWorkbenchToolBar extends WorkbenchToolBar {
 		this.updateToolbar();
 	}
 
-	private updateToolbar(): cognidream {
+	private updateToolbar(): void {
 		const { primary, secondary } = getActionBarActions(
 			this.menu.getActions(this.options2?.menuOptions),
 			this.options2?.toolbarOptions?.primaryGroup, this.options2?.toolbarOptions?.shouldInlineSubmenu, this.options2?.toolbarOptions?.useSeparatorsInPrimaryActions
@@ -390,7 +390,7 @@ export class CustomizedMenuWorkbenchToolBar extends WorkbenchToolBar {
 		this.setActions(primary, secondary);
 	}
 
-	setPrependedPrimaryActions(actions: IAction[]): cognidream {
+	setPrependedPrimaryActions(actions: IAction[]): void {
 		if (equals(this.prependedPrimaryActions, actions, (a, b) => a === b)) {
 			return;
 		}
@@ -399,7 +399,7 @@ export class CustomizedMenuWorkbenchToolBar extends WorkbenchToolBar {
 		this.updateToolbar();
 	}
 
-	setAdditionalPrimaryActions(actions: IAction[]): cognidream {
+	setAdditionalPrimaryActions(actions: IAction[]): void {
 		if (equals(this.additionalPrimaryActions, actions, (a, b) => a === b)) {
 			return;
 		}
@@ -408,7 +408,7 @@ export class CustomizedMenuWorkbenchToolBar extends WorkbenchToolBar {
 		this.updateToolbar();
 	}
 
-	setAdditionalSecondaryActions(actions: IAction[]): cognidream {
+	setAdditionalSecondaryActions(actions: IAction[]): void {
 		if (equals(this.additionalActions, actions, (a, b) => a === b)) {
 			return;
 		}

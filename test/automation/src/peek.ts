@@ -14,26 +14,26 @@ export class References {
 
 	constructor(private code: Code) { }
 
-	async waitUntilOpen(): Promise<cognidream> {
+	async waitUntilOpen(): Promise<void> {
 		await this.code.waitForElement(References.REFERENCES_WIDGET);
 	}
 
-	async waitForReferencesCountInTitle(count: number): Promise<cognidream> {
+	async waitForReferencesCountInTitle(count: number): Promise<void> {
 		await this.code.waitForTextContent(References.REFERENCES_TITLE_COUNT, undefined, titleCount => {
 			const matches = titleCount.match(/\d+/);
 			return matches ? parseInt(matches[0]) === count : false;
 		});
 	}
 
-	async waitForReferencesCount(count: number): Promise<cognidream> {
+	async waitForReferencesCount(count: number): Promise<void> {
 		await this.code.waitForElements(References.REFERENCES, false, result => result && result.length === count);
 	}
 
-	async waitForFile(file: string): Promise<cognidream> {
+	async waitForFile(file: string): Promise<void> {
 		await this.code.waitForTextContent(References.REFERENCES_TITLE_FILE_NAME, file);
 	}
 
-	async close(): Promise<cognidream> {
+	async close(): Promise<void> {
 		// Sometimes someone else eats up the `Escape` key
 		let count = 0;
 		while (true) {

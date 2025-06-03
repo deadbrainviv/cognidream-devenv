@@ -74,7 +74,7 @@ export class ExtHostConsumerFileSystem {
 					return ExtHostConsumerFileSystem._handleError(err);
 				}
 			},
-			async createDirectory(uri: vscode.Uri): Promise<cognidream> {
+			async createDirectory(uri: vscode.Uri): Promise<void> {
 				try {
 					const provider = that._fileSystemProvider.get(uri.scheme);
 					if (provider && !provider.isReadonly) {
@@ -103,7 +103,7 @@ export class ExtHostConsumerFileSystem {
 					return ExtHostConsumerFileSystem._handleError(err);
 				}
 			},
-			async writeFile(uri: vscode.Uri, content: Uint8Array): cognidreammise<cognidream> {
+			async writeFile(uri: vscode.Uri, content: Uint8Array): Promise<void> {
 				try {
 					const provider = that._fileSystemProvider.get(uri.scheme);
 					if (provider && !provider.isReadonly) {
@@ -118,7 +118,7 @@ export class ExtHostConsumerFileSystem {
 					return ExtHostConsumerFileSystem._handleError(err);
 				}
 			},
-			async delete(uri: vscode.Uri, options?: { recursive?: boolean; useTrash?: boolean }): cognidreammise<cognidream> {
+			async delete(uri: vscode.Uri, options?: { recursive?: boolean; useTrash?: boolean }): Promise<void> {
 				try {
 					const provider = that._fileSystemProvider.get(uri.scheme);
 					if (provider && !provider.isReadonly && !options?.useTrash /* no shortcut: use trash */) {
@@ -132,7 +132,7 @@ export class ExtHostConsumerFileSystem {
 					return ExtHostConsumerFileSystem._handleError(err);
 				}
 			},
-			async rename(oldUri: vscode.Uri, newUri: vscode.Uri, options?: { overwrite?: boolean }): cognidreammise<cognidream> {
+			async rename(oldUri: vscode.Uri, newUri: vscode.Uri, options?: { overwrite?: boolean }): Promise<void> {
 				try {
 					// no shortcut: potentially involves different schemes, does mkdirp
 					return await that._proxy.$rename(oldUri, newUri, { ...{ overwrite: false }, ...options });
@@ -140,7 +140,7 @@ export class ExtHostConsumerFileSystem {
 					return ExtHostConsumerFileSystem._handleError(err);
 				}
 			},
-			async copy(source: vscode.Uri, destination: vscode.Uri, options?: { overwrite?: boolean }): cognidreammise<cognidream> {
+			async copy(source: vscode.Uri, destination: vscode.Uri, options?: { overwrite?: boolean }): Promise<void> {
 				try {
 					// no shortcut: potentially involves different schemes, does mkdirp
 					return await that._proxy.$copy(source, destination, { ...{ overwrite: false }, ...options });
@@ -158,58 +158,81 @@ export class ExtHostConsumerFileSystem {
 		});
 	}
 
-	private async mkdirp(provider: vscode.FileSystemProvider, providerExtUri: IExtUri, directory: vscode.Uri): Promicognidreamognidream> {
+	private async mkdirp(provider: vscode.FileSystemProvider, providerExtUri: IExtUri, directory: vscode.Uri): Promise<void> {
 		const directoriesToCreate: string[] = [];
 
-		while(!providerExtUri.isEqual(directory, providerExtUri.dirname(directory))) {
-	try {
-		const stat = await provider.stat(directory);
-		if ((stat.type & files.FileType.Directory) === 0) {
-			throw FileSystemError.FileExists(`Unable to create folder '${directory.scheme === Schemas.file ? directory.fsPath : directory.toString(true)}' that already exists but is not a directory`);
+		while (!providerExtUri.isEqual(directory, providerExtUri.dirname(directory))) {
+			try {
+				const stat = await provider.stat(directory);
+				if ((stat.type & files.FileType.Directory) === 0) {
+					throw FileSystemError.FileExists(`Unable to create folder '${directory.scheme === Schemas.file ? directory.fsPath : directory.toString(true)}' that already exists but is not a directory`);
+				}
+
+				break; // we have hit a directory that exists -> good
+			} catch (error) {
+				if (files.toFileSystemProviderErrorCode(error) !== files.FileSystemProviderErrorCode.FileNotFound) {
+					throw error;
+				}
+
+				// further go up and remember to create this directory
+				directoriesToCreate.push(providerExtUri.basename(directory));
+				directory = providerExtUri.dirname(directory);
+			}
 		}
 
-		break; // we have hit a directory that exists -> good
-	} catch (error) {
-		if (files.toFileSystemProviderErrorCode(error) !== files.FileSystemProviderErrorCode.FileNotFound) {
-			throw error;
-		}
+		for (let i = directoriesToCreate.length - 1; i >= 0; i--) {
+			directory = providerExtUri.joinPath(directory, directoriesToCreate[i]);
 
-		// further go up and remember to create this directory
-		directoriesToCreate.push(providerExtUri.basename(directory));
-		directory = providerExtUri.dirname(directory);
-	}
-}
-
-for (let i = directoriesToCreate.length - 1; i >= 0; i--) {
-	directory = providerExtUri.joinPath(directory, directoriesToCreate[i]);
-
-	try {
-		await provider.createDirectory(directory);
-	} catch (error) {
-		if (files.toFileSystemProviderErrorCode(error) !== files.FileSystemProviderErrorCode.FileExists) {
-			// For mkdirp() we tolerate that the mkdir() call fails
-			// in case the folder already exists. This follows node.js
-			// own implementation of fs.mkdir({ recursive: true }) and
-			// reduces the chances of race conditions leading to errors
-			// if multiple calls try to create the same folders
-			// As such, we only throw an error here if it is other than
-			// the fact that the file already exists.
-			// (see also https://github.com/microsoft/vscode/issues/89834)
-			throw error;
+			try {
+				await provider.createDirectory(directory);
+			} catch (error) {
+				if (files.toFileSystemProviderErrorCode(error) !== files.FileSystemProviderErrorCode.FileExists) {
+					// For mkdirp() we tolerate that the mkdir() call fails
+					// in case the folder already exists. This follows node.js
+					// own implementation of fs.mkdir({ recursive: true }) and
+					// reduces the chances of race conditions leading to errors
+					// if multiple calls try to create the same folders
+					// As such, we only throw an error here if it is other than
+					// the fact that the file already exists.
+					// (see also https://github.com/microsoft/vscode/issues/89834)
+					throw error;
+				}
+			}
 		}
 	}
-}
-    }
 
-    private static _handleError(err: any): never {
-	// desired error type
-	if (err instanceof FileSystemError) {
-		throw err;
-	}
+	private static _handleError(err: any): never {
+		// desired error type
+		if (err instanceof FileSystemError) {
+			throw err;
+		}
 
-	// file system provider error
-	if (err instanceof files.FileSystemProviderError) {
-		switch (err.code) {
+		// file system provider error
+		if (err instanceof files.FileSystemProviderError) {
+			switch (err.code) {
+				case files.FileSystemProviderErrorCode.FileExists: throw FileSystemError.FileExists(err.message);
+				case files.FileSystemProviderErrorCode.FileNotFound: throw FileSystemError.FileNotFound(err.message);
+				case files.FileSystemProviderErrorCode.FileNotADirectory: throw FileSystemError.FileNotADirectory(err.message);
+				case files.FileSystemProviderErrorCode.FileIsADirectory: throw FileSystemError.FileIsADirectory(err.message);
+				case files.FileSystemProviderErrorCode.NoPermissions: throw FileSystemError.NoPermissions(err.message);
+				case files.FileSystemProviderErrorCode.Unavailable: throw FileSystemError.Unavailable(err.message);
+
+				default: throw new FileSystemError(err.message, err.name as files.FileSystemProviderErrorCode);
+			}
+		}
+
+		// generic error
+		if (!(err instanceof Error)) {
+			throw new FileSystemError(String(err));
+		}
+
+		// no provider (unknown scheme) error
+		if (err.name === 'ENOPRO' || err.message.includes('ENOPRO')) {
+			throw FileSystemError.Unavailable(err.message);
+		}
+
+		// file system error
+		switch (err.name) {
 			case files.FileSystemProviderErrorCode.FileExists: throw FileSystemError.FileExists(err.message);
 			case files.FileSystemProviderErrorCode.FileNotFound: throw FileSystemError.FileNotFound(err.message);
 			case files.FileSystemProviderErrorCode.FileNotADirectory: throw FileSystemError.FileNotADirectory(err.message);
@@ -221,39 +244,16 @@ for (let i = directoriesToCreate.length - 1; i >= 0; i--) {
 		}
 	}
 
-	// generic error
-	if (!(err instanceof Error)) {
-		throw new FileSystemError(String(err));
+	// ---
+
+	addFileSystemProvider(scheme: string, provider: vscode.FileSystemProvider, options?: { isCaseSensitive?: boolean; isReadonly?: boolean | IMarkdownString }): IDisposable {
+		this._fileSystemProvider.set(scheme, { impl: provider, extUri: options?.isCaseSensitive ? extUri : extUriIgnorePathCase, isReadonly: !!options?.isReadonly });
+		return toDisposable(() => this._fileSystemProvider.delete(scheme));
 	}
 
-	// no provider (unknown scheme) error
-	if (err.name === 'ENOPRO' || err.message.includes('ENOPRO')) {
-		throw FileSystemError.Unavailable(err.message);
+	getFileSystemProviderExtUri(scheme: string) {
+		return this._fileSystemProvider.get(scheme)?.extUri ?? extUri;
 	}
-
-	// file system error
-	switch (err.name) {
-		case files.FileSystemProviderErrorCode.FileExists: throw FileSystemError.FileExists(err.message);
-		case files.FileSystemProviderErrorCode.FileNotFound: throw FileSystemError.FileNotFound(err.message);
-		case files.FileSystemProviderErrorCode.FileNotADirectory: throw FileSystemError.FileNotADirectory(err.message);
-		case files.FileSystemProviderErrorCode.FileIsADirectory: throw FileSystemError.FileIsADirectory(err.message);
-		case files.FileSystemProviderErrorCode.NoPermissions: throw FileSystemError.NoPermissions(err.message);
-		case files.FileSystemProviderErrorCode.Unavailable: throw FileSystemError.Unavailable(err.message);
-
-		default: throw new FileSystemError(err.message, err.name as files.FileSystemProviderErrorCode);
-	}
-}
-
-// ---
-
-addFileSystemProvider(scheme: string, provider: vscode.FileSystemProvider, options ?: { isCaseSensitive?: boolean; isReadonly?: boolean | IMarkdownString }): IDisposable {
-	this._fileSystemProvider.set(scheme, { impl: provider, extUri: options?.isCaseSensitive ? extUri : extUriIgnorePathCase, isReadonly: !!options?.isReadonly });
-	return toDisposable(() => this._fileSystemProvider.delete(scheme));
-}
-
-getFileSystemProviderExtUri(scheme: string) {
-	return this._fileSystemProvider.get(scheme)?.extUri ?? extUri;
-}
 }
 
 export interface IExtHostConsumerFileSystem extends ExtHostConsumerFileSystem { }

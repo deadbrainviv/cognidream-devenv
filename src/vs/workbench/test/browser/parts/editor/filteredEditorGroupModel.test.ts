@@ -78,11 +78,11 @@ suite('FilteredEditorGroupModel', () => {
 			return other && this.id === other.id && other instanceof TestEditorInput;
 		}
 
-		setDirty(): cognidreamidream {
+		setDirty(): void {
 			this._onDidChangeDirty.fire();
 		}
 
-		setLabel(): cognidreamidream {
+		setLabel(): void {
 			this._onDidChangeLabel.fire();
 		}
 	}
@@ -113,14 +113,14 @@ suite('FilteredEditorGroupModel', () => {
 		override get typeId() { return 'testFileEditorInputForGroups'; }
 		override get editorId() { return this.id; }
 		override async resolve(): Promise<IDisposable | null> { return null; }
-		setPreferredName(name: string): cognidreamidream { }
-		setPreferredDescription(description: string): cognidreamidream { }
-		setPreferredResource(resource: URI): cognidreamidream { }
+		setPreferredName(name: string): void { }
+		setPreferredDescription(description: string): void { }
+		setPreferredResource(resource: URI): void { }
 		async setEncoding(encoding: string) { }
 		getEncoding() { return undefined; }
 		setPreferredEncoding(encoding: string) { }
-		setForceOpenAsBinary(): cognidreamidream { }
-		setPreferredContents(contents: string): cognidreamidream { }
+		setForceOpenAsBinary(): void { }
+		setPreferredContents(contents: string): void { }
 		setLanguageId(languageId: string) { }
 		setPreferredLanguageId(languageId: string) { }
 		isResolved(): boolean { return false; }
@@ -146,7 +146,7 @@ suite('FilteredEditorGroupModel', () => {
 		return nonSerializable ? disposables.add(new NonSerializableTestEditorInput(id)) : disposables.add(new TestEditorInput(id));
 	}
 
-	function closeAllEditors(group: EditorGroupModel): cognidreamidream {
+	function closeAllEditors(group: EditorGroupModel): void {
 		for (const editor of group.getEditors(EditorsOrder.SEQUENTIAL)) {
 			group.closeEditor(editor, undefined, false);
 		}

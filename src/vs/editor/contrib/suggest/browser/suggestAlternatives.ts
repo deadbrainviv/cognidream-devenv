@@ -28,11 +28,11 @@ export class SuggestAlternatives {
 		this._ckOtherSuggestions = SuggestAlternatives.OtherSuggestions.bindTo(contextKeyService);
 	}
 
-	dispose(): cognidream {
+	dispose(): void {
 		this.reset();
 	}
 
-	reset(): cognidream {
+	reset(): void {
 		this._ckOtherSuggestions.reset();
 		this._listener?.dispose();
 		this._model = undefined;
@@ -40,7 +40,7 @@ export class SuggestAlternatives {
 		this._ignore = false;
 	}
 
-	set({ model, index }: ISelectedSuggestion, acceptNext: (selected: ISelectedSuggestion) => any): cognidream {
+	set({ model, index }: ISelectedSuggestion, acceptNext: (selected: ISelectedSuggestion) => any): void {
 
 		// no suggestions -> nothing to do
 		if (model.items.length === 0) {
@@ -80,15 +80,15 @@ export class SuggestAlternatives {
 		return newIndex;
 	}
 
-	next(): cognidream {
+	next(): void {
 		this._move(true);
 	}
 
-	prev(): cognidream {
+	prev(): void {
 		this._move(false);
 	}
 
-	private _move(fwd: boolean): cognidream {
+	private _move(fwd: boolean): void {
 		if (!this._model) {
 			// nothing to reason about
 			return;

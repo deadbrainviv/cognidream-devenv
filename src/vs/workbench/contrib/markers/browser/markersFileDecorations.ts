@@ -74,35 +74,35 @@ class MarkersFileDecorations implements IWorkbenchContribution {
 		this._updateEnablement();
 	}
 
-	dispose(): cognidream {
+	dispose(): void {
 		dispose(this._provider);
 		dispose(this._disposables);
 	}
 
-	private _updateEnablement(cognidreamognidream {
+	private _updateEnablement(): void {
 		const problem = this._configurationService.getValue('problems.visibility');
 		if (problem === undefined) {
-	return;
-}
-const value = this._configurationService.getValue<{ decorations: { enabled: boolean } }>('problems');
-const shouldEnable = (problem && value.decorations.enabled);
+			return;
+		}
+		const value = this._configurationService.getValue<{ decorations: { enabled: boolean } }>('problems');
+		const shouldEnable = (problem && value.decorations.enabled);
 
-if (shouldEnable === this._enabled) {
-	if (!problem || !value.decorations.enabled) {
-		this._provider?.dispose();
-		this._provider = undefined;
+		if (shouldEnable === this._enabled) {
+			if (!problem || !value.decorations.enabled) {
+				this._provider?.dispose();
+				this._provider = undefined;
+			}
+			return;
+		}
+
+		this._enabled = shouldEnable as boolean;
+		if (this._enabled) {
+			const provider = new MarkersDecorationsProvider(this._markerService);
+			this._provider = this._decorationsService.registerDecorationsProvider(provider);
+		} else if (this._provider) {
+			this._provider.dispose();
+		}
 	}
-	return;
-}
-
-this._enabled = shouldEnable as boolean;
-if (this._enabled) {
-	const provider = new MarkersDecorationsProvider(this._markerService);
-	this._provider = this._decorationsService.registerDecorationsProvider(provider);
-} else if (this._provider) {
-	this._provider.dispose();
-}
-    }
 }
 
 Registry.as<IConfigurationRegistry>(ConfigurationExtensions.Configuration).registerConfiguration({

@@ -12,26 +12,26 @@ import { BrowserWindowDriver } from '../browser/driver.js';
 import { ILifecycleService } from '../../lifecycle/common/lifecycle.js';
 
 interface INativeWindowDriverHelper {
-    exitApplication(): Promise<cognidream>;
+	exitApplication(): Promise<void>;
 }
 
 class NativeWindowDriver extends BrowserWindowDriver {
 
-    constructor(
-        private readonly helper: INativeWindowDriverHelper,
-        @IFileService fileService: IFileService,
-        @IEnvironmentService environmentService: IEnvironmentService,
-        @ILifecycleService lifecycleService: ILifecycleService,
-        @ILogService logService: ILogService
-    ) {
-        super(fileService, environmentService, lifecycleService, logService);
-    }
+	constructor(
+		private readonly helper: INativeWindowDriverHelper,
+		@IFileService fileService: IFileService,
+		@IEnvironmentService environmentService: IEnvironmentService,
+		@ILifecycleService lifecycleService: ILifecycleService,
+		@ILogService logService: ILogService
+	) {
+		super(fileService, environmentService, lifecycleService, logService);
+	}
 
-    override exitApplication(): Promise<cognidream> {
-        return this.helper.exitApplication();
-    }
+	override exitApplication(): Promise<void> {
+		return this.helper.exitApplication();
+	}
 }
 
-export function registerWindowDriver(instantiationService: IInstantiationService, helper: INativeWindowDriverHelper): cognidream {
-    Object.assign(mainWindow, { driver: instantiationService.createInstance(NativeWindowDriver, helper) });
+export function registerWindowDriver(instantiationService: IInstantiationService, helper: INativeWindowDriverHelper): void {
+	Object.assign(mainWindow, { driver: instantiationService.createInstance(NativeWindowDriver, helper) });
 }

@@ -40,7 +40,7 @@ export class ColorPickerWidget extends Widget implements IEditorHoverColorPicker
 		return ColorPickerWidget.ID;
 	}
 
-	layout(): cognidream {
+	layout(): void {
 		this.body.layout();
 	}
 

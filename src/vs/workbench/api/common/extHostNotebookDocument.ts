@@ -98,7 +98,7 @@ export class ExtHostCell {
 		return this._apiCell;
 	}
 
-	setOutputs(newOutputs: extHostProtocol.NotebookOutputDto[]): cognidream {
+	setOutputs(newOutputs: extHostProtocol.NotebookOutputDto[]): void {
 		this._outputs = newOutputs.map(extHostTypeConverters.NotebookCellOutput.to);
 	}
 
@@ -139,18 +139,18 @@ export class ExtHostCell {
 		}
 	}
 
-	setMetadata(newMetadata: notebookCommon.NotebookCellMetadatacognidreamognidream {
+	setMetadata(newMetadata: notebookCommon.NotebookCellMetadata): void {
 		this._metadata = Object.freeze(newMetadata);
 	}
 
-    setInternalMetadata(newInternalMetadata: notebookCommon.NotebookCellInternalMetadatacognidreamognidream {
+	setInternalMetadata(newInternalMetadata: notebookCommon.NotebookCellInternalMetadata): void {
 		this._internalMetadata = newInternalMetadata;
 		this._previousResult = Object.freeze(extHostTypeConverters.NotebookCellExecutionSummary.to(newInternalMetadata));
 	}
 
-    setMime(newMime: string | undefined) {
+	setMime(newMime: string | undefined) {
 
-}
+	}
 }
 
 
@@ -228,229 +228,229 @@ export class ExtHostNotebookDocument {
 		}
 	}
 
-	acceptDirty(isDirty: booleancognidreamognidream {
+	acceptDirty(isDirty: boolean): void {
 		this._isDirty = isDirty;
 	}
 
-    acceptModelChanged(event: extHostProtocol.NotebookCellsChangedEventDto, isDirty: boolean, newMetadata: notebookCommon.NotebookDocumentMetadata | undefined): vscode.NotebookDocumentChangeEvent {
-	this._versionId = event.versionId;
-	this._isDirty = isDirty;
-	this.acceptDocumentPropertiesChanged({ metadata: newMetadata });
+	acceptModelChanged(event: extHostProtocol.NotebookCellsChangedEventDto, isDirty: boolean, newMetadata: notebookCommon.NotebookDocumentMetadata | undefined): vscode.NotebookDocumentChangeEvent {
+		this._versionId = event.versionId;
+		this._isDirty = isDirty;
+		this.acceptDocumentPropertiesChanged({ metadata: newMetadata });
 
-	const result = {
-		notebook: this.apiNotebook,
-		metadata: newMetadata,
-		cellChanges: <vscode.NotebookDocumentCellChange[]>[],
-		contentChanges: <vscode.NotebookDocumentContentChange[]>[],
-	};
+		const result = {
+			notebook: this.apiNotebook,
+			metadata: newMetadata,
+			cellChanges: <vscode.NotebookDocumentCellChange[]>[],
+			contentChanges: <vscode.NotebookDocumentContentChange[]>[],
+		};
 
-	type RelaxedCellChange = Partial<vscode.NotebookDocumentCellChange> & { cell: vscode.NotebookCell };
-	const relaxedCellChanges: RelaxedCellChange[] = [];
+		type RelaxedCellChange = Partial<vscode.NotebookDocumentCellChange> & { cell: vscode.NotebookCell };
+		const relaxedCellChanges: RelaxedCellChange[] = [];
 
-	// -- apply change and populate content changes
+		// -- apply change and populate content changes
 
-	for (const rawEvent of event.rawEvents) {
-		if (rawEvent.kind === notebookCommon.NotebookCellsChangeType.ModelChange) {
-			this._spliceNotebookCells(rawEvent.changes, false, result.contentChanges);
+		for (const rawEvent of event.rawEvents) {
+			if (rawEvent.kind === notebookCommon.NotebookCellsChangeType.ModelChange) {
+				this._spliceNotebookCells(rawEvent.changes, false, result.contentChanges);
 
-		} else if (rawEvent.kind === notebookCommon.NotebookCellsChangeType.Move) {
-			this._moveCells(rawEvent.index, rawEvent.length, rawEvent.newIdx, result.contentChanges);
+			} else if (rawEvent.kind === notebookCommon.NotebookCellsChangeType.Move) {
+				this._moveCells(rawEvent.index, rawEvent.length, rawEvent.newIdx, result.contentChanges);
 
-		} else if (rawEvent.kind === notebookCommon.NotebookCellsChangeType.Output) {
-			this._setCellOutputs(rawEvent.index, rawEvent.outputs);
-			relaxedCellChanges.push({ cell: this._cells[rawEvent.index].apiCell, outputs: this._cells[rawEvent.index].apiCell.outputs });
+			} else if (rawEvent.kind === notebookCommon.NotebookCellsChangeType.Output) {
+				this._setCellOutputs(rawEvent.index, rawEvent.outputs);
+				relaxedCellChanges.push({ cell: this._cells[rawEvent.index].apiCell, outputs: this._cells[rawEvent.index].apiCell.outputs });
 
-		} else if (rawEvent.kind === notebookCommon.NotebookCellsChangeType.OutputItem) {
-			this._setCellOutputItems(rawEvent.index, rawEvent.outputId, rawEvent.append, rawEvent.outputItems);
-			relaxedCellChanges.push({ cell: this._cells[rawEvent.index].apiCell, outputs: this._cells[rawEvent.index].apiCell.outputs });
+			} else if (rawEvent.kind === notebookCommon.NotebookCellsChangeType.OutputItem) {
+				this._setCellOutputItems(rawEvent.index, rawEvent.outputId, rawEvent.append, rawEvent.outputItems);
+				relaxedCellChanges.push({ cell: this._cells[rawEvent.index].apiCell, outputs: this._cells[rawEvent.index].apiCell.outputs });
 
-		} else if (rawEvent.kind === notebookCommon.NotebookCellsChangeType.ChangeCellLanguage) {
-			this._changeCellLanguage(rawEvent.index, rawEvent.language);
-			relaxedCellChanges.push({ cell: this._cells[rawEvent.index].apiCell, document: this._cells[rawEvent.index].apiCell.document });
+			} else if (rawEvent.kind === notebookCommon.NotebookCellsChangeType.ChangeCellLanguage) {
+				this._changeCellLanguage(rawEvent.index, rawEvent.language);
+				relaxedCellChanges.push({ cell: this._cells[rawEvent.index].apiCell, document: this._cells[rawEvent.index].apiCell.document });
 
-		} else if (rawEvent.kind === notebookCommon.NotebookCellsChangeType.ChangeCellContent) {
-			relaxedCellChanges.push({ cell: this._cells[rawEvent.index].apiCell, document: this._cells[rawEvent.index].apiCell.document });
+			} else if (rawEvent.kind === notebookCommon.NotebookCellsChangeType.ChangeCellContent) {
+				relaxedCellChanges.push({ cell: this._cells[rawEvent.index].apiCell, document: this._cells[rawEvent.index].apiCell.document });
 
-		} else if (rawEvent.kind === notebookCommon.NotebookCellsChangeType.ChangeCellMime) {
-			this._changeCellMime(rawEvent.index, rawEvent.mime);
-		} else if (rawEvent.kind === notebookCommon.NotebookCellsChangeType.ChangeCellMetadata) {
-			this._changeCellMetadata(rawEvent.index, rawEvent.metadata);
-			relaxedCellChanges.push({ cell: this._cells[rawEvent.index].apiCell, metadata: this._cells[rawEvent.index].apiCell.metadata });
+			} else if (rawEvent.kind === notebookCommon.NotebookCellsChangeType.ChangeCellMime) {
+				this._changeCellMime(rawEvent.index, rawEvent.mime);
+			} else if (rawEvent.kind === notebookCommon.NotebookCellsChangeType.ChangeCellMetadata) {
+				this._changeCellMetadata(rawEvent.index, rawEvent.metadata);
+				relaxedCellChanges.push({ cell: this._cells[rawEvent.index].apiCell, metadata: this._cells[rawEvent.index].apiCell.metadata });
 
-		} else if (rawEvent.kind === notebookCommon.NotebookCellsChangeType.ChangeCellInternalMetadata) {
-			this._changeCellInternalMetadata(rawEvent.index, rawEvent.internalMetadata);
-			relaxedCellChanges.push({ cell: this._cells[rawEvent.index].apiCell, executionSummary: this._cells[rawEvent.index].apiCell.executionSummary });
+			} else if (rawEvent.kind === notebookCommon.NotebookCellsChangeType.ChangeCellInternalMetadata) {
+				this._changeCellInternalMetadata(rawEvent.index, rawEvent.internalMetadata);
+				relaxedCellChanges.push({ cell: this._cells[rawEvent.index].apiCell, executionSummary: this._cells[rawEvent.index].apiCell.executionSummary });
+			}
 		}
+
+		// -- compact cellChanges
+
+		const map = new Map<vscode.NotebookCell, number>();
+		for (let i = 0; i < relaxedCellChanges.length; i++) {
+			const relaxedCellChange = relaxedCellChanges[i];
+			const existing = map.get(relaxedCellChange.cell);
+			if (existing === undefined) {
+				const newLen = result.cellChanges.push({
+					document: undefined,
+					executionSummary: undefined,
+					metadata: undefined,
+					outputs: undefined,
+					...relaxedCellChange,
+				});
+				map.set(relaxedCellChange.cell, newLen - 1);
+			} else {
+				result.cellChanges[existing] = {
+					...result.cellChanges[existing],
+					...relaxedCellChange
+				};
+			}
+		}
+
+		// Freeze event properties so handlers cannot accidentally modify them
+		Object.freeze(result);
+		Object.freeze(result.cellChanges);
+		Object.freeze(result.contentChanges);
+
+		return result;
 	}
 
-	// -- compact cellChanges
-
-	const map = new Map<vscode.NotebookCell, number>();
-	for (let i = 0; i < relaxedCellChanges.length; i++) {
-		const relaxedCellChange = relaxedCellChanges[i];
-		const existing = map.get(relaxedCellChange.cell);
-		if (existing === undefined) {
-			const newLen = result.cellChanges.push({
-				document: undefined,
-				executionSummary: undefined,
-				metadata: undefined,
-				outputs: undefined,
-				...relaxedCellChange,
-			});
-			map.set(relaxedCellChange.cell, newLen - 1);
+	private _validateIndex(index: number): number {
+		index = index | 0;
+		if (index < 0) {
+			return 0;
+		} else if (index >= this._cells.length) {
+			return this._cells.length - 1;
 		} else {
-			result.cellChanges[existing] = {
-				...result.cellChanges[existing],
-				...relaxedCellChange
-			};
+			return index;
 		}
 	}
 
-	// Freeze event properties so handlers cannot accidentally modify them
-	Object.freeze(result);
-	Object.freeze(result.cellChanges);
-	Object.freeze(result.contentChanges);
-
-	return result;
-}
-
-    private _validateIndex(index: number): number {
-	index = index | 0;
-	if (index < 0) {
-		return 0;
-	} else if (index >= this._cells.length) {
-		return this._cells.length - 1;
-	} else {
-		return index;
-	}
-}
-
-    private _validateRange(range: vscode.NotebookRange): vscode.NotebookRange {
-	let start = range.start | 0;
-	let end = range.end | 0;
-	if (start < 0) {
-		start = 0;
-	}
-	if (end > this._cells.length) {
-		end = this._cells.length;
-	}
-	return range.with({ start, end });
-}
-
-    private _getCells(range: vscode.NotebookRange): ExtHostCell[] {
-	range = this._validateRange(range);
-	const result: ExtHostCell[] = [];
-	for (let i = range.start; i < range.end; i++) {
-		result.push(this._cells[i]);
-	}
-	return result;
-}
-
-    private async _save(): Promise < boolean > {
-	if(this._disposed) {
-	return Promise.reject(new Error('Notebook has been closed'));
-}
-return this._proxy.$trySaveNotebook(this.uri);
-    }
-
-    private _spliceNotebookCells(splices: notebookCommon.NotebookCellTextModelSplice < extHostProtocol.NotebookCellDto > [], initialization: boolean, bucket: vscode.NotebookDocumentContentChange[] | undefinedcognidreamognidream {
-	if(this._disposed) {
-	return;
-}
-
-const contentChangeEvents: RawContentChangeEvent[] = [];
-const addedCellDocuments: extHostProtocol.IModelAddedData[] = [];
-const removedCellDocuments: URI[] = [];
-
-splices.reverse().forEach(splice => {
-	const cellDtos = splice[2];
-	const newCells = cellDtos.map(cell => {
-
-		const extCell = new ExtHostCell(this, this._textDocumentsAndEditors, cell);
-		if (!initialization) {
-			addedCellDocuments.push(ExtHostCell.asModelAddData(cell));
+	private _validateRange(range: vscode.NotebookRange): vscode.NotebookRange {
+		let start = range.start | 0;
+		let end = range.end | 0;
+		if (start < 0) {
+			start = 0;
 		}
-		return extCell;
-	});
-
-	const changeEvent = new RawContentChangeEvent(splice[0], splice[1], [], newCells);
-	const deletedItems = this._cells.splice(splice[0], splice[1], ...newCells);
-	for (const cell of deletedItems) {
-		removedCellDocuments.push(cell.uri);
-		changeEvent.deletedItems.push(cell.apiCell);
+		if (end > this._cells.length) {
+			end = this._cells.length;
+		}
+		return range.with({ start, end });
 	}
-	contentChangeEvents.push(changeEvent);
-});
 
-this._textDocumentsAndEditors.acceptDocumentsAndEditorsDelta({
-	addedDocuments: addedCellDocuments,
-	removedDocuments: removedCellDocuments
-});
-
-if (bucket) {
-	for (const changeEvent of contentChangeEvents) {
-		bucket.push(changeEvent.asApiEvent());
+	private _getCells(range: vscode.NotebookRange): ExtHostCell[] {
+		range = this._validateRange(range);
+		const result: ExtHostCell[] = [];
+		for (let i = range.start; i < range.end; i++) {
+			result.push(this._cells[i]);
+		}
+		return result;
 	}
-}
-    }
 
-    private _moveCells(index: number, length: number, newIdx: number, bucket: vscode.NotebookDocumentContentChange[]cognidreamognidream {
-	const cells = this._cells.splice(index, length);
-	this._cells.splice(newIdx, 0, ...cells);
-	const changes = [
-		new RawContentChangeEvent(index, length, cells.map(c => c.apiCell), []),
-		new RawContentChangeEvent(newIdx, 0, [], cells)
-	];
-	for(const change of changes) {
-		bucket.push(change.asApiEvent());
+	private async _save(): Promise<boolean> {
+		if (this._disposed) {
+			return Promise.reject(new Error('Notebook has been closed'));
+		}
+		return this._proxy.$trySaveNotebook(this.uri);
 	}
-}
 
-    private _setCellOutputs(index: number, outputs: extHostProtocol.NotebookOutputDto[]cognidreamognidream {
-	const cell = this._cells[index];
-	cell.setOutputs(outputs);
-}
+	private _spliceNotebookCells(splices: notebookCommon.NotebookCellTextModelSplice<extHostProtocol.NotebookCellDto>[], initialization: boolean, bucket: vscode.NotebookDocumentContentChange[] | undefined): void {
+		if (this._disposed) {
+			return;
+		}
 
-    private _setCellOutputItems(index: number, outputId: string, append: boolean, outputItems: extHostProtocol.NotebookOutputItemDto[]cognidreamognidream {
-	const cell = this._cells[index];
-	cell.setOutputItems(outputId, append, outputItems);
-}
+		const contentChangeEvents: RawContentChangeEvent[] = [];
+		const addedCellDocuments: extHostProtocol.IModelAddedData[] = [];
+		const removedCellDocuments: URI[] = [];
 
-    private _changeCellLanguage(index: number, newLanguageId: stringcognidreamognidream {
-	const cell = this._cells[index];
-	if(cell.apiCell.document.languageId !== newLanguageId) {
-	this._textDocuments.$acceptModelLanguageChanged(cell.uri, newLanguageId);
-}
-    }
+		splices.reverse().forEach(splice => {
+			const cellDtos = splice[2];
+			const newCells = cellDtos.map(cell => {
 
-	private _changeCellMime(index: number, newMime: string | undefinedcognidreamognidream {
+				const extCell = new ExtHostCell(this, this._textDocumentsAndEditors, cell);
+				if (!initialization) {
+					addedCellDocuments.push(ExtHostCell.asModelAddData(cell));
+				}
+				return extCell;
+			});
+
+			const changeEvent = new RawContentChangeEvent(splice[0], splice[1], [], newCells);
+			const deletedItems = this._cells.splice(splice[0], splice[1], ...newCells);
+			for (const cell of deletedItems) {
+				removedCellDocuments.push(cell.uri);
+				changeEvent.deletedItems.push(cell.apiCell);
+			}
+			contentChangeEvents.push(changeEvent);
+		});
+
+		this._textDocumentsAndEditors.acceptDocumentsAndEditorsDelta({
+			addedDocuments: addedCellDocuments,
+			removedDocuments: removedCellDocuments
+		});
+
+		if (bucket) {
+			for (const changeEvent of contentChangeEvents) {
+				bucket.push(changeEvent.asApiEvent());
+			}
+		}
+	}
+
+	private _moveCells(index: number, length: number, newIdx: number, bucket: vscode.NotebookDocumentContentChange[]): void {
+		const cells = this._cells.splice(index, length);
+		this._cells.splice(newIdx, 0, ...cells);
+		const changes = [
+			new RawContentChangeEvent(index, length, cells.map(c => c.apiCell), []),
+			new RawContentChangeEvent(newIdx, 0, [], cells)
+		];
+		for (const change of changes) {
+			bucket.push(change.asApiEvent());
+		}
+	}
+
+	private _setCellOutputs(index: number, outputs: extHostProtocol.NotebookOutputDto[]): void {
+		const cell = this._cells[index];
+		cell.setOutputs(outputs);
+	}
+
+	private _setCellOutputItems(index: number, outputId: string, append: boolean, outputItems: extHostProtocol.NotebookOutputItemDto[]): void {
+		const cell = this._cells[index];
+		cell.setOutputItems(outputId, append, outputItems);
+	}
+
+	private _changeCellLanguage(index: number, newLanguageId: string): void {
+		const cell = this._cells[index];
+		if (cell.apiCell.document.languageId !== newLanguageId) {
+			this._textDocuments.$acceptModelLanguageChanged(cell.uri, newLanguageId);
+		}
+	}
+
+	private _changeCellMime(index: number, newMime: string | undefined): void {
 		const cell = this._cells[index];
 		cell.apiCell.mime = newMime;
 	}
 
-    private _changeCellMetadata(index: number, newMetadata: notebookCommon.NotebookCellMetadatacognidreamognidream {
+	private _changeCellMetadata(index: number, newMetadata: notebookCommon.NotebookCellMetadata): void {
 		const cell = this._cells[index];
 		cell.setMetadata(newMetadata);
 	}
 
-    private _changeCellInternalMetadata(index: number, newInternalMetadata: notebookCommon.NotebookCellInternalMetadatacognidreamognidream {
+	private _changeCellInternalMetadata(index: number, newInternalMetadata: notebookCommon.NotebookCellInternalMetadata): void {
 		const cell = this._cells[index];
 		cell.setInternalMetadata(newInternalMetadata);
 	}
 
-    getCellFromApiCell(apiCell: vscode.NotebookCell): ExtHostCell | undefined {
+	getCellFromApiCell(apiCell: vscode.NotebookCell): ExtHostCell | undefined {
 		return this._cells.find(cell => cell.apiCell === apiCell);
 	}
 
-    getCellFromIndex(index: number): ExtHostCell | undefined {
+	getCellFromIndex(index: number): ExtHostCell | undefined {
 		return this._cells[index];
 	}
 
-    getCell(cellHandle: number): ExtHostCell | undefined {
+	getCell(cellHandle: number): ExtHostCell | undefined {
 		return this._cells.find(cell => cell.handle === cellHandle);
 	}
 
-    getCellIndex(cell: ExtHostCell): number {
+	getCellIndex(cell: ExtHostCell): number {
 		return this._cells.indexOf(cell);
 	}
 }

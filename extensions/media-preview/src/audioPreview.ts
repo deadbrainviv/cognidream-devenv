@@ -96,7 +96,7 @@ class AudioPreview extends MediaPreview {
 			}
 		}
 
-		// Acognidream adding cache busting if there is already a query string
+		// Avoid adding cache busting if there is already a query string
 		if (resource.query) {
 			return webviewEditor.webview.asWebviewUri(resource).toString();
 		}

@@ -6,7 +6,7 @@
 import {
 	window, languages, Uri, Disposable, commands, QuickPickItem,
 	extensions, workspace, Extension, WorkspaceFolder, QuickPickItemKind,
-	ThemeIcon, TextDocument, LanguageStatusSeverity, l10n, DocumentSelector, Command
+	ThemeIcon, TextDocument, LanguageStatusSeverity, l10n, DocumentSelector
 } from 'vscode';
 import { JSONLanguageStatus, JSONSchemaSettings } from './jsonClient';
 
@@ -197,10 +197,8 @@ export function createLanguageStatusItem(documentSelector: DocumentSelector, sta
 				statusItem.command = {
 					command: '_json.showAssociatedSchemaList',
 					title: l10n.t('Show Schemas'),
-					arguments: [{ schemas, uri: document.uri.toString() } satisfies ShowSchemasInput],
-					id: '_json.showAssociatedSchemaList',
-					execute: () => commands.executeCommand('_json.showAssociatedSchemaList', { schemas, uri: document.uri.toString() })
-				} as Command;
+					arguments: [{ schemas, uri: document.uri.toString() } satisfies ShowSchemasInput]
+				};
 			} catch (e) {
 				statusItem.text = l10n.t('Unable to compute used schemas: {0}', e.message);
 				statusItem.detail = undefined;
@@ -276,13 +274,7 @@ export function createDocumentSymbolsLimitItem(documentSelector: DocumentSelecto
 	statusItem.severity = LanguageStatusSeverity.Warning;
 	statusItem.text = l10n.t('Outline');
 	statusItem.detail = l10n.t('only {0} document symbols shown for performance reasons', limit);
-	statusItem.command = {
-		command: openSettingsCommand,
-		arguments: [settingId],
-		title: configureSettingsLabel,
-		id: openSettingsCommand,
-		execute: () => commands.executeCommand(openSettingsCommand, settingId)
-	} as Command;
+	statusItem.command = { command: openSettingsCommand, arguments: [settingId], title: configureSettingsLabel };
 	return Disposable.from(statusItem);
 }
 

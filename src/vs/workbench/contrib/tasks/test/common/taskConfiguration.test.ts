@@ -37,58 +37,58 @@ class ProblemReporter implements IProblemReporter {
 	public receivedMessage: boolean = false;
 	public lastMessage: string | undefined = undefined;
 
-	public info(message: string): cognidream {
+	public info(message: string): void {
 		this.log(message);
 	}
 
-	public warn(message: stringcognidreamognidream {
+	public warn(message: string): void {
 		this.log(message);
-    }
+	}
 
-    public error(message: stringcognidreamognidream {
-			this.log(message);
-		}
+	public error(message: string): void {
+		this.log(message);
+	}
 
-    public fatal(message: stringcognidreamognidream {
-			this.log(message);
-		}
+	public fatal(message: string): void {
+		this.log(message);
+	}
 
-    public get status(): ValidationStatus {
-			return this._validationStatus;
-		}
+	public get status(): ValidationStatus {
+		return this._validationStatus;
+	}
 
-    private log(message: stringcognidreamognidream {
-			this.receivedMessage = true;
-			this.lastMessage = message;
-		}
+	private log(message: string): void {
+		this.receivedMessage = true;
+		this.lastMessage = message;
+	}
 
-    public clearMessage(cognidreamognidream {
-			this.lastMessage = undefined;
-		}
+	public clearMessage(): void {
+		this.lastMessage = undefined;
+	}
 }
 
-			class ConfigurationBuilder {
+class ConfigurationBuilder {
 
-				public result: Tasks.Task[];
-				private builders: CustomTaskBuilder[];
+	public result: Tasks.Task[];
+	private builders: CustomTaskBuilder[];
 
-				constructor() {
-					this.result = [];
-					this.builders = [];
-				}
+	constructor() {
+		this.result = [];
+		this.builders = [];
+	}
 
-				public task(name: string, command: string): CustomTaskBuilder {
-					const builder = new CustomTaskBuilder(this, name, command);
-					this.builders.push(builder);
-					this.result.push(builder.result);
-					return builder;
-				}
+	public task(name: string, command: string): CustomTaskBuilder {
+		const builder = new CustomTaskBuilder(this, name, command);
+		this.builders.push(builder);
+		this.result.push(builder.result);
+		return builder;
+	}
 
-				public done(cognidreamognidream {
-					for (const builder of this.builders) {
-	builder.done();
-}
-    }
+	public done(): void {
+		for (const builder of this.builders) {
+			builder.done();
+		}
+	}
 }
 
 class PresentationBuilder {
@@ -129,7 +129,7 @@ class PresentationBuilder {
 		return this;
 	}
 
-	public done(cognidreamognidream {
+	public done(): void {
 	}
 }
 
@@ -186,10 +186,10 @@ class CommandConfigurationBuilder {
 		return this.presentationBuilder;
 	}
 
-	public done(taskName: stringcognidreamognidream {
+	public done(taskName: string): void {
 		this.result.args = this.result.args!.map(arg => arg === '$name' ? taskName : arg);
 		this.presentationBuilder.done();
-    }
+	}
 }
 
 class CustomTaskBuilder {
@@ -247,9 +247,9 @@ class CustomTaskBuilder {
 		return this.commandBuilder;
 	}
 
-	public done(cognidreamognidream {
+	public done(): void {
 		this.commandBuilder.done(this.result.configurationProperties.name!);
-    }
+	}
 }
 
 class ProblemMatcherBuilder {
@@ -387,7 +387,7 @@ function testDefaultProblemMatcher(external: IExternalTaskRunnerConfiguration, r
 	assert.strictEqual(task.configurationProperties.problemMatchers!.length, resolved);
 }
 
-function testConfiguration(external: IExternalTaskRunnerConfiguration, builder: ConfigurationBuilder): cognidreamidream {
+function testConfiguration(external: IExternalTaskRunnerConfiguration, builder: ConfigurationBuilder): void {
 	builder.done();
 	const reporter = new ProblemReporter();
 	const result = parse(workspaceFolder, workspace, Platform.platform, external, reporter, TaskConfigSource.TasksJson, new TasksMockContextKeyService());
@@ -404,41 +404,41 @@ class TaskGroupMap {
 		this._store = Object.create(null);
 	}
 
-	public add(group: string, task: Tasks.Taskcognidreamognidream {
+	public add(group: string, task: Tasks.Task): void {
 		let tasks = this._store[group];
 		if (!tasks) {
-	tasks = [];
-	this._store[group] = tasks;
-}
-tasks.push(task);
-    }
-
-    public static assert(actual: TaskGroupMap, expected: TaskGroupMapcognidreamognidream {
-	const actualKeys = Object.keys(actual._store);
-	const expectedKeys = Object.keys(expected._store);
-	if(actualKeys.length === 0 && expectedKeys.length === 0) {
-	return;
-}
-assert.strictEqual(actualKeys.length, expectedKeys.length);
-actualKeys.forEach(key => assert.ok(expected._store[key]));
-expectedKeys.forEach(key => actual._store[key]);
-actualKeys.forEach((key) => {
-	const actualTasks = actual._store[key];
-	const expectedTasks = expected._store[key];
-	assert.strictEqual(actualTasks.length, expectedTasks.length);
-	if (actualTasks.length === 1) {
-		assert.strictEqual(actualTasks[0].configurationProperties.name, expectedTasks[0].configurationProperties.name);
-		return;
+			tasks = [];
+			this._store[group] = tasks;
+		}
+		tasks.push(task);
 	}
-	const expectedTaskMap: { [key: string]: boolean } = Object.create(null);
-	expectedTasks.forEach(task => expectedTaskMap[task.configurationProperties.name!] = true);
-	actualTasks.forEach(task => delete expectedTaskMap[task.configurationProperties.name!]);
-	assert.strictEqual(Object.keys(expectedTaskMap).length, 0);
-});
-    }
+
+	public static assert(actual: TaskGroupMap, expected: TaskGroupMap): void {
+		const actualKeys = Object.keys(actual._store);
+		const expectedKeys = Object.keys(expected._store);
+		if (actualKeys.length === 0 && expectedKeys.length === 0) {
+			return;
+		}
+		assert.strictEqual(actualKeys.length, expectedKeys.length);
+		actualKeys.forEach(key => assert.ok(expected._store[key]));
+		expectedKeys.forEach(key => actual._store[key]);
+		actualKeys.forEach((key) => {
+			const actualTasks = actual._store[key];
+			const expectedTasks = expected._store[key];
+			assert.strictEqual(actualTasks.length, expectedTasks.length);
+			if (actualTasks.length === 1) {
+				assert.strictEqual(actualTasks[0].configurationProperties.name, expectedTasks[0].configurationProperties.name);
+				return;
+			}
+			const expectedTaskMap: { [key: string]: boolean } = Object.create(null);
+			expectedTasks.forEach(task => expectedTaskMap[task.configurationProperties.name!] = true);
+			actualTasks.forEach(task => delete expectedTaskMap[task.configurationProperties.name!]);
+			assert.strictEqual(Object.keys(expectedTaskMap).length, 0);
+		});
+	}
 }
 
-function assertConfiguration(result: IParseResult, expected: Tasks.Task[]): cognidreamidream {
+function assertConfiguration(result: IParseResult, expected: Tasks.Task[]): void {
 	assert.ok(result.validationStatus.isOK());
 	const actual = result.custom;
 	assert.strictEqual(typeof actual, typeof expected);
@@ -1864,7 +1864,7 @@ suite('Task configuration conversions', () => {
 	});
 });
 
-function assertTaskParseResult(actual: ITaskParseResult, expected: ITestTaskParseResult | undefined, problemReporter: ProblemReporter, expectedMessage?: string): cognidreamidream {
+function assertTaskParseResult(actual: ITaskParseResult, expected: ITestTaskParseResult | undefined, problemReporter: ProblemReporter, expectedMessage?: string): void {
 	if (expectedMessage === undefined) {
 		assert.strictEqual(problemReporter.lastMessage, undefined);
 	} else {

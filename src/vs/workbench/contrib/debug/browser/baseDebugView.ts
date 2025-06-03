@@ -63,7 +63,7 @@ export interface IInputBoxOptions {
 	ariaLabel: string;
 	placeholder?: string;
 	validationOptions?: IInputValidationOptions;
-	onFinish: (value: string, success: boolean) => cognidream;
+	onFinish: (value: string, success: boolean) => void;
 }
 
 export interface IExpressionTemplateData {
@@ -180,85 +180,85 @@ export abstract class AbstractExpressionsRenderer<T = IExpression> implements IT
 		return template;
 	}
 
-	public abstract renderElement(node: ITreeNode<T, FuzzyScore>, index: number, data: IExpressionTemplateDatacognidreamognidream;
+	public abstract renderElement(node: ITreeNode<T, FuzzyScore>, index: number, data: IExpressionTemplateData): void;
 
-		protected renderExpressionElement(element: IExpression, node: ITreeNode<T, FuzzyScore>, data: IExpressionTemplateDatacognidreamognidream {
-			data.currentElement = element;
-			this.renderExpression(node.element, data, createMatches(node.filterData));
-if (data.actionBar) {
-	this.renderActionBar!(data.actionBar, element, data);
-}
-const selectedExpression = this.debugService.getViewModel().getSelectedExpression();
-if (element === selectedExpression?.expression || (element instanceof Variable && element.errorMessage)) {
-	const options = this.getInputBoxOptions(element, !!selectedExpression?.settingWatch);
-	if (options) {
-		data.elementDisposable.add(this.renderInputBox(data.name, data.value, data.inputBoxContainer, options));
-	}
-}
-    }
-
-renderInputBox(nameElement: HTMLElement, valueElement: HTMLElement, inputBoxContainer: HTMLElement, options: IInputBoxOptions): IDisposable {
-	nameElement.style.display = 'none';
-	valueElement.style.display = 'none';
-	inputBoxContainer.style.display = 'initial';
-	dom.clearNode(inputBoxContainer);
-
-	const inputBox = new InputBox(inputBoxContainer, this.contextViewService, { ...options, inputBoxStyles: defaultInputBoxStyles });
-
-	inputBox.value = options.initialValue;
-	inputBox.focus();
-	inputBox.select();
-
-	const done = createSingleCallFunction((success: boolean, finishEditing: boolean) => {
-		nameElement.style.display = '';
-		valueElement.style.display = '';
-		inputBoxContainer.style.display = 'none';
-		const value = inputBox.value;
-		dispose(toDispose);
-
-		if (finishEditing) {
-			this.debugService.getViewModel().setSelectedExpression(undefined, false);
-			options.onFinish(value, success);
+	protected renderExpressionElement(element: IExpression, node: ITreeNode<T, FuzzyScore>, data: IExpressionTemplateData): void {
+		data.currentElement = element;
+		this.renderExpression(node.element, data, createMatches(node.filterData));
+		if (data.actionBar) {
+			this.renderActionBar!(data.actionBar, element, data);
 		}
-	});
+		const selectedExpression = this.debugService.getViewModel().getSelectedExpression();
+		if (element === selectedExpression?.expression || (element instanceof Variable && element.errorMessage)) {
+			const options = this.getInputBoxOptions(element, !!selectedExpression?.settingWatch);
+			if (options) {
+				data.elementDisposable.add(this.renderInputBox(data.name, data.value, data.inputBoxContainer, options));
+			}
+		}
+	}
 
-	const toDispose = [
-		inputBox,
-		dom.addStandardDisposableListener(inputBox.inputElement, dom.EventType.KEY_DOWN, (e: IKeyboardEvent) => {
-			const isEscape = e.equals(KeyCode.Escape);
-			const isEnter = e.equals(KeyCode.Enter);
-			if (isEscape || isEnter) {
+	renderInputBox(nameElement: HTMLElement, valueElement: HTMLElement, inputBoxContainer: HTMLElement, options: IInputBoxOptions): IDisposable {
+		nameElement.style.display = 'none';
+		valueElement.style.display = 'none';
+		inputBoxContainer.style.display = 'initial';
+		dom.clearNode(inputBoxContainer);
+
+		const inputBox = new InputBox(inputBoxContainer, this.contextViewService, { ...options, inputBoxStyles: defaultInputBoxStyles });
+
+		inputBox.value = options.initialValue;
+		inputBox.focus();
+		inputBox.select();
+
+		const done = createSingleCallFunction((success: boolean, finishEditing: boolean) => {
+			nameElement.style.display = '';
+			valueElement.style.display = '';
+			inputBoxContainer.style.display = 'none';
+			const value = inputBox.value;
+			dispose(toDispose);
+
+			if (finishEditing) {
+				this.debugService.getViewModel().setSelectedExpression(undefined, false);
+				options.onFinish(value, success);
+			}
+		});
+
+		const toDispose = [
+			inputBox,
+			dom.addStandardDisposableListener(inputBox.inputElement, dom.EventType.KEY_DOWN, (e: IKeyboardEvent) => {
+				const isEscape = e.equals(KeyCode.Escape);
+				const isEnter = e.equals(KeyCode.Enter);
+				if (isEscape || isEnter) {
+					e.preventDefault();
+					e.stopPropagation();
+					done(isEnter, true);
+				}
+			}),
+			dom.addDisposableListener(inputBox.inputElement, dom.EventType.BLUR, () => {
+				done(true, true);
+			}),
+			dom.addDisposableListener(inputBox.inputElement, dom.EventType.CLICK, e => {
+				// Do not expand / collapse selected elements
 				e.preventDefault();
 				e.stopPropagation();
-				done(isEnter, true);
-			}
-		}),
-		dom.addDisposableListener(inputBox.inputElement, dom.EventType.BLUR, () => {
-			done(true, true);
-		}),
-		dom.addDisposableListener(inputBox.inputElement, dom.EventType.CLICK, e => {
-			// Do not expand / collapse selected elements
-			e.preventDefault();
-			e.stopPropagation();
-		})
-	];
+			})
+		];
 
-	return toDisposable(() => {
-		done(false, false);
-	});
-}
+		return toDisposable(() => {
+			done(false, false);
+		});
+	}
 
-    protected abstract renderExpression(expression: T, data: IExpressionTemplateData, highlights: IHighlight[]cognidreamognidream;
-    protected abstract getInputBoxOptions(expression: IExpression, settingValue: boolean): IInputBoxOptions | undefined;
+	protected abstract renderExpression(expression: T, data: IExpressionTemplateData, highlights: IHighlight[]): void;
+	protected abstract getInputBoxOptions(expression: IExpression, settingValue: boolean): IInputBoxOptions | undefined;
 
-    protected renderActionBar ? (actionBar: ActionBar, expression: IExpression, data: IExpressionTemplateDatacognidreamognidream;
+	protected renderActionBar?(actionBar: ActionBar, expression: IExpression, data: IExpressionTemplateData): void;
 
-	disposeElement(node: ITreeNode<T, FuzzyScore>, index: number, templateData: IExpressionTemplateDatacognidreamognidream {
+	disposeElement(node: ITreeNode<T, FuzzyScore>, index: number, templateData: IExpressionTemplateData): void {
 		templateData.elementDisposable.clear();
-    }
+	}
 
-disposeTemplate(templateData: IExpressionTemplateDatacognidreamognidream {
-	templateData.elementDisposable.dispose();
-	templateData.templateDisposable.dispose();
-}
+	disposeTemplate(templateData: IExpressionTemplateData): void {
+		templateData.elementDisposable.dispose();
+		templateData.templateDisposable.dispose();
+	}
 }

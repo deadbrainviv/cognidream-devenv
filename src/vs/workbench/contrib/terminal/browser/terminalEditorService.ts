@@ -41,7 +41,7 @@ export class TerminalEditorService extends Disposable implements ITerminalEditor
 	readonly onDidChangeInstanceCapability = this._onDidChangeInstanceCapability.event;
 	private readonly _onDidChangeActiveInstance = this._register(new Emitter<ITerminalInstance | undefined>());
 	readonly onDidChangeActiveInstance = this._onDidChangeActiveInstance.event;
-	private readonly _onDidChangeInstances = this._register(new Emitter<cognidream>());
+	private readonly _onDidChangeInstances = this._register(new Emitter<void>());
 	readonly onDidChangeInstances = this._onDidChangeInstances.event;
 
 	constructor(
@@ -119,160 +119,160 @@ export class TerminalEditorService extends Disposable implements ITerminalEditor
 		return this.instances[this._activeInstanceIndex];
 	}
 
-	setActiveInstance(instance: ITerminalInstance | undefinedcognidreamognidream {
+	setActiveInstance(instance: ITerminalInstance | undefined): void {
 		this._activeInstanceIndex = instance ? this.instances.findIndex(e => e === instance) : -1;
 		this._onDidChangeActiveInstance.fire(this.activeInstance);
-    }
-
-    async focusInstance(instance: ITerminalInstance): Promicognidreamognidream > {
-	return instance.focusWhenReady(true);
-}
-
-    async focusActiveInstance(): Promicognidreamognidream > {
-	return this.activeInstance?.focusWhenReady(true);
-}
-
-    async openEditor(instance: ITerminalInstance, editorOptions ?: TerminalEditorLocation): Promicognidreamognidream > {
-	const resource = this.resolveResource(instance);
-	if(resource) {
-		await this._activeOpenEditorRequest?.promise;
-		this._activeOpenEditorRequest = {
-			instanceId: instance.instanceId,
-			promise: this._editorService.openEditor({
-				resource,
-				description: instance.description || instance.shellLaunchConfig.type,
-				options: {
-					pinned: true,
-					forceReload: true,
-					preserveFocus: editorOptions?.preserveFocus
-				}
-			}, editorOptions?.viewColumn ?? ACTIVE_GROUP)
-		};
-		await this._activeOpenEditorRequest?.promise;
-		this._activeOpenEditorRequest = undefined;
-	}
-}
-
-resolveResource(instance: ITerminalInstance): URI {
-	const resource = instance.resource;
-	const inputKey = resource.path;
-	const cachedEditor = this._editorInputs.get(inputKey);
-
-	if (cachedEditor) {
-		return cachedEditor.resource;
 	}
 
-	instance.target = TerminalLocation.Editor;
-	const input = this._instantiationService.createInstance(TerminalEditorInput, resource, instance);
-	this._registerInstance(inputKey, input, instance);
-	return input.resource;
-}
-
-getInputFromResource(resource: URI): TerminalEditorInput {
-	const input = this._editorInputs.get(resource.path);
-	if (!input) {
-		throw new Error(`Could not get input from resource: ${resource.path}`);
+	async focusInstance(instance: ITerminalInstance): Promise<void> {
+		return instance.focusWhenReady(true);
 	}
-	return input;
-}
 
-    private _registerInstance(inputKey: string, input: TerminalEditorInput, instance: ITerminalInstancecognidreamognidream {
-	this._editorInputs.set(inputKey, input);
-	this._instanceDisposables.set(inputKey, [
-		instance.onDidFocus(this._onDidFocusInstance.fire, this._onDidFocusInstance),
-		instance.onDisposed(this._onDidDisposeInstance.fire, this._onDidDisposeInstance),
-		instance.capabilities.onDidAddCapabilityType(() => this._onDidChangeInstanceCapability.fire(instance)),
-		instance.capabilities.onDidRemoveCapabilityType(() => this._onDidChangeInstanceCapability.fire(instance)),
-	]);
-	this.instances.push(instance);
-	this._onDidChangeInstances.fire();
-}
+	async focusActiveInstance(): Promise<void> {
+		return this.activeInstance?.focusWhenReady(true);
+	}
 
-    private _removeInstance(instance: ITerminalInstance) {
-	const inputKey = instance.resource.path;
-	this._editorInputs.delete(inputKey);
-	const instanceIndex = this.instances.findIndex(e => e === instance);
-	if(instanceIndex !== -1) {
-	this.instances.splice(instanceIndex, 1);
-}
-const disposables = this._instanceDisposables.get(inputKey);
-this._instanceDisposables.delete(inputKey);
-if (disposables) {
-	dispose(disposables);
-}
-this._onDidChangeInstances.fire();
-    }
-
-getInstanceFromResource(resource ?: URI): ITerminalInstance | undefined {
-	return getInstanceFromResource(this.instances, resource);
-}
-
-splitInstance(instanceToSplit: ITerminalInstance, shellLaunchConfig: IShellLaunchConfig = {}): ITerminalInstance {
-	if (instanceToSplit.target === TerminalLocation.Editor) {
-		// Make sure the instance to split's group is active
-		const group = this._editorInputs.get(instanceToSplit.resource.path)?.group;
-		if (group) {
-			this._editorGroupsService.activateGroup(group);
+	async openEditor(instance: ITerminalInstance, editorOptions?: TerminalEditorLocation): Promise<void> {
+		const resource = this.resolveResource(instance);
+		if (resource) {
+			await this._activeOpenEditorRequest?.promise;
+			this._activeOpenEditorRequest = {
+				instanceId: instance.instanceId,
+				promise: this._editorService.openEditor({
+					resource,
+					description: instance.description || instance.shellLaunchConfig.type,
+					options: {
+						pinned: true,
+						forceReload: true,
+						preserveFocus: editorOptions?.preserveFocus
+					}
+				}, editorOptions?.viewColumn ?? ACTIVE_GROUP)
+			};
+			await this._activeOpenEditorRequest?.promise;
+			this._activeOpenEditorRequest = undefined;
 		}
 	}
-	const instance = this._terminalInstanceService.createInstance(shellLaunchConfig, TerminalLocation.Editor);
-	const resource = this.resolveResource(instance);
-	if (resource) {
-		this._editorService.openEditor({
-			resource: URI.revive(resource),
-			description: instance.description,
-			options: {
-				pinned: true,
-				forceReload: true
-			}
-		}, SIDE_GROUP);
-	}
-	return instance;
-}
 
-reviveInput(deserializedInput: IDeserializedTerminalEditorInput): EditorInput {
-	if ('pid' in deserializedInput) {
-		const newDeserializedInput = { ...deserializedInput, findRevivedId: true };
-		const instance = this._terminalInstanceService.createInstance({ attachPersistentProcess: newDeserializedInput }, TerminalLocation.Editor);
-		const input = this._instantiationService.createInstance(TerminalEditorInput, instance.resource, instance);
-		this._registerInstance(instance.resource.path, input, instance);
+	resolveResource(instance: ITerminalInstance): URI {
+		const resource = instance.resource;
+		const inputKey = resource.path;
+		const cachedEditor = this._editorInputs.get(inputKey);
+
+		if (cachedEditor) {
+			return cachedEditor.resource;
+		}
+
+		instance.target = TerminalLocation.Editor;
+		const input = this._instantiationService.createInstance(TerminalEditorInput, resource, instance);
+		this._registerInstance(inputKey, input, instance);
+		return input.resource;
+	}
+
+	getInputFromResource(resource: URI): TerminalEditorInput {
+		const input = this._editorInputs.get(resource.path);
+		if (!input) {
+			throw new Error(`Could not get input from resource: ${resource.path}`);
+		}
 		return input;
-	} else {
-		throw new Error(`Could not revive terminal editor input, ${deserializedInput}`);
-	}
-}
-
-detachInstance(instance: ITerminalInstance) {
-	const inputKey = instance.resource.path;
-	const editorInput = this._editorInputs.get(inputKey);
-	editorInput?.detachInstance();
-	this._removeInstance(instance);
-	// Don't dispose the input when shutting dowcognidream acognidream layouts in the editor area
-	if (!this._isShuttingDown) {
-		editorInput?.dispose();
-	}
-}
-
-    async revealActiveEditor(preserveFocus ?: boolean): Promicognidreamognidream > {
-	const instance = this.activeInstance;
-	if(!instance) {
-		return;
 	}
 
-        // If there is an active openEditor call for this instance it will be revealed by that
-        if(this._activeOpenEditorRequest?.instanceId === instance.instanceId) {
-	return;
-}
-
-const editorInput = this._editorInputs.get(instance.resource.path)!;
-this._editorService.openEditor(
-	editorInput,
-	{
-		pinned: true,
-		forceReload: true,
-		preserveFocus,
-		activation: EditorActivation.PRESERVE
+	private _registerInstance(inputKey: string, input: TerminalEditorInput, instance: ITerminalInstance): void {
+		this._editorInputs.set(inputKey, input);
+		this._instanceDisposables.set(inputKey, [
+			instance.onDidFocus(this._onDidFocusInstance.fire, this._onDidFocusInstance),
+			instance.onDisposed(this._onDidDisposeInstance.fire, this._onDidDisposeInstance),
+			instance.capabilities.onDidAddCapabilityType(() => this._onDidChangeInstanceCapability.fire(instance)),
+			instance.capabilities.onDidRemoveCapabilityType(() => this._onDidChangeInstanceCapability.fire(instance)),
+		]);
+		this.instances.push(instance);
+		this._onDidChangeInstances.fire();
 	}
-);
-    }
+
+	private _removeInstance(instance: ITerminalInstance) {
+		const inputKey = instance.resource.path;
+		this._editorInputs.delete(inputKey);
+		const instanceIndex = this.instances.findIndex(e => e === instance);
+		if (instanceIndex !== -1) {
+			this.instances.splice(instanceIndex, 1);
+		}
+		const disposables = this._instanceDisposables.get(inputKey);
+		this._instanceDisposables.delete(inputKey);
+		if (disposables) {
+			dispose(disposables);
+		}
+		this._onDidChangeInstances.fire();
+	}
+
+	getInstanceFromResource(resource?: URI): ITerminalInstance | undefined {
+		return getInstanceFromResource(this.instances, resource);
+	}
+
+	splitInstance(instanceToSplit: ITerminalInstance, shellLaunchConfig: IShellLaunchConfig = {}): ITerminalInstance {
+		if (instanceToSplit.target === TerminalLocation.Editor) {
+			// Make sure the instance to split's group is active
+			const group = this._editorInputs.get(instanceToSplit.resource.path)?.group;
+			if (group) {
+				this._editorGroupsService.activateGroup(group);
+			}
+		}
+		const instance = this._terminalInstanceService.createInstance(shellLaunchConfig, TerminalLocation.Editor);
+		const resource = this.resolveResource(instance);
+		if (resource) {
+			this._editorService.openEditor({
+				resource: URI.revive(resource),
+				description: instance.description,
+				options: {
+					pinned: true,
+					forceReload: true
+				}
+			}, SIDE_GROUP);
+		}
+		return instance;
+	}
+
+	reviveInput(deserializedInput: IDeserializedTerminalEditorInput): EditorInput {
+		if ('pid' in deserializedInput) {
+			const newDeserializedInput = { ...deserializedInput, findRevivedId: true };
+			const instance = this._terminalInstanceService.createInstance({ attachPersistentProcess: newDeserializedInput }, TerminalLocation.Editor);
+			const input = this._instantiationService.createInstance(TerminalEditorInput, instance.resource, instance);
+			this._registerInstance(instance.resource.path, input, instance);
+			return input;
+		} else {
+			throw new Error(`Could not revive terminal editor input, ${deserializedInput}`);
+		}
+	}
+
+	detachInstance(instance: ITerminalInstance) {
+		const inputKey = instance.resource.path;
+		const editorInput = this._editorInputs.get(inputKey);
+		editorInput?.detachInstance();
+		this._removeInstance(instance);
+		// Don't dispose the input when shutting down to avoid layouts in the editor area
+		if (!this._isShuttingDown) {
+			editorInput?.dispose();
+		}
+	}
+
+	async revealActiveEditor(preserveFocus?: boolean): Promise<void> {
+		const instance = this.activeInstance;
+		if (!instance) {
+			return;
+		}
+
+		// If there is an active openEditor call for this instance it will be revealed by that
+		if (this._activeOpenEditorRequest?.instanceId === instance.instanceId) {
+			return;
+		}
+
+		const editorInput = this._editorInputs.get(instance.resource.path)!;
+		this._editorService.openEditor(
+			editorInput,
+			{
+				pinned: true,
+				forceReload: true,
+				preserveFocus,
+				activation: EditorActivation.PRESERVE
+			}
+		);
+	}
 }

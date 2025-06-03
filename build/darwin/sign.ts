@@ -16,7 +16,7 @@ function getElectronVersion(): string {
 	return target;
 }
 
-async function main(buildDir?: string): Promise<cognidream> {
+async function main(buildDir?: string): Promise<void> {
 	const tempDir = process.env['AGENT_TEMPDIRECTORY'];
 	const arch = process.env['VSCODE_ARCH'];
 	const identity = process.env['CODESIGN_IDENTITY'];

@@ -30,7 +30,7 @@ class AutoAcceptControl {
 	constructor(
 		readonly total: number,
 		readonly remaining: number,
-		readonly cancel: () => cognidream
+		readonly cancel: () => void
 	) { }
 }
 
@@ -47,7 +47,7 @@ export abstract class AbstractChatEditingModifiedFileEntry extends Disposable im
 
 	readonly entryId = `${AbstractChatEditingModifiedFileEntry.scheme}::${++AbstractChatEditingModifiedFileEntry.lastEntryId}`;
 
-	protected readonly _onDidDelete = this._register(new Emittcognidreamognidream > ());
+	protected readonly _onDidDelete = this._register(new Emitter<void>());
 	readonly onDidDelete = this._onDidDelete.event;
 
 	protected readonly _stateObs = observableValue<WorkingSetEntryState>(this, WorkingSetEntryState.Attached);
@@ -129,169 +129,169 @@ export abstract class AbstractChatEditingModifiedFileEntry extends Disposable im
 		}));
 	}
 
-	override dispose(cognidreamognidream {
+	override dispose(): void {
 		if (--this._refCounter === 0) {
-	super.dispose();
-}
-    }
-
-acquire() {
-	this._refCounter++;
-	return this;
-}
-
-enableReviewModeUntilSettled(cognidreamognidream {
-
-	this._reviewModeTempObs.set(true, undefined);
-
-	const cleanup = autorun(r => {
-		// reset config when settled
-		const resetConfig = this.state.read(r) !== WorkingSetEntryState.Modified;
-		if (resetConfig) {
-			this._store.delete(cleanup);
-			this._reviewModeTempObs.set(undefined, undefined);
+			super.dispose();
 		}
-	});
-
-	this._store.add(cleanup);
-}
-
-    updateTelemetryInfo(telemetryInfo: IModifiedEntryTelemetryInfo) {
-	this._telemetryInfo = telemetryInfo;
-}
-
-    async accept(tx: ITransaction | undefined): Promicognidreamognidream > {
-	if(this._stateObs.get() !== WorkingSetEntryState.Modified) {
-	// already accepted or rejected
-	return;
-}
-
-await this._doAccept(tx);
-this._stateObs.set(WorkingSetEntryState.Accepted, tx);
-this._autoAcceptCtrl.set(undefined, tx);
-
-this._notifyAction('accepted');
-    }
-
-    protected abstract _doAccept(tx: ITransaction | undefined): Promicognidreamognidream >;
-
-    async reject(tx: ITransaction | undefined): Promicognidreamognidream > {
-	if(this._stateObs.get() !== WorkingSetEntryState.Modified) {
-	// already accepted or rejected
-	return;
-}
-
-await this._doReject(tx);
-this._stateObs.set(WorkingSetEntryState.Rejected, tx);
-this._autoAcceptCtrl.set(undefined, tx);
-this._notifyAction('rejected');
-    }
-
-    protected abstract _doReject(tx: ITransaction | undefined): Promicognidreamognidream >;
-
-    private _notifyAction(outcome: 'accepted' | 'rejected') {
-	this._chatService.notifyUserAction({
-		action: { kind: 'chatEditingSessionAction', uri: this.modifiedURI, hasRemainingEdits: false, outcome },
-		agentId: this._telemetryInfo.agentId,
-		command: this._telemetryInfo.command,
-		sessionId: this._telemetryInfo.sessionId,
-		requestId: this._telemetryInfo.requestId,
-		result: this._telemetryInfo.result
-	});
-}
-
-    private readonly _editorIntegrations = this._register(new DisposableMap<IEditorPane, IModifiedFileEntryEditorIntegration>());
-
-getEditorIntegration(pane: IEditorPane): IModifiedFileEntryEditorIntegration {
-	let value = this._editorIntegrations.get(pane);
-	if (!value) {
-		value = this._createEditorIntegration(pane);
-		this._editorIntegrations.set(pane, value);
 	}
-	return value;
-}
 
-    /**
-     * Create the editor integration for this entry and the given editor pane. This will only be called
-     * once (and cached) per pane. The integration is meant to be scoped to this entry only and when the
-     * passed pane/editor changes input, then the editor integration must handle that, e.g use default/null
-     * values
-     */
-    protected abstract _createEditorIntegration(editor: IEditorPane): IModifiedFileEntryEditorIntegration;
-
-    abstract readonly changesCount: IObservable<number>;
-
-acceptStreamingEditsStart(responseModel: IChatResponseModel, tx: ITransaction) {
-	this._resetEditsState(tx);
-	this._isCurrentlyBeingModifiedByObs.set(responseModel, tx);
-	this._autoAcceptCtrl.get()?.cancel();
-
-	const undoRedoElement = this._createUndoRedoElement(responseModel);
-	if (undoRedoElement) {
-		this._undoRedoService.pushElement(undoRedoElement);
+	acquire() {
+		this._refCounter++;
+		return this;
 	}
-}
 
-    protected abstract _createUndoRedoElement(response: IChatResponseModel): IUndoRedoElement | undefined;
+	enableReviewModeUntilSettled(): void {
 
-    abstract acceptAgentEdits(uri: URI, edits: (TextEdit | ICellEditOperation)[], isLastEdits: boolean, responseModel: IChatResponseModel): Promicognidreamognidream >;
+		this._reviewModeTempObs.set(true, undefined);
 
-    async acceptStreamingEditsEnd(tx: ITransaction) {
-	this._resetEditsState(tx);
-
-	if (await this._areOriginalAndModifiedIdentical()) {
-		// ACCEPT if identical
-		this.accept(tx);
-
-	} else if (!this.reviewMode.get() && !this._autoAcceptCtrl.get()) {
-		// AUTO accept mode
-
-		const acceptTimeout = this._autoAcceptTimeout.get() * 1000;
-		const future = Date.now() + acceptTimeout;
-		const update = () => {
-
-			const reviewMode = this.reviewMode.get();
-			if (reviewMode) {
-				// switched back to review mode
-				this._autoAcceptCtrl.set(undefined, undefined);
-				return;
+		const cleanup = autorun(r => {
+			// reset config when settled
+			const resetConfig = this.state.read(r) !== WorkingSetEntryState.Modified;
+			if (resetConfig) {
+				this._store.delete(cleanup);
+				this._reviewModeTempObs.set(undefined, undefined);
 			}
+		});
 
-			const remain = Math.round(future - Date.now());
-			if (remain <= 0) {
-				this.accept(undefined);
-			} else {
-				const handle = setTimeout(update, 100);
-				this._autoAcceptCtrl.set(new AutoAcceptControl(acceptTimeout, remain, () => {
-					clearTimeout(handle);
+		this._store.add(cleanup);
+	}
+
+	updateTelemetryInfo(telemetryInfo: IModifiedEntryTelemetryInfo) {
+		this._telemetryInfo = telemetryInfo;
+	}
+
+	async accept(tx: ITransaction | undefined): Promise<void> {
+		if (this._stateObs.get() !== WorkingSetEntryState.Modified) {
+			// already accepted or rejected
+			return;
+		}
+
+		await this._doAccept(tx);
+		this._stateObs.set(WorkingSetEntryState.Accepted, tx);
+		this._autoAcceptCtrl.set(undefined, tx);
+
+		this._notifyAction('accepted');
+	}
+
+	protected abstract _doAccept(tx: ITransaction | undefined): Promise<void>;
+
+	async reject(tx: ITransaction | undefined): Promise<void> {
+		if (this._stateObs.get() !== WorkingSetEntryState.Modified) {
+			// already accepted or rejected
+			return;
+		}
+
+		await this._doReject(tx);
+		this._stateObs.set(WorkingSetEntryState.Rejected, tx);
+		this._autoAcceptCtrl.set(undefined, tx);
+		this._notifyAction('rejected');
+	}
+
+	protected abstract _doReject(tx: ITransaction | undefined): Promise<void>;
+
+	private _notifyAction(outcome: 'accepted' | 'rejected') {
+		this._chatService.notifyUserAction({
+			action: { kind: 'chatEditingSessionAction', uri: this.modifiedURI, hasRemainingEdits: false, outcome },
+			agentId: this._telemetryInfo.agentId,
+			command: this._telemetryInfo.command,
+			sessionId: this._telemetryInfo.sessionId,
+			requestId: this._telemetryInfo.requestId,
+			result: this._telemetryInfo.result
+		});
+	}
+
+	private readonly _editorIntegrations = this._register(new DisposableMap<IEditorPane, IModifiedFileEntryEditorIntegration>());
+
+	getEditorIntegration(pane: IEditorPane): IModifiedFileEntryEditorIntegration {
+		let value = this._editorIntegrations.get(pane);
+		if (!value) {
+			value = this._createEditorIntegration(pane);
+			this._editorIntegrations.set(pane, value);
+		}
+		return value;
+	}
+
+	/**
+	 * Create the editor integration for this entry and the given editor pane. This will only be called
+	 * once (and cached) per pane. The integration is meant to be scoped to this entry only and when the
+	 * passed pane/editor changes input, then the editor integration must handle that, e.g use default/null
+	 * values
+	 */
+	protected abstract _createEditorIntegration(editor: IEditorPane): IModifiedFileEntryEditorIntegration;
+
+	abstract readonly changesCount: IObservable<number>;
+
+	acceptStreamingEditsStart(responseModel: IChatResponseModel, tx: ITransaction) {
+		this._resetEditsState(tx);
+		this._isCurrentlyBeingModifiedByObs.set(responseModel, tx);
+		this._autoAcceptCtrl.get()?.cancel();
+
+		const undoRedoElement = this._createUndoRedoElement(responseModel);
+		if (undoRedoElement) {
+			this._undoRedoService.pushElement(undoRedoElement);
+		}
+	}
+
+	protected abstract _createUndoRedoElement(response: IChatResponseModel): IUndoRedoElement | undefined;
+
+	abstract acceptAgentEdits(uri: URI, edits: (TextEdit | ICellEditOperation)[], isLastEdits: boolean, responseModel: IChatResponseModel): Promise<void>;
+
+	async acceptStreamingEditsEnd(tx: ITransaction) {
+		this._resetEditsState(tx);
+
+		if (await this._areOriginalAndModifiedIdentical()) {
+			// ACCEPT if identical
+			this.accept(tx);
+
+		} else if (!this.reviewMode.get() && !this._autoAcceptCtrl.get()) {
+			// AUTO accept mode
+
+			const acceptTimeout = this._autoAcceptTimeout.get() * 1000;
+			const future = Date.now() + acceptTimeout;
+			const update = () => {
+
+				const reviewMode = this.reviewMode.get();
+				if (reviewMode) {
+					// switched back to review mode
 					this._autoAcceptCtrl.set(undefined, undefined);
-				}), undefined);
-			}
-		};
-		update();
+					return;
+				}
+
+				const remain = Math.round(future - Date.now());
+				if (remain <= 0) {
+					this.accept(undefined);
+				} else {
+					const handle = setTimeout(update, 100);
+					this._autoAcceptCtrl.set(new AutoAcceptControl(acceptTimeout, remain, () => {
+						clearTimeout(handle);
+						this._autoAcceptCtrl.set(undefined, undefined);
+					}), undefined);
+				}
+			};
+			update();
+		}
 	}
-}
 
-    protected abstract _areOriginalAndModifiedIdentical(): Promise<boolean>;
+	protected abstract _areOriginalAndModifiedIdentical(): Promise<boolean>;
 
-    protected _resetEditsState(tx: ITransactioncognidreamognidream {
-	this._isCurrentlyBeingModifiedByObs.set(undefined, tx);
-	this._rewriteRatioObs.set(0, tx);
-}
+	protected _resetEditsState(tx: ITransaction): void {
+		this._isCurrentlyBeingModifiedByObs.set(undefined, tx);
+		this._rewriteRatioObs.set(0, tx);
+	}
 
-    // --- snapshot
+	// --- snapshot
 
-    abstract createSnapshot(requestId: string | undefined, undoStop: string | undefined): ISnapshotEntry;
+	abstract createSnapshot(requestId: string | undefined, undoStop: string | undefined): ISnapshotEntry;
 
-    abstract equalsSnapshot(snapshot: ISnapshotEntry | undefined): boolean;
+	abstract equalsSnapshot(snapshot: ISnapshotEntry | undefined): boolean;
 
-    abstract restoreFromSnapshot(snapshot: ISnapshotEntry, restoreToDisk ?: booleancognidreamognidream;
+	abstract restoreFromSnapshot(snapshot: ISnapshotEntry, restoreToDisk?: boolean): void;
 
-    // --- inital content
+	// --- inital content
 
-    abstract resetToInitialContent(cognidreamognidream;
+	abstract resetToInitialContent(): void;
 
-    abstract initialContent: string;
+	abstract initialContent: string;
 }
 
 export interface IModifiedEntryTelemetryInfo {

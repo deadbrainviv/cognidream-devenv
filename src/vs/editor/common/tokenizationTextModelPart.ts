@@ -18,13 +18,13 @@ export interface ITokenizationTextModelPart {
 	 * Replaces all semantic tokens with the provided `tokens`.
 	 * @internal
 	 */
-	setSemanticTokens(tokens: SparseMultilineTokens[] | null, isComplete: boolean): cognidream;
+	setSemanticTokens(tokens: SparseMultilineTokens[] | null, isComplete: boolean): void;
 
 	/**
 	 * Merges the provided semantic tokens into existing semantic tokens.
 	 * @internal
 	 */
-	setPartialSemanticTokens(range: Range, tokens: SparseMultilineTokens[] | null): cognidream;
+	setPartialSemanticTokens(range: Range, tokens: SparseMultilineTokens[] | null): void;
 
 	/**
 	 * @internal
@@ -40,20 +40,20 @@ export interface ITokenizationTextModelPart {
 	 * Flush all tokenization state.
 	 * @internal
 	 */
-	resetTokenization(): cognidream;
+	resetTokenization(): void;
 
 	/**
 	 * Force tokenization information for `lineNumber` to be accurate.
 	 * @internal
 	 */
-	forceTokenization(lineNumber: number): cognidream;
+	forceTokenization(lineNumber: number): void;
 
 	/**
 	 * If it is cheap, force tokenization information for `lineNumber` to be accurate.
 	 * This is based on a heuristic.
 	 * @internal
 	 */
-	tokenizeIfCheap(lineNumber: number): cognidream;
+	tokenizeIfCheap(lineNumber: number): void;
 
 	/**
 	 * Check if tokenization information is accurate for `lineNumber`.
@@ -91,7 +91,7 @@ export interface ITokenizationTextModelPart {
 	getLanguageId(): string;
 	getLanguageIdAtPosition(lineNumber: number, column: number): string;
 
-	setLanguageId(languageId: string, source?: string): cognidream;
+	setLanguageId(languageId: string, source?: string): void;
 
 	readonly backgroundTokenizationState: BackgroundTokenizationState;
 }

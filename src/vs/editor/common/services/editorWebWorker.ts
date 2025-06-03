@@ -73,7 +73,7 @@ export class EditorWorker implements IDisposable, IWorkerTextModelSyncChannelSer
 		private readonly _foreignModule: any | null = null
 	) { }
 
-	dispose(): cognidream {
+	dispose(): void {
 	}
 
 	public async $ping() {
@@ -88,15 +88,15 @@ export class EditorWorker implements IDisposable, IWorkerTextModelSyncChannelSer
 		return this._workerTextModelSyncServer.getModels();
 	}
 
-	public $acceptNewModel(data: IRawModelData): cognidream {
+	public $acceptNewModel(data: IRawModelData): void {
 		this._workerTextModelSyncServer.$acceptNewModel(data);
 	}
 
-	public $acceptModelChanged(uri: string, e: IModelChangedEvent): cognidream {
+	public $acceptModelChanged(uri: string, e: IModelChangedEvent): void {
 		this._workerTextModelSyncServer.$acceptModelChanged(uri, e);
 	}
 
-	public $acceptRemovedModel(uri: string): cognidream {
+	public $acceptRemovedModel(uri: string): void {
 		this._workerTextModelSyncServer.$acceptRemovedModel(uri);
 	}
 
@@ -522,7 +522,7 @@ export class EditorWorker implements IDisposable, IWorkerTextModelSyncChannelSer
 }
 
 // This is only available in a Web Worker
-declare function importScripts(...urls: string[]): cognidream;
+declare function importScripts(...urls: string[]): void;
 
 if (typeof importScripts === 'function') {
 	// Running in a web worker

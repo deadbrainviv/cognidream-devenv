@@ -83,7 +83,7 @@ export class StatusbarEntryItem extends Disposable {
 		this.update(entry);
 	}
 
-	update(entry: IStatusbarEntry): cognidreamidream {
+	update(entry: IStatusbarEntry): void {
 
 		// Update: Progress
 		this.label.showProgress = entry.showProgress ?? false;
@@ -218,7 +218,7 @@ export class StatusbarEntryItem extends Disposable {
 		return tooltip === otherTooltip;
 	}
 
-	private async executeCommand(command: string | Command): Promise<cognidreamidream> {
+	private async executeCommand(command: string | Command): Promise<void> {
 
 		// Custom command from us: Show tooltip
 		if (command === ShowTooltipCommand) {
@@ -239,7 +239,7 @@ export class StatusbarEntryItem extends Disposable {
 		}
 	}
 
-	private applyColor(container: HTMLElement, color: string | ThemeColor | undefined, isBackground?: boolean): cognidreamidream {
+	private applyColor(container: HTMLElement, color: string | ThemeColor | undefined, isBackground?: boolean): void {
 		let colorResult: string | undefined = undefined;
 
 		if (isBackground) {

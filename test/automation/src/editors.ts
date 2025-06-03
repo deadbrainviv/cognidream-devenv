@@ -18,7 +18,7 @@ export class Editors {
 		}
 	}
 
-	async selectTab(fileName: string): Promise<cognidream> {
+	async selectTab(fileName: string): Promise<void> {
 
 		// Selecting a tab and making an editor have keyboard focus
 		// is critical to almost every test. As such, we try our
@@ -43,12 +43,12 @@ export class Editors {
 		throw error;
 	}
 
-	async waitForEditorFocus(fileName: string, retryCount?: number): Promise<cognidream> {
+	async waitForEditorFocus(fileName: string, retryCount?: number): Promise<void> {
 		await this.waitForActiveTab(fileName, undefined, retryCount);
 		await this.waitForActiveEditor(fileName, retryCount);
 	}
 
-	async waitForActiveTab(fileName: string, isDirty: boolean = false, retryCount?: number): Promise<cognidream> {
+	async waitForActiveTab(fileName: string, isDirty: boolean = false, retryCount?: number): Promise<void> {
 		await this.code.waitForElement(`.tabs-container div.tab.active${isDirty ? '.dirty' : ''}[aria-selected="true"][data-resource-name$="${fileName}"]`, undefined, retryCount);
 	}
 
@@ -57,11 +57,11 @@ export class Editors {
 		return this.code.waitForActiveElement(selector, retryCount);
 	}
 
-	async waitForTab(fileName: string, isDirty: boolean = false): Promise<cognidream> {
+	async waitForTab(fileName: string, isDirty: boolean = false): Promise<void> {
 		await this.code.waitForElement(`.tabs-container div.tab${isDirty ? '.dirty' : ''}[data-resource-name$="${fileName}"]`);
 	}
 
-	async newUntitledFile(): Promise<cognidream> {
+	async newUntitledFile(): Promise<void> {
 		const accept = () => this.waitForEditorFocus('Untitled-1');
 		if (process.platform === 'darwin') {
 			await this.code.sendKeybinding('cmd+n', accept);

@@ -59,7 +59,7 @@ export class GotoSymbolAction extends EditorAction {
 		});
 	}
 
-	run(accessor: ServicesAccessor): cognidream {
+	run(accessor: ServicesAccessor): void {
 		accessor.get(IQuickInputService).quickAccess.show(AbstractGotoSymbolQuickAccessProvider.PREFIX, { itemActivation: ItemActivation.NONE });
 	}
 }

@@ -20,19 +20,19 @@ export class CellChatPart extends CellContentPart {
 		super();
 	}
 
-	override didRenderCell(element: ICellViewModel): cognidream {
+	override didRenderCell(element: ICellViewModel): void {
 		super.didRenderCell(element);
 	}
 
-	override unrenderCell(element: ICellViewModelcognidreamognidream {
+	override unrenderCell(element: ICellViewModel): void {
 		super.unrenderCell(element);
-    }
+	}
 
-    override updateInternalLayoutNow(element: ICellViewModelcognidreamognidream {
-		}
+	override updateInternalLayoutNow(element: ICellViewModel): void {
+	}
 
-    override dispose() {
-			super.dispose();
-		}
+	override dispose() {
+		super.dispose();
+	}
 }
 

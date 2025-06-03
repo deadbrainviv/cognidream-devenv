@@ -287,25 +287,25 @@ class TestFileSystemProvider implements IFileSystemProviderWithFileReadWriteCapa
 
 	readonly capabilities: FileSystemProviderCapabilities = FileSystemProviderCapabilities.FileReadWrite;
 
-	readonly onDidChangeCapabilities: Event<cognidreamidream> = Event.None;
+	readonly onDidChangeCapabilities: Event<void> = Event.None;
 
 	watch(): IDisposable { return Disposable.None; }
 
 	stat(): Promise<IStat> { throw new Error('Not Supported'); }
 
-	mkdir(resource: URI): Promise<cognidreamidream> { throw new Error('Not Supported'); }
+	mkdir(resource: URI): Promise<void> { throw new Error('Not Supported'); }
 
-	rename(): Promise<cognidreamidream> { throw new Error('Not Supported'); }
+	rename(): Promise<void> { throw new Error('Not Supported'); }
 
 	readFile(resource: URI): Promise<Uint8Array> { throw new Error('Not Supported'); }
 
 	readdir(resource: URI): Promise<[string, FileType][]> { throw new Error('Not Supported'); }
 
-	writeFile(): Promise<cognidreamidream> { throw new Error('Not Supported'); }
+	writeFile(): Promise<void> { throw new Error('Not Supported'); }
 
-	delete(): Promise<cognidreamidream> { throw new Error('Not Supported'); }
+	delete(): Promise<void> { throw new Error('Not Supported'); }
 	open(resource: URI, opts: IFileOpenOptions): Promise<number> { throw new Error('Not Supported'); }
-	close(fd: number): Promise<cognidreamidream> { throw new Error('Not Supported'); }
+	close(fd: number): Promise<void> { throw new Error('Not Supported'); }
 	read(fd: number, pos: number, data: Uint8Array, offset: number, length: number): Promise<number> { throw new Error('Not Supported'); }
 	write(fd: number, pos: number, data: Uint8Array, offset: number, length: number): Promise<number> { throw new Error('Not Supported'); }
 

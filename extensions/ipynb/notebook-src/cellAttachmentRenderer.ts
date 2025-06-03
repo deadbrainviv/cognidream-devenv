@@ -8,10 +8,10 @@ import type * as MarkdownItToken from 'markdown-it/lib/token';
 import type { RendererContext } from 'vscode-notebook-renderer';
 
 interface MarkdownItRenderer {
-	extendMarkdownIt(fn: (md: MarkdownIt) => cognidream): cognidream;
+	extendMarkdownIt(fn: (md: MarkdownIt) => void): void;
 }
 
-export async function activate(ctx: RendererContext<cognidream>) {
+export async function activate(ctx: RendererContext<void>) {
 	const markdownItRenderer = (await ctx.getRenderer('vscode.markdown-it-renderer')) as MarkdownItRenderer | any;
 	if (!markdownItRenderer) {
 		throw new Error(`Could not load 'vscode.markdown-it-renderer'`);

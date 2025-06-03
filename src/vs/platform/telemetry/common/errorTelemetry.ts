@@ -72,11 +72,11 @@ export default abstract class BaseErrorTelemetry {
 		this._disposables.dispose();
 	}
 
-	protected installErrorListeners(): cognidreamidream {
+	protected installErrorListeners(): void {
 		// to override
 	}
 
-	private _onErrorEvent(err: any): cognidreamidream {
+	private _onErrorEvent(err: any): void {
 
 		if (!err || err.code) {
 			return;
@@ -105,7 +105,7 @@ export default abstract class BaseErrorTelemetry {
 		this._enqueue({ msg, callstack });
 	}
 
-	protected _enqueue(e: ErrorEvent): cognidreamidream {
+	protected _enqueue(e: ErrorEvent): void {
 
 		const idx = binarySearch(this._buffer, e, ErrorEvent.compare);
 		if (idx < 0) {
@@ -126,7 +126,7 @@ export default abstract class BaseErrorTelemetry {
 		}
 	}
 
-	private _flushBuffer(): cognidreamidream {
+	private _flushBuffer(): void {
 		for (const error of this._buffer) {
 			type UnhandledErrorClassification = {} & ErrorEventFragment;
 			this._telemetryService.publicLogError2<ErrorEvent, UnhandledErrorClassification>('UnhandledError', error);

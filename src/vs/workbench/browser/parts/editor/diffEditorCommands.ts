@@ -27,7 +27,7 @@ export const DIFF_OPEN_SIDE = 'workbench.action.compareEditor.openSide';
 export const TOGGLE_DIFF_IGNORE_TRIM_WHITESPACE = 'toggle.diff.ignoreTrimWhitespace';
 export const DIFF_SWAP_SIDES = 'workbench.action.compareEditor.swapSides';
 
-export function registerDiffEditorCommands(): cognidreamidream {
+export function registerDiffEditorCommands(): void {
 	KeybindingsRegistry.registerCommandAndKeybindingRule({
 		id: GOTO_NEXT_CHANGE,
 		weight: KeybindingWeight.WorkbenchContrib,
@@ -71,7 +71,7 @@ export function registerDiffEditorCommands(): cognidreamidream {
 		return undefined;
 	}
 
-	function navigateInDiffEditor(accessor: ServicesAccessor, args: any[], next: boolean): cognidreamidream {
+	function navigateInDiffEditor(accessor: ServicesAccessor, args: any[], next: boolean): void {
 		const activeTextDiffEditor = getActiveTextDiffEditor(accessor, args);
 
 		if (activeTextDiffEditor) {
@@ -85,7 +85,7 @@ export function registerDiffEditorCommands(): cognidreamidream {
 		Toggle
 	}
 
-	function focusInDiffEditor(accessor: ServicesAccessor, args: any[], mode: FocusTextDiffEditorMode): cognidreamidream {
+	function focusInDiffEditor(accessor: ServicesAccessor, args: any[], mode: FocusTextDiffEditorMode): void {
 		const activeTextDiffEditor = getActiveTextDiffEditor(accessor, args);
 
 		if (activeTextDiffEditor) {
@@ -106,7 +106,7 @@ export function registerDiffEditorCommands(): cognidreamidream {
 		}
 	}
 
-	function toggleDiffSideBySide(accessor: ServicesAccessor, args: any[]): cognidreamidream {
+	function toggleDiffSideBySide(accessor: ServicesAccessor, args: any[]): void {
 		const configService = accessor.get(ITextResourceConfigurationService);
 		const activeTextDiffEditor = getActiveTextDiffEditor(accessor, args);
 
@@ -118,7 +118,7 @@ export function registerDiffEditorCommands(): cognidreamidream {
 		configService.updateValue(m.uri, key, !val);
 	}
 
-	function toggleDiffIgnoreTrimWhitespace(accessor: ServicesAccessor, args: any[]): cognidreamidream {
+	function toggleDiffIgnoreTrimWhitespace(accessor: ServicesAccessor, args: any[]): void {
 		const configService = accessor.get(ITextResourceConfigurationService);
 		const activeTextDiffEditor = getActiveTextDiffEditor(accessor, args);
 
@@ -130,7 +130,7 @@ export function registerDiffEditorCommands(): cognidreamidream {
 		configService.updateValue(m.uri, key, !val);
 	}
 
-	async function swapDiffSides(accessor: ServicesAccessor, args: any[]): Promise<cognidreamidream> {
+	async function swapDiffSides(accessor: ServicesAccessor, args: any[]): Promise<void> {
 		const editorService = accessor.get(IEditorService);
 
 		const diffEditor = getActiveTextDiffEditor(accessor, args);

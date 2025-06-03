@@ -42,7 +42,7 @@ export class WorkspacesFinderContribution extends Disposable implements IWorkben
 		this.findWorkspaces();
 	}
 
-	private async findWorkspaces(): Promise<cognidream> {
+	private async findWorkspaces(): Promise<void> {
 		const folder = this.contextService.getWorkspace().folders[0];
 		if (!folder || this.contextService.getWorkbenchState() !== WorkbenchState.FOLDER || isVirtualWorkspace(this.contextService.getWorkspace())) {
 			return; // require a single (non virtual) root folder
@@ -57,52 +57,52 @@ export class WorkspacesFinderContribution extends Disposable implements IWorkben
 		}
 	}
 
-	private doHandleWorkspaceFiles(folder: URI, workspaces: string[]cognidreamognidream {
+	private doHandleWorkspaceFiles(folder: URI, workspaces: string[]): void {
 		const neverShowAgain: INeverShowAgainOptions = { id: 'workspaces.dontPromptToOpen', scope: NeverShowAgainScope.WORKSPACE, isSecondary: true };
 
 		// Prompt to open one workspace
 		if (workspaces.length === 1) {
-	const workspaceFile = workspaces[0];
+			const workspaceFile = workspaces[0];
 
-	this.notificationService.prompt(Severity.Info, localize(
-		{
-			key: 'foundWorkspace',
-			comment: ['{Locked="]({1})"}']
-		},
-		"This folder contains a workspace file '{0}'. Do you want to open it? [Learn more]({1}) about workspace files.",
-		workspaceFile,
-		'https://go.microsoft.com/fwlink/?linkid=2025315'
-	), [{
-		label: localize('openWorkspace', "Open Workspace"),
-		run: () => this.hostService.openWindow([{ workspaceUri: joinPath(folder, workspaceFile) }])
-	}], {
-		neverShowAgain,
-		priority: !this.storageService.isNew(StorageScope.WORKSPACE) ? NotificationPriority.SILENT : undefined // https://github.com/microsoft/vscode/issues/125315
-	});
-}
-
-        // Prompt to select a workspace from many
-        else if (workspaces.length > 1) {
-	this.notificationService.prompt(Severity.Info, localize({
-		key: 'foundWorkspaces',
-		comment: ['{Locked="]({0})"}']
-	}, "This folder contains multiple workspace files. Do you want to open one? [Learn more]({0}) about workspace files.", 'https://go.microsoft.com/fwlink/?linkid=2025315'), [{
-		label: localize('selectWorkspace', "Select Workspace"),
-		run: () => {
-			this.quickInputService.pick(
-				workspaces.map(workspace => ({ label: workspace } satisfies IQuickPickItem)),
-				{ placeHolder: localize('selectToOpen', "Select a workspace to open") }).then(pick => {
-					if (pick) {
-						this.hostService.openWindow([{ workspaceUri: joinPath(folder, pick.label) }]);
-					}
-				});
+			this.notificationService.prompt(Severity.Info, localize(
+				{
+					key: 'foundWorkspace',
+					comment: ['{Locked="]({1})"}']
+				},
+				"This folder contains a workspace file '{0}'. Do you want to open it? [Learn more]({1}) about workspace files.",
+				workspaceFile,
+				'https://go.microsoft.com/fwlink/?linkid=2025315'
+			), [{
+				label: localize('openWorkspace', "Open Workspace"),
+				run: () => this.hostService.openWindow([{ workspaceUri: joinPath(folder, workspaceFile) }])
+			}], {
+				neverShowAgain,
+				priority: !this.storageService.isNew(StorageScope.WORKSPACE) ? NotificationPriority.SILENT : undefined // https://github.com/microsoft/vscode/issues/125315
+			});
 		}
-	}], {
-		neverShowAgain,
-		priority: !this.storageService.isNew(StorageScope.WORKSPACE) ? NotificationPriority.SILENT : undefined // https://github.com/microsoft/vscode/issues/125315
-	});
-}
-    }
+
+		// Prompt to select a workspace from many
+		else if (workspaces.length > 1) {
+			this.notificationService.prompt(Severity.Info, localize({
+				key: 'foundWorkspaces',
+				comment: ['{Locked="]({0})"}']
+			}, "This folder contains multiple workspace files. Do you want to open one? [Learn more]({0}) about workspace files.", 'https://go.microsoft.com/fwlink/?linkid=2025315'), [{
+				label: localize('selectWorkspace', "Select Workspace"),
+				run: () => {
+					this.quickInputService.pick(
+						workspaces.map(workspace => ({ label: workspace } satisfies IQuickPickItem)),
+						{ placeHolder: localize('selectToOpen', "Select a workspace to open") }).then(pick => {
+							if (pick) {
+								this.hostService.openWindow([{ workspaceUri: joinPath(folder, pick.label) }]);
+							}
+						});
+				}
+			}], {
+				neverShowAgain,
+				priority: !this.storageService.isNew(StorageScope.WORKSPACE) ? NotificationPriority.SILENT : undefined // https://github.com/microsoft/vscode/issues/125315
+			});
+		}
+	}
 }
 
 Registry.as<IWorkbenchContributionsRegistry>(WorkbenchExtensions.Workbench).registerWorkbenchContribution(WorkspacesFinderContribution, LifecyclePhase.Eventually);
@@ -126,20 +126,20 @@ registerAction2(class extends Action2 {
 		});
 	}
 
-	async run(accessor: ServicesAccessor, uri: URI): Promicognidreamognidream> {
-	const hostService = accessor.get(IHostService);
-	const contextService = accessor.get(IWorkspaceContextService);
-	const notificationService = accessor.get(INotificationService);
+	async run(accessor: ServicesAccessor, uri: URI): Promise<void> {
+		const hostService = accessor.get(IHostService);
+		const contextService = accessor.get(IWorkspaceContextService);
+		const notificationService = accessor.get(INotificationService);
 
-	if(contextService.getWorkbenchState() === WorkbenchState.WORKSPACE) {
-	const workspaceConfiguration = contextService.getWorkspace().configuration;
-	if (workspaceConfiguration && isEqual(workspaceConfiguration, uri)) {
-		notificationService.info(localize('alreadyOpen', "This workspace is already open."));
+		if (contextService.getWorkbenchState() === WorkbenchState.WORKSPACE) {
+			const workspaceConfiguration = contextService.getWorkspace().configuration;
+			if (workspaceConfiguration && isEqual(workspaceConfiguration, uri)) {
+				notificationService.info(localize('alreadyOpen', "This workspace is already open."));
 
-		return; // workspace already opened
+				return; // workspace already opened
+			}
+		}
+
+		return hostService.openWindow([{ workspaceUri: uri }]);
 	}
-}
-
-return hostService.openWindow([{ workspaceUri: uri }]);
-    }
 });

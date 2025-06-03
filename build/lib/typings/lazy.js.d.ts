@@ -41,15 +41,15 @@ declare module Lazy {
 	}
 
 	interface Callback {
-		(): cognidream;
+		(): void;
 	}
 
 	interface ErrorCallback {
-		(error: any): cognidream;
+		(error: any): void;
 	}
 
 	interface ValueCallback<T> {
-		(value: T): cognidream;
+		(value: T): void;
 	}
 
 	interface GetKeyCallback<T> {
@@ -102,9 +102,9 @@ declare module Lazy {
 	}
 
 	interface AsyncHandle<T> {
-		cancel(): cognidream;
-		onComplete(callback: Callback): cognidream;
-		onError(callback: ErrorCallback): cognidream;
+		cancel(): void;
+		onComplete(callback: Callback): void;
+		onError(callback: ErrorCallback): void;
 	}
 
 	// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

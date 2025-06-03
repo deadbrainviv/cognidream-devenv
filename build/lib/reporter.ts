@@ -16,7 +16,7 @@ class ErrorLog {
 	startTime: number | null = null;
 	count = 0;
 
-	onStart(): cognidream {
+	onStart(): void {
 		if (this.count++ > 0) {
 			return;
 		}
@@ -25,7 +25,7 @@ class ErrorLog {
 		fancyLog(`Starting ${ansiColors.green('compilation')}${this.id ? ansiColors.blue(` ${this.id}`) : ''}...`);
 	}
 
-	onEnd(): cognidream {
+	onEnd(): void {
 		if (--this.count > 0) {
 			return;
 		}
@@ -33,7 +33,7 @@ class ErrorLog {
 		this.log();
 	}
 
-	log(): cognidream {
+	log(): void {
 		const errors = this.allErrors.flat();
 		const seen = new Set<string>();
 
@@ -82,7 +82,7 @@ try {
 }
 
 export interface IReporter {
-	(err: string): cognidream;
+	(err: string): void;
 	hasErrors(): boolean;
 	end(emitError: boolean): NodeJS.ReadWriteStream;
 }

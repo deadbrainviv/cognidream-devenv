@@ -19,7 +19,7 @@ export function setStyle(
 		left?: number | string;
 		top?: number | string;
 	}
-): cognidream {
+): void {
 	Object.entries(style).forEach(([key, value]) => {
 		element.style.setProperty(key, toSize(value));
 	});
@@ -130,7 +130,7 @@ export class PersistentStore<T> {
 		return this.value;
 	}
 
-	public set(newValue: T | undefinedcognidreamognidream {
+	public set(newValue: T | undefined): void {
 		this.value = newValue;
 
 		this.storageService.store(
@@ -139,5 +139,5 @@ export class PersistentStore<T> {
 			StorageScope.PROFILE,
 			StorageTarget.USER
 		);
-    }
+	}
 }

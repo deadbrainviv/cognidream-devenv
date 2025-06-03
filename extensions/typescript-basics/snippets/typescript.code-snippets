@@ -292,7 +292,7 @@
 	"new Promise": {
 		"prefix": "newpromise",
 		"body": [
-			"new Promise<${1:cognidream}>((resolve, reject) => {",
+			"new Promise<${1:void}>((resolve, reject) => {",
 			"\t$TM_SELECTED_TEXT$0",
 			"})"
 		],

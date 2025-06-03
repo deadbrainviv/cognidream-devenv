@@ -176,7 +176,7 @@ suite('InlineChatController', function () {
 				}
 			}],
 			[IChatAccessibilityService, new class extends mock<IChatAccessibilityService>() {
-				override acceptResponse(response: IChatResponseViewModel | undefined, requestId: number): cognidream { }
+				override acceptResponse(response: IChatResponseViewModel | undefined, requestId: number): void { }
 				override acceptRequest(): number { return -1; }
 			}],
 			[IAccessibleViewService, new class extends mock<IAccessibleViewService>() {
@@ -660,7 +660,7 @@ suite('InlineChatController', function () {
 		let count = 0;
 		const commandDetection: (boolean | undefined)[] = [];
 
-		const onDidInvoke = new Emcognidreamr<cognidream>();
+		const onDidInvoke = new Emitter<void>();
 
 		store.add(chatAgentService.registerDynamicAgent({
 			id: 'testEditorAgent2',
@@ -749,7 +749,7 @@ suite('InlineChatController', function () {
 
 		const attempts: (number | undefined)[] = [];
 
-		const deferred = new DeferredPrcognidreame<cognidream>();
+		const deferred = new DeferredPromise<void>();
 
 		store.add(chatAgentService.registerDynamicAgent({
 			id: 'testEditorAgent2',
@@ -792,174 +792,137 @@ suite('InlineChatController', function () {
 
 		model.setValue('World');
 
-		const deferred = new DeferredPrcognidreame<cognidream>();
-		let progress: ((part: IChatProgrescognidream> cognidream) | undefined;
+		const deferred = new DeferredPromise<void>();
+		let progress: ((part: IChatProgress) => void) | undefined;
 
-	store.add(chatAgentService.registerDynamicAgent({
-		id: 'testEditorAgent2',
-		...agentData
-	}, {
-		async invoke(request, _progress, history, token) {
+		store.add(chatAgentService.registerDynamicAgent({
+			id: 'testEditorAgent2',
+			...agentData
+		}, {
+			async invoke(request, _progress, history, token) {
 
-			progress = _progress;
-			await deferred.p;
-			return {};
-		},
-	}));
-
-	ctrl = instaService.createInstance(TestController, editor);
-
-	// REQUEST 1
-	const p = ctrl.awaitStates([...TestController.INIT_SEQUENCE, State.SHOW_REQUEST]);
-	ctrl.run({ message: 'Hello', autoSend: true });
-	await timeout(10);
-	assert.strictEqual(await p, undefined);
-
-	assertType(progress);
-
-	const modelChange = new Prcognidreame<cognidream>(resolve => model.onDidChangeContent(() => resolve()));
-
-	progress({ kind: 'textEdit', uri: model.uri, edits: [{ range: new Range(1, 1, 1, 1), text: 'Hello-Hello' }] });
-
-	await modelChange;
-	assert.strictEqual(model.getValue(), 'HelloWorld'); // first word has been streamed
-
-	const p2 = ctrl.awaitStates([State.WAIT_FOR_INPUT]);
-	chatService.cancelCurrentRequestForSession(ctrl.chatWidget.viewModel!.model.sessionId);
-	assert.strictEqual(await p2, undefined);
-
-	assert.strictEqual(model.getValue(), 'HelloWorld'); // CANCEL just stops the request and progressive typing but doesn't undo
-
-});
-
-test('Apply Edits from existing session w/ edits', async function () {
-
-	model.setValue('');
-
-	const newSession = await inlineChatSessionService.createSession(editor, {}, CancellationToken.None);
-	assertType(newSession);
-
-	await (await chatService.sendRequest(newSession.chatModel.sessionId, 'Existing', { location: ChatAgentLocation.Editor }))?.responseCreatedPromise;
-
-	assert.strictEqual(newSession.chatModel.requestInProgress, true);
-
-	const response = newSession.chatModel.lastRequest?.response;
-	assertType(response);
-
-	await new Promise(resolve => {
-		if (response.isComplete) {
-			resolve(undefined);
-		}
-		const d = response.onDidChange(() => {
-			if (response.isComplete) {
-				d.dispose();
-				resolve(undefined);
-			}
-		});
-	});
-
-	ctrl = instaService.createInstance(TestController, editor);
-	const p = ctrl.awaitStates([...TestController.INIT_SEQUENCE]);
-	ctrl.run({ existingSession: newSession });
-
-	assert.strictEqual(await p, undefined);
-
-	assert.strictEqual(model.getValue(), 'Existing');
-
-});
-
-test('Undo on error (2 rounds)', async function () {
-
-	return runWithFakedTimers({}, async () => {
-
-
-		store.add(chatAgentService.registerDynamicAgent({ id: 'testEditorAgent', ...agentData, }, {
-			async invoke(request, progress, history, token) {
-
-				progress({
-					kind: 'textEdit',
-					uri: model.uri,
-					edits: [{
-						range: new Range(1, 1, 1, 1),
-						text: request.message
-					}]
-				});
-
-				if (request.message === 'two') {
-					await timeout(100); // give edit a chance
-					return {
-						errorDetails: { message: 'FAILED' }
-					};
-				}
+				progress = _progress;
+				await deferred.p;
 				return {};
 			},
 		}));
 
+		ctrl = instaService.createInstance(TestController, editor);
+
+		// REQUEST 1
+		const p = ctrl.awaitStates([...TestController.INIT_SEQUENCE, State.SHOW_REQUEST]);
+		ctrl.run({ message: 'Hello', autoSend: true });
+		await timeout(10);
+		assert.strictEqual(await p, undefined);
+
+		assertType(progress);
+
+		const modelChange = new Promise<void>(resolve => model.onDidChangeContent(() => resolve()));
+
+		progress({ kind: 'textEdit', uri: model.uri, edits: [{ range: new Range(1, 1, 1, 1), text: 'Hello-Hello' }] });
+
+		await modelChange;
+		assert.strictEqual(model.getValue(), 'HelloWorld'); // first word has been streamed
+
+		const p2 = ctrl.awaitStates([State.WAIT_FOR_INPUT]);
+		chatService.cancelCurrentRequestForSession(ctrl.chatWidget.viewModel!.model.sessionId);
+		assert.strictEqual(await p2, undefined);
+
+		assert.strictEqual(model.getValue(), 'HelloWorld'); // CANCEL just stops the request and progressive typing but doesn't undo
+
+	});
+
+	test('Apply Edits from existing session w/ edits', async function () {
+
 		model.setValue('');
 
-		// ROUND 1
+		const newSession = await inlineChatSessionService.createSession(editor, {}, CancellationToken.None);
+		assertType(newSession);
+
+		await (await chatService.sendRequest(newSession.chatModel.sessionId, 'Existing', { location: ChatAgentLocation.Editor }))?.responseCreatedPromise;
+
+		assert.strictEqual(newSession.chatModel.requestInProgress, true);
+
+		const response = newSession.chatModel.lastRequest?.response;
+		assertType(response);
+
+		await new Promise(resolve => {
+			if (response.isComplete) {
+				resolve(undefined);
+			}
+			const d = response.onDidChange(() => {
+				if (response.isComplete) {
+					d.dispose();
+					resolve(undefined);
+				}
+			});
+		});
 
 		ctrl = instaService.createInstance(TestController, editor);
-		const p = ctrl.awaitStates([...TestController.INIT_SEQUENCE, State.SHOW_REQUEST, State.WAIT_FOR_INPUT]);
-		ctrl.run({ autoSend: true, message: 'one' });
+		const p = ctrl.awaitStates([...TestController.INIT_SEQUENCE]);
+		ctrl.run({ existingSession: newSession });
+
 		assert.strictEqual(await p, undefined);
-		assert.strictEqual(model.getValue(), 'one');
 
+		assert.strictEqual(model.getValue(), 'Existing');
 
-		// ROUND 2
-
-		const p2 = ctrl.awaitStates([State.SHOW_REQUEST, State.WAIT_FOR_INPUT]);
-		const values = new Set<string>();
-		store.add(model.onDidChangeContent(() => values.add(model.getValue())));
-		ctrl.chatWidget.acceptInput('two'); // WILL Trigger a failure
-		assert.strictEqual(await p2, undefined);
-		assert.strictEqual(model.getValue(), 'one'); // undone
-		assert.ok(values.has('twoone')); // we had but the change got undone
 	});
-});
 
-test('Inline chat "discard" button does not always appear if response is stopped #228030', async function () {
+	test('Undo on error (2 rounds)', async function () {
 
-	model.setValue('World');
-
-	const deferred = new DeferredPrcognidreame<cognidream>();
-
-	store.add(chatAgentService.registerDynamicAgent({
-		id: 'testEditorAgent2',
-		...agentData
-	}, {
-		async invoke(request, progress, history, token) {
-
-			progress({ kind: 'textEdit', uri: model.uri, edits: [{ range: new Range(1, 1, 1, 1), text: 'Hello-Hello' }] });
-			await deferred.p;
-			return {};
-		},
-	}));
-
-	ctrl = instaService.createInstance(TestController, editor);
-
-	// REQUEST 1
-	const p = ctrl.awaitStates([...TestController.INIT_SEQUENCE, State.SHOW_REQUEST]);
-	ctrl.run({ message: 'Hello', autoSend: true });
+		return runWithFakedTimers({}, async () => {
 
 
-	assert.strictEqual(await p, undefined);
+			store.add(chatAgentService.registerDynamicAgent({ id: 'testEditorAgent', ...agentData, }, {
+				async invoke(request, progress, history, token) {
 
-	const p2 = ctrl.awaitStates([State.WAIT_FOR_INPUT]);
-	chatService.cancelCurrentRequestForSession(ctrl.chatWidget.viewModel!.model.sessionId);
-	assert.strictEqual(await p2, undefined);
+					progress({
+						kind: 'textEdit',
+						uri: model.uri,
+						edits: [{
+							range: new Range(1, 1, 1, 1),
+							text: request.message
+						}]
+					});
+
+					if (request.message === 'two') {
+						await timeout(100); // give edit a chance
+						return {
+							errorDetails: { message: 'FAILED' }
+						};
+					}
+					return {};
+				},
+			}));
+
+			model.setValue('');
+
+			// ROUND 1
+
+			ctrl = instaService.createInstance(TestController, editor);
+			const p = ctrl.awaitStates([...TestController.INIT_SEQUENCE, State.SHOW_REQUEST, State.WAIT_FOR_INPUT]);
+			ctrl.run({ autoSend: true, message: 'one' });
+			assert.strictEqual(await p, undefined);
+			assert.strictEqual(model.getValue(), 'one');
 
 
-	const value = contextKeyService.getContextKeyValue(CTX_INLINE_CHAT_RESPONSE_TYPE.key);
-	assert.notStrictEqual(value, InlineChatResponseType.None);
-});
+			// ROUND 2
 
-test('Restore doesn\'t edit on errored result', async function () {
-	return runWithFakedTimers({ useFakeTimers: true }, async () => {
+			const p2 = ctrl.awaitStates([State.SHOW_REQUEST, State.WAIT_FOR_INPUT]);
+			const values = new Set<string>();
+			store.add(model.onDidChangeContent(() => values.add(model.getValue())));
+			ctrl.chatWidget.acceptInput('two'); // WILL Trigger a failure
+			assert.strictEqual(await p2, undefined);
+			assert.strictEqual(model.getValue(), 'one'); // undone
+			assert.ok(values.has('twoone')); // we had but the change got undone
+		});
+	});
 
-		const model2 = store.add(instaService.get(IModelService).createModel('ABC', null));
+	test('Inline chat "discard" button does not always appear if response is stopped #228030', async function () {
 
 		model.setValue('World');
+
+		const deferred = new DeferredPromise<void>();
 
 		store.add(chatAgentService.registerDynamicAgent({
 			id: 'testEditorAgent2',
@@ -967,36 +930,73 @@ test('Restore doesn\'t edit on errored result', async function () {
 		}, {
 			async invoke(request, progress, history, token) {
 
-				progress({ kind: 'textEdit', uri: model.uri, edits: [{ range: new Range(1, 1, 1, 1), text: 'Hello1' }] });
-				await timeout(100);
-				progress({ kind: 'textEdit', uri: model.uri, edits: [{ range: new Range(1, 1, 1, 1), text: 'Hello2' }] });
-				await timeout(100);
-				progress({ kind: 'textEdit', uri: model.uri, edits: [{ range: new Range(1, 1, 1, 1), text: 'Hello3' }] });
-				await timeout(100);
-
-				return {
-					errorDetails: { message: 'FAILED' }
-				};
+				progress({ kind: 'textEdit', uri: model.uri, edits: [{ range: new Range(1, 1, 1, 1), text: 'Hello-Hello' }] });
+				await deferred.p;
+				return {};
 			},
 		}));
 
 		ctrl = instaService.createInstance(TestController, editor);
 
 		// REQUEST 1
-		const p = ctrl.awaitStates([...TestController.INIT_SEQUENCE, State.SHOW_REQUEST, State.WAIT_FOR_INPUT]);
+		const p = ctrl.awaitStates([...TestController.INIT_SEQUENCE, State.SHOW_REQUEST]);
 		ctrl.run({ message: 'Hello', autoSend: true });
+
 
 		assert.strictEqual(await p, undefined);
 
-		const p2 = ctrl.awaitStates([State.PAUSE]);
-		editor.setModel(model2);
+		const p2 = ctrl.awaitStates([State.WAIT_FOR_INPUT]);
+		chatService.cancelCurrentRequestForSession(ctrl.chatWidget.viewModel!.model.sessionId);
 		assert.strictEqual(await p2, undefined);
 
-		const p3 = ctrl.awaitStates([...TestController.INIT_SEQUENCE]);
-		editor.setModel(model);
-		assert.strictEqual(await p3, undefined);
 
-		assert.strictEqual(model.getValue(), 'World');
+		const value = contextKeyService.getContextKeyValue(CTX_INLINE_CHAT_RESPONSE_TYPE.key);
+		assert.notStrictEqual(value, InlineChatResponseType.None);
 	});
-});
+
+	test('Restore doesn\'t edit on errored result', async function () {
+		return runWithFakedTimers({ useFakeTimers: true }, async () => {
+
+			const model2 = store.add(instaService.get(IModelService).createModel('ABC', null));
+
+			model.setValue('World');
+
+			store.add(chatAgentService.registerDynamicAgent({
+				id: 'testEditorAgent2',
+				...agentData
+			}, {
+				async invoke(request, progress, history, token) {
+
+					progress({ kind: 'textEdit', uri: model.uri, edits: [{ range: new Range(1, 1, 1, 1), text: 'Hello1' }] });
+					await timeout(100);
+					progress({ kind: 'textEdit', uri: model.uri, edits: [{ range: new Range(1, 1, 1, 1), text: 'Hello2' }] });
+					await timeout(100);
+					progress({ kind: 'textEdit', uri: model.uri, edits: [{ range: new Range(1, 1, 1, 1), text: 'Hello3' }] });
+					await timeout(100);
+
+					return {
+						errorDetails: { message: 'FAILED' }
+					};
+				},
+			}));
+
+			ctrl = instaService.createInstance(TestController, editor);
+
+			// REQUEST 1
+			const p = ctrl.awaitStates([...TestController.INIT_SEQUENCE, State.SHOW_REQUEST, State.WAIT_FOR_INPUT]);
+			ctrl.run({ message: 'Hello', autoSend: true });
+
+			assert.strictEqual(await p, undefined);
+
+			const p2 = ctrl.awaitStates([State.PAUSE]);
+			editor.setModel(model2);
+			assert.strictEqual(await p2, undefined);
+
+			const p3 = ctrl.awaitStates([...TestController.INIT_SEQUENCE]);
+			editor.setModel(model);
+			assert.strictEqual(await p3, undefined);
+
+			assert.strictEqual(model.getValue(), 'World');
+		});
+	});
 });

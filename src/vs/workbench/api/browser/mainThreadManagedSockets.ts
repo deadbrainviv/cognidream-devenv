@@ -28,7 +28,7 @@ export class MainThreadManagedSockets extends Disposable implements MainThreadMa
 		this._proxy = extHostContext.getProxy(ExtHostContext.ExtHostManagedSockets);
 	}
 
-	async $registerSocketFactory(socketFactoryId: number): Promise<cognidream> {
+	async $registerSocketFactory(socketFactoryId: number): Promise<void> {
 		const that = this;
 		const socketFactory = new class implements ISocketFactory<RemoteConnectionType.Managed> {
 
@@ -69,26 +69,26 @@ export class MainThreadManagedSockets extends Disposable implements MainThreadMa
 
 	}
 
-	async $unregisterSocketFactory(socketFactoryId: number): Promicognidreamognidream> {
+	async $unregisterSocketFactory(socketFactoryId: number): Promise<void> {
 		this._registrations.get(socketFactoryId)?.dispose();
 	}
 
-$onDidManagedSocketHaveData(socketId: number, data: VSBuffercognidreamognidream {
-	this._remoteSockets.get(socketId)?.onData.fire(data);
-}
+	$onDidManagedSocketHaveData(socketId: number, data: VSBuffer): void {
+		this._remoteSockets.get(socketId)?.onData.fire(data);
+	}
 
-    $onDidManagedSocketClose(socketId: number, error: string | undefinedcognidreamognidream {
-	this._remoteSockets.get(socketId)?.onClose.fire({
-		type: SocketCloseEventType.NodeSocketCloseEvent,
-		error: error ? new Error(error) : undefined,
-		hadError: !!error
-	});
-	this._remoteSockets.delete(socketId);
-}
+	$onDidManagedSocketClose(socketId: number, error: string | undefined): void {
+		this._remoteSockets.get(socketId)?.onClose.fire({
+			type: SocketCloseEventType.NodeSocketCloseEvent,
+			error: error ? new Error(error) : undefined,
+			hadError: !!error
+		});
+		this._remoteSockets.delete(socketId);
+	}
 
-    $onDidManagedSocketEnd(socketId: numbercognidreamognidream {
-	this._remoteSockets.get(socketId)?.onEnd.fire();
-}
+	$onDidManagedSocketEnd(socketId: number): void {
+		this._remoteSockets.get(socketId)?.onEnd.fire();
+	}
 }
 
 export class MainThreadManagedSocket extends ManagedSocket {
@@ -111,15 +111,15 @@ export class MainThreadManagedSocket extends ManagedSocket {
 		super(debugLabel, half);
 	}
 
-	public override write(buffer: VSBuffercognidreamognidream {
+	public override write(buffer: VSBuffer): void {
 		this.proxy.$remoteSocketWrite(this.socketId, buffer);
-    }
+	}
 
-    protected override  closeRemote(cognidreamognidream {
-			this.proxy.$remoteSocketEnd(this.socketId);
-		}
+	protected override  closeRemote(): void {
+		this.proxy.$remoteSocketEnd(this.socketId);
+	}
 
-    public override drain(): Promicognidreamognidream > {
-			return this.proxy.$remoteSocketDrain(this.socketId);
-		}
+	public override drain(): Promise<void> {
+		return this.proxy.$remoteSocketDrain(this.socketId);
+	}
 }

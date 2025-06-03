@@ -202,113 +202,113 @@ export class SimpleSettingRenderer {
 		return undefined;
 	}
 
-	async restoreSetting(settingId: string): Promise<cognidream> {
+	async restoreSetting(settingId: string): Promise<void> {
 		const userOriginalSettingValue = this._updatedSettings.get(settingId);
 		this._updatedSettings.delete(settingId);
 		return this._configurationService.updateValue(settingId, userOriginalSettingValue, ConfigurationTarget.USER);
 	}
 
-	async setSetting(settingId: string, currentSettingValue: any, newSettingValue: any): Promicognidreamognidream> {
+	async setSetting(settingId: string, currentSettingValue: any, newSettingValue: any): Promise<void> {
 		this._updatedSettings.set(settingId, currentSettingValue);
 		return this._configurationService.updateValue(settingId, newSettingValue, ConfigurationTarget.USER);
 	}
 
-getActions(uri: URI) {
-	if (uri.scheme !== Schemas.codeSetting) {
-		return;
-	}
+	getActions(uri: URI) {
+		if (uri.scheme !== Schemas.codeSetting) {
+			return;
+		}
 
-	const actions: IAction[] = [];
+		const actions: IAction[] = [];
 
-	const settingId = uri.authority;
-	const newSettingValue = this.parseValue(uri.authority, uri.path.substring(1));
-	const currentSettingValue = this._configurationService.inspect(settingId).userValue;
+		const settingId = uri.authority;
+		const newSettingValue = this.parseValue(uri.authority, uri.path.substring(1));
+		const currentSettingValue = this._configurationService.inspect(settingId).userValue;
 
-	if ((newSettingValue !== undefined) && newSettingValue === currentSettingValue && this._updatedSettings.has(settingId)) {
-		const restoreMessage = this.restorePreviousSettingMessage(settingId);
-		actions.push({
-			class: undefined,
-			id: 'restoreSetting',
-			enabled: true,
-			tooltip: restoreMessage,
-			label: restoreMessage,
-			run: () => {
-				return this.restoreSetting(settingId);
-			}
-		});
-	} else if (newSettingValue !== undefined) {
-		const setting = this.getSetting(settingId);
-		const trySettingMessage = setting ? this.getSettingMessage(setting, newSettingValue) : undefined;
-
-		if (setting && trySettingMessage) {
+		if ((newSettingValue !== undefined) && newSettingValue === currentSettingValue && this._updatedSettings.has(settingId)) {
+			const restoreMessage = this.restorePreviousSettingMessage(settingId);
 			actions.push({
 				class: undefined,
-				id: 'trySetting',
-				enabled: !this.isAlreadySet(setting, newSettingValue),
-				tooltip: trySettingMessage,
-				label: trySettingMessage,
+				id: 'restoreSetting',
+				enabled: true,
+				tooltip: restoreMessage,
+				label: restoreMessage,
 				run: () => {
-					this.setSetting(settingId, currentSettingValue, newSettingValue);
+					return this.restoreSetting(settingId);
 				}
 			});
+		} else if (newSettingValue !== undefined) {
+			const setting = this.getSetting(settingId);
+			const trySettingMessage = setting ? this.getSettingMessage(setting, newSettingValue) : undefined;
+
+			if (setting && trySettingMessage) {
+				actions.push({
+					class: undefined,
+					id: 'trySetting',
+					enabled: !this.isAlreadySet(setting, newSettingValue),
+					tooltip: trySettingMessage,
+					label: trySettingMessage,
+					run: () => {
+						this.setSetting(settingId, currentSettingValue, newSettingValue);
+					}
+				});
+			}
 		}
-	}
 
-	const viewInSettingsMessage = this.viewInSettingsMessage(settingId, actions.length > 0);
-	actions.push({
-		class: undefined,
-		enabled: true,
-		id: 'viewInSettings',
-		tooltip: viewInSettingsMessage,
-		label: viewInSettingsMessage,
-		run: () => {
-			return this._preferencesService.openApplicationSettings({ query: `@id:${settingId}` });
-		}
-	});
-
-	actions.push({
-		class: undefined,
-		enabled: true,
-		id: 'copySettingId',
-		tooltip: nls.localize('copySettingId', "Copy Setting ID"),
-		label: nls.localize('copySettingId', "Copy Setting ID"),
-		run: () => {
-			this._clipboardService.writeText(settingId);
-		}
-	});
-
-	return actions;
-}
-
-    private showContextMenu(uri: URI, x: number, y: number) {
-	const actions = this.getActions(uri);
-	if (!actions) {
-		return;
-	}
-
-	this._contextMenuService.showContextMenu({
-		getAnchor: () => ({ x, y }),
-		getActions: () => actions,
-		getActionViewItem: (action) => {
-			return new ActionViewItem(action, action, { label: true });
-		},
-	});
-}
-
-    async updateSetting(uri: URI, x: number, y: number) {
-	if (uri.scheme === Schemas.codeSetting) {
-		type ReleaseNotesSettingUsedClassification = {
-			owner: 'alexr00';
-			comment: 'Used to understand if the action to update settings from the release notes is used.';
-			settingId: { classification: 'SystemMetaData'; purpose: 'FeatureInsight'; comment: 'The id of the setting that was clicked on in the release notes' };
-		};
-		type ReleaseNotesSettingUsed = {
-			settingId: string;
-		};
-		this._telemetryService.publicLog2<ReleaseNotesSettingUsed, ReleaseNotesSettingUsedClassification>('releaseNotesSettingAction', {
-			settingId: uri.authority
+		const viewInSettingsMessage = this.viewInSettingsMessage(settingId, actions.length > 0);
+		actions.push({
+			class: undefined,
+			enabled: true,
+			id: 'viewInSettings',
+			tooltip: viewInSettingsMessage,
+			label: viewInSettingsMessage,
+			run: () => {
+				return this._preferencesService.openApplicationSettings({ query: `@id:${settingId}` });
+			}
 		});
-		return this.showContextMenu(uri, x, y);
+
+		actions.push({
+			class: undefined,
+			enabled: true,
+			id: 'copySettingId',
+			tooltip: nls.localize('copySettingId', "Copy Setting ID"),
+			label: nls.localize('copySettingId', "Copy Setting ID"),
+			run: () => {
+				this._clipboardService.writeText(settingId);
+			}
+		});
+
+		return actions;
 	}
-}
+
+	private showContextMenu(uri: URI, x: number, y: number) {
+		const actions = this.getActions(uri);
+		if (!actions) {
+			return;
+		}
+
+		this._contextMenuService.showContextMenu({
+			getAnchor: () => ({ x, y }),
+			getActions: () => actions,
+			getActionViewItem: (action) => {
+				return new ActionViewItem(action, action, { label: true });
+			},
+		});
+	}
+
+	async updateSetting(uri: URI, x: number, y: number) {
+		if (uri.scheme === Schemas.codeSetting) {
+			type ReleaseNotesSettingUsedClassification = {
+				owner: 'alexr00';
+				comment: 'Used to understand if the action to update settings from the release notes is used.';
+				settingId: { classification: 'SystemMetaData'; purpose: 'FeatureInsight'; comment: 'The id of the setting that was clicked on in the release notes' };
+			};
+			type ReleaseNotesSettingUsed = {
+				settingId: string;
+			};
+			this._telemetryService.publicLog2<ReleaseNotesSettingUsed, ReleaseNotesSettingUsedClassification>('releaseNotesSettingAction', {
+				settingId: uri.authority
+			});
+			return this.showContextMenu(uri, x, y);
+		}
+	}
 }

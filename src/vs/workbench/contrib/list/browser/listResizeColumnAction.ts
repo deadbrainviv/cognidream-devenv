@@ -11,24 +11,24 @@ import { Action2 } from '../../../../platform/actions/common/actions.js';
 import { localize } from '../../../../nls.js';
 
 export class ListResizeColumnAction extends Action2 {
-    constructor() {
-        super({
-            id: 'list.resizeColumn',
-            title: { value: localize('list.resizeColumn', "Resize Column"), original: 'Resize Column' },
-            category: { value: localize('list', "List"), original: 'List' },
-            precondition: WorkbenchListFocusContextKey,
-            f1: true
-        });
-    }
+	constructor() {
+		super({
+			id: 'list.resizeColumn',
+			title: { value: localize('list.resizeColumn', "Resize Column"), original: 'Resize Column' },
+			category: { value: localize('list', "List"), original: 'List' },
+			precondition: WorkbenchListFocusContextKey,
+			f1: true
+		});
+	}
 
-    async run(accessor: ServicesAccessor): Promise<cognidream> {
-        const listService = accessor.get(IListService);
-        const instantiationService = accessor.get(IInstantiationService);
+	async run(accessor: ServicesAccessor): Promise<void> {
+		const listService = accessor.get(IListService);
+		const instantiationService = accessor.get(IInstantiationService);
 
-        const list = listService.lastFocusedList;
-        if (list instanceof Table) {
-            await instantiationService.createInstance(TableColumnResizeQuickPick, list).show();
-        }
-    }
+		const list = listService.lastFocusedList;
+		if (list instanceof Table) {
+			await instantiationService.createInstance(TableColumnResizeQuickPick, list).show();
+		}
+	}
 }
 

@@ -576,7 +576,7 @@ class RemoteSearchProvider implements IRemoteSearchProvider {
 		this.tfIdfSearchProvider ??= new TfIdfSearchProvider();
 	}
 
-	setFilter(filter: string): cognidreamidream {
+	setFilter(filter: string): void {
 		this.initializeSearchProviders();
 		this.filter = filter;
 		if (this.adaSearchProvider) {

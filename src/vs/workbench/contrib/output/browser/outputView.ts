@@ -115,7 +115,7 @@ export class OutputViewPane extends FilterViewPane {
 		this._register(outputService.filters.onDidChange(() => this.checkMoreFilters()));
 	}
 
-	showChannel(channel: IOutputChannel, preserveFocus: boolean): cognidream {
+	showChannel(channel: IOutputChannel, preserveFocus: boolean): void {
 		if (this.channelId !== channel.id) {
 			this.setInput(channel);
 		}
@@ -124,84 +124,84 @@ export class OutputViewPane extends FilterViewPane {
 		}
 	}
 
-	override focus(cognidreamognidream {
+	override focus(): void {
 		super.focus();
-this.editorPromise?.then(() => this.editor.focus());
-    }
-
-    public clearFilterText(cognidreamognidream {
-	this.filterWidget.setFilterText('');
-}
-
-    protected override renderBody(container: HTMLElementcognidreamognidream {
-	super.renderBody(container);
-	this.editor.create(container);
-	container.classList.add('output-view');
-	const codeEditor = <ICodeEditor>this.editor.getControl();
-	codeEditor.setAriaOptions({ role: 'document', activeDescendant: undefined });
-	this._register(codeEditor.onDidChangeModelContent(() => {
-		if (!this.scrollLock) {
-			this.editor.revealLastLine();
-		}
-	}));
-	this._register(codeEditor.onDidChangeCursorPosition((e) => {
-		if (e.reason !== CursorChangeReason.Explicit) {
-			return;
-		}
-
-		if (!this.configurationService.getValue('output.smartScroll.enabled')) {
-			return;
-		}
-
-		const model = codeEditor.getModel();
-		if (model) {
-			const newPositionLine = e.position.lineNumber;
-			const lastLine = model.getLineCount();
-			this.scrollLock = lastLine !== newPositionLine;
-		}
-	}));
-}
-
-    protected layoutBodyContent(height: number, width: numbercognidreamognidream {
-	this.editor.layout(new Dimension(width, height));
-}
-
-    private onDidChangeVisibility(visible: booleancognidreamognidream {
-	this.editor.setVisible(visible);
-	if(!visible) {
-		this.clearInput();
+		this.editorPromise?.then(() => this.editor.focus());
 	}
-}
 
-    private setInput(channel: IOutputChannelcognidreamognidream {
-	this.channelId = channel.id;
-	this.checkMoreFilters();
+	public clearFilterText(): void {
+		this.filterWidget.setFilterText('');
+	}
 
-	const input = this.createInput(channel);
-	if(!this.editor.input || !input.matches(this.editor.input)) {
-	this.editorPromise?.cancel();
-	this.editorPromise = createCancelablePromise(token => this.editor.setInput(this.createInput(channel), { preserveFocus: true }, Object.create(null), token)
-		.then(() => this.editor));
-}
+	protected override renderBody(container: HTMLElement): void {
+		super.renderBody(container);
+		this.editor.create(container);
+		container.classList.add('output-view');
+		const codeEditor = <ICodeEditor>this.editor.getControl();
+		codeEditor.setAriaOptions({ role: 'document', activeDescendant: undefined });
+		this._register(codeEditor.onDidChangeModelContent(() => {
+			if (!this.scrollLock) {
+				this.editor.revealLastLine();
+			}
+		}));
+		this._register(codeEditor.onDidChangeCursorPosition((e) => {
+			if (e.reason !== CursorChangeReason.Explicit) {
+				return;
+			}
 
-    }
+			if (!this.configurationService.getValue('output.smartScroll.enabled')) {
+				return;
+			}
 
-	private checkMoreFilters(cognidreamognidream {
+			const model = codeEditor.getModel();
+			if (model) {
+				const newPositionLine = e.position.lineNumber;
+				const lastLine = model.getLineCount();
+				this.scrollLock = lastLine !== newPositionLine;
+			}
+		}));
+	}
+
+	protected layoutBodyContent(height: number, width: number): void {
+		this.editor.layout(new Dimension(width, height));
+	}
+
+	private onDidChangeVisibility(visible: boolean): void {
+		this.editor.setVisible(visible);
+		if (!visible) {
+			this.clearInput();
+		}
+	}
+
+	private setInput(channel: IOutputChannel): void {
+		this.channelId = channel.id;
+		this.checkMoreFilters();
+
+		const input = this.createInput(channel);
+		if (!this.editor.input || !input.matches(this.editor.input)) {
+			this.editorPromise?.cancel();
+			this.editorPromise = createCancelablePromise(token => this.editor.setInput(this.createInput(channel), { preserveFocus: true }, Object.create(null), token)
+				.then(() => this.editor));
+		}
+
+	}
+
+	private checkMoreFilters(): void {
 		const filters = this.outputService.filters;
 		this.filterWidget.checkMoreFilters(!filters.trace || !filters.debug || !filters.info || !filters.warning || !filters.error || (!!this.channelId && filters.categories.includes(`,${this.channelId}:`)));
 	}
 
-    private clearInput(cognidreamognidream {
+	private clearInput(): void {
 		this.channelId = undefined;
 		this.editor.clearInput();
 		this.editorPromise = null;
 	}
 
-    private createInput(channel: IOutputChannel): TextResourceEditorInput {
+	private createInput(channel: IOutputChannel): TextResourceEditorInput {
 		return this.instantiationService.createInstance(TextResourceEditorInput, channel.uri, nls.localize('output model title', "{0} - Output", channel.label), nls.localize('channel', "Output channel for '{0}'", channel.label), undefined, undefined);
 	}
 
-    override saveState(cognidreamognidream {
+	override saveState(): void {
 		const filters = this.outputService.filters;
 		this.panelState['filter'] = filters.text;
 		this.panelState['showTrace'] = filters.trace;
@@ -286,62 +286,62 @@ export class OutputEditor extends AbstractTextResourceEditor {
 		return this.input ? computeEditorAriaLabel(this.input, undefined, undefined, this.editorGroupService.count) : this.getAriaLabel();
 	}
 
-	override async setInput(input: TextResourceEditorInput, options: ITextEditorOptions | undefined, context: IEditorOpenContext, token: CancellationToken): Promicognidreamognidream> {
+	override async setInput(input: TextResourceEditorInput, options: ITextEditorOptions | undefined, context: IEditorOpenContext, token: CancellationToken): Promise<void> {
 		const focus = !(options && options.preserveFocus);
-		if(this.input && input.matches(this.input)) {
-	return;
-}
-
-if (this.input) {
-	// Dispose previous input (Output panel is not a workbench editor)
-	this.input.dispose();
-}
-await super.setInput(input, options, context, token);
-
-this.resourceContext.set(input.resource);
-
-if (focus) {
-	this.focus();
-}
-this.revealLastLine();
-    }
-
-    override clearInput(cognidreamognidream {
-	if(this.input) {
-	// Dispose current input (Output panel is not a workbench editor)
-	this.input.dispose();
-}
-super.clearInput();
-
-this.resourceContext.reset();
-    }
-
-    protected override createEditor(parent: HTMLElementcognidreamognidream {
-
-	parent.setAttribute('role', 'document');
-
-	super.createEditor(parent);
-
-	const scopedContextKeyService = this.scopedContextKeyService;
-	if(scopedContextKeyService) {
-		CONTEXT_IN_OUTPUT.bindTo(scopedContextKeyService).set(true);
-	}
-}
-
-    private _getContributions(): IEditorContributionDescription[] {
-	return [
-		...EditorExtensionsRegistry.getEditorContributions(),
-		{
-			id: FilterController.ID,
-			ctor: FilterController as EditorContributionCtor,
-			instantiation: EditorContributionInstantiation.Eager
+		if (this.input && input.matches(this.input)) {
+			return;
 		}
-	];
-}
 
-    protected override getCodeEditorWidgetOptions(): ICodeEditorWidgetOptions {
-	return { contributions: this._getContributions() };
-}
+		if (this.input) {
+			// Dispose previous input (Output panel is not a workbench editor)
+			this.input.dispose();
+		}
+		await super.setInput(input, options, context, token);
+
+		this.resourceContext.set(input.resource);
+
+		if (focus) {
+			this.focus();
+		}
+		this.revealLastLine();
+	}
+
+	override clearInput(): void {
+		if (this.input) {
+			// Dispose current input (Output panel is not a workbench editor)
+			this.input.dispose();
+		}
+		super.clearInput();
+
+		this.resourceContext.reset();
+	}
+
+	protected override createEditor(parent: HTMLElement): void {
+
+		parent.setAttribute('role', 'document');
+
+		super.createEditor(parent);
+
+		const scopedContextKeyService = this.scopedContextKeyService;
+		if (scopedContextKeyService) {
+			CONTEXT_IN_OUTPUT.bindTo(scopedContextKeyService).set(true);
+		}
+	}
+
+	private _getContributions(): IEditorContributionDescription[] {
+		return [
+			...EditorExtensionsRegistry.getEditorContributions(),
+			{
+				id: FilterController.ID,
+				ctor: FilterController as EditorContributionCtor,
+				instantiation: EditorContributionInstantiation.Eager
+			}
+		];
+	}
+
+	protected override getCodeEditorWidgetOptions(): ICodeEditorWidgetOptions {
+		return { contributions: this._getContributions() };
+	}
 
 }
 
@@ -364,158 +364,158 @@ export class FilterController extends Disposable implements IEditorContribution 
 		this._register(this.outputService.filters.onDidChange(() => editor.hasModel() && this.filter(editor.getModel())));
 	}
 
-	private onDidChangeModel(cognidreamognidream {
+	private onDidChangeModel(): void {
 		this.modelDisposables.clear();
-this.hiddenAreas = [];
-this.categories.clear();
+		this.hiddenAreas = [];
+		this.categories.clear();
 
-if (!this.editor.hasModel()) {
-	return;
-}
-
-const model = this.editor.getModel();
-this.filter(model);
-
-const computeEndLineNumber = () => {
-	const endLineNumber = model.getLineCount();
-	return endLineNumber > 1 && model.getLineMaxColumn(endLineNumber) === 1 ? endLineNumber - 1 : endLineNumber;
-};
-
-let endLineNumber = computeEndLineNumber();
-
-this.modelDisposables.add(model.onDidChangeContent(e => {
-	if (e.changes.every(e => e.range.startLineNumber > endLineNumber)) {
-		this.filterIncremental(model, endLineNumber + 1);
-	} else {
-		this.filter(model);
-	}
-	endLineNumber = computeEndLineNumber();
-}));
-    }
-
-    private filter(model: ITextModelcognidreamognidream {
-	this.hiddenAreas = [];
-	this.decorationsCollection.clear();
-	this.filterIncremental(model, 1);
-}
-
-    private filterIncremental(model: ITextModel, fromLineNumber: numbercognidreamognidream {
-	const { findMatches, hiddenAreas, categories: sources } = this.compute(model, fromLineNumber);
-	this.hiddenAreas.push(...hiddenAreas);
-	this.editor.setHiddenAreas(this.hiddenAreas, this);
-	if(findMatches.length) {
-	this.decorationsCollection.append(findMatches);
-}
-        if (sources.size) {
-	const that = this;
-	for (const [categoryFilter, categoryName] of sources) {
-		if (this.categories.has(categoryFilter)) {
-			continue;
+		if (!this.editor.hasModel()) {
+			return;
 		}
-		this.categories.set(categoryFilter, categoryName);
-		this.modelDisposables.add(registerAction2(class extends Action2 {
-			constructor() {
-				super({
-					id: `workbench.actions.${OUTPUT_VIEW_ID}.toggle.${categoryFilter}`,
-					title: categoryName,
-					toggled: ContextKeyExpr.regex(HIDE_CATEGORY_FILTER_CONTEXT.key, new RegExp(`.*,${escapeRegExpCharacters(categoryFilter)},.*`)).negate(),
-					menu: {
-						id: viewFilterSubmenu,
-						group: '1_category_filter',
-						when: ContextKeyExpr.and(ContextKeyExpr.equals('view', OUTPUT_VIEW_ID)),
+
+		const model = this.editor.getModel();
+		this.filter(model);
+
+		const computeEndLineNumber = () => {
+			const endLineNumber = model.getLineCount();
+			return endLineNumber > 1 && model.getLineMaxColumn(endLineNumber) === 1 ? endLineNumber - 1 : endLineNumber;
+		};
+
+		let endLineNumber = computeEndLineNumber();
+
+		this.modelDisposables.add(model.onDidChangeContent(e => {
+			if (e.changes.every(e => e.range.startLineNumber > endLineNumber)) {
+				this.filterIncremental(model, endLineNumber + 1);
+			} else {
+				this.filter(model);
+			}
+			endLineNumber = computeEndLineNumber();
+		}));
+	}
+
+	private filter(model: ITextModel): void {
+		this.hiddenAreas = [];
+		this.decorationsCollection.clear();
+		this.filterIncremental(model, 1);
+	}
+
+	private filterIncremental(model: ITextModel, fromLineNumber: number): void {
+		const { findMatches, hiddenAreas, categories: sources } = this.compute(model, fromLineNumber);
+		this.hiddenAreas.push(...hiddenAreas);
+		this.editor.setHiddenAreas(this.hiddenAreas, this);
+		if (findMatches.length) {
+			this.decorationsCollection.append(findMatches);
+		}
+		if (sources.size) {
+			const that = this;
+			for (const [categoryFilter, categoryName] of sources) {
+				if (this.categories.has(categoryFilter)) {
+					continue;
+				}
+				this.categories.set(categoryFilter, categoryName);
+				this.modelDisposables.add(registerAction2(class extends Action2 {
+					constructor() {
+						super({
+							id: `workbench.actions.${OUTPUT_VIEW_ID}.toggle.${categoryFilter}`,
+							title: categoryName,
+							toggled: ContextKeyExpr.regex(HIDE_CATEGORY_FILTER_CONTEXT.key, new RegExp(`.*,${escapeRegExpCharacters(categoryFilter)},.*`)).negate(),
+							menu: {
+								id: viewFilterSubmenu,
+								group: '1_category_filter',
+								when: ContextKeyExpr.and(ContextKeyExpr.equals('view', OUTPUT_VIEW_ID)),
+							}
+						});
 					}
-				});
+					async run(): Promise<void> {
+						that.outputService.filters.toggleCategory(categoryFilter);
+					}
+				}));
 			}
-			async cognidream): Promise < cognidream > {
-				that.outputService.filters.toggleCategory(categoryFilter);
+		}
+	}
+
+	private compute(model: ITextModel, fromLineNumber: number): { findMatches: IModelDeltaDecoration[]; hiddenAreas: Range[]; categories: Map<string, string> } {
+		const filters = this.outputService.filters;
+		const activeChannel = this.outputService.getActiveChannel();
+		const findMatches: IModelDeltaDecoration[] = [];
+		const hiddenAreas: Range[] = [];
+		const categories = new Map<string, string>();
+
+		const logEntries = activeChannel?.getLogEntries();
+		if (activeChannel && logEntries?.length) {
+			const hasLogLevelFilter = !filters.trace || !filters.debug || !filters.info || !filters.warning || !filters.error;
+
+			const fromLogLevelEntryIndex = logEntries.findIndex(entry => fromLineNumber >= entry.range.startLineNumber && fromLineNumber <= entry.range.endLineNumber);
+			if (fromLogLevelEntryIndex === -1) {
+				return { findMatches, hiddenAreas, categories };
 			}
-                }));
-}
-        }
-    }
 
-    private compute(model: ITextModel, fromLineNumber: number): { findMatches: IModelDeltaDecoration[]; hiddenAreas: Range[]; categories: Map<string, string> } {
-	const filters = this.outputService.filters;
-	const activeChannel = this.outputService.getActiveChannel();
-	const findMatches: IModelDeltaDecoration[] = [];
-	const hiddenAreas: Range[] = [];
-	const categories = new Map<string, string>();
-
-	const logEntries = activeChannel?.getLogEntries();
-	if (activeChannel && logEntries?.length) {
-		const hasLogLevelFilter = !filters.trace || !filters.debug || !filters.info || !filters.warning || !filters.error;
-
-		const fromLogLevelEntryIndex = logEntries.findIndex(entry => fromLineNumber >= entry.range.startLineNumber && fromLineNumber <= entry.range.endLineNumber);
-		if (fromLogLevelEntryIndex === -1) {
+			for (let i = fromLogLevelEntryIndex; i < logEntries.length; i++) {
+				const entry = logEntries[i];
+				if (entry.category) {
+					categories.set(`${activeChannel.id}:${entry.category}`, entry.category);
+				}
+				if (hasLogLevelFilter && !this.shouldShowLogLevel(entry, filters)) {
+					hiddenAreas.push(entry.range);
+					continue;
+				}
+				if (!this.shouldShowCategory(activeChannel.id, entry, filters)) {
+					hiddenAreas.push(entry.range);
+					continue;
+				}
+				if (filters.text) {
+					const matches = model.findMatches(filters.text, entry.range, false, false, null, false);
+					if (matches.length) {
+						for (const match of matches) {
+							findMatches.push({ range: match.range, options: FindDecorations._FIND_MATCH_DECORATION });
+						}
+					} else {
+						hiddenAreas.push(entry.range);
+					}
+				}
+			}
 			return { findMatches, hiddenAreas, categories };
 		}
 
-		for (let i = fromLogLevelEntryIndex; i < logEntries.length; i++) {
-			const entry = logEntries[i];
-			if (entry.category) {
-				categories.set(`${activeChannel.id}:${entry.category}`, entry.category);
-			}
-			if (hasLogLevelFilter && !this.shouldShowLogLevel(entry, filters)) {
-				hiddenAreas.push(entry.range);
-				continue;
-			}
-			if (!this.shouldShowCategory(activeChannel.id, entry, filters)) {
-				hiddenAreas.push(entry.range);
-				continue;
-			}
-			if (filters.text) {
-				const matches = model.findMatches(filters.text, entry.range, false, false, null, false);
-				if (matches.length) {
-					for (const match of matches) {
-						findMatches.push({ range: match.range, options: FindDecorations._FIND_MATCH_DECORATION });
-					}
-				} else {
-					hiddenAreas.push(entry.range);
+		if (!filters.text) {
+			return { findMatches, hiddenAreas, categories };
+		}
+
+		const lineCount = model.getLineCount();
+		for (let lineNumber = fromLineNumber; lineNumber <= lineCount; lineNumber++) {
+			const lineRange = new Range(lineNumber, 1, lineNumber, model.getLineMaxColumn(lineNumber));
+			const matches = model.findMatches(filters.text, lineRange, false, false, null, false);
+			if (matches.length) {
+				for (const match of matches) {
+					findMatches.push({ range: match.range, options: FindDecorations._FIND_MATCH_DECORATION });
 				}
+			} else {
+				hiddenAreas.push(lineRange);
 			}
 		}
 		return { findMatches, hiddenAreas, categories };
 	}
 
-	if (!filters.text) {
-		return { findMatches, hiddenAreas, categories };
-	}
-
-	const lineCount = model.getLineCount();
-	for (let lineNumber = fromLineNumber; lineNumber <= lineCount; lineNumber++) {
-		const lineRange = new Range(lineNumber, 1, lineNumber, model.getLineMaxColumn(lineNumber));
-		const matches = model.findMatches(filters.text, lineRange, false, false, null, false);
-		if (matches.length) {
-			for (const match of matches) {
-				findMatches.push({ range: match.range, options: FindDecorations._FIND_MATCH_DECORATION });
-			}
-		} else {
-			hiddenAreas.push(lineRange);
+	private shouldShowLogLevel(entry: ILogEntry, filters: IOutputViewFilters): boolean {
+		switch (entry.logLevel) {
+			case LogLevel.Trace:
+				return filters.trace;
+			case LogLevel.Debug:
+				return filters.debug;
+			case LogLevel.Info:
+				return filters.info;
+			case LogLevel.Warning:
+				return filters.warning;
+			case LogLevel.Error:
+				return filters.error;
 		}
-	}
-	return { findMatches, hiddenAreas, categories };
-}
-
-    private shouldShowLogLevel(entry: ILogEntry, filters: IOutputViewFilters): boolean {
-	switch (entry.logLevel) {
-		case LogLevel.Trace:
-			return filters.trace;
-		case LogLevel.Debug:
-			return filters.debug;
-		case LogLevel.Info:
-			return filters.info;
-		case LogLevel.Warning:
-			return filters.warning;
-		case LogLevel.Error:
-			return filters.error;
-	}
-	return true;
-}
-
-    private shouldShowCategory(activeChannelId: string, entry: ILogEntry, filters: IOutputViewFilters): boolean {
-	if (!entry.category) {
 		return true;
 	}
-	return !filters.hasCategory(`${activeChannelId}:${entry.category}`);
-}
+
+	private shouldShowCategory(activeChannelId: string, entry: ILogEntry, filters: IOutputViewFilters): boolean {
+		if (!entry.category) {
+			return true;
+		}
+		return !filters.hasCategory(`${activeChannelId}:${entry.category}`);
+	}
 }

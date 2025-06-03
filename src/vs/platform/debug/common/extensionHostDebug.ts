@@ -35,16 +35,16 @@ export interface IOpenExtensionWindowResult {
 export interface IExtensionHostDebugService {
 	readonly _serviceBrand: undefined;
 
-	reload(sessionId: string): cognidreamidream;
+	reload(sessionId: string): void;
 	readonly onReload: Event<IReloadSessionEvent>;
 
-	close(sessionId: string): cognidreamidream;
+	close(sessionId: string): void;
 	readonly onClose: Event<ICloseSessionEvent>;
 
-	attachSession(sessionId: string, port: number, subId?: string): cognidreamidream;
+	attachSession(sessionId: string, port: number, subId?: string): void;
 	readonly onAttachSession: Event<IAttachSessionEvent>;
 
-	terminateSession(sessionId: string, subId?: string): cognidreamidream;
+	terminateSession(sessionId: string, subId?: string): void;
 	readonly onTerminateSession: Event<ITerminateSessionEvent>;
 
 	openExtensionDevelopmentHostWindow(args: string[], debugRenderer: boolean): Promise<IOpenExtensionWindowResult>;

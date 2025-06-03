@@ -85,7 +85,7 @@ export class MainThreadTesting extends Disposable implements MainThreadTestingSh
 	/**
 	 * @inheritdoc
 	 */
-	$markTestRetired(testIds: string[] | undefined): cognidream {
+	$markTestRetired(testIds: string[] | undefined): void {
 		let tree: WellDefinedPrefixTree<undefined> | undefined;
 		if (testIds) {
 			tree = new WellDefinedPrefixTree();
@@ -105,244 +105,244 @@ export class MainThreadTesting extends Disposable implements MainThreadTestingSh
 	/**
 	 * @inheritdoc
 	 */
-	$publishTestRunProfile(profile: ITestRunProfilecognidreamognidream {
+	$publishTestRunProfile(profile: ITestRunProfile): void {
 		const controller = this.testProviderRegistrations.get(profile.controllerId);
 		if (controller) {
 			this.testProfiles.addProfile(controller.instance, profile);
 		}
-    }
-
-/**
- * @inheritdoc
- */
-$updateTestRunConfig(controllerId: string, profileId: number, update: Partial < ITestRunProfile > cognidreamognidream {
-	this.testProfiles.updateProfile(controllerId, profileId, update);
-}
-
-    /**
-     * @inheritdoc
-     */
-    $removeTestProfile(controllerId: string, profileId: numbercognidreamognidream {
-	this.testProfiles.removeProfile(controllerId, profileId);
-}
-
-    /**
-     * @inheritdoc
-     */
-    $addTestsToRun(controllerId: string, runId: string, tests: ITestItem.Serialized[]cognidreamognidream {
-	this.withLiveRun(runId, r => r.addTestChainToRun(controllerId,
-		tests.map(t => ITestItem.deserialize(this.uriIdentityService, t))));
-}
-
-    /**
-     * @inheritdoc
-     */
-    $appendCoverage(runId: string, taskId: string, coverage: IFileCoverage.Serializedcognidreamognidream {
-	this.withLiveRun(runId, run => {
-		const task = run.tasks.find(t => t.id === taskId);
-		if (!task) {
-			return;
-		}
-
-		const deserialized = IFileCoverage.deserialize(this.uriIdentityService, coverage);
-
-		transaction(tx => {
-			let value = task.coverage.read(undefined);
-			if (!value) {
-				value = new TestCoverage(run, taskId, this.uriIdentityService, {
-					getCoverageDetails: (id, testId, token) => this.proxy.$getCoverageDetails(id, testId, token)
-						.then(r => r.map(CoverageDetails.deserialize)),
-				});
-				value.append(deserialized, tx);
-				(task.coverage as ISettableObservable<TestCoverage>).set(value, tx);
-			} else {
-				value.append(deserialized, tx);
-			}
-		});
-	});
-}
-
-    /**
-     * @inheritdoc
-     */
-    $startedExtensionTestRun(req: ExtensionRunTestsRequestcognidreamognidream {
-	this.resultService.createLiveResult(req);
-}
-
-    /**
-     * @inheritdoc
-     */
-    $startedTestRunTask(runId: string, task: ITestRunTaskcognidreamognidream {
-	this.withLiveRun(runId, r => r.addTask(task));
-}
-
-    /**
-     * @inheritdoc
-     */
-    $finishedTestRunTask(runId: string, taskId: stringcognidreamognidream {
-	this.withLiveRun(runId, r => r.markTaskComplete(taskId));
-}
-
-    /**
-     * @inheritdoc
-     */
-    $finishedExtensionTestRun(runId: stringcognidreamognidream {
-	this.withLiveRun(runId, r => r.markComplete());
-}
-
-    /**
-     * @inheritdoc
-     */
-    public $updateTestStateInRun(runId: string, taskId: string, testId: string, state: TestResultState, duration ?: numbercognidreamognidream {
-	this.withLiveRun(runId, r => r.updateState(testId, taskId, state, duration));
-}
-
-    /**
-     * @inheritdoc
-     */
-    public $appendOutputToRun(runId: string, taskId: string, output: VSBuffer, locationDto ?: ILocationDto, testId ?: stringcognidreamognidream {
-	const location = locationDto && {
-		uri: URI.revive(locationDto.uri),
-		range: Range.lift(locationDto.range)
-	};
-
-	this.withLiveRun(runId, r => r.appendOutput(output, taskId, location, testId));
-}
-
-
-    /**
-     * @inheritdoc
-     */
-    public $appendTestMessagesInRun(runId: string, taskId: string, testId: string, messages: ITestMessage.Serialized[]cognidreamognidream {
-	const r = this.resultService.getResult(runId);
-	if(r && r instanceof LiveTestResult) {
-	for(const message of messages) {
-		r.appendMessage(testId, taskId, ITestMessage.deserialize(this.uriIdentityService, message));
 	}
-}
-    }
+
+	/**
+	 * @inheritdoc
+	 */
+	$updateTestRunConfig(controllerId: string, profileId: number, update: Partial<ITestRunProfile>): void {
+		this.testProfiles.updateProfile(controllerId, profileId, update);
+	}
+
+	/**
+	 * @inheritdoc
+	 */
+	$removeTestProfile(controllerId: string, profileId: number): void {
+		this.testProfiles.removeProfile(controllerId, profileId);
+	}
+
+	/**
+	 * @inheritdoc
+	 */
+	$addTestsToRun(controllerId: string, runId: string, tests: ITestItem.Serialized[]): void {
+		this.withLiveRun(runId, r => r.addTestChainToRun(controllerId,
+			tests.map(t => ITestItem.deserialize(this.uriIdentityService, t))));
+	}
+
+	/**
+	 * @inheritdoc
+	 */
+	$appendCoverage(runId: string, taskId: string, coverage: IFileCoverage.Serialized): void {
+		this.withLiveRun(runId, run => {
+			const task = run.tasks.find(t => t.id === taskId);
+			if (!task) {
+				return;
+			}
+
+			const deserialized = IFileCoverage.deserialize(this.uriIdentityService, coverage);
+
+			transaction(tx => {
+				let value = task.coverage.read(undefined);
+				if (!value) {
+					value = new TestCoverage(run, taskId, this.uriIdentityService, {
+						getCoverageDetails: (id, testId, token) => this.proxy.$getCoverageDetails(id, testId, token)
+							.then(r => r.map(CoverageDetails.deserialize)),
+					});
+					value.append(deserialized, tx);
+					(task.coverage as ISettableObservable<TestCoverage>).set(value, tx);
+				} else {
+					value.append(deserialized, tx);
+				}
+			});
+		});
+	}
+
+	/**
+	 * @inheritdoc
+	 */
+	$startedExtensionTestRun(req: ExtensionRunTestsRequest): void {
+		this.resultService.createLiveResult(req);
+	}
+
+	/**
+	 * @inheritdoc
+	 */
+	$startedTestRunTask(runId: string, task: ITestRunTask): void {
+		this.withLiveRun(runId, r => r.addTask(task));
+	}
+
+	/**
+	 * @inheritdoc
+	 */
+	$finishedTestRunTask(runId: string, taskId: string): void {
+		this.withLiveRun(runId, r => r.markTaskComplete(taskId));
+	}
+
+	/**
+	 * @inheritdoc
+	 */
+	$finishedExtensionTestRun(runId: string): void {
+		this.withLiveRun(runId, r => r.markComplete());
+	}
+
+	/**
+	 * @inheritdoc
+	 */
+	public $updateTestStateInRun(runId: string, taskId: string, testId: string, state: TestResultState, duration?: number): void {
+		this.withLiveRun(runId, r => r.updateState(testId, taskId, state, duration));
+	}
+
+	/**
+	 * @inheritdoc
+	 */
+	public $appendOutputToRun(runId: string, taskId: string, output: VSBuffer, locationDto?: ILocationDto, testId?: string): void {
+		const location = locationDto && {
+			uri: URI.revive(locationDto.uri),
+			range: Range.lift(locationDto.range)
+		};
+
+		this.withLiveRun(runId, r => r.appendOutput(output, taskId, location, testId));
+	}
+
+
+	/**
+	 * @inheritdoc
+	 */
+	public $appendTestMessagesInRun(runId: string, taskId: string, testId: string, messages: ITestMessage.Serialized[]): void {
+		const r = this.resultService.getResult(runId);
+		if (r && r instanceof LiveTestResult) {
+			for (const message of messages) {
+				r.appendMessage(testId, taskId, ITestMessage.deserialize(this.uriIdentityService, message));
+			}
+		}
+	}
 
 	/**
 	 * @inheritdoc
 	 */
 	public $registerTestController(controllerId: string, _label: string, _capabilities: TestControllerCapability) {
-	const disposable = new DisposableStore();
-	const label = observableValue(`${controllerId}.label`, _label);
-	const capabilities = observableValue(`${controllerId}.cap`, _capabilities);
-	const controller: IMainThreadTestController = {
-		id: controllerId,
-		label,
-		capabilities,
-		syncTests: () => this.proxy.$syncTests(),
-		refreshTests: token => this.proxy.$refreshTests(controllerId, token),
-		configureRunProfile: id => this.proxy.$configureRunProfile(controllerId, id),
-		runTests: (reqs, token) => this.proxy.$runControllerTests(reqs, token),
-		startContinuousRun: (reqs, token) => this.proxy.$startContinuousRun(reqs, token),
-		expandTest: (testId, levels) => this.proxy.$expandTest(testId, isFinite(levels) ? levels : -1),
-		getRelatedCode: (testId, token) => this.proxy.$getCodeRelatedToTest(testId, token).then(locations =>
-			locations.map(l => ({
-				uri: URI.revive(l.uri),
-				range: Range.lift(l.range)
-			})),
-		),
-	};
+		const disposable = new DisposableStore();
+		const label = observableValue(`${controllerId}.label`, _label);
+		const capabilities = observableValue(`${controllerId}.cap`, _capabilities);
+		const controller: IMainThreadTestController = {
+			id: controllerId,
+			label,
+			capabilities,
+			syncTests: () => this.proxy.$syncTests(),
+			refreshTests: token => this.proxy.$refreshTests(controllerId, token),
+			configureRunProfile: id => this.proxy.$configureRunProfile(controllerId, id),
+			runTests: (reqs, token) => this.proxy.$runControllerTests(reqs, token),
+			startContinuousRun: (reqs, token) => this.proxy.$startContinuousRun(reqs, token),
+			expandTest: (testId, levels) => this.proxy.$expandTest(testId, isFinite(levels) ? levels : -1),
+			getRelatedCode: (testId, token) => this.proxy.$getCodeRelatedToTest(testId, token).then(locations =>
+				locations.map(l => ({
+					uri: URI.revive(l.uri),
+					range: Range.lift(l.range)
+				})),
+			),
+		};
 
-	disposable.add(toDisposable(() => this.testProfiles.removeProfile(controllerId)));
-	disposable.add(this.testService.registerTestController(controllerId, controller));
+		disposable.add(toDisposable(() => this.testProfiles.removeProfile(controllerId)));
+		disposable.add(this.testService.registerTestController(controllerId, controller));
 
-	this.testProviderRegistrations.set(controllerId, {
-		instance: controller,
-		label,
-		capabilities,
-		disposable
-	});
-}
-
-    /**
-     * @inheritdoc
-     */
-    public $updateController(controllerId: string, patch: ITestControllerPatch) {
-	const controller = this.testProviderRegistrations.get(controllerId);
-	if(!controller) {
-		return;
+		this.testProviderRegistrations.set(controllerId, {
+			instance: controller,
+			label,
+			capabilities,
+			disposable
+		});
 	}
 
-        transaction(tx => {
-		if (patch.label !== undefined) {
-	controller.label.set(patch.label, tx);
-}
+	/**
+	 * @inheritdoc
+	 */
+	public $updateController(controllerId: string, patch: ITestControllerPatch) {
+		const controller = this.testProviderRegistrations.get(controllerId);
+		if (!controller) {
+			return;
+		}
 
-            if (patch.capabilities !== undefined) {
-	controller.capabilities.set(patch.capabilities, tx);
-}
-        });
+		transaction(tx => {
+			if (patch.label !== undefined) {
+				controller.label.set(patch.label, tx);
+			}
 
-    }
+			if (patch.capabilities !== undefined) {
+				controller.capabilities.set(patch.capabilities, tx);
+			}
+		});
 
-    /**
-     * @inheritdoc
-     */
-    public $unregisterTestController(controllerId: string) {
-	this.testProviderRegistrations.get(controllerId)?.disposable.dispose();
-	this.testProviderRegistrations.delete(controllerId);
-}
+	}
 
-    /**
-     * @inheritdoc
-     */
-    public $subscribeToDiffs(cognidreamognidream {
-	this.proxy.$acceptDiff(this.testService.collection.getReviverDiff().map(TestsDiffOp.serialize));
-	this.diffListener.value = this.testService.onDidProcessDiff(this.proxy.$acceptDiff, this.proxy);
-}
+	/**
+	 * @inheritdoc
+	 */
+	public $unregisterTestController(controllerId: string) {
+		this.testProviderRegistrations.get(controllerId)?.disposable.dispose();
+		this.testProviderRegistrations.delete(controllerId);
+	}
 
-    /**
-     * @inheritdoc
-     */
-    public $unsubscribeFromDiffs(cognidreamognidream {
-	this.diffListener.clear();
-}
+	/**
+	 * @inheritdoc
+	 */
+	public $subscribeToDiffs(): void {
+		this.proxy.$acceptDiff(this.testService.collection.getReviverDiff().map(TestsDiffOp.serialize));
+		this.diffListener.value = this.testService.onDidProcessDiff(this.proxy.$acceptDiff, this.proxy);
+	}
 
-    /**
-     * @inheritdoc
-     */
-    public $publishDiff(controllerId: string, diff: TestsDiffOp.Serialized[]cognidreamognidream {
-	this.testService.publishDiff(controllerId,
-		diff.map(d => TestsDiffOp.deserialize(this.uriIdentityService, d)));
-}
+	/**
+	 * @inheritdoc
+	 */
+	public $unsubscribeFromDiffs(): void {
+		this.diffListener.clear();
+	}
 
-    /**
-     * @inheritdoc
-     */
-    public async $runTests(req: ResolvedTestRunRequest, token: CancellationToken): Promise < string > {
-	const result = await this.testService.runResolvedTests(req, token);
-	return result.id;
-}
+	/**
+	 * @inheritdoc
+	 */
+	public $publishDiff(controllerId: string, diff: TestsDiffOp.Serialized[]): void {
+		this.testService.publishDiff(controllerId,
+			diff.map(d => TestsDiffOp.deserialize(this.uriIdentityService, d)));
+	}
 
-    /**
-     * @inheritdoc
-     */
-    public async $getCoverageDetails(resultId: string, taskIndex: number, uri: UriComponents, token: CancellationToken): Promise < CoverageDetails.Serialized[] > {
-	const details = await this.resultService.getResult(resultId)
-		?.tasks[taskIndex]
-		?.coverage.get()
-		?.getUri(URI.from(uri))
-		?.details(token);
+	/**
+	 * @inheritdoc
+	 */
+	public async $runTests(req: ResolvedTestRunRequest, token: CancellationToken): Promise<string> {
+		const result = await this.testService.runResolvedTests(req, token);
+		return result.id;
+	}
 
-	// Return empty if nothing. Some failure is always possible here because
-	// results might be cleared in the meantime.
-	return details || [];
-}
+	/**
+	 * @inheritdoc
+	 */
+	public async $getCoverageDetails(resultId: string, taskIndex: number, uri: UriComponents, token: CancellationToken): Promise<CoverageDetails.Serialized[]> {
+		const details = await this.resultService.getResult(resultId)
+			?.tasks[taskIndex]
+			?.coverage.get()
+			?.getUri(URI.from(uri))
+			?.details(token);
 
-    public override dispose() {
-	super.dispose();
-	for(const subscription of this.testProviderRegistrations.values()) {
-	subscription.disposable.dispose();
-}
-        this.testProviderRegistrations.clear();
-    }
+		// Return empty if nothing. Some failure is always possible here because
+		// results might be cleared in the meantime.
+		return details || [];
+	}
 
-    private withLiveRun<T>(runId: string, fn: (run: LiveTestResult) => T): T | undefined {
-	const r = this.resultService.getResult(runId);
-	return r && r instanceof LiveTestResult ? fn(r) : undefined;
-}
+	public override dispose() {
+		super.dispose();
+		for (const subscription of this.testProviderRegistrations.values()) {
+			subscription.disposable.dispose();
+		}
+		this.testProviderRegistrations.clear();
+	}
+
+	private withLiveRun<T>(runId: string, fn: (run: LiveTestResult) => T): T | undefined {
+		const r = this.resultService.getResult(runId);
+		return r && r instanceof LiveTestResult ? fn(r) : undefined;
+	}
 }

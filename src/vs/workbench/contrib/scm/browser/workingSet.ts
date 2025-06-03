@@ -62,7 +62,7 @@ export class SCMWorkingSetController extends Disposable implements IWorkbenchCon
 		}));
 	}
 
-	private _onDidAddRepository(repository: ISCMRepository): cognidream {
+	private _onDidAddRepository(repository: ISCMRepository): void {
 		const disposables = new DisposableStore();
 
 		const historyItemRefId = derived(reader => {
@@ -102,66 +102,66 @@ export class SCMWorkingSetController extends Disposable implements IWorkbenchCon
 		this._repositoryDisposables.set(repository, disposables);
 	}
 
-	private _onDidRemoveRepository(repository: ISCMRepositorycognidreamognidream {
+	private _onDidRemoveRepository(repository: ISCMRepository): void {
 		this._repositoryDisposables.deleteAndDispose(repository);
-    }
+	}
 
-    private _loadWorkingSets(): Map < string, ISCMRepositoryWorkingSet > {
-	const workingSets = new Map<string, ISCMRepositoryWorkingSet>();
-	const workingSetsRaw = this.storageService.get('scm.workingSets', StorageScope.WORKSPACE);
-	if(!workingSetsRaw) {
+	private _loadWorkingSets(): Map<string, ISCMRepositoryWorkingSet> {
+		const workingSets = new Map<string, ISCMRepositoryWorkingSet>();
+		const workingSetsRaw = this.storageService.get('scm.workingSets', StorageScope.WORKSPACE);
+		if (!workingSetsRaw) {
+			return workingSets;
+		}
+
+		for (const serializedWorkingSet of JSON.parse(workingSetsRaw) as ISCMSerializedWorkingSet[]) {
+			workingSets.set(serializedWorkingSet.providerKey, {
+				currentHistoryItemGroupId: serializedWorkingSet.currentHistoryItemGroupId,
+				editorWorkingSets: new Map(serializedWorkingSet.editorWorkingSets)
+			});
+		}
+
 		return workingSets;
 	}
 
-        for(const serializedWorkingSet of JSON.parse(workingSetsRaw) as ISCMSerializedWorkingSet[]) {
-	workingSets.set(serializedWorkingSet.providerKey, {
-		currentHistoryItemGroupId: serializedWorkingSet.currentHistoryItemGroupId,
-		editorWorkingSets: new Map(serializedWorkingSet.editorWorkingSets)
-	});
-}
+	private _saveWorkingSet(providerKey: string, currentHistoryItemGroupId: string, repositoryWorkingSets: ISCMRepositoryWorkingSet): void {
+		const previousHistoryItemGroupId = repositoryWorkingSets.currentHistoryItemGroupId;
+		const editorWorkingSets = repositoryWorkingSets.editorWorkingSets;
 
-return workingSets;
-    }
+		const editorWorkingSet = this.editorGroupsService.saveWorkingSet(previousHistoryItemGroupId);
+		this._workingSets.set(providerKey, { currentHistoryItemGroupId, editorWorkingSets: editorWorkingSets.set(previousHistoryItemGroupId, editorWorkingSet) });
 
-    private _saveWorkingSet(providerKey: string, currentHistoryItemGroupId: string, repositoryWorkingSets: ISCMRepositoryWorkingSetcognidreamognidream {
-	const previousHistoryItemGroupId = repositoryWorkingSets.currentHistoryItemGroupId;
-	const editorWorkingSets = repositoryWorkingSets.editorWorkingSets;
-
-	const editorWorkingSet = this.editorGroupsService.saveWorkingSet(previousHistoryItemGroupId);
-	this._workingSets.set(providerKey, { currentHistoryItemGroupId, editorWorkingSets: editorWorkingSets.set(previousHistoryItemGroupId, editorWorkingSet) });
-
-	// Save to storage
-	const workingSets: ISCMSerializedWorkingSet[] = [];
-	for(const [providerKey, { currentHistoryItemGroupId, editorWorkingSets }] of this._workingSets) {
-	workingSets.push({ providerKey, currentHistoryItemGroupId, editorWorkingSets: [...editorWorkingSets] });
-}
-this.storageService.store('scm.workingSets', JSON.stringify(workingSets), StorageScope.WORKSPACE, StorageTarget.MACHINE);
-    }
-
-    private async _restoreWorkingSet(providerKey: string, currentHistoryItemGroupId: string): Promicognidreamognidream > {
-	const workingSets = this._workingSets.get(providerKey);
-	if(!workingSets) {
-		return;
+		// Save to storage
+		const workingSets: ISCMSerializedWorkingSet[] = [];
+		for (const [providerKey, { currentHistoryItemGroupId, editorWorkingSets }] of this._workingSets) {
+			workingSets.push({ providerKey, currentHistoryItemGroupId, editorWorkingSets: [...editorWorkingSets] });
+		}
+		this.storageService.store('scm.workingSets', JSON.stringify(workingSets), StorageScope.WORKSPACE, StorageTarget.MACHINE);
 	}
 
-        let editorWorkingSetId: IEditorWorkingSet | 'empty' | undefined = workingSets.editorWorkingSets.get(currentHistoryItemGroupId);
-	if(!editorWorkingSetId && this.configurationService.getValue<'empty' | 'current'>('scm.workingSets.default') === 'empty') {
-	editorWorkingSetId = 'empty';
-}
+	private async _restoreWorkingSet(providerKey: string, currentHistoryItemGroupId: string): Promise<void> {
+		const workingSets = this._workingSets.get(providerKey);
+		if (!workingSets) {
+			return;
+		}
 
-if (editorWorkingSetId) {
-	// Applying a working set can be the result of a user action that has been
-	// initiated from the terminal (ex: switching branches). As such, we want
-	// to preserve the focus in the terminal. This does not cover the scenario
-	// in which the terminal is in the editor part.
-	const preserveFocus = this.layoutService.hasFocus(Parts.PANEL_PART);
+		let editorWorkingSetId: IEditorWorkingSet | 'empty' | undefined = workingSets.editorWorkingSets.get(currentHistoryItemGroupId);
+		if (!editorWorkingSetId && this.configurationService.getValue<'empty' | 'current'>('scm.workingSets.default') === 'empty') {
+			editorWorkingSetId = 'empty';
+		}
 
-	await this.editorGroupsService.applyWorkingSet(editorWorkingSetId, { preserveFocus });
-}
-    }
+		if (editorWorkingSetId) {
+			// Applying a working set can be the result of a user action that has been
+			// initiated from the terminal (ex: switching branches). As such, we want
+			// to preserve the focus in the terminal. This does not cover the scenario
+			// in which the terminal is in the editor part.
+			const preserveFocus = this.layoutService.hasFocus(Parts.PANEL_PART);
 
-    override dispose(cognidreamognidream {
-	this._repositoryDisposables.dispose();
-	super.dispose();
-}
+			await this.editorGroupsService.applyWorkingSet(editorWorkingSetId, { preserveFocus });
+		}
+	}
+
+	override dispose(): void {
+		this._repositoryDisposables.dispose();
+		super.dispose();
+	}
 }

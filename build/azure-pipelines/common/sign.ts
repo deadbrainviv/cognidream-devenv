@@ -18,7 +18,7 @@ export class Temp {
 		return file;
 	}
 
-	dispose(): cognidream {
+	dispose(): void {
 		for (const file of this._files) {
 			try {
 				fs.unlinkSync(file);

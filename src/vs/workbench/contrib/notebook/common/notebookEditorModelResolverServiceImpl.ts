@@ -49,7 +49,7 @@ class NotebookModelReferenceCollection extends ReferenceCollection<Promise<IReso
 		super();
 	}
 
-	dispose(): cognidream {
+	dispose(): void {
 		this._disposables.dispose();
 		this._onDidSaveNotebook.dispose();
 		this._onDidChangeDirty.dispose();
@@ -121,38 +121,38 @@ class NotebookModelReferenceCollection extends ReferenceCollection<Promise<IReso
 		return result;
 	}
 
-	protected destroyReferencedObject(key: string, object: Promise<IResolvedNotebookEditorModel>cognidreamognidream {
+	protected destroyReferencedObject(key: string, object: Promise<IResolvedNotebookEditorModel>): void {
 		this.modelsToDispose.add(key);
 
-(async () => {
-	try {
-		const model = await object;
+		(async () => {
+			try {
+				const model = await object;
 
-		if (!this.modelsToDispose.has(key)) {
-			// return if model has been acquired again meanwhile
-			return;
-		}
+				if (!this.modelsToDispose.has(key)) {
+					// return if model has been acquired again meanwhile
+					return;
+				}
 
-		if (model instanceof SimpleNotebookEditorModel) {
-			await model.canDispose();
-		}
+				if (model instanceof SimpleNotebookEditorModel) {
+					await model.canDispose();
+				}
 
-		if (!this.modelsToDispose.has(key)) {
-			// return if model has been acquired again meanwhile
-			return;
-		}
+				if (!this.modelsToDispose.has(key)) {
+					// return if model has been acquired again meanwhile
+					return;
+				}
 
-		// Finally we can dispose the model
-		this._modelListener.get(model)?.dispose();
-		this._modelListener.delete(model);
-		model.dispose();
-	} catch (err) {
-		this._notebookLoggingService.error('NotebookModelCollection', 'FAILED to destory notebook - ' + err);
-	} finally {
-		this.modelsToDispose.delete(key); // Untrack as being disposed
+				// Finally we can dispose the model
+				this._modelListener.get(model)?.dispose();
+				this._modelListener.delete(model);
+				model.dispose();
+			} catch (err) {
+				this._notebookLoggingService.error('NotebookModelCollection', 'FAILED to destory notebook - ' + err);
+			} finally {
+				this.modelsToDispose.delete(key); // Untrack as being disposed
+			}
+		})();
 	}
-})();
-    }
 }
 
 export class NotebookModelResolverServiceImpl implements INotebookEditorModelResolverService {

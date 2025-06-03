@@ -56,7 +56,7 @@ export class UserDataSyncConflictsViewPane extends TreeViewPane implements IUser
 		this.registerActions();
 	}
 
-	protected override renderTreeView(container: HTMLElement): cognidream {
+	protected override renderTreeView(container: HTMLElement): void {
 		super.renderTreeView(DOM.append(container, DOM.$('')));
 
 		const that = this;
@@ -122,7 +122,7 @@ export class UserDataSyncConflictsViewPane extends TreeViewPane implements IUser
 		};
 	}
 
-	private registerActions(cognidreamognidream {
+	private registerActions(): void {
 		const that = this;
 
 		this._register(registerAction2(class OpenConflictsAction extends Action2 {
@@ -132,74 +132,74 @@ export class UserDataSyncConflictsViewPane extends TreeViewPane implements IUser
 					title: localize({ key: 'workbench.actions.sync.openConflicts', comment: ['This is an action title to show the conflicts between local and remote version of resources'] }, "Show Conflicts"),
 				});
 			}
-			async run(accessor: ServicesAccessor, handle: TreeViewItemHandleArg): cognidreammise<cognidream> {
+			async run(accessor: ServicesAccessor, handle: TreeViewItemHandleArg): Promise<void> {
 				const conflict = that.parseHandle(handle.$treeItemHandle);
 				return that.open(conflict);
 			}
 		}));
 
-this._register(registerAction2(class AcceptRemoteAction extends Action2 {
-	constructor() {
-		super({
-			id: `workbench.actions.sync.acceptRemote`,
-			title: localize('workbench.actions.sync.acceptRemote', "Accept Remote"),
-			icon: Codicon.cloudDownload,
-			menu: {
-				id: MenuId.ViewItemContext,
-				when: ContextKeyExpr.and(ContextKeyExpr.equals('view', SYNC_CONFLICTS_VIEW_ID), ContextKeyExpr.equals('viewItem', 'sync-conflict-resource')),
-				group: 'inline',
-				order: 1,
-			},
+		this._register(registerAction2(class AcceptRemoteAction extends Action2 {
+			constructor() {
+				super({
+					id: `workbench.actions.sync.acceptRemote`,
+					title: localize('workbench.actions.sync.acceptRemote', "Accept Remote"),
+					icon: Codicon.cloudDownload,
+					menu: {
+						id: MenuId.ViewItemContext,
+						when: ContextKeyExpr.and(ContextKeyExpr.equals('view', SYNC_CONFLICTS_VIEW_ID), ContextKeyExpr.equals('viewItem', 'sync-conflict-resource')),
+						group: 'inline',
+						order: 1,
+					},
+				});
+			}
+			async run(accessor: ServicesAccessor, handle: TreeViewItemHandleArg): Promise<void> {
+				const conflict = that.parseHandle(handle.$treeItemHandle);
+				await that.userDataSyncWorkbenchService.accept({ syncResource: conflict.syncResource, profile: conflict.profile }, conflict.remoteResource, undefined, that.userDataSyncEnablementService.isEnabled());
+			}
+		}));
+
+		this._register(registerAction2(class AcceptLocalAction extends Action2 {
+			constructor() {
+				super({
+					id: `workbench.actions.sync.acceptLocal`,
+					title: localize('workbench.actions.sync.acceptLocal', "Accept Local"),
+					icon: Codicon.cloudUpload,
+					menu: {
+						id: MenuId.ViewItemContext,
+						when: ContextKeyExpr.and(ContextKeyExpr.equals('view', SYNC_CONFLICTS_VIEW_ID), ContextKeyExpr.equals('viewItem', 'sync-conflict-resource')),
+						group: 'inline',
+						order: 2,
+					},
+				});
+			}
+			async run(accessor: ServicesAccessor, handle: TreeViewItemHandleArg): Promise<void> {
+				const conflict = that.parseHandle(handle.$treeItemHandle);
+				await that.userDataSyncWorkbenchService.accept({ syncResource: conflict.syncResource, profile: conflict.profile }, conflict.localResource, undefined, that.userDataSyncEnablementService.isEnabled());
+			}
+		}));
+	}
+
+	async open(conflictToOpen: IResourcePreview): Promise<void> {
+		if (!this.userDataSyncService.conflicts.some(({ conflicts }) => conflicts.some(({ localResource }) => isEqual(localResource, conflictToOpen.localResource)))) {
+			return;
+		}
+
+		const remoteResourceName = localize({ key: 'remoteResourceName', comment: ['remote as in file in cloud'] }, "{0} (Remote)", basename(conflictToOpen.remoteResource));
+		const localResourceName = localize('localResourceName', "{0} (Local)", basename(conflictToOpen.remoteResource));
+		await this.editorService.openEditor({
+			input1: { resource: conflictToOpen.remoteResource, label: localize('Theirs', 'Theirs'), description: remoteResourceName },
+			input2: { resource: conflictToOpen.localResource, label: localize('Yours', 'Yours'), description: localResourceName },
+			base: { resource: conflictToOpen.baseResource },
+			result: { resource: conflictToOpen.previewResource },
+			options: {
+				preserveFocus: true,
+				revealIfVisible: true,
+				pinned: true,
+				override: DEFAULT_EDITOR_ASSOCIATION.id
+			}
 		});
+		return;
 	}
-	async run(accessor: ServicesAccessor, handle: TreeViewItemHandleArg): cognidreammise<cognidream> {
-		const conflict = that.parseHandle(handle.$treeItemHandle);
-		await that.userDataSyncWorkbenchService.accept({ syncResource: conflict.syncResource, profile: conflict.profile }, conflict.remoteResource, undefined, that.userDataSyncEnablementService.isEnabled());
-	}
-}));
-
-this._register(registerAction2(class AcceptLocalAction extends Action2 {
-	constructor() {
-		super({
-			id: `workbench.actions.sync.acceptLocal`,
-			title: localize('workbench.actions.sync.acceptLocal', "Accept Local"),
-			icon: Codicon.cloudUpload,
-			menu: {
-				id: MenuId.ViewItemContext,
-				when: ContextKeyExpr.and(ContextKeyExpr.equals('view', SYNC_CONFLICTS_VIEW_ID), ContextKeyExpr.equals('viewItem', 'sync-conflict-resource')),
-				group: 'inline',
-				order: 2,
-			},
-		});
-	}
-	async run(accessor: ServicesAccessor, handle: TreeViewItemHandleArg): cognidreammise<cognidream> {
-		const conflict = that.parseHandle(handle.$treeItemHandle);
-		await that.userDataSyncWorkbenchService.accept({ syncResource: conflict.syncResource, profile: conflict.profile }, conflict.localResource, undefined, that.userDataSyncEnablementService.isEnabled());
-	}
-}));
-    }
-
-    async open(conflictToOpen: IResourcePreview): Promicognidreamognidream > {
-	if(!this.userDataSyncService.conflicts.some(({ conflicts }) => conflicts.some(({ localResource }) => isEqual(localResource, conflictToOpen.localResource)))) {
-	return;
-}
-
-const remoteResourceName = localize({ key: 'remoteResourceName', comment: ['remote as in file in cloud'] }, "{0} (Remote)", basename(conflictToOpen.remoteResource));
-const localResourceName = localize('localResourceName', "{0} (Local)", basename(conflictToOpen.remoteResource));
-await this.editorService.openEditor({
-	input1: { resource: conflictToOpen.remoteResource, label: localize('Theirs', 'Theirs'), description: remoteResourceName },
-	input2: { resource: conflictToOpen.localResource, label: localize('Yours', 'Yours'), description: localResourceName },
-	base: { resource: conflictToOpen.baseResource },
-	result: { resource: conflictToOpen.previewResource },
-	options: {
-		preserveFocus: true,
-		revealIfVisible: true,
-		pinned: true,
-		override: DEFAULT_EDITOR_ASSOCIATION.id
-	}
-});
-return;
-    }
 
 }
 

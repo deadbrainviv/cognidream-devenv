@@ -45,7 +45,7 @@ registerAction2(class OpenSyncBackupsFolder extends Action2 {
 			}
 		});
 	}
-	async run(accessor: ServicesAccessor): Promise<cognidream> {
+	async run(accessor: ServicesAccessor): Promise<void> {
 		const syncHome = accessor.get(IEnvironmentService).userDataSyncHome;
 		const nativeHostService = accessor.get(INativeHostService);
 		const fileService = accessor.get(IFileService);
@@ -65,17 +65,17 @@ registerAction2(class DownloadSyncActivityAction extends Action2 {
 		super(DOWNLOAD_ACTIVITY_ACTION_DESCRIPTOR);
 	}
 
-	async run(accessor: ServicesAccessor): Promicognidreamognidream> {
-	const userDataSyncWorkbenchService = accessor.get(IUserDataSyncWorkbenchService);
-	const notificationService = accessor.get(INotificationService);
-	const hostService = accessor.get(INativeHostService);
-	const folder = await userDataSyncWorkbenchService.downloadSyncActivity();
-	if(folder) {
-		notificationService.prompt(Severity.Info, localize('download sync activity complete', "Successfully downloaded Settings Sync activity."),
-			[{
-				label: localize('open', "Open Folder"),
-				run: () => hostService.showItemInFolder(folder.fsPath)
-			}]);
+	async run(accessor: ServicesAccessor): Promise<void> {
+		const userDataSyncWorkbenchService = accessor.get(IUserDataSyncWorkbenchService);
+		const notificationService = accessor.get(INotificationService);
+		const hostService = accessor.get(INativeHostService);
+		const folder = await userDataSyncWorkbenchService.downloadSyncActivity();
+		if (folder) {
+			notificationService.prompt(Severity.Info, localize('download sync activity complete', "Successfully downloaded Settings Sync activity."),
+				[{
+					label: localize('open', "Open Folder"),
+					run: () => hostService.showItemInFolder(folder.fsPath)
+				}]);
+		}
 	}
-}
 });

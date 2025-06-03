@@ -1,12 +1,12 @@
 [Desktop Entry]
-Name=cognidream - URL Handler
+Name=Void - URL Handler
 Comment=Open source AI code editor.
 GenericName=Text Editor
-Exec=cognidream --open-url %U
-Icon=cognidream
+Exec=void --open-url %U
+Icon=void
 Type=Application
 NoDisplay=true
 StartupNotify=true
 Categories=Utility;TextEditor;Development;IDE;
-MimeType=x-scheme-handler/cognidream;
-Keywords=cognidream;
+MimeType=x-scheme-handler/void;
+Keywords=void;

@@ -52,7 +52,7 @@ export interface IExtensionStatusBarItemService {
 
 	setOrUpdateEntry(id: string, statusId: string, extensionId: string | undefined, name: string, text: string, tooltip: IMarkdownString | string | undefined | IManagedHoverTooltipMarkdownString, command: Command | undefined, color: string | ThemeColor | undefined, backgroundColor: ThemeColor | undefined, alignLeft: boolean, priority: number | undefined, accessibilityInformation: IAccessibilityInformation | undefined): StatusBarUpdateKind;
 
-	unsetEntry(id: string): cognidream;
+	unsetEntry(id: string): void;
 
 	getEntries(): Iterable<ExtensionStatusBarEntry>;
 }
@@ -69,104 +69,104 @@ class ExtensionStatusBarItemService implements IExtensionStatusBarItemService {
 
 	constructor(@IStatusbarService private readonly _statusbarService: IStatusbarService) { }
 
-	dispose(cognidreamognidream {
+	dispose(): void {
 		this._entries.forEach(entry => entry.accessor.dispose());
-this._entries.clear();
-this._onDidChange.dispose();
-    }
-
-setOrUpdateEntry(entryId: string,
-	id: string, extensionId: string | undefined, name: string, text: string,
-	tooltip: IMarkdownString | string | undefined | IManagedHoverTooltipMarkdownString,
-	command: Command | undefined, color: string | ThemeColor | undefined, backgroundColor: ThemeColor | undefined,
-	alignLeft: boolean, priority: number | undefined, accessibilityInformation: IAccessibilityInformation | undefined
-): StatusBarUpdateKind {
-	// if there are icons in the text use the tooltip for the aria label
-	let ariaLabel: string;
-	let role: string | undefined = undefined;
-	if (accessibilityInformation) {
-		ariaLabel = accessibilityInformation.label;
-		role = accessibilityInformation.role;
-	} else {
-		ariaLabel = getCodiconAriaLabel(text);
-		if (typeof tooltip === 'string' || isMarkdownString(tooltip)) {
-			const tooltipString = typeof tooltip === 'string' ? tooltip : tooltip.value;
-			ariaLabel += `, ${tooltipString}`;
-		}
-	}
-	let kind: StatusbarEntryKind | undefined = undefined;
-	switch (backgroundColor?.id) {
-		case STATUS_BAR_ERROR_ITEM_BACKGROUND:
-		case STATUS_BAR_WARNING_ITEM_BACKGROUND:
-			// override well known colors that map to status entry kinds to support associated themable hover colors
-			kind = backgroundColor.id === STATUS_BAR_ERROR_ITEM_BACKGROUND ? 'error' : 'warning';
-			color = undefined;
-			backgroundColor = undefined;
-	}
-	const entry: IStatusbarEntry = { name, text, tooltip, command, color, backgroundColor, ariaLabel, role, kind, extensionId };
-
-	if (typeof priority === 'undefined') {
-		priority = 0;
+		this._entries.clear();
+		this._onDidChange.dispose();
 	}
 
-	let alignment = alignLeft ? StatusbarAlignment.LEFT : StatusbarAlignment.RIGHT;
-
-	// alignment and priority can only be set once (at creation time)
-	const existingEntry = this._entries.get(entryId);
-	if (existingEntry) {
-		alignment = existingEntry.alignment;
-		priority = existingEntry.priority;
-	}
-
-	// Create new entry if not existing
-	if (!existingEntry) {
-		let entryPriority: number | IStatusbarEntryPriority;
-		if (typeof extensionId === 'string') {
-			// We cannot enforce unique priorities across all extensions, so we
-			// use the extension identifier as a secondary sort key to reduce
-			// the likelyhood of collisions.
-			// See https://github.com/microsoft/vscode/issues/177835
-			// See https://github.com/microsoft/vscode/issues/123827
-			entryPriority = { primary: priority, secondary: hash(extensionId) };
+	setOrUpdateEntry(entryId: string,
+		id: string, extensionId: string | undefined, name: string, text: string,
+		tooltip: IMarkdownString | string | undefined | IManagedHoverTooltipMarkdownString,
+		command: Command | undefined, color: string | ThemeColor | undefined, backgroundColor: ThemeColor | undefined,
+		alignLeft: boolean, priority: number | undefined, accessibilityInformation: IAccessibilityInformation | undefined
+	): StatusBarUpdateKind {
+		// if there are icons in the text use the tooltip for the aria label
+		let ariaLabel: string;
+		let role: string | undefined = undefined;
+		if (accessibilityInformation) {
+			ariaLabel = accessibilityInformation.label;
+			role = accessibilityInformation.role;
 		} else {
-			entryPriority = priority;
+			ariaLabel = getCodiconAriaLabel(text);
+			if (typeof tooltip === 'string' || isMarkdownString(tooltip)) {
+				const tooltipString = typeof tooltip === 'string' ? tooltip : tooltip.value;
+				ariaLabel += `, ${tooltipString}`;
+			}
+		}
+		let kind: StatusbarEntryKind | undefined = undefined;
+		switch (backgroundColor?.id) {
+			case STATUS_BAR_ERROR_ITEM_BACKGROUND:
+			case STATUS_BAR_WARNING_ITEM_BACKGROUND:
+				// override well known colors that map to status entry kinds to support associated themable hover colors
+				kind = backgroundColor.id === STATUS_BAR_ERROR_ITEM_BACKGROUND ? 'error' : 'warning';
+				color = undefined;
+				backgroundColor = undefined;
+		}
+		const entry: IStatusbarEntry = { name, text, tooltip, command, color, backgroundColor, ariaLabel, role, kind, extensionId };
+
+		if (typeof priority === 'undefined') {
+			priority = 0;
 		}
 
-		const accessor = this._statusbarService.addEntry(entry, id, alignment, entryPriority);
-		this._entries.set(entryId, {
-			accessor,
-			entry,
-			alignment,
-			priority,
-			disposable: toDisposable(() => {
-				accessor.dispose();
-				this._entries.delete(entryId);
-				this._onDidChange.fire({ removed: entryId });
-			})
-		});
+		let alignment = alignLeft ? StatusbarAlignment.LEFT : StatusbarAlignment.RIGHT;
 
-		this._onDidChange.fire({ added: [entryId, { entry, alignment, priority }] });
-		return StatusBarUpdateKind.DidDefine;
+		// alignment and priority can only be set once (at creation time)
+		const existingEntry = this._entries.get(entryId);
+		if (existingEntry) {
+			alignment = existingEntry.alignment;
+			priority = existingEntry.priority;
+		}
 
-	} else {
-		// Otherwise update
-		existingEntry.accessor.update(entry);
-		existingEntry.entry = entry;
-		return StatusBarUpdateKind.DidUpdate;
+		// Create new entry if not existing
+		if (!existingEntry) {
+			let entryPriority: number | IStatusbarEntryPriority;
+			if (typeof extensionId === 'string') {
+				// We cannot enforce unique priorities across all extensions, so we
+				// use the extension identifier as a secondary sort key to reduce
+				// the likelyhood of collisions.
+				// See https://github.com/microsoft/vscode/issues/177835
+				// See https://github.com/microsoft/vscode/issues/123827
+				entryPriority = { primary: priority, secondary: hash(extensionId) };
+			} else {
+				entryPriority = priority;
+			}
+
+			const accessor = this._statusbarService.addEntry(entry, id, alignment, entryPriority);
+			this._entries.set(entryId, {
+				accessor,
+				entry,
+				alignment,
+				priority,
+				disposable: toDisposable(() => {
+					accessor.dispose();
+					this._entries.delete(entryId);
+					this._onDidChange.fire({ removed: entryId });
+				})
+			});
+
+			this._onDidChange.fire({ added: [entryId, { entry, alignment, priority }] });
+			return StatusBarUpdateKind.DidDefine;
+
+		} else {
+			// Otherwise update
+			existingEntry.accessor.update(entry);
+			existingEntry.entry = entry;
+			return StatusBarUpdateKind.DidUpdate;
+		}
+	}
+
+	unsetEntry(entryId: string): void {
+		this._entries.get(entryId)?.disposable.dispose();
+		this._entries.delete(entryId);
+	}
+
+	getEntries(): Iterable<[string, { entry: IStatusbarEntry; alignment: MainThreadStatusBarAlignment; priority: number }]> {
+		return this._entries.entries();
 	}
 }
 
-unsetEntry(entryId: stringcognidreamognidream {
-	this._entries.get(entryId)?.disposable.dispose();
-	this._entries.delete(entryId);
-}
-
-    getEntries(): Iterable < [string, { entry: IStatusbarEntry; alignment: MainThreadStatusBarAlignment; priority: number }] > {
-	return this._entries.entries();
-}
-}
-
-	registerSingleton(IExtensionStatusBarItemService, ExtensionStatusBarItemService, InstantiationType.Delayed);
+registerSingleton(IExtensionStatusBarItemService, ExtensionStatusBarItemService, InstantiationType.Delayed);
 
 // --- extension point and reading of it
 

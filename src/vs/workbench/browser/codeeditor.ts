@@ -31,7 +31,7 @@ export interface IRangeHighlightDecoration {
 
 export class RangeHighlightDecorations extends Disposable {
 
-	private readonly _onHighlightRemoved = this._register(new Emitter<cognidreamidream>());
+	private readonly _onHighlightRemoved = this._register(new Emitter<void>());
 	readonly onHighlightRemoved = this._onHighlightRemoved.event;
 
 	private rangeHighlightDecorationId: string | null = null;
@@ -161,7 +161,7 @@ export class FloatingEditorClickWidget extends FloatingClickWidget implements IO
 		this.editor.addOverlayWidget(this);
 	}
 
-	override dispose(): cognidreamidream {
+	override dispose(): void {
 		this.editor.removeOverlayWidget(this);
 		super.dispose();
 	}

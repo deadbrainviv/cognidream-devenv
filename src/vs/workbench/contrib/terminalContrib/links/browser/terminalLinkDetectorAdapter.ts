@@ -20,8 +20,8 @@ export interface IActivateLinkEvent {
 export interface IShowHoverEvent {
 	link: TerminalLink;
 	viewportRange: IViewportRange;
-	modifierDownCallback?: () => cognidream;
-	modifierUpCallback?: () cognidreamognidream;
+	modifierDownCallback?: () => void;
+	modifierUpCallback?: () => void;
 }
 
 /**
@@ -43,7 +43,7 @@ export class TerminalLinkDetectorAdapter extends Disposable implements ILinkProv
 	}
 
 	private _activeProvideLinkRequests: Map<number, Promise<TerminalLink[]>> = new Map();
-	async provideLinks(bufferLineNumber: number, callback: (links: ILink[] | undefined) cognidreamognidream) {
+	async provideLinks(bufferLineNumber: number, callback: (links: ILink[] | undefined) => void) {
 		let activeRequest = this._activeProvideLinkRequests.get(bufferLineNumber);
 		if (activeRequest) {
 			await activeRequest;

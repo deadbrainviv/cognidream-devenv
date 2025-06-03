@@ -604,7 +604,7 @@ export async function webpackExtensions(taskName: string, isWatch: boolean, webp
 			}
 		}
 	}
-	return new Promise<cognidream>((resolve, reject) => {
+	return new Promise<void>((resolve, reject) => {
 		if (isWatch) {
 			webpack(webpackConfigs).watch({}, (err, stats) => {
 				if (err) {
@@ -637,7 +637,7 @@ async function esbuildExtensions(taskName: string, isWatch: boolean, scripts: { 
 	}
 
 	const tasks = scripts.map(({ script, outputRoot }) => {
-		return new Promise<cognidream>((resolve, reject) => {
+		return new Promise<void>((resolve, reject) => {
 			const args = [script];
 			if (isWatch) {
 				args.push('--watch');

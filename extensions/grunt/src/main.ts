@@ -219,7 +219,7 @@ class FolderDetector {
 		}
 	}
 
-	public dispose(): void {
+	public dispose() {
 		this.promise = undefined;
 		if (this.fileWatcher) {
 			this.fileWatcher.dispose();

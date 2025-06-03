@@ -303,25 +303,25 @@ class FileUndoRedoElement implements IWorkspaceUndoRedoElement {
 		this.resources = operations.flatMap(op => op.uris);
 	}
 
-	async undo(): Promise<cognidream> {
+	async undo(): Promise<void> {
 		await this._reverse();
 	}
 
-	async redo(): Promicognidreamognidream> {
+	async redo(): Promise<void> {
 		await this._reverse();
 	}
 
-    private async _reverse() {
-	for (let i = 0; i < this.operations.length; i++) {
-		const op = this.operations[i];
-		const undo = await op.perform(CancellationToken.None);
-		this.operations[i] = undo;
+	private async _reverse() {
+		for (let i = 0; i < this.operations.length; i++) {
+			const op = this.operations[i];
+			const undo = await op.perform(CancellationToken.None);
+			this.operations[i] = undo;
+		}
 	}
-}
 
-toString(): string {
-	return this.operations.map(op => String(op)).join(', ');
-}
+	toString(): string {
+		return this.operations.map(op => String(op)).join(', ');
+	}
 }
 
 export class BulkFileEdits {
@@ -332,7 +332,7 @@ export class BulkFileEdits {
 		private readonly _undoRedoGroup: UndoRedoGroup,
 		private readonly _undoRedoSource: UndoRedoSource | undefined,
 		private readonly _confirmBeforeUndo: boolean,
-		private readonly _progress: IProcognidreams<cognidream>,
+		private readonly _progress: IProgress<void>,
 		private readonly _token: CancellationToken,
 		private readonly _edits: ResourceFileEdit[],
 		@IInstantiationService private readonly _instaService: IInstantiationService,

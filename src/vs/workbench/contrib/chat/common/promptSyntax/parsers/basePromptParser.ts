@@ -43,13 +43,13 @@ export class BasePromptParser<TContentsProvider extends IPromptContentsProvider>
 	/**
 	 * The event is fired when lines or their content change.
 	 */
-	private readonly _onUpdate = this._register(new Emitter<cognidream>());
+	private readonly _onUpdate = this._register(new Emitter<void>());
 
 	/**
 	 * Subscribe to the `onUpdate` event that is fired when prompt tokens are updated.
 	 * @param callback The callback function to be called on updates.
 	 */
-	public onUpdate(callback: () cognidreamognidream): this {
+	public onUpdate(callback: () => void): this {
 		this._register(this._onUpdate.event(callback));
 
 		return this;
@@ -197,343 +197,343 @@ export class BasePromptParser<TContentsProvider extends IPromptContentsProvider>
 	private onContentsChanged(
 		streamOrError: VSBufferReadableStream | ResolveError,
 		seenReferences: string[],
-		cognidreamognidream {
-			// dispose and cleanup the previously received stream
-			// object or an error condition, if any received yet
-			this.stream?.dispose();
-delete this.stream;
-delete this._errorCondition;
+	): void {
+		// dispose and cleanup the previously received stream
+		// object or an error condition, if any received yet
+		this.stream?.dispose();
+		delete this.stream;
+		delete this._errorCondition;
 
-// dispose all currently existing references
-this.disposeReferences();
+		// dispose all currently existing references
+		this.disposeReferences();
 
-// if an error received, set up the error condition and stop
-if (streamOrError instanceof ResolveError) {
-	this._errorCondition = streamOrError;
-	this._onUpdate.fire();
+		// if an error received, set up the error condition and stop
+		if (streamOrError instanceof ResolveError) {
+			this._errorCondition = streamOrError;
+			this._onUpdate.fire();
 
-	return;
-}
-
-// decode the byte stream to a stream of prompt tokens
-this.stream = ChatPromptCodec.decode(streamOrError);
-
-// on error or stream end, dispose the stream and fire the update event
-this.stream.on('error', this.onStreamEnd.bind(this, this.stream));
-this.stream.on('end', this.onStreamEnd.bind(this, this.stream));
-
-// when some tokens received, process and store the references
-this.stream.on('data', (token) => {
-	if (token instanceof PromptVariableWithData) {
-		try {
-			this.onReference(FileReference.from(token), [...seenReferences]);
-		} catch (error) {
-			// no-op
+			return;
 		}
+
+		// decode the byte stream to a stream of prompt tokens
+		this.stream = ChatPromptCodec.decode(streamOrError);
+
+		// on error or stream end, dispose the stream and fire the update event
+		this.stream.on('error', this.onStreamEnd.bind(this, this.stream));
+		this.stream.on('end', this.onStreamEnd.bind(this, this.stream));
+
+		// when some tokens received, process and store the references
+		this.stream.on('data', (token) => {
+			if (token instanceof PromptVariableWithData) {
+				try {
+					this.onReference(FileReference.from(token), [...seenReferences]);
+				} catch (error) {
+					// no-op
+				}
+			}
+
+			// note! the `isURL` is a simple check and needs to be improved to truly
+			// 		 handle only file references, ignoring broken URLs or references
+			if (token instanceof MarkdownLink && !token.isURL) {
+				this.onReference(token, [...seenReferences]);
+			}
+		});
+
+		// calling `start` on a disposed stream throws, so we warn and return instead
+		if (this.stream.disposed) {
+			this.logService.warn(
+				`[prompt parser][${basename(this.uri)}] cannot start stream that has been already disposed, aborting`,
+			);
+
+			return;
+		}
+
+		// start receiving data on the stream
+		this.stream.start();
 	}
 
-	// note! the `isURL` is a simple check and needs to be improved to truly
-	// 		 handle only file references, ignoring broken URLs or references
-	if (token instanceof MarkdownLink && !token.isURL) {
-		this.onReference(token, [...seenReferences]);
-	}
-});
+	/**
+	 * Handle a new reference token inside prompt contents.
+	 */
+	private onReference(
+		token: FileReference | MarkdownLink,
+		seenReferences: string[],
+	): this {
 
-// calling `start` on a disposed stream throws, so we warn and return instead
-if (this.stream.disposed) {
-	this.logService.warn(
-		`[prompt parser][${basename(this.uri)}] cannot start stream that has been already disposed, aborting`,
-	);
+		const referenceUri = extUri.resolvePath(this.dirname, token.path);
+		const contentProvider = this.promptContentsProvider.createNew({ uri: referenceUri });
 
-	return;
-}
+		const reference = this.instantiationService
+			.createInstance(PromptReference, contentProvider, token, seenReferences);
 
-// start receiving data on the stream
-this.stream.start();
-    }
+		// the content provider is exclusively owned by the reference
+		// hence dispose it when the reference is disposed
+		reference.onDispose(contentProvider.dispose.bind(contentProvider));
 
-    /**
-     * Handle a new reference token inside prompt contents.
-     */
-    private onReference(
-	token: FileReference | MarkdownLink,
-	seenReferences: string[],
-): this {
+		this._references.push(reference);
 
-	const referenceUri = extUri.resolvePath(this.dirname, token.path);
-	const contentProvider = this.promptContentsProvider.createNew({ uri: referenceUri });
+		reference.onUpdate(this._onUpdate.fire);
+		this._onUpdate.fire();
 
-	const reference = this.instantiationService
-		.createInstance(PromptReference, contentProvider, token, seenReferences);
+		reference.start();
 
-	// the content provider is exclusively owned by the reference
-	// hence dispose it when the reference is disposed
-	reference.onDispose(contentProvider.dispose.bind(contentProvider));
-
-	this._references.push(reference);
-
-	reference.onUpdate(this._onUpdate.fire);
-	this._onUpdate.fire();
-
-	reference.start();
-
-	return this;
-}
-
-    /**
-     * Handle the `stream` end event.
-     *
-     * @param stream The stream that has ended.
-     * @param error Optional error object if stream ended with an error.
-     */
-    private onStreamEnd(
-	_stream: ChatPromptDecoder,
-	error ?: Error,
-): this {
-	if (error) {
-		this.logService.warn(
-			`[prompt parser][${basename(this.uri)}] received an error on the chat prompt decoder stream: ${error}`,
-		);
-	}
-
-	this._onUpdate.fire();
-
-	return this;
-}
-
-    /**
-     * Dispose all currently held references.
-     */
-    private disposeReferences() {
-	for (const reference of [...this._references]) {
-		reference.dispose();
-	}
-
-	this._references.length = 0;
-}
-
-    /**
-     * Private attribute to track if the {@linkcode start}
-     * method has been already called at least once.
-     */
-    private started: boolean = false;
-
-    /**
-     * Start the prompt parser.
-     */
-    public start(): this {
-	// if already started, nothing to do
-	if (this.started) {
-		return this;
-	}
-	this.started = true;
-
-
-	// if already in the error state that could be set
-	// in the constructor, then nothing to do
-	if (this.errorCondition) {
 		return this;
 	}
 
-	this.promptContentsProvider.start();
-	return this;
-}
-
-    /**
-     * Associated URI of the prompt.
-     */
-    public get uri(): URI {
-	return this.promptContentsProvider.uri;
-}
-
-    /**
-     * Get the parent folder of the file reference.
-     */
-    public get dirname() {
-	return URI.joinPath(this.uri, '..');
-}
-
-    /**
-     * Get a list of immediate child references of the prompt.
-     */
-    public get references(): readonly IPromptReference[] {
-	return [...this._references];
-}
-
-    /**
-     * Get a list of all references of the prompt, including
-     * all possible nested references its children may have.
-     */
-    public get allReferences(): readonly IPromptReference[] {
-	const result: IPromptReference[] = [];
-
-	for (const reference of this.references) {
-		result.push(reference);
-
-		if (reference.type === 'file') {
-			result.push(...reference.allReferences);
+	/**
+	 * Handle the `stream` end event.
+	 *
+	 * @param stream The stream that has ended.
+	 * @param error Optional error object if stream ended with an error.
+	 */
+	private onStreamEnd(
+		_stream: ChatPromptDecoder,
+		error?: Error,
+	): this {
+		if (error) {
+			this.logService.warn(
+				`[prompt parser][${basename(this.uri)}] received an error on the chat prompt decoder stream: ${error}`,
+			);
 		}
+
+		this._onUpdate.fire();
+
+		return this;
 	}
 
-	return result;
-}
+	/**
+	 * Dispose all currently held references.
+	 */
+	private disposeReferences() {
+		for (const reference of [...this._references]) {
+			reference.dispose();
+		}
 
-    /**
-     * Get list of all valid references.
-     */
-    public get allValidReferences(): readonly IPromptReference[] {
-	return this.allReferences
-		// filter out unresolved references
-		.filter((reference) => {
+		this._references.length = 0;
+	}
+
+	/**
+	 * Private attribute to track if the {@linkcode start}
+	 * method has been already called at least once.
+	 */
+	private started: boolean = false;
+
+	/**
+	 * Start the prompt parser.
+	 */
+	public start(): this {
+		// if already started, nothing to do
+		if (this.started) {
+			return this;
+		}
+		this.started = true;
+
+
+		// if already in the error state that could be set
+		// in the constructor, then nothing to do
+		if (this.errorCondition) {
+			return this;
+		}
+
+		this.promptContentsProvider.start();
+		return this;
+	}
+
+	/**
+	 * Associated URI of the prompt.
+	 */
+	public get uri(): URI {
+		return this.promptContentsProvider.uri;
+	}
+
+	/**
+	 * Get the parent folder of the file reference.
+	 */
+	public get dirname() {
+		return URI.joinPath(this.uri, '..');
+	}
+
+	/**
+	 * Get a list of immediate child references of the prompt.
+	 */
+	public get references(): readonly IPromptReference[] {
+		return [...this._references];
+	}
+
+	/**
+	 * Get a list of all references of the prompt, including
+	 * all possible nested references its children may have.
+	 */
+	public get allReferences(): readonly IPromptReference[] {
+		const result: IPromptReference[] = [];
+
+		for (const reference of this.references) {
+			result.push(reference);
+
+			if (reference.type === 'file') {
+				result.push(...reference.allReferences);
+			}
+		}
+
+		return result;
+	}
+
+	/**
+	 * Get list of all valid references.
+	 */
+	public get allValidReferences(): readonly IPromptReference[] {
+		return this.allReferences
+			// filter out unresolved references
+			.filter((reference) => {
+				const { errorCondition } = reference;
+
+				// include all references without errors
+				if (!errorCondition) {
+					return true;
+				}
+
+				// filter out folder references from the list
+				if (errorCondition instanceof FolderReference) {
+					return false;
+				}
+
+				// include non-prompt file references
+				return (errorCondition instanceof NotPromptFile);
+			});
+	}
+
+	/**
+	 * Get list of all valid child references as URIs.
+	 */
+	public get allValidReferencesUris(): readonly URI[] {
+		return this.allValidReferences
+			.map(child => child.uri);
+	}
+
+	/**
+	 * Get list of errors for the direct links of the current reference.
+	 */
+	public get errors(): readonly ResolveError[] {
+		const childErrors: ResolveError[] = [];
+
+		for (const reference of this.references) {
 			const { errorCondition } = reference;
 
-			// include all references without errors
-			if (!errorCondition) {
-				return true;
+			if (errorCondition && (!(errorCondition instanceof NotPromptFile))) {
+				childErrors.push(errorCondition);
 			}
-
-			// filter out folder references from the list
-			if (errorCondition instanceof FolderReference) {
-				return false;
-			}
-
-			// include non-prompt file references
-			return (errorCondition instanceof NotPromptFile);
-		});
-}
-
-    /**
-     * Get list of all valid child references as URIs.
-     */
-    public get allValidReferencesUris(): readonly URI[] {
-	return this.allValidReferences
-		.map(child => child.uri);
-}
-
-    /**
-     * Get list of errors for the direct links of the current reference.
-     */
-    public get errors(): readonly ResolveError[] {
-	const childErrors: ResolveError[] = [];
-
-	for (const reference of this.references) {
-		const { errorCondition } = reference;
-
-		if (errorCondition && (!(errorCondition instanceof NotPromptFile))) {
-			childErrors.push(errorCondition);
 		}
+
+		return childErrors;
 	}
 
-	return childErrors;
-}
+	/**
+	 * List of all errors that occurred while resolving the current
+	 * reference including all possible errors of nested children.
+	 */
+	public get allErrors(): readonly IResolveError[] {
+		const result: IResolveError[] = [];
 
-    /**
-     * List of all errors that occurred while resolving the current
-     * reference including all possible errors of nested children.
-     */
-    public get allErrors(): readonly IResolveError[] {
-	const result: IResolveError[] = [];
+		for (const reference of this.references) {
+			const { errorCondition } = reference;
 
-	for (const reference of this.references) {
-		const { errorCondition } = reference;
+			if (errorCondition && (!(errorCondition instanceof NotPromptFile))) {
+				result.push({
+					originalError: errorCondition,
+					parentUri: this.uri,
+				});
+			}
 
-		if (errorCondition && (!(errorCondition instanceof NotPromptFile))) {
-			result.push({
-				originalError: errorCondition,
-				parentUri: this.uri,
+			// recursively collect all possible errors of its children
+			result.push(...reference.allErrors);
+		}
+
+		return result;
+	}
+
+	/**
+	 * The top most error of the current reference or any of its
+	 * possible child reference errors.
+	 */
+	public get topError(): ITopError | undefined {
+		if (this.errorCondition) {
+			return new TopError({
+				errorSubject: 'root',
+				errorsCount: 1,
+				originalError: this.errorCondition,
 			});
 		}
 
-		// recursively collect all possible errors of its children
-		result.push(...reference.allErrors);
-	}
+		const childErrors: ResolveError[] = [...this.errors];
+		const nestedErrors: IResolveError[] = [];
+		for (const reference of this.references) {
+			nestedErrors.push(...reference.allErrors);
+		}
 
-	return result;
-}
+		if (childErrors.length === 0 && nestedErrors.length === 0) {
+			return undefined;
+		}
 
-    /**
-     * The top most error of the current reference or any of its
-     * possible child reference errors.
-     */
-    public get topError(): ITopError | undefined {
-	if (this.errorCondition) {
+		const firstDirectChildError = childErrors[0];
+		const firstNestedChildError = nestedErrors[0];
+		const hasDirectChildError = (firstDirectChildError !== undefined);
+
+		const firstChildError = (hasDirectChildError)
+			? {
+				originalError: firstDirectChildError,
+				parentUri: this.uri,
+			}
+			: firstNestedChildError;
+
+		const totalErrorsCount = childErrors.length + nestedErrors.length;
+
+		const subject = (hasDirectChildError)
+			? 'child'
+			: 'indirect-child';
+
 		return new TopError({
-			errorSubject: 'root',
-			errorsCount: 1,
-			originalError: this.errorCondition,
+			errorSubject: subject,
+			originalError: firstChildError.originalError,
+			parentUri: firstChildError.parentUri,
+			errorsCount: totalErrorsCount,
 		});
 	}
 
-	const childErrors: ResolveError[] = [...this.errors];
-	const nestedErrors: IResolveError[] = [];
-	for (const reference of this.references) {
-		nestedErrors.push(...reference.allErrors);
+	/**
+	 * Check if the current reference points to a given resource.
+	 */
+	public sameUri(otherUri: URI): boolean {
+		return this.uri.toString() === otherUri.toString();
 	}
 
-	if (childErrors.length === 0 && nestedErrors.length === 0) {
-		return undefined;
+	/**
+	 * Check if the current reference points to a prompt snippet file.
+	 */
+	public get isPromptFile(): boolean {
+		return isPromptFile(this.uri);
 	}
 
-	const firstDirectChildError = childErrors[0];
-	const firstNestedChildError = nestedErrors[0];
-	const hasDirectChildError = (firstDirectChildError !== undefined);
+	/**
+	 * Returns a string representation of this object.
+	 */
+	public override toString(): string {
+		return `prompt:${this.uri.path}`;
+	}
 
-	const firstChildError = (hasDirectChildError)
-		? {
-			originalError: firstDirectChildError,
-			parentUri: this.uri,
+	/**
+	 * @inheritdoc
+	 */
+	public override dispose() {
+		if (this.disposed) {
+			return;
 		}
-		: firstNestedChildError;
 
-	const totalErrorsCount = childErrors.length + nestedErrors.length;
+		this.disposeReferences();
+		this.stream?.dispose();
+		this._onUpdate.fire();
 
-	const subject = (hasDirectChildError)
-		? 'child'
-		: 'indirect-child';
-
-	return new TopError({
-		errorSubject: subject,
-		originalError: firstChildError.originalError,
-		parentUri: firstChildError.parentUri,
-		errorsCount: totalErrorsCount,
-	});
-}
-
-    /**
-     * Check if the current reference points to a given resource.
-     */
-    public sameUri(otherUri: URI): boolean {
-	return this.uri.toString() === otherUri.toString();
-}
-
-    /**
-     * Check if the current reference points to a prompt snippet file.
-     */
-    public get isPromptFile(): boolean {
-	return isPromptFile(this.uri);
-}
-
-    /**
-     * Returns a string representation of this object.
-     */
-    public override toString(): string {
-	return `prompt:${this.uri.path}`;
-}
-
-    /**
-     * @inheritdoc
-     */
-    public override dispose() {
-	if (this.disposed) {
-		return;
+		super.dispose();
 	}
-
-	this.disposeReferences();
-	this.stream?.dispose();
-	this._onUpdate.fire();
-
-	super.dispose();
-}
 }
 
 /**
@@ -634,7 +634,7 @@ export class PromptReference extends ObservableDisposable implements IPromptRefe
 	 * Subscribe to the `onUpdate` event that is fired when prompt tokens are updated.
 	 * @param callback The callback function to be called on updates.
 	 */
-	public onUpdate(callback: () cognidreamognidream): this {
+	public onUpdate(callback: () => void): this {
 		this.parser.onUpdate(callback);
 
 		return this;
@@ -704,7 +704,7 @@ export class PromptReference extends ObservableDisposable implements IPromptRefe
  * A tiny utility object that helps us to track existence
  * of at least one parse result from the content provider.
  */
-class FirstParseResult extends DeferredPromise<cognidreamidream> {
+class FirstParseResult extends DeferredPromise<void> {
 	/**
 	 * Private attribute to track if we have
 	 * received at least one result.
@@ -721,15 +721,15 @@ class FirstParseResult extends DeferredPromise<cognidreamidream> {
 	/**
 	 * Get underlying promise reference.
 	 */
-	public get promise(): Promicognidreamognidream> {
+	public get promise(): Promise<void> {
 		return this.p;
 	}
 
-    /**
-     * Complete the underlying promise.
-     */
-    public override complete() {
-	this._gotResult = true;
-	return super.comcognidreame(cognidream 0);
-}
+	/**
+	 * Complete the underlying promise.
+	 */
+	public override complete() {
+		this._gotResult = true;
+		return super.complete(void 0);
+	}
 }

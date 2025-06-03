@@ -27,7 +27,7 @@ export class WebviewProtocolProvider extends Disposable {
 
 	private handleWebviewRequest(
 		request: Electron.ProtocolRequest,
-		callback: (response: string | Electron.ProtocolResponse) => cognidream
+		callback: (response: string | Electron.ProtocolResponse) => void
 	) {
 		try {
 			const uri = URI.parse(request.url);

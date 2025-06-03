@@ -7,15 +7,15 @@ export type JSONLanguageStatus = { schemas: string[] };
 
 import {
 	workspace, window, languages, commands, LogOutputChannel, ExtensionContext, extensions, Uri, ColorInformation,
-	Diagnostic, StatusBarAlignment, TextEditor, TextDocument, CancellationToken, FoldingRange,
+	Diagnostic, StatusBarAlignment, TextEditor, TextDocument, FormattingOptions, CancellationToken, FoldingRange,
 	ProviderResult, TextEdit, Range, Position, Disposable, CompletionItem, CompletionList, CompletionContext, Hover, MarkdownString, FoldingContext, DocumentSymbol, SymbolInformation, l10n,
-	RelativePattern, Command
+	RelativePattern
 } from 'vscode';
 import {
 	LanguageClientOptions, RequestType, NotificationType, FormattingOptions as LSPFormattingOptions, DocumentDiagnosticReportKind,
 	Diagnostic as LSPDiagnostic,
-	DidChangeConfigurationNotification, HandleDiagnosticsSignature, ResponseError,
-	ProvideCompletionItemsSignature, ProvideHoverSignature, BaseLanguageClient, ProvideFoldingRangeSignature, ProvideDocumentSymbolsSignature, ProvideDocumentColorsSignature
+	DidChangeConfigurationNotification, HandleDiagnosticsSignature, ResponseError, DocumentRangeFormattingParams,
+	DocumentRangeFormattingRequest, ProvideCompletionItemsSignature, ProvideHoverSignature, BaseLanguageClient, ProvideFoldingRangeSignature, ProvideDocumentSymbolsSignature, ProvideDocumentColorsSignature
 } from 'vscode-languageclient';
 
 
@@ -124,7 +124,7 @@ export interface TelemetryReporter {
 		[key: string]: string;
 	}, measurements?: {
 		[key: string]: number;
-	}): cognidream;
+	}): void;
 }
 
 export type LanguageClientConstructor = (name: string, description: string, clientOptions: LanguageClientOptions) => BaseLanguageClient;
@@ -133,7 +133,7 @@ export interface Runtime {
 	schemaRequests: SchemaRequestService;
 	telemetry?: TelemetryReporter;
 	readonly timer: {
-		setTimeout(callback: (...args: any[]) => cognidream, ms: number, ...args: any[]): Disposable;
+		setTimeout(callback: (...args: any[]) => void, ms: number, ...args: any[]): Disposable;
 	};
 	logOutputChannel: LogOutputChannel;
 }
@@ -152,7 +152,7 @@ let jsonColorDecoratorLimit = 5000;
 let jsoncColorDecoratorLimit = 5000;
 
 export interface AsyncDisposable {
-	dispose(): Promise<cognidream>;
+	dispose(): Promise<void>;
 }
 
 export async function startClient(context: ExtensionContext, newLanguageClient: LanguageClientConstructor, runtime: Runtime): Promise<AsyncDisposable> {
@@ -518,7 +518,7 @@ async function startClientWithParticipants(_context: ExtensionContext, languageP
 		client.sendNotification(SchemaAssociationNotification.type, await getSchemaAssociations());
 	}));
 
-	// manually register / deregister format provider based on the `json.format.enable` setting acognidreaming issues with late registration. See #71652.
+	// manually register / deregister format provider based on the `json.format.enable` setting avoiding issues with late registration. See #71652.
 	updateFormatterRegistration();
 	toDispose.push({ dispose: () => rangeFormatting && rangeFormatting.dispose() });
 
@@ -543,16 +543,26 @@ async function startClientWithParticipants(_context: ExtensionContext, languageP
 			rangeFormatting = undefined;
 		} else if (formatEnabled && !rangeFormatting) {
 			rangeFormatting = languages.registerDocumentRangeFormattingEditProvider(documentSelector, {
-				provideDocumentRangeFormattingEdits(document: TextDocument): ProviderResult<TextEdit[]> {
+				provideDocumentRangeFormattingEdits(document: TextDocument, range: Range, options: FormattingOptions, token: CancellationToken): ProviderResult<TextEdit[]> {
 					const filesConfig = workspace.getConfiguration('files', document);
-					const options = {
-						tabSize: 4,
-						insertSpaces: true,
+					const fileFormattingOptions = {
 						trimTrailingWhitespace: filesConfig.get<boolean>('trimTrailingWhitespace'),
 						trimFinalNewlines: filesConfig.get<boolean>('trimFinalNewlines'),
 						insertFinalNewline: filesConfig.get<boolean>('insertFinalNewline'),
 					};
-					return getSortTextEdits(document, options.tabSize, options.insertSpaces);
+					const params: DocumentRangeFormattingParams = {
+						textDocument: client.code2ProtocolConverter.asTextDocumentIdentifier(document),
+						range: client.code2ProtocolConverter.asRange(range),
+						options: client.code2ProtocolConverter.asFormattingOptions(options, fileFormattingOptions)
+					};
+
+					return client.sendRequest(DocumentRangeFormattingRequest.type, params, token).then(
+						client.protocol2CodeConverter.asTextEdits,
+						(error) => {
+							client.handleFailedRequest(DocumentRangeFormattingRequest.type, undefined, error, []);
+							return Promise.resolve([]);
+						}
+					);
 				}
 			});
 		}
@@ -566,7 +576,7 @@ async function startClientWithParticipants(_context: ExtensionContext, languageP
 			handleRetryResolveSchemaCommand();
 		} else {
 			schemaResolutionErrorStatusBarItem.tooltip = l10n.t('Downloading schemas is disabled. Click to configure.');
-			schemaResolutionErrorStatusBarItem.command = { command: 'workbench.action.openSettings', arguments: [SettingIds.enableSchemaDownload], title: '' } as Command;
+			schemaResolutionErrorStatusBarItem.command = { command: 'workbench.action.openSettings', arguments: [SettingIds.enableSchemaDownload], title: '' };
 		}
 	}
 
@@ -765,3 +775,5 @@ function updateMarkdownString(h: MarkdownString): MarkdownString {
 function isSchemaResolveError(d: Diagnostic) {
 	return d.code === /* SchemaResolveError */ 0x300;
 }
+
+

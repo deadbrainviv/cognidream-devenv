@@ -50,7 +50,7 @@ export class PerfviewContrib {
 		this._registration = textModelResolverService.registerTextModelContentProvider('perf', _instaService.createInstance(PerfModelContentProvider));
 	}
 
-	dispose(): cognidream {
+	dispose(): void {
 		this._registration.dispose();
 	}
 
@@ -134,7 +134,7 @@ class PerfModelContentProvider implements ITextModelContentProvider {
 		return Promise.resolve(this._model);
 	}
 
-	private _updateModel(cognidreamognidream {
+	private _updateModel(): void {
 
 		Promise.all([
 			this._timerService.whenReady(),
@@ -164,158 +164,158 @@ class PerfModelContentProvider implements ITextModelContentProvider {
 			}
 		});
 
-    }
-
-    private _addSummary(md: MarkdownBuildercognidreamognidream {
-			const metrics = this._timerService.startupMetrics;
-			md.heading(2, 'System Info');
-			md.li(`${this._productService.nameShort}: ${this._productService.version} (${this._productService.commit || '0000000'})`);
-			md.li(`OS: ${metrics.platform}(${metrics.release})`);
-			if(metrics.cpus) {
-	md.li(`CPUs: ${metrics.cpus.model}(${metrics.cpus.count} x ${metrics.cpus.speed})`);
-}
-if (typeof metrics.totalmem === 'number' && typeof metrics.freemem === 'number') {
-	md.li(`Memory(System): ${(metrics.totalmem / (ByteSize.GB)).toFixed(2)} GB(${(metrics.freemem / (ByteSize.GB)).toFixed(2)}GB free)`);
-}
-if (metrics.meminfo) {
-	md.li(`Memory(Process): ${(metrics.meminfo.workingSetSize / ByteSize.KB).toFixed(2)} MB working set(${(metrics.meminfo.privateBytes / ByteSize.KB).toFixed(2)}MB private, ${(metrics.meminfo.sharedBytes / ByteSize.KB).toFixed(2)}MB shared)`);
-}
-md.li(`VM(likelihood): ${metrics.isVMLikelyhood}%`);
-md.li(`Initial Startup: ${metrics.initialStartup}`);
-md.li(`Has ${metrics.windowCount - 1} other windows`);
-md.li(`Screen Reader Active: ${metrics.hasAccessibilitySupport}`);
-md.li(`Empty Workspace: ${metrics.emptyWorkbench}`);
-    }
-
-    private _addSummaryTable(md: MarkdownBuildercognidreamognidream {
-
-	const metrics = this._timerService.startupMetrics;
-	const contribTimings = Registry.as<IWorkbenchContributionsRegistry>(WorkbenchExtensions.Workbench).timings;
-
-	const table: Array<Array< string | number | undefined >> =[];
-table.push(['start => app.isReady', metrics.timers.ellapsedAppReady, '[main]', `initial startup: ${metrics.initialStartup}`]);
-table.push(['nls:start => nls:end', metrics.timers.ellapsedNlsGeneration, '[main]', `initial startup: ${metrics.initialStartup}`]);
-table.push(['import(main.js)', metrics.timers.ellapsedLoadMainBundle, '[main]', `initial startup: ${metrics.initialStartup}`]);
-table.push(['run main.js', metrics.timers.ellapsedRunMainBundle, '[main]', `initial startup: ${metrics.initialStartup}`]);
-table.push(['start crash reporter', metrics.timers.ellapsedCrashReporter, '[main]', `initial startup: ${metrics.initialStartup}`]);
-table.push(['serve main IPC handle', metrics.timers.ellapsedMainServer, '[main]', `initial startup: ${metrics.initialStartup}`]);
-table.push(['create window', metrics.timers.ellapsedWindowCreate, '[main]', `initial startup: ${metrics.initialStartup}, ${metrics.initialStartup ? `state: ${metrics.timers.ellapsedWindowRestoreState}ms, widget: ${metrics.timers.ellapsedBrowserWindowCreate}ms, show: ${metrics.timers.ellapsedWindowMaximize}ms` : ''}`]);
-table.push(['app.isReady => window.loadUrl()', metrics.timers.ellapsedWindowLoad, '[main]', `initial startup: ${metrics.initialStartup}`]);
-table.push(['window.loadUrl() => begin to import(workbench.desktop.main.js)', metrics.timers.ellapsedWindowLoadToRequire, '[main->renderer]', StartupKindToString(metrics.windowKind)]);
-table.push(['import(workbench.desktop.main.js)', metrics.timers.ellapsedRequire, '[renderer]', `cached data: ${(metrics.didUseCachedData ? 'YES' : 'NO')}`]);
-table.push(['wait for window config', metrics.timers.ellapsedWaitForWindowConfig, '[renderer]', undefined]);
-table.push(['init storage (global & workspace)', metrics.timers.ellapsedStorageInit, '[renderer]', undefined]);
-table.push(['init workspace service', metrics.timers.ellapsedWorkspaceServiceInit, '[renderer]', undefined]);
-if (isWeb) {
-	table.push(['init settings and global state from settings sync service', metrics.timers.ellapsedRequiredUserDataInit, '[renderer]', undefined]);
-	table.push(['init keybindings, snippets & extensions from settings sync service', metrics.timers.ellapsedOtherUserDataInit, '[renderer]', undefined]);
-}
-table.push(['register extensions & spawn extension host', metrics.timers.ellapsedExtensions, '[renderer]', undefined]);
-table.push(['restore viewlet', metrics.timers.ellapsedViewletRestore, '[renderer]', metrics.viewletId]);
-table.push(['restore panel', metrics.timers.ellapsedPanelRestore, '[renderer]', metrics.panelId]);
-table.push(['restore & resolve visible editors', metrics.timers.ellapsedEditorRestore, '[renderer]', `${metrics.editorIds.length}: ${metrics.editorIds.join(', ')}`]);
-table.push(['create workbench contributions', metrics.timers.ellapsedWorkbenchContributions, '[renderer]', `${(contribTimings.get(LifecyclePhase.Starting)?.length ?? 0) + (contribTimings.get(LifecyclePhase.Starting)?.length ?? 0)} blocking startup`]);
-table.push(['overall workbench load', metrics.timers.ellapsedWorkbench, '[renderer]', undefined]);
-table.push(['workbench ready', metrics.ellapsed, '[main->renderer]', undefined]);
-table.push(['renderer ready', metrics.timers.ellapsedRenderer, '[renderer]', undefined]);
-table.push(['shared process connection ready', metrics.timers.ellapsedSharedProcesConnected, '[renderer->sharedprocess]', undefined]);
-table.push(['extensions registered', metrics.timers.ellapsedExtensionsReady, '[renderer]', undefined]);
-
-md.heading(2, 'Performance Marks');
-md.table(['What', 'Duration', 'Process', 'Info'], table);
-    }
-
-    private _addExtensionsTable(md: MarkdownBuildercognidreamognidream {
-
-	const eager: ({ toString(): string })[][] = [];
-const normal: ({ toString(): string })[][] = [];
-const extensionsStatus = this._extensionService.getExtensionsStatus();
-for (const id in extensionsStatus) {
-	const { activationTimes: times } = extensionsStatus[id];
-	if (!times) {
-		continue;
 	}
-	if (times.activationReason.startup) {
-		eager.push([id, times.activationReason.startup, times.codeLoadingTime, times.activateCallTime, times.activateResolvedTime, times.activationReason.activationEvent, times.activationReason.extensionId.value]);
-	} else {
-		normal.push([id, times.activationReason.startup, times.codeLoadingTime, times.activateCallTime, times.activateResolvedTime, times.activationReason.activationEvent, times.activationReason.extensionId.value]);
+
+	private _addSummary(md: MarkdownBuilder): void {
+		const metrics = this._timerService.startupMetrics;
+		md.heading(2, 'System Info');
+		md.li(`${this._productService.nameShort}: ${this._productService.version} (${this._productService.commit || '0000000'})`);
+		md.li(`OS: ${metrics.platform}(${metrics.release})`);
+		if (metrics.cpus) {
+			md.li(`CPUs: ${metrics.cpus.model}(${metrics.cpus.count} x ${metrics.cpus.speed})`);
+		}
+		if (typeof metrics.totalmem === 'number' && typeof metrics.freemem === 'number') {
+			md.li(`Memory(System): ${(metrics.totalmem / (ByteSize.GB)).toFixed(2)} GB(${(metrics.freemem / (ByteSize.GB)).toFixed(2)}GB free)`);
+		}
+		if (metrics.meminfo) {
+			md.li(`Memory(Process): ${(metrics.meminfo.workingSetSize / ByteSize.KB).toFixed(2)} MB working set(${(metrics.meminfo.privateBytes / ByteSize.KB).toFixed(2)}MB private, ${(metrics.meminfo.sharedBytes / ByteSize.KB).toFixed(2)}MB shared)`);
+		}
+		md.li(`VM(likelihood): ${metrics.isVMLikelyhood}%`);
+		md.li(`Initial Startup: ${metrics.initialStartup}`);
+		md.li(`Has ${metrics.windowCount - 1} other windows`);
+		md.li(`Screen Reader Active: ${metrics.hasAccessibilitySupport}`);
+		md.li(`Empty Workspace: ${metrics.emptyWorkbench}`);
 	}
-}
 
-const table = eager.concat(normal);
-if (table.length > 0) {
-	md.heading(2, 'Extension Activation Stats');
-	md.table(
-		['Extension', 'Eager', 'Load Code', 'Call Activate', 'Finish Activate', 'Event', 'By'],
-		table
-	);
-}
-    }
+	private _addSummaryTable(md: MarkdownBuilder): void {
 
-    private _addPerfMarksTable(name: string | undefined, md: MarkdownBuilder, marks: readonly perf.PerformanceMark[] | undefinedcognidreamognidream {
-	if(!marks) {
-		return;
+		const metrics = this._timerService.startupMetrics;
+		const contribTimings = Registry.as<IWorkbenchContributionsRegistry>(WorkbenchExtensions.Workbench).timings;
+
+		const table: Array<Array<string | number | undefined>> = [];
+		table.push(['start => app.isReady', metrics.timers.ellapsedAppReady, '[main]', `initial startup: ${metrics.initialStartup}`]);
+		table.push(['nls:start => nls:end', metrics.timers.ellapsedNlsGeneration, '[main]', `initial startup: ${metrics.initialStartup}`]);
+		table.push(['import(main.js)', metrics.timers.ellapsedLoadMainBundle, '[main]', `initial startup: ${metrics.initialStartup}`]);
+		table.push(['run main.js', metrics.timers.ellapsedRunMainBundle, '[main]', `initial startup: ${metrics.initialStartup}`]);
+		table.push(['start crash reporter', metrics.timers.ellapsedCrashReporter, '[main]', `initial startup: ${metrics.initialStartup}`]);
+		table.push(['serve main IPC handle', metrics.timers.ellapsedMainServer, '[main]', `initial startup: ${metrics.initialStartup}`]);
+		table.push(['create window', metrics.timers.ellapsedWindowCreate, '[main]', `initial startup: ${metrics.initialStartup}, ${metrics.initialStartup ? `state: ${metrics.timers.ellapsedWindowRestoreState}ms, widget: ${metrics.timers.ellapsedBrowserWindowCreate}ms, show: ${metrics.timers.ellapsedWindowMaximize}ms` : ''}`]);
+		table.push(['app.isReady => window.loadUrl()', metrics.timers.ellapsedWindowLoad, '[main]', `initial startup: ${metrics.initialStartup}`]);
+		table.push(['window.loadUrl() => begin to import(workbench.desktop.main.js)', metrics.timers.ellapsedWindowLoadToRequire, '[main->renderer]', StartupKindToString(metrics.windowKind)]);
+		table.push(['import(workbench.desktop.main.js)', metrics.timers.ellapsedRequire, '[renderer]', `cached data: ${(metrics.didUseCachedData ? 'YES' : 'NO')}`]);
+		table.push(['wait for window config', metrics.timers.ellapsedWaitForWindowConfig, '[renderer]', undefined]);
+		table.push(['init storage (global & workspace)', metrics.timers.ellapsedStorageInit, '[renderer]', undefined]);
+		table.push(['init workspace service', metrics.timers.ellapsedWorkspaceServiceInit, '[renderer]', undefined]);
+		if (isWeb) {
+			table.push(['init settings and global state from settings sync service', metrics.timers.ellapsedRequiredUserDataInit, '[renderer]', undefined]);
+			table.push(['init keybindings, snippets & extensions from settings sync service', metrics.timers.ellapsedOtherUserDataInit, '[renderer]', undefined]);
+		}
+		table.push(['register extensions & spawn extension host', metrics.timers.ellapsedExtensions, '[renderer]', undefined]);
+		table.push(['restore viewlet', metrics.timers.ellapsedViewletRestore, '[renderer]', metrics.viewletId]);
+		table.push(['restore panel', metrics.timers.ellapsedPanelRestore, '[renderer]', metrics.panelId]);
+		table.push(['restore & resolve visible editors', metrics.timers.ellapsedEditorRestore, '[renderer]', `${metrics.editorIds.length}: ${metrics.editorIds.join(', ')}`]);
+		table.push(['create workbench contributions', metrics.timers.ellapsedWorkbenchContributions, '[renderer]', `${(contribTimings.get(LifecyclePhase.Starting)?.length ?? 0) + (contribTimings.get(LifecyclePhase.Starting)?.length ?? 0)} blocking startup`]);
+		table.push(['overall workbench load', metrics.timers.ellapsedWorkbench, '[renderer]', undefined]);
+		table.push(['workbench ready', metrics.ellapsed, '[main->renderer]', undefined]);
+		table.push(['renderer ready', metrics.timers.ellapsedRenderer, '[renderer]', undefined]);
+		table.push(['shared process connection ready', metrics.timers.ellapsedSharedProcesConnected, '[renderer->sharedprocess]', undefined]);
+		table.push(['extensions registered', metrics.timers.ellapsedExtensionsReady, '[renderer]', undefined]);
+
+		md.heading(2, 'Performance Marks');
+		md.table(['What', 'Duration', 'Process', 'Info'], table);
 	}
-        const table: Array<Array< string | number | undefined >> =[];
-let lastStartTime = -1;
-let total = 0;
-for (const { name, startTime } of marks) {
-	const delta = lastStartTime !== -1 ? startTime - lastStartTime : 0;
-	total += delta;
-	table.push([name, Math.round(startTime), Math.round(delta), Math.round(total)]);
-	lastStartTime = startTime;
-}
-if (name) {
-	md.heading(2, name);
-}
-md.table(['Name', 'Timestamp', 'Delta', 'Total'], table);
-    }
 
-    private _addWorkbenchContributionsPerfMarksTable(md: MarkdownBuildercognidreamognidream {
-	md.heading(2, 'Workbench Contributions Blocking Restore');
+	private _addExtensionsTable(md: MarkdownBuilder): void {
 
-	const timings = Registry.as<IWorkbenchContributionsRegistry>(WorkbenchExtensions.Workbench).timings;
-	md.li(`Total (LifecyclePhase.Starting): ${timings.get(LifecyclePhase.Starting)?.length} (${timings.get(LifecyclePhase.Starting)?.reduce((p, c) => p + c[1], 0)}ms)`);
-	md.li(`Total (LifecyclePhase.Ready): ${timings.get(LifecyclePhase.Ready)?.length} (${timings.get(LifecyclePhase.Ready)?.reduce((p, c) => p + c[1], 0)}ms)`);
-	md.blank();
+		const eager: ({ toString(): string })[][] = [];
+		const normal: ({ toString(): string })[][] = [];
+		const extensionsStatus = this._extensionService.getExtensionsStatus();
+		for (const id in extensionsStatus) {
+			const { activationTimes: times } = extensionsStatus[id];
+			if (!times) {
+				continue;
+			}
+			if (times.activationReason.startup) {
+				eager.push([id, times.activationReason.startup, times.codeLoadingTime, times.activateCallTime, times.activateResolvedTime, times.activationReason.activationEvent, times.activationReason.extensionId.value]);
+			} else {
+				normal.push([id, times.activationReason.startup, times.codeLoadingTime, times.activateCallTime, times.activateResolvedTime, times.activationReason.activationEvent, times.activationReason.extensionId.value]);
+			}
+		}
 
-	const marks = this._timerService.getPerformanceMarks().find(e => e[0] === 'renderer')?.[1].filter(e =>
-		e.name.startsWith('code/willCreateWorkbenchContribution/1') ||
-		e.name.startsWith('code/didCreateWorkbenchContribution/1') ||
-		e.name.startsWith('code/willCreateWorkbenchContribution/2') ||
-		e.name.startsWith('code/didCreateWorkbenchContribution/2')
-	);
-	this._addPerfMarksTable(undefined, md, marks);
-}
-
-    private _addRawPerfMarks(md: MarkdownBuildercognidreamognidream {
-
-	for(const [source, marks] of this._timerService.getPerformanceMarks()) {
-	md.heading(2, `Raw Perf Marks: ${source}`);
-	md.value += '```\n';
-	md.value += `Name\tTimestamp\tDelta\tTotal\n`;
-	let lastStartTime = -1;
-	let total = 0;
-	for(const { name, startTime } of marks) {
-		const delta = lastStartTime !== -1 ? startTime - lastStartTime : 0;
-		total += delta;
-		md.value += `${name}\t${startTime}\t${delta}\t${total}\n`;
-		lastStartTime = startTime;
+		const table = eager.concat(normal);
+		if (table.length > 0) {
+			md.heading(2, 'Extension Activation Stats');
+			md.table(
+				['Extension', 'Eager', 'Load Code', 'Call Activate', 'Finish Activate', 'Event', 'By'],
+				table
+			);
+		}
 	}
-            md.value += '```\n';
-}
-    }
+
+	private _addPerfMarksTable(name: string | undefined, md: MarkdownBuilder, marks: readonly perf.PerformanceMark[] | undefined): void {
+		if (!marks) {
+			return;
+		}
+		const table: Array<Array<string | number | undefined>> = [];
+		let lastStartTime = -1;
+		let total = 0;
+		for (const { name, startTime } of marks) {
+			const delta = lastStartTime !== -1 ? startTime - lastStartTime : 0;
+			total += delta;
+			table.push([name, Math.round(startTime), Math.round(delta), Math.round(total)]);
+			lastStartTime = startTime;
+		}
+		if (name) {
+			md.heading(2, name);
+		}
+		md.table(['Name', 'Timestamp', 'Delta', 'Total'], table);
+	}
+
+	private _addWorkbenchContributionsPerfMarksTable(md: MarkdownBuilder): void {
+		md.heading(2, 'Workbench Contributions Blocking Restore');
+
+		const timings = Registry.as<IWorkbenchContributionsRegistry>(WorkbenchExtensions.Workbench).timings;
+		md.li(`Total (LifecyclePhase.Starting): ${timings.get(LifecyclePhase.Starting)?.length} (${timings.get(LifecyclePhase.Starting)?.reduce((p, c) => p + c[1], 0)}ms)`);
+		md.li(`Total (LifecyclePhase.Ready): ${timings.get(LifecyclePhase.Ready)?.length} (${timings.get(LifecyclePhase.Ready)?.reduce((p, c) => p + c[1], 0)}ms)`);
+		md.blank();
+
+		const marks = this._timerService.getPerformanceMarks().find(e => e[0] === 'renderer')?.[1].filter(e =>
+			e.name.startsWith('code/willCreateWorkbenchContribution/1') ||
+			e.name.startsWith('code/didCreateWorkbenchContribution/1') ||
+			e.name.startsWith('code/willCreateWorkbenchContribution/2') ||
+			e.name.startsWith('code/didCreateWorkbenchContribution/2')
+		);
+		this._addPerfMarksTable(undefined, md, marks);
+	}
+
+	private _addRawPerfMarks(md: MarkdownBuilder): void {
+
+		for (const [source, marks] of this._timerService.getPerformanceMarks()) {
+			md.heading(2, `Raw Perf Marks: ${source}`);
+			md.value += '```\n';
+			md.value += `Name\tTimestamp\tDelta\tTotal\n`;
+			let lastStartTime = -1;
+			let total = 0;
+			for (const { name, startTime } of marks) {
+				const delta = lastStartTime !== -1 ? startTime - lastStartTime : 0;
+				total += delta;
+				md.value += `${name}\t${startTime}\t${delta}\t${total}\n`;
+				lastStartTime = startTime;
+			}
+			md.value += '```\n';
+		}
+	}
 
 	private _addResourceTimingStats(md: MarkdownBuilder) {
-	const stats = performance.getEntriesByType('resource').map(entry => {
-		return [entry.name, entry.duration];
-	});
-	if(!stats.length) {
-	return;
-}
-md.heading(2, 'Resource Timing Stats');
-md.table(['Name', 'Duration'], stats);
-    }
+		const stats = performance.getEntriesByType('resource').map(entry => {
+			return [entry.name, entry.duration];
+		});
+		if (!stats.length) {
+			return;
+		}
+		md.heading(2, 'Resource Timing Stats');
+		md.table(['Name', 'Duration'], stats);
+	}
 }
 
 class MarkdownBuilder {

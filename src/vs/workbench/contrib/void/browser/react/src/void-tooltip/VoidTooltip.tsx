@@ -11,63 +11,65 @@ import { useIsDark } from '../util/services.js';
 /**
  * Creates a configured global tooltip component with consistent styling
  * To use:
- * 1. Mount a Tooltip with some id eg id='cognidream-tooltip'
- * 2. Add data-tooltip-id="cognidream-tooltip" and data-tooltip-content="Your tooltip text" to any element
+ * 1. Mount a Tooltip with some id eg id='void-tooltip'
+ * 2. Add data-tooltip-id="void-tooltip" and data-tooltip-content="Your tooltip text" to any element
  */
-export const cognidreamTooltip = () => {
+export const VoidTooltip = () => {
 
 
 	const isDark = useIsDark()
 
 	return (
 
-		// use native colors so we don't have to worry about @@cognidream-scope styles
-		// --cognidream-bg-1: var(--vscode-input-background);
-		// --cognidream-bg-1-alt: var(--vscode-badge-background);
-		// --cognidream-bg-2: var(--vscode-sideBar-background);
-		// --cognidream-bg-2-alt: color-mix(in srgb, var(--vscode-sideBar-background) 30%, var(--vscode-editor-background) 70%);
-		// --cognidream-bg-3: var(--vscode-editor-background);
+		// use native colors so we don't have to worry about @@void-scope styles
+		// --void-bg-1: var(--vscode-input-background);
+		// --void-bg-1-alt: var(--vscode-badge-background);
+		// --void-bg-2: var(--vscode-sideBar-background);
+		// --void-bg-2-alt: color-mix(in srgb, var(--vscode-sideBar-background) 30%, var(--vscode-editor-background) 70%);
+		// --void-bg-3: var(--vscode-editor-background);
 
-		// --cognidream-fg-0: color-mix(in srgb, var(--vscode-tab-activeForeground) 90%, black 10%);
-		// --cognidream-fg-1: var(--vscode-editor-foreground);
-		// --cognidream-fg-2: var(--vscode-input-foreground);
-		// --cognidream-fg-3: var(--vscode-input-placeholderForeground);
-		// /* --cognidream-fg-4: var(--vscode-tab-inactiveForeground); */
-		// --cognidream-fg-4: var(--vscode-list-deemphasizedForeground);
+		// --void-fg-0: color-mix(in srgb, var(--vscode-tab-activeForeground) 90%, black 10%);
+		// --void-fg-1: var(--vscode-editor-foreground);
+		// --void-fg-2: var(--vscode-input-foreground);
+		// --void-fg-3: var(--vscode-input-placeholderForeground);
+		// /* --void-fg-4: var(--vscode-tab-inactiveForeground); */
+		// --void-fg-4: var(--vscode-list-deemphasizedForeground);
 
-		// --cognidream-warning: var(--vscode-charts-yellow);
+		// --void-warning: var(--vscode-charts-yellow);
 
-		// --cognidream-border-1: var(--vscode-commandCenter-activeBorder);
-		// --cognidream-border-2: var(--vscode-commandCenter-border);
-		// --cognidream-border-3: var(--vscode-commandCenter-inactiveBorder);
-		// --cognidream-border-4: var(--vscode-editorGroup-border);
+		// --void-border-1: var(--vscode-commandCenter-activeBorder);
+		// --void-border-2: var(--vscode-commandCenter-border);
+		// --void-border-3: var(--vscode-commandCenter-inactiveBorder);
+		// --void-border-4: var(--vscode-editorGroup-border);
 
 		<>
 			<style>
 				{`
-				#cognidream-tooltip, #cognidream-tooltip-orange, #cognidream-tooltip-green, #cognidream-tooltip-ollama-settings, #cognidream-tooltip-provider-info {
+				#void-tooltip, #void-tooltip-orange, #void-tooltip-green, #void-tooltip-ollama-settings, #void-tooltip-provider-info {
 					font-size: 12px;
 					padding: 0px 8px;
 					border-radius: 6px;
 					z-index: 999999;
+					max-width: 300px;
+					word-wrap: break-word;
 				}
 
-				#cognidream-tooltip {
+				#void-tooltip {
 					background-color: var(--vscode-editor-background);
 					color: var(--vscode-input-foreground);
 				}
 
-				#cognidream-tooltip-orange {
+				#void-tooltip-orange {
 					background-color: #F6762A;
 					color: white;
 				}
 
-				#cognidream-tooltip-green {
+				#void-tooltip-green {
 					background-color: #228B22;
 					color: white;
 				}
 
-				#cognidream-tooltip-ollama-settings, #cognidream-tooltip-provider-info {
+				#void-tooltip-ollama-settings, #void-tooltip-provider-info {
 					background-color: var(--vscode-editor-background);
 					color: var(--vscode-input-foreground);
 				}
@@ -80,26 +82,26 @@ export const cognidreamTooltip = () => {
 
 
 			<Tooltip
-				id="cognidream-tooltip"
+				id="void-tooltip"
 				// border='1px solid var(--vscode-editorGroup-border)'
 				border='1px solid rgba(100,100,100,.2)'
 				opacity={1}
 				delayShow={50}
 			/>
 			<Tooltip
-				id="cognidream-tooltip-orange"
+				id="void-tooltip-orange"
 				border='1px solid rgba(200,200,200,.3)'
 				opacity={1}
 				delayShow={50}
 			/>
 			<Tooltip
-				id="cognidream-tooltip-green"
+				id="void-tooltip-green"
 				border='1px solid rgba(200,200,200,.3)'
 				opacity={1}
 				delayShow={50}
 			/>
 			<Tooltip
-				id="cognidream-tooltip-ollama-settings"
+				id="void-tooltip-ollama-settings"
 				border='1px solid rgba(100,100,100,.2)'
 				opacity={1}
 				openEvents={{ mouseover: true, click: true, focus: true }}
@@ -125,7 +127,7 @@ export const cognidreamTooltip = () => {
 			</Tooltip>
 
 			<Tooltip
-				id="cognidream-tooltip-provider-info"
+				id="void-tooltip-provider-info"
 				border='1px solid rgba(100,100,100,.2)'
 				opacity={1}
 				delayShow={50}

@@ -4,6 +4,6 @@
  *--------------------------------------------------------------------------------------*/
 
 import { mountFnGenerator } from '../util/mountFnGenerator.js'
-import { cognidreamOnboarding } from './cognidreamOnboarding.js'
+import { VoidOnboarding } from './VoidOnboarding.js'
 
-export const mountcognidreamOnboarding = mountFnGenerator(cognidreamOnboarding)
+export const mountVoidOnboarding = mountFnGenerator(VoidOnboarding)

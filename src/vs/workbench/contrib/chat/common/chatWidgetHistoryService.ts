@@ -30,11 +30,11 @@ export const IChatWidgetHistoryService = createDecorator<IChatWidgetHistoryServi
 export interface IChatWidgetHistoryService {
 	_serviceBrand: undefined;
 
-	readonly onDidClearHistory: Event<cognidream>;
+	readonly onDidClearHistory: Event<void>;
 
-	clearHistory(cognidreamognidream;
-		getHistory(location: ChatAgentLocation): IChatHistoryEntry[];
-	saveHistory(location: ChatAgentLocation, history: IChatHistoryEntry[]cognidreamognidream;
+	clearHistory(): void;
+	getHistory(location: ChatAgentLocation): IChatHistoryEntry[];
+	saveHistory(location: ChatAgentLocation, history: IChatHistoryEntry[]): void;
 }
 
 interface IChatHistory {
@@ -49,45 +49,45 @@ export class ChatWidgetHistoryService implements IChatWidgetHistoryService {
 	private memento: Memento;
 	private viewState: IChatHistory;
 
-	private readonly _onDidClearHistory = new Emittcognidreamognidream > ();
-	readonly onDidClearHistory: Evecognidreamognidream> = this._onDidClearHistory.event;
+	private readonly _onDidClearHistory = new Emitter<void>();
+	readonly onDidClearHistory: Event<void> = this._onDidClearHistory.event;
 
-constructor(
-	@IStorageService storageService: IStorageService
-) {
-	this.memento = new Memento('interactive-session', storageService);
-	const loadedState = this.memento.getMemento(StorageScope.WORKSPACE, StorageTarget.MACHINE) as IChatHistory;
-	for (const provider in loadedState.history) {
-		// Migration from old format
-		loadedState.history[provider] = loadedState.history[provider].map(entry => typeof entry === 'string' ? { text: entry } : entry);
+	constructor(
+		@IStorageService storageService: IStorageService
+	) {
+		this.memento = new Memento('interactive-session', storageService);
+		const loadedState = this.memento.getMemento(StorageScope.WORKSPACE, StorageTarget.MACHINE) as IChatHistory;
+		for (const provider in loadedState.history) {
+			// Migration from old format
+			loadedState.history[provider] = loadedState.history[provider].map(entry => typeof entry === 'string' ? { text: entry } : entry);
+		}
+
+		this.viewState = loadedState;
 	}
 
-	this.viewState = loadedState;
-}
+	getHistory(location: ChatAgentLocation): IChatHistoryEntry[] {
+		const key = this.getKey(location);
+		return this.viewState.history?.[key] ?? [];
+	}
 
-getHistory(location: ChatAgentLocation): IChatHistoryEntry[] {
-	const key = this.getKey(location);
-	return this.viewState.history?.[key] ?? [];
-}
+	private getKey(location: ChatAgentLocation): string {
+		// Preserve history for panel by continuing to use the same old provider id. Use the location as a key for other chat locations.
+		return location === ChatAgentLocation.Panel ? CHAT_PROVIDER_ID : location;
+	}
 
-    private getKey(location: ChatAgentLocation): string {
-	// Preserve history for panel by continuing to use the same old provider id. Use the location as a key for other chat locations.
-	return location === ChatAgentLocation.Panel ? CHAT_PROVIDER_ID : location;
-}
+	saveHistory(location: ChatAgentLocation, history: IChatHistoryEntry[]): void {
+		if (!this.viewState.history) {
+			this.viewState.history = {};
+		}
 
-saveHistory(location: ChatAgentLocation, history: IChatHistoryEntry[]cognidreamognidream {
-	if(!this.viewState.history) {
-	this.viewState.history = {};
-}
+		const key = this.getKey(location);
+		this.viewState.history[key] = history.slice(-ChatInputHistoryMaxEntries);
+		this.memento.saveMemento();
+	}
 
-const key = this.getKey(location);
-this.viewState.history[key] = history.slice(-ChatInputHistoryMaxEntries);
-this.memento.saveMemento();
-    }
-
-clearHistory(cognidreamognidream {
-	this.viewState.history = {};
-	this.memento.saveMemento();
-	this._onDidClearHistory.fire();
-}
+	clearHistory(): void {
+		this.viewState.history = {};
+		this.memento.saveMemento();
+		this._onDidClearHistory.fire();
+	}
 }

@@ -37,12 +37,12 @@ export interface IEnvironmentVariableService {
 	/**
 	 * Sets an extension's environment variable collection.
 	 */
-	set(extensionIdentifier: string, collection: IEnvironmentVariableCollection): cognidream;
+	set(extensionIdentifier: string, collection: IEnvironmentVariableCollection): void;
 
 	/**
 	 * Deletes an extension's environment variable collection.
 	 */
-	delete(extensionIdentifier: stringcognidreamognidream;
+	delete(extensionIdentifier: string): void;
 }
 
 export interface IEnvironmentVariableCollectionWithPersistence extends IEnvironmentVariableCollection {

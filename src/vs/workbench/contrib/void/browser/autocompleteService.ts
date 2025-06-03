@@ -18,8 +18,8 @@ import { extractCodeFromRegular } from '../common/helpers/extractCodeFromResult.
 import { registerWorkbenchContribution2, WorkbenchPhase } from '../../../common/contributions.js';
 import { ILLMMessageService } from '../common/sendLLMMessageService.js';
 import { isWindows } from '../../../../base/common/platform.js';
-import { IcognidreamSettingsService } from '../common/cognidreamSettingsService.js';
-import { FeatureName } from '../common/cognidreamidreamSettingsTypes.js';
+import { IVoidSettingsService } from '../common/voidSettingsService.js';
+import { FeatureName } from '../common/voidSettingsTypes.js';
 import { IConvertToLLMMessageService } from './convertToLLMMessageService.js';
 // import { IContextGatheringService } from './contextGatheringService.js';
 
@@ -28,7 +28,7 @@ import { IConvertToLLMMessageService } from './convertToLLMMessageService.js';
 const allLinebreakSymbols = ['\r\n', '\n']
 const _ln = isWindows ? allLinebreakSymbols[0] : allLinebreakSymbols[1]
 
-// The extension this was called from is here - https://github.com/cognidreamidreamecognidreamr/cognidream/blob/autocompletecognidreamensions/cognidream/src/extension/extension.ts
+// The extension this was called from is here - https://github.com/voideditor/void/blob/autocomplete/extensions/void/src/extension/extension.ts
 
 
 /*
@@ -70,9 +70,9 @@ class LRUCache<K, V> {
 	public items: Map<K, V>;
 	private keyOrder: K[];
 	private maxSize: number;
-	private disposeCallback?: (value: V, key?: K) cognidreamognidream;
+	private disposeCallback?: (value: V, key?: K) => void;
 
-	constructor(maxSize: number, disposeCallback?: (value: V, key?: K) cognidreamognidream) {
+	constructor(maxSize: number, disposeCallback?: (value: V, key?: K) => void) {
 		if (maxSize <= 0) throw new Error('Cache size must be greater than 0');
 
 		this.items = new Map();
@@ -81,66 +81,66 @@ class LRUCache<K, V> {
 		this.disposeCallback = disposeCallback;
 	}
 
-	set(key: K, value: Vcognidreamognidream {
+	set(key: K, value: V): void {
 		// If key exists, remove it from the order list
 		if (this.items.has(key)) {
-	this.keyOrder = this.keyOrder.filter(k => k !== key);
-}
-        // If cache is full, remove least recently used item
-        else if (this.items.size >= this.maxSize) {
-	const key = this.keyOrder[0];
-	const value = this.items.get(key);
+			this.keyOrder = this.keyOrder.filter(k => k !== key);
+		}
+		// If cache is full, remove least recently used item
+		else if (this.items.size >= this.maxSize) {
+			const key = this.keyOrder[0];
+			const value = this.items.get(key);
 
-	// Call dispose callback if it exists
-	if (this.disposeCallback && value !== undefined) {
-		this.disposeCallback(value, key);
-	}
+			// Call dispose callback if it exists
+			if (this.disposeCallback && value !== undefined) {
+				this.disposeCallback(value, key);
+			}
 
-	this.items.delete(key);
-	this.keyOrder.shift();
-}
-
-// Add new item
-this.items.set(key, value);
-this.keyOrder.push(key);
-    }
-
-delete (key: K): boolean {
-	const value = this.items.get(key);
-
-	if (value !== undefined) {
-		// Call dispose callback if it exists
-		if (this.disposeCallback) {
-			this.disposeCallback(value, key);
+			this.items.delete(key);
+			this.keyOrder.shift();
 		}
 
-		this.items.delete(key);
-		this.keyOrder = this.keyOrder.filter(k => k !== key);
-		return true;
+		// Add new item
+		this.items.set(key, value);
+		this.keyOrder.push(key);
 	}
 
-	return false;
-}
+	delete(key: K): boolean {
+		const value = this.items.get(key);
 
-clear(cognidreamognidream {
-	// Call dispose callback for all items if it exists
-	if(this.disposeCallback) {
-	for (const [key, value] of this.items.entries()) {
-		this.disposeCallback(value, key);
+		if (value !== undefined) {
+			// Call dispose callback if it exists
+			if (this.disposeCallback) {
+				this.disposeCallback(value, key);
+			}
+
+			this.items.delete(key);
+			this.keyOrder = this.keyOrder.filter(k => k !== key);
+			return true;
+		}
+
+		return false;
 	}
-}
 
-this.items.clear();
-this.keyOrder = [];
-    }
+	clear(): void {
+		// Call dispose callback for all items if it exists
+		if (this.disposeCallback) {
+			for (const [key, value] of this.items.entries()) {
+				this.disposeCallback(value, key);
+			}
+		}
 
-    get size(): number {
-	return this.items.size;
-}
+		this.items.clear();
+		this.keyOrder = [];
+	}
 
-has(key: K): boolean {
-	return this.items.has(key);
-}
+	get size(): number {
+		return this.items.size;
+	}
+
+	has(key: K): boolean {
+		return this.items.has(key);
+	}
 }
 
 type AutocompletionPredictionType =
@@ -617,7 +617,7 @@ export const IAutocompleteService = createDecorator<IAutocompleteService>('Autoc
 
 export class AutocompleteService extends Disposable implements IAutocompleteService {
 
-	static readonly ID cognidreamognidream.autocompleteService'
+	static readonly ID = 'void.autocompleteService'
 
 	_serviceBrand: undefined;
 
@@ -893,7 +893,7 @@ export class AutocompleteService extends Disposable implements IAutocompleteServ
 		@ILLMMessageService private readonly _llmMessageService: ILLMMessageService,
 		@IEditorService private readonly _editorService: IEditorService,
 		@IModelService private readonly _modelService: IModelService,
-		cognidream@IcognidreamSettingsService private readonly _settincognidreamrvice: IcognidreamSettingsService,
+		@IVoidSettingsService private readonly _settingsService: IVoidSettingsService,
 		@IConvertToLLMMessageService private readonly _convertToLLMMessageService: IConvertToLLMMessageService
 		// @IContextGatheringService private readonly _contextGatheringService: IContextGatheringService,
 	) {

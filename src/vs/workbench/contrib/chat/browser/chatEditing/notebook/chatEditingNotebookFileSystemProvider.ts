@@ -64,63 +64,63 @@ export class ChatEditingNotebookFileSystemProvider implements IFileSystemProvide
 			size: 0
 		};
 	}
-	mkdir(_resource: URI): Promise<cognidream> {
+	mkdir(_resource: URI): Promise<void> {
 		throw new Error('Method not implemented1.');
 	}
 	readdir(_resource: URI): Promise<[string, FileType][]> {
 		throw new Error('Method not implemented2.');
 	}
-	delete(_resource: URI, _opts: IFileDeleteOptions): Promicognidreamognidream> {
+	delete(_resource: URI, _opts: IFileDeleteOptions): Promise<void> {
 		throw new Error('Method not implemented3.');
 	}
-rename(_from: URI, _to: URI, _opts: IFileOverwriteOptions): Promicognidreamognidream > {
-	throw new Error('Method not implemented4.');
-}
-copy ? (_from: URI, _to: URI, _opts: IFileOverwriteOptions): Promicognidreamognidream> {
-	throw new Error('Method not implemented5.');
-}
-    async readFile(resource: URI): Promise < Uint8Array > {
-	const buffer = ChatEditingNotebookFileSystemProvider.registeredFiles.get(resource);
-	if(buffer) {
-		return buffer.buffer;
+	rename(_from: URI, _to: URI, _opts: IFileOverwriteOptions): Promise<void> {
+		throw new Error('Method not implemented4.');
 	}
-        const queryData = JSON.parse(resource.query) as ChatEditingSnapshotNotebookContentQueryData;
-	if(!queryData.viewType) {
-	throw new Error('File not found, viewType not found');
-}
-const session = this._chatEditingService.getEditingSession(queryData.sessionId);
-if (!(session instanceof ChatEditingSession) || !queryData.requestId) {
-	throw new Error('File not found, session not found');
-}
-const snapshotEntry = session.getSnapshot(queryData.requestId, queryData.undoStop || undefined, resource);
-if (!snapshotEntry) {
-	throw new Error('File not found, snapshot not found');
-}
+	copy?(_from: URI, _to: URI, _opts: IFileOverwriteOptions): Promise<void> {
+		throw new Error('Method not implemented5.');
+	}
+	async readFile(resource: URI): Promise<Uint8Array> {
+		const buffer = ChatEditingNotebookFileSystemProvider.registeredFiles.get(resource);
+		if (buffer) {
+			return buffer.buffer;
+		}
+		const queryData = JSON.parse(resource.query) as ChatEditingSnapshotNotebookContentQueryData;
+		if (!queryData.viewType) {
+			throw new Error('File not found, viewType not found');
+		}
+		const session = this._chatEditingService.getEditingSession(queryData.sessionId);
+		if (!(session instanceof ChatEditingSession) || !queryData.requestId) {
+			throw new Error('File not found, session not found');
+		}
+		const snapshotEntry = session.getSnapshot(queryData.requestId, queryData.undoStop || undefined, resource);
+		if (!snapshotEntry) {
+			throw new Error('File not found, snapshot not found');
+		}
 
-const { data } = deserializeSnapshot(snapshotEntry.current);
-const { serializer } = await this.notebookService.withNotebookDataProvider(queryData.viewType);
-return serializer.notebookToData(data).then(s => s.buffer);
-    }
+		const { data } = deserializeSnapshot(snapshotEntry.current);
+		const { serializer } = await this.notebookService.withNotebookDataProvider(queryData.viewType);
+		return serializer.notebookToData(data).then(s => s.buffer);
+	}
 
-writeFile ? (__resource: URI, _content: Uint8Array, _opts: IFileWriteOptions): Promicognidreamognidream> {
-	throw new Error('Method not implemented7.');
-}
-readFileStream ? (__resource: URI, _opts: IFileReadStreamOptions, _token: CancellationToken): ReadableStreamEvents<Uint8Array> {
-	throw new Error('Method not implemented8.');
-}
-    open ? (__resource: URI, _opts: IFileOpenOptions): Promise<number> {
-	throw new Error('Method not implemented9.');
-}
-    close ? (_fd: number): Promicognidreamognidream> {
-	throw new Error('Method not implemented10.');
-}
-read ? (_fd: number, _pos: number, _data: Uint8Array, _offset: number, _length: number): Promise<number> {
-	throw new Error('Method not implemented11.');
-}
-    write ? (_fd: number, _pos: number, _data: Uint8Array, _offset: number, _length: number): Promise<number> {
-	throw new Error('Method not implemented12.');
-}
-    cloneFile ? (_from: URI, __to: URI): Promicognidreamognidream> {
-	throw new Error('Method not implemented13.');
-}
+	writeFile?(__resource: URI, _content: Uint8Array, _opts: IFileWriteOptions): Promise<void> {
+		throw new Error('Method not implemented7.');
+	}
+	readFileStream?(__resource: URI, _opts: IFileReadStreamOptions, _token: CancellationToken): ReadableStreamEvents<Uint8Array> {
+		throw new Error('Method not implemented8.');
+	}
+	open?(__resource: URI, _opts: IFileOpenOptions): Promise<number> {
+		throw new Error('Method not implemented9.');
+	}
+	close?(_fd: number): Promise<void> {
+		throw new Error('Method not implemented10.');
+	}
+	read?(_fd: number, _pos: number, _data: Uint8Array, _offset: number, _length: number): Promise<number> {
+		throw new Error('Method not implemented11.');
+	}
+	write?(_fd: number, _pos: number, _data: Uint8Array, _offset: number, _length: number): Promise<number> {
+		throw new Error('Method not implemented12.');
+	}
+	cloneFile?(_from: URI, __to: URI): Promise<void> {
+		throw new Error('Method not implemented13.');
+	}
 }

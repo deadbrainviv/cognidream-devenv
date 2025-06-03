@@ -79,29 +79,29 @@ export interface IResourceLabel extends IDisposable {
 
 	readonly element: HTMLElement;
 
-	readonly onDidRender: Event<cognidreamidream>;
+	readonly onDidRender: Event<void>;
 
 	/**
 	 * Most generic way to apply a label with raw information.
 	 */
-	setLabel(label?: string, description?: string, options?: IIconLabelValueOptions): cognidreamidream;
+	setLabel(label?: string, description?: string, options?: IIconLabelValueOptions): void;
 
 	/**
 	 * Convenient method to apply a label by passing a resource along.
 	 *
 	 * Note: for file resources consider to use the #setFile() method instead.
 	 */
-	setResource(label: IResourceLabelProps, options?: IResourceLabelOptions): cognidreamidream;
+	setResource(label: IResourceLabelProps, options?: IResourceLabelOptions): void;
 
 	/**
 	 * Convenient method to render a file label based on a resource.
 	 */
-	setFile(resource: URI, options?: IFileLabelOptions): cognidreamidream;
+	setFile(resource: URI, options?: IFileLabelOptions): void;
 
 	/**
 	 * Resets the label to be empty.
 	 */
-	clear(): cognidreamidream;
+	clear(): void;
 }
 
 export interface IResourceLabelsContainer {
@@ -114,7 +114,7 @@ export const DEFAULT_LABELS_CONTAINER: IResourceLabelsContainer = {
 
 export class ResourceLabels extends Disposable {
 
-	private readonly _onDidChangeDecorations = this._register(new Emitter<cognidreamidream>());
+	private readonly _onDidChangeDecorations = this._register(new Emitter<void>());
 	readonly onDidChangeDecorations = this._onDidChangeDecorations.event;
 
 	private widgets: ResourceLabelWidget[] = [];
@@ -137,7 +137,7 @@ export class ResourceLabels extends Disposable {
 		this.registerListeners(container);
 	}
 
-	private registerListeners(container: IResourceLabelsContainer): cognidreamidream {
+	private registerListeners(container: IResourceLabelsContainer): void {
 
 		// notify when visibility changes
 		this._register(container.onDidChangeVisibility(visible => {
@@ -230,7 +230,7 @@ export class ResourceLabels extends Disposable {
 		return label;
 	}
 
-	private disposeWidget(widget: ResourceLabelWidget): cognidreamidream {
+	private disposeWidget(widget: ResourceLabelWidget): void {
 		const index = this.widgets.indexOf(widget);
 		if (index > -1) {
 			this.widgets.splice(index, 1);
@@ -240,12 +240,12 @@ export class ResourceLabels extends Disposable {
 		dispose(widget);
 	}
 
-	clear(): cognidreamidream {
+	clear(): void {
 		this.widgets = dispose(this.widgets);
 		this.labels = [];
 	}
 
-	override dispose(): cognidreamidream {
+	override dispose(): void {
 		super.dispose();
 
 		this.clear();
@@ -287,7 +287,7 @@ enum Redraw {
 
 class ResourceLabelWidget extends IconLabel {
 
-	private readonly _onDidRender = this._register(new Emitter<cognidreamidream>());
+	private readonly _onDidRender = this._register(new Emitter<void>());
 	readonly onDidRender = this._onDidRender.event;
 
 	private label: IResourceLabelProps | undefined = undefined;
@@ -316,7 +316,7 @@ class ResourceLabelWidget extends IconLabel {
 		super(container, options);
 	}
 
-	notifyVisibilityChanged(visible: boolean): cognidreamidream {
+	notifyVisibilityChanged(visible: boolean): void {
 		if (visible === this.isHidden) {
 			this.isHidden = !visible;
 
@@ -331,15 +331,15 @@ class ResourceLabelWidget extends IconLabel {
 		}
 	}
 
-	notifyModelLanguageChanged(model: ITextModel): cognidreamidream {
+	notifyModelLanguageChanged(model: ITextModel): void {
 		this.handleModelEvent(model);
 	}
 
-	notifyModelAdded(model: ITextModel): cognidreamidream {
+	notifyModelAdded(model: ITextModel): void {
 		this.handleModelEvent(model);
 	}
 
-	private handleModelEvent(model: ITextModel): cognidreamidream {
+	private handleModelEvent(model: ITextModel): void {
 		const resource = toResource(this.label);
 		if (!resource) {
 			return; // only update if resource exists
@@ -370,31 +370,31 @@ class ResourceLabelWidget extends IconLabel {
 		return false;
 	}
 
-	notifyExtensionsRegistered(): cognidreamidream {
+	notifyExtensionsRegistered(): void {
 		this.render({ updateIcon: true, updateDecoration: false });
 	}
 
-	notifyThemeChange(): cognidreamidream {
+	notifyThemeChange(): void {
 		this.render({ updateIcon: false, updateDecoration: false });
 	}
 
-	notifyFileAssociationsChange(): cognidreamidream {
+	notifyFileAssociationsChange(): void {
 		this.render({ updateIcon: true, updateDecoration: false });
 	}
 
-	notifyFormattersChange(scheme: string): cognidreamidream {
+	notifyFormattersChange(scheme: string): void {
 		if (toResource(this.label)?.scheme === scheme) {
 			this.render({ updateIcon: false, updateDecoration: false });
 		}
 	}
 
-	notifyUntitledLabelChange(resource: URI): cognidreamidream {
+	notifyUntitledLabelChange(resource: URI): void {
 		if (isEqual(resource, toResource(this.label))) {
 			this.render({ updateIcon: false, updateDecoration: false });
 		}
 	}
 
-	notifyWorkspaceFoldersChange(): cognidreamidream {
+	notifyWorkspaceFoldersChange(): void {
 		if (typeof this.computedWorkspaceFolderLabel === 'string') {
 			const resource = toResource(this.label);
 			if (URI.isUri(resource) && this.label?.name === this.computedWorkspaceFolderLabel) {
@@ -403,7 +403,7 @@ class ResourceLabelWidget extends IconLabel {
 		}
 	}
 
-	setFile(resource: URI, options?: IFileLabelOptions): cognidreamidream {
+	setFile(resource: URI, options?: IFileLabelOptions): void {
 		const hideLabel = options?.hideLabel;
 		let name: string | undefined;
 		if (!hideLabel) {
@@ -434,7 +434,7 @@ class ResourceLabelWidget extends IconLabel {
 		this.setResource({ resource, name, description, range: options?.range }, options);
 	}
 
-	setResource(label: IResourceLabelProps, options: IResourceLabelOptions = Object.create(null)): cognidreamidream {
+	setResource(label: IResourceLabelProps, options: IResourceLabelOptions = Object.create(null)): void {
 		const resource = toResource(label);
 		const isSideBySideEditor = label?.resource && !URI.isUri(label.resource);
 
@@ -576,7 +576,7 @@ class ResourceLabelWidget extends IconLabel {
 		return this.options?.icon !== newOptions?.icon;
 	}
 
-	clear(): cognidreamidream {
+	clear(): void {
 		this.label = undefined;
 		this.options = undefined;
 		this.computedLanguageId = undefined;
@@ -700,7 +700,7 @@ class ResourceLabelWidget extends IconLabel {
 		return true;
 	}
 
-	override dispose(): cognidreamidream {
+	override dispose(): void {
 		super.dispose();
 
 		this.label = undefined;

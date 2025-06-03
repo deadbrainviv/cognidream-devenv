@@ -17,15 +17,15 @@ export class Logger {
 		return this.output.logLevel;
 	}
 
-	public info(message: string, ...args: any[]): cognidream {
+	public info(message: string, ...args: any[]): void {
 		this.output.info(message, ...args);
 	}
 
-	public trace(message: string, ...args: any[]): cognidream {
+	public trace(message: string, ...args: any[]): void {
 		this.output.trace(message, ...args);
 	}
 
-	public error(message: string, data?: any): cognidream {
+	public error(message: string, data?: any): void {
 		// See https://github.com/microsoft/TypeScript/issues/10496
 		if (data && data.message === 'No content available.') {
 			return;

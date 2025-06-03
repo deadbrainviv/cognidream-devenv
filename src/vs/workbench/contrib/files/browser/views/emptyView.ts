@@ -53,7 +53,7 @@ export class EmptyView extends ViewPane {
 		return true;
 	}
 
-	protected override renderBody(container: HTMLElement): cognidream {
+	protected override renderBody(container: HTMLElement): void {
 		super.renderBody(container);
 
 		this._register(new DragAndDropObserver(container, {
@@ -82,20 +82,20 @@ export class EmptyView extends ViewPane {
 		this.refreshTitle();
 	}
 
-	private refreshTitle(cognidreamognidream {
+	private refreshTitle(): void {
 		if (this._disposed) {
-	return;
-}
+			return;
+		}
 
-if (this.contextService.getWorkbenchState() === WorkbenchState.WORKSPACE) {
-	this.updateTitle(EmptyView.NAME.value);
-} else {
-	this.updateTitle(this.title);
-}
-    }
+		if (this.contextService.getWorkbenchState() === WorkbenchState.WORKSPACE) {
+			this.updateTitle(EmptyView.NAME.value);
+		} else {
+			this.updateTitle(this.title);
+		}
+	}
 
-    override dispose(cognidreamognidream {
-	this._disposed = true;
-	super.dispose();
-}
+	override dispose(): void {
+		this._disposed = true;
+		super.dispose();
+	}
 }

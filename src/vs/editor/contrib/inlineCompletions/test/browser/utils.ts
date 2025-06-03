@@ -21,12 +21,12 @@ export class MockInlineCompletionsProvider implements InlineCompletionsProvider 
 	private callHistory = new Array<unknown>();
 	private calledTwiceIn50Ms = false;
 
-	public setReturnValue(value: InlineCompletion | undefined, delayMs: number = 0): cognidream {
+	public setReturnValue(value: InlineCompletion | undefined, delayMs: number = 0): void {
 		this.returnValue = value ? [value] : [];
 		this.delayMs = delayMs;
 	}
 
-	public setReturnValues(values: InlineCompletion[], delayMs: number = 0): cognidream {
+	public setReturnValues(values: InlineCompletion[], delayMs: number = 0): void {
 		this.returnValue = values;
 		this.delayMs = delayMs;
 	}
@@ -103,31 +103,31 @@ export class GhostTextContext extends Disposable {
 		return arr;
 	}
 
-	public keyboardType(text: string): cognidream {
+	public keyboardType(text: string): void {
 		this.editor.trigger('keyboard', 'type', { text });
 	}
 
-	public cursorUp(): cognidream {
+	public cursorUp(): void {
 		CoreNavigationCommands.CursorUp.runEditorCommand(null, this.editor, null);
 	}
 
-	public cursorRight(): cognidream {
+	public cursorRight(): void {
 		CoreNavigationCommands.CursorRight.runEditorCommand(null, this.editor, null);
 	}
 
-	public cursorLeft(): cognidream {
+	public cursorLeft(): void {
 		CoreNavigationCommands.CursorLeft.runEditorCommand(null, this.editor, null);
 	}
 
-	public cursorDown(): cognidream {
+	public cursorDown(): void {
 		CoreNavigationCommands.CursorDown.runEditorCommand(null, this.editor, null);
 	}
 
-	public cursorLineEnd(): cognidream {
+	public cursorLineEnd(): void {
 		CoreNavigationCommands.CursorLineEnd.runEditorCommand(null, this.editor, null);
 	}
 
-	public leftDelete(): cognidream {
+	public leftDelete(): void {
 		CoreEditingCommands.DeleteLeft.runEditorCommand(null, this.editor, null);
 	}
 }

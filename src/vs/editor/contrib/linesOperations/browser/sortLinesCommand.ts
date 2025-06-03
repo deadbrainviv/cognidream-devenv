@@ -29,7 +29,7 @@ export class SortLinesCommand implements ICommand {
 		this.selectionId = null;
 	}
 
-	public getEditOperations(model: ITextModel, builder: IEditOperationBuilder): cognidream {
+	public getEditOperations(model: ITextModel, builder: IEditOperationBuilder): void {
 		const op = sortLines(model, this.selection, this.descending);
 		if (op) {
 			builder.addEditOperation(op.range, op.text);

@@ -42,8 +42,8 @@ setTimeout(main, 0);
 
 // #region Http/File Server
 
-type RequestHandler = (req: http.IncomingMessage, res: http.ServerResponse) => Promise<cognidream>;
-type ChainableRequestHandler = (req: http.IncomingMessage, res: http.ServerResponse, next: RequestHandler) => Promise<cognidream>;
+type RequestHandler = (req: http.IncomingMessage, res: http.ServerResponse) => Promise<void>;
+type ChainableRequestHandler = (req: http.IncomingMessage, res: http.ServerResponse, next: RequestHandler) => Promise<void>;
 
 class HttpServer {
 	private readonly server: http.Server;
@@ -150,7 +150,7 @@ class FileServer {
 		return `/${relativePath}`;
 	}
 
-	public overrideFileContent(filePath: string, content: () => Promise<Buffer>): cognidream {
+	public overrideFileContent(filePath: string, content: () => Promise<Buffer>): void {
 		this.overrides.set(filePath, content);
 	}
 }
@@ -184,14 +184,14 @@ function getContentType(filePath: string): string {
 // #region File Watching
 
 interface IDisposable {
-	dispose(): cognidream;
+	dispose(): void;
 }
 
 class DirWatcher {
 	public static watchRecursively(dir: string): DirWatcher {
-		const listeners: ((path: string, newContent: string) => cognidream)[] = [];
+		const listeners: ((path: string, newContent: string) => void)[] = [];
 		const fileContents = new Map<string, string>();
-		const event = (handler: (path: string, newContent: string) => cognidream) => {
+		const event = (handler: (path: string, newContent: string) => void) => {
 			listeners.push(handler);
 			return {
 				dispose: () => {
@@ -216,7 +216,7 @@ class DirWatcher {
 		return new DirWatcher(event);
 	}
 
-	constructor(public readonly onDidChange: (handler: (path: string, newContent: string) => cognidream) => IDisposable) {
+	constructor(public readonly onDidChange: (handler: (path: string, newContent: string) => void) => IDisposable) {
 	}
 }
 
@@ -444,7 +444,7 @@ function makeLoaderJsHotReloadable(loaderJsCode: string, fileChangesUrl: URL): s
 
 	const additionalJsCode = `
 (${(function () {
-			globalThis.$hotReload_deprecateExports = new Set<(oldExports: any, newExports: any) => cognidream>();
+			globalThis.$hotReload_deprecateExports = new Set<(oldExports: any, newExports: any) => void>();
 		}).toString()})();
 ${$watchChanges.toString()}
 $watchChanges(${JSON.stringify(fileChangesUrl)});
@@ -484,7 +484,7 @@ class CachedBundle {
 		return this.bundlePromise;
 	}
 
-	public async setModuleContent(path: string, newContent: string): Promise<cognidream> {
+	public async setModuleContent(path: string, newContent: string): Promise<void> {
 		if (!this.loader) {
 			return;
 		}

@@ -77,22 +77,22 @@ class TerminalFindContribution extends Disposable implements ITerminalContributi
 		});
 	}
 
-	layout(_xterm: IXtermTerminal & { raw: RawXtermTerminal }, dimension: IDimension): cognidream {
+	layout(_xterm: IXtermTerminal & { raw: RawXtermTerminal }, dimension: IDimension): void {
 		this._lastLayoutDimensions = dimension;
 		this._findWidget.rawValue?.layout(dimension.width);
 	}
 
-	xtermReady(xterm: IXtermTerminal & { raw: RawXtermTerminal }cognidreamognidream {
+	xtermReady(xterm: IXtermTerminal & { raw: RawXtermTerminal }): void {
 		this._register(xterm.onDidChangeFindResults(() => this._findWidget.rawValue?.updateResultCount()));
-    }
-
-    override dispose() {
-	if (TerminalFindContribution.activeFindWidget === this) {
-		TerminalFindContribution.activeFindWidget = undefined;
 	}
-	super.dispose();
-	this._findWidget.rawValue?.dispose();
-}
+
+	override dispose() {
+		if (TerminalFindContribution.activeFindWidget === this) {
+			TerminalFindContribution.activeFindWidget = undefined;
+		}
+		super.dispose();
+		this._findWidget.rawValue?.dispose();
+	}
 
 }
 registerTerminalContribution(TerminalFindContribution.ID, TerminalFindContribution, true);

@@ -97,32 +97,32 @@ export class McpServerConnection extends Disposable implements IMcpServerConnect
 		return { dispose: () => store.dispose(), object: launch };
 	}
 
-	public async stop(): Promise<cognidream> {
+	public async stop(): Promise<void> {
 		this._logger.info(localize('mcpServer.stopping', 'Stopping server {0}', this.definition.label));
 		this._launch.value?.object.stop();
 		await this._waitForState(McpConnectionState.Kind.Stopped, McpConnectionState.Kind.Error);
 	}
 
-	public override dispose(cognidreamognidream {
+	public override dispose(): void {
 		this._requestHandler.get()?.dispose();
-super.dispose();
-this._state.set({ state: McpConnectionState.Kind.Stopped }, undefined);
-    }
+		super.dispose();
+		this._state.set({ state: McpConnectionState.Kind.Stopped }, undefined);
+	}
 
-    private _waitForState(...kinds: McpConnectionState.Kind[]): Promise < McpConnectionState > {
-	const current = this._state.get();
-	if(kinds.includes(current.state)) {
-	return Promise.resolve(current);
-}
-
-return new Promise(resolve => {
-	const disposable = autorun(reader => {
-		const state = this._state.read(reader);
-		if (kinds.includes(state.state)) {
-			disposable.dispose();
-			resolve(state);
+	private _waitForState(...kinds: McpConnectionState.Kind[]): Promise<McpConnectionState> {
+		const current = this._state.get();
+		if (kinds.includes(current.state)) {
+			return Promise.resolve(current);
 		}
-	});
-});
-    }
+
+		return new Promise(resolve => {
+			const disposable = autorun(reader => {
+				const state = this._state.read(reader);
+				if (kinds.includes(state.state)) {
+					disposable.dispose();
+					resolve(state);
+				}
+			});
+		});
+	}
 }

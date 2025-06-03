@@ -135,7 +135,7 @@ const isSelectedEditorsMoveCopyArg = function (arg: SelectedEditorsMoveCopyArgum
 	return true;
 };
 
-function registerActiveEditorMoveCopyCommand(): cognidreamidream {
+function registerActiveEditorMoveCopyCommand(): void {
 
 	const moveCopyJSONSchema: IJSONSchema = {
 		'type': 'object',
@@ -193,7 +193,7 @@ function registerActiveEditorMoveCopyCommand(): cognidreamidream {
 		}
 	});
 
-	function moveCopySelectedEditors(isMove: boolean, args: SelectedEditorsMoveCopyArguments = Object.create(null), accessor: ServicesAccessor): cognidreamidream {
+	function moveCopySelectedEditors(isMove: boolean, args: SelectedEditorsMoveCopyArguments = Object.create(null), accessor: ServicesAccessor): void {
 		args.to = args.to || 'right';
 		args.by = args.by || 'tab';
 		args.value = typeof args.value === 'number' ? args.value : 1;
@@ -213,7 +213,7 @@ function registerActiveEditorMoveCopyCommand(): cognidreamidream {
 		}
 	}
 
-	function moveTabs(args: SelectedEditorsMoveCopyArguments, group: IEditorGroup, editors: EditorInput[]): cognidreamidream {
+	function moveTabs(args: SelectedEditorsMoveCopyArguments, group: IEditorGroup, editors: EditorInput[]): void {
 		const to = args.to;
 		if (to === 'first' || to === 'right') {
 			editors = [...editors].reverse();
@@ -226,7 +226,7 @@ function registerActiveEditorMoveCopyCommand(): cognidreamidream {
 		}
 	}
 
-	function moveTab(args: SelectedEditorsMoveCopyArguments, group: IEditorGroup, editor: EditorInput): cognidreamidream {
+	function moveTab(args: SelectedEditorsMoveCopyArguments, group: IEditorGroup, editor: EditorInput): void {
 		let index = group.getIndexOfEditor(editor);
 		switch (args.to) {
 			case 'first':
@@ -253,7 +253,7 @@ function registerActiveEditorMoveCopyCommand(): cognidreamidream {
 		group.moveEditor(editor, group, { index });
 	}
 
-	function moveCopyActiveEditorToGroup(isMove: boolean, args: SelectedEditorsMoveCopyArguments, sourceGroup: IEditorGroup, editors: EditorInput[], accessor: ServicesAccessor): cognidreamidream {
+	function moveCopyActiveEditorToGroup(isMove: boolean, args: SelectedEditorsMoveCopyArguments, sourceGroup: IEditorGroup, editors: EditorInput[], accessor: ServicesAccessor): void {
 		const editorGroupsService = accessor.get(IEditorGroupsService);
 		const configurationService = accessor.get(IConfigurationService);
 
@@ -320,9 +320,9 @@ function registerActiveEditorMoveCopyCommand(): cognidreamidream {
 	}
 }
 
-function registerEditorGroupsLayoutCommands(): cognidreamidream {
+function registerEditorGroupsLayoutCommands(): void {
 
-	function applyEditorLayout(accessor: ServicesAccessor, layout: EditorGroupLayout): cognidreamidream {
+	function applyEditorLayout(accessor: ServicesAccessor, layout: EditorGroupLayout): void {
 		if (!layout || typeof layout !== 'object') {
 			return;
 		}
@@ -388,7 +388,7 @@ function registerEditorGroupsLayoutCommands(): cognidreamidream {
 	});
 }
 
-function registerOpenEditorAPICommands(): cognidreamidream {
+function registerOpenEditorAPICommands(): void {
 
 	function mixinContext(context: IOpenEvent<unknown> | undefined, options: ITextEditorOptions | undefined, column: EditorGroupColumn | undefined): [ITextEditorOptions | undefined, EditorGroupColumn | undefined] {
 		if (!context) {
@@ -559,8 +559,8 @@ interface OpenMultiFileDiffEditorOptions {
 	resources?: { originalUri: UriComponents; modifiedUri: UriComponents }[];
 }
 
-function registerOpenEditorAtIndexCommands(): cognidreamidream {
-	const openEditorAtIndex: ICommandHandler = (accessor: ServicesAccessor, editorIndex: number): cognidreamidream => {
+function registerOpenEditorAtIndexCommands(): void {
+	const openEditorAtIndex: ICommandHandler = (accessor: ServicesAccessor, editorIndex: number): void => {
 		const editorService = accessor.get(IEditorService);
 		const activeEditorPane = editorService.activeEditorPane;
 		if (activeEditorPane) {
@@ -610,7 +610,7 @@ function registerOpenEditorAtIndexCommands(): cognidreamidream {
 	}
 }
 
-function registerFocusEditorGroupAtIndexCommands(): cognidreamidream {
+function registerFocusEditorGroupAtIndexCommands(): void {
 
 	// Keybindings to focus a specific group (2-8) in the editor area
 	for (let groupIndex = 1; groupIndex < 8; groupIndex++) {
@@ -680,7 +680,7 @@ function registerFocusEditorGroupAtIndexCommands(): cognidreamidream {
 	}
 }
 
-export function splitEditor(editorGroupsService: IEditorGroupsService, direction: GroupDirection, resolvedContext: IResolvedEditorCommandsContext): cognidreamidream {
+export function splitEditor(editorGroupsService: IEditorGroupsService, direction: GroupDirection, resolvedContext: IResolvedEditorCommandsContext): void {
 	if (!resolvedContext.groupedEditors.length) {
 		return;
 	}
@@ -950,7 +950,7 @@ function registerCloseEditorCommands() {
 	});
 }
 
-function registerFocusEditorGroupWihoutWrapCommands(): cognidreamidream {
+function registerFocusEditorGroupWihoutWrapCommands(): void {
 
 	const commands = [
 		{
@@ -981,9 +981,9 @@ function registerFocusEditorGroupWihoutWrapCommands(): cognidreamidream {
 	}
 }
 
-function registerSplitEditorInGroupCommands(): cognidreamidream {
+function registerSplitEditorInGroupCommands(): void {
 
-	async function splitEditorInGroup(accessor: ServicesAccessor, resolvedContext: IResolvedEditorCommandsContext): Promise<cognidreamidream> {
+	async function splitEditorInGroup(accessor: ServicesAccessor, resolvedContext: IResolvedEditorCommandsContext): Promise<void> {
 		const instantiationService = accessor.get(IInstantiationService);
 
 		if (!resolvedContext.groupedEditors.length) {
@@ -1018,12 +1018,12 @@ function registerSplitEditorInGroupCommands(): cognidreamidream {
 				}
 			});
 		}
-		run(accessor: ServicesAccessor, ...args: unknown[]): Promise<cognidreamidream> {
+		run(accessor: ServicesAccessor, ...args: unknown[]): Promise<void> {
 			return splitEditorInGroup(accessor, resolveCommandsContext(args, accessor.get(IEditorService), accessor.get(IEditorGroupsService), accessor.get(IListService)));
 		}
 	});
 
-	async function joinEditorInGroup(resolvedContext: IResolvedEditorCommandsContext): Promise<cognidreamidream> {
+	async function joinEditorInGroup(resolvedContext: IResolvedEditorCommandsContext): Promise<void> {
 		if (!resolvedContext.groupedEditors.length) {
 			return;
 		}
@@ -1071,7 +1071,7 @@ function registerSplitEditorInGroupCommands(): cognidreamidream {
 				}
 			});
 		}
-		run(accessor: ServicesAccessor, ...args: unknown[]): Promise<cognidreamidream> {
+		run(accessor: ServicesAccessor, ...args: unknown[]): Promise<void> {
 			return joinEditorInGroup(resolveCommandsContext(args, accessor.get(IEditorService), accessor.get(IEditorGroupsService), accessor.get(IListService)));
 		}
 	});
@@ -1086,7 +1086,7 @@ function registerSplitEditorInGroupCommands(): cognidreamidream {
 				f1: true
 			});
 		}
-		async run(accessor: ServicesAccessor, ...args: unknown[]): Promise<cognidreamidream> {
+		async run(accessor: ServicesAccessor, ...args: unknown[]): Promise<void> {
 			const resolvedContext = resolveCommandsContext(args, accessor.get(IEditorService), accessor.get(IEditorGroupsService), accessor.get(IListService));
 			if (!resolvedContext.groupedEditors.length) {
 				return;
@@ -1112,7 +1112,7 @@ function registerSplitEditorInGroupCommands(): cognidreamidream {
 				f1: true
 			});
 		}
-		async run(accessor: ServicesAccessor): Promise<cognidreamidream> {
+		async run(accessor: ServicesAccessor): Promise<void> {
 			const configurationService = accessor.get(IConfigurationService);
 			const currentSetting = configurationService.getValue<unknown>(SideBySideEditor.SIDE_BY_SIDE_LAYOUT_SETTING);
 
@@ -1128,7 +1128,7 @@ function registerSplitEditorInGroupCommands(): cognidreamidream {
 	});
 }
 
-function registerFocusSideEditorsCommands(): cognidreamidream {
+function registerFocusSideEditorsCommands(): void {
 
 	registerAction2(class extends Action2 {
 		constructor() {
@@ -1140,7 +1140,7 @@ function registerFocusSideEditorsCommands(): cognidreamidream {
 				f1: true
 			});
 		}
-		async run(accessor: ServicesAccessor): Promise<cognidreamidream> {
+		async run(accessor: ServicesAccessor): Promise<void> {
 			const editorService = accessor.get(IEditorService);
 			const commandService = accessor.get(ICommandService);
 
@@ -1163,7 +1163,7 @@ function registerFocusSideEditorsCommands(): cognidreamidream {
 				f1: true
 			});
 		}
-		async run(accessor: ServicesAccessor): Promise<cognidreamidream> {
+		async run(accessor: ServicesAccessor): Promise<void> {
 			const editorService = accessor.get(IEditorService);
 			const commandService = accessor.get(ICommandService);
 
@@ -1186,7 +1186,7 @@ function registerFocusSideEditorsCommands(): cognidreamidream {
 				f1: true
 			});
 		}
-		async run(accessor: ServicesAccessor): Promise<cognidreamidream> {
+		async run(accessor: ServicesAccessor): Promise<void> {
 			const editorService = accessor.get(IEditorService);
 			const commandService = accessor.get(ICommandService);
 
@@ -1204,7 +1204,7 @@ function registerFocusSideEditorsCommands(): cognidreamidream {
 	});
 }
 
-function registerOtherEditorCommands(): cognidreamidream {
+function registerOtherEditorCommands(): void {
 
 	KeybindingsRegistry.registerCommandAndKeybindingRule({
 		id: KEEP_EDITOR_COMMAND_ID,
@@ -1232,7 +1232,7 @@ function registerOtherEditorCommands(): cognidreamidream {
 		}
 	});
 
-	function setEditorGroupLock(accessor: ServicesAccessor, locked: boolean | undefined, ...args: unknown[]): cognidreamidream {
+	function setEditorGroupLock(accessor: ServicesAccessor, locked: boolean | undefined, ...args: unknown[]): void {
 		const resolvedContext = resolveCommandsContext(args, accessor.get(IEditorService), accessor.get(IEditorGroupsService), accessor.get(IListService));
 		const group = resolvedContext.groupedEditors[0]?.group;
 		group?.lock(locked ?? !group.isLocked);
@@ -1247,7 +1247,7 @@ function registerOtherEditorCommands(): cognidreamidream {
 				f1: true
 			});
 		}
-		async run(accessor: ServicesAccessor, ...args: unknown[]): Promise<cognidreamidream> {
+		async run(accessor: ServicesAccessor, ...args: unknown[]): Promise<void> {
 			setEditorGroupLock(accessor, undefined, ...args);
 		}
 	});
@@ -1262,7 +1262,7 @@ function registerOtherEditorCommands(): cognidreamidream {
 				f1: true
 			});
 		}
-		async run(accessor: ServicesAccessor, ...args: unknown[]): Promise<cognidreamidream> {
+		async run(accessor: ServicesAccessor, ...args: unknown[]): Promise<void> {
 			setEditorGroupLock(accessor, true, ...args);
 		}
 	});
@@ -1277,7 +1277,7 @@ function registerOtherEditorCommands(): cognidreamidream {
 				f1: true
 			});
 		}
-		async run(accessor: ServicesAccessor, ...args: unknown[]): Promise<cognidreamidream> {
+		async run(accessor: ServicesAccessor, ...args: unknown[]): Promise<void> {
 			setEditorGroupLock(accessor, false, ...args);
 		}
 	});
@@ -1359,7 +1359,7 @@ function registerOtherEditorCommands(): cognidreamidream {
 	});
 }
 
-export function setup(): cognidreamidream {
+export function setup(): void {
 	registerActiveEditorMoveCopyCommand();
 	registerEditorGroupsLayoutCommands();
 	registerDiffEditorCommands();

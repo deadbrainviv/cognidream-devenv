@@ -34,12 +34,12 @@ export class MainThreadDocumentContentProviders implements MainThreadDocumentCon
 		this._proxy = extHostContext.getProxy(ExtHostContext.ExtHostDocumentContentProviders);
 	}
 
-	dispose(): cognidream {
+	dispose(): void {
 		this._resourceContentProvider.dispose();
 		dispose(this._pendingUpdate.values());
 	}
 
-	$registerTextContentProvider(handle: number, scheme: stringcognidreamognidream {
+	$registerTextContentProvider(handle: number, scheme: string): void {
 		const registration = this._textModelResolverService.registerTextModelContentProvider(scheme, {
 			provideTextContent: (uri: URI): Promise<ITextModel | null> => {
 				return this._proxy.$provideTextDocumentContent(handle, uri).then(value => {
@@ -53,42 +53,42 @@ export class MainThreadDocumentContentProviders implements MainThreadDocumentCon
 			}
 		});
 		this._resourceContentProvider.set(handle, registration);
-    }
-
-$unregisterTextContentProvider(handle: numbercognidreamognidream {
-	this._resourceContentProvider.deleteAndDispose(handle);
-}
-
-    async $onVirtualDocumentChange(uri: UriComponents, value: string): Promicognidreamognidream > {
-	const model = this._modelService.getModel(URI.revive(uri));
-	if(!model) {
-		return;
 	}
 
-        // cancel and dispose an existing update
-        const pending = this._pendingUpdate.get(model.id);
-	pending?.cancel();
+	$unregisterTextContentProvider(handle: number): void {
+		this._resourceContentProvider.deleteAndDispose(handle);
+	}
 
-        // create and keep update token
-        const myToken = new CancellationTokenSource();
-	this._pendingUpdate.set(model.id, myToken);
+	async $onVirtualDocumentChange(uri: UriComponents, value: string): Promise<void> {
+		const model = this._modelService.getModel(URI.revive(uri));
+		if (!model) {
+			return;
+		}
 
-	try {
-		const edits = await this._editorWorkerService.computeMoreMinimalEdits(model.uri, [{ text: value, range: model.getFullModelRange() }]);
+		// cancel and dispose an existing update
+		const pending = this._pendingUpdate.get(model.id);
+		pending?.cancel();
 
-		// remove token
-		this._pendingUpdate.delete(model.id);
+		// create and keep update token
+		const myToken = new CancellationTokenSource();
+		this._pendingUpdate.set(model.id, myToken);
 
-		if(myToken.token.isCancellationRequested) {
-	// ignore this
-	return;
-}
-if (edits && edits.length > 0) {
-	// use the evil-edit as these models show in readonly-editor only
-	model.applyEdits(edits.map(edit => EditOperation.replace(Range.lift(edit.range), edit.text)));
-}
-        } catch (error) {
-	onUnexpectedError(error);
-}
-    }
+		try {
+			const edits = await this._editorWorkerService.computeMoreMinimalEdits(model.uri, [{ text: value, range: model.getFullModelRange() }]);
+
+			// remove token
+			this._pendingUpdate.delete(model.id);
+
+			if (myToken.token.isCancellationRequested) {
+				// ignore this
+				return;
+			}
+			if (edits && edits.length > 0) {
+				// use the evil-edit as these models show in readonly-editor only
+				model.applyEdits(edits.map(edit => EditOperation.replace(Range.lift(edit.range), edit.text)));
+			}
+		} catch (error) {
+			onUnexpectedError(error);
+		}
+	}
 }

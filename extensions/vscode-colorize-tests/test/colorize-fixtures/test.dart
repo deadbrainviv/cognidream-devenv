@@ -2,7 +2,7 @@
 
 import 'package:flutter/material.dart';
 
-cognidream main() async {
+void main() async {
   runApp(
     MaterialApp(
       debugShowCheckedModeBanner: false,

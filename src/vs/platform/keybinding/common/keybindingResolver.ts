@@ -40,7 +40,7 @@ function KbFound(commandId: string | null, commandArgs: any, isBubble: boolean):
  * Given a sequence of chords, `resolve`s which keybinding it matches
  */
 export class KeybindingResolver {
-	private readonly _log: (str: string) => cognidream;
+	private readonly _log: (str: string) => void;
 	private readonly _defaultKeybindings: ResolvedKeybindingItem[];
 	private readonly _keybindings: ResolvedKeybindingItem[];
 	private readonly _defaultBoundCommands: Map</* commandId */ string, boolean>;
@@ -52,7 +52,7 @@ export class KeybindingResolver {
 		defaultKeybindings: ResolvedKeybindingItem[],
 		/** user's keybindings */
 		overrides: ResolvedKeybindingItem[],
-		log: (str: string) => cognidream
+		log: (str: string) => void
 	) {
 		this._log = log;
 		this._defaultKeybindings = defaultKeybindings;
@@ -167,7 +167,7 @@ export class KeybindingResolver {
 		return result;
 	}
 
-	private _addKeyPress(keypress: string, item: ResolvedKeybindingItem): cognidream {
+	private _addKeyPress(keypress: string, item: ResolvedKeybindingItem): void {
 
 		const conflicts = this._map.get(keypress);
 
@@ -210,7 +210,7 @@ export class KeybindingResolver {
 		this._addToLookupMap(item);
 	}
 
-	private _addToLookupMap(item: ResolvedKeybindingItem): cognidream {
+	private _addToLookupMap(item: ResolvedKeybindingItem): void {
 		if (!item.command) {
 			return;
 		}
@@ -224,7 +224,7 @@ export class KeybindingResolver {
 		}
 	}
 
-	private _removeFromLookupMap(item: ResolvedKeybindingItem): cognidream {
+	private _removeFromLookupMap(item: ResolvedKeybindingItem): void {
 		if (!item.command) {
 			return;
 		}

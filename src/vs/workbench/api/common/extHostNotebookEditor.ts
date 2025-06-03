@@ -88,19 +88,19 @@ export class ExtHostNotebookEditor {
 		this._visible = value;
 	}
 
-	_acceptVisibleRanges(value: vscode.NotebookRange[]): cognidream {
+	_acceptVisibleRanges(value: vscode.NotebookRange[]): void {
 		this._visibleRanges = value;
 	}
 
-	_acceptSelections(selections: vscode.NotebookRange[]cognidreamognidream {
+	_acceptSelections(selections: vscode.NotebookRange[]): void {
 		this._selections = selections;
 	}
 
-    private _trySetSelections(value: vscode.NotebookRange[]cognidreamognidream {
+	private _trySetSelections(value: vscode.NotebookRange[]): void {
 		this._proxy.$trySetSelections(this.id, value.map(extHostConverter.NotebookRange.from));
-    }
+	}
 
-_acceptViewColumn(value: vscode.ViewColumn | undefined) {
-	this._viewColumn = value;
-}
+	_acceptViewColumn(value: vscode.ViewColumn | undefined) {
+		this._viewColumn = value;
+	}
 }

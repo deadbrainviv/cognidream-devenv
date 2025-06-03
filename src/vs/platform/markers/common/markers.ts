@@ -15,11 +15,11 @@ export interface IMarkerService {
 
 	getStatistics(): MarkerStatistics;
 
-	changeOne(owner: string, resource: URI, markers: IMarkerData[]): cognidream;
+	changeOne(owner: string, resource: URI, markers: IMarkerData[]): void;
 
-	changeAll(owner: string, data: IResourceMarker[]): cognidream;
+	changeAll(owner: string, data: IResourceMarker[]): void;
 
-	remove(owner: string, resources: URI[]): cognidream;
+	remove(owner: string, resources: URI[]): void;
 
 	read(filter?: { owner?: string; resource?: URI; severities?: number; take?: number }): IMarker[];
 

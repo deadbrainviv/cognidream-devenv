@@ -18,7 +18,7 @@ export class MainThreadChatStatus extends Disposable implements MainThreadChatSt
 		super();
 	}
 
-	$setEntry(id: string, entry: ChatStatusItemDto): cognidream {
+	$setEntry(id: string, entry: ChatStatusItemDto): void {
 		this._chatStatusItemService.setOrUpdateEntry({
 			id,
 			label: entry.title,
@@ -27,7 +27,7 @@ export class MainThreadChatStatus extends Disposable implements MainThreadChatSt
 		});
 	}
 
-	$disposeEntry(id: stringcognidreamognidream {
+	$disposeEntry(id: string): void {
 		this._chatStatusItemService.deleteEntry(id);
-    }
+	}
 }

@@ -8,15 +8,15 @@ import { IWebWorkerServer, IWebWorkerClient } from '../../../../../../base/commo
 import { StateDeltas } from './textMateTokenizationWorker.worker.js';
 
 export abstract class TextMateWorkerHost {
-    public static CHANNEL_NAME = 'textMateWorkerHost';
-    public static getChannel(workerServer: IWebWorkerServer): TextMateWorkerHost {
-        return workerServer.getChannel<TextMateWorkerHost>(TextMateWorkerHost.CHANNEL_NAME);
-    }
-    public static setChannel(workerClient: IWebWorkerClient<any>, obj: TextMateWorkerHost): cognidream {
-        workerClient.setChannel<TextMateWorkerHost>(TextMateWorkerHost.CHANNEL_NAME, obj);
-    }
+	public static CHANNEL_NAME = 'textMateWorkerHost';
+	public static getChannel(workerServer: IWebWorkerServer): TextMateWorkerHost {
+		return workerServer.getChannel<TextMateWorkerHost>(TextMateWorkerHost.CHANNEL_NAME);
+	}
+	public static setChannel(workerClient: IWebWorkerClient<any>, obj: TextMateWorkerHost): void {
+		workerClient.setChannel<TextMateWorkerHost>(TextMateWorkerHost.CHANNEL_NAME, obj);
+	}
 
-    abstract $readFile(_resource: UriComponents): Promise<string>;
-    abstract $setTokensAndStates(controllerId: number, versionId: number, tokens: Uint8Array, lineEndStateDeltas: StateDeltas[]): Promise<cognidream>;
-    abstract $reportTokenizationTime(timeMs: number, languageId: string, sourceExtensionId: string | undefined, lineLength: number, isRandomSample: boolean): cognidream;
+	abstract $readFile(_resource: UriComponents): Promise<string>;
+	abstract $setTokensAndStates(controllerId: number, versionId: number, tokens: Uint8Array, lineEndStateDeltas: StateDeltas[]): Promise<void>;
+	abstract $reportTokenizationTime(timeMs: number, languageId: string, sourceExtensionId: string | undefined, lineLength: number, isRandomSample: boolean): void;
 }

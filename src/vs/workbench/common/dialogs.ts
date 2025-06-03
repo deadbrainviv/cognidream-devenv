@@ -11,7 +11,7 @@ import { IDialogArgs, IDialogResult } from '../../platform/dialogs/common/dialog
 export interface IDialogViewItem {
 	readonly args: IDialogArgs;
 
-	close(result?: IDialogResult | Error): cognidream;
+	close(result?: IDialogResult | Error): void;
 }
 
 export interface IDialogHandle {
@@ -21,22 +21,22 @@ export interface IDialogHandle {
 
 export interface IDialogsModel {
 
-	readonly onWillShowDialog: Evecognidreamognidream>;
-    readonly onDidShowDialog: Evecognidreamognidream >;
+	readonly onWillShowDialog: Event<void>;
+	readonly onDidShowDialog: Event<void>;
 
-    readonly dialogs: IDialogViewItem[];
+	readonly dialogs: IDialogViewItem[];
 
-show(dialog: IDialogArgs): IDialogHandle;
+	show(dialog: IDialogArgs): IDialogHandle;
 }
 
 export class DialogsModel extends Disposable implements IDialogsModel {
 
 	readonly dialogs: IDialogViewItem[] = [];
 
-	private readonly _onWillShowDialog = this._register(new Emittcognidreamognidream > ());
+	private readonly _onWillShowDialog = this._register(new Emitter<void>());
 	readonly onWillShowDialog = this._onWillShowDialog.event;
 
-	private readonly _onDidShowDialog = this._register(new Emittcognidreamognidream > ());
+	private readonly _onDidShowDialog = this._register(new Emitter<void>());
 	readonly onDidShowDialog = this._onDidShowDialog.event;
 
 	show(dialog: IDialogArgs): IDialogHandle {

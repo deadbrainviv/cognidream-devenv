@@ -102,18 +102,18 @@ export class CellDiffPlaceholderRenderer implements IListRenderer<DiffElementPla
 		};
 	}
 
-	renderElement(element: DiffElementPlaceholderViewModel, index: number, templateData: CellDiffPlaceholderRenderTemplate, height: number | undefined): cognidream {
+	renderElement(element: DiffElementPlaceholderViewModel, index: number, templateData: CellDiffPlaceholderRenderTemplate, height: number | undefined): void {
 		templateData.body.classList.remove('left', 'right', 'full');
 		templateData.elementDisposables.add(this.instantiationService.createInstance(CellDiffPlaceholderElement, element, templateData));
 	}
 
-	disposeTemplate(templateData: CellDiffPlaceholderRenderTemplatecognidreamognidream {
+	disposeTemplate(templateData: CellDiffPlaceholderRenderTemplate): void {
 		templateData.container.innerText = '';
 	}
 
-    disposeElement(element: DiffElementPlaceholderViewModel, index: number, templateData: CellDiffPlaceholderRenderTemplatecognidreamognidream {
+	disposeElement(element: DiffElementPlaceholderViewModel, index: number, templateData: CellDiffPlaceholderRenderTemplate): void {
 		templateData.elementDisposables.clear();
-    }
+	}
 }
 
 export class NotebookDocumentMetadataDiffRenderer implements IListRenderer<NotebookDocumentMetadataViewModel, NotebookDocumentDiffElementRenderTemplate> {
@@ -189,24 +189,24 @@ export class NotebookDocumentMetadataDiffRenderer implements IListRenderer<Noteb
 		return buildDiffEditorWidget(this.instantiationService, this.notebookEditor, sourceContainer, { readOnly: true });
 	}
 
-	renderElement(element: NotebookDocumentMetadataViewModel, index: number, templateData: NotebookDocumentDiffElementRenderTemplate, height: number | undefinedcognidreamognidream {
+	renderElement(element: NotebookDocumentMetadataViewModel, index: number, templateData: NotebookDocumentDiffElementRenderTemplate, height: number | undefined): void {
 		templateData.body.classList.remove('full');
-templateData.elementDisposables.add(this.instantiationService.createInstance(NotebookDocumentMetadataElement, this.notebookEditor, element, templateData));
-    }
+		templateData.elementDisposables.add(this.instantiationService.createInstance(NotebookDocumentMetadataElement, this.notebookEditor, element, templateData));
+	}
 
-disposeTemplate(templateData: NotebookDocumentDiffElementRenderTemplatecognidreamognidream {
-	templateData.container.innerText = '';
-	templateData.sourceEditor.dispose();
-	templateData.toolbar?.dispose();
-	templateData.elementDisposables.dispose();
-}
+	disposeTemplate(templateData: NotebookDocumentDiffElementRenderTemplate): void {
+		templateData.container.innerText = '';
+		templateData.sourceEditor.dispose();
+		templateData.toolbar?.dispose();
+		templateData.elementDisposables.dispose();
+	}
 
-    disposeElement(element: NotebookDocumentMetadataViewModel, index: number, templateData: NotebookDocumentDiffElementRenderTemplatecognidreamognidream {
-	if(templateData.toolbar) {
-	templateData.toolbar.context = undefined;
-}
-        templateData.elementDisposables.clear();
-    }
+	disposeElement(element: NotebookDocumentMetadataViewModel, index: number, templateData: NotebookDocumentDiffElementRenderTemplate): void {
+		if (templateData.toolbar) {
+			templateData.toolbar.context = undefined;
+		}
+		templateData.elementDisposables.clear();
+	}
 }
 
 
@@ -270,30 +270,30 @@ export class CellDiffSingleSideRenderer implements IListRenderer<SingleSideDiffE
 		return buildSourceEditor(this.instantiationService, this.notebookEditor, sourceContainer);
 	}
 
-	renderElement(element: SingleSideDiffElementViewModel, index: number, templateData: CellDiffSingleSideRenderTemplate, height: number | undefinedcognidreamognidream {
+	renderElement(element: SingleSideDiffElementViewModel, index: number, templateData: CellDiffSingleSideRenderTemplate, height: number | undefined): void {
 		templateData.body.classList.remove('left', 'right', 'full');
 
-switch (element.type) {
-	case 'delete':
-		templateData.elementDisposables.add(this.instantiationService.createInstance(DeletedElement, this.notebookEditor, element, templateData));
-		return;
-	case 'insert':
-		templateData.elementDisposables.add(this.instantiationService.createInstance(InsertElement, this.notebookEditor, element, templateData));
-		return;
-	default:
-		break;
-}
-    }
+		switch (element.type) {
+			case 'delete':
+				templateData.elementDisposables.add(this.instantiationService.createInstance(DeletedElement, this.notebookEditor, element, templateData));
+				return;
+			case 'insert':
+				templateData.elementDisposables.add(this.instantiationService.createInstance(InsertElement, this.notebookEditor, element, templateData));
+				return;
+			default:
+				break;
+		}
+	}
 
-disposeTemplate(templateData: CellDiffSingleSideRenderTemplatecognidreamognidream {
-	templateData.container.innerText = '';
-	templateData.sourceEditor.dispose();
-	templateData.elementDisposables.dispose();
-}
+	disposeTemplate(templateData: CellDiffSingleSideRenderTemplate): void {
+		templateData.container.innerText = '';
+		templateData.sourceEditor.dispose();
+		templateData.elementDisposables.dispose();
+	}
 
-    disposeElement(element: SingleSideDiffElementViewModel, index: number, templateData: CellDiffSingleSideRenderTemplatecognidreamognidream {
-	templateData.elementDisposables.clear();
-}
+	disposeElement(element: SingleSideDiffElementViewModel, index: number, templateData: CellDiffSingleSideRenderTemplate): void {
+		templateData.elementDisposables.clear();
+	}
 }
 
 
@@ -380,45 +380,45 @@ export class CellDiffSideBySideRenderer implements IListRenderer<SideBySideDiffE
 		return buildDiffEditorWidget(this.instantiationService, this.notebookEditor, sourceContainer);
 	}
 
-	renderElement(element: SideBySideDiffElementViewModel, index: number, templateData: CellDiffSideBySideRenderTemplate, height: number | undefinedcognidreamognidream {
+	renderElement(element: SideBySideDiffElementViewModel, index: number, templateData: CellDiffSideBySideRenderTemplate, height: number | undefined): void {
 		templateData.body.classList.remove('left', 'right', 'full');
 
-switch (element.type) {
-	case 'unchanged':
-		templateData.elementDisposables.add(this.instantiationService.createInstance(ModifiedElement, this.notebookEditor, element, templateData));
-		return;
-	case 'modified':
-		templateData.elementDisposables.add(this.instantiationService.createInstance(ModifiedElement, this.notebookEditor, element, templateData));
-		return;
-	default:
-		break;
-}
-    }
+		switch (element.type) {
+			case 'unchanged':
+				templateData.elementDisposables.add(this.instantiationService.createInstance(ModifiedElement, this.notebookEditor, element, templateData));
+				return;
+			case 'modified':
+				templateData.elementDisposables.add(this.instantiationService.createInstance(ModifiedElement, this.notebookEditor, element, templateData));
+				return;
+			default:
+				break;
+		}
+	}
 
-disposeTemplate(templateData: CellDiffSideBySideRenderTemplatecognidreamognidream {
-	templateData.container.innerText = '';
-	templateData.sourceEditor.dispose();
-	templateData.toolbar?.dispose();
-	templateData.elementDisposables.dispose();
-}
+	disposeTemplate(templateData: CellDiffSideBySideRenderTemplate): void {
+		templateData.container.innerText = '';
+		templateData.sourceEditor.dispose();
+		templateData.toolbar?.dispose();
+		templateData.elementDisposables.dispose();
+	}
 
-    disposeElement(element: SideBySideDiffElementViewModel, index: number, templateData: CellDiffSideBySideRenderTemplatecognidreamognidream {
-	if(templateData.toolbar) {
-	templateData.toolbar.context = undefined;
-}
-        templateData.elementDisposables.clear();
-    }
+	disposeElement(element: SideBySideDiffElementViewModel, index: number, templateData: CellDiffSideBySideRenderTemplate): void {
+		if (templateData.toolbar) {
+			templateData.toolbar.context = undefined;
+		}
+		templateData.elementDisposables.clear();
+	}
 }
 
 export class NotebookMouseController<T> extends MouseController<T> {
-	protected override onViewPointer(e: IListMouseEvent<T>cognidreamognidream {
+	protected override onViewPointer(e: IListMouseEvent<T>): void {
 		if (isMonacoEditor(e.browserEvent.target as HTMLElement)) {
-	const focus = typeof e.index === 'undefined' ? [] : [e.index];
-	this.list.setFocus(focus, e.browserEvent);
-} else {
-	super.onViewPointer(e);
-}
-    }
+			const focus = typeof e.index === 'undefined' ? [] : [e.index];
+			this.list.setFocus(focus, e.browserEvent);
+		} else {
+			super.onViewPointer(e);
+		}
+	}
 }
 
 export class NotebookTextDiffList extends WorkbenchList<IDiffElementViewModelBase> implements IDisposable, IStyleController {

@@ -49,17 +49,17 @@ export class TestDialogService implements IDialogService {
 
 		return { result: await promptButtons[0]?.run({ checkboxChecked: false }) };
 	}
-	async info(message: string, detail?: string): Promise<cognidreamidream> {
+	async info(message: string, detail?: string): Promise<void> {
 		await this.prompt({ type: Severity.Info, message, detail });
 	}
 
-	async warn(message: string, detail?: string): Promise<cognidreamidream> {
+	async warn(message: string, detail?: string): Promise<void> {
 		await this.prompt({ type: Severity.Warning, message, detail });
 	}
 
-	async error(message: string, detail?: string): Promise<cognidreamidream> {
+	async error(message: string, detail?: string): Promise<void> {
 		await this.prompt({ type: Severity.Error, message, detail });
 	}
 	async input(): Promise<IInputResult> { { return { confirmed: true, values: [] }; } }
-	async about(): Promise<cognidreamidream> { }
+	async about(): Promise<void> { }
 }

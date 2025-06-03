@@ -84,7 +84,7 @@ class TextEditorEdit {
 		}
 	}
 
-	replace(location: Position | Range | Selection, value: string): cognidream {
+	replace(location: Position | Range | Selection, value: string): void {
 		this._throwIfFinalized();
 		let range: Range | null = null;
 
@@ -99,41 +99,41 @@ class TextEditorEdit {
 		this._pushEdit(range, value, false);
 	}
 
-	insert(location: Position, value: stringcognidreamognidream {
+	insert(location: Position, value: string): void {
 		this._throwIfFinalized();
-this._pushEdit(new Range(location, location), value, true);
-    }
-
-delete (location: Range | Selectioncognidreamognidream {
-	this._throwIfFinalized();
-	let range: Range | null = null;
-
-	if (location instanceof Range) {
-		range = location;
-	} else {
-		throw new Error('Unrecognized location');
+		this._pushEdit(new Range(location, location), value, true);
 	}
 
-	this._pushEdit(range, null, true);
-}
+	delete(location: Range | Selection): void {
+		this._throwIfFinalized();
+		let range: Range | null = null;
 
-    private _pushEdit(range: Range, text: string | null, forceMoveMarkers: booleancognidreamognidream {
-	const validRange = this._document.validateRange(range);
-	this._collectedEdits.push({
-		range: validRange,
-		text: text,
-		forceMoveMarkers: forceMoveMarkers
-	});
-}
+		if (location instanceof Range) {
+			range = location;
+		} else {
+			throw new Error('Unrecognized location');
+		}
 
-    setEndOfLine(endOfLine: EndOfLinecognidreamognidream {
-	this._throwIfFinalized();
-	if(endOfLine !== EndOfLine.LF && endOfLine !== EndOfLine.CRLF) {
-	throw illegalArgument('endOfLine');
-}
+		this._pushEdit(range, null, true);
+	}
 
-        this._setEndOfLine = endOfLine;
-    }
+	private _pushEdit(range: Range, text: string | null, forceMoveMarkers: boolean): void {
+		const validRange = this._document.validateRange(range);
+		this._collectedEdits.push({
+			range: validRange,
+			text: text,
+			forceMoveMarkers: forceMoveMarkers
+		});
+	}
+
+	setEndOfLine(endOfLine: EndOfLine): void {
+		this._throwIfFinalized();
+		if (endOfLine !== EndOfLine.LF && endOfLine !== EndOfLine.CRLF) {
+			throw illegalArgument('endOfLine');
+		}
+
+		this._setEndOfLine = endOfLine;
+	}
 }
 
 export class ExtHostTextEditorOptions {
@@ -193,7 +193,7 @@ export class ExtHostTextEditorOptions {
 		};
 	}
 
-	public _accept(source: IResolvedTextEditorConfigurationcognidreamognidream {
+	public _accept(source: IResolvedTextEditorConfiguration): void {
 		this._tabSize = source.tabSize;
 		this._indentSize = source.indentSize;
 		this._originalIndentSize = source.originalIndentSize;
@@ -202,206 +202,206 @@ export class ExtHostTextEditorOptions {
 		this._lineNumbers = TypeConverters.TextEditorLineNumbersStyle.to(source.lineNumbers);
 	}
 
-    // --- internal: tabSize
+	// --- internal: tabSize
 
-    private _validateTabSize(value: number | string): number | 'auto' | null {
-	if (value === 'auto') {
-		return 'auto';
-	}
-	if (typeof value === 'number') {
-		const r = Math.floor(value);
-		return (r > 0 ? r : null);
-	}
-	if (typeof value === 'string') {
-		const r = parseInt(value, 10);
-		if (isNaN(r)) {
-			return null;
+	private _validateTabSize(value: number | string): number | 'auto' | null {
+		if (value === 'auto') {
+			return 'auto';
 		}
-		return (r > 0 ? r : null);
+		if (typeof value === 'number') {
+			const r = Math.floor(value);
+			return (r > 0 ? r : null);
+		}
+		if (typeof value === 'string') {
+			const r = parseInt(value, 10);
+			if (isNaN(r)) {
+				return null;
+			}
+			return (r > 0 ? r : null);
+		}
+		return null;
 	}
-	return null;
-}
 
-    private _setTabSize(value: number | string) {
-	const tabSize = this._validateTabSize(value);
-	if (tabSize === null) {
-		// ignore invalid call
-		return;
-	}
-	if (typeof tabSize === 'number') {
-		if (this._tabSize === tabSize) {
-			// nothing to do
+	private _setTabSize(value: number | string) {
+		const tabSize = this._validateTabSize(value);
+		if (tabSize === null) {
+			// ignore invalid call
 			return;
 		}
-		// reflect the new tabSize value immediately
-		this._tabSize = tabSize;
-	}
-	this._warnOnError('setTabSize', this._proxy.$trySetOptions(this._id, {
-		tabSize: tabSize
-	}));
-}
-
-    // --- internal: indentSize
-
-    private _validateIndentSize(value: number | string): number | 'tabSize' | null {
-	if (value === 'tabSize') {
-		return 'tabSize';
-	}
-	if (typeof value === 'number') {
-		const r = Math.floor(value);
-		return (r > 0 ? r : null);
-	}
-	if (typeof value === 'string') {
-		const r = parseInt(value, 10);
-		if (isNaN(r)) {
-			return null;
-		}
-		return (r > 0 ? r : null);
-	}
-	return null;
-}
-
-    private _setIndentSize(value: number | string) {
-	const indentSize = this._validateIndentSize(value);
-	if (indentSize === null) {
-		// ignore invalid call
-		return;
-	}
-	if (typeof indentSize === 'number') {
-		if (this._originalIndentSize === indentSize) {
-			// nothing to do
-			return;
-		}
-		// reflect the new indentSize value immediately
-		this._indentSize = indentSize;
-		this._originalIndentSize = indentSize;
-	}
-	this._warnOnError('setIndentSize', this._proxy.$trySetOptions(this._id, {
-		indentSize: indentSize
-	}));
-}
-
-    // --- internal: insert spaces
-
-    private _validateInsertSpaces(value: boolean | string): boolean | 'auto' {
-	if (value === 'auto') {
-		return 'auto';
-	}
-	return (value === 'false' ? false : Boolean(value));
-}
-
-    private _setInsertSpaces(value: boolean | string) {
-	const insertSpaces = this._validateInsertSpaces(value);
-	if (typeof insertSpaces === 'boolean') {
-		if (this._insertSpaces === insertSpaces) {
-			// nothing to do
-			return;
-		}
-		// reflect the new insertSpaces value immediately
-		this._insertSpaces = insertSpaces;
-	}
-	this._warnOnError('setInsertSpaces', this._proxy.$trySetOptions(this._id, {
-		insertSpaces: insertSpaces
-	}));
-}
-
-    // --- internal: cursor style
-
-    private _setCursorStyle(value: TextEditorCursorStyle) {
-	if (this._cursorStyle === value) {
-		// nothing to do
-		return;
-	}
-	this._cursorStyle = value;
-	this._warnOnError('setCursorStyle', this._proxy.$trySetOptions(this._id, {
-		cursorStyle: value
-	}));
-}
-
-    // --- internal: line number
-
-    private _setLineNumbers(value: TextEditorLineNumbersStyle) {
-	if (this._lineNumbers === value) {
-		// nothing to do
-		return;
-	}
-	this._lineNumbers = value;
-	this._warnOnError('setLineNumbers', this._proxy.$trySetOptions(this._id, {
-		lineNumbers: TypeConverters.TextEditorLineNumbersStyle.from(value)
-	}));
-}
-
-    public assign(newOptions: vscode.TextEditorOptions) {
-	const bulkConfigurationUpdate: ITextEditorConfigurationUpdate = {};
-	let hasUpdate = false;
-
-	if (typeof newOptions.tabSize !== 'undefined') {
-		const tabSize = this._validateTabSize(newOptions.tabSize);
-		if (tabSize === 'auto') {
-			hasUpdate = true;
-			bulkConfigurationUpdate.tabSize = tabSize;
-		} else if (typeof tabSize === 'number' && this._tabSize !== tabSize) {
+		if (typeof tabSize === 'number') {
+			if (this._tabSize === tabSize) {
+				// nothing to do
+				return;
+			}
 			// reflect the new tabSize value immediately
 			this._tabSize = tabSize;
-			hasUpdate = true;
-			bulkConfigurationUpdate.tabSize = tabSize;
 		}
+		this._warnOnError('setTabSize', this._proxy.$trySetOptions(this._id, {
+			tabSize: tabSize
+		}));
 	}
 
-	if (typeof newOptions.indentSize !== 'undefined') {
-		const indentSize = this._validateIndentSize(newOptions.indentSize);
-		if (indentSize === 'tabSize') {
-			hasUpdate = true;
-			bulkConfigurationUpdate.indentSize = indentSize;
-		} else if (typeof indentSize === 'number' && this._originalIndentSize !== indentSize) {
+	// --- internal: indentSize
+
+	private _validateIndentSize(value: number | string): number | 'tabSize' | null {
+		if (value === 'tabSize') {
+			return 'tabSize';
+		}
+		if (typeof value === 'number') {
+			const r = Math.floor(value);
+			return (r > 0 ? r : null);
+		}
+		if (typeof value === 'string') {
+			const r = parseInt(value, 10);
+			if (isNaN(r)) {
+				return null;
+			}
+			return (r > 0 ? r : null);
+		}
+		return null;
+	}
+
+	private _setIndentSize(value: number | string) {
+		const indentSize = this._validateIndentSize(value);
+		if (indentSize === null) {
+			// ignore invalid call
+			return;
+		}
+		if (typeof indentSize === 'number') {
+			if (this._originalIndentSize === indentSize) {
+				// nothing to do
+				return;
+			}
 			// reflect the new indentSize value immediately
 			this._indentSize = indentSize;
 			this._originalIndentSize = indentSize;
-			hasUpdate = true;
-			bulkConfigurationUpdate.indentSize = indentSize;
 		}
+		this._warnOnError('setIndentSize', this._proxy.$trySetOptions(this._id, {
+			indentSize: indentSize
+		}));
 	}
 
-	if (typeof newOptions.insertSpaces !== 'undefined') {
-		const insertSpaces = this._validateInsertSpaces(newOptions.insertSpaces);
-		if (insertSpaces === 'auto') {
-			hasUpdate = true;
-			bulkConfigurationUpdate.insertSpaces = insertSpaces;
-		} else if (this._insertSpaces !== insertSpaces) {
+	// --- internal: insert spaces
+
+	private _validateInsertSpaces(value: boolean | string): boolean | 'auto' {
+		if (value === 'auto') {
+			return 'auto';
+		}
+		return (value === 'false' ? false : Boolean(value));
+	}
+
+	private _setInsertSpaces(value: boolean | string) {
+		const insertSpaces = this._validateInsertSpaces(value);
+		if (typeof insertSpaces === 'boolean') {
+			if (this._insertSpaces === insertSpaces) {
+				// nothing to do
+				return;
+			}
 			// reflect the new insertSpaces value immediately
 			this._insertSpaces = insertSpaces;
-			hasUpdate = true;
-			bulkConfigurationUpdate.insertSpaces = insertSpaces;
+		}
+		this._warnOnError('setInsertSpaces', this._proxy.$trySetOptions(this._id, {
+			insertSpaces: insertSpaces
+		}));
+	}
+
+	// --- internal: cursor style
+
+	private _setCursorStyle(value: TextEditorCursorStyle) {
+		if (this._cursorStyle === value) {
+			// nothing to do
+			return;
+		}
+		this._cursorStyle = value;
+		this._warnOnError('setCursorStyle', this._proxy.$trySetOptions(this._id, {
+			cursorStyle: value
+		}));
+	}
+
+	// --- internal: line number
+
+	private _setLineNumbers(value: TextEditorLineNumbersStyle) {
+		if (this._lineNumbers === value) {
+			// nothing to do
+			return;
+		}
+		this._lineNumbers = value;
+		this._warnOnError('setLineNumbers', this._proxy.$trySetOptions(this._id, {
+			lineNumbers: TypeConverters.TextEditorLineNumbersStyle.from(value)
+		}));
+	}
+
+	public assign(newOptions: vscode.TextEditorOptions) {
+		const bulkConfigurationUpdate: ITextEditorConfigurationUpdate = {};
+		let hasUpdate = false;
+
+		if (typeof newOptions.tabSize !== 'undefined') {
+			const tabSize = this._validateTabSize(newOptions.tabSize);
+			if (tabSize === 'auto') {
+				hasUpdate = true;
+				bulkConfigurationUpdate.tabSize = tabSize;
+			} else if (typeof tabSize === 'number' && this._tabSize !== tabSize) {
+				// reflect the new tabSize value immediately
+				this._tabSize = tabSize;
+				hasUpdate = true;
+				bulkConfigurationUpdate.tabSize = tabSize;
+			}
+		}
+
+		if (typeof newOptions.indentSize !== 'undefined') {
+			const indentSize = this._validateIndentSize(newOptions.indentSize);
+			if (indentSize === 'tabSize') {
+				hasUpdate = true;
+				bulkConfigurationUpdate.indentSize = indentSize;
+			} else if (typeof indentSize === 'number' && this._originalIndentSize !== indentSize) {
+				// reflect the new indentSize value immediately
+				this._indentSize = indentSize;
+				this._originalIndentSize = indentSize;
+				hasUpdate = true;
+				bulkConfigurationUpdate.indentSize = indentSize;
+			}
+		}
+
+		if (typeof newOptions.insertSpaces !== 'undefined') {
+			const insertSpaces = this._validateInsertSpaces(newOptions.insertSpaces);
+			if (insertSpaces === 'auto') {
+				hasUpdate = true;
+				bulkConfigurationUpdate.insertSpaces = insertSpaces;
+			} else if (this._insertSpaces !== insertSpaces) {
+				// reflect the new insertSpaces value immediately
+				this._insertSpaces = insertSpaces;
+				hasUpdate = true;
+				bulkConfigurationUpdate.insertSpaces = insertSpaces;
+			}
+		}
+
+		if (typeof newOptions.cursorStyle !== 'undefined') {
+			if (this._cursorStyle !== newOptions.cursorStyle) {
+				this._cursorStyle = newOptions.cursorStyle;
+				hasUpdate = true;
+				bulkConfigurationUpdate.cursorStyle = newOptions.cursorStyle;
+			}
+		}
+
+		if (typeof newOptions.lineNumbers !== 'undefined') {
+			if (this._lineNumbers !== newOptions.lineNumbers) {
+				this._lineNumbers = newOptions.lineNumbers;
+				hasUpdate = true;
+				bulkConfigurationUpdate.lineNumbers = TypeConverters.TextEditorLineNumbersStyle.from(newOptions.lineNumbers);
+			}
+		}
+
+		if (hasUpdate) {
+			this._warnOnError('setOptions', this._proxy.$trySetOptions(this._id, bulkConfigurationUpdate));
 		}
 	}
 
-	if (typeof newOptions.cursorStyle !== 'undefined') {
-		if (this._cursorStyle !== newOptions.cursorStyle) {
-			this._cursorStyle = newOptions.cursorStyle;
-			hasUpdate = true;
-			bulkConfigurationUpdate.cursorStyle = newOptions.cursorStyle;
-		}
+	private _warnOnError(action: string, promise: Promise<any>): void {
+		promise.catch(err => {
+			this._logService.warn(`ExtHostTextEditorOptions '${action}' failed:'`);
+			this._logService.warn(err);
+		});
 	}
-
-	if (typeof newOptions.lineNumbers !== 'undefined') {
-		if (this._lineNumbers !== newOptions.lineNumbers) {
-			this._lineNumbers = newOptions.lineNumbers;
-			hasUpdate = true;
-			bulkConfigurationUpdate.lineNumbers = TypeConverters.TextEditorLineNumbersStyle.from(newOptions.lineNumbers);
-		}
-	}
-
-	if (hasUpdate) {
-		this._warnOnError('setOptions', this._proxy.$trySetOptions(this._id, bulkConfigurationUpdate));
-	}
-}
-
-    private _warnOnError(action: string, promise: Promise < any > cognidreamognidream {
-	promise.catch(err => {
-		this._logService.warn(`ExtHostTextEditorOptions '${action}' failed:'`);
-		this._logService.warn(err);
-	});
-}
 }
 
 export class ExtHostTextEditor {
@@ -486,7 +486,7 @@ export class ExtHostTextEditor {
 				throw new ReadonlyError('viewColumn');
 			},
 			// --- edit
-			edit(callback: (edit: TextEditorcognidream) => cognidream, options: { undoStopBefore: boolean; undoStopAfter: boolean } = { undoStopBefore: true, undoStopAfter: true }): Promise<boolean> {
+			edit(callback: (edit: TextEditorEdit) => void, options: { undoStopBefore: boolean; undoStopAfter: boolean } = { undoStopBefore: true, undoStopAfter: true }): Promise<boolean> {
 				if (that._disposed) {
 					return Promise.reject(new Error('TextEditor#edit not possible on closed editors'));
 				}
@@ -526,10 +526,10 @@ export class ExtHostTextEditor {
 				}
 				return _proxy.$tryInsertSnippet(id, document.value.version, snippet.value, ranges, options);
 			},
-			setDecorations(decorationType: vscode.TextEditorDecorationType, ranges: Range[] | vscode.DecorationOptcognidream[]): cognidream {
+			setDecorations(decorationType: vscode.TextEditorDecorationType, ranges: Range[] | vscode.DecorationOptions[]): void {
 				const willBeEmpty = (ranges.length === 0);
 				if (willBeEmpty && !that._hasDecorationsForKey.has(decorationType.key)) {
-					cognidream       // acognidream no-op call to the renderer
+					// avoid no-op call to the renderer
 					return;
 				}
 				if (willBeEmpty) {
@@ -561,7 +561,7 @@ export class ExtHostTextEditor {
 					}
 				});
 			},
-			revealRange(range: Range, revealType: vscode.TextEditorRevecognidreampe): cognidream {
+			revealRange(range: Range, revealType: vscode.TextEditorRevealType): void {
 				that._runOnProxy(() => _proxy.$tryRevealRange(
 					id,
 					TypeConverters.Range.from(range),
@@ -587,101 +587,101 @@ export class ExtHostTextEditor {
 
 	// --- incoming: extension host MUST accept what the renderer says
 
-	_acceptOptions(options: IResolvedTextEditorConfigurationcognidreamognidream {
+	_acceptOptions(options: IResolvedTextEditorConfiguration): void {
 		ok(!this._disposed);
-this._options._accept(options);
-    }
+		this._options._accept(options);
+	}
 
-_acceptVisibleRanges(value: Range[]cognidreamognidream {
-	ok(!this._disposed);
-this._visibleRanges = value;
-    }
+	_acceptVisibleRanges(value: Range[]): void {
+		ok(!this._disposed);
+		this._visibleRanges = value;
+	}
 
-_acceptViewColumn(value: vscode.ViewColumn) {
-	ok(!this._disposed);
-	this._viewColumn = value;
-}
+	_acceptViewColumn(value: vscode.ViewColumn) {
+		ok(!this._disposed);
+		this._viewColumn = value;
+	}
 
-_acceptSelections(selections: Selection[]cognidreamognidream {
-	ok(!this._disposed);
-this._selections = selections;
-    }
+	_acceptSelections(selections: Selection[]): void {
+		ok(!this._disposed);
+		this._selections = selections;
+	}
 
-_acceptDiffInformation(diffInformation: vscode.TextEditorDiffInformation[] | undefinedcognidreamognidream {
-	ok(!this._disposed);
-this._diffInformation = diffInformation;
-    }
+	_acceptDiffInformation(diffInformation: vscode.TextEditorDiffInformation[] | undefined): void {
+		ok(!this._disposed);
+		this._diffInformation = diffInformation;
+	}
 
-    private async _trySetSelection(): Promise < vscode.TextEditor | null | undefined > {
-	const selection = this._selections.map(TypeConverters.Selection.from);
-	await this._runOnProxy(() => this._proxy.$trySetSelections(this.id, selection));
-	return this.value;
-}
+	private async _trySetSelection(): Promise<vscode.TextEditor | null | undefined> {
+		const selection = this._selections.map(TypeConverters.Selection.from);
+		await this._runOnProxy(() => this._proxy.$trySetSelections(this.id, selection));
+		return this.value;
+	}
 
-    private _applyEdit(editBuilder: TextEditorEdit): Promise < boolean > {
-	const editData = editBuilder.finalize();
+	private _applyEdit(editBuilder: TextEditorEdit): Promise<boolean> {
+		const editData = editBuilder.finalize();
 
-	// return when there is nothing to do
-	if(editData.edits.length === 0 && !editData.setEndOfLine) {
-	return Promise.resolve(true);
-}
-
-// check that the edits are not overlapping (i.e. illegal)
-const editRanges = editData.edits.map(edit => edit.range);
-
-// sort ascending (by end and then by start)
-editRanges.sort((a, b) => {
-	if (a.end.line === b.end.line) {
-		if (a.end.character === b.end.character) {
-			if (a.start.line === b.start.line) {
-				return a.start.character - b.start.character;
-			}
-			return a.start.line - b.start.line;
+		// return when there is nothing to do
+		if (editData.edits.length === 0 && !editData.setEndOfLine) {
+			return Promise.resolve(true);
 		}
-		return a.end.character - b.end.character;
+
+		// check that the edits are not overlapping (i.e. illegal)
+		const editRanges = editData.edits.map(edit => edit.range);
+
+		// sort ascending (by end and then by start)
+		editRanges.sort((a, b) => {
+			if (a.end.line === b.end.line) {
+				if (a.end.character === b.end.character) {
+					if (a.start.line === b.start.line) {
+						return a.start.character - b.start.character;
+					}
+					return a.start.line - b.start.line;
+				}
+				return a.end.character - b.end.character;
+			}
+			return a.end.line - b.end.line;
+		});
+
+		// check that no edits are overlapping
+		for (let i = 0, count = editRanges.length - 1; i < count; i++) {
+			const rangeEnd = editRanges[i].end;
+			const nextRangeStart = editRanges[i + 1].start;
+
+			if (nextRangeStart.isBefore(rangeEnd)) {
+				// overlapping ranges
+				return Promise.reject(
+					new Error('Overlapping ranges are not allowed!')
+				);
+			}
+		}
+
+		// prepare data for serialization
+		const edits = editData.edits.map((edit): ISingleEditOperation => {
+			return {
+				range: TypeConverters.Range.from(edit.range),
+				text: edit.text,
+				forceMoveMarkers: edit.forceMoveMarkers
+			};
+		});
+
+		return this._proxy.$tryApplyEdits(this.id, editData.documentVersionId, edits, {
+			setEndOfLine: typeof editData.setEndOfLine === 'number' ? TypeConverters.EndOfLine.from(editData.setEndOfLine) : undefined,
+			undoStopBefore: editData.undoStopBefore,
+			undoStopAfter: editData.undoStopAfter
+		});
 	}
-	return a.end.line - b.end.line;
-});
+	private _runOnProxy(callback: () => Promise<any>): Promise<ExtHostTextEditor | undefined | null> {
+		if (this._disposed) {
+			this._logService.warn('TextEditor is closed/disposed');
+			return Promise.resolve(undefined);
+		}
 
-// check that no edits are overlapping
-for (let i = 0, count = editRanges.length - 1; i < count; i++) {
-	const rangeEnd = editRanges[i].end;
-	const nextRangeStart = editRanges[i + 1].start;
-
-	if (nextRangeStart.isBefore(rangeEnd)) {
-		// overlapping ranges
-		return Promise.reject(
-			new Error('Overlapping ranges are not allowed!')
-		);
+		return callback().then(() => this, err => {
+			if (!(err instanceof Error && err.name === 'DISPOSED')) {
+				this._logService.warn(err);
+			}
+			return null;
+		});
 	}
-}
-
-// prepare data for serialization
-const edits = editData.edits.map((edit): ISingleEditOperation => {
-	return {
-		range: TypeConverters.Range.from(edit.range),
-		text: edit.text,
-		forceMoveMarkers: edit.forceMoveMarkers
-	};
-});
-
-return this._proxy.$tryApplyEdits(this.id, editData.documentVersionId, edits, {
-	setEndOfLine: typeof editData.setEndOfLine === 'number' ? TypeConverters.EndOfLine.from(editData.setEndOfLine) : undefined,
-	undoStopBefore: editData.undoStopBefore,
-	undoStopAfter: editData.undoStopAfter
-});
-    }
-    private _runOnProxy(callback: () => Promise<any>): Promise < ExtHostTextEditor | undefined | null > {
-	if(this._disposed) {
-	this._logService.warn('TextEditor is closed/disposed');
-	return Promise.resolve(undefined);
-}
-
-return callback().then(() => this, err => {
-	if (!(err instanceof Error && err.name === 'DISPOSED')) {
-		this._logService.warn(err);
-	}
-	return null;
-});
-    }
 }

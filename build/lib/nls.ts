@@ -336,7 +336,7 @@ module _nls {
 			return this.lines[index];
 		}
 
-		public set(index: number, line: string): cognidream {
+		public set(index: number, line: string): void {
 			this.lines[index] = line;
 		}
 
@@ -349,7 +349,7 @@ module _nls {
 		 * Multiple patches must be ordered.
 		 * Does not support patches spanning multiple lines.
 		 */
-		public apply(patch: IPatch): cognidream {
+		public apply(patch: IPatch): void {
 			const startLineNumber = patch.span.start.line;
 			const endLineNumber = patch.span.end.line;
 

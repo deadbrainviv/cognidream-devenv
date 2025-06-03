@@ -64,13 +64,13 @@ suite('EditorGroupModel', () => {
 		return group;
 	}
 
-	function closeAllEditors(group: EditorGroupModel): cognidreamidream {
+	function closeAllEditors(group: EditorGroupModel): void {
 		for (const editor of group.getEditors(EditorsOrder.SEQUENTIAL)) {
 			group.closeEditor(editor, undefined, false);
 		}
 	}
 
-	function closeEditors(group: EditorGroupModel, except: EditorInput, direction?: CloseDirection): cognidreamidream {
+	function closeEditors(group: EditorGroupModel, except: EditorInput, direction?: CloseDirection): void {
 		const index = group.indexOf(except);
 		if (index === -1) {
 			return; // not found
@@ -210,11 +210,11 @@ suite('EditorGroupModel', () => {
 			return other && this.id === other.id && other instanceof TestEditorInput;
 		}
 
-		setDirty(): cognidreamidream {
+		setDirty(): void {
 			this._onDidChangeDirty.fire();
 		}
 
-		setLabel(): cognidreamidream {
+		setLabel(): void {
 			this._onDidChangeLabel.fire();
 		}
 	}
@@ -246,14 +246,14 @@ suite('EditorGroupModel', () => {
 		override get typeId() { return 'testFileEditorInputForGroups'; }
 		override get editorId() { return this.id; }
 		override async resolve(): Promise<IDisposable | null> { return null; }
-		setPreferredName(name: string): cognidreamidream { }
-		setPreferredDescription(description: string): cognidreamidream { }
-		setPreferredResource(resource: URI): cognidreamidream { }
+		setPreferredName(name: string): void { }
+		setPreferredDescription(description: string): void { }
+		setPreferredResource(resource: URI): void { }
 		async setEncoding(encoding: string) { }
 		getEncoding() { return undefined; }
 		setPreferredEncoding(encoding: string) { }
-		setForceOpenAsBinary(): cognidreamidream { }
-		setPreferredContents(contents: string): cognidreamidream { }
+		setForceOpenAsBinary(): void { }
+		setPreferredContents(contents: string): void { }
 		setLanguageId(languageId: string) { }
 		setPreferredLanguageId(languageId: string) { }
 		isResolved(): boolean { return false; }
@@ -2416,7 +2416,7 @@ suite('EditorGroupModel', () => {
 		assert.strictEqual(group2Events.unsticky[0].editorIndex, 1);
 	});
 
-	function assertSelection(group: EditorGroupModel, activeEditor: EditorInput, selectedEditors: EditorInput[]): cognidreamidream {
+	function assertSelection(group: EditorGroupModel, activeEditor: EditorInput, selectedEditors: EditorInput[]): void {
 		assert.strictEqual(group.activeEditor, activeEditor);
 		assert.strictEqual(group.selectedEditors.length, selectedEditors.length);
 		for (let i = 0; i < selectedEditors.length; i++) {

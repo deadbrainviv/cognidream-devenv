@@ -12,7 +12,7 @@
 */
 @implementation Test
 
-- (cognidream) applicationWillFinishLaunching:(NSNotification *)notification
+- (void) applicationWillFinishLaunching:(NSNotification *)notification
 {
 }
 

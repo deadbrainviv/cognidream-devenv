@@ -27,89 +27,89 @@ import { IAccessibilitySignalService } from '../../../../../platform/accessibili
 
 suite('EditorAutoSave', () => {
 
-    const disposables = new DisposableStore();
+	const disposables = new DisposableStore();
 
-    setup(() => {
-        disposables.add(registerTestFileEditor());
-    });
+	setup(() => {
+		disposables.add(registerTestFileEditor());
+	});
 
-    teardown(() => {
-        disposables.clear();
-    });
+	teardown(() => {
+		disposables.clear();
+	});
 
-    async function createEditorAutoSave(autoSaveConfig: object): Promise<TestServiceAccessor> {
-        const instantiationService = workbenchInstantiationService(undefined, disposables);
+	async function createEditorAutoSave(autoSaveConfig: object): Promise<TestServiceAccessor> {
+		const instantiationService = workbenchInstantiationService(undefined, disposables);
 
-        const configurationService = new TestConfigurationService();
-        configurationService.setUserConfiguration('files', autoSaveConfig);
-        instantiationService.stub(IConfigurationService, configurationService);
-        instantiationService.stub(IAccessibilitySignalService, {
-            playSignal: async () => { },
-            isSoundEnabled(signal: unknown) { return false; },
-        } as any);
-        instantiationService.stub(IFilesConfigurationService, disposables.add(new TestFilesConfigurationService(
-            <IContextKeyService>instantiationService.createInstance(MockContextKeyService),
-            configurationService,
-            new TestContextService(TestWorkspace),
-            TestEnvironmentService,
-            disposables.add(new UriIdentityService(disposables.add(new TestFileService()))),
-            disposables.add(new TestFileService()),
-            new TestMarkerService(),
-            new TestTextResourceConfigurationService(configurationService)
-        )));
+		const configurationService = new TestConfigurationService();
+		configurationService.setUserConfiguration('files', autoSaveConfig);
+		instantiationService.stub(IConfigurationService, configurationService);
+		instantiationService.stub(IAccessibilitySignalService, {
+			playSignal: async () => { },
+			isSoundEnabled(signal: unknown) { return false; },
+		} as any);
+		instantiationService.stub(IFilesConfigurationService, disposables.add(new TestFilesConfigurationService(
+			<IContextKeyService>instantiationService.createInstance(MockContextKeyService),
+			configurationService,
+			new TestContextService(TestWorkspace),
+			TestEnvironmentService,
+			disposables.add(new UriIdentityService(disposables.add(new TestFileService()))),
+			disposables.add(new TestFileService()),
+			new TestMarkerService(),
+			new TestTextResourceConfigurationService(configurationService)
+		)));
 
-        const part = await createEditorPart(instantiationService, disposables);
-        instantiationService.stub(IEditorGroupsService, part);
+		const part = await createEditorPart(instantiationService, disposables);
+		instantiationService.stub(IEditorGroupsService, part);
 
-        const editorService: EditorService = disposables.add(instantiationService.createInstance(EditorService, undefined));
-        instantiationService.stub(IEditorService, editorService);
+		const editorService: EditorService = disposables.add(instantiationService.createInstance(EditorService, undefined));
+		instantiationService.stub(IEditorService, editorService);
 
-        const accessor = instantiationService.createInstance(TestServiceAccessor);
-        disposables.add((<TextFileEditorModelManager>accessor.textFileService.files));
+		const accessor = instantiationService.createInstance(TestServiceAccessor);
+		disposables.add((<TextFileEditorModelManager>accessor.textFileService.files));
 
-        disposables.add(instantiationService.createInstance(EditorAutoSave));
+		disposables.add(instantiationService.createInstance(EditorAutoSave));
 
-        return accessor;
-    }
+		return accessor;
+	}
 
-    test('editor auto saves after short delay if configured', async function() {
-        const accessor = await createEditorAutoSave({ autoSave: 'afterDelay', autoSaveDelay: 1 });
+	test('editor auto saves after short delay if configured', async function () {
+		const accessor = await createEditorAutoSave({ autoSave: 'afterDelay', autoSaveDelay: 1 });
 
-        const resource = toResource.call(this, '/path/index.txt');
+		const resource = toResource.call(this, '/path/index.txt');
 
-        const model: ITextFileEditorModel = disposables.add(await accessor.textFileService.files.resolve(resource));
-        model.textEditorModel?.setValue('Super Good');
+		const model: ITextFileEditorModel = disposables.add(await accessor.textFileService.files.resolve(resource));
+		model.textEditorModel?.setValue('Super Good');
 
-        assert.ok(model.isDirty());
+		assert.ok(model.isDirty());
 
-        await awaitModelSaved(model);
+		await awaitModelSaved(model);
 
-        assert.strictEqual(model.isDirty(), false);
-    });
+		assert.strictEqual(model.isDirty(), false);
+	});
 
-    test('editor auto saves on focus change if configured', async function() {
-        const accessor = await createEditorAutoSave({ autoSave: 'onFocusChange' });
+	test('editor auto saves on focus change if configured', async function () {
+		const accessor = await createEditorAutoSave({ autoSave: 'onFocusChange' });
 
-        const resource = toResource.call(this, '/path/index.txt');
-        await accessor.editorService.openEditor({ resource, options: { override: DEFAULT_EDITOR_ASSOCIATION.id } });
+		const resource = toResource.call(this, '/path/index.txt');
+		await accessor.editorService.openEditor({ resource, options: { override: DEFAULT_EDITOR_ASSOCIATION.id } });
 
-        const model: ITextFileEditorModel = disposables.add(await accessor.textFileService.files.resolve(resource));
-        model.textEditorModel?.setValue('Super Good');
+		const model: ITextFileEditorModel = disposables.add(await accessor.textFileService.files.resolve(resource));
+		model.textEditorModel?.setValue('Super Good');
 
-        assert.ok(model.isDirty());
+		assert.ok(model.isDirty());
 
-        const editorPane = await accessor.editorService.openEditor({ resource: toResource.call(this, '/path/index_other.txt') });
+		const editorPane = await accessor.editorService.openEditor({ resource: toResource.call(this, '/path/index_other.txt') });
 
-        await awaitModelSaved(model);
+		await awaitModelSaved(model);
 
-        assert.strictEqual(model.isDirty(), false);
+		assert.strictEqual(model.isDirty(), false);
 
-        await editorPane?.group.closeAllEditors();
-    });
+		await editorPane?.group.closeAllEditors();
+	});
 
-    function awaitModelSaved(model: ITextFileEditorModel): Promise<cognidream> {
-        return Event.toPromise(Event.once(model.onDidChangeDirty));
-    }
+	function awaitModelSaved(model: ITextFileEditorModel): Promise<void> {
+		return Event.toPromise(Event.once(model.onDidChangeDirty));
+	}
 
-    ensureNoDisposablesAreLeakedInTestSuite();
+	ensureNoDisposablesAreLeakedInTestSuite();
 });

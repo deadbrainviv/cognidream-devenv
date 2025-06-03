@@ -12,19 +12,19 @@ import { IPartsSplash } from '../../../../platform/theme/common/themeService.js'
 
 class SplashStorageService implements ISplashStorageService {
 
-    _serviceBrand: undefined;
+	_serviceBrand: undefined;
 
-    readonly saveWindowSplash: (splash: IPartsSplash) => Promise<cognidream>;
+	readonly saveWindowSplash: (splash: IPartsSplash) => Promise<void>;
 
-    constructor(@INativeHostService nativeHostService: INativeHostService) {
-        this.saveWindowSplash = nativeHostService.saveWindowSplash.bind(nativeHostService);
-    }
+	constructor(@INativeHostService nativeHostService: INativeHostService) {
+		this.saveWindowSplash = nativeHostService.saveWindowSplash.bind(nativeHostService);
+	}
 }
 
 registerSingleton(ISplashStorageService, SplashStorageService, InstantiationType.Delayed);
 
 registerWorkbenchContribution2(
-    PartsSplash.ID,
-    PartsSplash,
-    WorkbenchPhase.BlockStartup
+	PartsSplash.ID,
+	PartsSplash,
+	WorkbenchPhase.BlockStartup
 );

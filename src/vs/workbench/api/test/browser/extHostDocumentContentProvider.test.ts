@@ -29,17 +29,17 @@ suite('ExtHostDocumentContentProvider', () => {
 		changes.length = 0;
 
 		mainThreadContentProvider = new class implements MainThreadDocumentContentProvidersShape {
-			$registerTextContentProvider(handle: number, scheme: string): cognidream {
+			$registerTextContentProvider(handle: number, scheme: string): void {
 
 			}
-			$unregisterTextContentProvider(handle: cognidreamer): cognidream {
+			$unregisterTextContentProvider(handle: number): void {
 
 			}
-			async $onVirtualDocumentChange(uri: UriComponents, value: string): cognidreammise<cognidream> {
+			async $onVirtualDocumentChange(uri: UriComponents, value: string): Promise<void> {
 				await timeout(10);
 				changes.push([uri, value]);
 			}
-			dicognidreame(): cognidream {
+			dispose(): void {
 				throw new Error('Method not implemented.');
 			}
 		};

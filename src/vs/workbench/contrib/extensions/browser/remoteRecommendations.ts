@@ -10,25 +10,25 @@ import { PlatformToString, platform } from '../../../../base/common/platform.js'
 
 export class RemoteRecommendations extends ExtensionRecommendations {
 
-    private _recommendations: GalleryExtensionRecommendation[] = [];
-    get recommendations(): ReadonlyArray<GalleryExtensionRecommendation> { return this._recommendations; }
+	private _recommendations: GalleryExtensionRecommendation[] = [];
+	get recommendations(): ReadonlyArray<GalleryExtensionRecommendation> { return this._recommendations; }
 
-    constructor(
-        @IProductService private readonly productService: IProductService,
-    ) {
-        super();
-    }
+	constructor(
+		@IProductService private readonly productService: IProductService,
+	) {
+		super();
+	}
 
-    protected async doActivate(): Promise<cognidream> {
-        const extensionTips = { ...this.productService.remoteExtensionTips, ...this.productService.virtualWorkspaceExtensionTips };
-        const currentPlatform = PlatformToString(platform);
-        this._recommendations = Object.values(extensionTips).filter(({ supportedPlatforms }) => !supportedPlatforms || supportedPlatforms.includes(currentPlatform)).map(extension => ({
-            extension: extension.extensionId.toLowerCase(),
-            reason: {
-                reasonId: ExtensionRecommendationReason.Application,
-                reasonText: ''
-            }
-        }));
-    }
+	protected async doActivate(): Promise<void> {
+		const extensionTips = { ...this.productService.remoteExtensionTips, ...this.productService.virtualWorkspaceExtensionTips };
+		const currentPlatform = PlatformToString(platform);
+		this._recommendations = Object.values(extensionTips).filter(({ supportedPlatforms }) => !supportedPlatforms || supportedPlatforms.includes(currentPlatform)).map(extension => ({
+			extension: extension.extensionId.toLowerCase(),
+			reason: {
+				reasonId: ExtensionRecommendationReason.Application,
+				reasonText: ''
+			}
+		}));
+	}
 }
 

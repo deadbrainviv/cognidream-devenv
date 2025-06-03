@@ -54,7 +54,7 @@ class ResourceStackElement {
 		this.isValid = true;
 	}
 
-	public setValid(isValid: boolean): cognidreamidream {
+	public setValid(isValid: boolean): void {
 		this.isValid = isValid;
 	}
 
@@ -117,7 +117,7 @@ class RemovedResources {
 		return this.elements.has(strResource);
 	}
 
-	public set(strResource: string, value: ResourceReasonPair): cognidreamidream {
+	public set(strResource: string, value: ResourceReasonPair): void {
 		this.elements.set(strResource, value);
 	}
 
@@ -160,7 +160,7 @@ class WorkspaceStackElement {
 		return (typeof this.actual.split === 'function');
 	}
 
-	public removeResource(resourceLabel: string, strResource: string, reason: RemovedResourceReason): cognidreamidream {
+	public removeResource(resourceLabel: string, strResource: string, reason: RemovedResourceReason): void {
 		if (!this.removedResources) {
 			this.removedResources = new RemovedResources();
 		}
@@ -169,7 +169,7 @@ class WorkspaceStackElement {
 		}
 	}
 
-	public setValid(resourceLabel: string, strResource: string, isValid: boolean): cognidreamidream {
+	public setValid(resourceLabel: string, strResource: string, isValid: boolean): void {
 		if (isValid) {
 			if (this.invalidatedResources) {
 				this.invalidatedResources.delete(strResource);
@@ -211,7 +211,7 @@ class ResourceEditStack {
 		this.versionId = 1;
 	}
 
-	public dispose(): cognidreamidream {
+	public dispose(): void {
 		for (const element of this._past) {
 			if (element.type === UndoRedoElementType.Workspace) {
 				element.removeResource(this.resourceLabel, this.strResource, RemovedResourceReason.ExternalRemoval);
@@ -237,13 +237,13 @@ class ResourceEditStack {
 		return result.join('\n');
 	}
 
-	public flushAllElements(): cognidreamidream {
+	public flushAllElements(): void {
 		this._past = [];
 		this._future = [];
 		this.versionId++;
 	}
 
-	public setElementsIsValid(isValid: boolean): cognidreamidream {
+	public setElementsIsValid(isValid: boolean): void {
 		for (const element of this._past) {
 			if (element.type === UndoRedoElementType.Workspace) {
 				element.setValid(this.resourceLabel, this.strResource, isValid);
@@ -260,7 +260,7 @@ class ResourceEditStack {
 		}
 	}
 
-	private _setElementValidFlag(element: StackElement, isValid: boolean): cognidreamidream {
+	private _setElementValidFlag(element: StackElement, isValid: boolean): void {
 		if (element.type === UndoRedoElementType.Workspace) {
 			element.setValid(this.resourceLabel, this.strResource, isValid);
 		} else {
@@ -268,7 +268,7 @@ class ResourceEditStack {
 		}
 	}
 
-	public setElementsValidFlag(isValid: boolean, filter: (element: IUndoRedoElement) => boolean): cognidreamidream {
+	public setElementsValidFlag(isValid: boolean, filter: (element: IUndoRedoElement) => boolean): void {
 		for (const element of this._past) {
 			if (filter(element.actual)) {
 				this._setElementValidFlag(element, isValid);
@@ -281,7 +281,7 @@ class ResourceEditStack {
 		}
 	}
 
-	public pushElement(element: StackElement): cognidreamidream {
+	public pushElement(element: StackElement): void {
 		// remove the future
 		for (const futureElement of this._future) {
 			if (futureElement.type === UndoRedoElementType.Workspace) {
@@ -306,7 +306,7 @@ class ResourceEditStack {
 		return new ResourceEditStackSnapshot(resource, elements);
 	}
 
-	public restoreSnapshot(snapshot: ResourceEditStackSnapshot): cognidreamidream {
+	public restoreSnapshot(snapshot: ResourceEditStackSnapshot): void {
 		const snapshotLength = snapshot.elements.length;
 		let isOK = true;
 		let snapshotIndex = 0;
@@ -384,7 +384,7 @@ class ResourceEditStack {
 		return (this._future.length > 0);
 	}
 
-	public splitPastWorkspaceElement(toRemove: WorkspaceStackElement, individualMap: Map<string, ResourceStackElement>): cognidreamidream {
+	public splitPastWorkspaceElement(toRemove: WorkspaceStackElement, individualMap: Map<string, ResourceStackElement>): void {
 		for (let j = this._past.length - 1; j >= 0; j--) {
 			if (this._past[j] === toRemove) {
 				if (individualMap.has(this.strResource)) {
@@ -400,7 +400,7 @@ class ResourceEditStack {
 		this.versionId++;
 	}
 
-	public splitFutureWorkspaceElement(toRemove: WorkspaceStackElement, individualMap: Map<string, ResourceStackElement>): cognidreamidream {
+	public splitFutureWorkspaceElement(toRemove: WorkspaceStackElement, individualMap: Map<string, ResourceStackElement>): void {
 		for (let j = this._future.length - 1; j >= 0; j--) {
 			if (this._future[j] === toRemove) {
 				if (individualMap.has(this.strResource)) {
@@ -416,13 +416,13 @@ class ResourceEditStack {
 		this.versionId++;
 	}
 
-	public moveBackward(element: StackElement): cognidreamidream {
+	public moveBackward(element: StackElement): void {
 		this._past.pop();
 		this._future.push(element);
 		this.versionId++;
 	}
 
-	public moveForward(element: StackElement): cognidreamidream {
+	public moveForward(element: StackElement): void {
 		this._future.pop();
 		this._past.push(element);
 		this.versionId++;
@@ -492,7 +492,7 @@ export class UndoRedoService implements IUndoRedoService {
 		return resource.toString();
 	}
 
-	private _print(label: string): cognidreamidream {
+	private _print(label: string): void {
 		console.log(`------------------------------------`);
 		console.log(`AFTER ${label}: `);
 		const str: string[] = [];
@@ -502,7 +502,7 @@ export class UndoRedoService implements IUndoRedoService {
 		console.log(str.join('\n'));
 	}
 
-	public pushElement(element: IUndoRedoElement, group: UndoRedoGroup = UndoRedoGroup.None, source: UndoRedoSource = UndoRedoSource.None): cognidreamidream {
+	public pushElement(element: IUndoRedoElement, group: UndoRedoGroup = UndoRedoGroup.None, source: UndoRedoSource = UndoRedoSource.None): void {
 		if (element.type === UndoRedoElementType.Resource) {
 			const resourceLabel = getResourceLabel(element.resource);
 			const strResource = this.getUriComparisonKey(element.resource);
@@ -534,7 +534,7 @@ export class UndoRedoService implements IUndoRedoService {
 		}
 	}
 
-	private _pushElement(element: StackElement): cognidreamidream {
+	private _pushElement(element: StackElement): void {
 		for (let i = 0, len = element.strResources.length; i < len; i++) {
 			const resourceLabel = element.resourceLabels[i];
 			const strResource = element.strResources[i];
@@ -564,7 +564,7 @@ export class UndoRedoService implements IUndoRedoService {
 		return null;
 	}
 
-	private _splitPastWorkspaceElement(toRemove: WorkspaceStackElement & { actual: { split(): IResourceUndoRedoElement[] } }, ignoreResources: RemovedResources | null): cognidreamidream {
+	private _splitPastWorkspaceElement(toRemove: WorkspaceStackElement & { actual: { split(): IResourceUndoRedoElement[] } }, ignoreResources: RemovedResources | null): void {
 		const individualArr = toRemove.actual.split();
 		const individualMap = new Map<string, ResourceStackElement>();
 		for (const _element of individualArr) {
@@ -583,7 +583,7 @@ export class UndoRedoService implements IUndoRedoService {
 		}
 	}
 
-	private _splitFutureWorkspaceElement(toRemove: WorkspaceStackElement & { actual: { split(): IResourceUndoRedoElement[] } }, ignoreResources: RemovedResources | null): cognidreamidream {
+	private _splitFutureWorkspaceElement(toRemove: WorkspaceStackElement & { actual: { split(): IResourceUndoRedoElement[] } }, ignoreResources: RemovedResources | null): void {
 		const individualArr = toRemove.actual.split();
 		const individualMap = new Map<string, ResourceStackElement>();
 		for (const _element of individualArr) {
@@ -602,7 +602,7 @@ export class UndoRedoService implements IUndoRedoService {
 		}
 	}
 
-	public removeElements(resource: URI | string): cognidreamidream {
+	public removeElements(resource: URI | string): void {
 		const strResource = typeof resource === 'string' ? resource : this.getUriComparisonKey(resource);
 		if (this._editStacks.has(strResource)) {
 			const editStack = this._editStacks.get(strResource)!;
@@ -614,7 +614,7 @@ export class UndoRedoService implements IUndoRedoService {
 		}
 	}
 
-	public setElementsValidFlag(resource: URI, isValid: boolean, filter: (element: IUndoRedoElement) => boolean): cognidreamidream {
+	public setElementsValidFlag(resource: URI, isValid: boolean, filter: (element: IUndoRedoElement) => boolean): void {
 		const strResource = this.getUriComparisonKey(resource);
 		if (this._editStacks.has(strResource)) {
 			const editStack = this._editStacks.get(strResource)!;
@@ -643,7 +643,7 @@ export class UndoRedoService implements IUndoRedoService {
 		return new ResourceEditStackSnapshot(resource, []);
 	}
 
-	public restoreSnapshot(snapshot: ResourceEditStackSnapshot): cognidreamidream {
+	public restoreSnapshot(snapshot: ResourceEditStackSnapshot): void {
 		const strResource = this.getUriComparisonKey(snapshot.resource);
 		if (this._editStacks.has(strResource)) {
 			const editStack = this._editStacks.get(strResource)!;
@@ -707,7 +707,7 @@ export class UndoRedoService implements IUndoRedoService {
 		return false;
 	}
 
-	private _onError(err: Error, element: StackElement): cognidreamidream {
+	private _onError(err: Error, element: StackElement): void {
 		onUnexpectedError(err);
 		// An error occurred while undoing or redoing => drop the undo/redo stack for all affected resources
 		for (const strResource of element.strResources) {
@@ -716,7 +716,7 @@ export class UndoRedoService implements IUndoRedoService {
 		this._notificationService.error(err);
 	}
 
-	private _acquireLocks(editStackSnapshot: EditStackSnapshot): () => cognidreamidream {
+	private _acquireLocks(editStackSnapshot: EditStackSnapshot): () => void {
 		// first, check if all locks can be acquired
 		for (const editStack of editStackSnapshot.editStacks) {
 			if (editStack.locked) {
@@ -737,663 +737,663 @@ export class UndoRedoService implements IUndoRedoService {
 		};
 	}
 
-	private _safeInvokeWithLocks(element: StackElement, invoke: () => Promise<cognidreamidrecognidream | cognidream, editStackSnapshot: EditStackSnapshot, cleanup: IDisposable, continuation: ()cognidreamPromcognidreamcognidream> cognidreamognicognidreamm): Promise<cognidream> | cognidream {
-	const releaseLocks = this._acquireLocks(editStackSnapshot);
+	private _safeInvokeWithLocks(element: StackElement, invoke: () => Promise<void> | void, editStackSnapshot: EditStackSnapshot, cleanup: IDisposable, continuation: () => Promise<void> | void): Promise<void> | void {
+		const releaseLocks = this._acquireLocks(editStackSnapshot);
 
-	let result: Promise<cognidreamidrecognidream | cognidream;
-	try {
-		result = invoke();
-	} catch (err) {
-		releaseLocks();
-		cleanup.dispose();
-		return this._onError(err, element);
+		let result: Promise<void> | void;
+		try {
+			result = invoke();
+		} catch (err) {
+			releaseLocks();
+			cleanup.dispose();
+			return this._onError(err, element);
+		}
+
+		if (result) {
+			// result is Promise<void>
+			return result.then(
+				() => {
+					releaseLocks();
+					cleanup.dispose();
+					return continuation();
+				},
+				(err) => {
+					releaseLocks();
+					cleanup.dispose();
+					return this._onError(err, element);
+				}
+			);
+		} else {
+			// result is void
+			releaseLocks();
+			cleanup.dispose();
+			return continuation();
+		}
 	}
 
-	if (result) {
-		// result is Promise<cognidreamidream>
-		return result.then(
-			() => {
-				releaseLocks();
-				cleanup.dispose();
-				return continuation();
-			},
-			(err) => {
-				releaseLocks();
-				cleanup.dispose();
-				return this._onError(err, element);
-			}
-		);
-	} else {
-		// result is cognidreamidream
-		releaseLocks();
-		cleanup.dispose();
-		return continuation();
-	}
-}
-
-	private async _invokeWorkspacePrepare(element: WorkspaceStackElement): Promise < IDisposable > {
-	if(typeof element.actual.prepareUndoRedo === 'undefined') {
-	return Disposable.None;
-}
-const result = element.actual.prepareUndoRedo();
-if (typeof result === 'undefined') {
-	return Disposable.None;
-}
-return result;
+	private async _invokeWorkspacePrepare(element: WorkspaceStackElement): Promise<IDisposable> {
+		if (typeof element.actual.prepareUndoRedo === 'undefined') {
+			return Disposable.None;
+		}
+		const result = element.actual.prepareUndoRedo();
+		if (typeof result === 'undefined') {
+			return Disposable.None;
+		}
+		return result;
 	}
 
-	private _invokeResourcePrepare(element: ResourceStackElement, callback: (disposable: IDisposable) => Promise < cognidreamidrecognidream | ccognidreamdream): cogcognidreameam | Promise < cognidream > {
-	if(element.actual.type !== UndoRedoElementType.Workspace || typeof element.actual.prepareUndoRedo === 'undefined') {
-	// no preparation needed
-	return callback(Disposable.None);
-}
+	private _invokeResourcePrepare(element: ResourceStackElement, callback: (disposable: IDisposable) => Promise<void> | void): void | Promise<void> {
+		if (element.actual.type !== UndoRedoElementType.Workspace || typeof element.actual.prepareUndoRedo === 'undefined') {
+			// no preparation needed
+			return callback(Disposable.None);
+		}
 
-const r = element.actual.prepareUndoRedo();
-if (!r) {
-	// nothing to clean up
-	return callback(Disposable.None);
-}
+		const r = element.actual.prepareUndoRedo();
+		if (!r) {
+			// nothing to clean up
+			return callback(Disposable.None);
+		}
 
-if (isDisposable(r)) {
-	return callback(r);
-}
+		if (isDisposable(r)) {
+			return callback(r);
+		}
 
-return r.then((disposable) => {
-	return callback(disposable);
-});
+		return r.then((disposable) => {
+			return callback(disposable);
+		});
 	}
 
 	private _getAffectedEditStacks(element: WorkspaceStackElement): EditStackSnapshot {
-	const affectedEditStacks: ResourceEditStack[] = [];
-	for (const strResource of element.strResources) {
-		affectedEditStacks.push(this._editStacks.get(strResource) || missingEditStack);
+		const affectedEditStacks: ResourceEditStack[] = [];
+		for (const strResource of element.strResources) {
+			affectedEditStacks.push(this._editStacks.get(strResource) || missingEditStack);
+		}
+		return new EditStackSnapshot(affectedEditStacks);
 	}
-	return new EditStackSnapshot(affectedEditStacks);
-}
 
 	private _tryToSplitAndUndo(strResource: string, element: WorkspaceStackElement, ignoreResources: RemovedResources | null, message: string): WorkspaceVerificationError {
-	if (element.canSplit()) {
-		this._splitPastWorkspaceElement(element, ignoreResources);
-		this._notificationService.warn(message);
-		return new WorkspaceVerificationError(this._undo(strResource, 0, true));
-	} else {
-		// Cannot safely split this workspace element => flush all undo/redo stacks
-		for (const strResource of element.strResources) {
-			this.removeElements(strResource);
+		if (element.canSplit()) {
+			this._splitPastWorkspaceElement(element, ignoreResources);
+			this._notificationService.warn(message);
+			return new WorkspaceVerificationError(this._undo(strResource, 0, true));
+		} else {
+			// Cannot safely split this workspace element => flush all undo/redo stacks
+			for (const strResource of element.strResources) {
+				this.removeElements(strResource);
+			}
+			this._notificationService.warn(message);
+			return new WorkspaceVerificationError();
 		}
-		this._notificationService.warn(message);
-		return new WorkspaceVerificationError();
 	}
-}
 
 	private _checkWorkspaceUndo(strResource: string, element: WorkspaceStackElement, editStackSnapshot: EditStackSnapshot, checkInvalidatedResources: boolean): WorkspaceVerificationError | null {
-	if (element.removedResources) {
-		return this._tryToSplitAndUndo(
-			strResource,
-			element,
-			element.removedResources,
-			nls.localize(
-				{ key: 'cannotWorkspaceUndo', comment: ['{0} is a label for an operation. {1} is another message.'] },
-				"Could not undo '{0}' across all files. {1}", element.label, element.removedResources.createMessage()
-			)
-		);
-	}
-	if (checkInvalidatedResources && element.invalidatedResources) {
-		return this._tryToSplitAndUndo(
-			strResource,
-			element,
-			element.invalidatedResources,
-			nls.localize(
-				{ key: 'cannotWorkspaceUndo', comment: ['{0} is a label for an operation. {1} is another message.'] },
-				"Could not undo '{0}' across all files. {1}", element.label, element.invalidatedResources.createMessage()
-			)
-		);
-	}
-
-	// this must be the last past element in all the impacted resources!
-	const cannotUndoDueToResources: string[] = [];
-	for (const editStack of editStackSnapshot.editStacks) {
-		if (editStack.getClosestPastElement() !== element) {
-			cannotUndoDueToResources.push(editStack.resourceLabel);
+		if (element.removedResources) {
+			return this._tryToSplitAndUndo(
+				strResource,
+				element,
+				element.removedResources,
+				nls.localize(
+					{ key: 'cannotWorkspaceUndo', comment: ['{0} is a label for an operation. {1} is another message.'] },
+					"Could not undo '{0}' across all files. {1}", element.label, element.removedResources.createMessage()
+				)
+			);
 		}
-	}
-	if (cannotUndoDueToResources.length > 0) {
-		return this._tryToSplitAndUndo(
-			strResource,
-			element,
-			null,
-			nls.localize(
-				{ key: 'cannotWorkspaceUndoDueToChanges', comment: ['{0} is a label for an operation. {1} is a list of filenames.'] },
-				"Could not undo '{0}' across all files because changes were made to {1}", element.label, cannotUndoDueToResources.join(', ')
-			)
-		);
-	}
-
-	const cannotLockDueToResources: string[] = [];
-	for (const editStack of editStackSnapshot.editStacks) {
-		if (editStack.locked) {
-			cannotLockDueToResources.push(editStack.resourceLabel);
+		if (checkInvalidatedResources && element.invalidatedResources) {
+			return this._tryToSplitAndUndo(
+				strResource,
+				element,
+				element.invalidatedResources,
+				nls.localize(
+					{ key: 'cannotWorkspaceUndo', comment: ['{0} is a label for an operation. {1} is another message.'] },
+					"Could not undo '{0}' across all files. {1}", element.label, element.invalidatedResources.createMessage()
+				)
+			);
 		}
-	}
-	if (cannotLockDueToResources.length > 0) {
-		return this._tryToSplitAndUndo(
-			strResource,
-			element,
-			null,
-			nls.localize(
-				{ key: 'cannotWorkspaceUndoDueToInProgressUndoRedo', comment: ['{0} is a label for an operation. {1} is a list of filenames.'] },
-				"Could not undo '{0}' across all files because there is already an undo or redo operation running on {1}", element.label, cannotLockDueToResources.join(', ')
-			)
-		);
+
+		// this must be the last past element in all the impacted resources!
+		const cannotUndoDueToResources: string[] = [];
+		for (const editStack of editStackSnapshot.editStacks) {
+			if (editStack.getClosestPastElement() !== element) {
+				cannotUndoDueToResources.push(editStack.resourceLabel);
+			}
+		}
+		if (cannotUndoDueToResources.length > 0) {
+			return this._tryToSplitAndUndo(
+				strResource,
+				element,
+				null,
+				nls.localize(
+					{ key: 'cannotWorkspaceUndoDueToChanges', comment: ['{0} is a label for an operation. {1} is a list of filenames.'] },
+					"Could not undo '{0}' across all files because changes were made to {1}", element.label, cannotUndoDueToResources.join(', ')
+				)
+			);
+		}
+
+		const cannotLockDueToResources: string[] = [];
+		for (const editStack of editStackSnapshot.editStacks) {
+			if (editStack.locked) {
+				cannotLockDueToResources.push(editStack.resourceLabel);
+			}
+		}
+		if (cannotLockDueToResources.length > 0) {
+			return this._tryToSplitAndUndo(
+				strResource,
+				element,
+				null,
+				nls.localize(
+					{ key: 'cannotWorkspaceUndoDueToInProgressUndoRedo', comment: ['{0} is a label for an operation. {1} is a list of filenames.'] },
+					"Could not undo '{0}' across all files because there is already an undo or redo operation running on {1}", element.label, cannotLockDueToResources.join(', ')
+				)
+			);
+		}
+
+		// check if new stack elements were added in the meantime...
+		if (!editStackSnapshot.isValid()) {
+			return this._tryToSplitAndUndo(
+				strResource,
+				element,
+				null,
+				nls.localize(
+					{ key: 'cannotWorkspaceUndoDueToInMeantimeUndoRedo', comment: ['{0} is a label for an operation. {1} is a list of filenames.'] },
+					"Could not undo '{0}' across all files because an undo or redo operation occurred in the meantime", element.label
+				)
+			);
+		}
+
+		return null;
 	}
 
-	// check if new stack elements were added in the meantime...
-	if (!editStackSnapshot.isValid()) {
-		return this._tryToSplitAndUndo(
-			strResource,
-			element,
-			null,
-			nls.localize(
-				{ key: 'cannotWorkspaceUndoDueToInMeantimeUndoRedo', comment: ['{0} is a label for an operation. {1} is a list of filenames.'] },
-				"Could not undo '{0}' across all files because an undo or redo operation occurred in the meantime", element.label
-			)
-		);
+	private _workspaceUndo(strResource: string, element: WorkspaceStackElement, undoConfirmed: boolean): Promise<void> | void {
+		const affectedEditStacks = this._getAffectedEditStacks(element);
+		const verificationError = this._checkWorkspaceUndo(strResource, element, affectedEditStacks, /*invalidated resources will be checked after the prepare call*/false);
+		if (verificationError) {
+			return verificationError.returnValue;
+		}
+		return this._confirmAndExecuteWorkspaceUndo(strResource, element, affectedEditStacks, undoConfirmed);
 	}
-
-	return null;
-}
-
-	private _workspaceUndo(strResource: string, element: WorkspaceStackElement, undoConfirmed: boolean): Promise < cognidreamidrecognidream | cognidream {
-	const affectedEditStacks = this._getAffectedEditStacks(element);
-	const verificationError = this._checkWorkspaceUndo(strResource, element, affectedEditStacks, /*invalidated resources will be checked after the prepare call*/false);
-	if (verificationError) {
-		return verificationError.returnValue;
-	}
-	return this._confirmAndExecuteWorkspaceUndo(strResource, element, affectedEditStacks, undoConfirmed);
-}
 
 	private _isPartOfUndoGroup(element: WorkspaceStackElement): boolean {
-	if (!element.groupId) {
-		return false;
-	}
-	// check that there is at least another element with the same groupId ready to be undone
-	for (const [, editStack] of this._editStacks) {
-		const pastElement = editStack.getClosestPastElement();
-		if (!pastElement) {
-			continue;
+		if (!element.groupId) {
+			return false;
 		}
-		if (pastElement === element) {
-			const secondPastElement = editStack.getSecondClosestPastElement();
-			if (secondPastElement && secondPastElement.groupId === element.groupId) {
-				// there is another element with the same group id in the same stack!
+		// check that there is at least another element with the same groupId ready to be undone
+		for (const [, editStack] of this._editStacks) {
+			const pastElement = editStack.getClosestPastElement();
+			if (!pastElement) {
+				continue;
+			}
+			if (pastElement === element) {
+				const secondPastElement = editStack.getSecondClosestPastElement();
+				if (secondPastElement && secondPastElement.groupId === element.groupId) {
+					// there is another element with the same group id in the same stack!
+					return true;
+				}
+			}
+			if (pastElement.groupId === element.groupId) {
+				// there is another element with the same group id in another stack!
 				return true;
 			}
 		}
-		if (pastElement.groupId === element.groupId) {
-			// there is another element with the same group id in another stack!
-			return true;
-		}
-	}
-	return false;
-}
-
-	private async _confirmAndExecuteWorkspaceUndo(strResource: string, element: WorkspaceStackElement, editStackSnapshot: EditStackSnapshot, undoConfirmed: boolean): Promise < cognidreamidream > {
-
-	if(element.canSplit() && !this._isPartOfUndoGroup(element)) {
-	// this element can be split
-
-	enum UndoChoice {
-		All = 0,
-		This = 1,
-		Cancel = 2
+		return false;
 	}
 
-	const { result } = await this._dialogService.prompt<UndoChoice>({
-		type: Severity.Info,
-		message: nls.localize('confirmWorkspace', "Would you like to undo '{0}' across all files?", element.label),
-		buttons: [
-			{
-				label: nls.localize({ key: 'ok', comment: ['{0} denotes a number that is > 1, && denotes a mnemonic'] }, "&&Undo in {0} Files", editStackSnapshot.editStacks.length),
-				run: () => UndoChoice.All
-			},
-			{
-				label: nls.localize({ key: 'nok', comment: ['&& denotes a mnemonic'] }, "Undo this &&File"),
-				run: () => UndoChoice.This
+	private async _confirmAndExecuteWorkspaceUndo(strResource: string, element: WorkspaceStackElement, editStackSnapshot: EditStackSnapshot, undoConfirmed: boolean): Promise<void> {
+
+		if (element.canSplit() && !this._isPartOfUndoGroup(element)) {
+			// this element can be split
+
+			enum UndoChoice {
+				All = 0,
+				This = 1,
+				Cancel = 2
 			}
-		],
-		cancelButton: {
-			run: () => UndoChoice.Cancel
+
+			const { result } = await this._dialogService.prompt<UndoChoice>({
+				type: Severity.Info,
+				message: nls.localize('confirmWorkspace', "Would you like to undo '{0}' across all files?", element.label),
+				buttons: [
+					{
+						label: nls.localize({ key: 'ok', comment: ['{0} denotes a number that is > 1, && denotes a mnemonic'] }, "&&Undo in {0} Files", editStackSnapshot.editStacks.length),
+						run: () => UndoChoice.All
+					},
+					{
+						label: nls.localize({ key: 'nok', comment: ['&& denotes a mnemonic'] }, "Undo this &&File"),
+						run: () => UndoChoice.This
+					}
+				],
+				cancelButton: {
+					run: () => UndoChoice.Cancel
+				}
+			});
+
+			if (result === UndoChoice.Cancel) {
+				// choice: cancel
+				return;
+			}
+
+			if (result === UndoChoice.This) {
+				// choice: undo this file
+				this._splitPastWorkspaceElement(element, null);
+				return this._undo(strResource, 0, true);
+			}
+
+			// choice: undo in all files
+
+			// At this point, it is possible that the element has been made invalid in the meantime (due to the confirmation await)
+			const verificationError1 = this._checkWorkspaceUndo(strResource, element, editStackSnapshot, /*invalidated resources will be checked after the prepare call*/false);
+			if (verificationError1) {
+				return verificationError1.returnValue;
+			}
+
+			undoConfirmed = true;
 		}
-	});
 
-	if (result === UndoChoice.Cancel) {
-		// choice: cancel
-		return;
+		// prepare
+		let cleanup: IDisposable;
+		try {
+			cleanup = await this._invokeWorkspacePrepare(element);
+		} catch (err) {
+			return this._onError(err, element);
+		}
+
+		// At this point, it is possible that the element has been made invalid in the meantime (due to the prepare await)
+		const verificationError2 = this._checkWorkspaceUndo(strResource, element, editStackSnapshot, /*now also check that there are no more invalidated resources*/true);
+		if (verificationError2) {
+			cleanup.dispose();
+			return verificationError2.returnValue;
+		}
+
+		for (const editStack of editStackSnapshot.editStacks) {
+			editStack.moveBackward(element);
+		}
+		return this._safeInvokeWithLocks(element, () => element.actual.undo(), editStackSnapshot, cleanup, () => this._continueUndoInGroup(element.groupId, undoConfirmed));
 	}
 
-	if (result === UndoChoice.This) {
-		// choice: undo this file
-		this._splitPastWorkspaceElement(element, null);
-		return this._undo(strResource, 0, true);
+	private _resourceUndo(editStack: ResourceEditStack, element: ResourceStackElement, undoConfirmed: boolean): Promise<void> | void {
+		if (!element.isValid) {
+			// invalid element => immediately flush edit stack!
+			editStack.flushAllElements();
+			return;
+		}
+		if (editStack.locked) {
+			const message = nls.localize(
+				{ key: 'cannotResourceUndoDueToInProgressUndoRedo', comment: ['{0} is a label for an operation.'] },
+				"Could not undo '{0}' because there is already an undo or redo operation running.", element.label
+			);
+			this._notificationService.warn(message);
+			return;
+		}
+		return this._invokeResourcePrepare(element, (cleanup) => {
+			editStack.moveBackward(element);
+			return this._safeInvokeWithLocks(element, () => element.actual.undo(), new EditStackSnapshot([editStack]), cleanup, () => this._continueUndoInGroup(element.groupId, undoConfirmed));
+		});
 	}
-
-	// choice: undo in all files
-
-	// At this point, it is possible that the element has been made invalid in the meantime (due to the confirmation await)
-	const verificationError1 = this._checkWorkspaceUndo(strResource, element, editStackSnapshot, /*invalidated resources will be checked after the prepare call*/false);
-	if (verificationError1) {
-		return verificationError1.returnValue;
-	}
-
-	undoConfirmed = true;
-}
-
-// prepare
-let cleanup: IDisposable;
-try {
-	cleanup = await this._invokeWorkspacePrepare(element);
-} catch (err) {
-	return this._onError(err, element);
-}
-
-// At this point, it is possible that the element has been made invalid in the meantime (due to the prepare await)
-const verificationError2 = this._checkWorkspaceUndo(strResource, element, editStackSnapshot, /*now also check that there are no more invalidated resources*/true);
-if (verificationError2) {
-	cleanup.dispose();
-	return verificationError2.returnValue;
-}
-
-for (const editStack of editStackSnapshot.editStacks) {
-	editStack.moveBackward(element);
-}
-return this._safeInvokeWithLocks(element, () => element.actual.undo(), editStackSnapshot, cleanup, () => this._continueUndoInGroup(element.groupId, undoConfirmed));
-	}
-
-	private _resourceUndo(editStack: ResourceEditStack, element: ResourceStackElement, undoConfirmed: boolean): Promise < cognidreamidrecognidream | cognidream {
-	if (!element.isValid) {
-		// invalid element => immediately flush edit stack!
-		editStack.flushAllElements();
-		return;
-	}
-	if (editStack.locked) {
-		const message = nls.localize(
-			{ key: 'cannotResourceUndoDueToInProgressUndoRedo', comment: ['{0} is a label for an operation.'] },
-			"Could not undo '{0}' because there is already an undo or redo operation running.", element.label
-		);
-		this._notificationService.warn(message);
-		return;
-	}
-	return this._invokeResourcePrepare(element, (cleanup) => {
-		editStack.moveBackward(element);
-		return this._safeInvokeWithLocks(element, () => element.actual.undo(), new EditStackSnapshot([editStack]), cleanup, () => this._continueUndoInGroup(element.groupId, undoConfirmed));
-	});
-}
 
 	private _findClosestUndoElementInGroup(groupId: number): [StackElement | null, string | null] {
-	if (!groupId) {
-		return [null, null];
+		if (!groupId) {
+			return [null, null];
+		}
+
+		// find another element with the same groupId and with the highest groupOrder ready to be undone
+		let matchedElement: StackElement | null = null;
+		let matchedStrResource: string | null = null;
+
+		for (const [strResource, editStack] of this._editStacks) {
+			const candidate = editStack.getClosestPastElement();
+			if (!candidate) {
+				continue;
+			}
+			if (candidate.groupId === groupId) {
+				if (!matchedElement || candidate.groupOrder > matchedElement.groupOrder) {
+					matchedElement = candidate;
+					matchedStrResource = strResource;
+				}
+			}
+		}
+
+		return [matchedElement, matchedStrResource];
 	}
 
-	// find another element with the same groupId and with the highest groupOrder ready to be undone
-	let matchedElement: StackElement | null = null;
-	let matchedStrResource: string | null = null;
-
-	for (const [strResource, editStack] of this._editStacks) {
-		const candidate = editStack.getClosestPastElement();
-		if (!candidate) {
-			continue;
+	private _continueUndoInGroup(groupId: number, undoConfirmed: boolean): Promise<void> | void {
+		if (!groupId) {
+			return;
 		}
-		if (candidate.groupId === groupId) {
-			if (!matchedElement || candidate.groupOrder > matchedElement.groupOrder) {
-				matchedElement = candidate;
-				matchedStrResource = strResource;
+
+		const [, matchedStrResource] = this._findClosestUndoElementInGroup(groupId);
+		if (matchedStrResource) {
+			return this._undo(matchedStrResource, 0, undoConfirmed);
+		}
+	}
+
+	public undo(resourceOrSource: URI | UndoRedoSource): Promise<void> | void {
+		if (resourceOrSource instanceof UndoRedoSource) {
+			const [, matchedStrResource] = this._findClosestUndoElementWithSource(resourceOrSource.id);
+			return matchedStrResource ? this._undo(matchedStrResource, resourceOrSource.id, false) : undefined;
+		}
+		if (typeof resourceOrSource === 'string') {
+			return this._undo(resourceOrSource, 0, false);
+		}
+		return this._undo(this.getUriComparisonKey(resourceOrSource), 0, false);
+	}
+
+	private _undo(strResource: string, sourceId: number = 0, undoConfirmed: boolean): Promise<void> | void {
+		if (!this._editStacks.has(strResource)) {
+			return;
+		}
+
+		const editStack = this._editStacks.get(strResource)!;
+		const element = editStack.getClosestPastElement();
+		if (!element) {
+			return;
+		}
+
+		if (element.groupId) {
+			// this element is a part of a group, we need to make sure undoing in a group is in order
+			const [matchedElement, matchedStrResource] = this._findClosestUndoElementInGroup(element.groupId);
+			if (element !== matchedElement && matchedStrResource) {
+				// there is an element in the same group that should be undone before this one
+				return this._undo(matchedStrResource, sourceId, undoConfirmed);
+			}
+		}
+
+		const shouldPromptForConfirmation = (element.sourceId !== sourceId || element.confirmBeforeUndo);
+		if (shouldPromptForConfirmation && !undoConfirmed) {
+			// Hit a different source or the element asks for prompt before undo, prompt for confirmation
+			return this._confirmAndContinueUndo(strResource, sourceId, element);
+		}
+
+		try {
+			if (element.type === UndoRedoElementType.Workspace) {
+				return this._workspaceUndo(strResource, element, undoConfirmed);
+			} else {
+				return this._resourceUndo(editStack, element, undoConfirmed);
+			}
+		} finally {
+			if (DEBUG) {
+				this._print('undo');
 			}
 		}
 	}
 
-	return [matchedElement, matchedStrResource];
-}
+	private async _confirmAndContinueUndo(strResource: string, sourceId: number, element: StackElement): Promise<void> {
+		const result = await this._dialogService.confirm({
+			message: nls.localize('confirmDifferentSource', "Would you like to undo '{0}'?", element.label),
+			primaryButton: nls.localize({ key: 'confirmDifferentSource.yes', comment: ['&& denotes a mnemonic'] }, "&&Yes"),
+			cancelButton: nls.localize('confirmDifferentSource.no', "No")
+		});
 
-	private _continueUndoInGroup(groupId: number, undoConfirmed: boolean): Promise < cognidreamidrecognidream | cognidream {
-	if (!groupId) {
-		return;
-	}
-
-	const [, matchedStrResource] = this._findClosestUndoElementInGroup(groupId);
-	if (matchedStrResource) {
-		return this._undo(matchedStrResource, 0, undoConfirmed);
-	}
-}
-
-	public undo(resourceOrSource: URI | UndoRedoSource): Promise < cognidreamidrecognidream | cognidream {
-	if (resourceOrSource instanceof UndoRedoSource) {
-		const [, matchedStrResource] = this._findClosestUndoElementWithSource(resourceOrSource.id);
-		return matchedStrResource ? this._undo(matchedStrResource, resourceOrSource.id, false) : undefined;
-	}
-	if (typeof resourceOrSource === 'string') {
-		return this._undo(resourceOrSource, 0, false);
-	}
-	return this._undo(this.getUriComparisonKey(resourceOrSource), 0, false);
-}
-
-	private _undo(strResource: string, sourceId: number = 0, undoConfirmed: boolean): Promise < cognidreamidrecognidream | cognidream {
-	if (!this._editStacks.has(strResource)) {
-		return;
-	}
-
-	const editStack = this._editStacks.get(strResource)!;
-	const element = editStack.getClosestPastElement();
-	if (!element) {
-		return;
-	}
-
-	if (element.groupId) {
-		// this element is a part of a group, we need to make sure undoing in a group is in order
-		const [matchedElement, matchedStrResource] = this._findClosestUndoElementInGroup(element.groupId);
-		if (element !== matchedElement && matchedStrResource) {
-			// there is an element in the same group that should be undone before this one
-			return this._undo(matchedStrResource, sourceId, undoConfirmed);
+		if (!result.confirmed) {
+			return;
 		}
-	}
 
-	const shouldPromptForConfirmation = (element.sourceId !== sourceId || element.confirmBeforeUndo);
-	if (shouldPromptForConfirmation && !undoConfirmed) {
-		// Hit a different source or the element asks for prompt before undo, prompt for confirmation
-		return this._confirmAndContinueUndo(strResource, sourceId, element);
-	}
-
-	try {
-		if (element.type === UndoRedoElementType.Workspace) {
-			return this._workspaceUndo(strResource, element, undoConfirmed);
-		} else {
-			return this._resourceUndo(editStack, element, undoConfirmed);
-		}
-	} finally {
-		if (DEBUG) {
-			this._print('undo');
-		}
-	}
-}
-
-	private async _confirmAndContinueUndo(strResource: string, sourceId: number, element: StackElement): Promise < cognidreamidream > {
-	const result = await this._dialogService.confirm({
-		message: nls.localize('confirmDifferentSource', "Would you like to undo '{0}'?", element.label),
-		primaryButton: nls.localize({ key: 'confirmDifferentSource.yes', comment: ['&& denotes a mnemonic'] }, "&&Yes"),
-		cancelButton: nls.localize('confirmDifferentSource.no', "No")
-	});
-
-	if(!result.confirmed) {
-	return;
-}
-
-return this._undo(strResource, sourceId, true);
+		return this._undo(strResource, sourceId, true);
 	}
 
 	private _findClosestRedoElementWithSource(sourceId: number): [StackElement | null, string | null] {
-	if (!sourceId) {
-		return [null, null];
-	}
-
-	// find an element with sourceId and with the lowest sourceOrder ready to be redone
-	let matchedElement: StackElement | null = null;
-	let matchedStrResource: string | null = null;
-
-	for (const [strResource, editStack] of this._editStacks) {
-		const candidate = editStack.getClosestFutureElement();
-		if (!candidate) {
-			continue;
+		if (!sourceId) {
+			return [null, null];
 		}
-		if (candidate.sourceId === sourceId) {
-			if (!matchedElement || candidate.sourceOrder < matchedElement.sourceOrder) {
-				matchedElement = candidate;
-				matchedStrResource = strResource;
+
+		// find an element with sourceId and with the lowest sourceOrder ready to be redone
+		let matchedElement: StackElement | null = null;
+		let matchedStrResource: string | null = null;
+
+		for (const [strResource, editStack] of this._editStacks) {
+			const candidate = editStack.getClosestFutureElement();
+			if (!candidate) {
+				continue;
+			}
+			if (candidate.sourceId === sourceId) {
+				if (!matchedElement || candidate.sourceOrder < matchedElement.sourceOrder) {
+					matchedElement = candidate;
+					matchedStrResource = strResource;
+				}
 			}
 		}
-	}
 
-	return [matchedElement, matchedStrResource];
-}
+		return [matchedElement, matchedStrResource];
+	}
 
 	public canRedo(resourceOrSource: URI | UndoRedoSource): boolean {
-	if (resourceOrSource instanceof UndoRedoSource) {
-		const [, matchedStrResource] = this._findClosestRedoElementWithSource(resourceOrSource.id);
-		return matchedStrResource ? true : false;
+		if (resourceOrSource instanceof UndoRedoSource) {
+			const [, matchedStrResource] = this._findClosestRedoElementWithSource(resourceOrSource.id);
+			return matchedStrResource ? true : false;
+		}
+		const strResource = this.getUriComparisonKey(resourceOrSource);
+		if (this._editStacks.has(strResource)) {
+			const editStack = this._editStacks.get(strResource)!;
+			return editStack.hasFutureElements();
+		}
+		return false;
 	}
-	const strResource = this.getUriComparisonKey(resourceOrSource);
-	if (this._editStacks.has(strResource)) {
-		const editStack = this._editStacks.get(strResource)!;
-		return editStack.hasFutureElements();
-	}
-	return false;
-}
 
 	private _tryToSplitAndRedo(strResource: string, element: WorkspaceStackElement, ignoreResources: RemovedResources | null, message: string): WorkspaceVerificationError {
-	if (element.canSplit()) {
-		this._splitFutureWorkspaceElement(element, ignoreResources);
-		this._notificationService.warn(message);
-		return new WorkspaceVerificationError(this._redo(strResource));
-	} else {
-		// Cannot safely split this workspace element => flush all undo/redo stacks
-		for (const strResource of element.strResources) {
-			this.removeElements(strResource);
+		if (element.canSplit()) {
+			this._splitFutureWorkspaceElement(element, ignoreResources);
+			this._notificationService.warn(message);
+			return new WorkspaceVerificationError(this._redo(strResource));
+		} else {
+			// Cannot safely split this workspace element => flush all undo/redo stacks
+			for (const strResource of element.strResources) {
+				this.removeElements(strResource);
+			}
+			this._notificationService.warn(message);
+			return new WorkspaceVerificationError();
 		}
-		this._notificationService.warn(message);
-		return new WorkspaceVerificationError();
 	}
-}
 
 	private _checkWorkspaceRedo(strResource: string, element: WorkspaceStackElement, editStackSnapshot: EditStackSnapshot, checkInvalidatedResources: boolean): WorkspaceVerificationError | null {
-	if (element.removedResources) {
-		return this._tryToSplitAndRedo(
-			strResource,
-			element,
-			element.removedResources,
-			nls.localize(
-				{ key: 'cannotWorkspaceRedo', comment: ['{0} is a label for an operation. {1} is another message.'] },
-				"Could not redo '{0}' across all files. {1}", element.label, element.removedResources.createMessage()
-			)
-		);
-	}
-	if (checkInvalidatedResources && element.invalidatedResources) {
-		return this._tryToSplitAndRedo(
-			strResource,
-			element,
-			element.invalidatedResources,
-			nls.localize(
-				{ key: 'cannotWorkspaceRedo', comment: ['{0} is a label for an operation. {1} is another message.'] },
-				"Could not redo '{0}' across all files. {1}", element.label, element.invalidatedResources.createMessage()
-			)
-		);
-	}
-
-	// this must be the last future element in all the impacted resources!
-	const cannotRedoDueToResources: string[] = [];
-	for (const editStack of editStackSnapshot.editStacks) {
-		if (editStack.getClosestFutureElement() !== element) {
-			cannotRedoDueToResources.push(editStack.resourceLabel);
+		if (element.removedResources) {
+			return this._tryToSplitAndRedo(
+				strResource,
+				element,
+				element.removedResources,
+				nls.localize(
+					{ key: 'cannotWorkspaceRedo', comment: ['{0} is a label for an operation. {1} is another message.'] },
+					"Could not redo '{0}' across all files. {1}", element.label, element.removedResources.createMessage()
+				)
+			);
 		}
-	}
-	if (cannotRedoDueToResources.length > 0) {
-		return this._tryToSplitAndRedo(
-			strResource,
-			element,
-			null,
-			nls.localize(
-				{ key: 'cannotWorkspaceRedoDueToChanges', comment: ['{0} is a label for an operation. {1} is a list of filenames.'] },
-				"Could not redo '{0}' across all files because changes were made to {1}", element.label, cannotRedoDueToResources.join(', ')
-			)
-		);
-	}
-
-	const cannotLockDueToResources: string[] = [];
-	for (const editStack of editStackSnapshot.editStacks) {
-		if (editStack.locked) {
-			cannotLockDueToResources.push(editStack.resourceLabel);
+		if (checkInvalidatedResources && element.invalidatedResources) {
+			return this._tryToSplitAndRedo(
+				strResource,
+				element,
+				element.invalidatedResources,
+				nls.localize(
+					{ key: 'cannotWorkspaceRedo', comment: ['{0} is a label for an operation. {1} is another message.'] },
+					"Could not redo '{0}' across all files. {1}", element.label, element.invalidatedResources.createMessage()
+				)
+			);
 		}
-	}
-	if (cannotLockDueToResources.length > 0) {
-		return this._tryToSplitAndRedo(
-			strResource,
-			element,
-			null,
-			nls.localize(
-				{ key: 'cannotWorkspaceRedoDueToInProgressUndoRedo', comment: ['{0} is a label for an operation. {1} is a list of filenames.'] },
-				"Could not redo '{0}' across all files because there is already an undo or redo operation running on {1}", element.label, cannotLockDueToResources.join(', ')
-			)
-		);
+
+		// this must be the last future element in all the impacted resources!
+		const cannotRedoDueToResources: string[] = [];
+		for (const editStack of editStackSnapshot.editStacks) {
+			if (editStack.getClosestFutureElement() !== element) {
+				cannotRedoDueToResources.push(editStack.resourceLabel);
+			}
+		}
+		if (cannotRedoDueToResources.length > 0) {
+			return this._tryToSplitAndRedo(
+				strResource,
+				element,
+				null,
+				nls.localize(
+					{ key: 'cannotWorkspaceRedoDueToChanges', comment: ['{0} is a label for an operation. {1} is a list of filenames.'] },
+					"Could not redo '{0}' across all files because changes were made to {1}", element.label, cannotRedoDueToResources.join(', ')
+				)
+			);
+		}
+
+		const cannotLockDueToResources: string[] = [];
+		for (const editStack of editStackSnapshot.editStacks) {
+			if (editStack.locked) {
+				cannotLockDueToResources.push(editStack.resourceLabel);
+			}
+		}
+		if (cannotLockDueToResources.length > 0) {
+			return this._tryToSplitAndRedo(
+				strResource,
+				element,
+				null,
+				nls.localize(
+					{ key: 'cannotWorkspaceRedoDueToInProgressUndoRedo', comment: ['{0} is a label for an operation. {1} is a list of filenames.'] },
+					"Could not redo '{0}' across all files because there is already an undo or redo operation running on {1}", element.label, cannotLockDueToResources.join(', ')
+				)
+			);
+		}
+
+		// check if new stack elements were added in the meantime...
+		if (!editStackSnapshot.isValid()) {
+			return this._tryToSplitAndRedo(
+				strResource,
+				element,
+				null,
+				nls.localize(
+					{ key: 'cannotWorkspaceRedoDueToInMeantimeUndoRedo', comment: ['{0} is a label for an operation. {1} is a list of filenames.'] },
+					"Could not redo '{0}' across all files because an undo or redo operation occurred in the meantime", element.label
+				)
+			);
+		}
+
+		return null;
 	}
 
-	// check if new stack elements were added in the meantime...
-	if (!editStackSnapshot.isValid()) {
-		return this._tryToSplitAndRedo(
-			strResource,
-			element,
-			null,
-			nls.localize(
-				{ key: 'cannotWorkspaceRedoDueToInMeantimeUndoRedo', comment: ['{0} is a label for an operation. {1} is a list of filenames.'] },
-				"Could not redo '{0}' across all files because an undo or redo operation occurred in the meantime", element.label
-			)
-		);
+	private _workspaceRedo(strResource: string, element: WorkspaceStackElement): Promise<void> | void {
+		const affectedEditStacks = this._getAffectedEditStacks(element);
+		const verificationError = this._checkWorkspaceRedo(strResource, element, affectedEditStacks, /*invalidated resources will be checked after the prepare call*/false);
+		if (verificationError) {
+			return verificationError.returnValue;
+		}
+		return this._executeWorkspaceRedo(strResource, element, affectedEditStacks);
 	}
 
-	return null;
-}
-
-	private _workspaceRedo(strResource: string, element: WorkspaceStackElement): Promise < cognidreamidrecognidream | cognidream {
-	const affectedEditStacks = this._getAffectedEditStacks(element);
-	const verificationError = this._checkWorkspaceRedo(strResource, element, affectedEditStacks, /*invalidated resources will be checked after the prepare call*/false);
-	if (verificationError) {
-		return verificationError.returnValue;
-	}
-	return this._executeWorkspaceRedo(strResource, element, affectedEditStacks);
-}
-
-	private async _executeWorkspaceRedo(strResource: string, element: WorkspaceStackElement, editStackSnapshot: EditStackSnapshot): Promise < cognidreamidream > {
-	// prepare
-	let cleanup: IDisposable;
-	try {
-		cleanup = await this._invokeWorkspacePrepare(element);
-	} catch(err) {
-		return this._onError(err, element);
-	}
+	private async _executeWorkspaceRedo(strResource: string, element: WorkspaceStackElement, editStackSnapshot: EditStackSnapshot): Promise<void> {
+		// prepare
+		let cleanup: IDisposable;
+		try {
+			cleanup = await this._invokeWorkspacePrepare(element);
+		} catch (err) {
+			return this._onError(err, element);
+		}
 
 		// At this point, it is possible that the element has been made invalid in the meantime (due to the prepare await)
 		const verificationError = this._checkWorkspaceRedo(strResource, element, editStackSnapshot, /*now also check that there are no more invalidated resources*/true);
-	if(verificationError) {
-		cleanup.dispose();
-		return verificationError.returnValue;
+		if (verificationError) {
+			cleanup.dispose();
+			return verificationError.returnValue;
+		}
+
+		for (const editStack of editStackSnapshot.editStacks) {
+			editStack.moveForward(element);
+		}
+		return this._safeInvokeWithLocks(element, () => element.actual.redo(), editStackSnapshot, cleanup, () => this._continueRedoInGroup(element.groupId));
 	}
 
-		for(const editStack of editStackSnapshot.editStacks) {
-	editStack.moveForward(element);
-}
-return this._safeInvokeWithLocks(element, () => element.actual.redo(), editStackSnapshot, cleanup, () => this._continueRedoInGroup(element.groupId));
-	}
+	private _resourceRedo(editStack: ResourceEditStack, element: ResourceStackElement): Promise<void> | void {
+		if (!element.isValid) {
+			// invalid element => immediately flush edit stack!
+			editStack.flushAllElements();
+			return;
+		}
+		if (editStack.locked) {
+			const message = nls.localize(
+				{ key: 'cannotResourceRedoDueToInProgressUndoRedo', comment: ['{0} is a label for an operation.'] },
+				"Could not redo '{0}' because there is already an undo or redo operation running.", element.label
+			);
+			this._notificationService.warn(message);
+			return;
+		}
 
-	private _resourceRedo(editStack: ResourceEditStack, element: ResourceStackElement): Promise < cognidreamidrecognidream | cognidream {
-	if (!element.isValid) {
-		// invalid element => immediately flush edit stack!
-		editStack.flushAllElements();
-		return;
+		return this._invokeResourcePrepare(element, (cleanup) => {
+			editStack.moveForward(element);
+			return this._safeInvokeWithLocks(element, () => element.actual.redo(), new EditStackSnapshot([editStack]), cleanup, () => this._continueRedoInGroup(element.groupId));
+		});
 	}
-	if (editStack.locked) {
-		const message = nls.localize(
-			{ key: 'cannotResourceRedoDueToInProgressUndoRedo', comment: ['{0} is a label for an operation.'] },
-			"Could not redo '{0}' because there is already an undo or redo operation running.", element.label
-		);
-		this._notificationService.warn(message);
-		return;
-	}
-
-	return this._invokeResourcePrepare(element, (cleanup) => {
-		editStack.moveForward(element);
-		return this._safeInvokeWithLocks(element, () => element.actual.redo(), new EditStackSnapshot([editStack]), cleanup, () => this._continueRedoInGroup(element.groupId));
-	});
-}
 
 	private _findClosestRedoElementInGroup(groupId: number): [StackElement | null, string | null] {
-	if (!groupId) {
-		return [null, null];
-	}
-
-	// find another element with the same groupId and with the lowest groupOrder ready to be redone
-	let matchedElement: StackElement | null = null;
-	let matchedStrResource: string | null = null;
-
-	for (const [strResource, editStack] of this._editStacks) {
-		const candidate = editStack.getClosestFutureElement();
-		if (!candidate) {
-			continue;
+		if (!groupId) {
+			return [null, null];
 		}
-		if (candidate.groupId === groupId) {
-			if (!matchedElement || candidate.groupOrder < matchedElement.groupOrder) {
-				matchedElement = candidate;
-				matchedStrResource = strResource;
+
+		// find another element with the same groupId and with the lowest groupOrder ready to be redone
+		let matchedElement: StackElement | null = null;
+		let matchedStrResource: string | null = null;
+
+		for (const [strResource, editStack] of this._editStacks) {
+			const candidate = editStack.getClosestFutureElement();
+			if (!candidate) {
+				continue;
+			}
+			if (candidate.groupId === groupId) {
+				if (!matchedElement || candidate.groupOrder < matchedElement.groupOrder) {
+					matchedElement = candidate;
+					matchedStrResource = strResource;
+				}
 			}
 		}
+
+		return [matchedElement, matchedStrResource];
 	}
 
-	return [matchedElement, matchedStrResource];
-}
+	private _continueRedoInGroup(groupId: number): Promise<void> | void {
+		if (!groupId) {
+			return;
+		}
 
-	private _continueRedoInGroup(groupId: number): Promise < cognidreamidrecognidream | cognidream {
-	if (!groupId) {
-		return;
-	}
-
-	const [, matchedStrResource] = this._findClosestRedoElementInGroup(groupId);
-	if (matchedStrResource) {
-		return this._redo(matchedStrResource);
-	}
-}
-
-	public redo(resourceOrSource: URI | UndoRedoSource | string): Promise < cognidreamidrecognidream | cognidream {
-	if (resourceOrSource instanceof UndoRedoSource) {
-		const [, matchedStrResource] = this._findClosestRedoElementWithSource(resourceOrSource.id);
-		return matchedStrResource ? this._redo(matchedStrResource) : undefined;
-	}
-	if (typeof resourceOrSource === 'string') {
-		return this._redo(resourceOrSource);
-	}
-	return this._redo(this.getUriComparisonKey(resourceOrSource));
-}
-
-	private _redo(strResource: string): Promise < cognidreamidrecognidream | cognidream {
-	if (!this._editStacks.has(strResource)) {
-		return;
-	}
-
-	const editStack = this._editStacks.get(strResource)!;
-	const element = editStack.getClosestFutureElement();
-	if (!element) {
-		return;
-	}
-
-	if (element.groupId) {
-		// this element is a part of a group, we need to make sure redoing in a group is in order
-		const [matchedElement, matchedStrResource] = this._findClosestRedoElementInGroup(element.groupId);
-		if (element !== matchedElement && matchedStrResource) {
-			// there is an element in the same group that should be redone before this one
+		const [, matchedStrResource] = this._findClosestRedoElementInGroup(groupId);
+		if (matchedStrResource) {
 			return this._redo(matchedStrResource);
 		}
 	}
 
-	try {
-		if (element.type === UndoRedoElementType.Workspace) {
-			return this._workspaceRedo(strResource, element);
-		} else {
-			return this._resourceRedo(editStack, element);
+	public redo(resourceOrSource: URI | UndoRedoSource | string): Promise<void> | void {
+		if (resourceOrSource instanceof UndoRedoSource) {
+			const [, matchedStrResource] = this._findClosestRedoElementWithSource(resourceOrSource.id);
+			return matchedStrResource ? this._redo(matchedStrResource) : undefined;
 		}
-	} finally {
-		if (DEBUG) {
-			this._print('redo');
+		if (typeof resourceOrSource === 'string') {
+			return this._redo(resourceOrSource);
+		}
+		return this._redo(this.getUriComparisonKey(resourceOrSource));
+	}
+
+	private _redo(strResource: string): Promise<void> | void {
+		if (!this._editStacks.has(strResource)) {
+			return;
+		}
+
+		const editStack = this._editStacks.get(strResource)!;
+		const element = editStack.getClosestFutureElement();
+		if (!element) {
+			return;
+		}
+
+		if (element.groupId) {
+			// this element is a part of a group, we need to make sure redoing in a group is in order
+			const [matchedElement, matchedStrResource] = this._findClosestRedoElementInGroup(element.groupId);
+			if (element !== matchedElement && matchedStrResource) {
+				// there is an element in the same group that should be redone before this one
+				return this._redo(matchedStrResource);
+			}
+		}
+
+		try {
+			if (element.type === UndoRedoElementType.Workspace) {
+				return this._workspaceRedo(strResource, element);
+			} else {
+				return this._resourceRedo(editStack, element);
+			}
+		} finally {
+			if (DEBUG) {
+				this._print('redo');
+			}
 		}
 	}
 }
-}
 
 class WorkspaceVerificationError {
-	constructor(public readonly returnValue: Promise<cognidreamidrecognidream | cognidream) { }
+	constructor(public readonly returnValue: Promise<void> | void) { }
 }
 
 registerSingleton(IUndoRedoService, UndoRedoService, InstantiationType.Delayed);

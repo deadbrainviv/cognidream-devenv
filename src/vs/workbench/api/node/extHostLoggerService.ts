@@ -20,14 +20,14 @@ export class ExtHostLoggerService extends BaseExtHostLoggerService {
 		return super.doCreateLogger(resource, logLevel, options);
 	}
 
-	override registerLogger(resource: ILoggerResource): cognidream {
+	override registerLogger(resource: ILoggerResource): void {
 		super.registerLogger(resource);
 		this._proxy.$registerLogger(resource);
 	}
 
-	override deregisterLogger(resource: URIcognidreamognidream {
+	override deregisterLogger(resource: URI): void {
 		super.deregisterLogger(resource);
-this._proxy.$deregisterLogger(resource);
-    }
+		this._proxy.$deregisterLogger(resource);
+	}
 
 }

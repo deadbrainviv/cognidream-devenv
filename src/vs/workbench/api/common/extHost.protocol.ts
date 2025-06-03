@@ -105,14 +105,14 @@ export interface IMainContext extends IRPCProtocol {
 
 export interface MainThreadClipboardShape extends IDisposable {
 	$readText(): Promise<string>;
-	$writeText(value: string): Promise<cognidream>;
+	$writeText(value: string): Promise<void>;
 }
 
 export interface MainThreadCommandsShape extends IDisposable {
-	$registerCommand(id: stringcognidreamognidream;
-		$unregisterCommand(id: stringcognidreamognidream;
-			$fireCommandActivationEvent(id: stringcognidreamognidream;
-				$executeCommand(id: string, args: any[] | SerializableObjectWithBuffers<any[]>, retry: boolean): Promise<unknown | undefined>;
+	$registerCommand(id: string): void;
+	$unregisterCommand(id: string): void;
+	$fireCommandActivationEvent(id: string): void;
+	$executeCommand(id: string, args: any[] | SerializableObjectWithBuffers<any[]>, retry: boolean): Promise<unknown | undefined>;
 	$getCommands(): Promise<string[]>;
 }
 
@@ -148,15 +148,15 @@ export type CommentThreadChanges<T = IRange> = Partial<{
 }>;
 
 export interface MainThreadCommentsShape extends IDisposable {
-	$registerCommentController(handle: number, id: string, label: string, extensionId: stringcognidreamognidream;
-		$unregisterCommentController(handle: numbercognidreamognidream;
-			$updateCommentControllerFeatures(handle: number, features: CommentProviderFeaturescognidreamognidream;
-				$createCommentThread(handle: number, commentThreadHandle: number, threadId: string, resource: UriComponents, range: IRange | ICellRange | undefined, comments: languages.Comment[], extensionId: ExtensionIdentifier, isTemplate: boolean, editorId?: string): languages.CommentThread<IRange | ICellRange> | undefined;
-	$updateCommentThread(handle: number, commentThreadHandle: number, threadId: string, resource: UriComponents, changes: CommentThreadChangescognidreamognidream;
-		$deleteCommentThread(handle: number, commentThreadHandle: numbercognidreamognidream;
-			$updateCommentingRanges(handle: number, resourceHints?: languages.CommentingRangeResourceHintcognidreamognidream;
-				$revealCommentThread(handle: number, commentThreadHandle: number, commentUniqueIdInThread: number, options: languages.CommentThreadRevealOptions): Promicognidreamognidream>;
-$hideCommentThread(handle: number, commentThreadHandle: numbercognidreamognidream;
+	$registerCommentController(handle: number, id: string, label: string, extensionId: string): void;
+	$unregisterCommentController(handle: number): void;
+	$updateCommentControllerFeatures(handle: number, features: CommentProviderFeatures): void;
+	$createCommentThread(handle: number, commentThreadHandle: number, threadId: string, resource: UriComponents, range: IRange | ICellRange | undefined, comments: languages.Comment[], extensionId: ExtensionIdentifier, isTemplate: boolean, editorId?: string): languages.CommentThread<IRange | ICellRange> | undefined;
+	$updateCommentThread(handle: number, commentThreadHandle: number, threadId: string, resource: UriComponents, changes: CommentThreadChanges): void;
+	$deleteCommentThread(handle: number, commentThreadHandle: number): void;
+	$updateCommentingRanges(handle: number, resourceHints?: languages.CommentingRangeResourceHint): void;
+	$revealCommentThread(handle: number, commentThreadHandle: number, commentUniqueIdInThread: number, options: languages.CommentThreadRevealOptions): Promise<void>;
+	$hideCommentThread(handle: number, commentThreadHandle: number): void;
 }
 
 export interface AuthenticationForceNewSessionOptions {
@@ -179,29 +179,29 @@ export interface AuthenticationGetSessionOptions {
 }
 
 export interface MainThreadAuthenticationShape extends IDisposable {
-	$registerAuthenticationProvider(id: string, label: string, supportsMultipleAccounts: booleancognidreamognidream;
-		$unregisterAuthenticationProvider(id: stringcognidreamognidream;
-			$ensureProvider(id: string): Promicognidreamognidream>;
-$sendDidChangeSessions(providerId: string, event: AuthenticationSessionsChangeEventcognidreamognidream;
-$getSession(providerId: string, scopes: readonly string[], extensionId: string, extensionName: string, options: AuthenticationGetSessionOptions): Promise<AuthenticationSession | undefined>;
-$getAccounts(providerId: string): Promise<ReadonlyArray<AuthenticationSessionAccount>>;
-$removeSession(providerId: string, sessionId: string): Promicognidreamognidream >;
+	$registerAuthenticationProvider(id: string, label: string, supportsMultipleAccounts: boolean): void;
+	$unregisterAuthenticationProvider(id: string): void;
+	$ensureProvider(id: string): Promise<void>;
+	$sendDidChangeSessions(providerId: string, event: AuthenticationSessionsChangeEvent): void;
+	$getSession(providerId: string, scopes: readonly string[], extensionId: string, extensionName: string, options: AuthenticationGetSessionOptions): Promise<AuthenticationSession | undefined>;
+	$getAccounts(providerId: string): Promise<ReadonlyArray<AuthenticationSessionAccount>>;
+	$removeSession(providerId: string, sessionId: string): Promise<void>;
 }
 
 export interface MainThreadSecretStateShape extends IDisposable {
 	$getPassword(extensionId: string, key: string): Promise<string | undefined>;
-	$setPassword(extensionId: string, key: string, value: string): Promicognidreamognidream>;
-$deletePassword(extensionId: string, key: string): Promicognidreamognidream >;
+	$setPassword(extensionId: string, key: string, value: string): Promise<void>;
+	$deletePassword(extensionId: string, key: string): Promise<void>;
 }
 
 export interface MainThreadConfigurationShape extends IDisposable {
-	$updateConfigurationOption(target: ConfigurationTarget | null, key: string, value: any, overrides: IConfigurationOverrides | undefined, scopeToLanguage: boolean | undefined): Promicognidreamognidream>;
-$removeConfigurationOption(target: ConfigurationTarget | null, key: string, overrides: IConfigurationOverrides | undefined, scopeToLanguage: boolean | undefined): Promicognidreamognidream >;
+	$updateConfigurationOption(target: ConfigurationTarget | null, key: string, value: any, overrides: IConfigurationOverrides | undefined, scopeToLanguage: boolean | undefined): Promise<void>;
+	$removeConfigurationOption(target: ConfigurationTarget | null, key: string, overrides: IConfigurationOverrides | undefined, scopeToLanguage: boolean | undefined): Promise<void>;
 }
 
 export interface MainThreadDiagnosticsShape extends IDisposable {
-	$changeMany(owner: string, entries: [UriComponents, IMarkerData[] | undefined][]cognidreamognidream;
-		$clear(owner: stringcognidreamognidream;
+	$changeMany(owner: string, entries: [UriComponents, IMarkerData[] | undefined][]): void;
+	$clear(owner: string): void;
 }
 
 export interface MainThreadDialogOpenOptions {
@@ -228,15 +228,15 @@ export interface MainThreadDiaglogsShape extends IDisposable {
 }
 
 export interface MainThreadDecorationsShape extends IDisposable {
-	$registerDecorationProvider(handle: number, label: stringcognidreamognidream;
-		$unregisterDecorationProvider(handle: numbercognidreamognidream;
-			$onDidChange(handle: number, resources: UriComponents[] | nullcognidreamognidream;
+	$registerDecorationProvider(handle: number, label: string): void;
+	$unregisterDecorationProvider(handle: number): void;
+	$onDidChange(handle: number, resources: UriComponents[] | null): void;
 }
 
 export interface MainThreadDocumentContentProvidersShape extends IDisposable {
-	$registerTextContentProvider(handle: number, scheme: stringcognidreamognidream;
-		$unregisterTextContentProvider(handle: numbercognidreamognidream;
-			$onVirtualDocumentChange(uri: UriComponents, value: string): Promicognidreamognidream>;
+	$registerTextContentProvider(handle: number, scheme: string): void;
+	$unregisterTextContentProvider(handle: number): void;
+	$onVirtualDocumentChange(uri: UriComponents, value: string): Promise<void>;
 }
 
 export interface MainThreadDocumentsShape extends IDisposable {
@@ -294,41 +294,41 @@ export interface MainThreadBulkEditsShape extends IDisposable {
 
 export interface MainThreadTextEditorsShape extends IDisposable {
 	$tryShowTextDocument(resource: UriComponents, options: ITextDocumentShowOptions): Promise<string | undefined>;
-	$registerTextEditorDecorationType(extensionId: ExtensionIdentifier, key: string, options: editorCommon.IDecorationRenderOptionscognidreamognidream;
-		$removeTextEditorDecorationType(key: stringcognidreamognidream;
-			$tryShowEditor(id: string, position: EditorGroupColumn): Promicognidreamognidream>;
-$tryHideEditor(id: string): Promicognidreamognidream >;
-$trySetOptions(id: string, options: ITextEditorConfigurationUpdate): Promicognidreamognidream >;
-$trySetDecorations(id: string, key: string, ranges: editorCommon.IDecorationOptions[]): Promicognidreamognidream >;
-$trySetDecorationsFast(id: string, key: string, ranges: number[]): Promicognidreamognidream >;
-$tryRevealRange(id: string, range: IRange, revealType: TextEditorRevealType): Promicognidreamognidream >;
-$trySetSelections(id: string, selections: ISelection[]): Promicognidreamognidream >;
-$tryApplyEdits(id: string, modelVersionId: number, edits: ISingleEditOperation[], opts: IApplyEditsOptions): Promise<boolean>;
-$tryInsertSnippet(id: string, modelVersionId: number, template: string, selections: readonly IRange[], opts: IUndoStopOptions): Promise<boolean>;
-$getDiffInformation(id: string): Promise<IChange[]>;
+	$registerTextEditorDecorationType(extensionId: ExtensionIdentifier, key: string, options: editorCommon.IDecorationRenderOptions): void;
+	$removeTextEditorDecorationType(key: string): void;
+	$tryShowEditor(id: string, position: EditorGroupColumn): Promise<void>;
+	$tryHideEditor(id: string): Promise<void>;
+	$trySetOptions(id: string, options: ITextEditorConfigurationUpdate): Promise<void>;
+	$trySetDecorations(id: string, key: string, ranges: editorCommon.IDecorationOptions[]): Promise<void>;
+	$trySetDecorationsFast(id: string, key: string, ranges: number[]): Promise<void>;
+	$tryRevealRange(id: string, range: IRange, revealType: TextEditorRevealType): Promise<void>;
+	$trySetSelections(id: string, selections: ISelection[]): Promise<void>;
+	$tryApplyEdits(id: string, modelVersionId: number, edits: ISingleEditOperation[], opts: IApplyEditsOptions): Promise<boolean>;
+	$tryInsertSnippet(id: string, modelVersionId: number, template: string, selections: readonly IRange[], opts: IUndoStopOptions): Promise<boolean>;
+	$getDiffInformation(id: string): Promise<IChange[]>;
 }
 
 export interface MainThreadTreeViewsShape extends IDisposable {
-	$registerTreeViewDataProvider(treeViewId: string, options: { showCollapseAll: boolean; canSelectMany: boolean; dropMimeTypes: readonly string[]; dragMimeTypes: readonly string[]; hasHandleDrag: boolean; hasHandleDrop: boolean; manuallyManageCheckboxes: boolean }): Promicognidreamognidream>;
-$refresh(treeViewId: string, itemsToRefresh ?: { [treeItemHandle: string]: ITreeItem }): Promicognidreamognidream >;
-$reveal(treeViewId: string, itemInfo: { item: ITreeItem; parentChain: ITreeItem[] } | undefined, options: IRevealOptions): Promicognidreamognidream >;
-$setMessage(treeViewId: string, message: string | IMarkdownStringcognidreamognidream;
-$setTitle(treeViewId: string, title: string, description: string | undefinedcognidreamognidream;
-$setBadge(treeViewId: string, badge: IViewBadge | undefinedcognidreamognidream;
-$resolveDropFileData(destinationViewId: string, requestId: number, dataItemId: string): Promise<VSBuffer>;
-$disposeTree(treeViewId: string): Promicognidreamognidream >;
+	$registerTreeViewDataProvider(treeViewId: string, options: { showCollapseAll: boolean; canSelectMany: boolean; dropMimeTypes: readonly string[]; dragMimeTypes: readonly string[]; hasHandleDrag: boolean; hasHandleDrop: boolean; manuallyManageCheckboxes: boolean }): Promise<void>;
+	$refresh(treeViewId: string, itemsToRefresh?: { [treeItemHandle: string]: ITreeItem }): Promise<void>;
+	$reveal(treeViewId: string, itemInfo: { item: ITreeItem; parentChain: ITreeItem[] } | undefined, options: IRevealOptions): Promise<void>;
+	$setMessage(treeViewId: string, message: string | IMarkdownString): void;
+	$setTitle(treeViewId: string, title: string, description: string | undefined): void;
+	$setBadge(treeViewId: string, badge: IViewBadge | undefined): void;
+	$resolveDropFileData(destinationViewId: string, requestId: number, dataItemId: string): Promise<VSBuffer>;
+	$disposeTree(treeViewId: string): Promise<void>;
 }
 
 export interface MainThreadDownloadServiceShape extends IDisposable {
-	$download(uri: UriComponents, to: UriComponents): Promicognidreamognidream>;
+	$download(uri: UriComponents, to: UriComponents): Promise<void>;
 }
 
 export interface MainThreadErrorsShape extends IDisposable {
-	$onUnexpectedError(err: any | SerializedErrorcognidreamognidream;
+	$onUnexpectedError(err: any | SerializedError): void;
 }
 
 export interface MainThreadConsoleShape extends IDisposable {
-	$logExtensionHostMessage(msg: IRemoteConsoleLogcognidreamognidream;
+	$logExtensionHostMessage(msg: IRemoteConsoleLog): void;
 }
 
 export interface IRegExpDto {
@@ -446,57 +446,57 @@ export interface IdentifiableInlineEdit extends languages.IInlineEdit {
 }
 
 export interface MainThreadLanguageFeaturesShape extends IDisposable {
-	$unregister(handle: numbercognidreamognidream;
-		$registerDocumentSymbolProvider(handle: number, selector: IDocumentFilterDto[], label: stringcognidreamognidream;
-			$registerCodeLensSupport(handle: number, selector: IDocumentFilterDto[], eventHandle: number | undefinedcognidreamognidream;
-				$emitCodeLensEvent(eventHandle: number, event?: anycognidreamognidream;
-					$registerDefinitionSupport(handle: number, selector: IDocumentFilterDto[]cognidreamognidream;
-						$registerDeclarationSupport(handle: number, selector: IDocumentFilterDto[]cognidreamognidream;
-							$registerImplementationSupport(handle: number, selector: IDocumentFilterDto[]cognidreamognidream;
-								$registerTypeDefinitionSupport(handle: number, selector: IDocumentFilterDto[]cognidreamognidream;
-									$registerHoverProvider(handle: number, selector: IDocumentFilterDto[]cognidreamognidream;
-										$registerEvaluatableExpressionProvider(handle: number, selector: IDocumentFilterDto[]cognidreamognidream;
-											$registerInlineValuesProvider(handle: number, selector: IDocumentFilterDto[], eventHandle: number | undefinedcognidreamognidream;
-												$emitInlineValuesEvent(eventHandle: number, event?: anycognidreamognidream;
-													$registerDocumentHighlightProvider(handle: number, selector: IDocumentFilterDto[]cognidreamognidream;
-														$registerMultiDocumentHighlightProvider(handle: number, selector: IDocumentFilterDto[]cognidreamognidream;
-															$registerLinkedEditingRangeProvider(handle: number, selector: IDocumentFilterDto[]cognidreamognidream;
-																$registerReferenceSupport(handle: number, selector: IDocumentFilterDto[]cognidreamognidream;
-																	$registerCodeActionSupport(handle: number, selector: IDocumentFilterDto[], metadata: ICodeActionProviderMetadataDto, displayName: string, extensionID: string, supportsResolve: booleancognidreamognidream;
-																		$registerPasteEditProvider(handle: number, selector: IDocumentFilterDto[], metadata: IPasteEditProviderMetadataDtocognidreamognidream;
-																			$registerDocumentFormattingSupport(handle: number, selector: IDocumentFilterDto[], extensionId: ExtensionIdentifier, displayName: stringcognidreamognidream;
-																				$registerRangeFormattingSupport(handle: number, selector: IDocumentFilterDto[], extensionId: ExtensionIdentifier, displayName: string, supportRanges: booleancognidreamognidream;
-																					$registerOnTypeFormattingSupport(handle: number, selector: IDocumentFilterDto[], autoFormatTriggerCharacters: string[], extensionId: ExtensionIdentifiercognidreamognidream;
-																						$registerNavigateTypeSupport(handle: number, supportsResolve: booleancognidreamognidream;
-																							$registerRenameSupport(handle: number, selector: IDocumentFilterDto[], supportsResolveInitialValues: booleancognidreamognidream;
-																								$registerNewSymbolNamesProvider(handle: number, selector: IDocumentFilterDto[]cognidreamognidream;
-																									$registerDocumentSemanticTokensProvider(handle: number, selector: IDocumentFilterDto[], legend: languages.SemanticTokensLegend, eventHandle: number | undefinedcognidreamognidream;
-																										$emitDocumentSemanticTokensEvent(eventHandle: numbercognidreamognidream;
-																											$registerDocumentRangeSemanticTokensProvider(handle: number, selector: IDocumentFilterDto[], legend: languages.SemanticTokensLegendcognidreamognidream;
-																												$registerCompletionsProvider(handle: number, selector: IDocumentFilterDto[], triggerCharacters: string[], supportsResolveDetails: boolean, extensionId: ExtensionIdentifiercognidreamognidream;
-																													$registerInlineCompletionsSupport(handle: number, selector: IDocumentFilterDto[], supportsHandleDidShowCompletionItem: boolean, extensionId: string, yieldsToExtensionIds: string[], displayName: string | undefined, debounceDelayMs: number | undefinedcognidreamognidream;
-																														$registerInlineEditProvider(handle: number, selector: IDocumentFilterDto[], extensionId: ExtensionIdentifier, displayName: stringcognidreamognidream;
-																															$registerSignatureHelpProvider(handle: number, selector: IDocumentFilterDto[], metadata: ISignatureHelpProviderMetadataDtocognidreamognidream;
-																																$registerInlayHintsProvider(handle: number, selector: IDocumentFilterDto[], supportsResolve: boolean, eventHandle: number | undefined, displayName: string | undefinedcognidreamognidream;
-																																	$emitInlayHintsEvent(eventHandle: numbercognidreamognidream;
-																																		$registerDocumentLinkProvider(handle: number, selector: IDocumentFilterDto[], supportsResolve: booleancognidreamognidream;
-																																			$registerDocumentColorProvider(handle: number, selector: IDocumentFilterDto[]cognidreamognidream;
-																																				$registerFoldingRangeProvider(handle: number, selector: IDocumentFilterDto[], extensionId: ExtensionIdentifier, eventHandle: number | undefinedcognidreamognidream;
-																																					$emitFoldingRangeEvent(eventHandle: number, event?: anycognidreamognidream;
-																																						$registerSelectionRangeProvider(handle: number, selector: IDocumentFilterDto[]cognidreamognidream;
-																																							$registerCallHierarchyProvider(handle: number, selector: IDocumentFilterDto[]cognidreamognidream;
-																																								$registerTypeHierarchyProvider(handle: number, selector: IDocumentFilterDto[]cognidreamognidream;
-																																									$registerDocumentOnDropEditProvider(handle: number, selector: IDocumentFilterDto[], metadata?: IDocumentDropEditProviderMetadatacognidreamognidream;
-																																										$resolvePasteFileData(handle: number, requestId: number, dataId: string): Promise<VSBuffer>;
+	$unregister(handle: number): void;
+	$registerDocumentSymbolProvider(handle: number, selector: IDocumentFilterDto[], label: string): void;
+	$registerCodeLensSupport(handle: number, selector: IDocumentFilterDto[], eventHandle: number | undefined): void;
+	$emitCodeLensEvent(eventHandle: number, event?: any): void;
+	$registerDefinitionSupport(handle: number, selector: IDocumentFilterDto[]): void;
+	$registerDeclarationSupport(handle: number, selector: IDocumentFilterDto[]): void;
+	$registerImplementationSupport(handle: number, selector: IDocumentFilterDto[]): void;
+	$registerTypeDefinitionSupport(handle: number, selector: IDocumentFilterDto[]): void;
+	$registerHoverProvider(handle: number, selector: IDocumentFilterDto[]): void;
+	$registerEvaluatableExpressionProvider(handle: number, selector: IDocumentFilterDto[]): void;
+	$registerInlineValuesProvider(handle: number, selector: IDocumentFilterDto[], eventHandle: number | undefined): void;
+	$emitInlineValuesEvent(eventHandle: number, event?: any): void;
+	$registerDocumentHighlightProvider(handle: number, selector: IDocumentFilterDto[]): void;
+	$registerMultiDocumentHighlightProvider(handle: number, selector: IDocumentFilterDto[]): void;
+	$registerLinkedEditingRangeProvider(handle: number, selector: IDocumentFilterDto[]): void;
+	$registerReferenceSupport(handle: number, selector: IDocumentFilterDto[]): void;
+	$registerCodeActionSupport(handle: number, selector: IDocumentFilterDto[], metadata: ICodeActionProviderMetadataDto, displayName: string, extensionID: string, supportsResolve: boolean): void;
+	$registerPasteEditProvider(handle: number, selector: IDocumentFilterDto[], metadata: IPasteEditProviderMetadataDto): void;
+	$registerDocumentFormattingSupport(handle: number, selector: IDocumentFilterDto[], extensionId: ExtensionIdentifier, displayName: string): void;
+	$registerRangeFormattingSupport(handle: number, selector: IDocumentFilterDto[], extensionId: ExtensionIdentifier, displayName: string, supportRanges: boolean): void;
+	$registerOnTypeFormattingSupport(handle: number, selector: IDocumentFilterDto[], autoFormatTriggerCharacters: string[], extensionId: ExtensionIdentifier): void;
+	$registerNavigateTypeSupport(handle: number, supportsResolve: boolean): void;
+	$registerRenameSupport(handle: number, selector: IDocumentFilterDto[], supportsResolveInitialValues: boolean): void;
+	$registerNewSymbolNamesProvider(handle: number, selector: IDocumentFilterDto[]): void;
+	$registerDocumentSemanticTokensProvider(handle: number, selector: IDocumentFilterDto[], legend: languages.SemanticTokensLegend, eventHandle: number | undefined): void;
+	$emitDocumentSemanticTokensEvent(eventHandle: number): void;
+	$registerDocumentRangeSemanticTokensProvider(handle: number, selector: IDocumentFilterDto[], legend: languages.SemanticTokensLegend): void;
+	$registerCompletionsProvider(handle: number, selector: IDocumentFilterDto[], triggerCharacters: string[], supportsResolveDetails: boolean, extensionId: ExtensionIdentifier): void;
+	$registerInlineCompletionsSupport(handle: number, selector: IDocumentFilterDto[], supportsHandleDidShowCompletionItem: boolean, extensionId: string, yieldsToExtensionIds: string[], displayName: string | undefined, debounceDelayMs: number | undefined): void;
+	$registerInlineEditProvider(handle: number, selector: IDocumentFilterDto[], extensionId: ExtensionIdentifier, displayName: string): void;
+	$registerSignatureHelpProvider(handle: number, selector: IDocumentFilterDto[], metadata: ISignatureHelpProviderMetadataDto): void;
+	$registerInlayHintsProvider(handle: number, selector: IDocumentFilterDto[], supportsResolve: boolean, eventHandle: number | undefined, displayName: string | undefined): void;
+	$emitInlayHintsEvent(eventHandle: number): void;
+	$registerDocumentLinkProvider(handle: number, selector: IDocumentFilterDto[], supportsResolve: boolean): void;
+	$registerDocumentColorProvider(handle: number, selector: IDocumentFilterDto[]): void;
+	$registerFoldingRangeProvider(handle: number, selector: IDocumentFilterDto[], extensionId: ExtensionIdentifier, eventHandle: number | undefined): void;
+	$emitFoldingRangeEvent(eventHandle: number, event?: any): void;
+	$registerSelectionRangeProvider(handle: number, selector: IDocumentFilterDto[]): void;
+	$registerCallHierarchyProvider(handle: number, selector: IDocumentFilterDto[]): void;
+	$registerTypeHierarchyProvider(handle: number, selector: IDocumentFilterDto[]): void;
+	$registerDocumentOnDropEditProvider(handle: number, selector: IDocumentFilterDto[], metadata?: IDocumentDropEditProviderMetadata): void;
+	$resolvePasteFileData(handle: number, requestId: number, dataId: string): Promise<VSBuffer>;
 	$resolveDocumentOnDropFileData(handle: number, requestId: number, dataId: string): Promise<VSBuffer>;
-	$setLanguageConfiguration(handle: number, languageId: string, configuration: ILanguageConfigurationDtocognidreamognidream;
+	$setLanguageConfiguration(handle: number, languageId: string, configuration: ILanguageConfigurationDto): void;
 }
 
 export interface MainThreadLanguagesShape extends IDisposable {
-	$changeLanguage(resource: UriComponents, languageId: string): Promicognidreamognidream>;
-$tokensAtPosition(resource: UriComponents, position: IPosition): Promise<undefined | { type: StandardTokenType; range: IRange }>;
-$setLanguageStatus(handle: number, status: ILanguageStatuscognidreamognidream;
-$removeLanguageStatus(handle: numbercognidreamognidream;
+	$changeLanguage(resource: UriComponents, languageId: string): Promise<void>;
+	$tokensAtPosition(resource: UriComponents, position: IPosition): Promise<undefined | { type: StandardTokenType; range: IRange }>;
+	$setLanguageStatus(handle: number, status: ILanguageStatus): void;
+	$removeLanguageStatus(handle: number): void;
 }
 
 export interface MainThreadMessageOptions {
@@ -512,17 +512,17 @@ export interface MainThreadMessageServiceShape extends IDisposable {
 
 export interface MainThreadOutputServiceShape extends IDisposable {
 	$register(label: string, file: UriComponents, languageId: string | undefined, extensionId: string): Promise<string>;
-	$update(channelId: string, mode: OutputChannelUpdateMode, till?: number): Promicognidreamognidream>;
-$reveal(channelId: string, preserveFocus: boolean): Promicognidreamognidream >;
-$close(channelId: string): Promicognidreamognidream >;
-$dispose(channelId: string): Promicognidreamognidream >;
+	$update(channelId: string, mode: OutputChannelUpdateMode, till?: number): Promise<void>;
+	$reveal(channelId: string, preserveFocus: boolean): Promise<void>;
+	$close(channelId: string): Promise<void>;
+	$dispose(channelId: string): Promise<void>;
 }
 
 export interface MainThreadProgressShape extends IDisposable {
 
-	$startProgress(handle: number, options: IProgressOptions, extensionId?: string): Promicognidreamognidream>;
-$progressReport(handle: number, message: IProgressStepcognidreamognidream;
-$progressEnd(handle: numbercognidreamognidream;
+	$startProgress(handle: number, options: IProgressOptions, extensionId?: string): Promise<void>;
+	$progressReport(handle: number, message: IProgressStep): void;
+	$progressEnd(handle: number): void;
 }
 
 /**
@@ -558,37 +558,37 @@ export interface TerminalLaunchConfig {
 
 
 export interface MainThreadTerminalServiceShape extends IDisposable {
-	$createTerminal(extHostTerminalId: string, config: TerminalLaunchConfig): Promicognidreamognidream>;
-$dispose(id: ExtHostTerminalIdentifiercognidreamognidream;
-$hide(id: ExtHostTerminalIdentifiercognidreamognidream;
-$sendText(id: ExtHostTerminalIdentifier, text: string, shouldExecute: booleancognidreamognidream;
-$show(id: ExtHostTerminalIdentifier, preserveFocus: booleancognidreamognidream;
-$registerProcessSupport(isSupported: booleancognidreamognidream;
-$registerProfileProvider(id: string, extensionIdentifier: stringcognidreamognidream;
-$unregisterProfileProvider(id: stringcognidreamognidream;
-$registerCompletionProvider(id: string, extensionIdentifier: string, ...triggerCharacters: string[]cognidreamognidream;
-$unregisterCompletionProvider(id: stringcognidreamognidream;
-$registerQuickFixProvider(id: string, extensionIdentifier: stringcognidreamognidream;
-$unregisterQuickFixProvider(id: stringcognidreamognidream;
-$setEnvironmentVariableCollection(extensionIdentifier: string, persistent: boolean, collection: ISerializableEnvironmentVariableCollection | undefined, descriptionMap: ISerializableEnvironmentDescriptionMapcognidreamognidream;
+	$createTerminal(extHostTerminalId: string, config: TerminalLaunchConfig): Promise<void>;
+	$dispose(id: ExtHostTerminalIdentifier): void;
+	$hide(id: ExtHostTerminalIdentifier): void;
+	$sendText(id: ExtHostTerminalIdentifier, text: string, shouldExecute: boolean): void;
+	$show(id: ExtHostTerminalIdentifier, preserveFocus: boolean): void;
+	$registerProcessSupport(isSupported: boolean): void;
+	$registerProfileProvider(id: string, extensionIdentifier: string): void;
+	$unregisterProfileProvider(id: string): void;
+	$registerCompletionProvider(id: string, extensionIdentifier: string, ...triggerCharacters: string[]): void;
+	$unregisterCompletionProvider(id: string): void;
+	$registerQuickFixProvider(id: string, extensionIdentifier: string): void;
+	$unregisterQuickFixProvider(id: string): void;
+	$setEnvironmentVariableCollection(extensionIdentifier: string, persistent: boolean, collection: ISerializableEnvironmentVariableCollection | undefined, descriptionMap: ISerializableEnvironmentDescriptionMap): void;
 
-// Optional event toggles
-$startSendingDataEvents(cognidreamognidream;
-$stopSendingDataEvents(cognidreamognidream;
-$startSendingCommandEvents(cognidreamognidream;
-$stopSendingCommandEvents(cognidreamognidream;
-$startLinkProvider(cognidreamognidream;
-$stopLinkProvider(cognidreamognidream;
+	// Optional event toggles
+	$startSendingDataEvents(): void;
+	$stopSendingDataEvents(): void;
+	$startSendingCommandEvents(): void;
+	$stopSendingCommandEvents(): void;
+	$startLinkProvider(): void;
+	$stopLinkProvider(): void;
 
-// Process
-$sendProcessData(terminalId: number, data: stringcognidreamognidream;
-$sendProcessReady(terminalId: number, pid: number, cwd: string, windowsPty: IProcessReadyWindowsPty | undefinedcognidreamognidream;
-$sendProcessProperty(terminalId: number, property: IProcessProperty < any > cognidreamognidream;
-$sendProcessExit(terminalId: number, exitCode: number | undefinedcognidreamognidream;
+	// Process
+	$sendProcessData(terminalId: number, data: string): void;
+	$sendProcessReady(terminalId: number, pid: number, cwd: string, windowsPty: IProcessReadyWindowsPty | undefined): void;
+	$sendProcessProperty(terminalId: number, property: IProcessProperty<any>): void;
+	$sendProcessExit(terminalId: number, exitCode: number | undefined): void;
 }
 
 export interface MainThreadTerminalShellIntegrationShape extends IDisposable {
-	$executeCommand(terminalId: number, commandLine: stringcognidreamognidream;
+	$executeCommand(terminalId: number, commandLine: string): void;
 }
 
 export type TransferQuickPickItemOrSeparator = TransferQuickPickItem | quickInput.IQuickPickSeparator;
@@ -688,16 +688,16 @@ export interface IInputBoxOptions {
 
 export interface MainThreadQuickOpenShape extends IDisposable {
 	$show(instance: number, options: quickInput.IPickOptions<TransferQuickPickItem>, token: CancellationToken): Promise<number | number[] | undefined>;
-	$setItems(instance: number, items: TransferQuickPickItemOrSeparator[]): Promicognidreamognidream>;
-$setError(instance: number, error: Error): Promicognidreamognidream >;
-$input(options: IInputBoxOptions | undefined, validateInput: boolean, token: CancellationToken): Promise<string | undefined>;
-$createOrUpdate(params: TransferQuickInput): Promicognidreamognidream >;
-$dispose(id: number): Promicognidreamognidream >;
+	$setItems(instance: number, items: TransferQuickPickItemOrSeparator[]): Promise<void>;
+	$setError(instance: number, error: Error): Promise<void>;
+	$input(options: IInputBoxOptions | undefined, validateInput: boolean, token: CancellationToken): Promise<string | undefined>;
+	$createOrUpdate(params: TransferQuickInput): Promise<void>;
+	$dispose(id: number): Promise<void>;
 }
 
 export interface MainThreadStatusBarShape extends IDisposable {
-	$setEntry(id: string, statusId: string, extensionId: string | undefined, statusName: string, text: string, tooltip: IMarkdownString | string | undefined, hasTooltipProvider: boolean, command: ICommandDto | undefined, color: string | ThemeColor | undefined, backgroundColor: string | ThemeColor | undefined, alignLeft: boolean, priority: number | undefined, accessibilityInformation: IAccessibilityInformation | undefinedcognidreamognidream;
-		$disposeEntry(id: stringcognidreamognidream;
+	$setEntry(id: string, statusId: string, extensionId: string | undefined, statusName: string, text: string, tooltip: IMarkdownString | string | undefined, hasTooltipProvider: boolean, command: ICommandDto | undefined, color: string | ThemeColor | undefined, backgroundColor: string | ThemeColor | undefined, alignLeft: boolean, priority: number | undefined, accessibilityInformation: IAccessibilityInformation | undefined): void;
+	$disposeEntry(id: string): void;
 }
 
 export type StatusBarItemDto = {
@@ -712,33 +712,33 @@ export type StatusBarItemDto = {
 };
 
 export interface ExtHostStatusBarShape {
-	$acceptStaticEntries(added?: StatusBarItemDto[]cognidreamognidream;
-		$provideTooltip(entryId: string, cancellation: CancellationToken): Promise<string | IMarkdownString | undefined>;
+	$acceptStaticEntries(added?: StatusBarItemDto[]): void;
+	$provideTooltip(entryId: string, cancellation: CancellationToken): Promise<string | IMarkdownString | undefined>;
 }
 
 export interface MainThreadStorageShape extends IDisposable {
 	$initializeExtensionStorage(shared: boolean, extensionId: string): Promise<string | undefined>;
-	$setValue(shared: boolean, extensionId: string, value: object): Promicognidreamognidream>;
-$registerExtensionStorageKeysToSync(extension: IExtensionIdWithVersion, keys: string[]cognidreamognidream;
+	$setValue(shared: boolean, extensionId: string, value: object): Promise<void>;
+	$registerExtensionStorageKeysToSync(extension: IExtensionIdWithVersion, keys: string[]): void;
 }
 
 export interface MainThreadTelemetryShape extends IDisposable {
-	$publicLog(eventName: string, data?: anycognidreamognidream;
-		$publicLog2<E extends ClassifiedEvent<OmitMetadata<T>> = never, T extends IGDPRProperty = never > (eventName: string, data ?: StrictPropertyCheck < T, E > cognidreamognidream;
+	$publicLog(eventName: string, data?: any): void;
+	$publicLog2<E extends ClassifiedEvent<OmitMetadata<T>> = never, T extends IGDPRProperty = never>(eventName: string, data?: StrictPropertyCheck<T, E>): void;
 }
 
 export interface MainThreadEditorInsetsShape extends IDisposable {
-	$createEditorInset(handle: number, id: string, uri: UriComponents, line: number, height: number, options: IWebviewContentOptions, extensionId: ExtensionIdentifier, extensionLocation: UriComponents): Promicognidreamognidream>;
-$disposeEditorInset(handle: numbercognidreamognidream;
+	$createEditorInset(handle: number, id: string, uri: UriComponents, line: number, height: number, options: IWebviewContentOptions, extensionId: ExtensionIdentifier, extensionLocation: UriComponents): Promise<void>;
+	$disposeEditorInset(handle: number): void;
 
-$setHtml(handle: number, value: stringcognidreamognidream;
-$setOptions(handle: number, options: IWebviewContentOptionscognidreamognidream;
-$postMessage(handle: number, value: any): Promise<boolean>;
+	$setHtml(handle: number, value: string): void;
+	$setOptions(handle: number, options: IWebviewContentOptions): void;
+	$postMessage(handle: number, value: any): Promise<boolean>;
 }
 
 export interface ExtHostEditorInsetsShape {
-	$onDidDispose(handle: numbercognidreamognidream;
-		$onDidReceiveMessage(handle: number, message: anycognidreamognidream;
+	$onDidDispose(handle: number): void;
+	$onDidReceiveMessage(handle: number, message: any): void;
 }
 
 //#region --- tabs model
@@ -835,8 +835,8 @@ export type AnyInputDto = UnknownInputDto | TextInputDto | TextDiffInputDto | Mu
 
 export interface MainThreadEditorTabsShape extends IDisposable {
 	// manage tabs: move, close, rearrange etc
-	$moveTab(tabId: string, index: number, viewColumn: EditorGroupColumn, preserveFocus?: booleancognidreamognidream;
-		$closeTab(tabIds: string[], preserveFocus?: boolean): Promise<boolean>;
+	$moveTab(tabId: string, index: number, viewColumn: EditorGroupColumn, preserveFocus?: boolean): void;
+	$closeTab(tabIds: string[], preserveFocus?: boolean): Promise<boolean>;
 	$closeGroup(groupIds: number[], preservceFocus?: boolean): Promise<boolean>;
 }
 
@@ -871,11 +871,11 @@ export interface IEditorTabDto {
 
 export interface IExtHostEditorTabsShape {
 	// Accepts a whole new model
-	$acceptEditorTabModel(tabGroups: IEditorTabGroupDto[]cognidreamognidream;
-		// Only when group property changes (not the tabs inside)
-		$acceptTabGroupUpdate(groupDto: IEditorTabGroupDtocognidreamognidream;
-			// When a tab is added, removed, or updated
-			$acceptTabOperation(operation: TabOperationcognidreamognidream;
+	$acceptEditorTabModel(tabGroups: IEditorTabGroupDto[]): void;
+	// Only when group property changes (not the tabs inside)
+	$acceptTabGroupUpdate(groupDto: IEditorTabGroupDto): void;
+	// When a tab is added, removed, or updated
+	$acceptTabOperation(operation: TabOperation): void;
 }
 
 //#endregion
@@ -949,9 +949,9 @@ export interface WebviewMessageArrayBufferReference {
 }
 
 export interface MainThreadWebviewsShape extends IDisposable {
-	$setHtml(handle: WebviewHandle, value: stringcognidreamognidream;
-		$setOptions(handle: WebviewHandle, options: IWebviewContentOptionscognidreamognidream;
-			$postMessage(handle: WebviewHandle, value: string, ...buffers: VSBuffer[]): Promise<boolean>;
+	$setHtml(handle: WebviewHandle, value: string): void;
+	$setOptions(handle: WebviewHandle, options: IWebviewContentOptions): void;
+	$postMessage(handle: WebviewHandle, value: string, ...buffers: VSBuffer[]): Promise<boolean>;
 }
 
 export interface IWebviewIconPath {
@@ -973,34 +973,34 @@ export interface MainThreadWebviewPanelsShape extends IDisposable {
 		viewType: string,
 		initData: IWebviewInitData,
 		showOptions: WebviewPanelShowOptions,
-		cognidreamognidream;
-		$disposeWebview(handle: WebviewHandlecognidreamognidream;
-			$reveal(handle: WebviewHandle, showOptions: WebviewPanelShowOptionscognidreamognidream;
-				$setTitle(handle: WebviewHandle, value: stringcognidreamognidream;
-					$setIconPath(handle: WebviewHandle, value: IWebviewIconPath | undefinedcognidreamognidream;
+	): void;
+	$disposeWebview(handle: WebviewHandle): void;
+	$reveal(handle: WebviewHandle, showOptions: WebviewPanelShowOptions): void;
+	$setTitle(handle: WebviewHandle, value: string): void;
+	$setIconPath(handle: WebviewHandle, value: IWebviewIconPath | undefined): void;
 
-						$registerSerializer(viewType: string, options: { serializeBuffersForPostMessage: boolean }cognidreamognidream;
-							$unregisterSerializer(viewType: stringcognidreamognidream;
+	$registerSerializer(viewType: string, options: { serializeBuffersForPostMessage: boolean }): void;
+	$unregisterSerializer(viewType: string): void;
 }
 
 export interface MainThreadCustomEditorsShape extends IDisposable {
-	$registerTextEditorProvider(extension: WebviewExtensionDescription, viewType: string, options: IWebviewPanelOptions, capabilities: CustomTextEditorCapabilities, serializeBuffersForPostMessage: booleancognidreamognidream;
-		$registerCustomEditorProvider(extension: WebviewExtensionDescription, viewType: string, options: IWebviewPanelOptions, supportsMultipleEditorsPerDocument: boolean, serializeBuffersForPostMessage: booleancognidreamognidream;
-			$unregisterEditorProvider(viewType: stringcognidreamognidream;
+	$registerTextEditorProvider(extension: WebviewExtensionDescription, viewType: string, options: IWebviewPanelOptions, capabilities: CustomTextEditorCapabilities, serializeBuffersForPostMessage: boolean): void;
+	$registerCustomEditorProvider(extension: WebviewExtensionDescription, viewType: string, options: IWebviewPanelOptions, supportsMultipleEditorsPerDocument: boolean, serializeBuffersForPostMessage: boolean): void;
+	$unregisterEditorProvider(viewType: string): void;
 
-				$onDidEdit(resource: UriComponents, viewType: string, editId: number, label: string | undefinedcognidreamognidream;
-					$onContentChange(resource: UriComponents, viewType: stringcognidreamognidream;
+	$onDidEdit(resource: UriComponents, viewType: string, editId: number, label: string | undefined): void;
+	$onContentChange(resource: UriComponents, viewType: string): void;
 }
 
 export interface MainThreadWebviewViewsShape extends IDisposable {
-	$registerWebviewViewProvider(extension: WebviewExtensionDescription, viewType: string, options: { retainContextWhenHidden?: boolean; serializeBuffersForPostMessage: boolean }cognidreamognidream;
-		$unregisterWebviewViewProvider(viewType: stringcognidreamognidream;
+	$registerWebviewViewProvider(extension: WebviewExtensionDescription, viewType: string, options: { retainContextWhenHidden?: boolean; serializeBuffersForPostMessage: boolean }): void;
+	$unregisterWebviewViewProvider(viewType: string): void;
 
-			$setWebviewViewTitle(handle: WebviewHandle, value: string | undefinedcognidreamognidream;
-				$setWebviewViewDescription(handle: WebviewHandle, value: string | undefinedcognidreamognidream;
-					$setWebviewViewBadge(handle: WebviewHandle, badge: IViewBadge | undefinedcognidreamognidream;
+	$setWebviewViewTitle(handle: WebviewHandle, value: string | undefined): void;
+	$setWebviewViewDescription(handle: WebviewHandle, value: string | undefined): void;
+	$setWebviewViewBadge(handle: WebviewHandle, badge: IViewBadge | undefined): void;
 
-						$show(handle: WebviewHandle, preserveFocus: booleancognidreamognidream;
+	$show(handle: WebviewHandle, preserveFocus: boolean): void;
 }
 
 export interface WebviewPanelViewStateData {
@@ -1012,25 +1012,25 @@ export interface WebviewPanelViewStateData {
 }
 
 export interface ExtHostWebviewsShape {
-	$onMessage(handle: WebviewHandle, jsonSerializedMessage: string, buffers: SerializableObjectWithBuffers<VSBuffer[]>cognidreamognidream;
-		$onMissingCsp(handle: WebviewHandle, extensionId: stringcognidreamognidream;
+	$onMessage(handle: WebviewHandle, jsonSerializedMessage: string, buffers: SerializableObjectWithBuffers<VSBuffer[]>): void;
+	$onMissingCsp(handle: WebviewHandle, extensionId: string): void;
 }
 
 export interface ExtHostWebviewPanelsShape {
-	$onDidChangeWebviewPanelViewStates(newState: WebviewPanelViewStateDatacognidreamognidream;
-		$onDidDisposeWebviewPanel(handle: WebviewHandle): Promicognidreamognidream>;
-$deserializeWebviewPanel(
-	newWebviewHandle: WebviewHandle,
-	viewType: string,
-	initData: {
-	title: string;
-	state: any;
-	webviewOptions: IWebviewContentOptions;
-	panelOptions: IWebviewPanelOptions;
-	active: boolean;
-},
-	position: EditorGroupColumn,
-): Promicognidreamognidream >;
+	$onDidChangeWebviewPanelViewStates(newState: WebviewPanelViewStateData): void;
+	$onDidDisposeWebviewPanel(handle: WebviewHandle): Promise<void>;
+	$deserializeWebviewPanel(
+		newWebviewHandle: WebviewHandle,
+		viewType: string,
+		initData: {
+			title: string;
+			state: any;
+			webviewOptions: IWebviewContentOptions;
+			panelOptions: IWebviewPanelOptions;
+			active: boolean;
+		},
+		position: EditorGroupColumn,
+	): Promise<void>;
 }
 
 export interface ExtHostCustomEditorsShape {
@@ -1046,44 +1046,44 @@ export interface ExtHostCustomEditorsShape {
 		},
 		position: EditorGroupColumn,
 		cancellation: CancellationToken
-	): Promicognidreamognidream>;
-$createCustomDocument(resource: UriComponents, viewType: string, backupId: string | undefined, untitledDocumentData: VSBuffer | undefined, cancellation: CancellationToken): Promise<{ editable: boolean }>;
-$disposeCustomDocument(resource: UriComponents, viewType: string): Promicognidreamognidream >;
+	): Promise<void>;
+	$createCustomDocument(resource: UriComponents, viewType: string, backupId: string | undefined, untitledDocumentData: VSBuffer | undefined, cancellation: CancellationToken): Promise<{ editable: boolean }>;
+	$disposeCustomDocument(resource: UriComponents, viewType: string): Promise<void>;
 
-$undo(resource: UriComponents, viewType: string, editId: number, isDirty: boolean): Promicognidreamognidream >;
-$redo(resource: UriComponents, viewType: string, editId: number, isDirty: boolean): Promicognidreamognidream >;
-$revert(resource: UriComponents, viewType: string, cancellation: CancellationToken): Promicognidreamognidream >;
-$disposeEdits(resourceComponents: UriComponents, viewType: string, editIds: number[]cognidreamognidream;
+	$undo(resource: UriComponents, viewType: string, editId: number, isDirty: boolean): Promise<void>;
+	$redo(resource: UriComponents, viewType: string, editId: number, isDirty: boolean): Promise<void>;
+	$revert(resource: UriComponents, viewType: string, cancellation: CancellationToken): Promise<void>;
+	$disposeEdits(resourceComponents: UriComponents, viewType: string, editIds: number[]): void;
 
-$onSave(resource: UriComponents, viewType: string, cancellation: CancellationToken): Promicognidreamognidream >;
-$onSaveAs(resource: UriComponents, viewType: string, targetResource: UriComponents, cancellation: CancellationToken): Promicognidreamognidream >;
+	$onSave(resource: UriComponents, viewType: string, cancellation: CancellationToken): Promise<void>;
+	$onSaveAs(resource: UriComponents, viewType: string, targetResource: UriComponents, cancellation: CancellationToken): Promise<void>;
 
-$backup(resource: UriComponents, viewType: string, cancellation: CancellationToken): Promise<string>;
+	$backup(resource: UriComponents, viewType: string, cancellation: CancellationToken): Promise<string>;
 
-$onMoveCustomEditor(handle: WebviewHandle, newResource: UriComponents, viewType: string): Promicognidreamognidream >;
+	$onMoveCustomEditor(handle: WebviewHandle, newResource: UriComponents, viewType: string): Promise<void>;
 }
 
 export interface ExtHostWebviewViewsShape {
-	$resolveWebviewView(webviewHandle: WebviewHandle, viewType: string, title: string | undefined, state: any, cancellation: CancellationToken): Promicognidreamognidream>;
+	$resolveWebviewView(webviewHandle: WebviewHandle, viewType: string, title: string | undefined, state: any, cancellation: CancellationToken): Promise<void>;
 
-$onDidChangeWebviewViewVisibility(webviewHandle: WebviewHandle, visible: booleancognidreamognidream;
+	$onDidChangeWebviewViewVisibility(webviewHandle: WebviewHandle, visible: boolean): void;
 
-$disposeWebviewView(webviewHandle: WebviewHandlecognidreamognidream;
+	$disposeWebviewView(webviewHandle: WebviewHandle): void;
 }
 
 export interface MainThreadManagedSocketsShape extends IDisposable {
-	$registerSocketFactory(socketFactoryId: number): Promicognidreamognidream>;
-$unregisterSocketFactory(socketFactoryId: number): Promicognidreamognidream >;
-$onDidManagedSocketHaveData(socketId: number, data: VSBuffercognidreamognidream;
-$onDidManagedSocketClose(socketId: number, error: string | undefinedcognidreamognidream;
-$onDidManagedSocketEnd(socketId: numbercognidreamognidream;
+	$registerSocketFactory(socketFactoryId: number): Promise<void>;
+	$unregisterSocketFactory(socketFactoryId: number): Promise<void>;
+	$onDidManagedSocketHaveData(socketId: number, data: VSBuffer): void;
+	$onDidManagedSocketClose(socketId: number, error: string | undefined): void;
+	$onDidManagedSocketEnd(socketId: number): void;
 }
 
 export interface ExtHostManagedSocketsShape {
 	$openRemoteSocket(socketFactoryId: number): Promise<number>;
-	$remoteSocketWrite(socketId: number, buffer: VSBuffercognidreamognidream;
-		$remoteSocketEnd(socketId: numbercognidreamognidream;
-			$remoteSocketDrain(socketId: number): Promicognidreamognidream>;
+	$remoteSocketWrite(socketId: number, buffer: VSBuffer): void;
+	$remoteSocketEnd(socketId: number): void;
+	$remoteSocketDrain(socketId: number): Promise<void>;
 }
 
 export enum CellOutputKind {
@@ -1115,18 +1115,18 @@ export interface INotebookCellStatusBarListDto {
 }
 
 export interface MainThreadNotebookShape extends IDisposable {
-	$registerNotebookSerializer(handle: number, extension: notebookCommon.NotebookExtensionDescription, viewType: string, options: notebookCommon.TransientOptions, registration: notebookCommon.INotebookContributionData | undefinedcognidreamognidream;
-		$unregisterNotebookSerializer(handle: numbercognidreamognidream;
+	$registerNotebookSerializer(handle: number, extension: notebookCommon.NotebookExtensionDescription, viewType: string, options: notebookCommon.TransientOptions, registration: notebookCommon.INotebookContributionData | undefined): void;
+	$unregisterNotebookSerializer(handle: number): void;
 
-			$registerNotebookCellStatusBarItemProvider(handle: number, eventHandle: number | undefined, viewType: string): Promicognidreamognidream>;
-$unregisterNotebookCellStatusBarItemProvider(handle: number, eventHandle: number | undefined): Promicognidreamognidream >;
-$emitCellStatusBarEvent(eventHandle: numbercognidreamognidream;
+	$registerNotebookCellStatusBarItemProvider(handle: number, eventHandle: number | undefined, viewType: string): Promise<void>;
+	$unregisterNotebookCellStatusBarItemProvider(handle: number, eventHandle: number | undefined): Promise<void>;
+	$emitCellStatusBarEvent(eventHandle: number): void;
 }
 
 export interface MainThreadNotebookEditorsShape extends IDisposable {
 	$tryShowNotebookDocument(uriComponents: UriComponents, viewType: string, options: INotebookDocumentShowOptions): Promise<string>;
-	$tryRevealRange(id: string, range: ICellRange, revealType: NotebookEditorRevealType): Promicognidreamognidream>;
-$trySetSelections(id: string, range: ICellRange[]cognidreamognidream;
+	$tryRevealRange(id: string, range: ICellRange, revealType: NotebookEditorRevealType): Promise<void>;
+	$trySetSelections(id: string, range: ICellRange[]): void;
 }
 
 export interface MainThreadNotebookDocumentsShape extends IDisposable {
@@ -1197,27 +1197,27 @@ export interface VariablesResult {
 
 export interface MainThreadNotebookKernelsShape extends IDisposable {
 	$postMessage(handle: number, editorId: string | undefined, message: any): Promise<boolean>;
-	$addKernel(handle: number, data: INotebookKernelDto2): Promicognidreamognidream>;
-$updateKernel(handle: number, data: Partial < INotebookKernelDto2 > cognidreamognidream;
-$removeKernel(handle: numbercognidreamognidream;
-$updateNotebookPriority(handle: number, uri: UriComponents, value: number | undefinedcognidreamognidream;
+	$addKernel(handle: number, data: INotebookKernelDto2): Promise<void>;
+	$updateKernel(handle: number, data: Partial<INotebookKernelDto2>): void;
+	$removeKernel(handle: number): void;
+	$updateNotebookPriority(handle: number, uri: UriComponents, value: number | undefined): void;
 
-$createExecution(handle: number, controllerId: string, uri: UriComponents, cellHandle: numbercognidreamognidream;
-$updateExecution(handle: number, data: SerializableObjectWithBuffers < ICellExecuteUpdateDto[] > cognidreamognidream;
-$completeExecution(handle: number, data: SerializableObjectWithBuffers < ICellExecutionCompleteDto > cognidreamognidream;
+	$createExecution(handle: number, controllerId: string, uri: UriComponents, cellHandle: number): void;
+	$updateExecution(handle: number, data: SerializableObjectWithBuffers<ICellExecuteUpdateDto[]>): void;
+	$completeExecution(handle: number, data: SerializableObjectWithBuffers<ICellExecutionCompleteDto>): void;
 
-$createNotebookExecution(handle: number, controllerId: string, uri: UriComponentscognidreamognidream;
-$beginNotebookExecution(handle: number, cognidreamognidream;
-$completeNotebookExecution(handle: numbercognidreamognidream;
+	$createNotebookExecution(handle: number, controllerId: string, uri: UriComponents): void;
+	$beginNotebookExecution(handle: number,): void;
+	$completeNotebookExecution(handle: number): void;
 
-$addKernelDetectionTask(handle: number, notebookType: string): Promicognidreamognidream >;
-$removeKernelDetectionTask(handle: numbercognidreamognidream;
+	$addKernelDetectionTask(handle: number, notebookType: string): Promise<void>;
+	$removeKernelDetectionTask(handle: number): void;
 
-$addKernelSourceActionProvider(handle: number, eventHandle: number, notebookType: string): Promicognidreamognidream >;
-$removeKernelSourceActionProvider(handle: number, eventHandle: numbercognidreamognidream;
-$emitNotebookKernelSourceActionsChangeEvent(eventHandle: numbercognidreamognidream;
-$receiveVariable(requestId: string, variable: VariablesResultcognidreamognidream;
-$variablesUpdated(notebookUri: UriComponentscognidreamognidream;
+	$addKernelSourceActionProvider(handle: number, eventHandle: number, notebookType: string): Promise<void>;
+	$removeKernelSourceActionProvider(handle: number, eventHandle: number): void;
+	$emitNotebookKernelSourceActionsChangeEvent(eventHandle: number): void;
+	$receiveVariable(requestId: string, variable: VariablesResult): void;
+	$variablesUpdated(notebookUri: UriComponents): void;
 }
 
 export interface MainThreadNotebookRenderersShape extends IDisposable {
@@ -1228,59 +1228,59 @@ export interface MainThreadInteractiveShape extends IDisposable {
 }
 
 export interface MainThreadSpeechShape extends IDisposable {
-	$registerProvider(handle: number, identifier: string, metadata: ISpeechProviderMetadatacognidreamognidream;
-		$unregisterProvider(handle: numbercognidreamognidream;
+	$registerProvider(handle: number, identifier: string, metadata: ISpeechProviderMetadata): void;
+	$unregisterProvider(handle: number): void;
 
-			$emitSpeechToTextEvent(session: number, event: ISpeechToTextEventcognidreamognidream;
-				$emitTextToSpeechEvent(session: number, event: ITextToSpeechEventcognidreamognidream;
-					$emitKeywordRecognitionEvent(session: number, event: IKeywordRecognitionEventcognidreamognidream;
+	$emitSpeechToTextEvent(session: number, event: ISpeechToTextEvent): void;
+	$emitTextToSpeechEvent(session: number, event: ITextToSpeechEvent): void;
+	$emitKeywordRecognitionEvent(session: number, event: IKeywordRecognitionEvent): void;
 }
 
 export interface ExtHostSpeechShape {
-	$createSpeechToTextSession(handle: number, session: number, language?: string): Promicognidreamognidream>;
-$cancelSpeechToTextSession(session: number): Promicognidreamognidream >;
+	$createSpeechToTextSession(handle: number, session: number, language?: string): Promise<void>;
+	$cancelSpeechToTextSession(session: number): Promise<void>;
 
-$createTextToSpeechSession(handle: number, session: number, language ?: string): Promicognidreamognidream >;
-$synthesizeSpeech(session: number, text: string): Promicognidreamognidream >;
-$cancelTextToSpeechSession(session: number): Promicognidreamognidream >;
+	$createTextToSpeechSession(handle: number, session: number, language?: string): Promise<void>;
+	$synthesizeSpeech(session: number, text: string): Promise<void>;
+	$cancelTextToSpeechSession(session: number): Promise<void>;
 
-$createKeywordRecognitionSession(handle: number, session: number): Promicognidreamognidream >;
-$cancelKeywordRecognitionSession(session: number): Promicognidreamognidream >;
+	$createKeywordRecognitionSession(handle: number, session: number): Promise<void>;
+	$cancelKeywordRecognitionSession(session: number): Promise<void>;
 }
 
 export interface MainThreadLanguageModelsShape extends IDisposable {
-	$registerLanguageModelProvider(handle: number, identifier: string, metadata: ILanguageModelChatMetadatacognidreamognidream;
-		$unregisterProvider(handle: numbercognidreamognidream;
-			$tryStartChatRequest(extension: ExtensionIdentifier, provider: string, requestId: number, messages: SerializableObjectWithBuffers<IChatMessage[]>, options: {}, token: CancellationToken): Promicognidreamognidream>;
-$reportResponsePart(requestId: number, chunk: IChatResponseFragment): Promicognidreamognidream >;
-$reportResponseDone(requestId: number, error: SerializedError | undefined): Promicognidreamognidream >;
-$selectChatModels(selector: ILanguageModelChatSelector): Promise<string[]>;
-$whenLanguageModelChatRequestMade(identifier: string, extension: ExtensionIdentifier, participant ?: string, tokenCount ?: numbercognidreamognidream;
-$countTokens(provider: string, value: string | IChatMessage, token: CancellationToken): Promise<number>;
-$fileIsIgnored(uri: UriComponents, token: CancellationToken): Promise<boolean>;
-$registerFileIgnoreProvider(handle: numbercognidreamognidream;
-$unregisterFileIgnoreProvider(handle: numbercognidreamognidream;
+	$registerLanguageModelProvider(handle: number, identifier: string, metadata: ILanguageModelChatMetadata): void;
+	$unregisterProvider(handle: number): void;
+	$tryStartChatRequest(extension: ExtensionIdentifier, provider: string, requestId: number, messages: SerializableObjectWithBuffers<IChatMessage[]>, options: {}, token: CancellationToken): Promise<void>;
+	$reportResponsePart(requestId: number, chunk: IChatResponseFragment): Promise<void>;
+	$reportResponseDone(requestId: number, error: SerializedError | undefined): Promise<void>;
+	$selectChatModels(selector: ILanguageModelChatSelector): Promise<string[]>;
+	$whenLanguageModelChatRequestMade(identifier: string, extension: ExtensionIdentifier, participant?: string, tokenCount?: number): void;
+	$countTokens(provider: string, value: string | IChatMessage, token: CancellationToken): Promise<number>;
+	$fileIsIgnored(uri: UriComponents, token: CancellationToken): Promise<boolean>;
+	$registerFileIgnoreProvider(handle: number): void;
+	$unregisterFileIgnoreProvider(handle: number): void;
 }
 
 export interface ExtHostLanguageModelsShape {
-	$acceptChatModelMetadata(data: ILanguageModelsChangeEventcognidreamognidream;
-		$updateModelAccesslist(data: { from: ExtensionIdentifier; to: ExtensionIdentifier; enabled: boolean }[]cognidreamognidream;
-			$startChatRequest(handle: number, requestId: number, from: ExtensionIdentifier, messages: SerializableObjectWithBuffers<IChatMessage[]>, options: { [name: string]: any }, token: CancellationToken): Promicognidreamognidream>;
-$acceptResponsePart(requestId: number, chunk: IChatResponseFragment): Promicognidreamognidream >;
-$acceptResponseDone(requestId: number, error: SerializedError | undefined): Promicognidreamognidream >;
-$provideTokenLength(handle: number, value: string | IChatMessage, token: CancellationToken): Promise<number>;
-$isFileIgnored(handle: number, uri: UriComponents, token: CancellationToken): Promise<boolean>;
+	$acceptChatModelMetadata(data: ILanguageModelsChangeEvent): void;
+	$updateModelAccesslist(data: { from: ExtensionIdentifier; to: ExtensionIdentifier; enabled: boolean }[]): void;
+	$startChatRequest(handle: number, requestId: number, from: ExtensionIdentifier, messages: SerializableObjectWithBuffers<IChatMessage[]>, options: { [name: string]: any }, token: CancellationToken): Promise<void>;
+	$acceptResponsePart(requestId: number, chunk: IChatResponseFragment): Promise<void>;
+	$acceptResponseDone(requestId: number, error: SerializedError | undefined): Promise<void>;
+	$provideTokenLength(handle: number, value: string | IChatMessage, token: CancellationToken): Promise<number>;
+	$isFileIgnored(handle: number, uri: UriComponents, token: CancellationToken): Promise<boolean>;
 }
 
 export interface MainThreadEmbeddingsShape extends IDisposable {
-	$registerEmbeddingProvider(handle: number, identifier: stringcognidreamognidream;
-		$unregisterEmbeddingProvider(handle: numbercognidreamognidream;
-			$computeEmbeddings(embeddingsModel: string, input: string[], token: CancellationToken): Promise<({ values: number[] }[])>;
+	$registerEmbeddingProvider(handle: number, identifier: string): void;
+	$unregisterEmbeddingProvider(handle: number): void;
+	$computeEmbeddings(embeddingsModel: string, input: string[], token: CancellationToken): Promise<({ values: number[] }[])>;
 }
 
 export interface ExtHostEmbeddingsShape {
 	$provideEmbeddings(handle: number, input: string[], token: CancellationToken): Promise<{ values: number[] }[]>;
-	$acceptEmbeddingModels(models: string[]cognidreamognidream;
+	$acceptEmbeddingModels(models: string[]): void;
 }
 
 export interface IExtensionChatAgentMetadata extends Dto<IChatAgentMetadata> {
@@ -1295,20 +1295,20 @@ export interface IDynamicChatAgentProps {
 }
 
 export interface MainThreadChatAgentsShape2 extends IDisposable {
-	$registerAgent(handle: number, extension: ExtensionIdentifier, id: string, metadata: IExtensionChatAgentMetadata, dynamicProps: IDynamicChatAgentProps | undefinedcognidreamognidream;
-		$registerChatParticipantDetectionProvider(handle: numbercognidreamognidream;
-			$unregisterChatParticipantDetectionProvider(handle: numbercognidreamognidream;
-				$registerRelatedFilesProvider(handle: number, metadata: IChatRelatedFilesProviderMetadatacognidreamognidream;
-					$unregisterRelatedFilesProvider(handle: numbercognidreamognidream;
-						$registerAgentCompletionsProvider(handle: number, id: string, triggerCharacters: string[]cognidreamognidream;
-							$unregisterAgentCompletionsProvider(handle: number, id: stringcognidreamognidream;
-								$updateAgent(handle: number, metadataUpdate: IExtensionChatAgentMetadatacognidreamognidream;
-									$unregisterAgent(handle: numbercognidreamognidream;
-										$handleProgressChunk(requestId: string, chunk: IChatProgressDto, handle?: number): Promise<numbercognidreamognidream>;
-	$handleAnchorResolve(requestId: string, handle: string, anchor: Dto<IChatContentInlineReference>cognidreamognidream;
+	$registerAgent(handle: number, extension: ExtensionIdentifier, id: string, metadata: IExtensionChatAgentMetadata, dynamicProps: IDynamicChatAgentProps | undefined): void;
+	$registerChatParticipantDetectionProvider(handle: number): void;
+	$unregisterChatParticipantDetectionProvider(handle: number): void;
+	$registerRelatedFilesProvider(handle: number, metadata: IChatRelatedFilesProviderMetadata): void;
+	$unregisterRelatedFilesProvider(handle: number): void;
+	$registerAgentCompletionsProvider(handle: number, id: string, triggerCharacters: string[]): void;
+	$unregisterAgentCompletionsProvider(handle: number, id: string): void;
+	$updateAgent(handle: number, metadataUpdate: IExtensionChatAgentMetadata): void;
+	$unregisterAgent(handle: number): void;
+	$handleProgressChunk(requestId: string, chunk: IChatProgressDto, handle?: number): Promise<number | void>;
+	$handleAnchorResolve(requestId: string, handle: string, anchor: Dto<IChatContentInlineReference>): void;
 
 
-		$transferActiveChatSession(toWorkspace: UriComponentscognidreamognidream;
+	$transferActiveChatSession(toWorkspace: UriComponents): void;
 }
 
 export interface ICodeMapperTextEdit {
@@ -1324,9 +1324,9 @@ export interface ICodeMapperNotebookEditDto {
 export type ICodeMapperProgressDto = Dto<ICodeMapperTextEdit> | Dto<ICodeMapperNotebookEditDto>;
 
 export interface MainThreadCodeMapperShape extends IDisposable {
-	$registerCodeMapperProvider(handle: number, displayName: stringcognidreamognidream;
-		$unregisterCodeMapperProvider(handle: numbercognidreamognidream;
-			$handleProgress(requestId: string, data: ICodeMapperProgressDto): Promicognidreamognidream>;
+	$registerCodeMapperProvider(handle: number, displayName: string): void;
+	$unregisterCodeMapperProvider(handle: number): void;
+	$handleProgress(requestId: string, data: ICodeMapperProgressDto): Promise<void>;
 }
 
 export interface IChatAgentCompletionItem {
@@ -1353,15 +1353,15 @@ export type IChatAgentHistoryEntryDto = {
 
 export interface ExtHostChatAgentsShape2 {
 	$invokeAgent(handle: number, request: Dto<IChatAgentRequest>, context: { history: IChatAgentHistoryEntryDto[] }, token: CancellationToken): Promise<IChatAgentResult | undefined>;
-	$setRequestPaused(handle: number, requestId: string, isPaused: booleancognidreamognidream;
-		$provideFollowups(request: Dto<IChatAgentRequest>, handle: number, result: IChatAgentResult, context: { history: IChatAgentHistoryEntryDto[] }, token: CancellationToken): Promise<IChatFollowup[]>;
-	$acceptFeedback(handle: number, result: IChatAgentResult, voteAction: IChatVoteActioncognidreamognidream;
-		$acceptAction(handle: number, result: IChatAgentResult, action: IChatUserActionEventcognidreamognidream;
-			$invokeCompletionProvider(handle: number, query: string, token: CancellationToken): Promise<IChatAgentCompletionItem[]>;
+	$setRequestPaused(handle: number, requestId: string, isPaused: boolean): void;
+	$provideFollowups(request: Dto<IChatAgentRequest>, handle: number, result: IChatAgentResult, context: { history: IChatAgentHistoryEntryDto[] }, token: CancellationToken): Promise<IChatFollowup[]>;
+	$acceptFeedback(handle: number, result: IChatAgentResult, voteAction: IChatVoteAction): void;
+	$acceptAction(handle: number, result: IChatAgentResult, action: IChatUserActionEvent): void;
+	$invokeCompletionProvider(handle: number, query: string, token: CancellationToken): Promise<IChatAgentCompletionItem[]>;
 	$provideChatTitle(handle: number, context: IChatAgentHistoryEntryDto[], token: CancellationToken): Promise<string | undefined>;
 	$provideSampleQuestions(handle: number, location: ChatAgentLocation, token: CancellationToken): Promise<IChatFollowup[] | undefined>;
-	$releaseSession(sessionId: stringcognidreamognidream;
-		$detectChatParticipant(handle: number, request: Dto<IChatAgentRequest>, context: { history: IChatAgentHistoryEntryDto[] }, options: { participants: IChatParticipantMetadata[]; location: ChatAgentLocation }, token: CancellationToken): Promise<IChatParticipantDetectionResult | null | undefined>;
+	$releaseSession(sessionId: string): void;
+	$detectChatParticipant(handle: number, request: Dto<IChatAgentRequest>, context: { history: IChatAgentHistoryEntryDto[] }, options: { participants: IChatParticipantMetadata[]; location: ChatAgentLocation }, token: CancellationToken): Promise<IChatParticipantDetectionResult | null | undefined>;
 	$provideRelatedFiles(handle: number, request: Dto<IChatRequestDraft>, token: CancellationToken): Promise<Dto<IChatRelatedFile>[] | undefined>;
 }
 export interface IChatParticipantMetadata {
@@ -1381,24 +1381,24 @@ export interface MainThreadLanguageModelToolsShape extends IDisposable {
 	$getTools(): Promise<Dto<IToolDataDto>[]>;
 	$invokeTool(dto: IToolInvocation, token?: CancellationToken): Promise<Dto<IToolResult>>;
 	$countTokensForInvocation(callId: string, input: string, token: CancellationToken): Promise<number>;
-	$registerTool(id: stringcognidreamognidream;
-		$unregisterTool(name: stringcognidreamognidream;
+	$registerTool(id: string): void;
+	$unregisterTool(name: string): void;
 }
 
 export type IChatRequestVariableValueDto = Dto<IChatRequestVariableValue>;
 
 export interface ExtHostLanguageModelToolsShape {
-	$onDidChangeTools(tools: IToolDataDto[]cognidreamognidream;
-		$invokeTool(dto: IToolInvocation, token: CancellationToken): Promise<Dto<IToolResult>>;
+	$onDidChangeTools(tools: IToolDataDto[]): void;
+	$invokeTool(dto: IToolInvocation, token: CancellationToken): Promise<Dto<IToolResult>>;
 	$countTokensForInvocation(callId: string, input: string, token: CancellationToken): Promise<number>;
 
 	$prepareToolInvocation(toolId: string, parameters: any, token: CancellationToken): Promise<IPreparedToolInvocation | undefined>;
 }
 
 export interface MainThreadUrlsShape extends IDisposable {
-	$registerUriHandler(handle: number, extensionId: ExtensionIdentifier, extensionDisplayName: string): Promicognidreamognidream>;
-$unregisterUriHandler(handle: number): Promicognidreamognidream >;
-$createAppUri(uri: UriComponents): Promise<UriComponents>;
+	$registerUriHandler(handle: number, extensionId: ExtensionIdentifier, extensionDisplayName: string): Promise<void>;
+	$unregisterUriHandler(handle: number): Promise<void>;
+	$createAppUri(uri: UriComponents): Promise<UriComponents>;
 }
 
 export interface IChatDto {
@@ -1435,22 +1435,22 @@ export type IChatProgressDto =
 	| IChatNotebookEditDto;
 
 export interface ExtHostUrlsShape {
-	$handleExternalUri(handle: number, uri: UriComponents): Promicognidreamognidream>;
+	$handleExternalUri(handle: number, uri: UriComponents): Promise<void>;
 }
 
 export interface MainThreadUriOpenersShape extends IDisposable {
-	$registerUriOpener(id: string, schemes: readonly string[], extensionId: ExtensionIdentifier, label: string): Promicognidreamognidream>;
-$unregisterUriOpener(id: string): Promicognidreamognidream >;
+	$registerUriOpener(id: string, schemes: readonly string[], extensionId: ExtensionIdentifier, label: string): Promise<void>;
+	$unregisterUriOpener(id: string): Promise<void>;
 }
 
 export interface ExtHostUriOpenersShape {
 	$canOpenUri(id: string, uri: UriComponents, token: CancellationToken): Promise<languages.ExternalUriOpenerPriority>;
-	$openUri(id: string, context: { resolvedUri: UriComponents; sourceUri: UriComponents }, token: CancellationToken): Promicognidreamognidream>;
+	$openUri(id: string, context: { resolvedUri: UriComponents; sourceUri: UriComponents }, token: CancellationToken): Promise<void>;
 }
 
 export interface MainThreadProfileContentHandlersShape {
-	$registerProfileContentHandler(id: string, name: string, description: string | undefined, extensionId: string): Promicognidreamognidream>;
-$unregisterProfileContentHandler(id: string): Promicognidreamognidream >;
+	$registerProfileContentHandler(id: string, name: string, description: string | undefined, extensionId: string): Promise<void>;
+	$unregisterProfileContentHandler(id: string): Promise<void>;
 }
 
 export interface ExtHostProfileContentHandlersShape {
@@ -1469,18 +1469,18 @@ export interface MainThreadWorkspaceShape extends IDisposable {
 	$checkExists(folders: readonly UriComponents[], includes: string[], token: CancellationToken): Promise<boolean>;
 	$save(uri: UriComponents, options: { saveAs: boolean }): Promise<UriComponents | undefined>;
 	$saveAll(includeUntitled?: boolean): Promise<boolean>;
-	$updateWorkspaceFolders(extensionName: string, index: number, deleteCount: number, workspaceFoldersToAdd: { uri: UriComponents; name?: string }[]): Promicognidreamognidream>;
-$resolveProxy(url: string): Promise<string | undefined>;
-$lookupAuthorization(authInfo: AuthInfo): Promise<Credentials | undefined>;
-$lookupKerberosAuthorization(url: string): Promise<string | undefined>;
-$loadCertificates(): Promise<string[]>;
-$requestWorkspaceTrust(options ?: WorkspaceTrustRequestOptions): Promise<boolean | undefined>;
-$registerEditSessionIdentityProvider(handle: number, scheme: stringcognidreamognidream;
-$unregisterEditSessionIdentityProvider(handle: numbercognidreamognidream;
-$registerCanonicalUriProvider(handle: number, scheme: stringcognidreamognidream;
-$unregisterCanonicalUriProvider(handle: numbercognidreamognidream;
-$decode(content: VSBuffer, resource: UriComponents | undefined, options ?: { encoding?: string }): Promise<string>;
-$encode(content: string, resource: UriComponents | undefined, options ?: { encoding?: string }): Promise<VSBuffer>;
+	$updateWorkspaceFolders(extensionName: string, index: number, deleteCount: number, workspaceFoldersToAdd: { uri: UriComponents; name?: string }[]): Promise<void>;
+	$resolveProxy(url: string): Promise<string | undefined>;
+	$lookupAuthorization(authInfo: AuthInfo): Promise<Credentials | undefined>;
+	$lookupKerberosAuthorization(url: string): Promise<string | undefined>;
+	$loadCertificates(): Promise<string[]>;
+	$requestWorkspaceTrust(options?: WorkspaceTrustRequestOptions): Promise<boolean | undefined>;
+	$registerEditSessionIdentityProvider(handle: number, scheme: string): void;
+	$unregisterEditSessionIdentityProvider(handle: number): void;
+	$registerCanonicalUriProvider(handle: number, scheme: string): void;
+	$unregisterCanonicalUriProvider(handle: number): void;
+	$decode(content: VSBuffer, resource: UriComponents | undefined, options?: { encoding?: string }): Promise<string>;
+	$encode(content: string, resource: UriComponents | undefined, options?: { encoding?: string }): Promise<VSBuffer>;
 }
 
 export interface IFileChangeDto {
@@ -1489,69 +1489,69 @@ export interface IFileChangeDto {
 }
 
 export interface MainThreadFileSystemShape extends IDisposable {
-	$registerFileSystemProvider(handle: number, scheme: string, capabilities: files.FileSystemProviderCapabilities, readonlyMessage?: IMarkdownString): Promicognidreamognidream>;
-$unregisterProvider(handle: numbercognidreamognidream;
-$onFileSystemChange(handle: number, resource: IFileChangeDto[]cognidreamognidream;
+	$registerFileSystemProvider(handle: number, scheme: string, capabilities: files.FileSystemProviderCapabilities, readonlyMessage?: IMarkdownString): Promise<void>;
+	$unregisterProvider(handle: number): void;
+	$onFileSystemChange(handle: number, resource: IFileChangeDto[]): void;
 
-$stat(resource: UriComponents): Promise<files.IStat>;
-$readdir(resource: UriComponents): Promise<[string, files.FileType][]>;
-$readFile(resource: UriComponents): Promise<VSBuffer>;
-$writeFile(resource: UriComponents, content: VSBuffer): Promicognidreamognidream >;
-$rename(resource: UriComponents, target: UriComponents, opts: files.IFileOverwriteOptions): Promicognidreamognidream >;
-$copy(resource: UriComponents, target: UriComponents, opts: files.IFileOverwriteOptions): Promicognidreamognidream >;
-$mkdir(resource: UriComponents): Promicognidreamognidream >;
-$delete(resource: UriComponents, opts: files.IFileDeleteOptions): Promicognidreamognidream >;
+	$stat(resource: UriComponents): Promise<files.IStat>;
+	$readdir(resource: UriComponents): Promise<[string, files.FileType][]>;
+	$readFile(resource: UriComponents): Promise<VSBuffer>;
+	$writeFile(resource: UriComponents, content: VSBuffer): Promise<void>;
+	$rename(resource: UriComponents, target: UriComponents, opts: files.IFileOverwriteOptions): Promise<void>;
+	$copy(resource: UriComponents, target: UriComponents, opts: files.IFileOverwriteOptions): Promise<void>;
+	$mkdir(resource: UriComponents): Promise<void>;
+	$delete(resource: UriComponents, opts: files.IFileDeleteOptions): Promise<void>;
 
-$ensureActivation(scheme: string): Promicognidreamognidream >;
+	$ensureActivation(scheme: string): Promise<void>;
 }
 
 export interface MainThreadFileSystemEventServiceShape extends IDisposable {
-	$watch(extensionId: string, session: number, resource: UriComponents, opts: files.IWatchOptions, correlate: booleancognidreamognidream;
-		$unwatch(session: numbercognidreamognidream;
+	$watch(extensionId: string, session: number, resource: UriComponents, opts: files.IWatchOptions, correlate: boolean): void;
+	$unwatch(session: number): void;
 }
 
 export interface MainThreadLabelServiceShape extends IDisposable {
-	$registerResourceLabelFormatter(handle: number, formatter: ResourceLabelFormattercognidreamognidream;
-		$unregisterResourceLabelFormatter(handle: numbercognidreamognidream;
+	$registerResourceLabelFormatter(handle: number, formatter: ResourceLabelFormatter): void;
+	$unregisterResourceLabelFormatter(handle: number): void;
 }
 
 export interface MainThreadSearchShape extends IDisposable {
-	$registerFileSearchProvider(handle: number, scheme: stringcognidreamognidream;
-		$registerAITextSearchProvider(handle: number, scheme: stringcognidreamognidream;
-			$registerTextSearchProvider(handle: number, scheme: stringcognidreamognidream;
-				$unregisterProvider(handle: numbercognidreamognidream;
-					$handleFileMatch(handle: number, session: number, data: UriComponents[]cognidreamognidream;
-						$handleTextMatch(handle: number, session: number, data: search.IRawFileMatch2[]cognidreamognidream;
-							$handleTelemetry(eventName: string, data: anycognidreamognidream;
+	$registerFileSearchProvider(handle: number, scheme: string): void;
+	$registerAITextSearchProvider(handle: number, scheme: string): void;
+	$registerTextSearchProvider(handle: number, scheme: string): void;
+	$unregisterProvider(handle: number): void;
+	$handleFileMatch(handle: number, session: number, data: UriComponents[]): void;
+	$handleTextMatch(handle: number, session: number, data: search.IRawFileMatch2[]): void;
+	$handleTelemetry(eventName: string, data: any): void;
 }
 
 export interface MainThreadShareShape extends IDisposable {
-	$registerShareProvider(handle: number, selector: IDocumentFilterDto[], id: string, label: string, priority: numbercognidreamognidream;
-		$unregisterShareProvider(handle: numbercognidreamognidream;
+	$registerShareProvider(handle: number, selector: IDocumentFilterDto[], id: string, label: string, priority: number): void;
+	$unregisterShareProvider(handle: number): void;
 }
 
 export interface MainThreadTaskShape extends IDisposable {
 	$createTaskId(task: tasks.ITaskDTO): Promise<string>;
-	$registerTaskProvider(handle: number, type: string): Promicognidreamognidream>;
-$unregisterTaskProvider(handle: number): Promicognidreamognidream >;
-$fetchTasks(filter ?: tasks.ITaskFilterDTO): Promise<tasks.ITaskDTO[]>;
-$getTaskExecution(value: tasks.ITaskHandleDTO | tasks.ITaskDTO): Promise<tasks.ITaskExecutionDTO>;
-$executeTask(task: tasks.ITaskHandleDTO | tasks.ITaskDTO): Promise<tasks.ITaskExecutionDTO>;
-$terminateTask(id: string): Promicognidreamognidream >;
-$registerTaskSystem(scheme: string, info: tasks.ITaskSystemInfoDTOcognidreamognidream;
-$customExecutionComplete(id: string, result ?: number): Promicognidreamognidream >;
-$registerSupportedExecutions(custom ?: boolean, shell ?: boolean, process ?: boolean): Promicognidreamognidream >;
+	$registerTaskProvider(handle: number, type: string): Promise<void>;
+	$unregisterTaskProvider(handle: number): Promise<void>;
+	$fetchTasks(filter?: tasks.ITaskFilterDTO): Promise<tasks.ITaskDTO[]>;
+	$getTaskExecution(value: tasks.ITaskHandleDTO | tasks.ITaskDTO): Promise<tasks.ITaskExecutionDTO>;
+	$executeTask(task: tasks.ITaskHandleDTO | tasks.ITaskDTO): Promise<tasks.ITaskExecutionDTO>;
+	$terminateTask(id: string): Promise<void>;
+	$registerTaskSystem(scheme: string, info: tasks.ITaskSystemInfoDTO): void;
+	$customExecutionComplete(id: string, result?: number): Promise<void>;
+	$registerSupportedExecutions(custom?: boolean, shell?: boolean, process?: boolean): Promise<void>;
 }
 
 export interface MainThreadExtensionServiceShape extends IDisposable {
 	$getExtension(extensionId: string): Promise<Dto<IExtensionDescription> | undefined>;
-	$activateExtension(extensionId: ExtensionIdentifier, reason: ExtensionActivationReason): Promicognidreamognidream>;
-$onWillActivateExtension(extensionId: ExtensionIdentifier): Promicognidreamognidream >;
-$onDidActivateExtension(extensionId: ExtensionIdentifier, codeLoadingTime: number, activateCallTime: number, activateResolvedTime: number, activationReason: ExtensionActivationReasoncognidreamognidream;
-$onExtensionActivationError(extensionId: ExtensionIdentifier, error: SerializedError, missingExtensionDependency: MissingExtensionDependency | null): Promicognidreamognidream >;
-$onExtensionRuntimeError(extensionId: ExtensionIdentifier, error: SerializedErrorcognidreamognidream;
-$setPerformanceMarks(marks: performance.PerformanceMark[]): Promicognidreamognidream >;
-$asBrowserUri(uri: UriComponents): Promise<UriComponents>;
+	$activateExtension(extensionId: ExtensionIdentifier, reason: ExtensionActivationReason): Promise<void>;
+	$onWillActivateExtension(extensionId: ExtensionIdentifier): Promise<void>;
+	$onDidActivateExtension(extensionId: ExtensionIdentifier, codeLoadingTime: number, activateCallTime: number, activateResolvedTime: number, activationReason: ExtensionActivationReason): void;
+	$onExtensionActivationError(extensionId: ExtensionIdentifier, error: SerializedError, missingExtensionDependency: MissingExtensionDependency | null): Promise<void>;
+	$onExtensionRuntimeError(extensionId: ExtensionIdentifier, error: SerializedError): void;
+	$setPerformanceMarks(marks: performance.PerformanceMark[]): Promise<void>;
+	$asBrowserUri(uri: UriComponents): Promise<UriComponents>;
 }
 
 export interface SCMProviderFeatures {
@@ -1641,31 +1641,31 @@ export interface SCMHistoryItemChangeDto {
 }
 
 export interface MainThreadSCMShape extends IDisposable {
-	$registerSourceControl(handle: number, id: string, label: string, rootUri: UriComponents | undefined, inputBoxDocumentUri: UriComponents): Promicognidreamognidream>;
-$updateSourceControl(handle: number, features: SCMProviderFeatures): Promicognidreamognidream >;
-$unregisterSourceControl(handle: number): Promicognidreamognidream >;
+	$registerSourceControl(handle: number, id: string, label: string, rootUri: UriComponents | undefined, inputBoxDocumentUri: UriComponents): Promise<void>;
+	$updateSourceControl(handle: number, features: SCMProviderFeatures): Promise<void>;
+	$unregisterSourceControl(handle: number): Promise<void>;
 
-$registerGroups(sourceControlHandle: number, groups: [number /*handle*/, string /*id*/, string /*label*/, SCMGroupFeatures, /* multiDiffEditorEnableViewChanges */ boolean][], splices: SCMRawResourceSplices[]): Promicognidreamognidream >;
-$updateGroup(sourceControlHandle: number, handle: number, features: SCMGroupFeatures): Promicognidreamognidream >;
-$updateGroupLabel(sourceControlHandle: number, handle: number, label: string): Promicognidreamognidream >;
-$unregisterGroup(sourceControlHandle: number, handle: number): Promicognidreamognidream >;
+	$registerGroups(sourceControlHandle: number, groups: [number /*handle*/, string /*id*/, string /*label*/, SCMGroupFeatures, /* multiDiffEditorEnableViewChanges */ boolean][], splices: SCMRawResourceSplices[]): Promise<void>;
+	$updateGroup(sourceControlHandle: number, handle: number, features: SCMGroupFeatures): Promise<void>;
+	$updateGroupLabel(sourceControlHandle: number, handle: number, label: string): Promise<void>;
+	$unregisterGroup(sourceControlHandle: number, handle: number): Promise<void>;
 
-$spliceResourceStates(sourceControlHandle: number, splices: SCMRawResourceSplices[]): Promicognidreamognidream >;
+	$spliceResourceStates(sourceControlHandle: number, splices: SCMRawResourceSplices[]): Promise<void>;
 
-$setInputBoxValue(sourceControlHandle: number, value: string): Promicognidreamognidream >;
-$setInputBoxPlaceholder(sourceControlHandle: number, placeholder: string): Promicognidreamognidream >;
-$setInputBoxEnablement(sourceControlHandle: number, enabled: boolean): Promicognidreamognidream >;
-$setInputBoxVisibility(sourceControlHandle: number, visible: boolean): Promicognidreamognidream >;
-$showValidationMessage(sourceControlHandle: number, message: string | IMarkdownString, type: InputValidationType): Promicognidreamognidream >;
-$setValidationProviderIsEnabled(sourceControlHandle: number, enabled: boolean): Promicognidreamognidream >;
+	$setInputBoxValue(sourceControlHandle: number, value: string): Promise<void>;
+	$setInputBoxPlaceholder(sourceControlHandle: number, placeholder: string): Promise<void>;
+	$setInputBoxEnablement(sourceControlHandle: number, enabled: boolean): Promise<void>;
+	$setInputBoxVisibility(sourceControlHandle: number, visible: boolean): Promise<void>;
+	$showValidationMessage(sourceControlHandle: number, message: string | IMarkdownString, type: InputValidationType): Promise<void>;
+	$setValidationProviderIsEnabled(sourceControlHandle: number, enabled: boolean): Promise<void>;
 
-$onDidChangeHistoryProviderCurrentHistoryItemRefs(sourceControlHandle: number, historyItemRef ?: SCMHistoryItemRefDto, historyItemRemoteRef ?: SCMHistoryItemRefDto, historyItemBaseRef ?: SCMHistoryItemRefDto): Promicognidreamognidream >;
-$onDidChangeHistoryProviderHistoryItemRefs(sourceControlHandle: number, historyItemRefs: SCMHistoryItemRefsChangeEventDto): Promicognidreamognidream >;
+	$onDidChangeHistoryProviderCurrentHistoryItemRefs(sourceControlHandle: number, historyItemRef?: SCMHistoryItemRefDto, historyItemRemoteRef?: SCMHistoryItemRefDto, historyItemBaseRef?: SCMHistoryItemRefDto): Promise<void>;
+	$onDidChangeHistoryProviderHistoryItemRefs(sourceControlHandle: number, historyItemRefs: SCMHistoryItemRefsChangeEventDto): Promise<void>;
 }
 
 export interface MainThreadQuickDiffShape extends IDisposable {
-	$registerQuickDiffProvider(handle: number, selector: IDocumentFilterDto[], label: string, rootUri: UriComponents | undefined, visible: boolean): Promicognidreamognidream>;
-$unregisterQuickDiffProvider(handle: number): Promicognidreamognidream >;
+	$registerQuickDiffProvider(handle: number, selector: IDocumentFilterDto[], label: string, rootUri: UriComponents | undefined, visible: boolean): Promise<void>;
+	$unregisterQuickDiffProvider(handle: number): Promise<void>;
 }
 
 export type DebugSessionUUID = string;
@@ -1691,27 +1691,27 @@ export interface IStartDebuggingOptions {
 }
 
 export interface MainThreadDebugServiceShape extends IDisposable {
-	$registerDebugTypes(debugTypes: string[]cognidreamognidream;
-		$sessionCached(sessionID: stringcognidreamognidream;
-			$acceptDAMessage(handle: number, message: DebugProtocol.ProtocolMessagecognidreamognidream;
-				$acceptDAError(handle: number, name: string, message: string, stack: string | undefinedcognidreamognidream;
-					$acceptDAExit(handle: number, code: number | undefined, signal: string | undefinedcognidreamognidream;
-						$registerDebugConfigurationProvider(type: string, triggerKind: DebugConfigurationProviderTriggerKind, hasProvideMethod: boolean, hasResolveMethod: boolean, hasResolve2Method: boolean, handle: number): Promicognidreamognidream>;
-$registerDebugAdapterDescriptorFactory(type: string, handle: number): Promicognidreamognidream >;
-$unregisterDebugConfigurationProvider(handle: numbercognidreamognidream;
-$unregisterDebugAdapterDescriptorFactory(handle: numbercognidreamognidream;
-$startDebugging(folder: UriComponents | undefined, nameOrConfig: string | IDebugConfiguration, options: IStartDebuggingOptions): Promise<boolean>;
-$stopDebugging(sessionId: DebugSessionUUID | undefined): Promicognidreamognidream >;
-$setDebugSessionName(id: DebugSessionUUID, name: stringcognidreamognidream;
-$customDebugAdapterRequest(id: DebugSessionUUID, command: string, args: any): Promise<any>;
-$getDebugProtocolBreakpoint(id: DebugSessionUUID, breakpoinId: string): Promise<DebugProtocol.Breakpoint | undefined>;
-$appendDebugConsole(value: stringcognidreamognidream;
-$registerBreakpoints(breakpoints: Array<ISourceMultiBreakpointDto | IFunctionBreakpointDto | IDataBreakpointDto>): Promicognidreamognidream >;
-$unregisterBreakpoints(breakpointIds: string[], functionBreakpointIds: string[], dataBreakpointIds: string[]): Promicognidreamognidream >;
-$registerDebugVisualizer(extensionId: string, id: stringcognidreamognidream;
-$unregisterDebugVisualizer(extensionId: string, id: stringcognidreamognidream;
-$registerDebugVisualizerTree(treeId: string, canEdit: booleancognidreamognidream;
-$unregisterDebugVisualizerTree(treeId: stringcognidreamognidream;
+	$registerDebugTypes(debugTypes: string[]): void;
+	$sessionCached(sessionID: string): void;
+	$acceptDAMessage(handle: number, message: DebugProtocol.ProtocolMessage): void;
+	$acceptDAError(handle: number, name: string, message: string, stack: string | undefined): void;
+	$acceptDAExit(handle: number, code: number | undefined, signal: string | undefined): void;
+	$registerDebugConfigurationProvider(type: string, triggerKind: DebugConfigurationProviderTriggerKind, hasProvideMethod: boolean, hasResolveMethod: boolean, hasResolve2Method: boolean, handle: number): Promise<void>;
+	$registerDebugAdapterDescriptorFactory(type: string, handle: number): Promise<void>;
+	$unregisterDebugConfigurationProvider(handle: number): void;
+	$unregisterDebugAdapterDescriptorFactory(handle: number): void;
+	$startDebugging(folder: UriComponents | undefined, nameOrConfig: string | IDebugConfiguration, options: IStartDebuggingOptions): Promise<boolean>;
+	$stopDebugging(sessionId: DebugSessionUUID | undefined): Promise<void>;
+	$setDebugSessionName(id: DebugSessionUUID, name: string): void;
+	$customDebugAdapterRequest(id: DebugSessionUUID, command: string, args: any): Promise<any>;
+	$getDebugProtocolBreakpoint(id: DebugSessionUUID, breakpoinId: string): Promise<DebugProtocol.Breakpoint | undefined>;
+	$appendDebugConsole(value: string): void;
+	$registerBreakpoints(breakpoints: Array<ISourceMultiBreakpointDto | IFunctionBreakpointDto | IDataBreakpointDto>): Promise<void>;
+	$unregisterBreakpoints(breakpointIds: string[], functionBreakpointIds: string[], dataBreakpointIds: string[]): Promise<void>;
+	$registerDebugVisualizer(extensionId: string, id: string): void;
+	$unregisterDebugVisualizer(extensionId: string, id: string): void;
+	$registerDebugVisualizerTree(treeId: string, canEdit: boolean): void;
+	$unregisterDebugVisualizerTree(treeId: string): void;
 }
 
 export interface IOpenUriOptions {
@@ -1739,21 +1739,21 @@ export interface PortAttributesSelector {
 
 export interface MainThreadTunnelServiceShape extends IDisposable {
 	$openTunnel(tunnelOptions: TunnelOptions, source: string | undefined): Promise<TunnelDto | undefined>;
-	$closeTunnel(remote: { host: string; port: number }): Promicognidreamognidream>;
-$getTunnels(): Promise<TunnelDescription[]>;
-$setTunnelProvider(features: TunnelProviderFeatures | undefined, enablePortsView: boolean): Promicognidreamognidream >;
-$setRemoteTunnelService(processId: number): Promicognidreamognidream >;
-$setCandidateFilter(): Promicognidreamognidream >;
-$onFoundNewCandidates(candidates: CandidatePort[]): Promicognidreamognidream >;
-$setCandidatePortSource(source: CandidatePortSource): Promicognidreamognidream >;
-$registerPortsAttributesProvider(selector: PortAttributesSelector, providerHandle: number): Promicognidreamognidream >;
-$unregisterPortsAttributesProvider(providerHandle: number): Promicognidreamognidream >;
+	$closeTunnel(remote: { host: string; port: number }): Promise<void>;
+	$getTunnels(): Promise<TunnelDescription[]>;
+	$setTunnelProvider(features: TunnelProviderFeatures | undefined, enablePortsView: boolean): Promise<void>;
+	$setRemoteTunnelService(processId: number): Promise<void>;
+	$setCandidateFilter(): Promise<void>;
+	$onFoundNewCandidates(candidates: CandidatePort[]): Promise<void>;
+	$setCandidatePortSource(source: CandidatePortSource): Promise<void>;
+	$registerPortsAttributesProvider(selector: PortAttributesSelector, providerHandle: number): Promise<void>;
+	$unregisterPortsAttributesProvider(providerHandle: number): Promise<void>;
 }
 
 export interface MainThreadTimelineShape extends IDisposable {
-	$registerTimelineProvider(provider: TimelineProviderDescriptorcognidreamognidream;
-		$unregisterTimelineProvider(source: stringcognidreamognidream;
-			$emitTimelineChangeEvent(e: TimelineChangeEvent | undefinedcognidreamognidream;
+	$registerTimelineProvider(provider: TimelineProviderDescriptor): void;
+	$unregisterTimelineProvider(source: string): void;
+	$emitTimelineChangeEvent(e: TimelineChangeEvent | undefined): void;
 }
 
 export interface HoverWithId extends languages.Hover {
@@ -1796,12 +1796,12 @@ export interface ExtHostCommandsShape {
 }
 
 export interface ExtHostConfigurationShape {
-	$initializeConfiguration(data: IConfigurationInitDatacognidreamognidream;
-		$acceptConfigurationChanged(data: IConfigurationInitData, change: IConfigurationChangecognidreamognidream;
+	$initializeConfiguration(data: IConfigurationInitData): void;
+	$acceptConfigurationChanged(data: IConfigurationInitData, change: IConfigurationChange): void;
 }
 
 export interface ExtHostDiagnosticsShape {
-	$acceptMarkersChange(data: [UriComponents, IMarkerData[]][]cognidreamognidream;
+	$acceptMarkersChange(data: [UriComponents, IMarkerData[]][]): void;
 }
 
 export interface ExtHostDocumentContentProvidersShape {
@@ -1818,11 +1818,11 @@ export interface IModelAddedData {
 	encoding: string;
 }
 export interface ExtHostDocumentsShape {
-	$acceptModelLanguageChanged(strURL: UriComponents, newLanguageId: stringcognidreamognidream;
-		$acceptModelSaved(strURL: UriComponentscognidreamognidream;
-			$acceptDirtyStateChanged(strURL: UriComponents, isDirty: booleancognidreamognidream;
-				$acceptEncodingChanged(strURL: UriComponents, encoding: stringcognidreamognidream;
-					$acceptModelChanged(strURL: UriComponents, e: IModelChangedEvent, isDirty: booleancognidreamognidream;
+	$acceptModelLanguageChanged(strURL: UriComponents, newLanguageId: string): void;
+	$acceptModelSaved(strURL: UriComponents): void;
+	$acceptDirtyStateChanged(strURL: UriComponents, isDirty: boolean): void;
+	$acceptEncodingChanged(strURL: UriComponents, encoding: string): void;
+	$acceptModelChanged(strURL: UriComponents, e: IModelChangedEvent, isDirty: boolean): void;
 }
 
 export interface ExtHostDocumentSaveParticipantShape {
@@ -1866,9 +1866,9 @@ export interface ISelectionChangeEvent {
 }
 
 export interface ExtHostEditorsShape {
-	$acceptEditorPropertiesChanged(id: string, props: IEditorPropertiesChangeDatacognidreamognidream;
-		$acceptEditorPositionData(data: ITextEditorPositionDatacognidreamognidream;
-			$acceptEditorDiffInformation(id: string, diffInformation: ITextEditorDiffInformation[] | undefinedcognidreamognidream;
+	$acceptEditorPropertiesChanged(id: string, props: IEditorPropertiesChangeData): void;
+	$acceptEditorPositionData(data: ITextEditorPositionData): void;
+	$acceptEditorDiffInformation(id: string, diffInformation: ITextEditorDiffInformation[] | undefined): void;
 }
 
 export interface IDocumentsAndEditorsDelta {
@@ -1880,7 +1880,7 @@ export interface IDocumentsAndEditorsDelta {
 }
 
 export interface ExtHostDocumentsAndEditorsShape {
-	$acceptDocumentsAndEditorsDelta(delta: IDocumentsAndEditorsDeltacognidreamognidream;
+	$acceptDocumentsAndEditorsDelta(delta: IDocumentsAndEditorsDelta): void;
 }
 
 export interface IDataTransferFileDTO {
@@ -1917,46 +1917,46 @@ export interface ExtHostTreeViewsShape {
 	 * [[1,z]], where the inner array is [original index, ...children]
 	 */
 	$getChildren(treeViewId: string, treeItemHandles?: string[]): Promise<(number | ITreeItem)[][] | undefined>;
-	$handleDrop(destinationViewId: string, requestId: number, treeDataTransfer: DataTransferDTO, targetHandle: string | undefined, token: CancellationToken, operationUuid?: string, sourceViewId?: string, sourceTreeItemHandles?: string[]): Promicognidreamognidream>;
-$handleDrag(sourceViewId: string, sourceTreeItemHandles: string[], operationUuid: string, token: CancellationToken): Promise<DataTransferDTO | undefined>;
-$setExpanded(treeViewId: string, treeItemHandle: string, expanded: booleancognidreamognidream;
-$setSelectionAndFocus(treeViewId: string, selectionHandles: string[], focusHandle: stringcognidreamognidream;
-$setVisible(treeViewId: string, visible: booleancognidreamognidream;
-$changeCheckboxState(treeViewId: string, checkboxUpdates: CheckboxUpdate[]cognidreamognidream;
-$hasResolve(treeViewId: string): Promise<boolean>;
-$resolve(treeViewId: string, treeItemHandle: string, token: CancellationToken): Promise<ITreeItem | undefined>;
+	$handleDrop(destinationViewId: string, requestId: number, treeDataTransfer: DataTransferDTO, targetHandle: string | undefined, token: CancellationToken, operationUuid?: string, sourceViewId?: string, sourceTreeItemHandles?: string[]): Promise<void>;
+	$handleDrag(sourceViewId: string, sourceTreeItemHandles: string[], operationUuid: string, token: CancellationToken): Promise<DataTransferDTO | undefined>;
+	$setExpanded(treeViewId: string, treeItemHandle: string, expanded: boolean): void;
+	$setSelectionAndFocus(treeViewId: string, selectionHandles: string[], focusHandle: string): void;
+	$setVisible(treeViewId: string, visible: boolean): void;
+	$changeCheckboxState(treeViewId: string, checkboxUpdates: CheckboxUpdate[]): void;
+	$hasResolve(treeViewId: string): Promise<boolean>;
+	$resolve(treeViewId: string, treeItemHandle: string, token: CancellationToken): Promise<ITreeItem | undefined>;
 }
 
 export interface ExtHostWorkspaceShape {
-	$initializeWorkspace(workspace: IWorkspaceData | null, trusted: booleancognidreamognidream;
-		$acceptWorkspaceData(workspace: IWorkspaceData | nullcognidreamognidream;
-			$handleTextSearchResult(result: search.IRawFileMatch2, requestId: numbercognidreamognidream;
-				$onDidGrantWorkspaceTrust(cognidreamognidream;
-					$getEditSessionIdentifier(folder: UriComponents, token: CancellationToken): Promise<string | undefined>;
+	$initializeWorkspace(workspace: IWorkspaceData | null, trusted: boolean): void;
+	$acceptWorkspaceData(workspace: IWorkspaceData | null): void;
+	$handleTextSearchResult(result: search.IRawFileMatch2, requestId: number): void;
+	$onDidGrantWorkspaceTrust(): void;
+	$getEditSessionIdentifier(folder: UriComponents, token: CancellationToken): Promise<string | undefined>;
 	$provideEditSessionIdentityMatch(folder: UriComponents, identity1: string, identity2: string, token: CancellationToken): Promise<EditSessionIdentityMatch | undefined>;
-	$onWillCreateEditSessionIdentity(folder: UriComponents, token: CancellationToken, timeout: number): Promicognidreamognidream>;
-$provideCanonicalUri(uri: UriComponents, targetScheme: string, token: CancellationToken): Promise<UriComponents | undefined>;
+	$onWillCreateEditSessionIdentity(folder: UriComponents, token: CancellationToken, timeout: number): Promise<void>;
+	$provideCanonicalUri(uri: UriComponents, targetScheme: string, token: CancellationToken): Promise<UriComponents | undefined>;
 }
 
 export interface ExtHostFileSystemInfoShape {
-	$acceptProviderInfos(uri: UriComponents, capabilities: number | nullcognidreamognidream;
+	$acceptProviderInfos(uri: UriComponents, capabilities: number | null): void;
 }
 
 export interface ExtHostFileSystemShape {
 	$stat(handle: number, resource: UriComponents): Promise<files.IStat>;
 	$readdir(handle: number, resource: UriComponents): Promise<[string, files.FileType][]>;
 	$readFile(handle: number, resource: UriComponents): Promise<VSBuffer>;
-	$writeFile(handle: number, resource: UriComponents, content: VSBuffer, opts: files.IFileWriteOptions): Promicognidreamognidream>;
-$rename(handle: number, resource: UriComponents, target: UriComponents, opts: files.IFileOverwriteOptions): Promicognidreamognidream >;
-$copy(handle: number, resource: UriComponents, target: UriComponents, opts: files.IFileOverwriteOptions): Promicognidreamognidream >;
-$mkdir(handle: number, resource: UriComponents): Promicognidreamognidream >;
-$delete(handle: number, resource: UriComponents, opts: files.IFileDeleteOptions): Promicognidreamognidream >;
-$watch(handle: number, session: number, resource: UriComponents, opts: files.IWatchOptionscognidreamognidream;
-$unwatch(handle: number, session: numbercognidreamognidream;
-$open(handle: number, resource: UriComponents, opts: files.IFileOpenOptions): Promise<number>;
-$close(handle: number, fd: number): Promicognidreamognidream >;
-$read(handle: number, fd: number, pos: number, length: number): Promise<VSBuffer>;
-$write(handle: number, fd: number, pos: number, data: VSBuffer): Promise<number>;
+	$writeFile(handle: number, resource: UriComponents, content: VSBuffer, opts: files.IFileWriteOptions): Promise<void>;
+	$rename(handle: number, resource: UriComponents, target: UriComponents, opts: files.IFileOverwriteOptions): Promise<void>;
+	$copy(handle: number, resource: UriComponents, target: UriComponents, opts: files.IFileOverwriteOptions): Promise<void>;
+	$mkdir(handle: number, resource: UriComponents): Promise<void>;
+	$delete(handle: number, resource: UriComponents, opts: files.IFileDeleteOptions): Promise<void>;
+	$watch(handle: number, session: number, resource: UriComponents, opts: files.IWatchOptions): void;
+	$unwatch(handle: number, session: number): void;
+	$open(handle: number, resource: UriComponents, opts: files.IFileOpenOptions): Promise<number>;
+	$close(handle: number, fd: number): Promise<void>;
+	$read(handle: number, fd: number, pos: number, length: number): Promise<VSBuffer>;
+	$write(handle: number, fd: number, pos: number, data: VSBuffer): Promise<number>;
 }
 
 export interface ExtHostLabelServiceShape {
@@ -1966,8 +1966,8 @@ export interface ExtHostLabelServiceShape {
 export interface ExtHostAuthenticationShape {
 	$getSessions(id: string, scopes: string[] | undefined, options: IAuthenticationProviderSessionOptions): Promise<ReadonlyArray<AuthenticationSession>>;
 	$createSession(id: string, scopes: string[], options: IAuthenticationCreateSessionOptions): Promise<AuthenticationSession>;
-	$removeSession(id: string, sessionId: string): Promicognidreamognidream>;
-$onDidChangeAuthenticationSessions(id: string, label: string, extensionIdFilter ?: string[]): Promicognidreamognidream >;
+	$removeSession(id: string, sessionId: string): Promise<void>;
+	$onDidChangeAuthenticationSessions(id: string, label: string, extensionIdFilter?: string[]): Promise<void>;
 }
 
 export interface ExtHostAiRelatedInformationShape {
@@ -1976,8 +1976,8 @@ export interface ExtHostAiRelatedInformationShape {
 
 export interface MainThreadAiRelatedInformationShape {
 	$getAiRelatedInformation(query: string, types: RelatedInformationType[]): Promise<RelatedInformationResult[]>;
-	$registerAiRelatedInformationProvider(handle: number, type: RelatedInformationTypecognidreamognidream;
-		$unregisterAiRelatedInformationProvider(handle: numbercognidreamognidream;
+	$registerAiRelatedInformationProvider(handle: number, type: RelatedInformationType): void;
+	$unregisterAiRelatedInformationProvider(handle: number): void;
 }
 
 export interface ExtHostAiEmbeddingVectorShape {
@@ -1985,21 +1985,21 @@ export interface ExtHostAiEmbeddingVectorShape {
 }
 
 export interface MainThreadAiEmbeddingVectorShape {
-	$registerAiEmbeddingVectorProvider(model: string, handle: numbercognidreamognidream;
-		$unregisterAiEmbeddingVectorProvider(handle: numbercognidreamognidream;
+	$registerAiEmbeddingVectorProvider(model: string, handle: number): void;
+	$unregisterAiEmbeddingVectorProvider(handle: number): void;
 }
 
 export interface ExtHostSecretStateShape {
-	$onDidChangePassword(e: { extensionId: string; key: string }): Promicognidreamognidream>;
+	$onDidChangePassword(e: { extensionId: string; key: string }): Promise<void>;
 }
 
 export interface ExtHostSearchShape {
-	$enableExtensionHostSearch(cognidreamognidream;
-		$getAIName(handle: number): Promise<string | undefined>;
+	$enableExtensionHostSearch(): void;
+	$getAIName(handle: number): Promise<string | undefined>;
 	$provideFileSearchResults(handle: number, session: number, query: search.IRawQuery, token: CancellationToken): Promise<search.ISearchCompleteStats>;
 	$provideAITextSearchResults(handle: number, session: number, query: search.IRawAITextQuery, token: CancellationToken): Promise<search.ISearchCompleteStats>;
 	$provideTextSearchResults(handle: number, session: number, query: search.IRawTextQuery, token: CancellationToken): Promise<search.ISearchCompleteStats>;
-	$clearCache(cacheKey: string): Promicognidreamognidream>;
+	$clearCache(cacheKey: string): Promise<void>;
 }
 
 export interface ExtHostExtensionServiceShape {
@@ -2008,18 +2008,18 @@ export interface ExtHostExtensionServiceShape {
 	 * Returns `null` if no resolver for `remoteAuthority` is found.
 	 */
 	$getCanonicalURI(remoteAuthority: string, uri: UriComponents): Promise<UriComponents | null>;
-	$startExtensionHost(extensionsDelta: IExtensionDescriptionDelta): Promicognidreamognidream>;
-$extensionTestsExecute(): Promise<number>;
-$activateByEvent(activationEvent: string, activationKind: ActivationKind): Promicognidreamognidream >;
-$activate(extensionId: ExtensionIdentifier, reason: ExtensionActivationReason): Promise<boolean>;
-$setRemoteEnvironment(env: { [key: string]: string | null }): Promicognidreamognidream >;
-$updateRemoteConnectionData(connectionData: IRemoteConnectionData): Promicognidreamognidream >;
+	$startExtensionHost(extensionsDelta: IExtensionDescriptionDelta): Promise<void>;
+	$extensionTestsExecute(): Promise<number>;
+	$activateByEvent(activationEvent: string, activationKind: ActivationKind): Promise<void>;
+	$activate(extensionId: ExtensionIdentifier, reason: ExtensionActivationReason): Promise<boolean>;
+	$setRemoteEnvironment(env: { [key: string]: string | null }): Promise<void>;
+	$updateRemoteConnectionData(connectionData: IRemoteConnectionData): Promise<void>;
 
-$deltaExtensions(extensionsDelta: IExtensionDescriptionDelta): Promicognidreamognidream >;
+	$deltaExtensions(extensionsDelta: IExtensionDescriptionDelta): Promise<void>;
 
-$test_latency(n: number): Promise<number>;
-$test_up(b: VSBuffer): Promise<number>;
-$test_down(size: number): Promise<VSBuffer>;
+	$test_latency(n: number): Promise<number>;
+	$test_up(b: VSBuffer): Promise<number>;
+	$test_down(size: number): Promise<VSBuffer>;
 }
 
 export interface FileSystemEvents {
@@ -2040,17 +2040,17 @@ export interface IWillRunFileOperationParticipation {
 }
 
 export interface ExtHostFileSystemEventServiceShape {
-	$onFileEvent(events: FileSystemEventscognidreamognidream;
-		$onWillRunFileOperation(operation: files.FileOperation, files: readonly SourceTargetPair[], timeout: number, token: CancellationToken): Promise<IWillRunFileOperationParticipation | undefined>;
-	$onDidRunFileOperation(operation: files.FileOperation, files: readonly SourceTargetPair[]cognidreamognidream;
+	$onFileEvent(events: FileSystemEvents): void;
+	$onWillRunFileOperation(operation: files.FileOperation, files: readonly SourceTargetPair[], timeout: number, token: CancellationToken): Promise<IWillRunFileOperationParticipation | undefined>;
+	$onDidRunFileOperation(operation: files.FileOperation, files: readonly SourceTargetPair[]): void;
 }
 
 export interface ExtHostLanguagesShape {
-	$acceptLanguageIds(ids: string[]cognidreamognidream;
+	$acceptLanguageIds(ids: string[]): void;
 }
 
 export interface ExtHostHeapServiceShape {
-	$onGarbageCollection(ids: number[]cognidreamognidream;
+	$onGarbageCollection(ids: number[]): void;
 }
 export interface IRawColorInfo {
 	color: [number, number, number, number];
@@ -2294,14 +2294,14 @@ export interface ExtHostLanguageFeaturesShape {
 	$provideDocumentSymbols(handle: number, resource: UriComponents, token: CancellationToken): Promise<languages.DocumentSymbol[] | undefined>;
 	$provideCodeLenses(handle: number, resource: UriComponents, token: CancellationToken): Promise<ICodeLensListDto | undefined>;
 	$resolveCodeLens(handle: number, symbol: ICodeLensDto, token: CancellationToken): Promise<ICodeLensDto | undefined>;
-	$releaseCodeLenses(handle: number, id: numbercognidreamognidream;
-		$provideDefinition(handle: number, resource: UriComponents, position: IPosition, token: CancellationToken): Promise<ILocationLinkDto[]>;
+	$releaseCodeLenses(handle: number, id: number): void;
+	$provideDefinition(handle: number, resource: UriComponents, position: IPosition, token: CancellationToken): Promise<ILocationLinkDto[]>;
 	$provideDeclaration(handle: number, resource: UriComponents, position: IPosition, token: CancellationToken): Promise<ILocationLinkDto[]>;
 	$provideImplementation(handle: number, resource: UriComponents, position: IPosition, token: CancellationToken): Promise<ILocationLinkDto[]>;
 	$provideTypeDefinition(handle: number, resource: UriComponents, position: IPosition, token: CancellationToken): Promise<ILocationLinkDto[]>;
 	$provideHover(handle: number, resource: UriComponents, position: IPosition, context: languages.HoverContext<{ id: number }> | undefined, token: CancellationToken): Promise<HoverWithId | undefined>;
-	$releaseHover(handle: number, id: numbercognidreamognidream;
-		$provideEvaluatableExpression(handle: number, resource: UriComponents, position: IPosition, token: CancellationToken): Promise<languages.EvaluatableExpression | undefined>;
+	$releaseHover(handle: number, id: number): void;
+	$provideEvaluatableExpression(handle: number, resource: UriComponents, position: IPosition, token: CancellationToken): Promise<languages.EvaluatableExpression | undefined>;
 	$provideInlineValues(handle: number, resource: UriComponents, range: IRange, context: languages.InlineValueContext, token: CancellationToken): Promise<languages.InlineValue[] | undefined>;
 	$provideDocumentHighlights(handle: number, resource: UriComponents, position: IPosition, token: CancellationToken): Promise<languages.DocumentHighlight[] | undefined>;
 	$provideMultiDocumentHighlights(handle: number, resource: UriComponents, position: IPosition, otherModels: UriComponents[], token: CancellationToken): Promise<Dto<languages.MultiDocumentHighlight[]> | undefined>;
@@ -2309,76 +2309,76 @@ export interface ExtHostLanguageFeaturesShape {
 	$provideReferences(handle: number, resource: UriComponents, position: IPosition, context: languages.ReferenceContext, token: CancellationToken): Promise<ILocationDto[] | undefined>;
 	$provideCodeActions(handle: number, resource: UriComponents, rangeOrSelection: IRange | ISelection, context: languages.CodeActionContext, token: CancellationToken): Promise<ICodeActionListDto | undefined>;
 	$resolveCodeAction(handle: number, id: ChainedCacheId, token: CancellationToken): Promise<{ edit?: IWorkspaceEditDto; command?: ICommandDto }>;
-	$releaseCodeActions(handle: number, cacheId: numbercognidreamognidream;
-		$prepareDocumentPaste(handle: number, uri: UriComponents, ranges: readonly IRange[], dataTransfer: DataTransferDTO, token: CancellationToken): Promise<DataTransferDTO | undefined>;
+	$releaseCodeActions(handle: number, cacheId: number): void;
+	$prepareDocumentPaste(handle: number, uri: UriComponents, ranges: readonly IRange[], dataTransfer: DataTransferDTO, token: CancellationToken): Promise<DataTransferDTO | undefined>;
 	$providePasteEdits(handle: number, requestId: number, uri: UriComponents, ranges: IRange[], dataTransfer: DataTransferDTO, context: IDocumentPasteContextDto, token: CancellationToken): Promise<IPasteEditDto[] | undefined>;
 	$resolvePasteEdit(handle: number, id: ChainedCacheId, token: CancellationToken): Promise<{ insertText?: string; additionalEdit?: IWorkspaceEditDto }>;
-	$releasePasteEdits(handle: number, cacheId: numbercognidreamognidream;
-		$provideDocumentFormattingEdits(handle: number, resource: UriComponents, options: languages.FormattingOptions, token: CancellationToken): Promise<languages.TextEdit[] | undefined>;
+	$releasePasteEdits(handle: number, cacheId: number): void;
+	$provideDocumentFormattingEdits(handle: number, resource: UriComponents, options: languages.FormattingOptions, token: CancellationToken): Promise<languages.TextEdit[] | undefined>;
 	$provideDocumentRangeFormattingEdits(handle: number, resource: UriComponents, range: IRange, options: languages.FormattingOptions, token: CancellationToken): Promise<languages.TextEdit[] | undefined>;
 	$provideDocumentRangesFormattingEdits(handle: number, resource: UriComponents, range: IRange[], options: languages.FormattingOptions, token: CancellationToken): Promise<languages.TextEdit[] | undefined>;
 	$provideOnTypeFormattingEdits(handle: number, resource: UriComponents, position: IPosition, ch: string, options: languages.FormattingOptions, token: CancellationToken): Promise<languages.TextEdit[] | undefined>;
 	$provideWorkspaceSymbols(handle: number, search: string, token: CancellationToken): Promise<IWorkspaceSymbolsDto>;
 	$resolveWorkspaceSymbol(handle: number, symbol: IWorkspaceSymbolDto, token: CancellationToken): Promise<IWorkspaceSymbolDto | undefined>;
-	$releaseWorkspaceSymbols(handle: number, id: numbercognidreamognidream;
-		$provideRenameEdits(handle: number, resource: UriComponents, position: IPosition, newName: string, token: CancellationToken): Promise<IWorkspaceEditDto & { rejectReason?: string } | undefined>;
+	$releaseWorkspaceSymbols(handle: number, id: number): void;
+	$provideRenameEdits(handle: number, resource: UriComponents, position: IPosition, newName: string, token: CancellationToken): Promise<IWorkspaceEditDto & { rejectReason?: string } | undefined>;
 	$resolveRenameLocation(handle: number, resource: UriComponents, position: IPosition, token: CancellationToken): Promise<languages.RenameLocation | undefined>;
 	$supportsAutomaticNewSymbolNamesTriggerKind(handle: number): Promise<boolean | undefined>;
 	$provideNewSymbolNames(handle: number, resource: UriComponents, range: IRange, triggerKind: languages.NewSymbolNameTriggerKind, token: CancellationToken): Promise<languages.NewSymbolName[] | undefined>;
 	$provideDocumentSemanticTokens(handle: number, resource: UriComponents, previousResultId: number, token: CancellationToken): Promise<VSBuffer | null>;
-	$releaseDocumentSemanticTokens(handle: number, semanticColoringResultId: numbercognidreamognidream;
-		$provideDocumentRangeSemanticTokens(handle: number, resource: UriComponents, range: IRange, token: CancellationToken): Promise<VSBuffer | null>;
+	$releaseDocumentSemanticTokens(handle: number, semanticColoringResultId: number): void;
+	$provideDocumentRangeSemanticTokens(handle: number, resource: UriComponents, range: IRange, token: CancellationToken): Promise<VSBuffer | null>;
 	$provideCompletionItems(handle: number, resource: UriComponents, position: IPosition, context: languages.CompletionContext, token: CancellationToken): Promise<ISuggestResultDto | undefined>;
 	$resolveCompletionItem(handle: number, id: ChainedCacheId, token: CancellationToken): Promise<ISuggestDataDto | undefined>;
-	$releaseCompletionItems(handle: number, id: numbercognidreamognidream;
-		$provideInlineCompletions(handle: number, resource: UriComponents, position: IPosition, context: languages.InlineCompletionContext, token: CancellationToken): Promise<IdentifiableInlineCompletions | undefined>;
+	$releaseCompletionItems(handle: number, id: number): void;
+	$provideInlineCompletions(handle: number, resource: UriComponents, position: IPosition, context: languages.InlineCompletionContext, token: CancellationToken): Promise<IdentifiableInlineCompletions | undefined>;
 	$provideInlineEditsForRange(handle: number, resource: UriComponents, range: IRange, context: languages.InlineCompletionContext, token: CancellationToken): Promise<IdentifiableInlineCompletions | undefined>;
-	$handleInlineCompletionDidShow(handle: number, pid: number, idx: number, updatedInsertText: stringcognidreamognidream;
-		$handleInlineCompletionPartialAccept(handle: number, pid: number, idx: number, acceptedCharacters: number, info: languages.PartialAcceptInfocognidreamognidream;
-			$handleInlineCompletionRejection(handle: number, pid: number, idx: numbercognidreamognidream;
-				$freeInlineCompletionsList(handle: number, pid: numbercognidreamognidream;
-					$provideSignatureHelp(handle: number, resource: UriComponents, position: IPosition, context: languages.SignatureHelpContext, token: CancellationToken): Promise<ISignatureHelpDto | undefined>;
-	$releaseSignatureHelp(handle: number, id: numbercognidreamognidream;
-		$provideInlayHints(handle: number, resource: UriComponents, range: IRange, token: CancellationToken): Promise<IInlayHintsDto | undefined>;
+	$handleInlineCompletionDidShow(handle: number, pid: number, idx: number, updatedInsertText: string): void;
+	$handleInlineCompletionPartialAccept(handle: number, pid: number, idx: number, acceptedCharacters: number, info: languages.PartialAcceptInfo): void;
+	$handleInlineCompletionRejection(handle: number, pid: number, idx: number): void;
+	$freeInlineCompletionsList(handle: number, pid: number): void;
+	$provideSignatureHelp(handle: number, resource: UriComponents, position: IPosition, context: languages.SignatureHelpContext, token: CancellationToken): Promise<ISignatureHelpDto | undefined>;
+	$releaseSignatureHelp(handle: number, id: number): void;
+	$provideInlayHints(handle: number, resource: UriComponents, range: IRange, token: CancellationToken): Promise<IInlayHintsDto | undefined>;
 	$resolveInlayHint(handle: number, id: ChainedCacheId, token: CancellationToken): Promise<IInlayHintDto | undefined>;
-	$releaseInlayHints(handle: number, id: numbercognidreamognidream;
-		$provideDocumentLinks(handle: number, resource: UriComponents, token: CancellationToken): Promise<ILinksListDto | undefined>;
+	$releaseInlayHints(handle: number, id: number): void;
+	$provideDocumentLinks(handle: number, resource: UriComponents, token: CancellationToken): Promise<ILinksListDto | undefined>;
 	$resolveDocumentLink(handle: number, id: ChainedCacheId, token: CancellationToken): Promise<ILinkDto | undefined>;
-	$releaseDocumentLinks(handle: number, id: numbercognidreamognidream;
-		$provideDocumentColors(handle: number, resource: UriComponents, token: CancellationToken): Promise<IRawColorInfo[]>;
+	$releaseDocumentLinks(handle: number, id: number): void;
+	$provideDocumentColors(handle: number, resource: UriComponents, token: CancellationToken): Promise<IRawColorInfo[]>;
 	$provideColorPresentations(handle: number, resource: UriComponents, colorInfo: IRawColorInfo, token: CancellationToken): Promise<languages.IColorPresentation[] | undefined>;
 	$provideFoldingRanges(handle: number, resource: UriComponents, context: languages.FoldingContext, token: CancellationToken): Promise<languages.FoldingRange[] | undefined>;
 	$provideSelectionRanges(handle: number, resource: UriComponents, positions: IPosition[], token: CancellationToken): Promise<languages.SelectionRange[][]>;
 	$prepareCallHierarchy(handle: number, resource: UriComponents, position: IPosition, token: CancellationToken): Promise<ICallHierarchyItemDto[] | undefined>;
 	$provideCallHierarchyIncomingCalls(handle: number, sessionId: string, itemId: string, token: CancellationToken): Promise<IIncomingCallDto[] | undefined>;
 	$provideCallHierarchyOutgoingCalls(handle: number, sessionId: string, itemId: string, token: CancellationToken): Promise<IOutgoingCallDto[] | undefined>;
-	$releaseCallHierarchy(handle: number, sessionId: stringcognidreamognidream;
-		$setWordDefinitions(wordDefinitions: ILanguageWordDefinitionDto[]cognidreamognidream;
-			$prepareTypeHierarchy(handle: number, resource: UriComponents, position: IPosition, token: CancellationToken): Promise<ITypeHierarchyItemDto[] | undefined>;
+	$releaseCallHierarchy(handle: number, sessionId: string): void;
+	$setWordDefinitions(wordDefinitions: ILanguageWordDefinitionDto[]): void;
+	$prepareTypeHierarchy(handle: number, resource: UriComponents, position: IPosition, token: CancellationToken): Promise<ITypeHierarchyItemDto[] | undefined>;
 	$provideTypeHierarchySupertypes(handle: number, sessionId: string, itemId: string, token: CancellationToken): Promise<ITypeHierarchyItemDto[] | undefined>;
 	$provideTypeHierarchySubtypes(handle: number, sessionId: string, itemId: string, token: CancellationToken): Promise<ITypeHierarchyItemDto[] | undefined>;
-	$releaseTypeHierarchy(handle: number, sessionId: stringcognidreamognidream;
-		$provideDocumentOnDropEdits(handle: number, requestId: number, resource: UriComponents, position: IPosition, dataTransferDto: DataTransferDTO, token: CancellationToken): Promise<IDocumentDropEditDto[] | undefined>;
-	$releaseDocumentOnDropEdits(handle: number, cacheId: numbercognidreamognidream;
-		$provideInlineEdit(handle: number, document: UriComponents, context: languages.IInlineEditContext, token: CancellationToken): Promise<IdentifiableInlineEdit | undefined>;
-	$freeInlineEdit(handle: number, pid: numbercognidreamognidream;
+	$releaseTypeHierarchy(handle: number, sessionId: string): void;
+	$provideDocumentOnDropEdits(handle: number, requestId: number, resource: UriComponents, position: IPosition, dataTransferDto: DataTransferDTO, token: CancellationToken): Promise<IDocumentDropEditDto[] | undefined>;
+	$releaseDocumentOnDropEdits(handle: number, cacheId: number): void;
+	$provideInlineEdit(handle: number, document: UriComponents, context: languages.IInlineEditContext, token: CancellationToken): Promise<IdentifiableInlineEdit | undefined>;
+	$freeInlineEdit(handle: number, pid: number): void;
 }
 
 export interface ExtHostQuickOpenShape {
-	$onItemSelected(handle: numbercognidreamognidream;
-		$validateInput(input: string): Promise<string | { content: string; severity: Severity } | null | undefined>;
-	$onDidChangeActive(sessionId: number, handles: number[]cognidreamognidream;
-		$onDidChangeSelection(sessionId: number, handles: number[]cognidreamognidream;
-			$onDidAccept(sessionId: numbercognidreamognidream;
-				$onDidChangeValue(sessionId: number, value: stringcognidreamognidream;
-					$onDidTriggerButton(sessionId: number, handle: numbercognidreamognidream;
-						$onDidTriggerItemButton(sessionId: number, itemHandle: number, buttonHandle: numbercognidreamognidream;
-							$onDidHide(sessionId: numbercognidreamognidream;
+	$onItemSelected(handle: number): void;
+	$validateInput(input: string): Promise<string | { content: string; severity: Severity } | null | undefined>;
+	$onDidChangeActive(sessionId: number, handles: number[]): void;
+	$onDidChangeSelection(sessionId: number, handles: number[]): void;
+	$onDidAccept(sessionId: number): void;
+	$onDidChangeValue(sessionId: number, value: string): void;
+	$onDidTriggerButton(sessionId: number, handle: number): void;
+	$onDidTriggerItemButton(sessionId: number, itemHandle: number, buttonHandle: number): void;
+	$onDidHide(sessionId: number): void;
 }
 
 export interface ExtHostTelemetryShape {
-	$initializeTelemetryLevel(level: TelemetryLevel, supportsTelemetry: boolean, productConfig?: { usage: boolean; error: boolean }cognidreamognidream;
-		$onDidChangeTelemetryLevel(level: TelemetryLevelcognidreamognidream;
+	$initializeTelemetryLevel(level: TelemetryLevel, supportsTelemetry: boolean, productConfig?: { usage: boolean; error: boolean }): void;
+	$onDidChangeTelemetryLevel(level: TelemetryLevel): void;
 }
 
 export interface ITerminalLinkDto {
@@ -2488,55 +2488,55 @@ export interface TerminalResourceRequestConfigDto {
 }
 
 export interface ExtHostTerminalServiceShape {
-	$acceptTerminalClosed(id: number, exitCode: number | undefined, exitReason: TerminalExitReasoncognidreamognidream;
-		$acceptTerminalOpened(id: number, extHostTerminalId: string | undefined, name: string, shellLaunchConfig: IShellLaunchConfigDtocognidreamognidream;
-			$acceptActiveTerminalChanged(id: number | nullcognidreamognidream;
-				$acceptTerminalProcessId(id: number, processId: numbercognidreamognidream;
-					$acceptTerminalProcessData(id: number, data: stringcognidreamognidream;
-						$acceptDidExecuteCommand(id: number, command: ITerminalCommandDtocognidreamognidream;
-							$acceptTerminalTitleChange(id: number, name: stringcognidreamognidream;
-								$acceptTerminalDimensions(id: number, cols: number, rows: numbercognidreamognidream;
-									$acceptTerminalMaximumDimensions(id: number, cols: number, rows: numbercognidreamognidream;
-										$acceptTerminalInteraction(id: numbercognidreamognidream;
-											$acceptTerminalSelection(id: number, selection: string | undefinedcognidreamognidream;
-												$acceptTerminalShellType(id: number, shellType: TerminalShellType | undefinedcognidreamognidream;
-													$startExtensionTerminal(id: number, initialDimensions: ITerminalDimensionsDto | undefined): Promise<ITerminalLaunchError | undefined>;
-	$acceptProcessAckDataEvent(id: number, charCount: numbercognidreamognidream;
-		$acceptProcessInput(id: number, data: stringcognidreamognidream;
-			$acceptProcessResize(id: number, cols: number, rows: numbercognidreamognidream;
-				$acceptProcessShutdown(id: number, immediate: booleancognidreamognidream;
-					$acceptProcessRequestInitialCwd(id: numbercognidreamognidream;
-						$acceptProcessRequestCwd(id: numbercognidreamognidream;
-							$acceptProcessRequestLatency(id: number): Promise<number>;
+	$acceptTerminalClosed(id: number, exitCode: number | undefined, exitReason: TerminalExitReason): void;
+	$acceptTerminalOpened(id: number, extHostTerminalId: string | undefined, name: string, shellLaunchConfig: IShellLaunchConfigDto): void;
+	$acceptActiveTerminalChanged(id: number | null): void;
+	$acceptTerminalProcessId(id: number, processId: number): void;
+	$acceptTerminalProcessData(id: number, data: string): void;
+	$acceptDidExecuteCommand(id: number, command: ITerminalCommandDto): void;
+	$acceptTerminalTitleChange(id: number, name: string): void;
+	$acceptTerminalDimensions(id: number, cols: number, rows: number): void;
+	$acceptTerminalMaximumDimensions(id: number, cols: number, rows: number): void;
+	$acceptTerminalInteraction(id: number): void;
+	$acceptTerminalSelection(id: number, selection: string | undefined): void;
+	$acceptTerminalShellType(id: number, shellType: TerminalShellType | undefined): void;
+	$startExtensionTerminal(id: number, initialDimensions: ITerminalDimensionsDto | undefined): Promise<ITerminalLaunchError | undefined>;
+	$acceptProcessAckDataEvent(id: number, charCount: number): void;
+	$acceptProcessInput(id: number, data: string): void;
+	$acceptProcessResize(id: number, cols: number, rows: number): void;
+	$acceptProcessShutdown(id: number, immediate: boolean): void;
+	$acceptProcessRequestInitialCwd(id: number): void;
+	$acceptProcessRequestCwd(id: number): void;
+	$acceptProcessRequestLatency(id: number): Promise<number>;
 	$provideLinks(id: number, line: string): Promise<ITerminalLinkDto[]>;
-	$activateLink(id: number, linkId: numbercognidreamognidream;
-		$initEnvironmentVariableCollections(collections: [string, ISerializableEnvironmentVariableCollection][]cognidreamognidream;
-			$acceptDefaultProfile(profile: ITerminalProfile, automationProfile: ITerminalProfilecognidreamognidream;
-				$createContributedProfileTerminal(id: string, options: ICreateContributedTerminalProfileOptions): Promicognidreamognidream>;
-$provideTerminalQuickFixes(id: string, matchResult: TerminalCommandMatchResultDto, token: CancellationToken): Promise<SingleOrMany<TerminalQuickFix> | undefined>;
-$provideTerminalCompletions(id: string, options: ITerminalCompletionContextDto, token: CancellationToken): Promise<TerminalCompletionListDto | undefined>;
+	$activateLink(id: number, linkId: number): void;
+	$initEnvironmentVariableCollections(collections: [string, ISerializableEnvironmentVariableCollection][]): void;
+	$acceptDefaultProfile(profile: ITerminalProfile, automationProfile: ITerminalProfile): void;
+	$createContributedProfileTerminal(id: string, options: ICreateContributedTerminalProfileOptions): Promise<void>;
+	$provideTerminalQuickFixes(id: string, matchResult: TerminalCommandMatchResultDto, token: CancellationToken): Promise<SingleOrMany<TerminalQuickFix> | undefined>;
+	$provideTerminalCompletions(id: string, options: ITerminalCompletionContextDto, token: CancellationToken): Promise<TerminalCompletionListDto | undefined>;
 }
 
 export interface ExtHostTerminalShellIntegrationShape {
-	$shellIntegrationChange(instanceId: numbercognidreamognidream;
-		$shellExecutionStart(instanceId: number, commandLineValue: string, commandLineConfidence: TerminalShellExecutionCommandLineConfidence, isTrusted: boolean, cwd: UriComponents | undefinedcognidreamognidream;
-			$shellExecutionEnd(instanceId: number, commandLineValue: string, commandLineConfidence: TerminalShellExecutionCommandLineConfidence, isTrusted: boolean, exitCode: number | undefinedcognidreamognidream;
-				$shellExecutionData(instanceId: number, data: stringcognidreamognidream;
-					$shellEnvChange(instanceId: number, shellEnvKeys: string[], shellEnvValues: string[], isTrusted: booleancognidreamognidream;
-						$cwdChange(instanceId: number, cwd: UriComponents | undefinedcognidreamognidream;
-							$closeTerminal(instanceId: numbercognidreamognidream;
+	$shellIntegrationChange(instanceId: number): void;
+	$shellExecutionStart(instanceId: number, commandLineValue: string, commandLineConfidence: TerminalShellExecutionCommandLineConfidence, isTrusted: boolean, cwd: UriComponents | undefined): void;
+	$shellExecutionEnd(instanceId: number, commandLineValue: string, commandLineConfidence: TerminalShellExecutionCommandLineConfidence, isTrusted: boolean, exitCode: number | undefined): void;
+	$shellExecutionData(instanceId: number, data: string): void;
+	$shellEnvChange(instanceId: number, shellEnvKeys: string[], shellEnvValues: string[], isTrusted: boolean): void;
+	$cwdChange(instanceId: number, cwd: UriComponents | undefined): void;
+	$closeTerminal(instanceId: number): void;
 }
 
 export interface ExtHostSCMShape {
 	$provideOriginalResource(sourceControlHandle: number, uri: UriComponents, token: CancellationToken): Promise<UriComponents | null>;
-	$onInputBoxValueChange(sourceControlHandle: number, value: stringcognidreamognidream;
-		$executeResourceCommand(sourceControlHandle: number, groupHandle: number, handle: number, preserveFocus: boolean): Promicognidreamognidream>;
-$validateInput(sourceControlHandle: number, value: string, cursorPosition: number): Promise<[string | IMarkdownString, number] | undefined>;
-$setSelectedSourceControl(selectedSourceControlHandle: number | undefined): Promicognidreamognidream >;
-$provideHistoryItemRefs(sourceControlHandle: number, historyItemRefs: string[] | undefined, token: CancellationToken): Promise<SCMHistoryItemRefDto[] | undefined>;
-$provideHistoryItems(sourceControlHandle: number, options: any, token: CancellationToken): Promise<SCMHistoryItemDto[] | undefined>;
-$provideHistoryItemChanges(sourceControlHandle: number, historyItemId: string, historyItemParentId: string | undefined, token: CancellationToken): Promise<SCMHistoryItemChangeDto[] | undefined>;
-$resolveHistoryItemRefsCommonAncestor(sourceControlHandle: number, historyItemRefs: string[], token: CancellationToken): Promise<string | undefined>;
+	$onInputBoxValueChange(sourceControlHandle: number, value: string): void;
+	$executeResourceCommand(sourceControlHandle: number, groupHandle: number, handle: number, preserveFocus: boolean): Promise<void>;
+	$validateInput(sourceControlHandle: number, value: string, cursorPosition: number): Promise<[string | IMarkdownString, number] | undefined>;
+	$setSelectedSourceControl(selectedSourceControlHandle: number | undefined): Promise<void>;
+	$provideHistoryItemRefs(sourceControlHandle: number, historyItemRefs: string[] | undefined, token: CancellationToken): Promise<SCMHistoryItemRefDto[] | undefined>;
+	$provideHistoryItems(sourceControlHandle: number, options: any, token: CancellationToken): Promise<SCMHistoryItemDto[] | undefined>;
+	$provideHistoryItemChanges(sourceControlHandle: number, historyItemId: string, historyItemParentId: string | undefined, token: CancellationToken): Promise<SCMHistoryItemChangeDto[] | undefined>;
+	$resolveHistoryItemRefsCommonAncestor(sourceControlHandle: number, historyItemRefs: string[], token: CancellationToken): Promise<string | undefined>;
 }
 
 export interface ExtHostQuickDiffShape {
@@ -2550,13 +2550,13 @@ export interface ExtHostShareShape {
 export interface ExtHostTaskShape {
 	$provideTasks(handle: number, validTypes: { [key: string]: boolean }): Promise<tasks.ITaskSetDTO>;
 	$resolveTask(handle: number, taskDTO: tasks.ITaskDTO): Promise<tasks.ITaskDTO | undefined>;
-	$onDidStartTask(execution: tasks.ITaskExecutionDTO, terminalId: number, resolvedDefinition: tasks.ITaskDefinitionDTOcognidreamognidream;
-		$onDidStartTaskProcess(value: tasks.ITaskProcessStartedDTOcognidreamognidream;
-			$onDidEndTaskProcess(value: tasks.ITaskProcessEndedDTOcognidreamognidream;
-				$OnDidEndTask(execution: tasks.ITaskExecutionDTOcognidreamognidream;
-					$onDidStartTaskProblemMatchers(status: tasks.ITaskProblemMatcherStartedDtocognidreamognidream;
-						$onDidEndTaskProblemMatchers(status: tasks.ITaskProblemMatcherEndedDtocognidreamognidream;
-							$resolveVariables(workspaceFolder: UriComponents, toResolve: { process?: { name: string; cwd?: string }; variables: string[] }): Promise<{ process?: string; variables: { [key: string]: string } }>;
+	$onDidStartTask(execution: tasks.ITaskExecutionDTO, terminalId: number, resolvedDefinition: tasks.ITaskDefinitionDTO): void;
+	$onDidStartTaskProcess(value: tasks.ITaskProcessStartedDTO): void;
+	$onDidEndTaskProcess(value: tasks.ITaskProcessEndedDTO): void;
+	$OnDidEndTask(execution: tasks.ITaskExecutionDTO): void;
+	$onDidStartTaskProblemMatchers(status: tasks.ITaskProblemMatcherStartedDto): void;
+	$onDidEndTaskProblemMatchers(status: tasks.ITaskProblemMatcherEndedDto): void;
+	$resolveVariables(workspaceFolder: UriComponents, toResolve: { process?: { name: string; cwd?: string }; variables: string[] }): Promise<{ process?: string; variables: { [key: string]: string } }>;
 	$jsonTasksSupported(): Promise<boolean>;
 	$findExecutable(command: string, cwd?: string, paths?: string[]): Promise<string | undefined>;
 }
@@ -2643,28 +2643,28 @@ export interface IStackFrameFocusDto {
 export interface ExtHostDebugServiceShape {
 	$substituteVariables(folder: UriComponents | undefined, config: IConfig): Promise<IConfig>;
 	$runInTerminal(args: DebugProtocol.RunInTerminalRequestArguments, sessionId: string): Promise<number | undefined>;
-	$startDASession(handle: number, session: IDebugSessionDto): Promicognidreamognidream>;
-$stopDASession(handle: number): Promicognidreamognidream >;
-$sendDAMessage(handle: number, message: DebugProtocol.ProtocolMessagecognidreamognidream;
-$resolveDebugConfiguration(handle: number, folder: UriComponents | undefined, debugConfiguration: IConfig, token: CancellationToken): Promise<IConfig | null | undefined>;
-$resolveDebugConfigurationWithSubstitutedVariables(handle: number, folder: UriComponents | undefined, debugConfiguration: IConfig, token: CancellationToken): Promise<IConfig | null | undefined>;
-$provideDebugConfigurations(handle: number, folder: UriComponents | undefined, token: CancellationToken): Promise<IConfig[]>;
-$provideDebugAdapter(handle: number, session: IDebugSessionDto): Promise<Dto<IAdapterDescriptor>>;
-$acceptDebugSessionStarted(session: IDebugSessionDtocognidreamognidream;
-$acceptDebugSessionTerminated(session: IDebugSessionDtocognidreamognidream;
-$acceptDebugSessionActiveChanged(session: IDebugSessionDto | undefinedcognidreamognidream;
-$acceptDebugSessionCustomEvent(session: IDebugSessionDto, event: anycognidreamognidream;
-$acceptBreakpointsDelta(delta: IBreakpointsDeltaDtocognidreamognidream;
-$acceptDebugSessionNameChanged(session: IDebugSessionDto, name: stringcognidreamognidream;
-$acceptStackFrameFocus(focus: IThreadFocusDto | IStackFrameFocusDto | undefinedcognidreamognidream;
-$provideDebugVisualizers(extensionId: string, id: string, context: IDebugVisualizationContext, token: CancellationToken): Promise<IDebugVisualization.Serialized[]>;
-$resolveDebugVisualizer(id: number, token: CancellationToken): Promise<MainThreadDebugVisualization>;
-$executeDebugVisualizerCommand(id: number): Promicognidreamognidream >;
-$disposeDebugVisualizers(ids: number[]cognidreamognidream;
-$getVisualizerTreeItem(treeId: string, element: IDebugVisualizationContext): Promise<IDebugVisualizationTreeItem.Serialized | undefined>;
-$getVisualizerTreeItemChildren(treeId: string, element: number): Promise<IDebugVisualizationTreeItem.Serialized[]>;
-$editVisualizerTreeItem(element: number, value: string): Promise<IDebugVisualizationTreeItem.Serialized | undefined>;
-$disposeVisualizedTree(element: numbercognidreamognidream;
+	$startDASession(handle: number, session: IDebugSessionDto): Promise<void>;
+	$stopDASession(handle: number): Promise<void>;
+	$sendDAMessage(handle: number, message: DebugProtocol.ProtocolMessage): void;
+	$resolveDebugConfiguration(handle: number, folder: UriComponents | undefined, debugConfiguration: IConfig, token: CancellationToken): Promise<IConfig | null | undefined>;
+	$resolveDebugConfigurationWithSubstitutedVariables(handle: number, folder: UriComponents | undefined, debugConfiguration: IConfig, token: CancellationToken): Promise<IConfig | null | undefined>;
+	$provideDebugConfigurations(handle: number, folder: UriComponents | undefined, token: CancellationToken): Promise<IConfig[]>;
+	$provideDebugAdapter(handle: number, session: IDebugSessionDto): Promise<Dto<IAdapterDescriptor>>;
+	$acceptDebugSessionStarted(session: IDebugSessionDto): void;
+	$acceptDebugSessionTerminated(session: IDebugSessionDto): void;
+	$acceptDebugSessionActiveChanged(session: IDebugSessionDto | undefined): void;
+	$acceptDebugSessionCustomEvent(session: IDebugSessionDto, event: any): void;
+	$acceptBreakpointsDelta(delta: IBreakpointsDeltaDto): void;
+	$acceptDebugSessionNameChanged(session: IDebugSessionDto, name: string): void;
+	$acceptStackFrameFocus(focus: IThreadFocusDto | IStackFrameFocusDto | undefined): void;
+	$provideDebugVisualizers(extensionId: string, id: string, context: IDebugVisualizationContext, token: CancellationToken): Promise<IDebugVisualization.Serialized[]>;
+	$resolveDebugVisualizer(id: number, token: CancellationToken): Promise<MainThreadDebugVisualization>;
+	$executeDebugVisualizerCommand(id: number): Promise<void>;
+	$disposeDebugVisualizers(ids: number[]): void;
+	$getVisualizerTreeItem(treeId: string, element: IDebugVisualizationContext): Promise<IDebugVisualizationTreeItem.Serialized | undefined>;
+	$getVisualizerTreeItemChildren(treeId: string, element: number): Promise<IDebugVisualizationTreeItem.Serialized[]>;
+	$editVisualizerTreeItem(element: number, value: string): Promise<IDebugVisualizationTreeItem.Serialized | undefined>;
+	$disposeVisualizedTree(element: number): void;
 }
 
 
@@ -2681,40 +2681,40 @@ export interface ExtHostDecorationsShape {
 }
 
 export interface ExtHostWindowShape {
-	$onDidChangeWindowFocus(value: booleancognidreamognidream;
-		$onDidChangeWindowActive(value: booleancognidreamognidream;
-			$onDidChangeActiveNativeWindowHandle(handle: string | undefinedcognidreamognidream;
+	$onDidChangeWindowFocus(value: boolean): void;
+	$onDidChangeWindowActive(value: boolean): void;
+	$onDidChangeActiveNativeWindowHandle(handle: string | undefined): void;
 }
 
 export interface ExtHostLogLevelServiceShape {
-	$setLogLevel(level: LogLevel, resource?: UriComponentscognidreamognidream;
+	$setLogLevel(level: LogLevel, resource?: UriComponents): void;
 }
 
 export interface MainThreadLoggerShape {
-	$log(file: UriComponents, messages: [LogLevel, string][]cognidreamognidream;
-		$flush(file: UriComponentscognidreamognidream;
-			$createLogger(file: UriComponents, options?: ILoggerOptions): Promicognidreamognidream>;
-$registerLogger(logger: UriDto<ILoggerResource>): Promicognidreamognidream >;
-$deregisterLogger(resource: UriComponents): Promicognidreamognidream >;
-$setVisibility(resource: UriComponents, visible: boolean): Promicognidreamognidream >;
+	$log(file: UriComponents, messages: [LogLevel, string][]): void;
+	$flush(file: UriComponents): void;
+	$createLogger(file: UriComponents, options?: ILoggerOptions): Promise<void>;
+	$registerLogger(logger: UriDto<ILoggerResource>): Promise<void>;
+	$deregisterLogger(resource: UriComponents): Promise<void>;
+	$setVisibility(resource: UriComponents, visible: boolean): Promise<void>;
 }
 
 export interface ExtHostOutputServiceShape {
-	$setVisibleChannel(channelId: string | nullcognidreamognidream;
+	$setVisibleChannel(channelId: string | null): void;
 }
 
 export interface ExtHostProgressShape {
-	$acceptProgressCanceled(handle: numbercognidreamognidream;
+	$acceptProgressCanceled(handle: number): void;
 }
 
 export interface ExtHostCommentsShape {
-	$createCommentThreadTemplate(commentControllerHandle: number, uriComponents: UriComponents, range: IRange | undefined, editorId?: string): Promicognidreamognidream>;
-$updateCommentThreadTemplate(commentControllerHandle: number, threadHandle: number, range: IRange): Promicognidreamognidream >;
-$updateCommentThread(commentControllerHandle: number, threadHandle: number, changes: CommentThreadChanges): Promicognidreamognidream >;
-$deleteCommentThread(commentControllerHandle: number, commentThreadHandle: numbercognidreamognidream;
-$provideCommentingRanges(commentControllerHandle: number, uriComponents: UriComponents, token: CancellationToken): Promise<{ ranges: IRange[]; fileComments: boolean } | undefined>;
-$toggleReaction(commentControllerHandle: number, threadHandle: number, uri: UriComponents, comment: languages.Comment, reaction: languages.CommentReaction): Promicognidreamognidream >;
-$setActiveComment(controllerHandle: number, commentInfo: { commentThreadHandle: number; uniqueIdInThread?: number } | undefined): Promicognidreamognidream >;
+	$createCommentThreadTemplate(commentControllerHandle: number, uriComponents: UriComponents, range: IRange | undefined, editorId?: string): Promise<void>;
+	$updateCommentThreadTemplate(commentControllerHandle: number, threadHandle: number, range: IRange): Promise<void>;
+	$updateCommentThread(commentControllerHandle: number, threadHandle: number, changes: CommentThreadChanges): Promise<void>;
+	$deleteCommentThread(commentControllerHandle: number, commentThreadHandle: number): void;
+	$provideCommentingRanges(commentControllerHandle: number, uriComponents: UriComponents, token: CancellationToken): Promise<{ ranges: IRange[]; fileComments: boolean } | undefined>;
+	$toggleReaction(commentControllerHandle: number, threadHandle: number, uri: UriComponents, comment: languages.Comment, reaction: languages.CommentReaction): Promise<void>;
+	$setActiveComment(controllerHandle: number, commentInfo: { commentThreadHandle: number; uniqueIdInThread?: number } | undefined): Promise<void>;
 }
 
 export interface INotebookSelectionChangeEvent {
@@ -2803,9 +2803,9 @@ export type INotebookPartialFileStatsWithMetadata = Omit<files.IFileStatWithMeta
 
 export interface ExtHostNotebookShape extends ExtHostNotebookDocumentsAndEditorsShape {
 	$provideNotebookCellStatusBarItems(handle: number, uri: UriComponents, index: number, token: CancellationToken): Promise<INotebookCellStatusBarListDto | undefined>;
-	$releaseNotebookCellStatusBarItems(id: numbercognidreamognidream;
+	$releaseNotebookCellStatusBarItems(id: number): void;
 
-		$dataToNotebook(handle: number, data: VSBuffer, token: CancellationToken): Promise<SerializableObjectWithBuffers<NotebookDataDto>>;
+	$dataToNotebook(handle: number, data: VSBuffer, token: CancellationToken): Promise<SerializableObjectWithBuffers<NotebookDataDto>>;
 	$notebookToData(handle: number, data: SerializableObjectWithBuffers<NotebookDataDto>, token: CancellationToken): Promise<VSBuffer>;
 	$saveNotebook(handle: number, uri: UriComponents, versionId: number, options: files.IWriteFileOptions, token: CancellationToken): Promise<INotebookPartialFileStatsWithMetadata>;
 
@@ -2817,11 +2817,11 @@ export interface ExtHostNotebookDocumentSaveParticipantShape {
 }
 
 export interface ExtHostNotebookRenderersShape {
-	$postRendererMessage(editorId: string, rendererId: string, message: unknowncognidreamognidream;
+	$postRendererMessage(editorId: string, rendererId: string, message: unknown): void;
 }
 
 export interface ExtHostNotebookDocumentsAndEditorsShape {
-	$acceptDocumentAndEditorsDelta(delta: SerializableObjectWithBuffers<INotebookDocumentsAndEditorsDelta>cognidreamognidream;
+	$acceptDocumentAndEditorsDelta(delta: SerializableObjectWithBuffers<INotebookDocumentsAndEditorsDelta>): void;
 }
 
 export type NotebookRawContentEventDto =
@@ -2864,39 +2864,39 @@ export type NotebookCellsChangedEventDto = {
 };
 
 export interface ExtHostNotebookDocumentsShape {
-	$acceptModelChanged(uriComponents: UriComponents, event: SerializableObjectWithBuffers<NotebookCellsChangedEventDto>, isDirty: boolean, newMetadata?: notebookCommon.NotebookDocumentMetadatacognidreamognidream;
-		$acceptDirtyStateChanged(uriComponents: UriComponents, isDirty: booleancognidreamognidream;
-			$acceptModelSaved(uriComponents: UriComponentscognidreamognidream;
+	$acceptModelChanged(uriComponents: UriComponents, event: SerializableObjectWithBuffers<NotebookCellsChangedEventDto>, isDirty: boolean, newMetadata?: notebookCommon.NotebookDocumentMetadata): void;
+	$acceptDirtyStateChanged(uriComponents: UriComponents, isDirty: boolean): void;
+	$acceptModelSaved(uriComponents: UriComponents): void;
 }
 
 export type INotebookEditorViewColumnInfo = Record<string, number>;
 
 export interface ExtHostNotebookEditorsShape {
-	$acceptEditorPropertiesChanged(id: string, data: INotebookEditorPropertiesChangeDatacognidreamognidream;
-		$acceptEditorViewColumns(data: INotebookEditorViewColumnInfocognidreamognidream;
+	$acceptEditorPropertiesChanged(id: string, data: INotebookEditorPropertiesChangeData): void;
+	$acceptEditorViewColumns(data: INotebookEditorViewColumnInfo): void;
 }
 
 export interface ExtHostNotebookKernelsShape {
-	$acceptNotebookAssociation(handle: number, uri: UriComponents, value: booleancognidreamognidream;
-		$executeCells(handle: number, uri: UriComponents, handles: number[]): Promicognidreamognidream>;
-$cancelCells(handle: number, uri: UriComponents, handles: number[]): Promicognidreamognidream >;
-$acceptKernelMessageFromRenderer(handle: number, editorId: string, message: anycognidreamognidream;
-$cellExecutionChanged(uri: UriComponents, cellHandle: number, state: notebookCommon.NotebookCellExecutionState | undefinedcognidreamognidream;
-$provideKernelSourceActions(handle: number, token: CancellationToken): Promise<notebookCommon.INotebookKernelSourceAction[]>;
-$provideVariables(handle: number, requestId: string, notebookUri: UriComponents, parentId: number | undefined, kind: 'named' | 'indexed', start: number, token: CancellationToken): Promicognidreamognidream >;
+	$acceptNotebookAssociation(handle: number, uri: UriComponents, value: boolean): void;
+	$executeCells(handle: number, uri: UriComponents, handles: number[]): Promise<void>;
+	$cancelCells(handle: number, uri: UriComponents, handles: number[]): Promise<void>;
+	$acceptKernelMessageFromRenderer(handle: number, editorId: string, message: any): void;
+	$cellExecutionChanged(uri: UriComponents, cellHandle: number, state: notebookCommon.NotebookCellExecutionState | undefined): void;
+	$provideKernelSourceActions(handle: number, token: CancellationToken): Promise<notebookCommon.INotebookKernelSourceAction[]>;
+	$provideVariables(handle: number, requestId: string, notebookUri: UriComponents, parentId: number | undefined, kind: 'named' | 'indexed', start: number, token: CancellationToken): Promise<void>;
 }
 
 export interface ExtHostInteractiveShape {
-	$willAddInteractiveDocument(uri: UriComponents, eol: string, languageId: string, notebookUri: UriComponentscognidreamognidream;
-		$willRemoveInteractiveDocument(uri: UriComponents, notebookUri: UriComponentscognidreamognidream;
+	$willAddInteractiveDocument(uri: UriComponents, eol: string, languageId: string, notebookUri: UriComponents): void;
+	$willRemoveInteractiveDocument(uri: UriComponents, notebookUri: UriComponents): void;
 }
 
 export interface ExtHostStorageShape {
-	$acceptValue(shared: boolean, extensionId: string, value: stringcognidreamognidream;
+	$acceptValue(shared: boolean, extensionId: string, value: string): void;
 }
 
 export interface ExtHostThemingShape {
-	$onColorThemeChange(themeType: stringcognidreamognidream;
+	$onColorThemeChange(themeType: string): void;
 }
 
 export interface MainThreadThemingShape extends IDisposable {
@@ -2918,11 +2918,11 @@ export interface TunnelDto {
 
 export interface ExtHostTunnelServiceShape {
 	$forwardPort(tunnelOptions: TunnelOptions, tunnelCreationOptions: TunnelCreationOptions): Promise<TunnelDto | string | undefined>;
-	$closeTunnel(remote: { host: string; port: number }, silent?: boolean): Promicognidreamognidream>;
-$onDidTunnelsChange(): Promicognidreamognidream >;
-$registerCandidateFinder(enable: boolean): Promicognidreamognidream >;
-$applyCandidateFilter(candidates: CandidatePort[]): Promise<CandidatePort[]>;
-$providePortAttributes(handles: number[], ports: number[], pid: number | undefined, commandline: string | undefined, cancellationToken: CancellationToken): Promise<ProvidedPortAttributes[]>;
+	$closeTunnel(remote: { host: string; port: number }, silent?: boolean): Promise<void>;
+	$onDidTunnelsChange(): Promise<void>;
+	$registerCandidateFinder(enable: boolean): Promise<void>;
+	$applyCandidateFilter(candidates: CandidatePort[]): Promise<CandidatePort[]>;
+	$providePortAttributes(handles: number[], ports: number[], pid: number | undefined, commandline: string | undefined, cancellationToken: CancellationToken): Promise<ProvidedPortAttributes[]>;
 }
 
 export interface ExtHostTimelineShape {
@@ -2937,58 +2937,58 @@ export const enum ExtHostTestingResource {
 export interface ExtHostTestingShape {
 	$runControllerTests(req: IStartControllerTests[], token: CancellationToken): Promise<{ error?: string }[]>;
 	$startContinuousRun(req: ICallProfileRunHandler[], token: CancellationToken): Promise<{ error?: string }[]>;
-	$cancelExtensionTestRun(runId: string | undefined, taskId: string | undefinedcognidreamognidream;
-		/** Handles a diff of tests, as a result of a subscribeToDiffs() call */
-		$acceptDiff(diff: TestsDiffOp.Serialized[]cognidreamognidream;
-			/** Expands a test item's children, by the given number of levels. */
-			$expandTest(testId: string, levels: number): Promicognidreamognidream>;
-/** Requests coverage details for a test run. Errors if not available. */
-$getCoverageDetails(coverageId: string, testId: string | undefined, token: CancellationToken): Promise<CoverageDetails.Serialized[]>;
-/** Disposes resources associated with a test run. */
-$disposeRun(runId: stringcognidreamognidream;
-/** Configures a test run config. */
-$configureRunProfile(controllerId: string, configId: numbercognidreamognidream;
-/** Asks the controller to refresh its tests */
-$refreshTests(controllerId: string, token: CancellationToken): Promicognidreamognidream >;
-/** Ensures any pending test diffs are flushed */
-$syncTests(): Promicognidreamognidream >;
-/** Sets the active test run profiles */
-$setDefaultRunProfiles(profiles: Record </* controller id */string, /* profile id */ number[] > cognidreamognidream;
-$getTestsRelatedToCode(uri: UriComponents, position: IPosition, token: CancellationToken): Promise<string[]>;
-$getCodeRelatedToTest(testId: string, token: CancellationToken): Promise<ILocationDto[]>;
+	$cancelExtensionTestRun(runId: string | undefined, taskId: string | undefined): void;
+	/** Handles a diff of tests, as a result of a subscribeToDiffs() call */
+	$acceptDiff(diff: TestsDiffOp.Serialized[]): void;
+	/** Expands a test item's children, by the given number of levels. */
+	$expandTest(testId: string, levels: number): Promise<void>;
+	/** Requests coverage details for a test run. Errors if not available. */
+	$getCoverageDetails(coverageId: string, testId: string | undefined, token: CancellationToken): Promise<CoverageDetails.Serialized[]>;
+	/** Disposes resources associated with a test run. */
+	$disposeRun(runId: string): void;
+	/** Configures a test run config. */
+	$configureRunProfile(controllerId: string, configId: number): void;
+	/** Asks the controller to refresh its tests */
+	$refreshTests(controllerId: string, token: CancellationToken): Promise<void>;
+	/** Ensures any pending test diffs are flushed */
+	$syncTests(): Promise<void>;
+	/** Sets the active test run profiles */
+	$setDefaultRunProfiles(profiles: Record</* controller id */string, /* profile id */ number[]>): void;
+	$getTestsRelatedToCode(uri: UriComponents, position: IPosition, token: CancellationToken): Promise<string[]>;
+	$getCodeRelatedToTest(testId: string, token: CancellationToken): Promise<ILocationDto[]>;
 
-// --- test results:
+	// --- test results:
 
-/** Publishes that a test run finished. */
-$publishTestResults(results: ISerializedTestResults[]cognidreamognidream;
-/** Requests followup actions for a test (failure) message */
-$provideTestFollowups(req: TestMessageFollowupRequest, token: CancellationToken): Promise<TestMessageFollowupResponse[]>;
-/** Actions a followup actions for a test (failure) message */
-$executeTestFollowup(id: number): Promicognidreamognidream >;
-/** Disposes followup actions for a test (failure) message */
-$disposeTestFollowups(id: number[]cognidreamognidream;
+	/** Publishes that a test run finished. */
+	$publishTestResults(results: ISerializedTestResults[]): void;
+	/** Requests followup actions for a test (failure) message */
+	$provideTestFollowups(req: TestMessageFollowupRequest, token: CancellationToken): Promise<TestMessageFollowupResponse[]>;
+	/** Actions a followup actions for a test (failure) message */
+	$executeTestFollowup(id: number): Promise<void>;
+	/** Disposes followup actions for a test (failure) message */
+	$disposeTestFollowups(id: number[]): void;
 }
 
 export interface ExtHostMcpShape {
-	$startMcp(id: number, launch: McpServerLaunch.Serializedcognidreamognidream;
-		$stopMcp(id: numbercognidreamognidream;
-			$sendMessage(id: number, message: stringcognidreamognidream;
-				$waitForInitialCollectionProviders(): Promicognidreamognidream>;
+	$startMcp(id: number, launch: McpServerLaunch.Serialized): void;
+	$stopMcp(id: number): void;
+	$sendMessage(id: number, message: string): void;
+	$waitForInitialCollectionProviders(): Promise<void>;
 }
 
 export interface MainThreadMcpShape {
-	$onDidChangeState(id: number, state: McpConnectionStatecognidreamognidream;
-		$onDidPublishLog(id: number, level: LogLevel, log: stringcognidreamognidream;
-			$onDidReceiveMessage(id: number, message: stringcognidreamognidream;
-				$upsertMcpCollection(collection: McpCollectionDefinition.FromExtHost, servers: Dto<McpServerDefinition>[]cognidreamognidream;
-					$deleteMcpCollection(collectionId: stringcognidreamognidream;
+	$onDidChangeState(id: number, state: McpConnectionState): void;
+	$onDidPublishLog(id: number, level: LogLevel, log: string): void;
+	$onDidReceiveMessage(id: number, message: string): void;
+	$upsertMcpCollection(collection: McpCollectionDefinition.FromExtHost, servers: Dto<McpServerDefinition>[]): void;
+	$deleteMcpCollection(collectionId: string): void;
 }
 
 export interface ExtHostLocalizationShape {
 	getMessage(extensionId: string, details: IStringDetails): string;
 	getBundle(extensionId: string): { [key: string]: string } | undefined;
 	getBundleUri(extensionId: string): URI | undefined;
-	initializeLocalizedMessages(extension: IExtensionDescription): Promicognidreamognidream>;
+	initializeLocalizedMessages(extension: IExtensionDescription): Promise<void>;
 }
 
 export interface IStringDetails {
@@ -3006,57 +3006,57 @@ export interface MainThreadTestingShape {
 	// --- test lifecycle:
 
 	/** Registers that there's a test controller with the given ID */
-	$registerTestController(controllerId: string, label: string, capability: TestControllerCapabilitycognidreamognidream;
-		/** Updates the label of an existing test controller. */
-		$updateController(controllerId: string, patch: ITestControllerPatchcognidreamognidream;
-			/** Diposes of the test controller with the given ID */
-			$unregisterTestController(controllerId: stringcognidreamognidream;
-				/** Requests tests published to VS Code. */
-				$subscribeToDiffs(cognidreamognidream;
-					/** Stops requesting tests published to VS Code. */
-					$unsubscribeFromDiffs(cognidreamognidream;
-						/** Publishes that new tests were available on the given source. */
-						$publishDiff(controllerId: string, diff: TestsDiffOp.Serialized[]cognidreamognidream;
-							/** Gets coverage details from a test result. */
-							$getCoverageDetails(resultId: string, taskIndex: number, uri: UriComponents, token: CancellationToken): Promise<CoverageDetails.Serialized[]>;
+	$registerTestController(controllerId: string, label: string, capability: TestControllerCapability): void;
+	/** Updates the label of an existing test controller. */
+	$updateController(controllerId: string, patch: ITestControllerPatch): void;
+	/** Diposes of the test controller with the given ID */
+	$unregisterTestController(controllerId: string): void;
+	/** Requests tests published to VS Code. */
+	$subscribeToDiffs(): void;
+	/** Stops requesting tests published to VS Code. */
+	$unsubscribeFromDiffs(): void;
+	/** Publishes that new tests were available on the given source. */
+	$publishDiff(controllerId: string, diff: TestsDiffOp.Serialized[]): void;
+	/** Gets coverage details from a test result. */
+	$getCoverageDetails(resultId: string, taskIndex: number, uri: UriComponents, token: CancellationToken): Promise<CoverageDetails.Serialized[]>;
 
 	// --- test run configurations:
 
 	/** Called when a new test run configuration is available */
-	$publishTestRunProfile(config: ITestRunProfilecognidreamognidream;
-		/** Updates an existing test run configuration */
-		$updateTestRunConfig(controllerId: string, configId: number, update: Partial<ITestRunProfile>cognidreamognidream;
-			/** Removes a previously-published test run config */
-			$removeTestProfile(controllerId: string, configId: numbercognidreamognidream;
+	$publishTestRunProfile(config: ITestRunProfile): void;
+	/** Updates an existing test run configuration */
+	$updateTestRunConfig(controllerId: string, configId: number, update: Partial<ITestRunProfile>): void;
+	/** Removes a previously-published test run config */
+	$removeTestProfile(controllerId: string, configId: number): void;
 
 
-				// --- test run handling:
+	// --- test run handling:
 
-				/** Request by an extension to run tests. */
-				$runTests(req: ResolvedTestRunRequest, token: CancellationToken): Promise<string>;
+	/** Request by an extension to run tests. */
+	$runTests(req: ResolvedTestRunRequest, token: CancellationToken): Promise<string>;
 	/**
 	 * Adds tests to the run. The tests are given in descending depth. The first
 	 * item will be a previously-known test, or a test root.
 	 */
-	$addTestsToRun(controllerId: string, runId: string, tests: ITestItem.Serialized[]cognidreamognidream;
-		/** Updates the state of a test run in the given run. */
-		$updateTestStateInRun(runId: string, taskId: string, testId: string, state: TestResultState, duration?: numbercognidreamognidream;
-			/** Appends a message to a test in the run. */
-			$appendTestMessagesInRun(runId: string, taskId: string, testId: string, messages: ITestMessage.Serialized[]cognidreamognidream;
-				/** Appends raw output to the test run.. */
-				$appendOutputToRun(runId: string, taskId: string, output: VSBuffer, location?: ILocationDto, testId?: stringcognidreamognidream;
-					/** Triggered when coverage is added to test results. */
-					$appendCoverage(runId: string, taskId: string, coverage: IFileCoverage.Serializedcognidreamognidream;
-						/** Signals a task in a test run started. */
-						$startedTestRunTask(runId: string, task: ITestRunTaskcognidreamognidream;
-							/** Signals a task in a test run ended. */
-							$finishedTestRunTask(runId: string, taskId: stringcognidreamognidream;
-								/** Start a new extension-provided test run. */
-								$startedExtensionTestRun(req: ExtensionRunTestsRequestcognidreamognidream;
-									/** Signals that an extension-provided test run finished. */
-									$finishedExtensionTestRun(runId: stringcognidreamognidream;
-										/** Marks a test (or controller) as retired in all results. */
-										$markTestRetired(testIds: string[] | undefinedcognidreamognidream;
+	$addTestsToRun(controllerId: string, runId: string, tests: ITestItem.Serialized[]): void;
+	/** Updates the state of a test run in the given run. */
+	$updateTestStateInRun(runId: string, taskId: string, testId: string, state: TestResultState, duration?: number): void;
+	/** Appends a message to a test in the run. */
+	$appendTestMessagesInRun(runId: string, taskId: string, testId: string, messages: ITestMessage.Serialized[]): void;
+	/** Appends raw output to the test run.. */
+	$appendOutputToRun(runId: string, taskId: string, output: VSBuffer, location?: ILocationDto, testId?: string): void;
+	/** Triggered when coverage is added to test results. */
+	$appendCoverage(runId: string, taskId: string, coverage: IFileCoverage.Serialized): void;
+	/** Signals a task in a test run started. */
+	$startedTestRunTask(runId: string, task: ITestRunTask): void;
+	/** Signals a task in a test run ended. */
+	$finishedTestRunTask(runId: string, taskId: string): void;
+	/** Start a new extension-provided test run. */
+	$startedExtensionTestRun(req: ExtensionRunTestsRequest): void;
+	/** Signals that an extension-provided test run finished. */
+	$finishedExtensionTestRun(runId: string): void;
+	/** Marks a test (or controller) as retired in all results. */
+	$markTestRetired(testIds: string[] | undefined): void;
 }
 
 export type ChatStatusItemDto = {
@@ -3067,8 +3067,8 @@ export type ChatStatusItemDto = {
 };
 
 export interface MainThreadChatStatusShape {
-	$setEntry(id: string, entry: ChatStatusItemDtocognidreamognidream;
-		$disposeEntry(id: stringcognidreamognidream;
+	$setEntry(id: string, entry: ChatStatusItemDto): void;
+	$disposeEntry(id: string): void;
 }
 
 // --- proxy identifiers

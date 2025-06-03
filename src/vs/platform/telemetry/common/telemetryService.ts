@@ -91,11 +91,11 @@ export class TelemetryService implements ITelemetryService {
 		}));
 	}
 
-	setExperimentProperty(name: string, value: string): cognidreamidream {
+	setExperimentProperty(name: string, value: string): void {
 		this._experimentProperties[name] = value;
 	}
 
-	private _updateTelemetryLevel(): cognidreamidream {
+	private _updateTelemetryLevel(): void {
 		let level = getTelemetryLevel(this._configurationService);
 		const collectableTelemetry = this._productService.enabledTelemetryLevels;
 		// Also ensure that error telemetry is respecting the product configuration for collectable telemetry
@@ -117,7 +117,7 @@ export class TelemetryService implements ITelemetryService {
 		return this._telemetryLevel;
 	}
 
-	dispose(): cognidreamidream {
+	dispose(): void {
 		this._disposables.dispose();
 	}
 

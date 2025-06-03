@@ -22,7 +22,7 @@ interface NlsMetadata {
 	bundles: { [bundle: string]: string[] };
 }
 
-function main(): Promise<cognidream> {
+function main(): Promise<void> {
 	return new Promise((c, e) => {
 		const combinedMetadataJson = es.merge(
 			// vscode: we are not using `out-build/nls.metadata.json` here because

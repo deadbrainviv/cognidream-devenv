@@ -56,7 +56,7 @@ export class TerminalClipboardContribution extends Disposable implements ITermin
 		super();
 	}
 
-	xtermReady(xterm: IXtermTerminal & { raw: RawXtermTerminal }): cognidream {
+	xtermReady(xterm: IXtermTerminal & { raw: RawXtermTerminal }): void {
 		this._xterm = xterm;
 		// TODO: This should be a different event on xterm, copying html should not share the requesting run command event
 		this._register(xterm.onDidRequestCopyAsHtml(e => this.copySelection(true, e.command)));
@@ -72,98 +72,98 @@ export class TerminalClipboardContribution extends Disposable implements ITermin
 		}));
 	}
 
-	async copySelection(asHtml?: boolean, command?: ITerminalCommand): Promicognidreamognidream> {
+	async copySelection(asHtml?: boolean, command?: ITerminalCommand): Promise<void> {
 		// TODO: Confirm this is fine that it's no longer awaiting xterm promise
 		this._xterm?.copySelection(asHtml, command);
 	}
 
-    /**
-     * Focuses and pastes the contents of the clipboard into the terminal instance.
-     */
-    async paste(): Promicognidreamognidream > {
-	await this._paste(await this._clipboardService.readText());
-}
-
-    /**
-     * Focuses and pastes the contents of the selection clipboard into the terminal instance.
-     */
-    async pasteSelection(): Promicognidreamognidream > {
-	await this._paste(await this._clipboardService.readText('selection'));
-}
-
-    private async _paste(value: string): Promicognidreamognidream > {
-	if(!this._xterm) {
-	return;
-}
-
-let currentText = value;
-const shouldPasteText = await this._instantiationService.invokeFunction(shouldPasteTerminalText, currentText, this._xterm?.raw.modes.bracketedPasteMode);
-if (!shouldPasteText) {
-	return;
-}
-
-if (typeof shouldPasteText === 'object') {
-	currentText = shouldPasteText.modifiedText;
-}
-
-this._ctx.instance.focus();
-
-this._onWillPaste.fire(currentText);
-this._xterm.raw.paste(currentText);
-this._onDidPaste.fire(currentText);
-    }
-
-    async handleMouseEvent(event: MouseEvent): Promise < { handled: boolean }cognidreamognidream > {
-	switch(event.button) {
-            case 1: { // Middle click
-		if (this._terminalConfigurationService.config.middleClickBehavior === 'paste') {
-			this.paste();
-			return { handled: true };
-		}
-		break;
+	/**
+	 * Focuses and pastes the contents of the clipboard into the terminal instance.
+	 */
+	async paste(): Promise<void> {
+		await this._paste(await this._clipboardService.readText());
 	}
-            case 2: { // Right click
-		// Ignore shift click as it forces the context menu
-		if (event.shiftKey) {
+
+	/**
+	 * Focuses and pastes the contents of the selection clipboard into the terminal instance.
+	 */
+	async pasteSelection(): Promise<void> {
+		await this._paste(await this._clipboardService.readText('selection'));
+	}
+
+	private async _paste(value: string): Promise<void> {
+		if (!this._xterm) {
 			return;
 		}
-		const rightClickBehavior = this._terminalConfigurationService.config.rightClickBehavior;
-		if (rightClickBehavior !== 'copyPaste' && rightClickBehavior !== 'paste') {
+
+		let currentText = value;
+		const shouldPasteText = await this._instantiationService.invokeFunction(shouldPasteTerminalText, currentText, this._xterm?.raw.modes.bracketedPasteMode);
+		if (!shouldPasteText) {
 			return;
 		}
-		if (rightClickBehavior === 'copyPaste' && this._ctx.instance.hasSelection()) {
-			await this.copySelection();
-			this._ctx.instance.clearSelection();
-		} else {
-			if (BrowserFeatures.clipboard.readText) {
-				this.paste();
-			} else {
-				this._notificationService.info(`This browser doesn't support the clipboard.readText API needed to trigger a paste, try ${isMacintosh ? '⌘' : 'Ctrl'}+V instead.`);
+
+		if (typeof shouldPasteText === 'object') {
+			currentText = shouldPasteText.modifiedText;
+		}
+
+		this._ctx.instance.focus();
+
+		this._onWillPaste.fire(currentText);
+		this._xterm.raw.paste(currentText);
+		this._onDidPaste.fire(currentText);
+	}
+
+	async handleMouseEvent(event: MouseEvent): Promise<{ handled: boolean } | void> {
+		switch (event.button) {
+			case 1: { // Middle click
+				if (this._terminalConfigurationService.config.middleClickBehavior === 'paste') {
+					this.paste();
+					return { handled: true };
+				}
+				break;
+			}
+			case 2: { // Right click
+				// Ignore shift click as it forces the context menu
+				if (event.shiftKey) {
+					return;
+				}
+				const rightClickBehavior = this._terminalConfigurationService.config.rightClickBehavior;
+				if (rightClickBehavior !== 'copyPaste' && rightClickBehavior !== 'paste') {
+					return;
+				}
+				if (rightClickBehavior === 'copyPaste' && this._ctx.instance.hasSelection()) {
+					await this.copySelection();
+					this._ctx.instance.clearSelection();
+				} else {
+					if (BrowserFeatures.clipboard.readText) {
+						this.paste();
+					} else {
+						this._notificationService.info(`This browser doesn't support the clipboard.readText API needed to trigger a paste, try ${isMacintosh ? '⌘' : 'Ctrl'}+V instead.`);
+					}
+				}
+				// Clear selection after all click event bubbling is finished on Mac to prevent
+				// right-click selecting a word which is seemed cannot be disabled. There is a
+				// flicker when pasting but this appears to give the best experience if the
+				// setting is enabled.
+				if (isMacintosh) {
+					setTimeout(() => this._ctx.instance.clearSelection(), 0);
+				}
+				return { handled: true };
 			}
 		}
-		// Clear selection after all click event bubbling is finished on Mac to prevent
-		// right-click selecting a word which is seemed cannot be disabled. There is a
-		// flicker when pasting but this appears to give the best experience if the
-		// setting is enabled.
-		if (isMacintosh) {
-			setTimeout(() => this._ctx.instance.clearSelection(), 0);
-		}
-		return { handled: true };
 	}
-}
-    }
 
-/**
- * Override the copy on selection feature with a custom value.
- * @param value Whether to enable copySelection.
- */
-overrideCopyOnSelection(value: boolean): IDisposable {
-	if (this._overrideCopySelection !== undefined) {
-		throw new Error('Cannot set a copy on selection override multiple times');
+	/**
+	 * Override the copy on selection feature with a custom value.
+	 * @param value Whether to enable copySelection.
+	 */
+	overrideCopyOnSelection(value: boolean): IDisposable {
+		if (this._overrideCopySelection !== undefined) {
+			throw new Error('Cannot set a copy on selection override multiple times');
+		}
+		this._overrideCopySelection = value;
+		return toDisposable(() => this._overrideCopySelection = undefined);
 	}
-	this._overrideCopySelection = value;
-	return toDisposable(() => this._overrideCopySelection = undefined);
-}
 }
 
 registerTerminalContribution(TerminalClipboardContribution.ID, TerminalClipboardContribution, false);

@@ -98,300 +98,300 @@ export class AIFolderMatchWorkspaceRootImpl extends Disposable implements ISearc
 	protected _onChange = this._register(new Emitter<IChangeEvent>());
 	readonly onChange: Event<IChangeEvent> = this._onChange.event;
 
-	private _onDispose = this._register(new Emitter<cognidream>());
-	readonly onDispose: Evecognidreamognidream> = this._onDispose.event;
-    private readonly _id: string;
-    private _name: Lazy<string>;
-    protected _unDisposedFileMatches: Map<string, ISearchTreeFileMatch>; // id to fileMatch
+	private _onDispose = this._register(new Emitter<void>());
+	readonly onDispose: Event<void> = this._onDispose.event;
+	private readonly _id: string;
+	private _name: Lazy<string>;
+	protected _unDisposedFileMatches: Map<string, ISearchTreeFileMatch>; // id to fileMatch
 
-    protected _fileMatches: Map<string, ISearchTreeFileMatch>; // id to fileMatch
+	protected _fileMatches: Map<string, ISearchTreeFileMatch>; // id to fileMatch
 
-constructor(private _resource: URI,
-	_id: string,
-	private _index: number,
-	private _query: IAITextQuery,
-	private _parent: ITextSearchHeading,
-	@IInstantiationService private instantiationService: IInstantiationService,
-	@ILabelService labelService: ILabelService,
-) {
-	super();
-	this._fileMatches = new Map<string, ISearchTreeFileMatch>();
+	constructor(private _resource: URI,
+		_id: string,
+		private _index: number,
+		private _query: IAITextQuery,
+		private _parent: ITextSearchHeading,
+		@IInstantiationService private instantiationService: IInstantiationService,
+		@ILabelService labelService: ILabelService,
+	) {
+		super();
+		this._fileMatches = new Map<string, ISearchTreeFileMatch>();
 
-	this._id = FOLDER_MATCH_PREFIX + _id;
-	this._name = new Lazy(() => this.resource ? labelService.getUriBasenameLabel(this.resource) : '');
-	this._unDisposedFileMatches = new Map<string, ISearchTreeFileMatch>();
-}
-    get resource(): URI {
-	return this._resource;
-}
-id(): string {
-	return this._id;
-}
+		this._id = FOLDER_MATCH_PREFIX + _id;
+		this._name = new Lazy(() => this.resource ? labelService.getUriBasenameLabel(this.resource) : '');
+		this._unDisposedFileMatches = new Map<string, ISearchTreeFileMatch>();
+	}
+	get resource(): URI {
+		return this._resource;
+	}
+	id(): string {
+		return this._id;
+	}
 
-index(): number {
-	return this._index;
-}
-name(): string {
-	return this._name.value;
-}
-count(): number {
-	return this._fileMatches.size;
-}
+	index(): number {
+		return this._index;
+	}
+	name(): string {
+		return this._name.value;
+	}
+	count(): number {
+		return this._fileMatches.size;
+	}
 
-doAddFile(fileMatch: ISearchTreeFileMatchcognidreamognidream {
-	this._fileMatches.set(fileMatch.id(), fileMatch);
-}
+	doAddFile(fileMatch: ISearchTreeFileMatch): void {
+		this._fileMatches.set(fileMatch.id(), fileMatch);
+	}
 
-    private latestRank = 0;
-createAndConfigureFileMatch(rawFileMatch: IFileMatch<URI>, searchInstanceID: string): FileMatchImpl {
+	private latestRank = 0;
+	createAndConfigureFileMatch(rawFileMatch: IFileMatch<URI>, searchInstanceID: string): FileMatchImpl {
 
-	const fileMatch =
-		this.instantiationService.createInstance(
-			AIFileMatch,
-			this._query.contentPattern,
-			this._query.previewOptions,
-			this._query.maxResults,
-			this,
-			rawFileMatch,
-			this,
-			rawFileMatch.resource.toString() + '_' + Date.now().toString(),
-			this.latestRank++,
-		);
-	fileMatch.createMatches();
-	this.doAddFile(fileMatch);
-	const disposable = fileMatch.onChange(({ didRemove }) => this.onFileChange(fileMatch, didRemove));
-	this._register(fileMatch.onDispose(() => disposable.dispose()));
-	return fileMatch;
-}
-
-isAIContributed(): boolean {
-	return true;
-}
-
-    private onFileChange(fileMatch: ISearchTreeFileMatch, removed = falsecognidreamognidream {
-	let added = false;
-	if(!this._fileMatches.has(fileMatch.id())) {
-	this.doAddFile(fileMatch);
-	added = true;
-}
-if (fileMatch.count() === 0) {
-	this.doRemoveFile([fileMatch], false, false);
-	added = false;
-	removed = true;
-}
-this._onChange.fire({ elements: [fileMatch], added: added, removed: removed });
-
-    }
-
-    get hasChildren(): boolean {
-	return this._fileMatches.size > 0;
-}
-
-parent(): ISearchTreeFolderMatch | ITextSearchHeading {
-	return this._parent;
-}
-matches(): (ISearchTreeFileMatch | ISearchTreeFolderMatchWithResource)[] {
-	return [...this._fileMatches.values()];
-}
-allDownstreamFileMatches(): ISearchTreeFileMatch[] {
-	return [...this._fileMatches.values()];
-}
-
-remove(matches: ISearchTreeFileMatch | ISearchTreeFolderMatchWithResource | (ISearchTreeFileMatch | ISearchTreeFolderMatchWithResource)[]cognidreamognidream {
-	if(!Array.isArray(matches)) {
-	matches = [matches];
-}
-const allMatches = getFileMatches(matches);
-this.doRemoveFile(allMatches);
-    }
-addFileMatch(raw: IFileMatch[], silent: boolean, searchInstanceID: stringcognidreamognidream {
-	// when adding a fileMatch that has intermediate directories
-	const added: ISearchTreeFileMatch[] = [];
-	const updated: ISearchTreeFileMatch[] = [];
-
-	raw.forEach(rawFileMatch => {
-		const fileMatch = this.createAndConfigureFileMatch(rawFileMatch, searchInstanceID);
-		added.push(fileMatch);
-	});
-
-	const elements = [...added, ...updated];
-	if(!silent && elements.length) {
-	this._onChange.fire({ elements, added: !!added.length });
-}
-    }
-isEmpty(): boolean {
-	return this.recursiveFileCount() === 0;
-}
-clear(clearingAll ?: booleancognidreamognidream {
-	const changed: ISearchTreeFileMatch[] = this.allDownstreamFileMatches();
-	this.disposeMatches();
-	this._onChange.fire({ elements: changed, removed: true, added: false, clearingAll });
-}
-
-    get showHighlights(): boolean {
-	return this._parent.showHighlights;
-}
-
-    get searchModel(): ISearchModel {
-	return this._searchResult.searchModel;
-}
-
-    get _searchResult(): ISearchResult {
-	return this._parent.parent();
-}
-
-    get query(): IAITextQuery | null {
-	return this._query;
-}
-    getDownstreamFileMatch(uri: URI): ISearchTreeFileMatch | null {
-	for(const fileMatch of this._fileMatches.values()) {
-	if (fileMatch.resource.toString() === uri.toString()) {
+		const fileMatch =
+			this.instantiationService.createInstance(
+				AIFileMatch,
+				this._query.contentPattern,
+				this._query.previewOptions,
+				this._query.maxResults,
+				this,
+				rawFileMatch,
+				this,
+				rawFileMatch.resource.toString() + '_' + Date.now().toString(),
+				this.latestRank++,
+			);
+		fileMatch.createMatches();
+		this.doAddFile(fileMatch);
+		const disposable = fileMatch.onChange(({ didRemove }) => this.onFileChange(fileMatch, didRemove));
+		this._register(fileMatch.onDispose(() => disposable.dispose()));
 		return fileMatch;
 	}
-}
-return null;
-    }
-replaceAll(): Promise < any > {
-	throw new Error('Cannot replace in AI search');
-}
-recursiveFileCount(): number {
-	return this._fileMatches.size;
-}
 
-doRemoveFile(fileMatches: ISearchTreeFileMatch[], dispose: boolean = true, trigger: boolean = true, keepReadonly = falsecognidreamognidream {
-
-	const removed = [];
-	for(const match of fileMatches as ISearchTreeFileMatch[]) {
-		if (this._fileMatches.get(match.id())) {
-			if (keepReadonly && match.hasReadonlyMatches()) {
-				continue;
-			}
-			this._fileMatches.delete(match.id());
-			if (dispose) {
-				match.dispose();
-			} else {
-				this._unDisposedFileMatches.set(match.id(), match);
-			}
-			removed.push(match);
-		}
+	isAIContributed(): boolean {
+		return true;
 	}
 
-        if(trigger) {
-		this._onChange.fire({ elements: removed, removed: true });
+	private onFileChange(fileMatch: ISearchTreeFileMatch, removed = false): void {
+		let added = false;
+		if (!this._fileMatches.has(fileMatch.id())) {
+			this.doAddFile(fileMatch);
+			added = true;
+		}
+		if (fileMatch.count() === 0) {
+			this.doRemoveFile([fileMatch], false, false);
+			added = false;
+			removed = true;
+		}
+		this._onChange.fire({ elements: [fileMatch], added: added, removed: removed });
+
 	}
-}
 
-    replace(match: ISearchTreeFileMatch): Promise < any > {
-	throw new Error('Cannot replace in AI search');
-}
-    replacingAll: boolean = false;
+	get hasChildren(): boolean {
+		return this._fileMatches.size > 0;
+	}
 
-bindModel(model: ITextModelcognidreamognidream {
-	// no op
-}
-    unbindNotebookEditorWidget(editor: NotebookEditorWidget, resource: URIcognidreamognidream {
-	//no op
-}
-    bindNotebookEditorWidget(editor: NotebookEditorWidget, resource: URI): Promicognidreamognidream > {
-	//no op
-	return Promise.resolve();
-}
+	parent(): ISearchTreeFolderMatch | ITextSearchHeading {
+		return this._parent;
+	}
+	matches(): (ISearchTreeFileMatch | ISearchTreeFolderMatchWithResource)[] {
+		return [...this._fileMatches.values()];
+	}
+	allDownstreamFileMatches(): ISearchTreeFileMatch[] {
+		return [...this._fileMatches.values()];
+	}
 
-    hasOnlyReadOnlyMatches(): boolean {
-	return Array.from(this._fileMatches.values()).every(fm => fm.hasOnlyReadOnlyMatches());
-}
-    fileMatchesIterator(): IterableIterator < ISearchTreeFileMatch > {
-	return this._fileMatches.values();
-}
-    folderMatchesIterator(): IterableIterator < ISearchTreeFolderMatchWithResource > {
-	return [].values();
-}
-    recursiveMatchCount(): number {
-	return this._fileMatches.size;
-}
-
-    private disposeMatches(cognidreamognidream {
-	[...this._fileMatches.values()].forEach((fileMatch: ISearchTreeFileMatch) => fileMatch.dispose());
-	[...this._unDisposedFileMatches.values()].forEach((fileMatch: ISearchTreeFileMatch) => fileMatch.dispose());
-	this._fileMatches.clear();
-}
-
-    override dispose(cognidreamognidream {
-	this.disposeMatches();
-	this._onDispose.fire();
-	super.dispose();
-}
-}
-
-	class AIFileMatch extends FileMatchImpl implements ISearchTreeAIFileMatch {
-		constructor(
-			_query: string,
-			_previewOptions: ITextSearchPreviewOptions | undefined,
-			_maxResults: number | undefined,
-			_parent: ISearchTreeFolderMatch,
-			rawMatch: IFileMatch,
-			_closestRoot: ISearchTreeFolderMatchWorkspaceRoot | null,
-			private readonly _id: string,
-			public readonly rank: number,
-			@IModelService modelService: IModelService,
-			@IReplaceService replaceService: IReplaceService,
-			@ILabelService labelService: ILabelService,
-		) {
-			super({ pattern: _query }, _previewOptions, _maxResults, _parent, rawMatch, _closestRoot, modelService, replaceService, labelService);
+	remove(matches: ISearchTreeFileMatch | ISearchTreeFolderMatchWithResource | (ISearchTreeFileMatch | ISearchTreeFolderMatchWithResource)[]): void {
+		if (!Array.isArray(matches)) {
+			matches = [matches];
 		}
+		const allMatches = getFileMatches(matches);
+		this.doRemoveFile(allMatches);
+	}
+	addFileMatch(raw: IFileMatch[], silent: boolean, searchInstanceID: string): void {
+		// when adding a fileMatch that has intermediate directories
+		const added: ISearchTreeFileMatch[] = [];
+		const updated: ISearchTreeFileMatch[] = [];
 
-		override id() {
-			return FILE_MATCH_PREFIX + this._id;
-		}
-		getFullRange(): Range | undefined {
-
-			let earliestStart: IPosition | undefined = undefined;
-			let latestEnd: IPosition | undefined = undefined;
-
-			for (const match of this.matches()) {
-				const matchStart = match.range().getStartPosition();
-				const matchEnd = match.range().getEndPosition();
-				if (earliestStart === undefined) {
-					earliestStart = matchStart;
-				} else if (matchStart.isBefore(earliestStart)) {
-					earliestStart = matchStart;
-				}
-
-				if (latestEnd === undefined) {
-					latestEnd = matchEnd;
-				} else if (!matchEnd.isBefore(latestEnd)) {
-					latestEnd = matchEnd;
-				}
-			}
-
-			if (earliestStart === undefined || latestEnd === undefined) {
-				return undefined;
-			}
-			return new Range(earliestStart.lineNumber, earliestStart.column, latestEnd.lineNumber, latestEnd.column);
-
-		}
-
-		private rangeAsString(): undefined | string {
-			const range = this.getFullRange();
-			if (!range) {
-				return undefined;
-			}
-			return range.startLineNumber + ':' + range.startColumn + '-' + range.endLineNumber + ':' + range.endColumn;
-		}
-
-		override name(): string {
-			const range = this.rangeAsString();
-			return super.name() + range ? ' ' + range : '';
-		}
-
-		override createMatches(cognidreamognidream {
-			if (this.rawMatch.results) {
-	this.rawMatch.results
-		.filter(resultIsMatch)
-		.forEach(rawMatch => {
-			textSearchResultToMatches(rawMatch, this, true)
-				.forEach(m => this.add(m));
+		raw.forEach(rawFileMatch => {
+			const fileMatch = this.createAndConfigureFileMatch(rawFileMatch, searchInstanceID);
+			added.push(fileMatch);
 		});
+
+		const elements = [...added, ...updated];
+		if (!silent && elements.length) {
+			this._onChange.fire({ elements, added: !!added.length });
+		}
+	}
+	isEmpty(): boolean {
+		return this.recursiveFileCount() === 0;
+	}
+	clear(clearingAll?: boolean): void {
+		const changed: ISearchTreeFileMatch[] = this.allDownstreamFileMatches();
+		this.disposeMatches();
+		this._onChange.fire({ elements: changed, removed: true, added: false, clearingAll });
+	}
+
+	get showHighlights(): boolean {
+		return this._parent.showHighlights;
+	}
+
+	get searchModel(): ISearchModel {
+		return this._searchResult.searchModel;
+	}
+
+	get _searchResult(): ISearchResult {
+		return this._parent.parent();
+	}
+
+	get query(): IAITextQuery | null {
+		return this._query;
+	}
+	getDownstreamFileMatch(uri: URI): ISearchTreeFileMatch | null {
+		for (const fileMatch of this._fileMatches.values()) {
+			if (fileMatch.resource.toString() === uri.toString()) {
+				return fileMatch;
+			}
+		}
+		return null;
+	}
+	replaceAll(): Promise<any> {
+		throw new Error('Cannot replace in AI search');
+	}
+	recursiveFileCount(): number {
+		return this._fileMatches.size;
+	}
+
+	doRemoveFile(fileMatches: ISearchTreeFileMatch[], dispose: boolean = true, trigger: boolean = true, keepReadonly = false): void {
+
+		const removed = [];
+		for (const match of fileMatches as ISearchTreeFileMatch[]) {
+			if (this._fileMatches.get(match.id())) {
+				if (keepReadonly && match.hasReadonlyMatches()) {
+					continue;
+				}
+				this._fileMatches.delete(match.id());
+				if (dispose) {
+					match.dispose();
+				} else {
+					this._unDisposedFileMatches.set(match.id(), match);
+				}
+				removed.push(match);
+			}
+		}
+
+		if (trigger) {
+			this._onChange.fire({ elements: removed, removed: true });
+		}
+	}
+
+	replace(match: ISearchTreeFileMatch): Promise<any> {
+		throw new Error('Cannot replace in AI search');
+	}
+	replacingAll: boolean = false;
+
+	bindModel(model: ITextModel): void {
+		// no op
+	}
+	unbindNotebookEditorWidget(editor: NotebookEditorWidget, resource: URI): void {
+		//no op
+	}
+	bindNotebookEditorWidget(editor: NotebookEditorWidget, resource: URI): Promise<void> {
+		//no op
+		return Promise.resolve();
+	}
+
+	hasOnlyReadOnlyMatches(): boolean {
+		return Array.from(this._fileMatches.values()).every(fm => fm.hasOnlyReadOnlyMatches());
+	}
+	fileMatchesIterator(): IterableIterator<ISearchTreeFileMatch> {
+		return this._fileMatches.values();
+	}
+	folderMatchesIterator(): IterableIterator<ISearchTreeFolderMatchWithResource> {
+		return [].values();
+	}
+	recursiveMatchCount(): number {
+		return this._fileMatches.size;
+	}
+
+	private disposeMatches(): void {
+		[...this._fileMatches.values()].forEach((fileMatch: ISearchTreeFileMatch) => fileMatch.dispose());
+		[...this._unDisposedFileMatches.values()].forEach((fileMatch: ISearchTreeFileMatch) => fileMatch.dispose());
+		this._fileMatches.clear();
+	}
+
+	override dispose(): void {
+		this.disposeMatches();
+		this._onDispose.fire();
+		super.dispose();
+	}
 }
-    }
+
+class AIFileMatch extends FileMatchImpl implements ISearchTreeAIFileMatch {
+	constructor(
+		_query: string,
+		_previewOptions: ITextSearchPreviewOptions | undefined,
+		_maxResults: number | undefined,
+		_parent: ISearchTreeFolderMatch,
+		rawMatch: IFileMatch,
+		_closestRoot: ISearchTreeFolderMatchWorkspaceRoot | null,
+		private readonly _id: string,
+		public readonly rank: number,
+		@IModelService modelService: IModelService,
+		@IReplaceService replaceService: IReplaceService,
+		@ILabelService labelService: ILabelService,
+	) {
+		super({ pattern: _query }, _previewOptions, _maxResults, _parent, rawMatch, _closestRoot, modelService, replaceService, labelService);
+	}
+
+	override id() {
+		return FILE_MATCH_PREFIX + this._id;
+	}
+	getFullRange(): Range | undefined {
+
+		let earliestStart: IPosition | undefined = undefined;
+		let latestEnd: IPosition | undefined = undefined;
+
+		for (const match of this.matches()) {
+			const matchStart = match.range().getStartPosition();
+			const matchEnd = match.range().getEndPosition();
+			if (earliestStart === undefined) {
+				earliestStart = matchStart;
+			} else if (matchStart.isBefore(earliestStart)) {
+				earliestStart = matchStart;
+			}
+
+			if (latestEnd === undefined) {
+				latestEnd = matchEnd;
+			} else if (!matchEnd.isBefore(latestEnd)) {
+				latestEnd = matchEnd;
+			}
+		}
+
+		if (earliestStart === undefined || latestEnd === undefined) {
+			return undefined;
+		}
+		return new Range(earliestStart.lineNumber, earliestStart.column, latestEnd.lineNumber, latestEnd.column);
+
+	}
+
+	private rangeAsString(): undefined | string {
+		const range = this.getFullRange();
+		if (!range) {
+			return undefined;
+		}
+		return range.startLineNumber + ':' + range.startColumn + '-' + range.endLineNumber + ':' + range.endColumn;
+	}
+
+	override name(): string {
+		const range = this.rangeAsString();
+		return super.name() + range ? ' ' + range : '';
+	}
+
+	override createMatches(): void {
+		if (this.rawMatch.results) {
+			this.rawMatch.results
+				.filter(resultIsMatch)
+				.forEach(rawMatch => {
+					textSearchResultToMatches(rawMatch, this, true)
+						.forEach(m => this.add(m));
+				});
+		}
+	}
 }

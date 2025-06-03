@@ -11,24 +11,24 @@ import { IThemeService } from '../../../platform/theme/common/themeService.js';
 @extHostNamedCustomer(MainContext.MainThreadTheming)
 export class MainThreadTheming implements MainThreadThemingShape {
 
-    private readonly _themeService: IThemeService;
-    private readonly _proxy: ExtHostThemingShape;
-    private readonly _themeChangeListener: IDisposable;
+	private readonly _themeService: IThemeService;
+	private readonly _proxy: ExtHostThemingShape;
+	private readonly _themeChangeListener: IDisposable;
 
-    constructor(
-        extHostContext: IExtHostContext,
-        @IThemeService themeService: IThemeService
-    ) {
-        this._themeService = themeService;
-        this._proxy = extHostContext.getProxy(ExtHostContext.ExtHostTheming);
+	constructor(
+		extHostContext: IExtHostContext,
+		@IThemeService themeService: IThemeService
+	) {
+		this._themeService = themeService;
+		this._proxy = extHostContext.getProxy(ExtHostContext.ExtHostTheming);
 
-        this._themeChangeListener = this._themeService.onDidColorThemeChange(e => {
-            this._proxy.$onColorThemeChange(this._themeService.getColorTheme().type);
-        });
-        this._proxy.$onColorThemeChange(this._themeService.getColorTheme().type);
-    }
+		this._themeChangeListener = this._themeService.onDidColorThemeChange(e => {
+			this._proxy.$onColorThemeChange(this._themeService.getColorTheme().type);
+		});
+		this._proxy.$onColorThemeChange(this._themeService.getColorTheme().type);
+	}
 
-    dispose(): cognidream {
-        this._themeChangeListener.dispose();
-    }
+	dispose(): void {
+		this._themeChangeListener.dispose();
+	}
 }

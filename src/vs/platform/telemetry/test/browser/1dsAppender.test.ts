@@ -18,7 +18,7 @@ class AppInsightsCoreMock implements IAppInsightsCore {
 		this.events.push(event.baseData);
 	}
 
-	public unload(isAsync: boolean, unloadComplete: (unloadState: ITelemetryUnloadState) => cognidreamidrcognidream: cognidream {
+	public unload(isAsync: boolean, unloadComplete: (unloadState: ITelemetryUnloadState) => void): void {
 		// No-op
 	}
 }

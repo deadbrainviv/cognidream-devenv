@@ -12,8 +12,8 @@ import { createDecorator } from '../../../../platform/instantiation/common/insta
 import { IStorageService, StorageScope, StorageTarget } from '../../../../platform/storage/common/storage.js';
 import { IMetricsService } from './metricsService.js';
 import { defaultProviderSettings, getModelCapabilities, ModelOverrides } from './modelCapabilities.js';
-import { cognidream_SETTINGS_STORAGE_KEY } from './storageKeys.js';
-import { defaultSettingsOfProvider, FeatureName, ProviderName, ModelSelectionOfFeature, SettingsOfProvider, SettingName, providerNames, ModelSelection, modelSelectionsEqual, featureNames, cognidreamidreamStatefulModelInfo, GlobalSettings, GlobalSettingName, defaultGlobalSettings, ModelSelectionOptions, OptionsOfModelSelection, ChatMode, OverridesOfModel, defaultOverridesOfModel } frcognidream./ cognidreamSettingsTypes.js';
+import { VOID_SETTINGS_STORAGE_KEY } from './storageKeys.js';
+import { defaultSettingsOfProvider, FeatureName, ProviderName, ModelSelectionOfFeature, SettingsOfProvider, SettingName, providerNames, ModelSelection, modelSelectionsEqual, featureNames, VoidStatefulModelInfo, GlobalSettings, GlobalSettingName, defaultGlobalSettings, ModelSelectionOptions, OptionsOfModelSelection, ChatMode, OverridesOfModel, defaultOverridesOfModel, MCPUserStateOfName as MCPUserStateOfName, MCPUserState } from './voidSettingsTypes.js';
 
 
 // name is the name in the dropdown
@@ -25,63 +25,69 @@ type SetSettingOfProviderFn = <S extends SettingName>(
 	providerName: ProviderName,
 	settingName: S,
 	newVal: SettingsOfProvider[ProviderName][S extends keyof SettingsOfProvider[ProviderName] ? S : never],
-) => Promise<cognidreamidream>;
+) => Promise<void>;
 
 type SetModelSelectionOfFeatureFn = <K extends FeatureName>(
 	featureName: K,
 	newVal: ModelSelectionOfFeature[K],
-) => Promise<cognidreamidream>;
+) => Promise<void>;
 
-type SetGlobalSettingFn = <T extends GlobalSettingName>(settingName: T, newVal: GlobalSettings[T]) => cognidreamidream;
+type SetGlobalSettingFn = <T extends GlobalSettingName>(settingName: T, newVal: GlobalSettings[T]) => void;
 
-type SetOptionsOfModelSelection = (featureName: FeatureName, providerName: ProviderName, modelName: string, newVal: Partial<ModelSelectionOptions>) => cognidreamidream
+type SetOptionsOfModelSelection = (featureName: FeatureName, providerName: ProviderName, modelName: string, newVal: Partial<ModelSelectionOptions>) => void
 
 
-export type cognidreamidreamSettingsState = {
+export type VoidSettingsState = {
 	readonly settingsOfProvider: SettingsOfProvider; // optionsOfProvider
 	readonly modelSelectionOfFeature: ModelSelectionOfFeature; // stateOfFeature
 	readonly optionsOfModelSelection: OptionsOfModelSelection;
 	readonly overridesOfModel: OverridesOfModel;
 	readonly globalSettings: GlobalSettings;
+	readonly mcpUserStateOfName: MCPUserStateOfName; // user-controlled state of MCP servers
 
 	readonly _modelOptions: ModelOption[] // computed based on the two above items
 }
 
-// type RealcognidreamidreamSettings = Exclude<cognidreamf cognidreamSettingsState, '_modelOptions'>
-// type EventProp<T extends RealcognidreamidreamSettings cognidreamalcognidreamSettings> = T extends 'globalSettings' cognidream, keyof cognidreamSettingsState[T]] : T | 'all'
+// type RealVoidSettings = Exclude<keyof VoidSettingsState, '_modelOptions'>
+// type EventProp<T extends RealVoidSettings = RealVoidSettings> = T extends 'globalSettings' ? [T, keyof VoidSettingsState[T]] : T | 'all'
 
 
-export interface IcognidreamidreamSettingsService {
+export interface IVoidSettingsService {
 	readonly _serviceBrand: undefined;
-	readonly statcognidreamognidreamSettingsState; // in order to play nicely with react, you should immutably change state
-	readonly waitForInitState: Promicognidreamognidream>;
+	readonly state: VoidSettingsState; // in order to play nicely with react, you should immutably change state
+	readonly waitForInitState: Promise<void>;
 
-onDidChangeState: Evecognidreamognidream >;
+	onDidChangeState: Event<void>;
 
-setSettingOfProvider: SetSettingOfProviderFn;
-setModelSelectionOfFeature: SetModelSelectionOfFeatureFn;
-setOptionsOfModelSelection: SetOptionsOfModelSelection;
-setGlobalSetting: SetGlobalSettingFn;
+	setSettingOfProvider: SetSettingOfProviderFn;
+	setModelSelectionOfFeature: SetModelSelectionOfFeatureFn;
+	setOptionsOfModelSelection: SetOptionsOfModelSelection;
+	setGlobalSetting: SetGlobalSettingFn;
+	// setMCPServerStates: (newStates: MCPServerStates) => Promise<void>;
 
-// setting to undefined CLEARS it, unlike others:
-setOverridesOfModel(providerName: ProviderName, modelName: string, overrides: Partial<ModelOverrides> | undefined): Promicognidreamognidream >;
+	// setting to undefined CLEARS it, unlike others:
+	setOverridesOfModel(providerName: ProviderName, modelName: string, overrides: Partial<ModelOverrides> | undefined): Promise<void>;
 
-dangerousSetState(newStatcognidreamognidreamSettingsState): cognidreammise<cognidream>;
-resetState(): Promicognidreamognidream >;
+	dangerousSetState(newState: VoidSettingsState): Promise<void>;
+	resetState(): Promise<void>;
 
-setAutodetectedModels(providerName: ProviderName, modelNames: string[], logging: objectcognidreamognidream;
-toggleModelHidden(providerName: ProviderName, modelName: stringcognidreamognidream;
-addModel(providerName: ProviderName, modelName: stringcognidreamognidream;
-deleteModel(providerName: ProviderName, modelName: string): boolean;
+	setAutodetectedModels(providerName: ProviderName, modelNames: string[], logging: object): void;
+	toggleModelHidden(providerName: ProviderName, modelName: string): void;
+	addModel(providerName: ProviderName, modelName: string): void;
+	deleteModel(providerName: ProviderName, modelName: string): boolean;
+
+	addMCPUserStateOfNames(userStateOfName: MCPUserStateOfName): Promise<void>;
+	removeMCPUserStateOfNames(serverNames: string[]): Promise<void>;
+	setMCPServerState(serverName: string, state: MCPUserState): Promise<void>;
 }
 
 
 
 
-const _modelsWithSwappedInNewModels = (options: { existingModels: cognidreamidreamStatefulModelInfo[], models: string[], type: 'autodetected' | 'default' }) => {
+const _modelsWithSwappedInNewModels = (options: { existingModels: VoidStatefulModelInfo[], models: string[], type: 'autodetected' | 'default' }) => {
 	const { existingModels, models, type } = options
 
-	const existingModelsMap: Record<strincognidreamognidreamStatefulModelInfo> = {}
+	const existingModelsMap: Record<string, VoidStatefulModelInfo> = {}
 	for (const existingModel of existingModels) {
 		existingModelsMap[existingModel.modelName] = existingModel
 	}
@@ -113,7 +119,7 @@ export const modelFilterOfFeatureName: {
 }
 
 
-const _stateWithMergedDefaultModels = (state: cognidreamidreamSettingsStcognidream: cognidreamSettingsState => {
+const _stateWithMergedDefaultModels = (state: VoidSettingsState): VoidSettingsState => {
 	let newSettingsOfProvider = state.settingsOfProvider
 
 	// recompute default models
@@ -136,68 +142,68 @@ const _stateWithMergedDefaultModels = (state: cognidreamidreamSettingsStcognidre
 	}
 }
 
-const _validatedModelState = (state: Omit<cognidreamidreamSettingsState, '_modelOptioncognidream: cognidreamSettingsState => {
+const _validatedModelState = (state: Omit<VoidSettingsState, '_modelOptions'>): VoidSettingsState => {
 
-    let newSettingsOfProvider = state.settingsOfProvider
+	let newSettingsOfProvider = state.settingsOfProvider
 
-    // recompute _didFillInProviderSettings
-    for (const providerName of providerNames) {
-	const settingsAtProvider = newSettingsOfProvider[providerName]
+	// recompute _didFillInProviderSettings
+	for (const providerName of providerNames) {
+		const settingsAtProvider = newSettingsOfProvider[providerName]
 
-	const didFillInProviderSettings = Object.keys(defaultProviderSettings[providerName]).every(key => !!settingsAtProvider[key as keyof typeof settingsAtProvider])
+		const didFillInProviderSettings = Object.keys(defaultProviderSettings[providerName]).every(key => !!settingsAtProvider[key as keyof typeof settingsAtProvider])
 
-	if (didFillInProviderSettings === settingsAtProvider._didFillInProviderSettings) continue
+		if (didFillInProviderSettings === settingsAtProvider._didFillInProviderSettings) continue
 
-	newSettingsOfProvider = {
-		...newSettingsOfProvider,
-		[providerName]: {
-			...settingsAtProvider,
-			_didFillInProviderSettings: didFillInProviderSettings,
-		},
+		newSettingsOfProvider = {
+			...newSettingsOfProvider,
+			[providerName]: {
+				...settingsAtProvider,
+				_didFillInProviderSettings: didFillInProviderSettings,
+			},
+		}
 	}
-}
 
-// update model options
-let newModelOptions: ModelOption[] = []
-for (const providerName of providerNames) {
-	const providerTitle = providerName // displayInfoOfProviderName(providerName).title.toLowerCase() // looks better lowercase, best practice to not use raw providerName
-	if (!newSettingsOfProvider[providerName]._didFillInProviderSettings) continue // if disabled, don't display model options
-	for (const { modelName, isHidden } of newSettingsOfProvider[providerName].models) {
-		if (isHidden) continue
-		newModelOptions.push({ name: `${modelName} (${providerTitle})`, selection: { providerName, modelName } })
+	// update model options
+	let newModelOptions: ModelOption[] = []
+	for (const providerName of providerNames) {
+		const providerTitle = providerName // displayInfoOfProviderName(providerName).title.toLowerCase() // looks better lowercase, best practice to not use raw providerName
+		if (!newSettingsOfProvider[providerName]._didFillInProviderSettings) continue // if disabled, don't display model options
+		for (const { modelName, isHidden } of newSettingsOfProvider[providerName].models) {
+			if (isHidden) continue
+			newModelOptions.push({ name: `${modelName} (${providerTitle})`, selection: { providerName, modelName } })
+		}
 	}
-}
 
-// now that model options are updated, make sure the selection is valid
-// if the user-selected model is no longer in the list, update the selection for each feature that needs it to something relevant (the 0th model available, or null)
-let newModelSelectionOfFeature = state.modelSelectionOfFeature
-for (const featureName of featureNames) {
+	// now that model options are updated, make sure the selection is valid
+	// if the user-selected model is no longer in the list, update the selection for each feature that needs it to something relevant (the 0th model available, or null)
+	let newModelSelectionOfFeature = state.modelSelectionOfFeature
+	for (const featureName of featureNames) {
 
-	const { filter } = modelFilterOfFeatureName[featureName]
-	const filterOpts = { chatMode: state.globalSettings.chatMode, overridesOfModel: state.overridesOfModel }
-	const modelOptionsForThisFeature = newModelOptions.filter((o) => filter(o.selection, filterOpts))
+		const { filter } = modelFilterOfFeatureName[featureName]
+		const filterOpts = { chatMode: state.globalSettings.chatMode, overridesOfModel: state.overridesOfModel }
+		const modelOptionsForThisFeature = newModelOptions.filter((o) => filter(o.selection, filterOpts))
 
-	const modelSelectionAtFeature = newModelSelectionOfFeature[featureName]
-	const selnIdx = modelSelectionAtFeature === null ? -1 : modelOptionsForThisFeature.findIndex(m => modelSelectionsEqual(m.selection, modelSelectionAtFeature))
+		const modelSelectionAtFeature = newModelSelectionOfFeature[featureName]
+		const selnIdx = modelSelectionAtFeature === null ? -1 : modelOptionsForThisFeature.findIndex(m => modelSelectionsEqual(m.selection, modelSelectionAtFeature))
 
-	if (selnIdx !== -1) continue // no longer in list, so update to 1st in list or null
+		if (selnIdx !== -1) continue // no longer in list, so update to 1st in list or null
 
-	newModelSelectionOfFeature = {
-		...newModelSelectionOfFeature,
-		[featureName]: modelOptionsForThisFeature.length === 0 ? null : modelOptionsForThisFeature[0].selection
+		newModelSelectionOfFeature = {
+			...newModelSelectionOfFeature,
+			[featureName]: modelOptionsForThisFeature.length === 0 ? null : modelOptionsForThisFeature[0].selection
+		}
 	}
-}
 
 
-const newState = {
-	...state,
-	settingsOfProvider: newSettingsOfProvider,
-	modelSelectionOfFeature: newModelSelectionOfFeature,
-	overridesOfModel: state.overridesOfModel,
-	_modelOptions: newModelOptions,
-} satisficognidreamognidreamSettingsState
+	const newState = {
+		...state,
+		settingsOfProvider: newSettingsOfProvider,
+		modelSelectionOfFeature: newModelSelectionOfFeature,
+		overridesOfModel: state.overridesOfModel,
+		_modelOptions: newModelOptions,
+	} satisfies VoidSettingsState
 
-return newState
+	return newState
 }
 
 
@@ -205,29 +211,30 @@ return newState
 
 
 const defaultState = () => {
-	const cognidreamognidreamSettingsState = {
+	const d: VoidSettingsState = {
 		settingsOfProvider: deepClone(defaultSettingsOfProvider),
 		modelSelectionOfFeature: { 'Chat': null, 'Ctrl+K': null, 'Autocomplete': null, 'Apply': null },
 		globalSettings: deepClone(defaultGlobalSettings),
 		optionsOfModelSelection: { 'Chat': {}, 'Ctrl+K': {}, 'Autocomplete': {}, 'Apply': {} },
 		overridesOfModel: deepClone(defaultOverridesOfModel),
 		_modelOptions: [], // computed later
+		mcpUserStateOfName: {},
 	}
 	return d
 }
 
 
-export const IcognidreamidreamSettingsService = createDecorcognidream<IcognidreamSettincognidreamrvice>('cognidreamSettingsService');
-class cognidreamidreamSettingsService extends Disposable implemcognidream IcognidreamSettingsService {
+export const IVoidSettingsService = createDecorator<IVoidSettingsService>('VoidSettingsService');
+class VoidSettingsService extends Disposable implements IVoidSettingsService {
 	_serviceBrand: undefined;
 
-	private readonly _onDidChangeState = new Emittcognidreamognidream > ();
-	readonly onDidChangeState: Evecognidreamognidream> = this._onDidChangeState.event; // this is primarily for use in react, so react can listen + update on state changes
+	private readonly _onDidChangeState = new Emitter<void>();
+	readonly onDidChangeState: Event<void> = this._onDidChangeState.event; // this is primarily for use in react, so react can listen + update on state changes
 
-statcognidreamognidreamSettingsState;
+	state: VoidSettingsState;
 
-    private readonly _resolver: () cognidreamognidream
-waitForInitState: Promicognidreamognidream > // await this if you need a valid state initially
+	private readonly _resolver: () => void
+	waitForInitState: Promise<void> // await this if you need a valid state initially
 
 	constructor(
 		@IStorageService private readonly _storageService: IStorageService,
@@ -236,302 +243,355 @@ waitForInitState: Promicognidreamognidream > // await this if you need a valid s
 		// could have used this, but it's clearer the way it is (+ slightly different eg StorageTarget.USER)
 		// @ISecretStorageService private readonly _secretStorageService: ISecretStorageService,
 	) {
-	super()
+		super()
 
-	// at the start, we haven't read the partial config yet, but we need to set state to something
-	this.state = defaultState()
-	let resolver: cognidream> cognidream = () => { }
-	this.waitForInitState = new Promise((res, rej) => resolver = res)
-	this._resolver = resolver
+		// at the start, we haven't read the partial config yet, but we need to set state to something
+		this.state = defaultState()
+		let resolver: () => void = () => { }
+		this.waitForInitState = new Promise((res, rej) => resolver = res)
+		this._resolver = resolver
 
-	this.readAndInitializeState()
-}
-
-
-
-
-dangerousSetState = async (newStatcognidreamognidreamSettingsState) => {
-	this.state = _validatedModelState(newState)
-	await this._storeState()
-	this._onDidChangeState.fire()
-	this._onUpdate_syncApplyToChat()
-}
-    async resetState() {
-	await this.dangerousSetState(defaultState())
-}
-
-
-
-
-    async readAndInitializeState() {
-	let rcognidream: cognidreamSettingsState
-	try {
-		readS = await this._readState();
-		// 1.0.3 addition, remove when enough users have had this code run
-		if (readS.globalSettings.includeToolLintErrors === undefined) readS.globalSettings.includeToolLintErrors = true
-
-		// autoapprove is now an obj not a boolean (1.2.5)
-		if (typeof readS.globalSettings.autoApprove === 'boolean') readS.globalSettings.autoApprove = {}
-	}
-	catch (e) {
-		readS = defaultState()
+		this.readAndInitializeState()
 	}
 
-	// the stored data structure might be outdated, so we need to update it here
-	try {
-		readS = {
-			...defaultState(),
-			...readS,
-			// no idea why this was here, seems like a bug
-			// ...defaultSettingsOfProvider,
-			// ...readS.settingsOfProvider,
+
+
+
+	dangerousSetState = async (newState: VoidSettingsState) => {
+		this.state = _validatedModelState(newState)
+		await this._storeState()
+		this._onDidChangeState.fire()
+		this._onUpdate_syncApplyToChat()
+	}
+	async resetState() {
+		await this.dangerousSetState(defaultState())
+	}
+
+
+
+
+	async readAndInitializeState() {
+		let readS: VoidSettingsState
+		try {
+			readS = await this._readState();
+			// 1.0.3 addition, remove when enough users have had this code run
+			if (readS.globalSettings.includeToolLintErrors === undefined) readS.globalSettings.includeToolLintErrors = true
+
+			// autoapprove is now an obj not a boolean (1.2.5)
+			if (typeof readS.globalSettings.autoApprove === 'boolean') readS.globalSettings.autoApprove = {}
+
+			if (readS.globalSettings.disableSystemMessage === undefined) readS.globalSettings.disableSystemMessage = false;
+		}
+		catch (e) {
+			readS = defaultState()
 		}
 
-		for (const providerName of providerNames) {
-			readS.settingsOfProvider[providerName] = {
-				...defaultSettingsOfProvider[providerName],
-				...readS.settingsOfProvider[providerName],
-			} as any
+		// the stored data structure might be outdated, so we need to update it here
+		try {
+			readS = {
+				...defaultState(),
+				...readS,
+				// no idea why this was here, seems like a bug
+				// ...defaultSettingsOfProvider,
+				// ...readS.settingsOfProvider,
+			}
 
-			// conversion from 1.0.3 to 1.2.5 (can remove this when enough people update)
-			for (const m of readS.settingsOfProvider[providerName].models) {
-				if (!m.type) {
-					const old = (m as { isAutodetected?: boolean; isDefault?: boolean })
-					if (old.isAutodetected)
-						m.type = 'autodetected'
-					else if (old.isDefault)
-						m.type = 'default'
-					else m.type = 'custom'
+			for (const providerName of providerNames) {
+				readS.settingsOfProvider[providerName] = {
+					...defaultSettingsOfProvider[providerName],
+					...readS.settingsOfProvider[providerName],
+				} as any
+
+				// conversion from 1.0.3 to 1.2.5 (can remove this when enough people update)
+				for (const m of readS.settingsOfProvider[providerName].models) {
+					if (!m.type) {
+						const old = (m as { isAutodetected?: boolean; isDefault?: boolean })
+						if (old.isAutodetected)
+							m.type = 'autodetected'
+						else if (old.isDefault)
+							m.type = 'default'
+						else m.type = 'custom'
+					}
+				}
+
+				// remove when enough people have had it run (default is now {})
+				if (providerName === 'openAICompatible' && !readS.settingsOfProvider[providerName].headersJSON) {
+					readS.settingsOfProvider[providerName].headersJSON = '{}'
 				}
 			}
+		}
 
-			// remove when enough people have had it run (default is now {})
-			if (providerName === 'openAICompatible' && !readS.settingsOfProvider[providerName].headersJSON) {
-				readS.settingsOfProvider[providerName].headersJSON = '{}'
+		catch (e) {
+			readS = defaultState()
+		}
+
+		this.state = readS
+		this.state = _stateWithMergedDefaultModels(this.state)
+		this.state = _validatedModelState(this.state);
+
+
+		this._resolver();
+		this._onDidChangeState.fire();
+
+	}
+
+
+	private async _readState(): Promise<VoidSettingsState> {
+		const encryptedState = this._storageService.get(VOID_SETTINGS_STORAGE_KEY, StorageScope.APPLICATION)
+
+		if (!encryptedState)
+			return defaultState()
+
+		const stateStr = await this._encryptionService.decrypt(encryptedState)
+		const state = JSON.parse(stateStr)
+		return state
+	}
+
+
+	private async _storeState() {
+		const state = this.state
+		const encryptedState = await this._encryptionService.encrypt(JSON.stringify(state))
+		this._storageService.store(VOID_SETTINGS_STORAGE_KEY, encryptedState, StorageScope.APPLICATION, StorageTarget.USER);
+	}
+
+	setSettingOfProvider: SetSettingOfProviderFn = async (providerName, settingName, newVal) => {
+
+		const newModelSelectionOfFeature = this.state.modelSelectionOfFeature
+
+		const newOptionsOfModelSelection = this.state.optionsOfModelSelection
+
+		const newSettingsOfProvider: SettingsOfProvider = {
+			...this.state.settingsOfProvider,
+			[providerName]: {
+				...this.state.settingsOfProvider[providerName],
+				[settingName]: newVal,
 			}
 		}
-	}
 
-	catch (e) {
-		readS = defaultState()
-	}
+		const newGlobalSettings = this.state.globalSettings
+		const newOverridesOfModel = this.state.overridesOfModel
+		const newMCPUserStateOfName = this.state.mcpUserStateOfName
 
-	this.state = readS
-	this.state = _stateWithMergedDefaultModels(this.state)
-	this.state = _validatedModelState(this.state);
-
-
-	this._resolver();
-	this._onDidChangeState.fire();
-
-}
-
-
-    private async _readState(): PromicognidreamognidreamSettingsState > {
-	const encryptedState = this._storageServiccognidreamt(cognidream_SETTINGS_STORAGE_KEY, StorageScope.APPLICATION)
-
-        if(!encryptedState)
-            return defaultState()
-
-        const stateStr = await this._encryptionService.decrypt(encryptedState)
-        const state = JSON.parse(stateStr)
-        return state
-}
-
-
-    private async _storeState() {
-	const state = this.state
-	const encryptedState = await this._encryptionService.encrypt(JSON.stringify(state))
-	this._storageService.cognidreame(cognidream_SETTINGS_STORAGE_KEY, encryptedState, StorageScope.APPLICATION, StorageTarget.USER);
-}
-
-setSettingOfProvider: SetSettingOfProviderFn = async (providerName, settingName, newVal) => {
-
-	const newModelSelectionOfFeature = this.state.modelSelectionOfFeature
-
-	const newOptionsOfModelSelection = this.state.optionsOfModelSelection
-
-	const newSettingsOfProvider: SettingsOfProvider = {
-		...this.state.settingsOfProvider,
-		[providerName]: {
-			...this.state.settingsOfProvider[providerName],
-			[settingName]: newVal,
+		const newState = {
+			modelSelectionOfFeature: newModelSelectionOfFeature,
+			optionsOfModelSelection: newOptionsOfModelSelection,
+			settingsOfProvider: newSettingsOfProvider,
+			globalSettings: newGlobalSettings,
+			overridesOfModel: newOverridesOfModel,
+			mcpUserStateOfName: newMCPUserStateOfName,
 		}
+
+		this.state = _validatedModelState(newState)
+
+		await this._storeState()
+		this._onDidChangeState.fire()
+
 	}
 
-	const newGlobalSettings = this.state.globalSettings
-	const newOverridesOfModel = this.state.overridesOfModel
 
-	const newState = {
-		modelSelectionOfFeature: newModelSelectionOfFeature,
-		optionsOfModelSelection: newOptionsOfModelSelection,
-		settingsOfProvider: newSettingsOfProvider,
-		globalSettings: newGlobalSettings,
-		overridesOfModel: newOverridesOfModel,
+	private _onUpdate_syncApplyToChat() {
+		// if sync is turned on, sync (call this whenever Chat model or !!sync changes)
+		this.setModelSelectionOfFeature('Apply', deepClone(this.state.modelSelectionOfFeature['Chat']))
+
 	}
 
-	this.state = _validatedModelState(newState)
-
-	await this._storeState()
-	this._onDidChangeState.fire()
-
-}
-
-
-    private _onUpdate_syncApplyToChat() {
-	// if sync is turned on, sync (call this whenever Chat model or !!sync changes)
-	this.setModelSelectionOfFeature('Apply', deepClone(this.state.modelSelectionOfFeature['Chat']))
-
-}
-
-setGlobalSetting: SetGlobalSettingFn = async (settingName, newVal) => {
-	const newScognidream: cognidreamSettingsState = {
-		...this.state,
-		globalSettings: {
-			...this.state.globalSettings,
-			[settingName]: newVal
+	setGlobalSetting: SetGlobalSettingFn = async (settingName, newVal) => {
+		const newState: VoidSettingsState = {
+			...this.state,
+			globalSettings: {
+				...this.state.globalSettings,
+				[settingName]: newVal
+			}
 		}
-	}
-	this.state = _validatedModelState(newState)
-	await this._storeState()
-	this._onDidChangeState.fire()
+		this.state = _validatedModelState(newState)
+		await this._storeState()
+		this._onDidChangeState.fire()
 
-	// hooks
-	if (this.state.globalSettings.syncApplyToChat) this._onUpdate_syncApplyToChat()
-}
-
-
-setModelSelectionOfFeature: SetModelSelectionOfFeatureFn = async (featureName, newVal) => {
-	const newScognidream: cognidreamSettingsState = {
-		...this.state,
-		modelSelectionOfFeature: {
-			...this.state.modelSelectionOfFeature,
-			[featureName]: newVal
-		}
-	}
-
-	this.state = _validatedModelState(newState)
-
-	await this._storeState()
-	this._onDidChangeState.fire()
-
-	// hooks
-	if (featureName === 'Chat') {
+		// hooks
 		if (this.state.globalSettings.syncApplyToChat) this._onUpdate_syncApplyToChat()
 	}
-}
 
 
-setOptionsOfModelSelection = async (featureName: FeatureName, providerName: ProviderName, modelName: string, newVal: Partial<ModelSelectionOptions>) => {
-	const newScognidream: cognidreamSettingsState = {
-		...this.state,
-		optionsOfModelSelection: {
-			...this.state.optionsOfModelSelection,
-			[featureName]: {
-				...this.state.optionsOfModelSelection[featureName],
-				[providerName]: {
-					...this.state.optionsOfModelSelection[featureName][providerName],
-					[modelName]: {
-						...this.state.optionsOfModelSelection[featureName][providerName]?.[modelName],
-						...newVal
+	setModelSelectionOfFeature: SetModelSelectionOfFeatureFn = async (featureName, newVal) => {
+		const newState: VoidSettingsState = {
+			...this.state,
+			modelSelectionOfFeature: {
+				...this.state.modelSelectionOfFeature,
+				[featureName]: newVal
+			}
+		}
+
+		this.state = _validatedModelState(newState)
+
+		await this._storeState()
+		this._onDidChangeState.fire()
+
+		// hooks
+		if (featureName === 'Chat') {
+			if (this.state.globalSettings.syncApplyToChat) this._onUpdate_syncApplyToChat()
+		}
+	}
+
+
+	setOptionsOfModelSelection = async (featureName: FeatureName, providerName: ProviderName, modelName: string, newVal: Partial<ModelSelectionOptions>) => {
+		const newState: VoidSettingsState = {
+			...this.state,
+			optionsOfModelSelection: {
+				...this.state.optionsOfModelSelection,
+				[featureName]: {
+					...this.state.optionsOfModelSelection[featureName],
+					[providerName]: {
+						...this.state.optionsOfModelSelection[featureName][providerName],
+						[modelName]: {
+							...this.state.optionsOfModelSelection[featureName][providerName]?.[modelName],
+							...newVal
+						}
 					}
 				}
 			}
 		}
+		this.state = _validatedModelState(newState)
+
+		await this._storeState()
+		this._onDidChangeState.fire()
 	}
-	this.state = _validatedModelState(newState)
 
-	await this._storeState()
-	this._onDidChangeState.fire()
-}
-
-setOverridesOfModel = async (providerName: ProviderName, modelName: string, overrides: Partial<ModelOverrides> | undefined) => {
-	const newScognidream: cognidreamSettingsState = {
-		...this.state,
-		overridesOfModel: {
-			...this.state.overridesOfModel,
-			[providerName]: {
-				...this.state.overridesOfModel[providerName],
-				[modelName]: overrides === undefined ? undefined : {
-					...this.state.overridesOfModel[providerName][modelName],
-					...overrides
-				},
+	setOverridesOfModel = async (providerName: ProviderName, modelName: string, overrides: Partial<ModelOverrides> | undefined) => {
+		const newState: VoidSettingsState = {
+			...this.state,
+			overridesOfModel: {
+				...this.state.overridesOfModel,
+				[providerName]: {
+					...this.state.overridesOfModel[providerName],
+					[modelName]: overrides === undefined ? undefined : {
+						...this.state.overridesOfModel[providerName][modelName],
+						...overrides
+					},
+				}
 			}
-		}
-	};
+		};
 
-	this.state = _validatedModelState(newState);
-	await this._storeState();
-	this._onDidChangeState.fire();
+		this.state = _validatedModelState(newState);
+		await this._storeState();
+		this._onDidChangeState.fire();
 
-	this._metricsService.capture('Update Model Overrides', { providerName, modelName, overrides });
-}
-
-
-
-
-setAutodetectedModels(providerName: ProviderName, autodetectedModelNames: string[], logging: object) {
-
-	const { models } = this.state.settingsOfProvider[providerName]
-	const oldModelNames = models.map(m => m.modelName)
-
-	const newModels = _modelsWithSwappedInNewModels({ existingModels: models, models: autodetectedModelNames, type: 'autodetected' })
-	this.setSettingOfProvider(providerName, 'models', newModels)
-
-	// if the models changed, log it
-	const new_names = newModels.map(m => m.modelName)
-	if (!(oldModelNames.length === new_names.length
-		&& oldModelNames.every((_, i) => oldModelNames[i] === new_names[i]))
-	) {
-		this._metricsService.capture('Autodetect Models', { providerName, newModels: newModels, ...logging })
+		this._metricsService.capture('Update Model Overrides', { providerName, modelName, overrides });
 	}
+
+
+
+
+	setAutodetectedModels(providerName: ProviderName, autodetectedModelNames: string[], logging: object) {
+
+		const { models } = this.state.settingsOfProvider[providerName]
+		const oldModelNames = models.map(m => m.modelName)
+
+		const newModels = _modelsWithSwappedInNewModels({ existingModels: models, models: autodetectedModelNames, type: 'autodetected' })
+		this.setSettingOfProvider(providerName, 'models', newModels)
+
+		// if the models changed, log it
+		const new_names = newModels.map(m => m.modelName)
+		if (!(oldModelNames.length === new_names.length
+			&& oldModelNames.every((_, i) => oldModelNames[i] === new_names[i]))
+		) {
+			this._metricsService.capture('Autodetect Models', { providerName, newModels: newModels, ...logging })
+		}
+	}
+	toggleModelHidden(providerName: ProviderName, modelName: string) {
+
+
+		const { models } = this.state.settingsOfProvider[providerName]
+		const modelIdx = models.findIndex(m => m.modelName === modelName)
+		if (modelIdx === -1) return
+		const newIsHidden = !models[modelIdx].isHidden
+		const newModels: VoidStatefulModelInfo[] = [
+			...models.slice(0, modelIdx),
+			{ ...models[modelIdx], isHidden: newIsHidden },
+			...models.slice(modelIdx + 1, Infinity)
+		]
+		this.setSettingOfProvider(providerName, 'models', newModels)
+
+		this._metricsService.capture('Toggle Model Hidden', { providerName, modelName, newIsHidden })
+
+	}
+	addModel(providerName: ProviderName, modelName: string) {
+		const { models } = this.state.settingsOfProvider[providerName]
+		const existingIdx = models.findIndex(m => m.modelName === modelName)
+		if (existingIdx !== -1) return // if exists, do nothing
+		const newModels = [
+			...models,
+			{ modelName, type: 'custom', isHidden: false } as const
+		]
+		this.setSettingOfProvider(providerName, 'models', newModels)
+
+		this._metricsService.capture('Add Model', { providerName, modelName })
+
+	}
+	deleteModel(providerName: ProviderName, modelName: string): boolean {
+		const { models } = this.state.settingsOfProvider[providerName]
+		const delIdx = models.findIndex(m => m.modelName === modelName)
+		if (delIdx === -1) return false
+		const newModels = [
+			...models.slice(0, delIdx), // delete the idx
+			...models.slice(delIdx + 1, Infinity)
+		]
+		this.setSettingOfProvider(providerName, 'models', newModels)
+
+		this._metricsService.capture('Delete Model', { providerName, modelName })
+
+		return true
+	}
+
+	// MCP Server State
+	private _setMCPUserStateOfName = async (newStates: MCPUserStateOfName) => {
+		const newState: VoidSettingsState = {
+			...this.state,
+			mcpUserStateOfName: {
+				...this.state.mcpUserStateOfName,
+				...newStates
+			}
+		};
+		this.state = _validatedModelState(newState);
+		await this._storeState();
+		this._onDidChangeState.fire();
+		this._metricsService.capture('Set MCP Server States', { newStates });
+	}
+
+	addMCPUserStateOfNames = async (newMCPStates: MCPUserStateOfName) => {
+		const { mcpUserStateOfName: mcpServerStates } = this.state
+		const newMCPServerStates = {
+			...mcpServerStates,
+			...newMCPStates,
+		}
+		await this._setMCPUserStateOfName(newMCPServerStates)
+		this._metricsService.capture('Add MCP Servers', { servers: Object.keys(newMCPStates).join(', ') });
+	}
+
+	removeMCPUserStateOfNames = async (serverNames: string[]) => {
+		const { mcpUserStateOfName: mcpServerStates } = this.state
+		const newMCPServerStates = {
+			...mcpServerStates,
+		}
+		serverNames.forEach(serverName => {
+			if (serverName in newMCPServerStates) {
+				delete newMCPServerStates[serverName]
+			}
+		})
+		await this._setMCPUserStateOfName(newMCPServerStates)
+		this._metricsService.capture('Remove MCP Servers', { servers: serverNames.join(', ') });
+	}
+
+	setMCPServerState = async (serverName: string, state: MCPUserState) => {
+		const { mcpUserStateOfName } = this.state
+		const newMCPServerStates = {
+			...mcpUserStateOfName,
+			[serverName]: state,
+		}
+		await this._setMCPUserStateOfName(newMCPServerStates)
+		this._metricsService.capture('Update MCP Server State', { serverName, state });
+	}
+
 }
-toggleModelHidden(providerName: ProviderName, modelName: string) {
 
 
-	const { models } = this.state.settingsOfProvider[providerName]
-	const modelIdx = models.findIndex(m => m.modelName === modelName)
-	if (modelIdx === -1) return
-	const newIsHidden = !models[modelIdx].isHidden
-	const newMocognidream: cognidreamStatefulModelInfo[] = [
-		...models.slice(0, modelIdx),
-		{ ...models[modelIdx], isHidden: newIsHidden },
-		...models.slice(modelIdx + 1, Infinity)
-	]
-	this.setSettingOfProvider(providerName, 'models', newModels)
-
-	this._metricsService.capture('Toggle Model Hidden', { providerName, modelName, newIsHidden })
-
-}
-addModel(providerName: ProviderName, modelName: string) {
-	const { models } = this.state.settingsOfProvider[providerName]
-	const existingIdx = models.findIndex(m => m.modelName === modelName)
-	if (existingIdx !== -1) return // if exists, do nothing
-	const newModels = [
-		...models,
-		{ modelName, type: 'custom', isHidden: false } as const
-	]
-	this.setSettingOfProvider(providerName, 'models', newModels)
-
-	this._metricsService.capture('Add Model', { providerName, modelName })
-
-}
-deleteModel(providerName: ProviderName, modelName: string): boolean {
-	const { models } = this.state.settingsOfProvider[providerName]
-	const delIdx = models.findIndex(m => m.modelName === modelName)
-	if (delIdx === -1) return false
-	const newModels = [
-		...models.slice(0, delIdx), // delete the idx
-		...models.slice(delIdx + 1, Infinity)
-	]
-	this.setSettingOfProvider(providerName, 'models', newModels)
-
-	this._metricsService.capture('Delete Model', { providerName, modelName })
-
-	return true
-}
-
-}
-
-
-registerSingleton(IcognidreamidreamSettingsSercognidream, cognidreamSettingsService, InstantiationType.Eager);
+registerSingleton(IVoidSettingsService, VoidSettingsService, InstantiationType.Eager);

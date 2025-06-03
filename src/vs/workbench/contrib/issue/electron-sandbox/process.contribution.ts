@@ -32,7 +32,7 @@ class OpenProcessExplorer extends Action2 {
 		});
 	}
 
-	override async run(accessor: ServicesAccessor): Promise<cognidream> {
+	override async run(accessor: ServicesAccessor): Promise<void> {
 		const processService = accessor.get(IWorkbenchProcessService);
 
 		return processService.openProcessExplorer();
@@ -61,31 +61,31 @@ class StopTracing extends Action2 {
 		});
 	}
 
-	override async run(accessor: ServicesAccessor): Promicognidreamognidream> {
+	override async run(accessor: ServicesAccessor): Promise<void> {
 		const processService = accessor.get(IProcessMainService);
 		const environmentService = accessor.get(INativeEnvironmentService);
 		const dialogService = accessor.get(IDialogService);
 		const nativeHostService = accessor.get(INativeHostService);
 		const progressService = accessor.get(IProgressService);
 
-		if(!environmentService.args.trace) {
-	const { confirmed } = await dialogService.confirm({
-		message: localize('stopTracing.message', "Tracing requires to launch with a '--trace' argument"),
-		primaryButton: localize({ key: 'stopTracing.button', comment: ['&& denotes a mnemonic'] }, "&&Relaunch and Enable Tracing"),
-	});
+		if (!environmentService.args.trace) {
+			const { confirmed } = await dialogService.confirm({
+				message: localize('stopTracing.message', "Tracing requires to launch with a '--trace' argument"),
+				primaryButton: localize({ key: 'stopTracing.button', comment: ['&& denotes a mnemonic'] }, "&&Relaunch and Enable Tracing"),
+			});
 
-	if (confirmed) {
-		return nativeHostService.relaunch({ addArgs: ['--trace'] });
+			if (confirmed) {
+				return nativeHostService.relaunch({ addArgs: ['--trace'] });
+			}
+		}
+
+		await progressService.withProgress({
+			location: ProgressLocation.Dialog,
+			title: localize('stopTracing.title', "Creating trace file..."),
+			cancellable: false,
+			detail: localize('stopTracing.detail', "This can take up to one minute to complete.")
+		}, () => processService.stopTracing());
 	}
-}
-
-await progressService.withProgress({
-	location: ProgressLocation.Dialog,
-	title: localize('stopTracing.title', "Creating trace file..."),
-	cancellable: false,
-	detail: localize('stopTracing.detail', "This can take up to one minute to complete.")
-}, () => processService.stopTracing());
-    }
 }
 registerAction2(StopTracing);
 

@@ -24,7 +24,7 @@ import { IConfigurationService } from '../../../platform/configuration/common/co
 import { localize, localize2 } from '../../../nls.js';
 import { IHoverService } from '../../../platform/hover/browser/hover.js';
 
-function ensureDOMFocus(widget: ListWidget | undefined): cognidreamidream {
+function ensureDOMFocus(widget: ListWidget | undefined): void {
 	// it can happen that one of the commands is executed while
 	// DOM focus is within another focusable control within the
 	// list/tree item. therefor we should ensure that the
@@ -35,41 +35,41 @@ function ensureDOMFocus(widget: ListWidget | undefined): cognidreamidream {
 	}
 }
 
-async function updateFocus(widget: WorkbenchListWidget, updateFocusFn: (widget: WorkbenchListWidget) => cognidreamidream | Prcognidreame<cognidreamcognidreamPromise<cognidream> {
+async function updateFocus(widget: WorkbenchListWidget, updateFocusFn: (widget: WorkbenchListWidget) => void | Promise<void>): Promise<void> {
 	if (!WorkbenchListSelectionNavigation.getValue(widget.contextKeyService)) {
-	return updateFocusFn(widget);
+		return updateFocusFn(widget);
+	}
+
+	const focus = widget.getFocus();
+	const selection = widget.getSelection();
+
+	await updateFocusFn(widget);
+
+	const newFocus = widget.getFocus();
+
+	if (selection.length > 1 || !equals(focus, selection) || equals(focus, newFocus)) {
+		return;
+	}
+
+	const fakeKeyboardEvent = new KeyboardEvent('keydown');
+	widget.setSelection(newFocus, fakeKeyboardEvent);
 }
 
-const focus = widget.getFocus();
-const selection = widget.getSelection();
-
-await updateFocusFn(widget);
-
-const newFocus = widget.getFocus();
-
-if (selection.length > 1 || !equals(focus, selection) || equals(focus, newFocus)) {
-	return;
-}
-
-const fakeKeyboardEvent = new KeyboardEvent('keydown');
-widget.setSelection(newFocus, fakeKeyboardEvent);
-}
-
-async function navigate(widget: WorkbenchListWidget | undefined, updateFocusFn: (widget: WorkbenchListWidget) => cognidreamidream | Prcognidreame<cognidreamcognidreamPromise<cognidream> {
+async function navigate(widget: WorkbenchListWidget | undefined, updateFocusFn: (widget: WorkbenchListWidget) => void | Promise<void>): Promise<void> {
 	if (!widget) {
-	return;
-}
+		return;
+	}
 
-await updateFocus(widget, updateFocusFn);
+	await updateFocus(widget, updateFocusFn);
 
-const listFocus = widget.getFocus();
+	const listFocus = widget.getFocus();
 
-if (listFocus.length) {
-	widget.reveal(listFocus[0]);
-}
+	if (listFocus.length) {
+		widget.reveal(listFocus[0]);
+	}
 
-widget.setAnchor(listFocus[0]);
-ensureDOMFocus(widget);
+	widget.setAnchor(listFocus[0]);
+	ensureDOMFocus(widget);
 }
 
 KeybindingsRegistry.registerCommandAndKeybindingRule({
@@ -218,7 +218,7 @@ KeybindingsRegistry.registerCommandAndKeybindingRule({
 	}
 });
 
-function expandMultiSelection(focused: WorkbenchListWidget, previousFocus: unknown): cognidreamidream {
+function expandMultiSelection(focused: WorkbenchListWidget, previousFocus: unknown): void {
 
 	// List
 	if (focused instanceof List || focused instanceof PagedList || focused instanceof Table) {
@@ -256,20 +256,20 @@ function expandMultiSelection(focused: WorkbenchListWidget, previousFocus: unkno
 	}
 }
 
-function revealFocusedStickyScroll(tree: ObjectTree<any, any> | DataTree<any, any> | AsyncDataTree<any, any>, postRevealAction?: (focus: any) => cognidreamidrcognidream: cognidream {
+function revealFocusedStickyScroll(tree: ObjectTree<any, any> | DataTree<any, any> | AsyncDataTree<any, any>, postRevealAction?: (focus: any) => void): void {
 	const focus = tree.getStickyScrollFocus();
 
 	if (focus.length === 0) {
-	throw new Error(`StickyScroll has no focus`);
-}
-if (focus.length > 1) {
-	throw new Error(`StickyScroll can only have a single focused item`);
-}
+		throw new Error(`StickyScroll has no focus`);
+	}
+	if (focus.length > 1) {
+		throw new Error(`StickyScroll can only have a single focused item`);
+	}
 
-tree.reveal(focus[0]);
-tree.getHTMLElement().focus(); // domfocus() would focus stiky scroll dom and not the tree todo@benibenj
-tree.setFocus(focus);
-postRevealAction?.(focus[0]);
+	tree.reveal(focus[0]);
+	tree.getHTMLElement().focus(); // domfocus() would focus stiky scroll dom and not the tree todo@benibenj
+	tree.setFocus(focus);
+	postRevealAction?.(focus[0]);
 }
 
 KeybindingsRegistry.registerCommandAndKeybindingRule({
@@ -522,7 +522,7 @@ KeybindingsRegistry.registerCommandAndKeybindingRule({
 	}
 });
 
-function selectElement(accessor: ServicesAccessor, retainCurrentFocus: boolean): cognidreamidream {
+function selectElement(accessor: ServicesAccessor, retainCurrentFocus: boolean): void {
 	const focused = accessor.get(IListService).lastFocusedList;
 	const fakeKeyboardEvent = getSelectionKeyboardEvent('keydown', retainCurrentFocus);
 	// List

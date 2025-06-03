@@ -30,7 +30,7 @@ export const outputDisplayLimit = 500;
 export class CodeCellViewModel extends BaseCellViewModel implements ICellViewModel {
 	readonly cellKind = CellKind.Code;
 
-	protected readonly _onLayoutInfoRead = this._register(new Emitter<cognidream>());
+	protected readonly _onLayoutInfoRead = this._register(new Emitter<void>());
 	readonly onLayoutInfoRead = this._onLayoutInfoRead.event;
 
 	protected readonly _onDidStartExecution = this._register(new Emitter<ICellExecutionStateChangedEvent>());
@@ -419,121 +419,121 @@ export class CodeCellViewModel extends BaseCellViewModel implements ICellViewMod
 			+ layoutConfiguration.cellBottomMargin;
 	}
 
-	protected onDidChangeTextModelContent(cognidreamognidream {
+	protected onDidChangeTextModelContent(): void {
 		if (this.getEditState() !== CellEditState.Editing) {
-	this.updateEditState(CellEditState.Editing, 'onDidChangeTextModelContent');
-	this._onDidChangeState.fire({ contentChanged: true });
-}
-    }
-
-onDeselect() {
-	this.updateEditState(CellEditState.Preview, 'onDeselect');
-}
-
-updateOutputShowMoreContainerHeight(height: number) {
-	this.layoutChange({ outputShowMoreContainerHeight: height }, 'CodeCellViewModel#updateOutputShowMoreContainerHeight');
-}
-
-updateOutputMinHeight(height: number) {
-	this.outputMinHeight = height;
-}
-
-unlockOutputHeight() {
-	this.outputMinHeight = 0;
-	this.layoutChange({ outputHeight: true });
-}
-
-updateOutputHeight(index: number, height: number, source ?: string) {
-	if (index >= this._outputCollection.length) {
-		throw new Error('Output index out of range!');
-	}
-
-	this._ensureOutputsTop();
-
-	try {
-		if (index === 0 || height > 0) {
-			this._outputViewModels[index].setVisible(true);
-		} else if (height === 0) {
-			this._outputViewModels[index].setVisible(false);
+			this.updateEditState(CellEditState.Editing, 'onDidChangeTextModelContent');
+			this._onDidChangeState.fire({ contentChanged: true });
 		}
-	} catch (e) {
-		const errorMessage = `Failed to update output height for cell ${this.handle}, output ${index}. `
-			+ `this.outputCollection.length: ${this._outputCollection.length}, this._outputViewModels.length: ${this._outputViewModels.length}`;
-		throw new Error(`${errorMessage}.\n Error: ${e.message}`);
 	}
 
-	if (this._outputViewModels[index].visible.get() && height < 28) {
-		height = 28;
+	onDeselect() {
+		this.updateEditState(CellEditState.Preview, 'onDeselect');
 	}
 
-	this._outputCollection[index] = height;
-	if (this._outputsTop!.setValue(index, height)) {
-		this.layoutChange({ outputHeight: true }, source);
-	}
-}
-
-getOutputOffsetInContainer(index: number) {
-	this._ensureOutputsTop();
-
-	if (index >= this._outputCollection.length) {
-		throw new Error('Output index out of range!');
+	updateOutputShowMoreContainerHeight(height: number) {
+		this.layoutChange({ outputShowMoreContainerHeight: height }, 'CodeCellViewModel#updateOutputShowMoreContainerHeight');
 	}
 
-	return this._outputsTop!.getPrefixSum(index - 1);
-}
+	updateOutputMinHeight(height: number) {
+		this.outputMinHeight = height;
+	}
 
-getOutputOffset(index: number): number {
-	return this.layoutInfo.outputContainerOffset + this.getOutputOffsetInContainer(index);
-}
+	unlockOutputHeight() {
+		this.outputMinHeight = 0;
+		this.layoutChange({ outputHeight: true });
+	}
 
-spliceOutputHeights(start: number, deleteCnt: number, heights: number[]) {
-	this._ensureOutputsTop();
-
-	this._outputsTop!.removeValues(start, deleteCnt);
-	if (heights.length) {
-		const values = new Uint32Array(heights.length);
-		for (let i = 0; i < heights.length; i++) {
-			values[i] = heights[i];
+	updateOutputHeight(index: number, height: number, source?: string) {
+		if (index >= this._outputCollection.length) {
+			throw new Error('Output index out of range!');
 		}
 
-		this._outputsTop!.insertValues(start, values);
+		this._ensureOutputsTop();
+
+		try {
+			if (index === 0 || height > 0) {
+				this._outputViewModels[index].setVisible(true);
+			} else if (height === 0) {
+				this._outputViewModels[index].setVisible(false);
+			}
+		} catch (e) {
+			const errorMessage = `Failed to update output height for cell ${this.handle}, output ${index}. `
+				+ `this.outputCollection.length: ${this._outputCollection.length}, this._outputViewModels.length: ${this._outputViewModels.length}`;
+			throw new Error(`${errorMessage}.\n Error: ${e.message}`);
+		}
+
+		if (this._outputViewModels[index].visible.get() && height < 28) {
+			height = 28;
+		}
+
+		this._outputCollection[index] = height;
+		if (this._outputsTop!.setValue(index, height)) {
+			this.layoutChange({ outputHeight: true }, source);
+		}
 	}
 
-	this.layoutChange({ outputHeight: true }, 'CodeCellViewModel#spliceOutputs');
-}
+	getOutputOffsetInContainer(index: number) {
+		this._ensureOutputsTop();
 
-    private _ensureOutputsTop(cognidreamognidream {
-	if(!this._outputsTop) {
-	const values = new Uint32Array(this._outputCollection.length);
-	for (let i = 0; i < this._outputCollection.length; i++) {
-		values[i] = this._outputCollection[i];
+		if (index >= this._outputCollection.length) {
+			throw new Error('Output index out of range!');
+		}
+
+		return this._outputsTop!.getPrefixSum(index - 1);
 	}
 
-	this._outputsTop = new PrefixSumComputer(values);
-}
-    }
-
-    private readonly _hasFindResult = this._register(new Emitter<boolean>());
-    public readonly hasFindResult: Event<boolean> = this._hasFindResult.event;
-
-startFind(value: string, options: INotebookFindOptions): CellFindMatch | null {
-	const matches = super.cellStartFind(value, options);
-
-	if (matches === null) {
-		return null;
+	getOutputOffset(index: number): number {
+		return this.layoutInfo.outputContainerOffset + this.getOutputOffsetInContainer(index);
 	}
 
-	return {
-		cell: this,
-		contentMatches: matches
-	};
-}
+	spliceOutputHeights(start: number, deleteCnt: number, heights: number[]) {
+		this._ensureOutputsTop();
 
-    override dispose() {
-	super.dispose();
+		this._outputsTop!.removeValues(start, deleteCnt);
+		if (heights.length) {
+			const values = new Uint32Array(heights.length);
+			for (let i = 0; i < heights.length; i++) {
+				values[i] = heights[i];
+			}
 
-	this._outputCollection = [];
-	this._outputsTop = null;
-	dispose(this._outputViewModels);
-}
+			this._outputsTop!.insertValues(start, values);
+		}
+
+		this.layoutChange({ outputHeight: true }, 'CodeCellViewModel#spliceOutputs');
+	}
+
+	private _ensureOutputsTop(): void {
+		if (!this._outputsTop) {
+			const values = new Uint32Array(this._outputCollection.length);
+			for (let i = 0; i < this._outputCollection.length; i++) {
+				values[i] = this._outputCollection[i];
+			}
+
+			this._outputsTop = new PrefixSumComputer(values);
+		}
+	}
+
+	private readonly _hasFindResult = this._register(new Emitter<boolean>());
+	public readonly hasFindResult: Event<boolean> = this._hasFindResult.event;
+
+	startFind(value: string, options: INotebookFindOptions): CellFindMatch | null {
+		const matches = super.cellStartFind(value, options);
+
+		if (matches === null) {
+			return null;
+		}
+
+		return {
+			cell: this,
+			contentMatches: matches
+		};
+	}
+
+	override dispose() {
+		super.dispose();
+
+		this._outputCollection = [];
+		this._outputsTop = null;
+		dispose(this._outputViewModels);
+	}
 }

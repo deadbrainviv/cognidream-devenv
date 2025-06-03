@@ -19,11 +19,11 @@ export interface IMetricsPollService {
 
 const PING_EVERY_MS = 15 * 1000 * 60  // 15 minutes
 
-export const IMetricsPollService = createDecorator<IMetricsPollService>('cognidreamMetricsPollService');
+export const IMetricsPollService = createDecorator<IMetricsPollService>('voidMetricsPollService');
 class MetricsPollService extends Disposable implements IMetricsPollService {
 	_serviceBrand: undefined;
 
-	static readonly ID cognidreamognidreamMetricsPollService';
+	static readonly ID = 'voidMetricsPollService';
 
 
 	private readonly intervalID: number

@@ -4,10 +4,10 @@
  *--------------------------------------------------------------------------------------*/
 
 import { mountFnGenerator } from '../util/mountFnGenerator.js'
-import { cognidreamCommandBarMain } from './cognidreamCommandBar.js'
-import { cognidreamSelectionHelperMain } from './cognidreamSelectionHelper.js'
+import { VoidCommandBarMain } from './VoidCommandBar.js'
+import { VoidSelectionHelperMain } from './VoidSelectionHelper.js'
 
-export const mountcognidreamCommandBar = mountFnGenerator(cognidreamCommandBarMain)
+export const mountVoidCommandBar = mountFnGenerator(VoidCommandBarMain)
 
-export const mountcognidreamSelectionHelper = mountFnGenerator(cognidreamSelectionHelperMain)
+export const mountVoidSelectionHelper = mountFnGenerator(VoidSelectionHelperMain)
 

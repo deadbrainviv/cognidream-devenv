@@ -114,7 +114,7 @@ export class McpServerMetadataCache extends Disposable {
 	}
 
 	/** Sets cached tools for a server */
-	storeTools(definitionId: string, tools: readonly IValidatedMcpTool[]): cognidream {
+	storeTools(definitionId: string, tools: readonly IValidatedMcpTool[]): void {
 		this.cache.set(definitionId, { ...this.cache.get(definitionId), tools });
 		this.didChange = true;
 	}
@@ -125,14 +125,14 @@ export class McpServerMetadataCache extends Disposable {
 	}
 
 	/** Sets cached servers for a collection */
-	storeServers(collectionId: string, entry: IServerCacheEntry | undefinedcognidreamognidream {
+	storeServers(collectionId: string, entry: IServerCacheEntry | undefined): void {
 		if (entry) {
 			this.extensionServers.set(collectionId, entry);
 		} else {
-	this.extensionServers.delete(collectionId);
-}
-this.didChange = true;
-    }
+			this.extensionServers.delete(collectionId);
+		}
+		this.didChange = true;
+	}
 }
 
 interface IValidatedMcpTool extends MCP.Tool {
@@ -254,214 +254,214 @@ export class McpServer extends Disposable implements IMcpServer {
 		});
 	}
 
-	public showOutput(cognidreamognidream {
+	public showOutput(): void {
 		this._loggerService.setVisibility(this._loggerId, true);
-this._outputService.showChannel(this._loggerId);
-    }
-
-    public start(isFromInteraction ?: boolean): Promise < McpConnectionState > {
-	return this._connectionSequencer.queue(async () => {
-		const activationEvent = mcpActivationEvent(this.collection.id.slice(extensionMcpCollectionPrefix.length));
-		if (this._requiresExtensionActivation && !this._extensionService.activationEventIsDone(activationEvent)) {
-			await this._extensionService.activateByEvent(activationEvent);
-			await Promise.all(this._mcpRegistry.delegates
-				.map(r => r.waitForInitialProviderPromises()));
-			// This can happen if the server was created from a cached MCP server seen
-			// from an extension, but then it wasn't registered when the extension activated.
-			if (this._store.isDisposed) {
-				return { state: McpConnectionState.Kind.Stopped };
-			}
-		}
-
-		let connection = this._connection.get();
-		if (connection && McpConnectionState.canBeStarted(connection.state.get().state)) {
-			connection.dispose();
-			connection = undefined;
-			this._connection.set(connection, undefined);
-		}
-
-		if (!connection) {
-			connection = await this._mcpRegistry.resolveConnection({
-				logger: this._logger,
-				collectionRef: this.collection,
-				definitionRef: this.definition,
-				forceTrust: isFromInteraction,
-			});
-			if (!connection) {
-				return { state: McpConnectionState.Kind.Stopped };
-			}
-
-			if (this._store.isDisposed) {
-				connection.dispose();
-				return { state: McpConnectionState.Kind.Stopped };
-			}
-
-			this._connection.set(connection, undefined);
-		}
-
-		const start = Date.now();
-		const state = await connection.start();
-		this._telemetryService.publicLog2<ServerBootState, ServerBootStateClassification>('mcp/serverBootState', {
-			state: McpConnectionState.toKindString(state.state),
-			time: Date.now() - start,
-		});
-
-		return state;
-	});
-}
-
-    public stop(): Promicognidreamognidream > {
-	return this._connection.get()?.stop() || Promise.resolve();
-}
-
-    private resetLiveData() {
-	transaction(tx => {
-		this.toolsFromServerPromise.set(undefined, tx);
-	});
-}
-
-    private async _normalizeTool(originalTool: MCP.Tool): Promise < IValidatedMcpTool | { error: string[] } > {
-	const tool: IValidatedMcpTool = { ...originalTool, serverToolName: originalTool.name };
-	if(!tool.description) {
-	// Ensure a description is provided for each tool, #243919
-	this._logger.warn(`Tool ${tool.name} does not have a description. Tools must be accurately described to be called`);
-	tool.description = '<empty>';
-}
-
-if (toolInvalidCharRe.test(tool.name)) {
-	this._logger.warn(`Tool ${JSON.stringify(tool.name)} is invalid. Tools names may only contain [a-z0-9_-]`);
-	tool.name = tool.name.replace(toolInvalidCharRe, '_');
-}
-
-type JsonDiagnostic = { message: string; range: { line: number; character: number }[] };
-
-let diagnostics: JsonDiagnostic[] = [];
-const toolJson = JSON.stringify(tool.inputSchema);
-try {
-	const schemaUri = URI.parse('https://json-schema.org/draft-07/schema');
-	diagnostics = await this._commandService.executeCommand<JsonDiagnostic[]>('json.validate', schemaUri, toolJson) || [];
-} catch (e) {
-	// ignored (error in json extension?);
-}
-
-if (!diagnostics.length) {
-	return tool;
-}
-
-// because it's all one line from JSON.stringify, we can treat characters as offsets.
-const tree = json.parseTree(toolJson);
-const messages = diagnostics.map(d => {
-	const node = json.findNodeAtOffset(tree, d.range[0].character);
-	const path = node && `/${json.getNodePath(node).join('/')}`;
-	return d.message + (path ? ` (at ${path})` : '');
-});
-
-return { error: messages };
-    }
-
-    private async _getValidatedTools(handler: McpServerRequestHandler, tools: MCP.Tool[]): Promise < IValidatedMcpTool[] > {
-	let error = '';
-
-	const validations = await Promise.all(tools.map(t => this._normalizeTool(t)));
-	const validated: IValidatedMcpTool[] = [];
-	for(const [i, result] of validations.entries()) {
-	if ('error' in result) {
-		error += localize('mcpBadSchema.tool', 'Tool `{0}` has invalid JSON parameters:', tools[i].name) + '\n';
-		for (const message of result.error) {
-			error += `\t- ${message}\n`;
-		}
-		error += `\t- Schema: ${JSON.stringify(tools[i].inputSchema)}\n\n`;
-	} else {
-		validated.push(result);
+		this._outputService.showChannel(this._loggerId);
 	}
-}
 
-if (error) {
-	handler.logger.warn(`${tools.length - validated.length} tools have invalid JSON schemas and will be omitted`);
-	warnInvalidTools(this._instantiationService, this.definition.label, error);
-}
-
-return validated;
-    }
-
-    private populateLiveData(handler: McpServerRequestHandler, store: DisposableStore) {
-	const cts = new CancellationTokenSource();
-	store.add(toDisposable(() => cts.dispose(true)));
-
-	// todo: add more than just tools here
-
-	const updateTools = (tx: ITransaction | undefined) => {
-		const toolPromise = handler.capabilities.tools ? handler.listTools({}, cts.token) : Promise.resolve([]);
-		const toolPromiseSafe = toolPromise.then(async tools => {
-			handler.logger.info(`Discovered ${tools.length} tools`);
-			return this._getValidatedTools(handler, tools);
-		});
-		this.toolsFromServerPromise.set(new ObservablePromise(toolPromiseSafe), tx);
-
-		return [toolPromise];
-	};
-
-	store.add(handler.onDidChangeToolList(() => {
-		handler.logger.info('Tool list changed, refreshing tools...');
-		updateTools(undefined);
-	}));
-
-	let promises: ReturnType<typeof updateTools>;
-	transaction(tx => {
-		promises = updateTools(tx);
-	});
-
-	Promise.all(promises!).then(([tools]) => {
-		this._telemetryService.publicLog2<ServerBootData, ServerBootClassification>('mcp/serverBoot', {
-			supportsLogging: !!handler.capabilities.logging,
-			supportsPrompts: !!handler.capabilities.prompts,
-			supportsResources: !!handler.capabilities.resources,
-			toolCount: tools.length,
-		});
-	});
-}
-
-    /**
-     * Helper function to call the function on the handler once it's online. The
-     * connection started if it is not already.
-     */
-    public async callOn<R>(fn: (handler: McpServerRequestHandler) => Promise<R>, token: CancellationToken = CancellationToken.None): Promise < R > {
-
-	await this.start(); // idempotent
-
-	let ranOnce = false;
-	let d: IDisposable;
-
-	const callPromise = new Promise<R>((resolve, reject) => {
-
-		d = autorun(reader => {
-			const connection = this._connection.read(reader);
-			if (!connection || ranOnce) {
-				return;
-			}
-
-			const handler = connection.handler.read(reader);
-			if (!handler) {
-				const state = connection.state.read(reader);
-				if (state.state === McpConnectionState.Kind.Error) {
-					reject(new McpConnectionFailedError(`MCP server could not be started: ${state.message}`));
-					return;
-				} else if (state.state === McpConnectionState.Kind.Stopped) {
-					reject(new McpConnectionFailedError('MCP server has stopped'));
-					return;
-				} else {
-					// keep waiting for handler
-					return;
+	public start(isFromInteraction?: boolean): Promise<McpConnectionState> {
+		return this._connectionSequencer.queue(async () => {
+			const activationEvent = mcpActivationEvent(this.collection.id.slice(extensionMcpCollectionPrefix.length));
+			if (this._requiresExtensionActivation && !this._extensionService.activationEventIsDone(activationEvent)) {
+				await this._extensionService.activateByEvent(activationEvent);
+				await Promise.all(this._mcpRegistry.delegates
+					.map(r => r.waitForInitialProviderPromises()));
+				// This can happen if the server was created from a cached MCP server seen
+				// from an extension, but then it wasn't registered when the extension activated.
+				if (this._store.isDisposed) {
+					return { state: McpConnectionState.Kind.Stopped };
 				}
 			}
 
-			resolve(fn(handler));
-			ranOnce = true; // aggressive prevent multiple racey calls, don't dispose because autorun is sync
-		});
-	});
+			let connection = this._connection.get();
+			if (connection && McpConnectionState.canBeStarted(connection.state.get().state)) {
+				connection.dispose();
+				connection = undefined;
+				this._connection.set(connection, undefined);
+			}
 
-	return raceCancellationError(callPromise, token).finally(() => d.dispose());
-}
+			if (!connection) {
+				connection = await this._mcpRegistry.resolveConnection({
+					logger: this._logger,
+					collectionRef: this.collection,
+					definitionRef: this.definition,
+					forceTrust: isFromInteraction,
+				});
+				if (!connection) {
+					return { state: McpConnectionState.Kind.Stopped };
+				}
+
+				if (this._store.isDisposed) {
+					connection.dispose();
+					return { state: McpConnectionState.Kind.Stopped };
+				}
+
+				this._connection.set(connection, undefined);
+			}
+
+			const start = Date.now();
+			const state = await connection.start();
+			this._telemetryService.publicLog2<ServerBootState, ServerBootStateClassification>('mcp/serverBootState', {
+				state: McpConnectionState.toKindString(state.state),
+				time: Date.now() - start,
+			});
+
+			return state;
+		});
+	}
+
+	public stop(): Promise<void> {
+		return this._connection.get()?.stop() || Promise.resolve();
+	}
+
+	private resetLiveData() {
+		transaction(tx => {
+			this.toolsFromServerPromise.set(undefined, tx);
+		});
+	}
+
+	private async _normalizeTool(originalTool: MCP.Tool): Promise<IValidatedMcpTool | { error: string[] }> {
+		const tool: IValidatedMcpTool = { ...originalTool, serverToolName: originalTool.name };
+		if (!tool.description) {
+			// Ensure a description is provided for each tool, #243919
+			this._logger.warn(`Tool ${tool.name} does not have a description. Tools must be accurately described to be called`);
+			tool.description = '<empty>';
+		}
+
+		if (toolInvalidCharRe.test(tool.name)) {
+			this._logger.warn(`Tool ${JSON.stringify(tool.name)} is invalid. Tools names may only contain [a-z0-9_-]`);
+			tool.name = tool.name.replace(toolInvalidCharRe, '_');
+		}
+
+		type JsonDiagnostic = { message: string; range: { line: number; character: number }[] };
+
+		let diagnostics: JsonDiagnostic[] = [];
+		const toolJson = JSON.stringify(tool.inputSchema);
+		try {
+			const schemaUri = URI.parse('https://json-schema.org/draft-07/schema');
+			diagnostics = await this._commandService.executeCommand<JsonDiagnostic[]>('json.validate', schemaUri, toolJson) || [];
+		} catch (e) {
+			// ignored (error in json extension?);
+		}
+
+		if (!diagnostics.length) {
+			return tool;
+		}
+
+		// because it's all one line from JSON.stringify, we can treat characters as offsets.
+		const tree = json.parseTree(toolJson);
+		const messages = diagnostics.map(d => {
+			const node = json.findNodeAtOffset(tree, d.range[0].character);
+			const path = node && `/${json.getNodePath(node).join('/')}`;
+			return d.message + (path ? ` (at ${path})` : '');
+		});
+
+		return { error: messages };
+	}
+
+	private async _getValidatedTools(handler: McpServerRequestHandler, tools: MCP.Tool[]): Promise<IValidatedMcpTool[]> {
+		let error = '';
+
+		const validations = await Promise.all(tools.map(t => this._normalizeTool(t)));
+		const validated: IValidatedMcpTool[] = [];
+		for (const [i, result] of validations.entries()) {
+			if ('error' in result) {
+				error += localize('mcpBadSchema.tool', 'Tool `{0}` has invalid JSON parameters:', tools[i].name) + '\n';
+				for (const message of result.error) {
+					error += `\t- ${message}\n`;
+				}
+				error += `\t- Schema: ${JSON.stringify(tools[i].inputSchema)}\n\n`;
+			} else {
+				validated.push(result);
+			}
+		}
+
+		if (error) {
+			handler.logger.warn(`${tools.length - validated.length} tools have invalid JSON schemas and will be omitted`);
+			warnInvalidTools(this._instantiationService, this.definition.label, error);
+		}
+
+		return validated;
+	}
+
+	private populateLiveData(handler: McpServerRequestHandler, store: DisposableStore) {
+		const cts = new CancellationTokenSource();
+		store.add(toDisposable(() => cts.dispose(true)));
+
+		// todo: add more than just tools here
+
+		const updateTools = (tx: ITransaction | undefined) => {
+			const toolPromise = handler.capabilities.tools ? handler.listTools({}, cts.token) : Promise.resolve([]);
+			const toolPromiseSafe = toolPromise.then(async tools => {
+				handler.logger.info(`Discovered ${tools.length} tools`);
+				return this._getValidatedTools(handler, tools);
+			});
+			this.toolsFromServerPromise.set(new ObservablePromise(toolPromiseSafe), tx);
+
+			return [toolPromise];
+		};
+
+		store.add(handler.onDidChangeToolList(() => {
+			handler.logger.info('Tool list changed, refreshing tools...');
+			updateTools(undefined);
+		}));
+
+		let promises: ReturnType<typeof updateTools>;
+		transaction(tx => {
+			promises = updateTools(tx);
+		});
+
+		Promise.all(promises!).then(([tools]) => {
+			this._telemetryService.publicLog2<ServerBootData, ServerBootClassification>('mcp/serverBoot', {
+				supportsLogging: !!handler.capabilities.logging,
+				supportsPrompts: !!handler.capabilities.prompts,
+				supportsResources: !!handler.capabilities.resources,
+				toolCount: tools.length,
+			});
+		});
+	}
+
+	/**
+	 * Helper function to call the function on the handler once it's online. The
+	 * connection started if it is not already.
+	 */
+	public async callOn<R>(fn: (handler: McpServerRequestHandler) => Promise<R>, token: CancellationToken = CancellationToken.None): Promise<R> {
+
+		await this.start(); // idempotent
+
+		let ranOnce = false;
+		let d: IDisposable;
+
+		const callPromise = new Promise<R>((resolve, reject) => {
+
+			d = autorun(reader => {
+				const connection = this._connection.read(reader);
+				if (!connection || ranOnce) {
+					return;
+				}
+
+				const handler = connection.handler.read(reader);
+				if (!handler) {
+					const state = connection.state.read(reader);
+					if (state.state === McpConnectionState.Kind.Error) {
+						reject(new McpConnectionFailedError(`MCP server could not be started: ${state.message}`));
+						return;
+					} else if (state.state === McpConnectionState.Kind.Stopped) {
+						reject(new McpConnectionFailedError('MCP server has stopped'));
+						return;
+					} else {
+						// keep waiting for handler
+						return;
+					}
+				}
+
+				resolve(fn(handler));
+				ranOnce = true; // aggressive prevent multiple racey calls, don't dispose because autorun is sync
+			});
+		});
+
+		return raceCancellationError(callPromise, token).finally(() => d.dispose());
+	}
 }
 
 export class McpTool implements IMcpTool {

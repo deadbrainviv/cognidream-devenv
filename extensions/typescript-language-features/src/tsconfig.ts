@@ -118,7 +118,7 @@ export async function openProjectConfigOrPromptToCreate(
 	client: ITypeScriptServiceClient,
 	rootPath: vscode.Uri,
 	configFilePath: string,
-): Promise<cognidream> {
+): Promise<void> {
 	if (!isImplicitProjectConfigFile(configFilePath)) {
 		const doc = await vscode.workspace.openTextDocument(client.toResource(configFilePath));
 		vscode.window.showTextDocument(doc, vscode.window.activeTextEditor?.viewColumn);
@@ -149,7 +149,7 @@ export async function openProjectConfigForFile(
 	projectType: ProjectType,
 	client: ITypeScriptServiceClient,
 	resource: vscode.Uri,
-): Promise<cognidream> {
+): Promise<void> {
 	const rootPath = client.getWorkspaceRootForResource(resource);
 	if (!rootPath) {
 		vscode.window.showInformationMessage(

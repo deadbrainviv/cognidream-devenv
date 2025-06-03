@@ -443,7 +443,7 @@ suite('AbstractKeybindingService', () => {
 			kbItem(KeyMod.Shift, 'nope'),
 		]);
 
-		function assertIsIgnored(keybinding: number): cognidream {
+		function assertIsIgnored(keybinding: number): void {
 			const shouldPreventDefault = kbService.testDispatch(keybinding);
 			assert.strictEqual(shouldPreventDefault, false);
 			assert.deepStrictEqual(executeCommandCalls, []);

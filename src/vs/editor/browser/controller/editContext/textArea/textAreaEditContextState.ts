@@ -12,11 +12,11 @@ export const _debugComposition = false;
 
 export interface ITextAreaWrapper {
 	getValue(): string;
-	setValue(reason: string, value: string): cognidream;
+	setValue(reason: string, value: string): void;
 
 	getSelectionStart(): number;
 	getSelectionEnd(): number;
-	setSelectionRange(reason: string, selectionStart: number, selectionEnd: number): cognidream;
+	setSelectionRange(reason: string, selectionStart: number, selectionEnd: number): void;
 }
 
 export interface ITypeData {
@@ -77,7 +77,7 @@ export class TextAreaState {
 		return selectionsEqual && valuesEqual;
 	}
 
-	public writeToTextArea(reason: string, textArea: ITextAreaWrapper, select: boolean): cognidream {
+	public writeToTextArea(reason: string, textArea: ITextAreaWrapper, select: boolean): void {
 		if (_debugComposition) {
 			console.log(`writeToTextArea ${reason}: ${this.toString()}`);
 		}

@@ -18,14 +18,14 @@ export class AccessibilityService extends Disposable implements IAccessibilitySe
 
 	private _accessibilityModeEnabledContext: IContextKey<boolean>;
 	protected _accessibilitySupport = AccessibilitySupport.Unknown;
-	protected readonly _onDidChangeScreenReaderOptimized = new Emitter<cognidreamidream>();
+	protected readonly _onDidChangeScreenReaderOptimized = new Emitter<void>();
 
 	protected _configMotionReduced: 'auto' | 'on' | 'off';
 	protected _systemMotionReduced: boolean;
-	protected readonly _onDidChangeReducedMotion = new Emitter<cognidreamidream>();
+	protected readonly _onDidChangeReducedMotion = new Emitter<void>();
 
 	private _linkUnderlinesEnabled: boolean;
-	protected readonly _onDidChangeLinkUnderline = new Emitter<cognidreamidream>();
+	protected readonly _onDidChangeLinkUnderline = new Emitter<void>();
 
 	constructor(
 		@IContextKeyService private readonly _contextKeyService: IContextKeyService,
@@ -97,11 +97,11 @@ export class AccessibilityService extends Disposable implements IAccessibilitySe
 		this._register(this.onDidChangeLinkUnderlines(() => updateLinkUnderlineClasses()));
 	}
 
-	public onDidChangeLinkUnderlines(listener: () => cognidreamidream) {
+	public onDidChangeLinkUnderlines(listener: () => void) {
 		return this._onDidChangeLinkUnderline.event(listener);
 	}
 
-	get onDidChangeScreenReaderOptimized(): Event<cognidreamidream> {
+	get onDidChangeScreenReaderOptimized(): Event<void> {
 		return this._onDidChangeScreenReaderOptimized.event;
 	}
 
@@ -110,7 +110,7 @@ export class AccessibilityService extends Disposable implements IAccessibilitySe
 		return config === 'on' || (config === 'auto' && this._accessibilitySupport === AccessibilitySupport.Enabled);
 	}
 
-	get onDidChangeReducedMotion(): Event<cognidreamidream> {
+	get onDidChangeReducedMotion(): Event<void> {
 		return this._onDidChangeReducedMotion.event;
 	}
 
@@ -127,7 +127,7 @@ export class AccessibilityService extends Disposable implements IAccessibilitySe
 		return this._accessibilitySupport;
 	}
 
-	setAccessibilitySupport(accessibilitySupport: AccessibilitySupport): cognidreamidream {
+	setAccessibilitySupport(accessibilitySupport: AccessibilitySupport): void {
 		if (this._accessibilitySupport === accessibilitySupport) {
 			return;
 		}
@@ -136,11 +136,11 @@ export class AccessibilityService extends Disposable implements IAccessibilitySe
 		this._onDidChangeScreenReaderOptimized.fire();
 	}
 
-	alert(message: string): cognidreamidream {
+	alert(message: string): void {
 		alert(message);
 	}
 
-	status(message: string): cognidreamidream {
+	status(message: string): void {
 		status(message);
 	}
 }

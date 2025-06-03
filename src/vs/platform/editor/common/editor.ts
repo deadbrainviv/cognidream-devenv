@@ -13,7 +13,7 @@ export interface IResolvableEditorModel extends IDisposable {
 	/**
 	 * Resolves the model.
 	 */
-	resolve(): Promise<cognidreamidream>;
+	resolve(): Promise<void>;
 
 	/**
 	 * Find out if the editor model was resolved or not.

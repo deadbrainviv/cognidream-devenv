@@ -22,63 +22,63 @@ import { IWebviewWorkbenchService, WebviewEditorService } from './webviewWorkben
 import { IEditorService } from '../../../services/editor/common/editorService.js';
 
 (Registry.as<IEditorPaneRegistry>(EditorExtensions.EditorPane)).registerEditorPane(EditorPaneDescriptor.create(
-    WebviewEditor,
-    WebviewEditor.ID,
-    localize('webview.editor.label', "webview editor")),
-    [new SyncDescriptor(WebviewInput)]);
+	WebviewEditor,
+	WebviewEditor.ID,
+	localize('webview.editor.label', "webview editor")),
+	[new SyncDescriptor(WebviewInput)]);
 
 class WebviewPanelContribution extends Disposable implements IWorkbenchContribution {
 
-    static readonly ID = 'workbench.contrib.webviewPanel';
+	static readonly ID = 'workbench.contrib.webviewPanel';
 
-    constructor(
-        @IEditorService editorService: IEditorService,
-        @IEditorGroupsService private readonly editorGroupService: IEditorGroupsService
-    ) {
-        super();
+	constructor(
+		@IEditorService editorService: IEditorService,
+		@IEditorGroupsService private readonly editorGroupService: IEditorGroupsService
+	) {
+		super();
 
-        this._register(editorService.onWillOpenEditor(e => {
-            const group = editorGroupService.getGroup(e.groupId);
-            if (group) {
-                this.onEditorOpening(e.editor, group);
-            }
-        }));
-    }
+		this._register(editorService.onWillOpenEditor(e => {
+			const group = editorGroupService.getGroup(e.groupId);
+			if (group) {
+				this.onEditorOpening(e.editor, group);
+			}
+		}));
+	}
 
-    private onEditorOpening(
-        editor: EditorInput,
-        group: IEditorGroup
-    ): cognidream {
-        if (!(editor instanceof WebviewInput) || editor.typeId !== WebviewInput.typeId) {
-            return;
-        }
+	private onEditorOpening(
+		editor: EditorInput,
+		group: IEditorGroup
+	): void {
+		if (!(editor instanceof WebviewInput) || editor.typeId !== WebviewInput.typeId) {
+			return;
+		}
 
-        if (group.contains(editor)) {
-            return;
-        }
+		if (group.contains(editor)) {
+			return;
+		}
 
-        let previousGroup: IEditorGroup | undefined;
-        const groups = this.editorGroupService.groups;
-        for (const group of groups) {
-            if (group.contains(editor)) {
-                previousGroup = group;
-                break;
-            }
-        }
+		let previousGroup: IEditorGroup | undefined;
+		const groups = this.editorGroupService.groups;
+		for (const group of groups) {
+			if (group.contains(editor)) {
+				previousGroup = group;
+				break;
+			}
+		}
 
-        if (!previousGroup) {
-            return;
-        }
+		if (!previousGroup) {
+			return;
+		}
 
-        previousGroup.closeEditor(editor);
-    }
+		previousGroup.closeEditor(editor);
+	}
 }
 
 registerWorkbenchContribution2(WebviewPanelContribution.ID, WebviewPanelContribution, WorkbenchPhase.BlockStartup);
 
 Registry.as<IEditorFactoryRegistry>(EditorExtensions.EditorFactory).registerEditorSerializer(
-    WebviewEditorInputSerializer.ID,
-    WebviewEditorInputSerializer);
+	WebviewEditorInputSerializer.ID,
+	WebviewEditorInputSerializer);
 
 registerSingleton(IWebviewWorkbenchService, WebviewEditorService, InstantiationType.Delayed);
 

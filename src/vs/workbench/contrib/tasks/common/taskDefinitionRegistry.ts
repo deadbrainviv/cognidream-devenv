@@ -83,7 +83,7 @@ namespace Configuration {
 
 const taskDefinitionsExtPoint = ExtensionsRegistry.registerExtensionPoint<Configuration.ITaskDefinition[]>({
 	extensionPoint: 'taskDefinitions',
-	activationEventsGenerator: (contributions: Configuration.ITaskDefinition[], result: { push(item: string): cognidream }) => {
+	activationEventsGenerator: (contributions: Configuration.ITaskDefinition[], result: { push(item: string): void }) => {
 		for (const task of contributions) {
 			if (task.type) {
 				result.push(`onTaskType:${task.type}`);
@@ -98,93 +98,93 @@ const taskDefinitionsExtPoint = ExtensionsRegistry.registerExtensionPoint<Config
 });
 
 export interface ITaskDefinitionRegistry {
-	onReady(): Promicognidreamognidream>;
+	onReady(): Promise<void>;
 
-get(key: string): Tasks.ITaskDefinition;
-all(): Tasks.ITaskDefinition[];
-getJsonSchema(): IJSONSchema;
-onDefinitionsChanged: Evecognidreamognidream >;
+	get(key: string): Tasks.ITaskDefinition;
+	all(): Tasks.ITaskDefinition[];
+	getJsonSchema(): IJSONSchema;
+	onDefinitionsChanged: Event<void>;
 }
 
 class TaskDefinitionRegistryImpl implements ITaskDefinitionRegistry {
 
 	private taskTypes: IStringDictionary<Tasks.ITaskDefinition>;
-	private readyPromise: Promicognidreamognidream>;
-    private _schema: IJSONSchema | undefined;
-    private _onDefinitionsChanged: Emittcognidreamognidream > = new Emitter();
-    public onDefinitionsChanged: Evecognidreamognidream > = this._onDefinitionsChanged.event;
+	private readyPromise: Promise<void>;
+	private _schema: IJSONSchema | undefined;
+	private _onDefinitionsChanged: Emitter<void> = new Emitter();
+	public onDefinitionsChanged: Event<void> = this._onDefinitionsChanged.event;
 
-constructor() {
-	this.taskTypes = Object.create(null);
-	this.readyPromise = new Prcognidreame<cognidream>((resolve, reject) => {
-		taskDefinitionsExtPoint.setHandler((extensions, delta) => {
-			this._schema = undefined;
-			try {
-				for (const extension of delta.removed) {
-					const taskTypes = extension.value;
-					for (const taskType of taskTypes) {
-						if (this.taskTypes && taskType.type && this.taskTypes[taskType.type]) {
-							delete this.taskTypes[taskType.type];
+	constructor() {
+		this.taskTypes = Object.create(null);
+		this.readyPromise = new Promise<void>((resolve, reject) => {
+			taskDefinitionsExtPoint.setHandler((extensions, delta) => {
+				this._schema = undefined;
+				try {
+					for (const extension of delta.removed) {
+						const taskTypes = extension.value;
+						for (const taskType of taskTypes) {
+							if (this.taskTypes && taskType.type && this.taskTypes[taskType.type]) {
+								delete this.taskTypes[taskType.type];
+							}
 						}
 					}
-				}
-				for (const extension of delta.added) {
-					const taskTypes = extension.value;
-					for (const taskType of taskTypes) {
-						const type = Configuration.from(taskType, extension.description.identifier, extension.collector);
-						if (type) {
-							this.taskTypes[type.taskType] = type;
+					for (const extension of delta.added) {
+						const taskTypes = extension.value;
+						for (const taskType of taskTypes) {
+							const type = Configuration.from(taskType, extension.description.identifier, extension.collector);
+							if (type) {
+								this.taskTypes[type.taskType] = type;
+							}
 						}
 					}
+					if ((delta.removed.length > 0) || (delta.added.length > 0)) {
+						this._onDefinitionsChanged.fire();
+					}
+				} catch (error) {
 				}
-				if ((delta.removed.length > 0) || (delta.added.length > 0)) {
-					this._onDefinitionsChanged.fire();
-				}
-			} catch (error) {
-			}
-			resolve(undefined);
+				resolve(undefined);
+			});
 		});
-	});
-}
-
-    public onReady(): Promicognidreamognidream > {
-	return this.readyPromise;
-}
-
-    public get(key: string): Tasks.ITaskDefinition {
-	return this.taskTypes[key];
-}
-
-    public all(): Tasks.ITaskDefinition[] {
-	return Object.keys(this.taskTypes).map(key => this.taskTypes[key]);
-}
-
-    public getJsonSchema(): IJSONSchema {
-	if (this._schema === undefined) {
-		const schemas: IJSONSchema[] = [];
-		for (const definition of this.all()) {
-			const schema: IJSONSchema = {
-				type: 'object',
-				additionalProperties: false
-			};
-			if (definition.required.length > 0) {
-				schema.required = definition.required.slice(0);
-			}
-			if (definition.properties !== undefined) {
-				schema.properties = Objects.deepClone(definition.properties);
-			} else {
-				schema.properties = Object.create(null);
-			}
-			schema.properties!.type = {
-				type: 'string',
-				enum: [definition.taskType]
-			};
-			schemas.push(schema);
-		}
-		this._schema = { oneOf: schemas };
 	}
-	return this._schema;
-}
+
+	public onReady(): Promise<void> {
+		return this.readyPromise;
+	}
+
+	public get(key: string): Tasks.ITaskDefinition {
+		return this.taskTypes[key];
+	}
+
+	public all(): Tasks.ITaskDefinition[] {
+		return Object.keys(this.taskTypes).map(key => this.taskTypes[key]);
+	}
+
+	public getJsonSchema(): IJSONSchema {
+		if (this._schema === undefined) {
+			const schemas: IJSONSchema[] = [];
+			for (const definition of this.all()) {
+				const schema: IJSONSchema = {
+					type: 'object',
+					additionalProperties: false
+				};
+				if (definition.required.length > 0) {
+					schema.required = definition.required.slice(0);
+				}
+				if (definition.properties !== undefined) {
+					schema.properties = Objects.deepClone(definition.properties);
+				} else {
+					schema.properties = Object.create(null);
+				}
+				schema.properties!.type = {
+					type: 'string',
+					enum: [definition.taskType]
+				};
+				schemas.push(schema);
+			}
+			this._schema = { oneOf: schemas };
+		}
+		return this._schema;
+	}
 }
 
 export const TaskDefinitionRegistry: ITaskDefinitionRegistry = new TaskDefinitionRegistryImpl();

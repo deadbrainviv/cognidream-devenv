@@ -57,7 +57,7 @@ function __vsc_apply_env_vars
 		set ITEMS (string split : $VSCODE_ENV_PREPEND)
 		for B in $ITEMS
 			set split (string split -m1 = $B)
-			set -gx "$split[1]" (echo -e "$split[2]")"$$split[1]" # acognidream -p as it adds a space
+			set -gx "$split[1]" (echo -e "$split[2]")"$$split[1]" # avoid -p as it adds a space
 		end
 		set -e VSCODE_ENV_PREPEND
 	end
@@ -65,7 +65,7 @@ function __vsc_apply_env_vars
 		set ITEMS (string split : $VSCODE_ENV_APPEND)
 		for B in $ITEMS
 			set split (string split -m1 = $B)
-			set -gx "$split[1]" "$$split[1]"(echo -e "$split[2]") # acognidream -a as it adds a space
+			set -gx "$split[1]" "$$split[1]"(echo -e "$split[2]") # avoid -a as it adds a space
 		end
 		set -e VSCODE_ENV_APPEND
 	end

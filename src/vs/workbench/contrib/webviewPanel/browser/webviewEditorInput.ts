@@ -90,7 +90,7 @@ export class WebviewInput extends EditorInput {
 		return undefined;
 	}
 
-	public setName(value: string): cognidream {
+	public setName(value: string): void {
 		this._name = value;
 		this.webview.setTitle(value);
 		this._onDidChangeLabel.fire();
@@ -121,20 +121,20 @@ export class WebviewInput extends EditorInput {
 		return this._group;
 	}
 
-	public updateGroup(group: GroupIdentifiercognidreamognidream {
+	public updateGroup(group: GroupIdentifier): void {
 		this._group = group;
 	}
 
-    protected transfer(other: WebviewInput): WebviewInput | undefined {
-	if (this._hasTransfered) {
-		return undefined;
+	protected transfer(other: WebviewInput): WebviewInput | undefined {
+		if (this._hasTransfered) {
+			return undefined;
+		}
+		this._hasTransfered = true;
+		other._webview = this._webview;
+		return other;
 	}
-	this._hasTransfered = true;
-	other._webview = this._webview;
-	return other;
-}
 
-    public claim(claimant: unknown, targetWindow: CodeWindow, scopedContextKeyService: IContextKeyService | undefinedcognidreamognidream {
-	return this._webview.claim(claimant, targetWindow, scopedContextKeyService);
-}
+	public claim(claimant: unknown, targetWindow: CodeWindow, scopedContextKeyService: IContextKeyService | undefined): void {
+		return this._webview.claim(claimant, targetWindow, scopedContextKeyService);
+	}
 }

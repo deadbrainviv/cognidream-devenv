@@ -255,54 +255,54 @@ export class ChatAttachmentsContentPart extends Disposable {
 		return hoverElement;
 	}
 
-	private openResource(resource: URI, isDirectory: true): cognidream;
-	private openResource(resource: URI, isDirectory: false, range: IRange | undefinedcognidreamognidream;
-		private openResource(resource: URI, isDirectory?: boolean, range?: IRangecognidreamognidream {
-			if (isDirectory) {
-				// Reveal Directory in explorer
-				this.commandService.executeCommand(revealInSideBarCommand.id, resource);
-				return;
-			}
+	private openResource(resource: URI, isDirectory: true): void;
+	private openResource(resource: URI, isDirectory: false, range: IRange | undefined): void;
+	private openResource(resource: URI, isDirectory?: boolean, range?: IRange): void {
+		if (isDirectory) {
+			// Reveal Directory in explorer
+			this.commandService.executeCommand(revealInSideBarCommand.id, resource);
+			return;
+		}
 
-// Open file in editor
-const openTextEditorOptions: ITextEditorOptions | undefined = range ? { selection: range } : undefined;
-const options: OpenInternalOptions = {
-	fromUserGesture: true,
-	editorOptions: openTextEditorOptions,
-};
-this.openerService.open(resource, options);
-    }
-
-    // Helper function to create and replace image
-    private async createImageElements(buffer: ArrayBuffer | Uint8Array, widget: HTMLElement, hoverElement: HTMLElement) {
-	const blob = new Blob([buffer], { type: 'image/png' });
-	const url = URL.createObjectURL(blob);
-	const img = dom.$('img.chat-attached-context-image', { src: url, alt: '' });
-	const pillImg = dom.$('img.chat-attached-context-pill-image', { src: url, alt: '' });
-	const pill = dom.$('div.chat-attached-context-pill', {}, pillImg);
-
-	const existingPill = widget.querySelector('.chat-attached-context-pill');
-	if (existingPill) {
-		existingPill.replaceWith(pill);
+		// Open file in editor
+		const openTextEditorOptions: ITextEditorOptions | undefined = range ? { selection: range } : undefined;
+		const options: OpenInternalOptions = {
+			fromUserGesture: true,
+			editorOptions: openTextEditorOptions,
+		};
+		this.openerService.open(resource, options);
 	}
 
-	// Update hover image
-	hoverElement.appendChild(img);
+	// Helper function to create and replace image
+	private async createImageElements(buffer: ArrayBuffer | Uint8Array, widget: HTMLElement, hoverElement: HTMLElement) {
+		const blob = new Blob([buffer], { type: 'image/png' });
+		const url = URL.createObjectURL(blob);
+		const img = dom.$('img.chat-attached-context-image', { src: url, alt: '' });
+		const pillImg = dom.$('img.chat-attached-context-pill-image', { src: url, alt: '' });
+		const pill = dom.$('div.chat-attached-context-pill', {}, pillImg);
 
-	img.onload = () => {
-		URL.revokeObjectURL(url);
-	};
-
-	img.onerror = () => {
-		// reset to original icon on error or invalid image
-		const pillIcon = dom.$('div.chat-attached-context-pill', {}, dom.$('span.codicon.codicon-file-media'));
-		const pill = dom.$('div.chat-attached-context-pill', {}, pillIcon);
 		const existingPill = widget.querySelector('.chat-attached-context-pill');
 		if (existingPill) {
 			existingPill.replaceWith(pill);
 		}
-	};
-}
+
+		// Update hover image
+		hoverElement.appendChild(img);
+
+		img.onload = () => {
+			URL.revokeObjectURL(url);
+		};
+
+		img.onerror = () => {
+			// reset to original icon on error or invalid image
+			const pillIcon = dom.$('div.chat-attached-context-pill', {}, dom.$('span.codicon.codicon-file-media'));
+			const pill = dom.$('div.chat-attached-context-pill', {}, pillIcon);
+			const existingPill = widget.querySelector('.chat-attached-context-pill');
+			if (existingPill) {
+				existingPill.replaceWith(pill);
+			}
+		};
+	}
 }
 
 export function hookUpResourceAttachmentDragAndContextMenu(accessor: ServicesAccessor, widget: HTMLElement, resource: URI): IDisposable {
@@ -390,7 +390,7 @@ function setResourceContext(accessor: ServicesAccessor, scopedContextKeyService:
 	return resourceContextKey;
 }
 
-function addBasicContextMenu(accessor: ServicesAccessor, widget: HTMLElement, scopedContextKeyService: IScopedContextKeyService, menuId: MenuId, arg: any, updateContextKeys?: () => Promise<cognidreamidream>): IDisposable {
+function addBasicContextMenu(accessor: ServicesAccessor, widget: HTMLElement, scopedContextKeyService: IScopedContextKeyService, menuId: MenuId, arg: any, updateContextKeys?: () => Promise<void>): IDisposable {
 	const contextMenuService = accessor.get(IContextMenuService);
 	const menuService = accessor.get(IMenuService);
 

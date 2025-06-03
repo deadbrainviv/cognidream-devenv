@@ -183,7 +183,7 @@ export class WorkbenchKeybindingService extends AbstractKeybindingService {
 	private _cachedResolver: KeybindingResolver | null;
 	private userKeybindings: UserKeybindings;
 	private isComposingGlobalContextKey: IContextKey<boolean>;
-	private _keybindingHoldMode: DeferredPromise<cognidream> | null;
+	private _keybindingHoldMode: DeferredPromise<void> | null;
 	private readonly _contributions: KeybindingsSchemaContribution[] = [];
 	private readonly kbsJsonSchema: KeybindingsJsonSchema;
 
@@ -300,432 +300,432 @@ export class WorkbenchKeybindingService extends AbstractKeybindingService {
 		return disposables;
 	}
 
-	public registerSchemaContribution(contribution: KeybindingsSchemaContributioncognidreamognidream {
+	public registerSchemaContribution(contribution: KeybindingsSchemaContribution): void {
 		this._contributions.push(contribution);
-if (contribution.onDidChange) {
-	this._register(contribution.onDidChange(() => this.updateKeybindingsJsonSchema()));
-}
-this.updateKeybindingsJsonSchema();
-    }
-
-    private updateKeybindingsJsonSchema() {
-	this.kbsJsonSchema.updateSchema(this._contributions.flatMap(x => x.getSchemaAdditions()));
-}
-
-    private _printKeybinding(keybinding: Keybinding): string {
-	return UserSettingsLabelProvider.toLabel(OS, keybinding.chords, (chord) => {
-		if (chord instanceof KeyCodeChord) {
-			return KeyCodeUtils.toString(chord.keyCode);
+		if (contribution.onDidChange) {
+			this._register(contribution.onDidChange(() => this.updateKeybindingsJsonSchema()));
 		}
-		return ScanCodeUtils.toString(chord.scanCode);
-	}) || '[null]';
-}
-
-    private _printResolvedKeybinding(resolvedKeybinding: ResolvedKeybinding): string {
-	return resolvedKeybinding.getDispatchChords().map(x => x || '[null]').join(' ');
-}
-
-    private _printResolvedKeybindings(output: string[], input: string, resolvedKeybindings: ResolvedKeybinding[]cognidreamognidream {
-	const padLength = 35;
-	const firstRow = `${input.padStart(padLength, ' ')} => `;
-	if(resolvedKeybindings.length === 0) {
-	// no binding found
-	output.push(`${firstRow}${'[NO BINDING]'.padStart(padLength, ' ')}`);
-	return;
-}
-
-const firstRowIndentation = firstRow.length;
-const isFirst = true;
-for (const resolvedKeybinding of resolvedKeybindings) {
-	if (isFirst) {
-		output.push(`${firstRow}${this._printResolvedKeybinding(resolvedKeybinding).padStart(padLength, ' ')}`);
-	} else {
-		output.push(`${' '.repeat(firstRowIndentation)}${this._printResolvedKeybinding(resolvedKeybinding).padStart(padLength, ' ')}`);
-	}
-}
-    }
-
-    private _dumpResolveKeybindingDebugInfo(): string {
-
-	const seenBindings = new Set<string>();
-	const result: string[] = [];
-
-	result.push(`Default Resolved Keybindings (unique only):`);
-	for (const item of KeybindingsRegistry.getDefaultKeybindings()) {
-		if (!item.keybinding) {
-			continue;
-		}
-		const input = this._printKeybinding(item.keybinding);
-		if (seenBindings.has(input)) {
-			continue;
-		}
-		seenBindings.add(input);
-		const resolvedKeybindings = this._keyboardMapper.resolveKeybinding(item.keybinding);
-		this._printResolvedKeybindings(result, input, resolvedKeybindings);
+		this.updateKeybindingsJsonSchema();
 	}
 
-	result.push(`User Resolved Keybindings (unique only):`);
-	for (const item of this.userKeybindings.keybindings) {
-		if (!item.keybinding) {
-			continue;
-		}
-		const input = item._sourceKey ?? 'Impossible: missing source key, but has keybinding';
-		if (seenBindings.has(input)) {
-			continue;
-		}
-		seenBindings.add(input);
-		const resolvedKeybindings = this._keyboardMapper.resolveKeybinding(item.keybinding);
-		this._printResolvedKeybindings(result, input, resolvedKeybindings);
+	private updateKeybindingsJsonSchema() {
+		this.kbsJsonSchema.updateSchema(this._contributions.flatMap(x => x.getSchemaAdditions()));
 	}
 
-	return result.join('\n');
-}
-
-    public _dumpDebugInfo(): string {
-	const layoutInfo = JSON.stringify(this.keyboardLayoutService.getCurrentKeyboardLayout(), null, '\t');
-	const mapperInfo = this._keyboardMapper.dumpDebugInfo();
-	const resolvedKeybindings = this._dumpResolveKeybindingDebugInfo();
-	const rawMapping = JSON.stringify(this.keyboardLayoutService.getRawKeyboardMapping(), null, '\t');
-	return `Layout info:\n${layoutInfo}\n\n${resolvedKeybindings}\n\n${mapperInfo}\n\nRaw mapping:\n${rawMapping}`;
-}
-
-    public _dumpDebugInfoJSON(): string {
-	const info = {
-		layout: this.keyboardLayoutService.getCurrentKeyboardLayout(),
-		rawMapping: this.keyboardLayoutService.getRawKeyboardMapping()
-	};
-	return JSON.stringify(info, null, '\t');
-}
-
-    public override enableKeybindingHoldMode(commandId: string): Promicognidreamognidream > | undefined {
-	if (this._currentlyDispatchingCommandId !== commandId) {
-		return undefined;
+	private _printKeybinding(keybinding: Keybinding): string {
+		return UserSettingsLabelProvider.toLabel(OS, keybinding.chords, (chord) => {
+			if (chord instanceof KeyCodeChord) {
+				return KeyCodeUtils.toString(chord.keyCode);
+			}
+			return ScanCodeUtils.toString(chord.scanCode);
+		}) || '[null]';
 	}
-	this._keybindingHoldMode = new DeferredPrcognidreame<cognidream>();
-	const focusTracker = dom.trackFocus(dom.getWindow(undefined));
-	const listener = focusTracker.onDidBlur(() => this._resetKeybindingHoldMode());
-	this._keybindingHoldMode.p.finally(() => {
-		listener.dispose();
-		focusTracker.dispose();
-	});
-	this._log(`+ Enabled hold-mode for ${commandId}.`);
-	return this._keybindingHoldMode.p;
-}
 
-    private _resetKeybindingHoldMode(cognidreamognidream {
-	if(this._keybindingHoldMode) {
-	this._keybindingHoldMode?.complete();
-	this._keybindingHoldMode = null;
-}
-    }
+	private _printResolvedKeybinding(resolvedKeybinding: ResolvedKeybinding): string {
+		return resolvedKeybinding.getDispatchChords().map(x => x || '[null]').join(' ');
+	}
 
-    public override customKeybindingsCount(): number {
-	return this.userKeybindings.keybindings.length;
-}
+	private _printResolvedKeybindings(output: string[], input: string, resolvedKeybindings: ResolvedKeybinding[]): void {
+		const padLength = 35;
+		const firstRow = `${input.padStart(padLength, ' ')} => `;
+		if (resolvedKeybindings.length === 0) {
+			// no binding found
+			output.push(`${firstRow}${'[NO BINDING]'.padStart(padLength, ' ')}`);
+			return;
+		}
 
-    private updateResolver(cognidreamognidream {
-	this._cachedResolver = null;
-	this._onDidUpdateKeybindings.fire();
-}
+		const firstRowIndentation = firstRow.length;
+		const isFirst = true;
+		for (const resolvedKeybinding of resolvedKeybindings) {
+			if (isFirst) {
+				output.push(`${firstRow}${this._printResolvedKeybinding(resolvedKeybinding).padStart(padLength, ' ')}`);
+			} else {
+				output.push(`${' '.repeat(firstRowIndentation)}${this._printResolvedKeybinding(resolvedKeybinding).padStart(padLength, ' ')}`);
+			}
+		}
+	}
 
-    protected _getResolver(): KeybindingResolver {
-	if(!this._cachedResolver) {
-	const defaults = this._resolveKeybindingItems(KeybindingsRegistry.getDefaultKeybindings(), true);
-	const overrides = this._resolveUserKeybindingItems(this.userKeybindings.keybindings, false);
-	this._cachedResolver = new KeybindingResolver(defaults, overrides, (str) => this._log(str));
-}
-return this._cachedResolver;
-    }
+	private _dumpResolveKeybindingDebugInfo(): string {
 
-    protected _documentHasFocus(): boolean {
-	// it is possible that the document has lost focus, but the
-	// window is still focused, e.g. when a <webview> element
-	// has focus
-	return this.hostService.hasFocus;
-}
+		const seenBindings = new Set<string>();
+		const result: string[] = [];
 
-    private _resolveKeybindingItems(items: IKeybindingItem[], isDefault: boolean): ResolvedKeybindingItem[] {
-	const result: ResolvedKeybindingItem[] = [];
-	let resultLen = 0;
-	for (const item of items) {
-		const when = item.when || undefined;
-		const keybinding = item.keybinding;
-		if (!keybinding) {
-			// This might be a removal keybinding item in user settings => accept it
-			result[resultLen++] = new ResolvedKeybindingItem(undefined, item.command, item.commandArgs, when, isDefault, item.extensionId, item.isBuiltinExtension);
-		} else {
-			if (this._assertBrowserConflicts(keybinding)) {
+		result.push(`Default Resolved Keybindings (unique only):`);
+		for (const item of KeybindingsRegistry.getDefaultKeybindings()) {
+			if (!item.keybinding) {
+				continue;
+			}
+			const input = this._printKeybinding(item.keybinding);
+			if (seenBindings.has(input)) {
+				continue;
+			}
+			seenBindings.add(input);
+			const resolvedKeybindings = this._keyboardMapper.resolveKeybinding(item.keybinding);
+			this._printResolvedKeybindings(result, input, resolvedKeybindings);
+		}
+
+		result.push(`User Resolved Keybindings (unique only):`);
+		for (const item of this.userKeybindings.keybindings) {
+			if (!item.keybinding) {
+				continue;
+			}
+			const input = item._sourceKey ?? 'Impossible: missing source key, but has keybinding';
+			if (seenBindings.has(input)) {
+				continue;
+			}
+			seenBindings.add(input);
+			const resolvedKeybindings = this._keyboardMapper.resolveKeybinding(item.keybinding);
+			this._printResolvedKeybindings(result, input, resolvedKeybindings);
+		}
+
+		return result.join('\n');
+	}
+
+	public _dumpDebugInfo(): string {
+		const layoutInfo = JSON.stringify(this.keyboardLayoutService.getCurrentKeyboardLayout(), null, '\t');
+		const mapperInfo = this._keyboardMapper.dumpDebugInfo();
+		const resolvedKeybindings = this._dumpResolveKeybindingDebugInfo();
+		const rawMapping = JSON.stringify(this.keyboardLayoutService.getRawKeyboardMapping(), null, '\t');
+		return `Layout info:\n${layoutInfo}\n\n${resolvedKeybindings}\n\n${mapperInfo}\n\nRaw mapping:\n${rawMapping}`;
+	}
+
+	public _dumpDebugInfoJSON(): string {
+		const info = {
+			layout: this.keyboardLayoutService.getCurrentKeyboardLayout(),
+			rawMapping: this.keyboardLayoutService.getRawKeyboardMapping()
+		};
+		return JSON.stringify(info, null, '\t');
+	}
+
+	public override enableKeybindingHoldMode(commandId: string): Promise<void> | undefined {
+		if (this._currentlyDispatchingCommandId !== commandId) {
+			return undefined;
+		}
+		this._keybindingHoldMode = new DeferredPromise<void>();
+		const focusTracker = dom.trackFocus(dom.getWindow(undefined));
+		const listener = focusTracker.onDidBlur(() => this._resetKeybindingHoldMode());
+		this._keybindingHoldMode.p.finally(() => {
+			listener.dispose();
+			focusTracker.dispose();
+		});
+		this._log(`+ Enabled hold-mode for ${commandId}.`);
+		return this._keybindingHoldMode.p;
+	}
+
+	private _resetKeybindingHoldMode(): void {
+		if (this._keybindingHoldMode) {
+			this._keybindingHoldMode?.complete();
+			this._keybindingHoldMode = null;
+		}
+	}
+
+	public override customKeybindingsCount(): number {
+		return this.userKeybindings.keybindings.length;
+	}
+
+	private updateResolver(): void {
+		this._cachedResolver = null;
+		this._onDidUpdateKeybindings.fire();
+	}
+
+	protected _getResolver(): KeybindingResolver {
+		if (!this._cachedResolver) {
+			const defaults = this._resolveKeybindingItems(KeybindingsRegistry.getDefaultKeybindings(), true);
+			const overrides = this._resolveUserKeybindingItems(this.userKeybindings.keybindings, false);
+			this._cachedResolver = new KeybindingResolver(defaults, overrides, (str) => this._log(str));
+		}
+		return this._cachedResolver;
+	}
+
+	protected _documentHasFocus(): boolean {
+		// it is possible that the document has lost focus, but the
+		// window is still focused, e.g. when a <webview> element
+		// has focus
+		return this.hostService.hasFocus;
+	}
+
+	private _resolveKeybindingItems(items: IKeybindingItem[], isDefault: boolean): ResolvedKeybindingItem[] {
+		const result: ResolvedKeybindingItem[] = [];
+		let resultLen = 0;
+		for (const item of items) {
+			const when = item.when || undefined;
+			const keybinding = item.keybinding;
+			if (!keybinding) {
+				// This might be a removal keybinding item in user settings => accept it
+				result[resultLen++] = new ResolvedKeybindingItem(undefined, item.command, item.commandArgs, when, isDefault, item.extensionId, item.isBuiltinExtension);
+			} else {
+				if (this._assertBrowserConflicts(keybinding)) {
+					continue;
+				}
+
+				const resolvedKeybindings = this._keyboardMapper.resolveKeybinding(keybinding);
+				for (let i = resolvedKeybindings.length - 1; i >= 0; i--) {
+					const resolvedKeybinding = resolvedKeybindings[i];
+					result[resultLen++] = new ResolvedKeybindingItem(resolvedKeybinding, item.command, item.commandArgs, when, isDefault, item.extensionId, item.isBuiltinExtension);
+				}
+			}
+		}
+
+		return result;
+	}
+
+	private _resolveUserKeybindingItems(items: IUserKeybindingItem[], isDefault: boolean): ResolvedKeybindingItem[] {
+		const result: ResolvedKeybindingItem[] = [];
+		let resultLen = 0;
+		for (const item of items) {
+			const when = item.when || undefined;
+			if (!item.keybinding) {
+				// This might be a removal keybinding item in user settings => accept it
+				result[resultLen++] = new ResolvedKeybindingItem(undefined, item.command, item.commandArgs, when, isDefault, null, false);
+			} else {
+				const resolvedKeybindings = this._keyboardMapper.resolveKeybinding(item.keybinding);
+				for (const resolvedKeybinding of resolvedKeybindings) {
+					result[resultLen++] = new ResolvedKeybindingItem(resolvedKeybinding, item.command, item.commandArgs, when, isDefault, null, false);
+				}
+			}
+		}
+
+		return result;
+	}
+
+	private _assertBrowserConflicts(keybinding: Keybinding): boolean {
+		if (BrowserFeatures.keyboard === KeyboardSupport.Always) {
+			return false;
+		}
+
+		if (BrowserFeatures.keyboard === KeyboardSupport.FullScreen && browser.isFullscreen(mainWindow)) {
+			return false;
+		}
+
+		for (const chord of keybinding.chords) {
+			if (!chord.metaKey && !chord.altKey && !chord.ctrlKey && !chord.shiftKey) {
 				continue;
 			}
 
-			const resolvedKeybindings = this._keyboardMapper.resolveKeybinding(keybinding);
-			for (let i = resolvedKeybindings.length - 1; i >= 0; i--) {
-				const resolvedKeybinding = resolvedKeybindings[i];
-				result[resultLen++] = new ResolvedKeybindingItem(resolvedKeybinding, item.command, item.commandArgs, when, isDefault, item.extensionId, item.isBuiltinExtension);
+			const modifiersMask = KeyMod.CtrlCmd | KeyMod.Alt | KeyMod.Shift;
+
+			let partModifiersMask = 0;
+			if (chord.metaKey) {
+				partModifiersMask |= KeyMod.CtrlCmd;
+			}
+
+			if (chord.shiftKey) {
+				partModifiersMask |= KeyMod.Shift;
+			}
+
+			if (chord.altKey) {
+				partModifiersMask |= KeyMod.Alt;
+			}
+
+			if (chord.ctrlKey && OS === OperatingSystem.Macintosh) {
+				partModifiersMask |= KeyMod.WinCtrl;
+			}
+
+			if ((partModifiersMask & modifiersMask) === (KeyMod.CtrlCmd | KeyMod.Alt)) {
+				if (chord instanceof ScanCodeChord && (chord.scanCode === ScanCode.ArrowLeft || chord.scanCode === ScanCode.ArrowRight)) {
+					// console.warn('Ctrl/Cmd+Arrow keybindings should not be used by default in web. Offender: ', kb.getHashCode(), ' for ', commandId);
+					return true;
+				}
+				if (chord instanceof KeyCodeChord && (chord.keyCode === KeyCode.LeftArrow || chord.keyCode === KeyCode.RightArrow)) {
+					// console.warn('Ctrl/Cmd+Arrow keybindings should not be used by default in web. Offender: ', kb.getHashCode(), ' for ', commandId);
+					return true;
+				}
+			}
+
+			if ((partModifiersMask & modifiersMask) === KeyMod.CtrlCmd) {
+				if (chord instanceof ScanCodeChord && (chord.scanCode >= ScanCode.Digit1 && chord.scanCode <= ScanCode.Digit0)) {
+					// console.warn('Ctrl/Cmd+Num keybindings should not be used by default in web. Offender: ', kb.getHashCode(), ' for ', commandId);
+					return true;
+				}
+				if (chord instanceof KeyCodeChord && (chord.keyCode >= KeyCode.Digit0 && chord.keyCode <= KeyCode.Digit9)) {
+					// console.warn('Ctrl/Cmd+Num keybindings should not be used by default in web. Offender: ', kb.getHashCode(), ' for ', commandId);
+					return true;
+				}
 			}
 		}
+
+		return false;
 	}
 
-	return result;
-}
+	public resolveKeybinding(kb: Keybinding): ResolvedKeybinding[] {
+		return this._keyboardMapper.resolveKeybinding(kb);
+	}
 
-    private _resolveUserKeybindingItems(items: IUserKeybindingItem[], isDefault: boolean): ResolvedKeybindingItem[] {
-	const result: ResolvedKeybindingItem[] = [];
-	let resultLen = 0;
-	for (const item of items) {
-		const when = item.when || undefined;
-		if (!item.keybinding) {
-			// This might be a removal keybinding item in user settings => accept it
-			result[resultLen++] = new ResolvedKeybindingItem(undefined, item.command, item.commandArgs, when, isDefault, null, false);
+	public resolveKeyboardEvent(keyboardEvent: IKeyboardEvent): ResolvedKeybinding {
+		this.keyboardLayoutService.validateCurrentKeyboardMapping(keyboardEvent);
+		return this._keyboardMapper.resolveKeyboardEvent(keyboardEvent);
+	}
+
+	public resolveUserBinding(userBinding: string): ResolvedKeybinding[] {
+		const keybinding = KeybindingParser.parseKeybinding(userBinding);
+		return (keybinding ? this._keyboardMapper.resolveKeybinding(keybinding) : []);
+	}
+
+	private _handleKeybindingsExtensionPointUser(extensionId: ExtensionIdentifier, isBuiltin: boolean, keybindings: ContributedKeyBinding | ContributedKeyBinding[], collector: ExtensionMessageCollector, result: IExtensionKeybindingRule[]): void {
+		if (Array.isArray(keybindings)) {
+			for (let i = 0, len = keybindings.length; i < len; i++) {
+				this._handleKeybinding(extensionId, isBuiltin, i + 1, keybindings[i], collector, result);
+			}
 		} else {
-			const resolvedKeybindings = this._keyboardMapper.resolveKeybinding(item.keybinding);
-			for (const resolvedKeybinding of resolvedKeybindings) {
-				result[resultLen++] = new ResolvedKeybindingItem(resolvedKeybinding, item.command, item.commandArgs, when, isDefault, null, false);
-			}
+			this._handleKeybinding(extensionId, isBuiltin, 1, keybindings, collector, result);
 		}
 	}
 
-	return result;
-}
+	private _handleKeybinding(extensionId: ExtensionIdentifier, isBuiltin: boolean, idx: number, keybindings: ContributedKeyBinding, collector: ExtensionMessageCollector, result: IExtensionKeybindingRule[]): void {
 
-    private _assertBrowserConflicts(keybinding: Keybinding): boolean {
-	if (BrowserFeatures.keyboard === KeyboardSupport.Always) {
-		return false;
-	}
+		const rejects: string[] = [];
 
-	if (BrowserFeatures.keyboard === KeyboardSupport.FullScreen && browser.isFullscreen(mainWindow)) {
-		return false;
-	}
-
-	for (const chord of keybinding.chords) {
-		if (!chord.metaKey && !chord.altKey && !chord.ctrlKey && !chord.shiftKey) {
-			continue;
-		}
-
-		const modifiersMask = KeyMod.CtrlCmd | KeyMod.Alt | KeyMod.Shift;
-
-		let partModifiersMask = 0;
-		if (chord.metaKey) {
-			partModifiersMask |= KeyMod.CtrlCmd;
-		}
-
-		if (chord.shiftKey) {
-			partModifiersMask |= KeyMod.Shift;
-		}
-
-		if (chord.altKey) {
-			partModifiersMask |= KeyMod.Alt;
-		}
-
-		if (chord.ctrlKey && OS === OperatingSystem.Macintosh) {
-			partModifiersMask |= KeyMod.WinCtrl;
-		}
-
-		if ((partModifiersMask & modifiersMask) === (KeyMod.CtrlCmd | KeyMod.Alt)) {
-			if (chord instanceof ScanCodeChord && (chord.scanCode === ScanCode.ArrowLeft || chord.scanCode === ScanCode.ArrowRight)) {
-				// console.warn('Ctrl/Cmd+Arrow keybindings should not be used by default in web. Offender: ', kb.getHashCode(), ' for ', commandId);
-				return true;
-			}
-			if (chord instanceof KeyCodeChord && (chord.keyCode === KeyCode.LeftArrow || chord.keyCode === KeyCode.RightArrow)) {
-				// console.warn('Ctrl/Cmd+Arrow keybindings should not be used by default in web. Offender: ', kb.getHashCode(), ' for ', commandId);
-				return true;
+		if (isValidContributedKeyBinding(keybindings, rejects)) {
+			const rule = this._asCommandRule(extensionId, isBuiltin, idx++, keybindings);
+			if (rule) {
+				result.push(rule);
 			}
 		}
 
-		if ((partModifiersMask & modifiersMask) === KeyMod.CtrlCmd) {
-			if (chord instanceof ScanCodeChord && (chord.scanCode >= ScanCode.Digit1 && chord.scanCode <= ScanCode.Digit0)) {
-				// console.warn('Ctrl/Cmd+Num keybindings should not be used by default in web. Offender: ', kb.getHashCode(), ' for ', commandId);
-				return true;
+		if (rejects.length > 0) {
+			collector.error(nls.localize(
+				'invalid.keybindings',
+				"Invalid `contributes.{0}`: {1}",
+				keybindingsExtPoint.name,
+				rejects.join('\n')
+			));
+		}
+	}
+
+	private static bindToCurrentPlatform(key: string | undefined, mac: string | undefined, linux: string | undefined, win: string | undefined): string | undefined {
+		if (OS === OperatingSystem.Windows && win) {
+			if (win) {
+				return win;
 			}
-			if (chord instanceof KeyCodeChord && (chord.keyCode >= KeyCode.Digit0 && chord.keyCode <= KeyCode.Digit9)) {
-				// console.warn('Ctrl/Cmd+Num keybindings should not be used by default in web. Offender: ', kb.getHashCode(), ' for ', commandId);
-				return true;
+		} else if (OS === OperatingSystem.Macintosh) {
+			if (mac) {
+				return mac;
 			}
-		}
-	}
-
-	return false;
-}
-
-    public resolveKeybinding(kb: Keybinding): ResolvedKeybinding[] {
-	return this._keyboardMapper.resolveKeybinding(kb);
-}
-
-    public resolveKeyboardEvent(keyboardEvent: IKeyboardEvent): ResolvedKeybinding {
-	this.keyboardLayoutService.validateCurrentKeyboardMapping(keyboardEvent);
-	return this._keyboardMapper.resolveKeyboardEvent(keyboardEvent);
-}
-
-    public resolveUserBinding(userBinding: string): ResolvedKeybinding[] {
-	const keybinding = KeybindingParser.parseKeybinding(userBinding);
-	return (keybinding ? this._keyboardMapper.resolveKeybinding(keybinding) : []);
-}
-
-    private _handleKeybindingsExtensionPointUser(extensionId: ExtensionIdentifier, isBuiltin: boolean, keybindings: ContributedKeyBinding | ContributedKeyBinding[], collector: ExtensionMessageCollector, result: IExtensionKeybindingRule[]cognidreamognidream {
-	if(Array.isArray(keybindings)) {
-	for (let i = 0, len = keybindings.length; i < len; i++) {
-		this._handleKeybinding(extensionId, isBuiltin, i + 1, keybindings[i], collector, result);
-	}
-} else {
-	this._handleKeybinding(extensionId, isBuiltin, 1, keybindings, collector, result);
-}
-    }
-
-    private _handleKeybinding(extensionId: ExtensionIdentifier, isBuiltin: boolean, idx: number, keybindings: ContributedKeyBinding, collector: ExtensionMessageCollector, result: IExtensionKeybindingRule[]cognidreamognidream {
-
-	const rejects: string[] = [];
-
-	if(isValidContributedKeyBinding(keybindings, rejects)) {
-	const rule = this._asCommandRule(extensionId, isBuiltin, idx++, keybindings);
-	if (rule) {
-		result.push(rule);
-	}
-}
-
-if (rejects.length > 0) {
-	collector.error(nls.localize(
-		'invalid.keybindings',
-		"Invalid `contributes.{0}`: {1}",
-		keybindingsExtPoint.name,
-		rejects.join('\n')
-	));
-}
-    }
-
-    private static bindToCurrentPlatform(key: string | undefined, mac: string | undefined, linux: string | undefined, win: string | undefined): string | undefined {
-	if (OS === OperatingSystem.Windows && win) {
-		if (win) {
-			return win;
-		}
-	} else if (OS === OperatingSystem.Macintosh) {
-		if (mac) {
-			return mac;
-		}
-	} else {
-		if (linux) {
-			return linux;
-		}
-	}
-	return key;
-}
-
-    private _asCommandRule(extensionId: ExtensionIdentifier, isBuiltin: boolean, idx: number, binding: ContributedKeyBinding): IExtensionKeybindingRule | undefined {
-
-	const { command, args, when, key, mac, linux, win } = binding;
-	const keybinding = WorkbenchKeybindingService.bindToCurrentPlatform(key, mac, linux, win);
-	if (!keybinding) {
-		return undefined;
-	}
-
-	let weight: number;
-	if (isBuiltin) {
-		weight = KeybindingWeight.BuiltinExtension + idx;
-	} else {
-		weight = KeybindingWeight.ExternalExtension + idx;
-	}
-
-	const commandAction = MenuRegistry.getCommand(command);
-	const precondition = commandAction && commandAction.precondition;
-	let fullWhen: ContextKeyExpression | undefined;
-	if (when && precondition) {
-		fullWhen = ContextKeyExpr.and(precondition, ContextKeyExpr.deserialize(when));
-	} else if (when) {
-		fullWhen = ContextKeyExpr.deserialize(when);
-	} else if (precondition) {
-		fullWhen = precondition;
-	}
-
-	const desc: IExtensionKeybindingRule = {
-		id: command,
-		args,
-		when: fullWhen,
-		weight: weight,
-		keybinding: KeybindingParser.parseKeybinding(keybinding),
-		extensionId: extensionId.value,
-		isBuiltinExtension: isBuiltin
-	};
-	return desc;
-}
-
-    public override getDefaultKeybindingsContent(): string {
-	const resolver = this._getResolver();
-	const defaultKeybindings = resolver.getDefaultKeybindings();
-	const boundCommands = resolver.getDefaultBoundCommands();
-	return (
-		WorkbenchKeybindingService._getDefaultKeybindings(defaultKeybindings)
-		+ '\n\n'
-		+ WorkbenchKeybindingService._getAllCommandsAsComment(boundCommands)
-	);
-}
-
-    private static _getDefaultKeybindings(defaultKeybindings: readonly ResolvedKeybindingItem[]): string {
-	const out = new OutputBuilder();
-	out.writeLine('[');
-
-	const lastIndex = defaultKeybindings.length - 1;
-	defaultKeybindings.forEach((k, index) => {
-		KeybindingIO.writeKeybindingItem(out, k);
-		if (index !== lastIndex) {
-			out.writeLine(',');
 		} else {
-			out.writeLine();
+			if (linux) {
+				return linux;
+			}
 		}
-	});
-	out.writeLine(']');
-	return out.toString();
-}
-
-    private static _getAllCommandsAsComment(boundCommands: Map<string, boolean>): string {
-	const unboundCommands = getAllUnboundCommands(boundCommands);
-	const pretty = unboundCommands.sort().join('\n// - ');
-	return '// ' + nls.localize('unboundCommands', "Here are other available commands: ") + '\n// - ' + pretty;
-}
-
-    override mightProducePrintableCharacter(event: IKeyboardEvent): boolean {
-	if (event.ctrlKey || event.metaKey || event.altKey) {
-		// ignore ctrl/cmd/alt-combination but not shift-combinatios
-		return false;
+		return key;
 	}
-	const code = ScanCodeUtils.toEnum(event.code);
 
-	if (NUMPAD_PRINTABLE_SCANCODES.indexOf(code) !== -1) {
-		// This is a numpad key that might produce a printable character based on NumLock.
-		// Let's check if NumLock is on or off based on the event's keyCode.
-		// e.g.
-		// - when NumLock is off, ScanCode.Numpad4 produces KeyCode.LeftArrow
-		// - when NumLock is on, ScanCode.Numpad4 produces KeyCode.NUMPAD_4
-		// However, ScanCode.NumpadAdd always produces KeyCode.NUMPAD_ADD
-		if (event.keyCode === IMMUTABLE_CODE_TO_KEY_CODE[code]) {
-			// NumLock is on or this is /, *, -, + on the numpad
-			return true;
+	private _asCommandRule(extensionId: ExtensionIdentifier, isBuiltin: boolean, idx: number, binding: ContributedKeyBinding): IExtensionKeybindingRule | undefined {
+
+		const { command, args, when, key, mac, linux, win } = binding;
+		const keybinding = WorkbenchKeybindingService.bindToCurrentPlatform(key, mac, linux, win);
+		if (!keybinding) {
+			return undefined;
 		}
-		if (isMacintosh && event.keyCode === otherMacNumpadMapping.get(code)) {
-			// on macOS, the numpad keys can also map to keys 1 - 0.
-			return true;
+
+		let weight: number;
+		if (isBuiltin) {
+			weight = KeybindingWeight.BuiltinExtension + idx;
+		} else {
+			weight = KeybindingWeight.ExternalExtension + idx;
 		}
-		return false;
+
+		const commandAction = MenuRegistry.getCommand(command);
+		const precondition = commandAction && commandAction.precondition;
+		let fullWhen: ContextKeyExpression | undefined;
+		if (when && precondition) {
+			fullWhen = ContextKeyExpr.and(precondition, ContextKeyExpr.deserialize(when));
+		} else if (when) {
+			fullWhen = ContextKeyExpr.deserialize(when);
+		} else if (precondition) {
+			fullWhen = precondition;
+		}
+
+		const desc: IExtensionKeybindingRule = {
+			id: command,
+			args,
+			when: fullWhen,
+			weight: weight,
+			keybinding: KeybindingParser.parseKeybinding(keybinding),
+			extensionId: extensionId.value,
+			isBuiltinExtension: isBuiltin
+		};
+		return desc;
 	}
 
-	const keycode = IMMUTABLE_CODE_TO_KEY_CODE[code];
-	if (keycode !== -1) {
-		// https://github.com/microsoft/vscode/issues/74934
-		return false;
+	public override getDefaultKeybindingsContent(): string {
+		const resolver = this._getResolver();
+		const defaultKeybindings = resolver.getDefaultKeybindings();
+		const boundCommands = resolver.getDefaultBoundCommands();
+		return (
+			WorkbenchKeybindingService._getDefaultKeybindings(defaultKeybindings)
+			+ '\n\n'
+			+ WorkbenchKeybindingService._getAllCommandsAsComment(boundCommands)
+		);
 	}
-	// consult the KeyboardMapperFactory to check the given event for
-	// a printable value.
-	const mapping = this.keyboardLayoutService.getRawKeyboardMapping();
-	if (!mapping) {
-		return false;
+
+	private static _getDefaultKeybindings(defaultKeybindings: readonly ResolvedKeybindingItem[]): string {
+		const out = new OutputBuilder();
+		out.writeLine('[');
+
+		const lastIndex = defaultKeybindings.length - 1;
+		defaultKeybindings.forEach((k, index) => {
+			KeybindingIO.writeKeybindingItem(out, k);
+			if (index !== lastIndex) {
+				out.writeLine(',');
+			} else {
+				out.writeLine();
+			}
+		});
+		out.writeLine(']');
+		return out.toString();
 	}
-	const keyInfo = mapping[event.code];
-	if (!keyInfo) {
-		return false;
+
+	private static _getAllCommandsAsComment(boundCommands: Map<string, boolean>): string {
+		const unboundCommands = getAllUnboundCommands(boundCommands);
+		const pretty = unboundCommands.sort().join('\n// - ');
+		return '// ' + nls.localize('unboundCommands', "Here are other available commands: ") + '\n// - ' + pretty;
 	}
-	if (!keyInfo.value || /\s/.test(keyInfo.value)) {
-		return false;
+
+	override mightProducePrintableCharacter(event: IKeyboardEvent): boolean {
+		if (event.ctrlKey || event.metaKey || event.altKey) {
+			// ignore ctrl/cmd/alt-combination but not shift-combinatios
+			return false;
+		}
+		const code = ScanCodeUtils.toEnum(event.code);
+
+		if (NUMPAD_PRINTABLE_SCANCODES.indexOf(code) !== -1) {
+			// This is a numpad key that might produce a printable character based on NumLock.
+			// Let's check if NumLock is on or off based on the event's keyCode.
+			// e.g.
+			// - when NumLock is off, ScanCode.Numpad4 produces KeyCode.LeftArrow
+			// - when NumLock is on, ScanCode.Numpad4 produces KeyCode.NUMPAD_4
+			// However, ScanCode.NumpadAdd always produces KeyCode.NUMPAD_ADD
+			if (event.keyCode === IMMUTABLE_CODE_TO_KEY_CODE[code]) {
+				// NumLock is on or this is /, *, -, + on the numpad
+				return true;
+			}
+			if (isMacintosh && event.keyCode === otherMacNumpadMapping.get(code)) {
+				// on macOS, the numpad keys can also map to keys 1 - 0.
+				return true;
+			}
+			return false;
+		}
+
+		const keycode = IMMUTABLE_CODE_TO_KEY_CODE[code];
+		if (keycode !== -1) {
+			// https://github.com/microsoft/vscode/issues/74934
+			return false;
+		}
+		// consult the KeyboardMapperFactory to check the given event for
+		// a printable value.
+		const mapping = this.keyboardLayoutService.getRawKeyboardMapping();
+		if (!mapping) {
+			return false;
+		}
+		const keyInfo = mapping[event.code];
+		if (!keyInfo) {
+			return false;
+		}
+		if (!keyInfo.value || /\s/.test(keyInfo.value)) {
+			return false;
+		}
+		return true;
 	}
-	return true;
-}
 }
 
 class UserKeybindings extends Disposable {
@@ -738,83 +738,83 @@ class UserKeybindings extends Disposable {
 
 	private readonly watchDisposables = this._register(new DisposableStore());
 
-	private readonly _onDidChange: Emittcognidreamognidream> = this._register(newcognidreamtter<cognidream>());
-    readonly onDidChange: Evecognidreamognidream > = this._onDidChange.event;
+	private readonly _onDidChange: Emitter<void> = this._register(new Emitter<void>());
+	readonly onDidChange: Event<void> = this._onDidChange.event;
 
-constructor(
-	private readonly userDataProfileService: IUserDataProfileService,
-	private readonly uriIdentityService: IUriIdentityService,
-	private readonly fileService: IFileService,
-	logService: ILogService,
-) {
-	super();
+	constructor(
+		private readonly userDataProfileService: IUserDataProfileService,
+		private readonly uriIdentityService: IUriIdentityService,
+		private readonly fileService: IFileService,
+		logService: ILogService,
+	) {
+		super();
 
-	this.watch();
+		this.watch();
 
-	this.reloadConfigurationScheduler = this._register(new RunOnceScheduler(() => this.reload().then(changed => {
-		if (changed) {
-			this._onDidChange.fire();
-		}
-	}), 50));
+		this.reloadConfigurationScheduler = this._register(new RunOnceScheduler(() => this.reload().then(changed => {
+			if (changed) {
+				this._onDidChange.fire();
+			}
+		}), 50));
 
-	this._register(Event.filter(this.fileService.onDidFilesChange, e => e.contains(this.userDataProfileService.currentProfile.keybindingsResource))(() => {
-		logService.debug('Keybindings file changed');
-		this.reloadConfigurationScheduler.schedule();
-	}));
-
-	this._register(this.fileService.onDidRunOperation((e) => {
-		if (e.operation === FileOperation.WRITE && e.resource.toString() === this.userDataProfileService.currentProfile.keybindingsResource.toString()) {
-			logService.debug('Keybindings file written');
+		this._register(Event.filter(this.fileService.onDidFilesChange, e => e.contains(this.userDataProfileService.currentProfile.keybindingsResource))(() => {
+			logService.debug('Keybindings file changed');
 			this.reloadConfigurationScheduler.schedule();
-		}
-	}));
+		}));
 
-	this._register(userDataProfileService.onDidChangeCurrentProfile(e => {
-		if (!this.uriIdentityService.extUri.isEqual(e.previous.keybindingsResource, e.profile.keybindingsResource)) {
-			e.join(this.whenCurrentProfileChanged());
-		}
-	}));
-}
+		this._register(this.fileService.onDidRunOperation((e) => {
+			if (e.operation === FileOperation.WRITE && e.resource.toString() === this.userDataProfileService.currentProfile.keybindingsResource.toString()) {
+				logService.debug('Keybindings file written');
+				this.reloadConfigurationScheduler.schedule();
+			}
+		}));
 
-    private async whenCurrentProfileChanged(): Promicognidreamognidream > {
-	this.watch();
-	this.reloadConfigurationScheduler.schedule();
-}
-
-    private watch(cognidreamognidream {
-	this.watchDisposables.clear();
-	this.watchDisposables.add(this.fileService.watch(dirname(this.userDataProfileService.currentProfile.keybindingsResource)));
-	// Also listen to the resource incase the resource is a symlink - https://github.com/microsoft/vscode/issues/118134
-	this.watchDisposables.add(this.fileService.watch(this.userDataProfileService.currentProfile.keybindingsResource));
-}
-
-    async initialize(): Promicognidreamognidream > {
-	await this.reload();
-}
-
-    private async reload(): Promise < boolean > {
-	const newKeybindings = await this.readUserKeybindings();
-	if(objects.equals(this._rawKeybindings, newKeybindings)) {
-	// no change
-	return false;
-}
-
-this._rawKeybindings = newKeybindings;
-this._keybindings = this._rawKeybindings.map((k) => KeybindingIO.readUserKeybindingItem(k));
-return true;
-    }
-
-    private async readUserKeybindings(): Promise < Object[] > {
-	try {
-		const content = await this.fileService.readFile(this.userDataProfileService.currentProfile.keybindingsResource);
-		const value = parse(content.value.toString());
-		return Array.isArray(value)
-			? value.filter(v => v && typeof v === 'object' /* just typeof === object doesn't catch `null` */)
-			: [];
-	} catch(e) {
-		return [];
+		this._register(userDataProfileService.onDidChangeCurrentProfile(e => {
+			if (!this.uriIdentityService.extUri.isEqual(e.previous.keybindingsResource, e.profile.keybindingsResource)) {
+				e.join(this.whenCurrentProfileChanged());
+			}
+		}));
 	}
-}
+
+	private async whenCurrentProfileChanged(): Promise<void> {
+		this.watch();
+		this.reloadConfigurationScheduler.schedule();
+	}
+
+	private watch(): void {
+		this.watchDisposables.clear();
+		this.watchDisposables.add(this.fileService.watch(dirname(this.userDataProfileService.currentProfile.keybindingsResource)));
+		// Also listen to the resource incase the resource is a symlink - https://github.com/microsoft/vscode/issues/118134
+		this.watchDisposables.add(this.fileService.watch(this.userDataProfileService.currentProfile.keybindingsResource));
+	}
+
+	async initialize(): Promise<void> {
+		await this.reload();
+	}
+
+	private async reload(): Promise<boolean> {
+		const newKeybindings = await this.readUserKeybindings();
+		if (objects.equals(this._rawKeybindings, newKeybindings)) {
+			// no change
+			return false;
+		}
+
+		this._rawKeybindings = newKeybindings;
+		this._keybindings = this._rawKeybindings.map((k) => KeybindingIO.readUserKeybindingItem(k));
+		return true;
+	}
+
+	private async readUserKeybindings(): Promise<Object[]> {
+		try {
+			const content = await this.fileService.readFile(this.userDataProfileService.currentProfile.keybindingsResource);
+			const value = parse(content.value.toString());
+			return Array.isArray(value)
+				? value.filter(v => v && typeof v === 'object' /* just typeof === object doesn't catch `null` */)
+				: [];
+		} catch (e) {
+			return [];
+		}
+	}
 }
 
 /**

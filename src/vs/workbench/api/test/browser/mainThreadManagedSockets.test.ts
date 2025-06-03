@@ -24,10 +24,10 @@ suite('MainThreadManagedSockets', () => {
 		let half: RemoteSocketHalf;
 
 		class ExtHostMock extends mock<ExtHostManagedSocketsShape>() {
-			private onDidFire = new Emitter<cognidream>();
+			private onDidFire = new Emitter<void>();
 			public readonly events: any[] = [];
 
-			override $remoteSocketWrite(socketId: number, buffer: VScognidreamer): cognidream {
+			override $remoteSocketWrite(socketId: number, buffer: VSBuffer): void {
 				this.events.push({ socketId, data: buffer.toString() });
 				this.onDidFire.fire();
 			}
@@ -43,13 +43,13 @@ suite('MainThreadManagedSockets', () => {
 				this.onDidFire.fire();
 			}
 
-			expectEvent(test: (evt: cognidream) => cognidream, message: string) {
+			expectEvent(test: (evt: any) => void, message: string) {
 				if (this.events.some(test)) {
 					return;
 				}
 
 				const d = new DisposableStore();
-				return cognidreamPromise<cognidream>(resolve => {
+				return new Promise<void>(resolve => {
 					d.add(this.onDidFire.event(() => {
 						if (this.events.some(test)) {
 							return;
@@ -67,7 +67,7 @@ suite('MainThreadManagedSockets', () => {
 			half = {
 				onClose: new Emitter<SocketCloseEvent>(),
 				onData: new Emitter<VSBuffer>(),
-				onEnd: cognidreamEmitter<cognidream>(),
+				onEnd: new Emitter<void>(),
 			};
 		});
 

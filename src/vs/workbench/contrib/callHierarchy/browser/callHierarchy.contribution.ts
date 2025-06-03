@@ -71,108 +71,108 @@ class CallHierarchyController implements IEditorContribution {
 		this._dispoables.add(this._sessionDisposables);
 	}
 
-	dispose(): cognidream {
+	dispose(): void {
 		this._ctxHasProvider.reset();
 		this._ctxIsVisible.reset();
 		this._dispoables.dispose();
 	}
 
-	async startCallHierarchyFromEditor(): Promicognidreamognidream> {
+	async startCallHierarchyFromEditor(): Promise<void> {
 		this._sessionDisposables.clear();
 
-		if(!this._editor.hasModel()) {
-	return;
-}
-
-const document = this._editor.getModel();
-const position = this._editor.getPosition();
-if (!CallHierarchyProviderRegistry.has(document)) {
-	return;
-}
-
-const cts = new CancellationTokenSource();
-const model = CallHierarchyModel.create(document, position, cts.token);
-const direction = sanitizedDirection(this._storageService.get(CallHierarchyController._StorageDirection, StorageScope.PROFILE, CallHierarchyDirection.CallsTo));
-
-this._showCallHierarchyWidget(position, direction, model, cts);
-    }
-
-    async startCallHierarchyFromCallHierarchy(): Promicognidreamognidream > {
-	if(!this._widget) {
-	return;
-}
-const model = this._widget.getModel();
-const call = this._widget.getFocused();
-if (!call || !model) {
-	return;
-}
-const newEditor = await this._editorService.openCodeEditor({ resource: call.item.uri }, this._editor);
-if (!newEditor) {
-	return;
-}
-const newModel = model.fork(call.item);
-this._sessionDisposables.clear();
-
-CallHierarchyController.get(newEditor)?._showCallHierarchyWidget(
-	Range.lift(newModel.root.selectionRange).getStartPosition(),
-	this._widget.direction,
-	Promise.resolve(newModel),
-	new CancellationTokenSource()
-);
-    }
-
-    private _showCallHierarchyWidget(position: IPosition, direction: CallHierarchyDirection, model: Promise<CallHierarchyModel | undefined>, cts: CancellationTokenSource) {
-
-	this._ctxIsVisible.set(true);
-	this._ctxDirection.set(direction);
-	Event.any<any>(this._editor.onDidChangeModel, this._editor.onDidChangeModelLanguage)(this.endCallHierarchy, this, this._sessionDisposables);
-	this._widget = this._instantiationService.createInstance(CallHierarchyTreePeekWidget, this._editor, position, direction);
-	this._widget.showLoading();
-	this._sessionDisposables.add(this._widget.onDidClose(() => {
-		this.endCallHierarchy();
-		this._storageService.store(CallHierarchyController._StorageDirection, this._widget!.direction, StorageScope.PROFILE, StorageTarget.USER);
-	}));
-	this._sessionDisposables.add({ dispose() { cts.dispose(true); } });
-	this._sessionDisposables.add(this._widget);
-
-	model.then(model => {
-		if (cts.token.isCancellationRequested) {
-			return; // nothing
-		}
-		if (model) {
-			this._sessionDisposables.add(model);
-			this._widget!.showModel(model);
-		}
-		else {
-			this._widget!.showMessage(localize('no.item', "No results"));
-		}
-	}).catch(err => {
-		if (isCancellationError(err)) {
-			this.endCallHierarchy();
+		if (!this._editor.hasModel()) {
 			return;
 		}
-		this._widget!.showMessage(localize('error', "Failed to show call hierarchy"));
-	});
+
+		const document = this._editor.getModel();
+		const position = this._editor.getPosition();
+		if (!CallHierarchyProviderRegistry.has(document)) {
+			return;
+		}
+
+		const cts = new CancellationTokenSource();
+		const model = CallHierarchyModel.create(document, position, cts.token);
+		const direction = sanitizedDirection(this._storageService.get(CallHierarchyController._StorageDirection, StorageScope.PROFILE, CallHierarchyDirection.CallsTo));
+
+		this._showCallHierarchyWidget(position, direction, model, cts);
+	}
+
+	async startCallHierarchyFromCallHierarchy(): Promise<void> {
+		if (!this._widget) {
+			return;
+		}
+		const model = this._widget.getModel();
+		const call = this._widget.getFocused();
+		if (!call || !model) {
+			return;
+		}
+		const newEditor = await this._editorService.openCodeEditor({ resource: call.item.uri }, this._editor);
+		if (!newEditor) {
+			return;
+		}
+		const newModel = model.fork(call.item);
+		this._sessionDisposables.clear();
+
+		CallHierarchyController.get(newEditor)?._showCallHierarchyWidget(
+			Range.lift(newModel.root.selectionRange).getStartPosition(),
+			this._widget.direction,
+			Promise.resolve(newModel),
+			new CancellationTokenSource()
+		);
+	}
+
+	private _showCallHierarchyWidget(position: IPosition, direction: CallHierarchyDirection, model: Promise<CallHierarchyModel | undefined>, cts: CancellationTokenSource) {
+
+		this._ctxIsVisible.set(true);
+		this._ctxDirection.set(direction);
+		Event.any<any>(this._editor.onDidChangeModel, this._editor.onDidChangeModelLanguage)(this.endCallHierarchy, this, this._sessionDisposables);
+		this._widget = this._instantiationService.createInstance(CallHierarchyTreePeekWidget, this._editor, position, direction);
+		this._widget.showLoading();
+		this._sessionDisposables.add(this._widget.onDidClose(() => {
+			this.endCallHierarchy();
+			this._storageService.store(CallHierarchyController._StorageDirection, this._widget!.direction, StorageScope.PROFILE, StorageTarget.USER);
+		}));
+		this._sessionDisposables.add({ dispose() { cts.dispose(true); } });
+		this._sessionDisposables.add(this._widget);
+
+		model.then(model => {
+			if (cts.token.isCancellationRequested) {
+				return; // nothing
+			}
+			if (model) {
+				this._sessionDisposables.add(model);
+				this._widget!.showModel(model);
+			}
+			else {
+				this._widget!.showMessage(localize('no.item', "No results"));
+			}
+		}).catch(err => {
+			if (isCancellationError(err)) {
+				this.endCallHierarchy();
+				return;
+			}
+			this._widget!.showMessage(localize('error', "Failed to show call hierarchy"));
+		});
+	}
+
+	showOutgoingCalls(): void {
+		this._widget?.updateDirection(CallHierarchyDirection.CallsFrom);
+		this._ctxDirection.set(CallHierarchyDirection.CallsFrom);
+	}
+
+	showIncomingCalls(): void {
+		this._widget?.updateDirection(CallHierarchyDirection.CallsTo);
+		this._ctxDirection.set(CallHierarchyDirection.CallsTo);
+	}
+
+	endCallHierarchy(): void {
+		this._sessionDisposables.clear();
+		this._ctxIsVisible.set(false);
+		this._editor.focus();
+	}
 }
 
-showOutgoingCalls(cognidreamognidream {
-	this._widget?.updateDirection(CallHierarchyDirection.CallsFrom);
-	this._ctxDirection.set(CallHierarchyDirection.CallsFrom);
-}
-
-    showIncomingCalls(cognidreamognidream {
-	this._widget?.updateDirection(CallHierarchyDirection.CallsTo);
-	this._ctxDirection.set(CallHierarchyDirection.CallsTo);
-}
-
-    endCallHierarchy(cognidreamognidream {
-	this._sessionDisposables.clear();
-	this._ctxIsVisible.set(false);
-	this._editor.focus();
-}
-}
-
-	registerEditorContribution(CallHierarchyController.Id, CallHierarchyController, EditorContributionInstantiation.Eager); // eager because it needs to define a context key
+registerEditorContribution(CallHierarchyController.Id, CallHierarchyController, EditorContributionInstantiation.Eager); // eager because it needs to define a context key
 
 registerAction2(class PeekCallHierarchyAction extends EditorAction2 {
 
@@ -203,9 +203,9 @@ registerAction2(class PeekCallHierarchyAction extends EditorAction2 {
 		});
 	}
 
-	async runEditorCommand(_accessor: ServicesAccessor, editor: ICodeEditor): Promicognidreamognidream> {
-	return CallHierarchyController.get(editor)?.startCallHierarchyFromEditor();
-}
+	async runEditorCommand(_accessor: ServicesAccessor, editor: ICodeEditor): Promise<void> {
+		return CallHierarchyController.get(editor)?.startCallHierarchyFromEditor();
+	}
 });
 
 registerAction2(class extends EditorAction2 {
@@ -273,9 +273,9 @@ registerAction2(class extends EditorAction2 {
 		});
 	}
 
-	async runEditorCommand(_accessor: ServicesAccessor, editor: ICodeEditor): Promicognidreamognidream> {
-	return CallHierarchyController.get(editor)?.startCallHierarchyFromCallHierarchy();
-}
+	async runEditorCommand(_accessor: ServicesAccessor, editor: ICodeEditor): Promise<void> {
+		return CallHierarchyController.get(editor)?.startCallHierarchyFromCallHierarchy();
+	}
 });
 
 
@@ -299,7 +299,7 @@ registerAction2(class extends EditorAction2 {
 		});
 	}
 
-	runEditorCommand(_accessor: ServicesAccessor, editor: ICodeEditorcognidreamognidream {
+	runEditorCommand(_accessor: ServicesAccessor, editor: ICodeEditor): void {
 		return CallHierarchyController.get(editor)?.endCallHierarchy();
-    }
+	}
 });

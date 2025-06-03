@@ -52,7 +52,7 @@ export class ChatViewPane extends ViewPane implements IViewWelcomeDelegate {
 	private defaultParticipantRegistrationFailed = false;
 	private didUnregisterProvider = false;
 
-	private _restoringSession: Promise<cognidream> | undefined;
+	private _restoringSession: Promise<void> | undefined;
 
 	constructor(
 		private readonly chatOptions: { location: ChatAgentLocation.Panel | ChatAgentLocation.EditingSession },
@@ -103,7 +103,7 @@ export class ChatViewPane extends ViewPane implements IViewWelcomeDelegate {
 					this._restoringSession =
 						(info.sessionId ? this.chatService.getOrRestoreSession(info.sessionId) : Promise.resolve(undefined)).then(async model => {
 							// The widget may be hidden at this point, because welcome views were allowed. Use setVisible to
-							cognidream             // acognidream doing a render while the widget is hidden. This is changing the condition in `shouldShowWelcome`
+							// avoid doing a render while the widget is hidden. This is changing the condition in `shouldShowWelcome`
 							// so it should fire onDidChangeViewWelcomeState.
 							const wasVisible = this._widget.visible;
 							try {
@@ -140,171 +140,171 @@ export class ChatViewPane extends ViewPane implements IViewWelcomeDelegate {
 		} : undefined;
 	}
 
-	private async updateModel(model?: IChatModel | undefined, viewState?: IChatViewState): Promicognidreamognidream> {
+	private async updateModel(model?: IChatModel | undefined, viewState?: IChatViewState): Promise<void> {
 		this.modelDisposables.clear();
 
 		model = model ?? (this.chatService.transferredSessionData?.sessionId && this.chatService.transferredSessionData?.location === this.chatOptions.location
 			? await this.chatService.getOrRestoreSession(this.chatService.transferredSessionData.sessionId)
 			: this.chatService.startSession(this.chatOptions.location, CancellationToken.None));
-		if(!model) {
+		if (!model) {
 			throw new Error('Could not start chat session');
 		}
 
-        if(viewState) {
+		if (viewState) {
 			this.updateViewState(viewState);
 		}
 
-        this.viewState.sessionId = model.sessionId;
+		this.viewState.sessionId = model.sessionId;
 		this._widget.setModel(model, { ...this.viewState });
 
 		// Update the toolbar context with new sessionId
 		this.updateActions();
 	}
 
-    override shouldShowWelcome(): boolean {
-	const showSetup = this.contextKeyService.contextMatchesRules(ChatContextKeys.SetupViewCondition);
-	const noPersistedSessions = !this.chatService.hasSessions();
-	const hasCoreAgent = this.chatAgentService.getAgents().some(agent => agent.isCore && agent.locations.includes(this.chatOptions.location));
-	const shouldShow = !hasCoreAgent && (this.didUnregisterProvider || !this._widget?.viewModel && noPersistedSessions || this.defaultParticipantRegistrationFailed || showSetup);
-	this.logService.trace(`ChatViewPane#shouldShowWelcome(${this.chatOptions.location}) = ${shouldShow}: hasCoreAgent=${hasCoreAgent} didUnregister=${this.didUnregisterProvider} || noViewModel=${!this._widget?.viewModel} && noPersistedSessions=${noPersistedSessions} || defaultParticipantRegistrationFailed=${this.defaultParticipantRegistrationFailed} || showSetup=${showSetup}`);
-	return !!shouldShow;
-}
-
-    private getTransferredOrPersistedSessionInfo(): { sessionId ?: string; inputValue ?: string; mode ?: ChatMode } {
-	if (this.chatService.transferredSessionData?.location === this.chatOptions.location) {
-		const sessionId = this.chatService.transferredSessionData.sessionId;
-		return {
-			sessionId,
-			inputValue: this.chatService.transferredSessionData.inputValue,
-			mode: this.chatService.transferredSessionData.mode
-		};
-	} else {
-		return { sessionId: this.viewState.sessionId };
+	override shouldShowWelcome(): boolean {
+		const showSetup = this.contextKeyService.contextMatchesRules(ChatContextKeys.SetupViewCondition);
+		const noPersistedSessions = !this.chatService.hasSessions();
+		const hasCoreAgent = this.chatAgentService.getAgents().some(agent => agent.isCore && agent.locations.includes(this.chatOptions.location));
+		const shouldShow = !hasCoreAgent && (this.didUnregisterProvider || !this._widget?.viewModel && noPersistedSessions || this.defaultParticipantRegistrationFailed || showSetup);
+		this.logService.trace(`ChatViewPane#shouldShowWelcome(${this.chatOptions.location}) = ${shouldShow}: hasCoreAgent=${hasCoreAgent} didUnregister=${this.didUnregisterProvider} || noViewModel=${!this._widget?.viewModel} && noPersistedSessions=${noPersistedSessions} || defaultParticipantRegistrationFailed=${this.defaultParticipantRegistrationFailed} || showSetup=${showSetup}`);
+		return !!shouldShow;
 	}
-}
 
-    protected override async renderBody(parent: HTMLElement): Promicognidreamognidream > {
-	try {
-		super.renderBody(parent);
+	private getTransferredOrPersistedSessionInfo(): { sessionId?: string; inputValue?: string; mode?: ChatMode } {
+		if (this.chatService.transferredSessionData?.location === this.chatOptions.location) {
+			const sessionId = this.chatService.transferredSessionData.sessionId;
+			return {
+				sessionId,
+				inputValue: this.chatService.transferredSessionData.inputValue,
+				mode: this.chatService.transferredSessionData.mode
+			};
+		} else {
+			return { sessionId: this.viewState.sessionId };
+		}
+	}
 
-		this._register(this.instantiationService.createInstance(ChatViewWelcomeController, parent, this, this.chatOptions.location));
+	protected override async renderBody(parent: HTMLElement): Promise<void> {
+		try {
+			super.renderBody(parent);
 
-		const scopedInstantiationService = this._register(this.instantiationService.createChild(new ServiceCollection([IContextKeyService, this.scopedContextKeyService])));
-		const locationBasedColors = this.getLocationBasedColors();
-		const editorOverflowNode = this.layoutService.getContainer(getWindow(parent)).appendChild($('.chat-editor-overflow.monaco-editor'));
-		this._register({ dispose: () => editorOverflowNode.remove() });
+			this._register(this.instantiationService.createInstance(ChatViewWelcomeController, parent, this, this.chatOptions.location));
 
-		this._widget = this._register(scopedInstantiationService.createInstance(
-			ChatWidget,
-			this.chatOptions.location,
-			{ viewId: this.id },
-			{
-				autoScroll: mode => mode !== ChatMode.Ask,
-				renderFollowups: this.chatOptions.location === ChatAgentLocation.Panel,
-				supportsFileReferences: true,
-				supportsAdditionalParticipants: this.chatOptions.location === ChatAgentLocation.Panel,
-				rendererOptions: {
-					renderTextEditsAsSummary: (uri) => {
-						return this.chatService.isEditingLocation(this.chatOptions.location);
+			const scopedInstantiationService = this._register(this.instantiationService.createChild(new ServiceCollection([IContextKeyService, this.scopedContextKeyService])));
+			const locationBasedColors = this.getLocationBasedColors();
+			const editorOverflowNode = this.layoutService.getContainer(getWindow(parent)).appendChild($('.chat-editor-overflow.monaco-editor'));
+			this._register({ dispose: () => editorOverflowNode.remove() });
+
+			this._widget = this._register(scopedInstantiationService.createInstance(
+				ChatWidget,
+				this.chatOptions.location,
+				{ viewId: this.id },
+				{
+					autoScroll: mode => mode !== ChatMode.Ask,
+					renderFollowups: this.chatOptions.location === ChatAgentLocation.Panel,
+					supportsFileReferences: true,
+					supportsAdditionalParticipants: this.chatOptions.location === ChatAgentLocation.Panel,
+					rendererOptions: {
+						renderTextEditsAsSummary: (uri) => {
+							return this.chatService.isEditingLocation(this.chatOptions.location);
+						},
+						referencesExpandedWhenEmptyResponse: !this.chatService.isEditingLocation(this.chatOptions.location),
+						progressMessageAtBottomOfResponse: mode => mode !== ChatMode.Ask,
 					},
-					referencesExpandedWhenEmptyResponse: !this.chatService.isEditingLocation(this.chatOptions.location),
-					progressMessageAtBottomOfResponse: mode => mode !== ChatMode.Ask,
+					editorOverflowWidgetsDomNode: editorOverflowNode,
+					enableImplicitContext: this.chatOptions.location === ChatAgentLocation.Panel || this.chatService.isEditingLocation(this.chatOptions.location),
+					enableWorkingSet: this.chatService.isEditingLocation(this.chatOptions.location) ? 'explicit' : undefined,
+					supportsChangingModes: this.chatService.isEditingLocation(this.chatOptions.location),
 				},
-				editorOverflowWidgetsDomNode: editorOverflowNode,
-				enableImplicitContext: this.chatOptions.location === ChatAgentLocation.Panel || this.chatService.isEditingLocation(this.chatOptions.location),
-				enableWorkingSet: this.chatService.isEditingLocation(this.chatOptions.location) ? 'explicit' : undefined,
-				supportsChangingModes: this.chatService.isEditingLocation(this.chatOptions.location),
-			},
-			{
-				listForeground: SIDE_BAR_FOREGROUND,
-				listBackground: locationBasedColors.background,
-				overlayBackground: locationBasedColors.overlayBackground,
-				inputEditorBackground: locationBasedColors.background,
-				resultEditorBackground: editorBackground,
+				{
+					listForeground: SIDE_BAR_FOREGROUND,
+					listBackground: locationBasedColors.background,
+					overlayBackground: locationBasedColors.overlayBackground,
+					inputEditorBackground: locationBasedColors.background,
+					resultEditorBackground: editorBackground,
 
+				}));
+			this._register(this.onDidChangeBodyVisibility(visible => {
+				this._widget.setVisible(visible);
 			}));
-		this._register(this.onDidChangeBodyVisibility(visible => {
-			this._widget.setVisible(visible);
-		}));
-		this._register(this._widget.onDidClear(() => this.clear()));
-		this._widget.render(parent);
+			this._register(this._widget.onDidClear(() => this.clear()));
+			this._widget.render(parent);
 
-		const info = this.getTransferredOrPersistedSessionInfo();
-		const disposeListener = this._register(this.chatService.onDidDisposeSession((e) => {
-			// Render the welcome view if provider registration fails, eg when signed out. This activates for any session, but the problem is the same regardless
-			if (e.reason === 'initializationFailed') {
-				this.defaultParticipantRegistrationFailed = true;
-				disposeListener?.dispose();
-				this._onDidChangeViewWelcomeState.fire();
-			}
-		}));
-		const model = info.sessionId ? await this.chatService.getOrRestoreSession(info.sessionId) : undefined;
+			const info = this.getTransferredOrPersistedSessionInfo();
+			const disposeListener = this._register(this.chatService.onDidDisposeSession((e) => {
+				// Render the welcome view if provider registration fails, eg when signed out. This activates for any session, but the problem is the same regardless
+				if (e.reason === 'initializationFailed') {
+					this.defaultParticipantRegistrationFailed = true;
+					disposeListener?.dispose();
+					this._onDidChangeViewWelcomeState.fire();
+				}
+			}));
+			const model = info.sessionId ? await this.chatService.getOrRestoreSession(info.sessionId) : undefined;
 
-		await this.updateModel(model, info.inputValue || info.mode ? { inputState: { chatMode: info.mode }, inputValue: info.inputValue } : undefined);
-	} catch(e) {
-		this.logService.error(e);
-		throw e;
+			await this.updateModel(model, info.inputValue || info.mode ? { inputState: { chatMode: info.mode }, inputValue: info.inputValue } : undefined);
+		} catch (e) {
+			this.logService.error(e);
+			throw e;
+		}
 	}
-}
 
-acceptInput(query ?: stringcognidreamognidream {
-	this._widget.acceptInput(query);
-}
+	acceptInput(query?: string): void {
+		this._widget.acceptInput(query);
+	}
 
-    private async clear(): Promicognidreamognidream > {
-	if(this.widget.viewModel) {
-	await this.chatService.clearSession(this.widget.viewModel.sessionId);
-}
+	private async clear(): Promise<void> {
+		if (this.widget.viewModel) {
+			await this.chatService.clearSession(this.widget.viewModel.sessionId);
+		}
 
-// Grab the widget's latest view state because it will be loaded back into the widget
-this.updateViewState();
-await this.updateModel(undefined);
+		// Grab the widget's latest view state because it will be loaded back into the widget
+		this.updateViewState();
+		await this.updateModel(undefined);
 
-// Update the toolbar context with new sessionId
-this.updateActions();
-    }
+		// Update the toolbar context with new sessionId
+		this.updateActions();
+	}
 
-    async loadSession(sessionId: string, viewState ?: IChatViewState): Promicognidreamognidream > {
-	if(this.widget.viewModel) {
-	await this.chatService.clearSession(this.widget.viewModel.sessionId);
-}
+	async loadSession(sessionId: string, viewState?: IChatViewState): Promise<void> {
+		if (this.widget.viewModel) {
+			await this.chatService.clearSession(this.widget.viewModel.sessionId);
+		}
 
-const newModel = await this.chatService.getOrRestoreSession(sessionId);
-await this.updateModel(newModel, viewState);
-    }
+		const newModel = await this.chatService.getOrRestoreSession(sessionId);
+		await this.updateModel(newModel, viewState);
+	}
 
-focusInput(cognidreamognidream {
-	this._widget.focusInput();
-}
+	focusInput(): void {
+		this._widget.focusInput();
+	}
 
-    override focus(cognidreamognidream {
-	super.focus();
-	this._widget.focusInput();
-}
+	override focus(): void {
+		super.focus();
+		this._widget.focusInput();
+	}
 
-    protected override layoutBody(height: number, width: numbercognidreamognidream {
-	super.layoutBody(height, width);
-	this._widget.layout(height, width);
-}
+	protected override layoutBody(height: number, width: number): void {
+		super.layoutBody(height, width);
+		this._widget.layout(height, width);
+	}
 
-    override saveState(cognidreamognidream {
-	if(this._widget) {
-	// Since input history is per-provider, this is handled by a separate service and not the memento here.
-	// TODO multiple chat views will overwrite each other
-	this._widget.saveState();
+	override saveState(): void {
+		if (this._widget) {
+			// Since input history is per-provider, this is handled by a separate service and not the memento here.
+			// TODO multiple chat views will overwrite each other
+			this._widget.saveState();
 
-	this.updateViewState();
-	this.memento.saveMemento();
-}
+			this.updateViewState();
+			this.memento.saveMemento();
+		}
 
-        super.saveState();
-    }
+		super.saveState();
+	}
 
-    private updateViewState(viewState ?: IChatViewStatecognidreamognidream {
-	const newViewState = viewState ?? this._widget.getViewState();
-	for(const [key, value] of Object.entries(newViewState)) {
-	// Assign all props to the memento so they get saved
-	(this.viewState as any)[key] = value;
-}
-    }
+	private updateViewState(viewState?: IChatViewState): void {
+		const newViewState = viewState ?? this._widget.getViewState();
+		for (const [key, value] of Object.entries(newViewState)) {
+			// Assign all props to the memento so they get saved
+			(this.viewState as any)[key] = value;
+		}
+	}
 }

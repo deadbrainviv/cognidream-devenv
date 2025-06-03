@@ -99,7 +99,7 @@ export class CommentsPanel extends FilterViewPane implements ICommentsView {
 		return this.getScreenReaderInfoForNode(this.focusedCommentNode);
 	}
 
-	focusNextNode(): cognidreamidream {
+	focusNextNode(): void {
 		if (!this.tree) {
 			return;
 		}
@@ -117,7 +117,7 @@ export class CommentsPanel extends FilterViewPane implements ICommentsView {
 		this.tree.setFocus([next]);
 	}
 
-	focusPreviousNode(): cognidreamidream {
+	focusPreviousNode(): void {
 		if (!this.tree) {
 			return;
 		}
@@ -188,7 +188,7 @@ export class CommentsPanel extends FilterViewPane implements ICommentsView {
 		this._register(this.filterWidget.onDidChangeFilterText(() => this.updateFilter()));
 	}
 
-	override saveState(): cognidreamidream {
+	override saveState(): void {
 		this.viewState['filter'] = this.filterWidget.getFilterText();
 		this.viewState['filterHistory'] = this.filterWidget.getHistory();
 		this.viewState['showResolved'] = this.filters.showResolved;
@@ -198,7 +198,7 @@ export class CommentsPanel extends FilterViewPane implements ICommentsView {
 		super.saveState();
 	}
 
-	override render(): cognidreamidream {
+	override render(): void {
 		super.render();
 		this._register(registerNavigableContainer({
 			name: 'commentsView',
@@ -216,11 +216,11 @@ export class CommentsPanel extends FilterViewPane implements ICommentsView {
 		}));
 	}
 
-	public focusFilter(): cognidreamidream {
+	public focusFilter(): void {
 		this.filterWidget.focus();
 	}
 
-	public clearFilterText(): cognidreamidream {
+	public clearFilterText(): void {
 		this.filterWidget.setFilterText('');
 	}
 
@@ -245,7 +245,7 @@ export class CommentsPanel extends FilterViewPane implements ICommentsView {
 		this.filterWidget.checkMoreFilters(!this.filters.showResolved || !this.filters.showUnresolved);
 	}
 
-	protected override renderBody(container: HTMLElement): cognidreamidream {
+	protected override renderBody(container: HTMLElement): void {
 		super.renderBody(container);
 
 		container.classList.add('comments-panel');
@@ -272,7 +272,7 @@ export class CommentsPanel extends FilterViewPane implements ICommentsView {
 		this.renderComments();
 	}
 
-	public override focus(): cognidreamidream {
+	public override focus(): void {
 		super.focus();
 
 		const element = this.tree?.getHTMLElement();
@@ -287,7 +287,7 @@ export class CommentsPanel extends FilterViewPane implements ICommentsView {
 		}
 	}
 
-	private renderComments(): cognidreamidream {
+	private renderComments(): void {
 		this.treeContainer.classList.toggle('hidden', !this.commentService.commentsModel.hasCommentThreads());
 		this.renderMessage();
 		this.tree?.setChildren(null, createResourceCommentsIterator(this.commentService.commentsModel));
@@ -317,7 +317,7 @@ export class CommentsPanel extends FilterViewPane implements ICommentsView {
 		return !!this.tree;
 	}
 
-	protected layoutBodyContent(height: number = this.currentHeight, width: number = this.currentWidth): cognidreamidream {
+	protected layoutBodyContent(height: number = this.currentHeight, width: number = this.currentWidth): void {
 		if (this.messageBoxContainer) {
 			this.messageBoxContainer.style.height = `${height}px`;
 		}
@@ -326,12 +326,12 @@ export class CommentsPanel extends FilterViewPane implements ICommentsView {
 		this.currentWidth = width;
 	}
 
-	private createMessageBox(parent: HTMLElement): cognidreamidream {
+	private createMessageBox(parent: HTMLElement): void {
 		this.messageBoxContainer = dom.append(parent, dom.$('.message-box-container'));
 		this.messageBoxContainer.setAttribute('tabIndex', '0');
 	}
 
-	private renderMessage(): cognidreamidream {
+	private renderMessage(): void {
 		this.messageBoxContainer.textContent = this.commentService.commentsModel.getMessage();
 		this.messageBoxContainer.classList.toggle('hidden', this.commentService.commentsModel.hasCommentThreads());
 	}
@@ -415,7 +415,7 @@ export class CommentsPanel extends FilterViewPane implements ICommentsView {
 		return node.replies.length && !forAriaLabel ? nls.localize('replyCount', " {0} replies,", node.replies.length) : '';
 	}
 
-	private createTree(): cognidreamidream {
+	private createTree(): void {
 		this.treeLabels = this._register(this.instantiationService.createInstance(ResourceLabels, this));
 		this.tree = this._register(this.instantiationService.createInstance(CommentsList, this.treeLabels, this.treeContainer, {
 			overrideStyles: this.getLocationBasedColors().listOverrideStyles,
@@ -482,7 +482,7 @@ export class CommentsPanel extends FilterViewPane implements ICommentsView {
 		this._register(this.tree.onDidBlur(() => this.commentsFocusedContextKey.set(false)));
 	}
 
-	private openFile(element: any, pinned?: boolean, preserveFocus?: boolean, sideBySide?: boolean): cognidreamidream {
+	private openFile(element: any, pinned?: boolean, preserveFocus?: boolean, sideBySide?: boolean): void {
 		if (!element) {
 			return;
 		}
@@ -495,7 +495,7 @@ export class CommentsPanel extends FilterViewPane implements ICommentsView {
 		return revealCommentThread(this.commentService, this.editorService, this.uriIdentityService, threadToReveal, commentToReveal, false, pinned, preserveFocus, sideBySide);
 	}
 
-	private async refresh(): Promise<cognidreamidream> {
+	private async refresh(): Promise<void> {
 		if (!this.tree) {
 			return;
 		}
@@ -514,7 +514,7 @@ export class CommentsPanel extends FilterViewPane implements ICommentsView {
 		}
 	}
 
-	private onAllCommentsChanged(e: IWorkspaceCommentThreadsEvent): cognidreamidream {
+	private onAllCommentsChanged(e: IWorkspaceCommentThreadsEvent): void {
 		this.cachedFilterStats = undefined;
 		this.totalComments += e.commentThreads.length;
 
@@ -527,7 +527,7 @@ export class CommentsPanel extends FilterViewPane implements ICommentsView {
 		this.refresh();
 	}
 
-	private onCommentsUpdated(e: ICommentThreadChangedEvent): cognidreamidream {
+	private onCommentsUpdated(e: ICommentThreadChangedEvent): void {
 		this.cachedFilterStats = undefined;
 
 		this.totalComments += e.added.length;
@@ -544,7 +544,7 @@ export class CommentsPanel extends FilterViewPane implements ICommentsView {
 		this.refresh();
 	}
 
-	private onDataProviderDeleted(owner: string | undefined): cognidreamidream {
+	private onDataProviderDeleted(owner: string | undefined): void {
 		this.cachedFilterStats = undefined;
 		this.totalComments = 0;
 		this.refresh();

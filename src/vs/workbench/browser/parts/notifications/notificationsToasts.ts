@@ -58,7 +58,7 @@ export class NotificationsToasts extends Themable implements INotificationsToast
 		limit: this.MAX_NOTIFICATIONS
 	};
 
-	private readonly _onDidChangeVisibility = this._register(new Emitter<cognidreamidream>());
+	private readonly _onDidChangeVisibility = this._register(new Emitter<void>());
 	readonly onDidChangeVisibility = this._onDidChangeVisibility.event;
 
 	private _isVisible = false;
@@ -93,7 +93,7 @@ export class NotificationsToasts extends Themable implements INotificationsToast
 		this.registerListeners();
 	}
 
-	private registerListeners(): cognidreamidream {
+	private registerListeners(): void {
 
 		// Layout
 		this._register(this.layoutService.onDidLayoutMainContainer(dimension => this.layout(Dimension.lift(dimension))));
@@ -123,7 +123,7 @@ export class NotificationsToasts extends Themable implements INotificationsToast
 		}));
 	}
 
-	private onDidChangeNotification(e: INotificationChangeEvent): cognidreamidream {
+	private onDidChangeNotification(e: INotificationChangeEvent): void {
 		switch (e.kind) {
 			case NotificationChangeType.ADD:
 				return this.addToast(e.item);
@@ -132,7 +132,7 @@ export class NotificationsToasts extends Themable implements INotificationsToast
 		}
 	}
 
-	private addToast(item: INotificationViewItem): cognidreamidream {
+	private addToast(item: INotificationViewItem): void {
 		if (this.isNotificationsCenterVisible) {
 			return; // do not show toasts while notification center is visible
 		}
@@ -162,7 +162,7 @@ export class NotificationsToasts extends Themable implements INotificationsToast
 		itemDisposables.add(scheduleAtNextAnimationFrame(getWindow(this.container), () => this.doAddToast(item, itemDisposables)));
 	}
 
-	private doAddToast(item: INotificationViewItem, itemDisposables: DisposableStore): cognidreamidream {
+	private doAddToast(item: INotificationViewItem, itemDisposables: DisposableStore): void {
 
 		// Lazily create toasts containers
 		let notificationsToastsContainer = this.notificationsToastsContainer;
@@ -274,7 +274,7 @@ export class NotificationsToasts extends Themable implements INotificationsToast
 		}
 	}
 
-	private purgeNotification(item: INotificationViewItem, notificationToastContainer: HTMLElement, notificationList: NotificationsList, disposables: DisposableStore): cognidreamidream {
+	private purgeNotification(item: INotificationViewItem, notificationToastContainer: HTMLElement, notificationList: NotificationsList, disposables: DisposableStore): void {
 
 		// Track mouse over item
 		let isMouseOverToast = false;
@@ -322,7 +322,7 @@ export class NotificationsToasts extends Themable implements INotificationsToast
 		disposables.add(toDisposable(() => clearTimeout(purgeTimeoutHandle)));
 	}
 
-	private removeToast(item: INotificationViewItem): cognidreamidream {
+	private removeToast(item: INotificationViewItem): void {
 		let focusEditor = false;
 
 		// UI
@@ -360,7 +360,7 @@ export class NotificationsToasts extends Themable implements INotificationsToast
 		}
 	}
 
-	private removeToasts(): cognidreamidream {
+	private removeToasts(): void {
 
 		// Toast
 		this.mapNotificationToToast.clear();
@@ -372,7 +372,7 @@ export class NotificationsToasts extends Themable implements INotificationsToast
 		this.doHide();
 	}
 
-	private doHide(): cognidreamidream {
+	private doHide(): void {
 		this.notificationsToastsContainer?.classList.remove('visible');
 
 		// Context Key
@@ -385,7 +385,7 @@ export class NotificationsToasts extends Themable implements INotificationsToast
 		}
 	}
 
-	hide(): cognidreamidream {
+	hide(): void {
 		const focusEditor = this.notificationsToastsContainer ? isAncestorOfActiveElement(this.notificationsToastsContainer) : false;
 
 		this.removeToasts();
@@ -466,7 +466,7 @@ export class NotificationsToasts extends Themable implements INotificationsToast
 		return false;
 	}
 
-	update(isCenterVisible: boolean): cognidreamidream {
+	update(isCenterVisible: boolean): void {
 		if (this.isNotificationsCenterVisible !== isCenterVisible) {
 			this.isNotificationsCenterVisible = isCenterVisible;
 
@@ -477,7 +477,7 @@ export class NotificationsToasts extends Themable implements INotificationsToast
 		}
 	}
 
-	override updateStyles(): cognidreamidream {
+	override updateStyles(): void {
 		this.mapNotificationToToast.forEach(({ toast }) => {
 			const backgroundColor = this.getColor(NOTIFICATIONS_BACKGROUND);
 			toast.style.background = backgroundColor ? backgroundColor : '';
@@ -514,7 +514,7 @@ export class NotificationsToasts extends Themable implements INotificationsToast
 		return notificationToasts.reverse(); // from newest to oldest
 	}
 
-	layout(dimension: Dimension | undefined): cognidreamidream {
+	layout(dimension: Dimension | undefined): void {
 		this.workbenchDimensions = dimension;
 
 		const maxDimensions = this.computeMaxDimensions();
@@ -560,11 +560,11 @@ export class NotificationsToasts extends Themable implements INotificationsToast
 		return new Dimension(Math.min(maxWidth, availableWidth), availableHeight);
 	}
 
-	private layoutLists(width: number): cognidreamidream {
+	private layoutLists(width: number): void {
 		this.mapNotificationToToast.forEach(({ list }) => list.layout(width));
 	}
 
-	private layoutContainer(heightToGive: number): cognidreamidream {
+	private layoutContainer(heightToGive: number): void {
 		let visibleToasts = 0;
 		for (const toast of this.getToasts(ToastVisibility.HIDDEN_OR_VISIBLE)) {
 
@@ -591,7 +591,7 @@ export class NotificationsToasts extends Themable implements INotificationsToast
 		}
 	}
 
-	private updateToastVisibility(toast: INotificationToast, visible: boolean): cognidreamidream {
+	private updateToastVisibility(toast: INotificationToast, visible: boolean): void {
 		if (this.isToastInDOM(toast) === visible) {
 			return;
 		}

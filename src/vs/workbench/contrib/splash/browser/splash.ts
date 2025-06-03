@@ -12,5 +12,5 @@ export interface ISplashStorageService {
 
 	readonly _serviceBrand: undefined;
 
-	saveWindowSplash(splash: IPartsSplash): Promise<cognidreamidream>;
+	saveWindowSplash(splash: IPartsSplash): Promise<void>;
 }

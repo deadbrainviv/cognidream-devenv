@@ -28,7 +28,7 @@ export class CodeLensModel {
 
 	private _store: DisposableStore | undefined;
 
-	dispose(): cognidream {
+	dispose(): void {
 		this._store?.dispose();
 	}
 
@@ -36,7 +36,7 @@ export class CodeLensModel {
 		return this._store?.isDisposed ?? false;
 	}
 
-	add(list: CodeLensList, provider: CodeLensProvider): cognidream {
+	add(list: CodeLensList, provider: CodeLensProvider): void {
 		if (isDisposable(list)) {
 			this._store ??= new DisposableStore();
 			this._store.add(list);

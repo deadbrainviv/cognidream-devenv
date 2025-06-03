@@ -171,7 +171,7 @@ export interface IExpressionValue {
 export interface IExpressionContainer extends ITreeElement, IExpressionValue {
 	readonly hasChildren: boolean;
 	getSession(): IDebugSession | undefined;
-	evaluateLazy(): Promise<cognidream>;
+	evaluateLazy(): Promise<void>;
 	getChildren(): Promise<IExpression[]>;
 	readonly reference?: number;
 	readonly memoryReference?: string;
@@ -388,101 +388,101 @@ export interface IDebugSession extends ITreeElement {
 	/** Test run this debug session was spawned by */
 	readonly correlatedTestRun?: LiveTestResult;
 
-	setSubId(subId: string | undefinedcognidreamognidream;
+	setSubId(subId: string | undefined): void;
 
-		getMemory(memoryReference: string): IMemoryRegion;
+	getMemory(memoryReference: string): IMemoryRegion;
 
-	setName(name: stringcognidreamognidream;
-		readonly onDidChangeName: Event<string>;
-		getLabel(): string;
+	setName(name: string): void;
+	readonly onDidChangeName: Event<string>;
+	getLabel(): string;
 
 	getSourceForUri(modelUri: uri): Source | undefined;
 	getSource(raw?: DebugProtocol.Source): Source;
 
-	setConfiguration(configuration: { resolved: IConfig; unresolved: IConfig | undefined }cognidreamognidream;
-		rawUpdate(data: IRawModelUpdatecognidreamognidream;
+	setConfiguration(configuration: { resolved: IConfig; unresolved: IConfig | undefined }): void;
+	rawUpdate(data: IRawModelUpdate): void;
 
-			getThread(threadId: number): IThread | undefined;
+	getThread(threadId: number): IThread | undefined;
 	getAllThreads(): IThread[];
-	clearThreads(removeThreads: boolean, reference?: numbercognidreamognidream;
-		getStoppedDetails(): IRawStoppedDetails | undefined;
+	clearThreads(removeThreads: boolean, reference?: number): void;
+	getStoppedDetails(): IRawStoppedDetails | undefined;
 
 	getReplElements(): IReplElement[];
 	hasSeparateRepl(): boolean;
-	removeReplExpressions(cognidreamognidream;
-		addReplExpression(stackFrame: IStackFrame | undefined, name: string): Promicognidreamognidream>;
-appendToRepl(data: INewReplElementDatacognidreamognidream;
-/** Cancel any associated test run set through the DebugSessionOptions */
-cancelCorrelatedTestRun(cognidreamognidream;
+	removeReplExpressions(): void;
+	addReplExpression(stackFrame: IStackFrame | undefined, name: string): Promise<void>;
+	appendToRepl(data: INewReplElementData): void;
+	/** Cancel any associated test run set through the DebugSessionOptions */
+	cancelCorrelatedTestRun(): void;
 
-    // session events
-    readonly onDidEndAdapter: Event<AdapterEndEvent | undefined>;
-    readonly onDidChangeState: Evecognidreamognidream >;
-    readonly onDidChangeReplElements: Event<IReplElement | undefined>;
+	// session events
+	readonly onDidEndAdapter: Event<AdapterEndEvent | undefined>;
+	readonly onDidChangeState: Event<void>;
+	readonly onDidChangeReplElements: Event<IReplElement | undefined>;
 
-    /** DA capabilities. Set only when there is a running session available. */
-    readonly capabilities: DebugProtocol.Capabilities;
-    /** DA capabilities. These are retained on the session even after is implementation ends. */
-    readonly rememberedCapabilities ?: DebugProtocol.Capabilities;
+	/** DA capabilities. Set only when there is a running session available. */
+	readonly capabilities: DebugProtocol.Capabilities;
+	/** DA capabilities. These are retained on the session even after is implementation ends. */
+	readonly rememberedCapabilities?: DebugProtocol.Capabilities;
 
-    // DAP events
+	// DAP events
 
-    readonly onDidLoadedSource: Event<LoadedSourceEvent>;
-    readonly onDidCustomEvent: Event<DebugProtocol.Event>;
-    readonly onDidProgressStart: Event<DebugProtocol.ProgressStartEvent>;
-    readonly onDidProgressUpdate: Event<DebugProtocol.ProgressUpdateEvent>;
-    readonly onDidProgressEnd: Event<DebugProtocol.ProgressEndEvent>;
-    readonly onDidInvalidateMemory: Event<DebugProtocol.MemoryEvent>;
+	readonly onDidLoadedSource: Event<LoadedSourceEvent>;
+	readonly onDidCustomEvent: Event<DebugProtocol.Event>;
+	readonly onDidProgressStart: Event<DebugProtocol.ProgressStartEvent>;
+	readonly onDidProgressUpdate: Event<DebugProtocol.ProgressUpdateEvent>;
+	readonly onDidProgressEnd: Event<DebugProtocol.ProgressEndEvent>;
+	readonly onDidInvalidateMemory: Event<DebugProtocol.MemoryEvent>;
 
-// DAP request
+	// DAP request
 
-initialize(dbgr: IDebugger): Promicognidreamognidream >;
-launchOrAttach(config: IConfig): Promicognidreamognidream >;
-restart(): Promicognidreamognidream >;
-terminate(restart ?: boolean /* false */): Promicognidreamognidream >;
-disconnect(restart ?: boolean /* false */, suspend ?: boolean): Promicognidreamognidream >;
+	initialize(dbgr: IDebugger): Promise<void>;
+	launchOrAttach(config: IConfig): Promise<void>;
+	restart(): Promise<void>;
+	terminate(restart?: boolean /* false */): Promise<void>;
+	disconnect(restart?: boolean /* false */, suspend?: boolean): Promise<void>;
 
-sendBreakpoints(modelUri: uri, bpts: IBreakpoint[], sourceModified: boolean): Promicognidreamognidream >;
-sendFunctionBreakpoints(fbps: IFunctionBreakpoint[]): Promicognidreamognidream >;
-dataBreakpointInfo(name: string, variablesReference ?: number): Promise<IDataBreakpointInfoResponse | undefined>;
-dataBytesBreakpointInfo(address: string, bytes: number): Promise<IDataBreakpointInfoResponse | undefined>;
-sendDataBreakpoints(dbps: IDataBreakpoint[]): Promicognidreamognidream >;
-sendInstructionBreakpoints(dbps: IInstructionBreakpoint[]): Promicognidreamognidream >;
-sendExceptionBreakpoints(exbpts: IExceptionBreakpoint[]): Promicognidreamognidream >;
-breakpointsLocations(uri: uri, lineNumber: number): Promise<IPosition[]>;
-getDebugProtocolBreakpoint(breakpointId: string): DebugProtocol.Breakpoint | undefined;
-resolveLocationReference(locationReference: number): Promise<IDebugLocationReferenced>;
+	sendBreakpoints(modelUri: uri, bpts: IBreakpoint[], sourceModified: boolean): Promise<void>;
+	sendFunctionBreakpoints(fbps: IFunctionBreakpoint[]): Promise<void>;
+	dataBreakpointInfo(name: string, variablesReference?: number): Promise<IDataBreakpointInfoResponse | undefined>;
+	dataBytesBreakpointInfo(address: string, bytes: number): Promise<IDataBreakpointInfoResponse | undefined>;
+	sendDataBreakpoints(dbps: IDataBreakpoint[]): Promise<void>;
+	sendInstructionBreakpoints(dbps: IInstructionBreakpoint[]): Promise<void>;
+	sendExceptionBreakpoints(exbpts: IExceptionBreakpoint[]): Promise<void>;
+	breakpointsLocations(uri: uri, lineNumber: number): Promise<IPosition[]>;
+	getDebugProtocolBreakpoint(breakpointId: string): DebugProtocol.Breakpoint | undefined;
+	resolveLocationReference(locationReference: number): Promise<IDebugLocationReferenced>;
 
-stackTrace(threadId: number, startFrame: number, levels: number, token: CancellationToken): Promise<DebugProtocol.StackTraceResponse | undefined>;
-exceptionInfo(threadId: number): Promise<IExceptionInfo | undefined>;
-scopes(frameId: number, threadId: number): Promise<DebugProtocol.ScopesResponse | undefined>;
-variables(variablesReference: number, threadId: number | undefined, filter: 'indexed' | 'named' | undefined, start: number | undefined, count: number | undefined): Promise<DebugProtocol.VariablesResponse | undefined>;
-evaluate(expression: string, frameId ?: number, context ?: string, location ?: IDebugEvaluatePosition): Promise<DebugProtocol.EvaluateResponse | undefined>;
-customRequest(request: string, args: any): Promise<DebugProtocol.Response | undefined>;
-cancel(progressId: string): Promise<DebugProtocol.CancelResponse | undefined>;
-disassemble(memoryReference: string, offset: number, instructionOffset: number, instructionCount: number): Promise<DebugProtocol.DisassembledInstruction[] | undefined>;
-readMemory(memoryReference: string, offset: number, count: number): Promise<DebugProtocol.ReadMemoryResponse | undefined>;
-writeMemory(memoryReference: string, offset: number, data: string, allowPartial ?: boolean): Promise<DebugProtocol.WriteMemoryResponse | undefined>;
+	stackTrace(threadId: number, startFrame: number, levels: number, token: CancellationToken): Promise<DebugProtocol.StackTraceResponse | undefined>;
+	exceptionInfo(threadId: number): Promise<IExceptionInfo | undefined>;
+	scopes(frameId: number, threadId: number): Promise<DebugProtocol.ScopesResponse | undefined>;
+	variables(variablesReference: number, threadId: number | undefined, filter: 'indexed' | 'named' | undefined, start: number | undefined, count: number | undefined): Promise<DebugProtocol.VariablesResponse | undefined>;
+	evaluate(expression: string, frameId?: number, context?: string, location?: IDebugEvaluatePosition): Promise<DebugProtocol.EvaluateResponse | undefined>;
+	customRequest(request: string, args: any): Promise<DebugProtocol.Response | undefined>;
+	cancel(progressId: string): Promise<DebugProtocol.CancelResponse | undefined>;
+	disassemble(memoryReference: string, offset: number, instructionOffset: number, instructionCount: number): Promise<DebugProtocol.DisassembledInstruction[] | undefined>;
+	readMemory(memoryReference: string, offset: number, count: number): Promise<DebugProtocol.ReadMemoryResponse | undefined>;
+	writeMemory(memoryReference: string, offset: number, data: string, allowPartial?: boolean): Promise<DebugProtocol.WriteMemoryResponse | undefined>;
 
-restartFrame(frameId: number, threadId: number): Promicognidreamognidream >;
-next(threadId: number, granularity ?: DebugProtocol.SteppingGranularity): Promicognidreamognidream >;
-stepIn(threadId: number, targetId ?: number, granularity ?: DebugProtocol.SteppingGranularity): Promicognidreamognidream >;
-stepInTargets(frameId: number): Promise<DebugProtocol.StepInTarget[] | undefined>;
-stepOut(threadId: number, granularity ?: DebugProtocol.SteppingGranularity): Promicognidreamognidream >;
-stepBack(threadId: number, granularity ?: DebugProtocol.SteppingGranularity): Promicognidreamognidream >;
-continue(threadId: number): Promicognidreamognidream>;
-reverseContinue(threadId: number): Promicognidreamognidream >;
-pause(threadId: number): Promicognidreamognidream >;
-terminateThreads(threadIds: number[]): Promicognidreamognidream >;
+	restartFrame(frameId: number, threadId: number): Promise<void>;
+	next(threadId: number, granularity?: DebugProtocol.SteppingGranularity): Promise<void>;
+	stepIn(threadId: number, targetId?: number, granularity?: DebugProtocol.SteppingGranularity): Promise<void>;
+	stepInTargets(frameId: number): Promise<DebugProtocol.StepInTarget[] | undefined>;
+	stepOut(threadId: number, granularity?: DebugProtocol.SteppingGranularity): Promise<void>;
+	stepBack(threadId: number, granularity?: DebugProtocol.SteppingGranularity): Promise<void>;
+	continue(threadId: number): Promise<void>;
+	reverseContinue(threadId: number): Promise<void>;
+	pause(threadId: number): Promise<void>;
+	terminateThreads(threadIds: number[]): Promise<void>;
 
-completions(frameId: number | undefined, threadId: number, text: string, position: Position, token: CancellationToken): Promise<DebugProtocol.CompletionsResponse | undefined>;
-setVariable(variablesReference: number | undefined, name: string, value: string): Promise<DebugProtocol.SetVariableResponse | undefined>;
-setExpression(frameId: number, expression: string, value: string): Promise<DebugProtocol.SetExpressionResponse | undefined>;
-loadSource(resource: uri): Promise<DebugProtocol.SourceResponse | undefined>;
-getLoadedSources(): Promise<Source[]>;
+	completions(frameId: number | undefined, threadId: number, text: string, position: Position, token: CancellationToken): Promise<DebugProtocol.CompletionsResponse | undefined>;
+	setVariable(variablesReference: number | undefined, name: string, value: string): Promise<DebugProtocol.SetVariableResponse | undefined>;
+	setExpression(frameId: number, expression: string, value: string): Promise<DebugProtocol.SetExpressionResponse | undefined>;
+	loadSource(resource: uri): Promise<DebugProtocol.SourceResponse | undefined>;
+	getLoadedSources(): Promise<Source[]>;
 
-gotoTargets(source: DebugProtocol.Source, line: number, column ?: number): Promise<DebugProtocol.GotoTargetsResponse | undefined>;
-goto(threadId: number, targetId: number): Promise<DebugProtocol.GotoResponse | undefined>;
+	gotoTargets(source: DebugProtocol.Source, line: number, column?: number): Promise<DebugProtocol.GotoTargetsResponse | undefined>;
+	goto(threadId: number, targetId: number): Promise<DebugProtocol.GotoResponse | undefined>;
 }
 
 export interface IThread extends ITreeElement {
@@ -529,15 +529,15 @@ export interface IThread extends ITreeElement {
 	/**
 	 * Invalidates the callstack cache
 	 */
-	clearCallStack(cognidreamognidream;
+	clearCallStack(): void;
 
-		/**
-		 * Indicates whether this thread is stopped. The callstack for stopped
-		 * threads can be retrieved from the debug adapter.
-		 */
-		readonly stopped: boolean;
+	/**
+	 * Indicates whether this thread is stopped. The callstack for stopped
+	 * threads can be retrieved from the debug adapter.
+	 */
+	readonly stopped: boolean;
 
-		next(granularity?: DebugProtocol.SteppingGranularity): Promise<any>;
+	next(granularity?: DebugProtocol.SteppingGranularity): Promise<any>;
 	stepIn(granularity?: DebugProtocol.SteppingGranularity): Promise<any>;
 	stepOut(granularity?: DebugProtocol.SteppingGranularity): Promise<any>;
 	stepBack(granularity?: DebugProtocol.SteppingGranularity): Promise<any>;
@@ -565,8 +565,8 @@ export interface IStackFrame extends ITreeElement {
 	readonly instructionPointerReference?: string;
 	getScopes(): Promise<IScope[]>;
 	getMostSpecificScopes(range: IRange): Promise<ReadonlyArray<IScope>>;
-	forgetScopes(cognidreamognidream;
-		restart(): Promise<any>;
+	forgetScopes(): void;
+	restart(): Promise<any>;
 	toString(): string;
 	openInEditor(editorService: IEditorService, preserveFocus?: boolean, sideBySide?: boolean, pinned?: boolean): Promise<IEditorPane | undefined>;
 	equals(other: IStackFrame): boolean;
@@ -637,9 +637,9 @@ export interface IBreakpoint extends IBaseBreakpoint {
 	readonly pending: boolean;
 
 	/** Marks that a session did trigger the breakpoint. */
-	setSessionDidTrigger(sessionId: string, didTrigger?: booleancognidreamognidream;
-		/** Gets whether the `triggeredBy` condition has been met in the given sesison ID. */
-		getSessionDidTrigger(sessionId: string): boolean;
+	setSessionDidTrigger(sessionId: string, didTrigger?: boolean): void;
+	/** Gets whether the `triggeredBy` condition has been met in the given sesison ID. */
+	getSessionDidTrigger(sessionId: string): boolean;
 
 	toDAP(): DebugProtocol.SourceBreakpoint;
 }
@@ -710,14 +710,14 @@ export interface IViewModel extends ITreeElement {
 	 */
 	readonly focusedStackFrame: IStackFrame | undefined;
 
-	setVisualizedExpression(original: IExpression, visualized: IExpression & { treeId: string } | undefinedcognidreamognidream;
-		/** Returns the visualized expression if loaded, or a tree it should be visualized with, or undefined */
-		getVisualizedExpression(expression: IExpression): IExpression | string | undefined;
+	setVisualizedExpression(original: IExpression, visualized: IExpression & { treeId: string } | undefined): void;
+	/** Returns the visualized expression if loaded, or a tree it should be visualized with, or undefined */
+	getVisualizedExpression(expression: IExpression): IExpression | string | undefined;
 	getSelectedExpression(): { expression: IExpression; settingWatch: boolean } | undefined;
-	setSelectedExpression(expression: IExpression | undefined, settingWatch: booleancognidreamognidream;
-		updateViews(cognidreamognidream;
+	setSelectedExpression(expression: IExpression | undefined, settingWatch: boolean): void;
+	updateViews(): void;
 
-			isMultiSessionView(): boolean;
+	isMultiSessionView(): boolean;
 
 	onDidFocusSession: Event<IDebugSession | undefined>;
 	onDidFocusThread: Event<{ thread: IThread | undefined; explicit: boolean; session: IDebugSession | undefined }>;
@@ -729,13 +729,13 @@ export interface IViewModel extends ITreeElement {
 	 * rendered as `original` to the `replacement`.
 	 */
 	onDidChangeVisualization: Event<{ original: IExpression; replacement: IExpression }>;
-	onWillUpdateViews: Evecognidreamognidream>;
+	onWillUpdateViews: Event<void>;
 
-evaluateLazyExpression(expression: IExpressionContainercognidreamognidream;
+	evaluateLazyExpression(expression: IExpressionContainer): void;
 }
 
 export interface IEvaluate {
-	evaluate(session: IDebugSession, stackFrame: IStackFrame, context: string): Promicognidreamognidream>;
+	evaluate(session: IDebugSession, stackFrame: IStackFrame, context: string): Promise<void>;
 }
 
 export interface IDebugModel extends ITreeElement {
@@ -759,20 +759,20 @@ export interface IDebugModel extends ITreeElement {
 
 	getInstructionBreakpoints(): ReadonlyArray<IInstructionBreakpoint>;
 	getWatchExpressions(): ReadonlyArray<IExpression & IEvaluate>;
-	registerBreakpointModes(debugType: string, modes: DebugProtocol.BreakpointMode[]cognidreamognidream;
-		getBreakpointModes(forBreakpointType: 'source' | 'exception' | 'data' | 'instruction'): DebugProtocol.BreakpointMode[];
+	registerBreakpointModes(debugType: string, modes: DebugProtocol.BreakpointMode[]): void;
+	getBreakpointModes(forBreakpointType: 'source' | 'exception' | 'data' | 'instruction'): DebugProtocol.BreakpointMode[];
 	onDidChangeBreakpoints: Event<IBreakpointsChangeEvent | undefined>;
-	onDidChangeCallStack: Evecognidreamognidream>;
-/**
- * The expression has been added, removed, or repositioned.
- */
-onDidChangeWatchExpressions: Event<IExpression | undefined>;
-/**
- * The expression's value has changed.
- */
-onDidChangeWatchExpressionValue: Event<IExpression | undefined>;
+	onDidChangeCallStack: Event<void>;
+	/**
+	 * The expression has been added, removed, or repositioned.
+	 */
+	onDidChangeWatchExpressions: Event<IExpression | undefined>;
+	/**
+	 * The expression's value has changed.
+	 */
+	onDidChangeWatchExpressionValue: Event<IExpression | undefined>;
 
-fetchCallstack(thread: IThread, levels ?: number): Promicognidreamognidream >;
+	fetchCallstack(thread: IThread, levels?: number): Promise<void>;
 }
 
 /**
@@ -879,13 +879,13 @@ export interface ICompound {
 export interface IDebugAdapter extends IDisposable {
 	readonly onError: Event<Error>;
 	readonly onExit: Event<number | null>;
-	onRequest(callback: (request: DebugProtocol.Request) cognidreamogncognidreamam): cognidream;
-	onEvent(callback: (event: DebugProtocol.Event) cognidreamogncognidreamam): cognidream;
-	startSession(): Promicognidreamognidream>;
-sendMessage(message: DebugProtocol.ProtocolMessagecognidreamognidream;
-sendResponse(response: DebugProtocol.Responsecognidreamognidream;
-sendRequest(command: string, args: any, clb: (result: DebugProtocol.Response) cognidreamognidream, timeout ?: number): number;
-stopSession(): Promicognidreamognidream >;
+	onRequest(callback: (request: DebugProtocol.Request) => void): void;
+	onEvent(callback: (event: DebugProtocol.Event) => void): void;
+	startSession(): Promise<void>;
+	sendMessage(message: DebugProtocol.ProtocolMessage): void;
+	sendResponse(response: DebugProtocol.Response): void;
+	sendRequest(command: string, args: any, clb: (result: DebugProtocol.Response) => void, timeout?: number): number;
+	stopSession(): Promise<void>;
 }
 
 export interface IDebugAdapterFactory extends ITerminalLauncher {
@@ -918,7 +918,7 @@ export interface IDebugAdapterNamedPipeServer {
 
 export interface IDebugAdapterInlineImpl extends IDisposable {
 	readonly onDidSendMessage: Event<DebugProtocol.Message>;
-	handleMessage(message: DebugProtocol.Messagecognidreamognidream;
+	handleMessage(message: DebugProtocol.Message): void;
 }
 
 export interface IDebugAdapterImpl {
@@ -1007,32 +1007,32 @@ export interface IConfigurationManager {
 		type: string | undefined;
 	};
 
-	selectConfiguration(launch: ILaunch | undefined, name?: string, config?: IConfig, dynamicConfigOptions?: { type?: string }): Promicognidreamognidream>;
+	selectConfiguration(launch: ILaunch | undefined, name?: string, config?: IConfig, dynamicConfigOptions?: { type?: string }): Promise<void>;
 
-getLaunches(): ReadonlyArray<ILaunch>;
-getLaunch(workspaceUri: uri | undefined): ILaunch | undefined;
-getAllConfigurations(): { launch: ILaunch; name: string; presentation ?: IConfigPresentation } [];
-removeRecentDynamicConfigurations(name: string, type: stringcognidreamognidream;
-getRecentDynamicConfigurations(): { name: string; type: string } [];
+	getLaunches(): ReadonlyArray<ILaunch>;
+	getLaunch(workspaceUri: uri | undefined): ILaunch | undefined;
+	getAllConfigurations(): { launch: ILaunch; name: string; presentation?: IConfigPresentation }[];
+	removeRecentDynamicConfigurations(name: string, type: string): void;
+	getRecentDynamicConfigurations(): { name: string; type: string }[];
 
-/**
- * Allows to register on change of selected debug configuration.
- */
-onDidSelectConfiguration: Evecognidreamognidream >;
+	/**
+	 * Allows to register on change of selected debug configuration.
+	 */
+	onDidSelectConfiguration: Event<void>;
 
-/**
- * Allows to register on change of selected debug configuration.
- */
-onDidChangeConfigurationProviders: Evecognidreamognidream >;
+	/**
+	 * Allows to register on change of selected debug configuration.
+	 */
+	onDidChangeConfigurationProviders: Event<void>;
 
-hasDebugConfigurationProvider(debugType: string, triggerKind ?: DebugConfigurationProviderTriggerKind): boolean;
-getDynamicProviders(): Promise<{ label: string; type: string; pick: () => Promise<{ launch: ILaunch; config: IConfig; label: string } | undefined> }[]>;
-getDynamicConfigurationsByType(type: string, token ?: CancellationToken): Promise<{ launch: ILaunch; config: IConfig; label: string }[]>;
+	hasDebugConfigurationProvider(debugType: string, triggerKind?: DebugConfigurationProviderTriggerKind): boolean;
+	getDynamicProviders(): Promise<{ label: string; type: string; pick: () => Promise<{ launch: ILaunch; config: IConfig; label: string } | undefined> }[]>;
+	getDynamicConfigurationsByType(type: string, token?: CancellationToken): Promise<{ launch: ILaunch; config: IConfig; label: string }[]>;
 
-registerDebugConfigurationProvider(debugConfigurationProvider: IDebugConfigurationProvider): IDisposable;
-unregisterDebugConfigurationProvider(debugConfigurationProvider: IDebugConfigurationProvidercognidreamognidream;
+	registerDebugConfigurationProvider(debugConfigurationProvider: IDebugConfigurationProvider): IDisposable;
+	unregisterDebugConfigurationProvider(debugConfigurationProvider: IDebugConfigurationProvider): void;
 
-resolveConfigurationByProviders(folderUri: uri | undefined, type: string | undefined, debugConfiguration: any, token: CancellationToken): Promise<any>;
+	resolveConfigurationByProviders(folderUri: uri | undefined, type: string | undefined, debugConfiguration: any, token: CancellationToken): Promise<any>;
 }
 
 export enum DebuggerString {
@@ -1041,26 +1041,26 @@ export enum DebuggerString {
 
 export interface IAdapterManager {
 
-	onDidRegisterDebugger: Evecognidreamognidream>;
+	onDidRegisterDebugger: Event<void>;
 
-hasEnabledDebuggers(): boolean;
-getDebugAdapterDescriptor(session: IDebugSession): Promise<IAdapterDescriptor | undefined>;
-getDebuggerLabel(type: string): string | undefined;
-someDebuggerInterestedInLanguage(language: string): boolean;
-getDebugger(type: string): IDebuggerMetadata | undefined;
+	hasEnabledDebuggers(): boolean;
+	getDebugAdapterDescriptor(session: IDebugSession): Promise<IAdapterDescriptor | undefined>;
+	getDebuggerLabel(type: string): string | undefined;
+	someDebuggerInterestedInLanguage(language: string): boolean;
+	getDebugger(type: string): IDebuggerMetadata | undefined;
 
-activateDebuggers(activationEvent: string, debugType ?: string): Promicognidreamognidream >;
-registerDebugAdapterFactory(debugTypes: string[], debugAdapterFactory: IDebugAdapterFactory): IDisposable;
-createDebugAdapter(session: IDebugSession): IDebugAdapter | undefined;
-registerDebugAdapterDescriptorFactory(debugAdapterDescriptorFactory: IDebugAdapterDescriptorFactory): IDisposable;
-unregisterDebugAdapterDescriptorFactory(debugAdapterDescriptorFactory: IDebugAdapterDescriptorFactorycognidreamognidream;
+	activateDebuggers(activationEvent: string, debugType?: string): Promise<void>;
+	registerDebugAdapterFactory(debugTypes: string[], debugAdapterFactory: IDebugAdapterFactory): IDisposable;
+	createDebugAdapter(session: IDebugSession): IDebugAdapter | undefined;
+	registerDebugAdapterDescriptorFactory(debugAdapterDescriptorFactory: IDebugAdapterDescriptorFactory): IDisposable;
+	unregisterDebugAdapterDescriptorFactory(debugAdapterDescriptorFactory: IDebugAdapterDescriptorFactory): void;
 
-substituteVariables(debugType: string, folder: IWorkspaceFolder | undefined, config: IConfig): Promise<IConfig>;
-runInTerminal(debugType: string, args: DebugProtocol.RunInTerminalRequestArguments, sessionId: string): Promise<number | undefined>;
-getEnabledDebugger(type: string): (IDebugger & IDebuggerMetadata) | undefined;
-guessDebugger(gettingConfigurations: boolean): Promise<IGuessedDebugger | undefined>;
+	substituteVariables(debugType: string, folder: IWorkspaceFolder | undefined, config: IConfig): Promise<IConfig>;
+	runInTerminal(debugType: string, args: DebugProtocol.RunInTerminalRequestArguments, sessionId: string): Promise<number | undefined>;
+	getEnabledDebugger(type: string): (IDebugger & IDebuggerMetadata) | undefined;
+	guessDebugger(gettingConfigurations: boolean): Promise<IGuessedDebugger | undefined>;
 
-    get onDidDebuggersExtPointRead(): Evecognidreamognidream >;
+	get onDidDebuggersExtPointRead(): Event<void>;
 }
 
 export interface IGuessedDebugger {
@@ -1170,166 +1170,166 @@ export interface IDebugService {
 	/**
 	 * Sets the focused stack frame and evaluates all expressions against the newly focused stack frame,
 	 */
-	focusStackFrame(focusedStackFrame: IStackFrame | undefined, thread?: IThread, session?: IDebugSession, options?: { explicit?: boolean; preserveFocus?: boolean; sideBySide?: boolean; pinned?: boolean }): Promicognidreamognidream>;
+	focusStackFrame(focusedStackFrame: IStackFrame | undefined, thread?: IThread, session?: IDebugSession, options?: { explicit?: boolean; preserveFocus?: boolean; sideBySide?: boolean; pinned?: boolean }): Promise<void>;
 
-/**
- * Returns true if breakpoints can be set for a given editor model. Depends on mode.
- */
-canSetBreakpointsIn(model: EditorIModel): boolean;
+	/**
+	 * Returns true if breakpoints can be set for a given editor model. Depends on mode.
+	 */
+	canSetBreakpointsIn(model: EditorIModel): boolean;
 
-/**
- * Adds new breakpoints to the model for the file specified with the uri. Notifies debug adapter of breakpoint changes.
- */
-addBreakpoints(uri: uri, rawBreakpoints: IBreakpointData[], ariaAnnounce ?: boolean): Promise<IBreakpoint[]>;
+	/**
+	 * Adds new breakpoints to the model for the file specified with the uri. Notifies debug adapter of breakpoint changes.
+	 */
+	addBreakpoints(uri: uri, rawBreakpoints: IBreakpointData[], ariaAnnounce?: boolean): Promise<IBreakpoint[]>;
 
-/**
- * Updates the breakpoints.
- */
-updateBreakpoints(originalUri: uri, data: Map<string, IBreakpointUpdateData>, sendOnResourceSaved: boolean): Promicognidreamognidream >;
+	/**
+	 * Updates the breakpoints.
+	 */
+	updateBreakpoints(originalUri: uri, data: Map<string, IBreakpointUpdateData>, sendOnResourceSaved: boolean): Promise<void>;
 
-/**
- * Enables or disables all breakpoints. If breakpoint is passed only enables or disables the passed breakpoint.
- * Notifies debug adapter of breakpoint changes.
- */
-enableOrDisableBreakpoints(enable: boolean, breakpoint ?: IEnablement): Promicognidreamognidream >;
+	/**
+	 * Enables or disables all breakpoints. If breakpoint is passed only enables or disables the passed breakpoint.
+	 * Notifies debug adapter of breakpoint changes.
+	 */
+	enableOrDisableBreakpoints(enable: boolean, breakpoint?: IEnablement): Promise<void>;
 
-/**
- * Sets the global activated property for all breakpoints.
- * Notifies debug adapter of breakpoint changes.
- */
-setBreakpointsActivated(activated: boolean): Promicognidreamognidream >;
+	/**
+	 * Sets the global activated property for all breakpoints.
+	 * Notifies debug adapter of breakpoint changes.
+	 */
+	setBreakpointsActivated(activated: boolean): Promise<void>;
 
-/**
- * Removes all breakpoints. If id is passed only removes the breakpoint associated with that id.
- * Notifies debug adapter of breakpoint changes.
- */
-removeBreakpoints(id ?: string): Promise<any>;
+	/**
+	 * Removes all breakpoints. If id is passed only removes the breakpoint associated with that id.
+	 * Notifies debug adapter of breakpoint changes.
+	 */
+	removeBreakpoints(id?: string): Promise<any>;
 
-/**
- * Adds a new function breakpoint for the given name.
- */
-addFunctionBreakpoint(opts ?: IFunctionBreakpointOptions, id ?: stringcognidreamognidream;
+	/**
+	 * Adds a new function breakpoint for the given name.
+	 */
+	addFunctionBreakpoint(opts?: IFunctionBreakpointOptions, id?: string): void;
 
-/**
- * Updates an already existing function breakpoint.
- * Notifies debug adapter of breakpoint changes.
- */
-updateFunctionBreakpoint(id: string, update: { name?: string; hitCondition?: string; condition?: string }): Promicognidreamognidream >;
+	/**
+	 * Updates an already existing function breakpoint.
+	 * Notifies debug adapter of breakpoint changes.
+	 */
+	updateFunctionBreakpoint(id: string, update: { name?: string; hitCondition?: string; condition?: string }): Promise<void>;
 
-/**
- * Removes all function breakpoints. If id is passed only removes the function breakpoint with the passed id.
- * Notifies debug adapter of breakpoint changes.
- */
-removeFunctionBreakpoints(id ?: string): Promicognidreamognidream >;
+	/**
+	 * Removes all function breakpoints. If id is passed only removes the function breakpoint with the passed id.
+	 * Notifies debug adapter of breakpoint changes.
+	 */
+	removeFunctionBreakpoints(id?: string): Promise<void>;
 
-/**
- * Adds a new data breakpoint.
- */
-addDataBreakpoint(opts: IDataBreakpointOptions): Promicognidreamognidream >;
+	/**
+	 * Adds a new data breakpoint.
+	 */
+	addDataBreakpoint(opts: IDataBreakpointOptions): Promise<void>;
 
-/**
- * Updates an already existing data breakpoint.
- * Notifies debug adapter of breakpoint changes.
- */
-updateDataBreakpoint(id: string, update: { hitCondition?: string; condition?: string }): Promicognidreamognidream >;
+	/**
+	 * Updates an already existing data breakpoint.
+	 * Notifies debug adapter of breakpoint changes.
+	 */
+	updateDataBreakpoint(id: string, update: { hitCondition?: string; condition?: string }): Promise<void>;
 
-/**
- * Removes all data breakpoints. If id is passed only removes the data breakpoint with the passed id.
- * Notifies debug adapter of breakpoint changes.
- */
-removeDataBreakpoints(id ?: string): Promicognidreamognidream >;
+	/**
+	 * Removes all data breakpoints. If id is passed only removes the data breakpoint with the passed id.
+	 * Notifies debug adapter of breakpoint changes.
+	 */
+	removeDataBreakpoints(id?: string): Promise<void>;
 
-/**
- * Adds a new instruction breakpoint.
- */
-addInstructionBreakpoint(opts: IInstructionBreakpointOptions): Promicognidreamognidream >;
+	/**
+	 * Adds a new instruction breakpoint.
+	 */
+	addInstructionBreakpoint(opts: IInstructionBreakpointOptions): Promise<void>;
 
-/**
- * Removes all instruction breakpoints. If address is passed only removes the instruction breakpoint with the passed address.
- * The address should be the address string supplied by the debugger from the "Disassemble" request.
- * Notifies debug adapter of breakpoint changes.
- */
-removeInstructionBreakpoints(instructionReference ?: string, offset ?: number): Promicognidreamognidream >;
+	/**
+	 * Removes all instruction breakpoints. If address is passed only removes the instruction breakpoint with the passed address.
+	 * The address should be the address string supplied by the debugger from the "Disassemble" request.
+	 * Notifies debug adapter of breakpoint changes.
+	 */
+	removeInstructionBreakpoints(instructionReference?: string, offset?: number): Promise<void>;
 
-setExceptionBreakpointCondition(breakpoint: IExceptionBreakpoint, condition: string | undefined): Promicognidreamognidream >;
+	setExceptionBreakpointCondition(breakpoint: IExceptionBreakpoint, condition: string | undefined): Promise<void>;
 
-/**
- * Creates breakpoints based on the sesison filter options. This will create
- * disabled breakpoints (or enabled, if the filter indicates it's a default)
- * for each filter provided in the session.
- */
-setExceptionBreakpointsForSession(session: IDebugSession, filters: DebugProtocol.ExceptionBreakpointsFilter[]cognidreamognidream;
+	/**
+	 * Creates breakpoints based on the sesison filter options. This will create
+	 * disabled breakpoints (or enabled, if the filter indicates it's a default)
+	 * for each filter provided in the session.
+	 */
+	setExceptionBreakpointsForSession(session: IDebugSession, filters: DebugProtocol.ExceptionBreakpointsFilter[]): void;
 
-/**
- * Sends all breakpoints to the passed session.
- * If session is not passed, sends all breakpoints to each session.
- */
-sendAllBreakpoints(session ?: IDebugSession): Promise<any>;
+	/**
+	 * Sends all breakpoints to the passed session.
+	 * If session is not passed, sends all breakpoints to each session.
+	 */
+	sendAllBreakpoints(session?: IDebugSession): Promise<any>;
 
-/**
- * Sends breakpoints of the given source to the passed session.
- */
-sendBreakpoints(modelUri: uri, sourceModified ?: boolean, session ?: IDebugSession): Promise<any>;
+	/**
+	 * Sends breakpoints of the given source to the passed session.
+	 */
+	sendBreakpoints(modelUri: uri, sourceModified?: boolean, session?: IDebugSession): Promise<any>;
 
-/**
- * Adds a new watch expression and evaluates it against the debug adapter.
- */
-addWatchExpression(name ?: stringcognidreamognidream;
+	/**
+	 * Adds a new watch expression and evaluates it against the debug adapter.
+	 */
+	addWatchExpression(name?: string): void;
 
-/**
- * Renames a watch expression and evaluates it against the debug adapter.
- */
-renameWatchExpression(id: string, newName: stringcognidreamognidream;
+	/**
+	 * Renames a watch expression and evaluates it against the debug adapter.
+	 */
+	renameWatchExpression(id: string, newName: string): void;
 
-/**
- * Moves a watch expression to a new possition. Used for reordering watch expressions.
- */
-moveWatchExpression(id: string, position: numbercognidreamognidream;
+	/**
+	 * Moves a watch expression to a new possition. Used for reordering watch expressions.
+	 */
+	moveWatchExpression(id: string, position: number): void;
 
-/**
- * Removes all watch expressions. If id is passed only removes the watch expression with the passed id.
- */
-removeWatchExpressions(id ?: stringcognidreamognidream;
+	/**
+	 * Removes all watch expressions. If id is passed only removes the watch expression with the passed id.
+	 */
+	removeWatchExpressions(id?: string): void;
 
-/**
- * Starts debugging. If the configOrName is not passed uses the selected configuration in the debug dropdown.
- * Also saves all files, manages if compounds are present in the configuration
- * and resolveds configurations via DebugConfigurationProviders.
- *
- * Returns true if the start debugging was successful. For compound launches, all configurations have to start successfully for it to return success.
- * On errors the startDebugging will throw an error, however some error and cancelations are handled and in that case will simply return false.
- */
-startDebugging(launch: ILaunch | undefined, configOrName ?: IConfig | string, options ?: IDebugSessionOptions, saveBeforeStart ?: boolean): Promise<boolean>;
+	/**
+	 * Starts debugging. If the configOrName is not passed uses the selected configuration in the debug dropdown.
+	 * Also saves all files, manages if compounds are present in the configuration
+	 * and resolveds configurations via DebugConfigurationProviders.
+	 *
+	 * Returns true if the start debugging was successful. For compound launches, all configurations have to start successfully for it to return success.
+	 * On errors the startDebugging will throw an error, however some error and cancelations are handled and in that case will simply return false.
+	 */
+	startDebugging(launch: ILaunch | undefined, configOrName?: IConfig | string, options?: IDebugSessionOptions, saveBeforeStart?: boolean): Promise<boolean>;
 
-/**
- * Restarts a session or creates a new one if there is no active session.
- */
-restartSession(session: IDebugSession, restartData ?: any): Promise<any>;
+	/**
+	 * Restarts a session or creates a new one if there is no active session.
+	 */
+	restartSession(session: IDebugSession, restartData?: any): Promise<any>;
 
-/**
- * Stops the session. If no session is specified then all sessions are stopped.
- */
-stopSession(session: IDebugSession | undefined, disconnect ?: boolean, suspend ?: boolean): Promise<any>;
+	/**
+	 * Stops the session. If no session is specified then all sessions are stopped.
+	 */
+	stopSession(session: IDebugSession | undefined, disconnect?: boolean, suspend?: boolean): Promise<any>;
 
-/**
- * Makes unavailable all sources with the passed uri. Source will appear as grayed out in callstack view.
- */
-sourceIsNotAvailable(uri: uricognidreamognidream;
+	/**
+	 * Makes unavailable all sources with the passed uri. Source will appear as grayed out in callstack view.
+	 */
+	sourceIsNotAvailable(uri: uri): void;
 
-/**
- * Gets the current debug model.
- */
-getModel(): IDebugModel;
+	/**
+	 * Gets the current debug model.
+	 */
+	getModel(): IDebugModel;
 
-/**
- * Gets the current view model.
- */
-getViewModel(): IViewModel;
+	/**
+	 * Gets the current view model.
+	 */
+	getViewModel(): IViewModel;
 
-/**
- * Resumes execution and pauses until the given position is reached.
- */
-runTo(uri: uri, lineNumber: number, column ?: number): Promicognidreamognidream >;
+	/**
+	 * Resumes execution and pauses until the given position is reached.
+	 */
+	runTo(uri: uri, lineNumber: number, column?: number): Promise<void>;
 }
 
 // Editor interfaces
@@ -1341,15 +1341,15 @@ export const enum BreakpointWidgetContext {
 }
 
 export interface IDebugEditorContribution extends editorCommon.IEditorContribution {
-	showHover(range: Position, focus: boolean): Promicognidreamognidream>;
-addLaunchConfiguration(): Promise<any>;
-closeExceptionWidget(cognidreamognidream;
+	showHover(range: Position, focus: boolean): Promise<void>;
+	addLaunchConfiguration(): Promise<any>;
+	closeExceptionWidget(): void;
 }
 
 export interface IBreakpointEditorContribution extends editorCommon.IEditorContribution {
-	showBreakpointWidget(lineNumber: number, column: number | undefined, context?: BreakpointWidgetContextcognidreamognidream;
-		closeBreakpointWidget(cognidreamognidream;
-			getContextMenuActionsAtPosition(lineNumber: number, model: EditorIModel): IAction[];
+	showBreakpointWidget(lineNumber: number, column: number | undefined, context?: BreakpointWidgetContext): void;
+	closeBreakpointWidget(): void;
+	getContextMenuActionsAtPosition(lineNumber: number, model: EditorIModel): IAction[];
 }
 
 export interface IReplConfiguration {

@@ -32,7 +32,7 @@ export class DefaultExtensionsInitializer extends Disposable {
 		}
 	}
 
-	private async initializeDefaultExtensions(): Promise<cognidreamidream> {
+	private async initializeDefaultExtensions(): Promise<void> {
 		const extensionsLocation = this.getDefaultExtensionVSIXsLocation();
 		let stat: IFileStat;
 		try {

@@ -14,11 +14,11 @@ export interface IChatStatusItemService {
 
 	readonly onDidChange: Event<IChatStatusItemChangeEvent>;
 
-	setOrUpdateEntry(entry: ChatStatusEntry): cognidream;
+	setOrUpdateEntry(entry: ChatStatusEntry): void;
 
-	deleteEntry(id: stringcognidreamognidream;
+	deleteEntry(id: string): void;
 
-		getEntries(): Iterable<ChatStatusEntry>;
+	getEntries(): Iterable<ChatStatusEntry>;
 }
 
 
@@ -42,21 +42,21 @@ class ChatStatusItemService implements IChatStatusItemService {
 	private readonly _onDidChange = new Emitter<IChatStatusItemChangeEvent>();
 	readonly onDidChange = this._onDidChange.event;
 
-	setOrUpdateEntry(entry: ChatStatusEntrycognidreamognidream {
+	setOrUpdateEntry(entry: ChatStatusEntry): void {
 		const isUpdate = this._entries.has(entry.id);
 		this._entries.set(entry.id, entry);
-if (isUpdate) {
-	this._onDidChange.fire({ entry });
-}
-    }
+		if (isUpdate) {
+			this._onDidChange.fire({ entry });
+		}
+	}
 
-deleteEntry(id: stringcognidreamognidream {
-	this._entries.delete(id);
+	deleteEntry(id: string): void {
+		this._entries.delete(id);
+	}
+
+	getEntries(): Iterable<ChatStatusEntry> {
+		return this._entries.values();
+	}
 }
 
-    getEntries(): Iterable < ChatStatusEntry > {
-	return this._entries.values();
-}
-}
-
-	registerSingleton(IChatStatusItemService, ChatStatusItemService, InstantiationType.Delayed);
+registerSingleton(IChatStatusItemService, ChatStatusItemService, InstantiationType.Delayed);

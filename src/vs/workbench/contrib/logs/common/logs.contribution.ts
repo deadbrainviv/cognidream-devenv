@@ -31,7 +31,7 @@ registerAction2(class extends Action2 {
 			f1: true
 		});
 	}
-	run(servicesAccessor: ServicesAccessor): Promise<cognidream> {
+	run(servicesAccessor: ServicesAccessor): Promise<void> {
 		return servicesAccessor.get(IInstantiationService).createInstance(SetLogLevelAction, SetLogLevelAction.ID, SetLogLevelAction.TITLE.value).run();
 	}
 });
@@ -44,9 +44,9 @@ registerAction2(class extends Action2 {
 			category: Categories.Developer,
 		});
 	}
-	run(servicesAccessor: ServicesAccessor, logLevel: LogLevel, extensionId?: string): Promicognidreamognidream> {
-	return servicesAccessor.get(IDefaultLogLevelsService).setDefaultLogLevel(logLevel, extensionId);
-}
+	run(servicesAccessor: ServicesAccessor, logLevel: LogLevel, extensionId?: string): Promise<void> {
+		return servicesAccessor.get(IDefaultLogLevelsService).setDefaultLogLevel(logLevel, extensionId);
+	}
 });
 
 class LogOutputChannels extends Disposable implements IWorkbenchContribution {
@@ -87,7 +87,7 @@ class LogOutputChannels extends Disposable implements IWorkbenchContribution {
 		this._register(Event.filter(contextKeyService.onDidChangeContext, e => e.affectsSome(this.contextKeys))(() => this.onDidChangeContext()));
 	}
 
-	private onDidAddLoggers(loggers: Iterable<ILoggerResource>cognidreamognidream {
+	private onDidAddLoggers(loggers: Iterable<ILoggerResource>): void {
 		for (const logger of loggers) {
 			if (logger.when) {
 				const contextKeyExpr = ContextKeyExpr.deserialize(logger.when);
@@ -105,95 +105,95 @@ class LogOutputChannels extends Disposable implements IWorkbenchContribution {
 			}
 			this.registerLogChannel(logger);
 		}
-    }
-
-    private onDidChangeContext(cognidreamognidream {
-			for(const logger of this.loggerService.getRegisteredLoggers()) {
-	if (logger.when) {
-		if (this.contextKeyService.contextMatchesRules(ContextKeyExpr.deserialize(logger.when))) {
-			this.registerLogChannel(logger);
-		} else {
-			this.deregisterLogChannel(logger);
-		}
 	}
-}
-    }
 
-    private onDidRemoveLoggers(loggers: Iterable < ILoggerResource > cognidreamognidream {
-	for(const logger of loggers) {
-		if (logger.when) {
-			const contextKeyExpr = ContextKeyExpr.deserialize(logger.when);
-			if (contextKeyExpr) {
-				for (const key of contextKeyExpr.keys()) {
-					this.contextKeys.delete(key);
+	private onDidChangeContext(): void {
+		for (const logger of this.loggerService.getRegisteredLoggers()) {
+			if (logger.when) {
+				if (this.contextKeyService.contextMatchesRules(ContextKeyExpr.deserialize(logger.when))) {
+					this.registerLogChannel(logger);
+				} else {
+					this.deregisterLogChannel(logger);
 				}
 			}
 		}
-		this.deregisterLogChannel(logger);
+	}
+
+	private onDidRemoveLoggers(loggers: Iterable<ILoggerResource>): void {
+		for (const logger of loggers) {
+			if (logger.when) {
+				const contextKeyExpr = ContextKeyExpr.deserialize(logger.when);
+				if (contextKeyExpr) {
+					for (const key of contextKeyExpr.keys()) {
+						this.contextKeys.delete(key);
+					}
+				}
+			}
+			this.deregisterLogChannel(logger);
+		}
+	}
+
+	private registerLogChannel(logger: ILoggerResource): void {
+		if (logger.group) {
+			this.registerCompoundLogChannel(logger.group.id, logger.group.name, logger);
+			return;
+		}
+
+		const channel = this.outputChannelRegistry.getChannel(logger.id);
+		if (channel && isSingleSourceOutputChannelDescriptor(channel) && this.uriIdentityService.extUri.isEqual(channel.source.resource, logger.resource)) {
+			return;
+		}
+
+		const existingChannel = this.outputChannelRegistry.getChannel(logger.id);
+		const remoteLogger = existingChannel && isSingleSourceOutputChannelDescriptor(existingChannel) && existingChannel.source.resource.scheme === Schemas.vscodeRemote ? this.loggerService.getRegisteredLogger(existingChannel.source.resource) : undefined;
+		if (remoteLogger) {
+			this.deregisterLogChannel(remoteLogger);
+		}
+		const hasToAppendRemote = existingChannel && logger.resource.scheme === Schemas.vscodeRemote;
+		const id = hasToAppendRemote ? `${logger.id}.remote` : logger.id;
+		const label = hasToAppendRemote ? nls.localize('remote name', "{0} (Remote)", logger.name ?? logger.id) : logger.name ?? logger.id;
+		this.outputChannelRegistry.registerChannel({ id, label, source: { resource: logger.resource }, log: true, extensionId: logger.extensionId });
+	}
+
+	private registerCompoundLogChannel(id: string, name: string, logger: ILoggerResource): void {
+		const channel = this.outputChannelRegistry.getChannel(id);
+		const source = { resource: logger.resource, name: logger.name ?? logger.id };
+		if (channel) {
+			if (isMultiSourceOutputChannelDescriptor(channel) && !channel.source.some(({ resource }) => this.uriIdentityService.extUri.isEqual(resource, logger.resource))) {
+				this.outputChannelRegistry.updateChannelSources(id, [...channel.source, source]);
+			}
+		} else {
+			this.outputChannelRegistry.registerChannel({ id, label: name, log: true, source: [source] });
+		}
+	}
+
+	private deregisterLogChannel(logger: ILoggerResource): void {
+		if (logger.group) {
+			const channel = this.outputChannelRegistry.getChannel(logger.group.id);
+			if (channel && isMultiSourceOutputChannelDescriptor(channel)) {
+				this.outputChannelRegistry.updateChannelSources(logger.group.id, channel.source.filter(({ resource }) => !this.uriIdentityService.extUri.isEqual(resource, logger.resource)));
+			}
+		} else {
+			this.outputChannelRegistry.removeChannel(logger.id);
+		}
+	}
+
+	private registerShowWindowLogAction(): void {
+		this._register(registerAction2(class ShowWindowLogAction extends Action2 {
+			constructor() {
+				super({
+					id: showWindowLogActionId,
+					title: nls.localize2('show window log', "Show Window Log"),
+					category: Categories.Developer,
+					f1: true
+				});
+			}
+			async run(servicesAccessor: ServicesAccessor): Promise<void> {
+				const outputService = servicesAccessor.get(IOutputService);
+				outputService.showChannel(windowLogId);
+			}
+		}));
 	}
 }
 
-    private registerLogChannel(logger: ILoggerResourcecognidreamognidream {
-	if(logger.group) {
-	this.registerCompoundLogChannel(logger.group.id, logger.group.name, logger);
-	return;
-}
-
-        const channel = this.outputChannelRegistry.getChannel(logger.id);
-if (channel && isSingleSourceOutputChannelDescriptor(channel) && this.uriIdentityService.extUri.isEqual(channel.source.resource, logger.resource)) {
-	return;
-}
-
-const existingChannel = this.outputChannelRegistry.getChannel(logger.id);
-const remoteLogger = existingChannel && isSingleSourceOutputChannelDescriptor(existingChannel) && existingChannel.source.resource.scheme === Schemas.vscodeRemote ? this.loggerService.getRegisteredLogger(existingChannel.source.resource) : undefined;
-if (remoteLogger) {
-	this.deregisterLogChannel(remoteLogger);
-}
-const hasToAppendRemote = existingChannel && logger.resource.scheme === Schemas.vscodeRemote;
-const id = hasToAppendRemote ? `${logger.id}.remote` : logger.id;
-const label = hasToAppendRemote ? nls.localize('remote name', "{0} (Remote)", logger.name ?? logger.id) : logger.name ?? logger.id;
-this.outputChannelRegistry.registerChannel({ id, label, source: { resource: logger.resource }, log: true, extensionId: logger.extensionId });
-    }
-
-    private registerCompoundLogChannel(id: string, name: string, logger: ILoggerResourcecognidreamognidream {
-	const channel = this.outputChannelRegistry.getChannel(id);
-	const source = { resource: logger.resource, name: logger.name ?? logger.id };
-	if(channel) {
-		if (isMultiSourceOutputChannelDescriptor(channel) && !channel.source.some(({ resource }) => this.uriIdentityService.extUri.isEqual(resource, logger.resource))) {
-			this.outputChannelRegistry.updateChannelSources(id, [...channel.source, source]);
-		}
-	} else {
-		this.outputChannelRegistry.registerChannel({ id, label: name, log: true, source: [source] });
-	}
-}
-
-    private deregisterLogChannel(logger: ILoggerResourcecognidreamognidream {
-	if(logger.group) {
-		const channel = this.outputChannelRegistry.getChannel(logger.group.id);
-		if(channel && isMultiSourceOutputChannelDescriptor(channel)) {
-	this.outputChannelRegistry.updateChannelSources(logger.group.id, channel.source.filter(({ resource }) => !this.uriIdentityService.extUri.isEqual(resource, logger.resource)));
-}
-        } else {
-	this.outputChannelRegistry.removeChannel(logger.id);
-}
-    }
-
-    private registerShowWindowLogAction(cognidreamognidream {
-	this._register(registerAction2(class ShowWindowLogAction extends Action2 {
-		constructor() {
-			super({
-				id: showWindowLogActionId,
-				title: nls.localize2('show window log', "Show Window Log"),
-				category: Categories.Developer,
-				f1: true
-			});
-		}
-		async run(servicesAccessor: ServicesAccessor): cognidreammise<cognidream> {
-			const outputService = servicesAccessor.get(IOutputService);
-			outputService.showChannel(windowLogId);
-		}
-	}));
-}
-}
-
-	Registry.as<IWorkbenchContributionsRegistry>(WorkbenchExtensions.Workbench).registerWorkbenchContribution(LogOutputChannels, LifecyclePhase.Restored);
+Registry.as<IWorkbenchContributionsRegistry>(WorkbenchExtensions.Workbench).registerWorkbenchContribution(LogOutputChannels, LifecyclePhase.Restored);

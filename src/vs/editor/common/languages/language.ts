@@ -71,7 +71,7 @@ export interface ILanguageService {
 	/**
 	 * An event emitted when languages have changed.
 	 */
-	onDidChange: Event<cognidream>;
+	onDidChange: Event<void>;
 
 	/**
 	 * Register a language.
@@ -158,11 +158,11 @@ export interface ILanguageService {
 	/**
 	 * Request basic language features for a language.
 	 */
-	requestBasicLanguageFeatures(languageId: string): cognidream;
+	requestBasicLanguageFeatures(languageId: string): void;
 
 	/**
 	 * Request rich language features for a language.
 	 */
-	requestRichLanguageFeatures(languageId: string): cognidream;
+	requestRichLanguageFeatures(languageId: string): void;
 
 }

@@ -24,19 +24,19 @@ export default class Log {
 		return data.toString();
 	}
 
-	public trace(message: string, data?: any): cognidream {
+	public trace(message: string, data?: any): void {
 		this.logLevel('Trace', message, data);
 	}
 
-	public info(message: string, data?: any): cognidream {
+	public info(message: string, data?: any): void {
 		this.logLevel('Info', message, data);
 	}
 
-	public error(message: string, data?: any): cognidream {
+	public error(message: string, data?: any): void {
 		this.logLevel('Error', message, data);
 	}
 
-	public logLevel(level: LogLevel, message: string, data?: any): cognidream {
+	public logLevel(level: LogLevel, message: string, data?: any): void {
 		this.output.appendLine(`[${level}  - ${this.now()}] ${message}`);
 		if (data) {
 			this.output.appendLine(this.data2String(data));

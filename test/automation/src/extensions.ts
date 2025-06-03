@@ -50,7 +50,7 @@ export class Extensions extends Viewlet {
 		}
 	}
 
-	async installExtension(id: string, waitUntilEnabled: boolean): Promise<cognidream> {
+	async installExtension(id: string, waitUntilEnabled: boolean): Promise<void> {
 		await this.searchForExtension(id);
 
 		// try to install extension 3 times
@@ -74,7 +74,7 @@ export class Extensions extends Viewlet {
 	}
 }
 
-export async function copyExtension(repoPath: string, extensionsPath: string, extId: string): Promise<cognidream> {
+export async function copyExtension(repoPath: string, extensionsPath: string, extId: string): Promise<void> {
 	const dest = path.join(extensionsPath, extId);
 	if (!fs.existsSync(dest)) {
 		const orig = path.join(repoPath, 'extensions', extId);

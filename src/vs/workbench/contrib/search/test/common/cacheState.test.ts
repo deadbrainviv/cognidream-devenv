@@ -177,45 +177,45 @@ suite('FileQueryCacheState', () => {
 
 		public cacheKeys: string[] = [];
 		public loading: { [cacheKey: string]: DeferredPromise<any> } = {};
-		public disposing: { [cacheKey: string]: DeferredPromise<cognidream> } = {};
+		public disposing: { [cacheKey: string]: DeferredPromise<void> } = {};
 
-		private _awaitDisposal: (cognidream> cognidream)[][] = [];
+		private _awaitDisposal: (() => void)[][] = [];
 
-        public baseQuery: IFileQuery = {
-	type: QueryType.File,
-	folderQueries: []
-};
+		public baseQuery: IFileQuery = {
+			type: QueryType.File,
+			folderQueries: []
+		};
 
-        public query(cacheKey: string): IFileQuery {
-	this.cacheKeys.push(cacheKey);
-	return Object.assign({ cacheKey: cacheKey }, this.baseQuery);
-}
-
-        public load(query: IFileQuery): Promise < any > {
-	const promise = new DeferredPromise<any>();
-	this.loading[query.cacheKey!] = promise;
-	return promise.p;
-}
-
-        public dispose(cacheKey: string): Prcognidreame < cognidream > {
-	const promise = new Deferrecognidreammise<cognidream>();
-	this.disposing[cacheKey] = promise;
-	const n = Object.keys(this.disposing).length;
-	for(const done of this._awaitDisposal[n] || []) {
-	done();
-}
-delete this._awaitDisposal[n];
-return promise.p;
-        }
-
-        public awaitDisposal(n: number) {
-	return newcognidreammise<cognidream>(resolve => {
-		if (n === Object.keys(this.disposing).length) {
-			resolve();
-		} else {
-			(this._awaitDisposal[n] || (this._awaitDisposal[n] = [])).push(resolve);
+		public query(cacheKey: string): IFileQuery {
+			this.cacheKeys.push(cacheKey);
+			return Object.assign({ cacheKey: cacheKey }, this.baseQuery);
 		}
-	});
-}
-    }
+
+		public load(query: IFileQuery): Promise<any> {
+			const promise = new DeferredPromise<any>();
+			this.loading[query.cacheKey!] = promise;
+			return promise.p;
+		}
+
+		public dispose(cacheKey: string): Promise<void> {
+			const promise = new DeferredPromise<void>();
+			this.disposing[cacheKey] = promise;
+			const n = Object.keys(this.disposing).length;
+			for (const done of this._awaitDisposal[n] || []) {
+				done();
+			}
+			delete this._awaitDisposal[n];
+			return promise.p;
+		}
+
+		public awaitDisposal(n: number) {
+			return new Promise<void>(resolve => {
+				if (n === Object.keys(this.disposing).length) {
+					resolve();
+				} else {
+					(this._awaitDisposal[n] || (this._awaitDisposal[n] = [])).push(resolve);
+				}
+			});
+		}
+	}
 });

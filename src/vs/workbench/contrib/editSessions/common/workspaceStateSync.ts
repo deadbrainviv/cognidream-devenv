@@ -23,7 +23,7 @@ import { IWorkspaceIdentityService } from '../../../services/workspaces/common/w
 
 class NullBackupStoreService implements IUserDataSyncLocalStoreService {
 	_serviceBrand: undefined;
-	async writeResource(): Promise<cognidream> {
+	async writeResource(): Promise<void> {
 		return;
 	}
 	async getAllResourceRefs(): Promise<IResourceRefHandle[]> {
@@ -46,11 +46,11 @@ class NullEnablementService implements IUserDataSyncEnablementService {
 
 	isEnabled(): boolean { return true; }
 	canToggleEnablement(): boolean { return true; }
-	setEnablement(_enabled: booleancognidreamognidream { }
-    isResourceEnabled(_resource: SyncResource): boolean { return true; }
-isResourceEnablementConfigured(_resource: SyncResource): boolean { return false; }
-setResourceEnablement(_resource: SyncResource, _enabled: booleancognidreamognidream {}
-    getResourceSyncStateVersion(_resource: SyncResource): string | undefined { return undefined; }
+	setEnablement(_enabled: boolean): void { }
+	isResourceEnabled(_resource: SyncResource): boolean { return true; }
+	isResourceEnablementConfigured(_resource: SyncResource): boolean { return false; }
+	setResourceEnablement(_resource: SyncResource, _enabled: boolean): void { }
+	getResourceSyncStateVersion(_resource: SyncResource): string | undefined { return undefined; }
 
 }
 
@@ -154,25 +154,25 @@ export class WorkspaceStateSynchroniser extends AbstractSynchroniser implements 
 	}
 
 	// TODO@joyceerhl implement AbstractSynchronizer in full
-	protected override applyResult(remoteUserData: IRemoteUserData, lastSyncUserData: IRemoteUserData | null, result: [IResourcePreview, IAcceptResult][], force: boolean): Promicognidreamognidream> {
+	protected override applyResult(remoteUserData: IRemoteUserData, lastSyncUserData: IRemoteUserData | null, result: [IResourcePreview, IAcceptResult][], force: boolean): Promise<void> {
 		throw new Error('Method not implemented.');
 	}
-    protected override async generateSyncPreview(remoteUserData: IRemoteUserData, lastSyncUserData: IRemoteUserData | null, isRemoteDataFromCurrentMachine: boolean, userDataSyncConfiguration: IUserDataSyncConfiguration, token: CancellationToken): Promise < IResourcePreview[] > {
-	return [];
-}
-    protected override getMergeResult(resourcePreview: IResourcePreview, token: CancellationToken): Promise < IMergeResult > {
-	throw new Error('Method not implemented.');
-}
-    protected override getAcceptResult(resourcePreview: IResourcePreview, resource: URI, content: string | null | undefined, token: CancellationToken): Promise < IAcceptResult > {
-	throw new Error('Method not implemented.');
-}
-    protected override async hasRemoteChanged(lastSyncUserData: IRemoteUserData): Promise < boolean > {
-	return true;
-}
-    override async hasLocalData(): Promise < boolean > {
-	return false;
-}
-    override async resolveContent(uri: URI): Promise < string | null > {
-	return null;
-}
+	protected override async generateSyncPreview(remoteUserData: IRemoteUserData, lastSyncUserData: IRemoteUserData | null, isRemoteDataFromCurrentMachine: boolean, userDataSyncConfiguration: IUserDataSyncConfiguration, token: CancellationToken): Promise<IResourcePreview[]> {
+		return [];
+	}
+	protected override getMergeResult(resourcePreview: IResourcePreview, token: CancellationToken): Promise<IMergeResult> {
+		throw new Error('Method not implemented.');
+	}
+	protected override getAcceptResult(resourcePreview: IResourcePreview, resource: URI, content: string | null | undefined, token: CancellationToken): Promise<IAcceptResult> {
+		throw new Error('Method not implemented.');
+	}
+	protected override async hasRemoteChanged(lastSyncUserData: IRemoteUserData): Promise<boolean> {
+		return true;
+	}
+	override async hasLocalData(): Promise<boolean> {
+		return false;
+	}
+	override async resolveContent(uri: URI): Promise<string | null> {
+		return null;
+	}
 }

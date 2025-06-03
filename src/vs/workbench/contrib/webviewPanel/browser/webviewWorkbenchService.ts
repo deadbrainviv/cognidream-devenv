@@ -76,7 +76,7 @@ export interface IWebviewWorkbenchService {
 		webview: WebviewInput,
 		group: IEditorGroup | GroupIdentifier | ACTIVE_GROUP_TYPE | SIDE_GROUP_TYPE,
 		preserveFocus: boolean
-	): cognidream;
+	): void;
 
 	/**
 	 * Register a new {@link WebviewResolver}.
@@ -93,7 +93,7 @@ export interface IWebviewWorkbenchService {
 	/**
 	 * Try to resolve a webview. This will block until a resolver is registered for the webview.
 	 */
-	resolveWebview(webview: WebviewInput, token: CancellationToken): Promicognidreamognidream>;
+	resolveWebview(webview: WebviewInput, token: CancellationToken): Promise<void>;
 }
 
 /**
@@ -108,7 +108,7 @@ interface WebviewResolver {
 	/**
 	 * Resolves the webview.
 	 */
-	resolveWebview(webview: WebviewInput, token: CancellationToken): Promicognidreamognidream>;
+	resolveWebview(webview: WebviewInput, token: CancellationToken): Promise<void>;
 }
 
 function canRevive(reviver: WebviewResolver, webview: WebviewInput): boolean {
@@ -118,58 +118,58 @@ function canRevive(reviver: WebviewResolver, webview: WebviewInput): boolean {
 export class LazilyResolvedWebviewEditorInput extends WebviewInput {
 
 	private _resolved = false;
-	private _resolvePromise?: CancelablePromicognidreamognidream>;
+	private _resolvePromise?: CancelablePromise<void>;
 
-constructor(
-	init: WebviewInputInitInfo,
-	webview: IOverlayWebview,
-	@IWebviewWorkbenchService private readonly _webviewWorkbenchService: IWebviewWorkbenchService,
-) {
-	super(init, webview, _webviewWorkbenchService.iconManager);
-}
+	constructor(
+		init: WebviewInputInitInfo,
+		webview: IOverlayWebview,
+		@IWebviewWorkbenchService private readonly _webviewWorkbenchService: IWebviewWorkbenchService,
+	) {
+		super(init, webview, _webviewWorkbenchService.iconManager);
+	}
 
-    override dispose() {
-	super.dispose();
-	this._resolvePromise?.cancel();
-	this._resolvePromise = undefined;
-}
+	override dispose() {
+		super.dispose();
+		this._resolvePromise?.cancel();
+		this._resolvePromise = undefined;
+	}
 
-@memoize
-public override async resolve() {
-	if (!this._resolved) {
-		this._resolved = true;
-		this._resolvePromise = createCancelablePromise(token => this._webviewWorkbenchService.resolveWebview(this, token));
-		try {
-			await this._resolvePromise;
-		} catch (e) {
-			if (!isCancellationError(e)) {
-				throw e;
+	@memoize
+	public override async resolve() {
+		if (!this._resolved) {
+			this._resolved = true;
+			this._resolvePromise = createCancelablePromise(token => this._webviewWorkbenchService.resolveWebview(this, token));
+			try {
+				await this._resolvePromise;
+			} catch (e) {
+				if (!isCancellationError(e)) {
+					throw e;
+				}
 			}
 		}
-	}
-	return super.resolve();
-}
-
-    protected override transfer(other: LazilyResolvedWebviewEditorInput): WebviewInput | undefined {
-	if (!super.transfer(other)) {
-		return;
+		return super.resolve();
 	}
 
-	other._resolved = this._resolved;
-	return other;
-}
+	protected override transfer(other: LazilyResolvedWebviewEditorInput): WebviewInput | undefined {
+		if (!super.transfer(other)) {
+			return;
+		}
+
+		other._resolved = this._resolved;
+		return other;
+	}
 }
 
 
 class RevivalPool {
 	private _awaitingRevival: Array<{
 		readonly input: WebviewInput;
-		readonly promise: DeferredPrcognidreame<cognidream>;
+		readonly promise: DeferredPromise<void>;
 		readonly disposable: IDisposable;
 	}> = [];
 
-	public enqueueForRestoration(input: WebviewInput, token: CancellationToken): Promicognidreamognidream> {
-		const promise = new DeferredPrcognidreame<cognidream>();
+	public enqueueForRestoration(input: WebviewInput, token: CancellationToken): Promise<void> {
+		const promise = new DeferredPromise<void>();
 
 		const remove = () => {
 			const index = this._awaitingRevival.findIndex(entry => input === entry.input);
@@ -191,16 +191,16 @@ class RevivalPool {
 		return promise.p;
 	}
 
-    public reviveFor(reviver: WebviewResolver, token: CancellationToken) {
-	const toRevive = this._awaitingRevival.filter(({ input }) => canRevive(reviver, input));
-	this._awaitingRevival = this._awaitingRevival.filter(({ input }) => !canRevive(reviver, input));
+	public reviveFor(reviver: WebviewResolver, token: CancellationToken) {
+		const toRevive = this._awaitingRevival.filter(({ input }) => canRevive(reviver, input));
+		this._awaitingRevival = this._awaitingRevival.filter(({ input }) => !canRevive(reviver, input));
 
-	for (const { input, promise: resolve, disposable } of toRevive) {
-		reviver.resolveWebview(input, token).then(x => resolve.complete(x), err => resolve.error(err)).finally(() => {
-			disposable.dispose();
-		});
+		for (const { input, promise: resolve, disposable } of toRevive) {
+			reviver.resolveWebview(input, token).then(x => resolve.complete(x), err => resolve.error(err)).finally(() => {
+				disposable.dispose();
+			});
+		}
 	}
-}
 }
 
 
@@ -304,92 +304,92 @@ export class WebviewEditorService extends Disposable implements IWebviewWorkbenc
 		webview: WebviewInput,
 		group: IEditorGroup | GroupIdentifier | ACTIVE_GROUP_TYPE | SIDE_GROUP_TYPE,
 		preserveFocus: boolean
-    cognidreamognidream {
-			const topLevelEditor = this.findTopLevelEditorForWebview(webview);
+	): void {
+		const topLevelEditor = this.findTopLevelEditorForWebview(webview);
 
-			this._editorService.openEditor(topLevelEditor, {
-				preserveFocus,
-				// preserve pre 1.38 behaviour to not make group active when preserveFocus: true
-				// but make sure to restore the editor to fix https://github.com/microsoft/vscode/issues/79633
-				activation: preserveFocus ? EditorActivation.RESTORE : undefined
-			}, group);
-    }
+		this._editorService.openEditor(topLevelEditor, {
+			preserveFocus,
+			// preserve pre 1.38 behaviour to not make group active when preserveFocus: true
+			// but make sure to restore the editor to fix https://github.com/microsoft/vscode/issues/79633
+			activation: preserveFocus ? EditorActivation.RESTORE : undefined
+		}, group);
+	}
 
-    private findTopLevelEditorForWebview(webview: WebviewInput): EditorInput {
-	for (const editor of this._editorService.editors) {
-		if (editor === webview) {
-			return editor;
-		}
-		if (editor instanceof DiffEditorInput) {
-			if (webview === editor.primary || webview === editor.secondary) {
+	private findTopLevelEditorForWebview(webview: WebviewInput): EditorInput {
+		for (const editor of this._editorService.editors) {
+			if (editor === webview) {
 				return editor;
 			}
+			if (editor instanceof DiffEditorInput) {
+				if (webview === editor.primary || webview === editor.secondary) {
+					return editor;
+				}
+			}
+		}
+		return webview;
+	}
+
+	public openRevivedWebview(options: {
+		webviewInitInfo: WebviewInitInfo;
+		viewType: string;
+		title: string;
+		iconPath: WebviewIcons | undefined;
+		state: any;
+		group: number | undefined;
+	}): WebviewInput {
+		const webview = this._webviewService.createWebviewOverlay(options.webviewInitInfo);
+		webview.state = options.state;
+
+		const webviewInput = this._instantiationService.createInstance(LazilyResolvedWebviewEditorInput, { viewType: options.viewType, providedId: options.webviewInitInfo.providedViewType, name: options.title }, webview);
+		webviewInput.iconPath = options.iconPath;
+
+		if (typeof options.group === 'number') {
+			webviewInput.updateGroup(options.group);
+		}
+		return webviewInput;
+	}
+
+	public registerResolver(reviver: WebviewResolver): IDisposable {
+		this._revivers.add(reviver);
+
+		const cts = new CancellationTokenSource();
+		this._revivalPool.reviveFor(reviver, cts.token);
+
+		return toDisposable(() => {
+			this._revivers.delete(reviver);
+			cts.dispose(true);
+		});
+	}
+
+	public shouldPersist(webview: WebviewInput): boolean {
+		// Revived webviews may not have an actively registered reviver but we still want to persist them
+		// since a reviver should exist when it is actually needed.
+		if (webview instanceof LazilyResolvedWebviewEditorInput) {
+			return true;
+		}
+
+		return Iterable.some(this._revivers.values(), reviver => canRevive(reviver, webview));
+	}
+
+	private async tryRevive(webview: WebviewInput, token: CancellationToken): Promise<boolean> {
+		for (const reviver of this._revivers.values()) {
+			if (canRevive(reviver, webview)) {
+				await reviver.resolveWebview(webview, token);
+				return true;
+			}
+		}
+		return false;
+	}
+
+	public async resolveWebview(webview: WebviewInput, token: CancellationToken): Promise<void> {
+		const didRevive = await this.tryRevive(webview, token);
+		if (!didRevive && !token.isCancellationRequested) {
+			// A reviver may not be registered yet. Put into pool and resolve promise when we can revive
+			return this._revivalPool.enqueueForRestoration(webview, token);
 		}
 	}
-	return webview;
-}
 
-    public openRevivedWebview(options: {
-	webviewInitInfo: WebviewInitInfo;
-	viewType: string;
-	title: string;
-	iconPath: WebviewIcons | undefined;
-	state: any;
-	group: number | undefined;
-}): WebviewInput {
-	const webview = this._webviewService.createWebviewOverlay(options.webviewInitInfo);
-	webview.state = options.state;
-
-	const webviewInput = this._instantiationService.createInstance(LazilyResolvedWebviewEditorInput, { viewType: options.viewType, providedId: options.webviewInitInfo.providedViewType, name: options.title }, webview);
-	webviewInput.iconPath = options.iconPath;
-
-	if (typeof options.group === 'number') {
-		webviewInput.updateGroup(options.group);
+	public setIcons(id: string, iconPath: WebviewIcons | undefined): void {
+		this._iconManager.setIcons(id, iconPath);
 	}
-	return webviewInput;
-}
-
-    public registerResolver(reviver: WebviewResolver): IDisposable {
-	this._revivers.add(reviver);
-
-	const cts = new CancellationTokenSource();
-	this._revivalPool.reviveFor(reviver, cts.token);
-
-	return toDisposable(() => {
-		this._revivers.delete(reviver);
-		cts.dispose(true);
-	});
-}
-
-    public shouldPersist(webview: WebviewInput): boolean {
-	// Revived webviews may not have an actively registered reviver but we still want to persist them
-	// since a reviver should exist when it is actually needed.
-	if (webview instanceof LazilyResolvedWebviewEditorInput) {
-		return true;
-	}
-
-	return Iterable.some(this._revivers.values(), reviver => canRevive(reviver, webview));
-}
-
-    private async tryRevive(webview: WebviewInput, token: CancellationToken): Promise < boolean > {
-	for(const reviver of this._revivers.values()) {
-	if (canRevive(reviver, webview)) {
-		await reviver.resolveWebview(webview, token);
-		return true;
-	}
-}
-return false;
-    }
-
-    public async resolveWebview(webview: WebviewInput, token: CancellationToken): Promicognidreamognidream > {
-	const didRevive = await this.tryRevive(webview, token);
-	if(!didRevive && !token.isCancellationRequested) {
-	// A reviver may not be registered yet. Put into pool and resolve promise when we can revive
-	return this._revivalPool.enqueueForRestoration(webview, token);
-}
-    }
-
-    public setIcons(id: string, iconPath: WebviewIcons | undefinedcognidreamognidream {
-	this._iconManager.setIcons(id, iconPath);
-}
 }

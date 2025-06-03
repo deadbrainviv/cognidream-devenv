@@ -147,7 +147,7 @@ export interface ICodeBlockRenderOptions {
 
 const defaultCodeblockPadding = 10;
 export class CodeBlockPart extends Disposable {
-	protected readonly _onDidChangeContentHeight = this._register(new Emitter<cognidream>());
+	protected readonly _onDidChangeContentHeight = this._register(new Emitter<void>());
 	public readonly onDidChangeContentHeight = this._onDidChangeContentHeight.event;
 
 	public readonly editor: CodeEditorWidget;
@@ -325,147 +325,147 @@ export class CodeBlockPart extends Disposable {
 		}));
 	}
 
-	focus(cognidreamognidream {
+	focus(): void {
 		this.editor.focus();
-    }
-
-    private updatePaddingForLayout() {
-	// scrollWidth = "the width of the content that needs to be scrolled"
-	// contentWidth = "the width of the area where content is displayed"
-	const horizontalScrollbarVisible = this.currentScrollWidth > this.editor.getLayoutInfo().contentWidth;
-	const scrollbarHeight = this.editor.getLayoutInfo().horizontalScrollbarHeight;
-	const bottomPadding = horizontalScrollbarVisible ?
-		Math.max(this.verticalPadding - scrollbarHeight, 2) :
-		this.verticalPadding;
-	this.editor.updateOptions({ padding: { top: this.verticalPadding, bottom: bottomPadding } });
-}
-
-    private _configureForScreenReader(cognidreamognidream {
-	const toolbarElt = this.toolbar.getElement();
-	if(this.accessibilityService.isScreenReaderOptimized()) {
-	toolbarElt.style.display = 'block';
-	toolbarElt.ariaLabel = this.configurationService.getValue(AccessibilityVerbositySettingId.Chat) ? localize('chat.codeBlock.toolbarVerbose', 'Toolbar for code block which can be reached via tab') : localize('chat.codeBlock.toolbar', 'Code block toolbar');
-} else {
-	toolbarElt.style.display = '';
-}
-    }
-
-    private getEditorOptionsFromConfig(): IEditorOptions {
-	return {
-		wordWrap: this.editorOptions.configuration.resultEditor.wordWrap,
-		fontLigatures: this.editorOptions.configuration.resultEditor.fontLigatures,
-		bracketPairColorization: this.editorOptions.configuration.resultEditor.bracketPairColorization,
-		fontFamily: this.editorOptions.configuration.resultEditor.fontFamily === 'default' ?
-			EDITOR_FONT_DEFAULTS.fontFamily :
-			this.editorOptions.configuration.resultEditor.fontFamily,
-		fontSize: this.editorOptions.configuration.resultEditor.fontSize,
-		fontWeight: this.editorOptions.configuration.resultEditor.fontWeight,
-		lineHeight: this.editorOptions.configuration.resultEditor.lineHeight,
-		...this.currentCodeBlockData?.renderOptions?.editorOptions,
-	};
-}
-
-layout(width: numbercognidreamognidream {
-	const contentHeight = this.getContentHeight();
-
-	let height = contentHeight;
-	if(this.currentCodeBlockData?.renderOptions?.maxHeightInLines) {
-	height = Math.min(contentHeight, this.editor.getOption(EditorOption.lineHeight) * this.currentCodeBlockData?.renderOptions?.maxHeightInLines);
-}
-
-const editorBorder = 2;
-width = width - editorBorder - (this.currentCodeBlockData?.renderOptions?.reserveWidth ?? 0);
-this.editor.layout({ width, height });
-this.updatePaddingForLayout();
-    }
-
-    private getContentHeight() {
-	if (this.currentCodeBlockData?.range) {
-		const lineCount = this.currentCodeBlockData.range.endLineNumber - this.currentCodeBlockData.range.startLineNumber + 1;
-		const lineHeight = this.editor.getOption(EditorOption.lineHeight);
-		return lineCount * lineHeight;
-	}
-	return this.editor.getContentHeight();
-}
-
-    async render(data: ICodeBlockData, width: number) {
-	this.currentCodeBlockData = data;
-	if (data.parentContextKeyService) {
-		this.contextKeyService.updateParent(data.parentContextKeyService);
 	}
 
-	if (this.getEditorOptionsFromConfig().wordWrap === 'on') {
-		// Initialize the editor with the new proper width so that getContentHeight
-		// will be computed correctly in the next call to layout()
+	private updatePaddingForLayout() {
+		// scrollWidth = "the width of the content that needs to be scrolled"
+		// contentWidth = "the width of the area where content is displayed"
+		const horizontalScrollbarVisible = this.currentScrollWidth > this.editor.getLayoutInfo().contentWidth;
+		const scrollbarHeight = this.editor.getLayoutInfo().horizontalScrollbarHeight;
+		const bottomPadding = horizontalScrollbarVisible ?
+			Math.max(this.verticalPadding - scrollbarHeight, 2) :
+			this.verticalPadding;
+		this.editor.updateOptions({ padding: { top: this.verticalPadding, bottom: bottomPadding } });
+	}
+
+	private _configureForScreenReader(): void {
+		const toolbarElt = this.toolbar.getElement();
+		if (this.accessibilityService.isScreenReaderOptimized()) {
+			toolbarElt.style.display = 'block';
+			toolbarElt.ariaLabel = this.configurationService.getValue(AccessibilityVerbositySettingId.Chat) ? localize('chat.codeBlock.toolbarVerbose', 'Toolbar for code block which can be reached via tab') : localize('chat.codeBlock.toolbar', 'Code block toolbar');
+		} else {
+			toolbarElt.style.display = '';
+		}
+	}
+
+	private getEditorOptionsFromConfig(): IEditorOptions {
+		return {
+			wordWrap: this.editorOptions.configuration.resultEditor.wordWrap,
+			fontLigatures: this.editorOptions.configuration.resultEditor.fontLigatures,
+			bracketPairColorization: this.editorOptions.configuration.resultEditor.bracketPairColorization,
+			fontFamily: this.editorOptions.configuration.resultEditor.fontFamily === 'default' ?
+				EDITOR_FONT_DEFAULTS.fontFamily :
+				this.editorOptions.configuration.resultEditor.fontFamily,
+			fontSize: this.editorOptions.configuration.resultEditor.fontSize,
+			fontWeight: this.editorOptions.configuration.resultEditor.fontWeight,
+			lineHeight: this.editorOptions.configuration.resultEditor.lineHeight,
+			...this.currentCodeBlockData?.renderOptions?.editorOptions,
+		};
+	}
+
+	layout(width: number): void {
+		const contentHeight = this.getContentHeight();
+
+		let height = contentHeight;
+		if (this.currentCodeBlockData?.renderOptions?.maxHeightInLines) {
+			height = Math.min(contentHeight, this.editor.getOption(EditorOption.lineHeight) * this.currentCodeBlockData?.renderOptions?.maxHeightInLines);
+		}
+
+		const editorBorder = 2;
+		width = width - editorBorder - (this.currentCodeBlockData?.renderOptions?.reserveWidth ?? 0);
+		this.editor.layout({ width, height });
+		this.updatePaddingForLayout();
+	}
+
+	private getContentHeight() {
+		if (this.currentCodeBlockData?.range) {
+			const lineCount = this.currentCodeBlockData.range.endLineNumber - this.currentCodeBlockData.range.startLineNumber + 1;
+			const lineHeight = this.editor.getOption(EditorOption.lineHeight);
+			return lineCount * lineHeight;
+		}
+		return this.editor.getContentHeight();
+	}
+
+	async render(data: ICodeBlockData, width: number) {
+		this.currentCodeBlockData = data;
+		if (data.parentContextKeyService) {
+			this.contextKeyService.updateParent(data.parentContextKeyService);
+		}
+
+		if (this.getEditorOptionsFromConfig().wordWrap === 'on') {
+			// Initialize the editor with the new proper width so that getContentHeight
+			// will be computed correctly in the next call to layout()
+			this.layout(width);
+		}
+
+		await this.updateEditor(data);
+		if (this.isDisposed) {
+			return;
+		}
+
+		this.editor.updateOptions({
+			...this.getEditorOptionsFromConfig(),
+			ariaLabel: localize('chat.codeBlockLabel', "Code block {0}", data.codeBlockIndex + 1),
+		});
 		this.layout(width);
+		this.toolbar.setAriaLabel(localize('chat.codeBlockToolbarLabel', "Code block {0}", data.codeBlockIndex + 1));
+		if (data.renderOptions?.hideToolbar) {
+			dom.hide(this.toolbar.getElement());
+		} else {
+			dom.show(this.toolbar.getElement());
+		}
+
+		if (data.vulns?.length && isResponseVM(data.element)) {
+			dom.clearNode(this.vulnsListElement);
+			this.element.classList.remove('no-vulns');
+			this.element.classList.toggle('chat-vulnerabilities-collapsed', !data.element.vulnerabilitiesListExpanded);
+			dom.append(this.vulnsListElement, ...data.vulns.map(v => $('li', undefined, $('span.chat-vuln-title', undefined, v.title), ' ' + v.description)));
+			this.vulnsButton.label = this.getVulnerabilitiesLabel();
+		} else {
+			this.element.classList.add('no-vulns');
+		}
 	}
 
-	await this.updateEditor(data);
-	if (this.isDisposed) {
-		return;
+	reset() {
+		this.clearWidgets();
 	}
 
-	this.editor.updateOptions({
-		...this.getEditorOptionsFromConfig(),
-		ariaLabel: localize('chat.codeBlockLabel', "Code block {0}", data.codeBlockIndex + 1),
-	});
-	this.layout(width);
-	this.toolbar.setAriaLabel(localize('chat.codeBlockToolbarLabel', "Code block {0}", data.codeBlockIndex + 1));
-	if (data.renderOptions?.hideToolbar) {
-		dom.hide(this.toolbar.getElement());
-	} else {
-		dom.show(this.toolbar.getElement());
+	private clearWidgets() {
+		ContentHoverController.get(this.editor)?.hideContentHover();
+		GlyphHoverController.get(this.editor)?.hideGlyphHover();
 	}
 
-	if (data.vulns?.length && isResponseVM(data.element)) {
-		dom.clearNode(this.vulnsListElement);
-		this.element.classList.remove('no-vulns');
-		this.element.classList.toggle('chat-vulnerabilities-collapsed', !data.element.vulnerabilitiesListExpanded);
-		dom.append(this.vulnsListElement, ...data.vulns.map(v => $('li', undefined, $('span.chat-vuln-title', undefined, v.title), ' ' + v.description)));
-		this.vulnsButton.label = this.getVulnerabilitiesLabel();
-	} else {
-		this.element.classList.add('no-vulns');
-	}
-}
+	private async updateEditor(data: ICodeBlockData): Promise<void> {
+		const textModel = await data.textModel;
+		this.editor.setModel(textModel);
+		if (data.range) {
+			this.editor.setSelection(data.range);
+			this.editor.revealRangeInCenter(data.range, ScrollType.Immediate);
+		}
 
-reset() {
-	this.clearWidgets();
-}
-
-    private clearWidgets() {
-	ContentHoverController.get(this.editor)?.hideContentHover();
-	GlyphHoverController.get(this.editor)?.hideGlyphHover();
-}
-
-    private async updateEditor(data: ICodeBlockData): Promicognidreamognidream > {
-	const textModel = await data.textModel;
-	this.editor.setModel(textModel);
-	if(data.range) {
-	this.editor.setSelection(data.range);
-	this.editor.revealRangeInCenter(data.range, ScrollType.Immediate);
-}
-
-this.toolbar.context = {
-	code: textModel.getTextBuffer().getValueInRange(data.range ?? textModel.getFullModelRange(), EndOfLinePreference.TextDefined),
-	codeBlockIndex: data.codeBlockIndex,
-	element: data.element,
-	languageId: textModel.getLanguageId(),
-	codemapperUri: data.codemapperUri,
-} satisfies ICodeBlockActionContext;
-this.resourceContextKey.set(textModel.uri);
-    }
-
-    private getVulnerabilitiesLabel(): string {
-	if (!this.currentCodeBlockData || !this.currentCodeBlockData.vulns) {
-		return '';
+		this.toolbar.context = {
+			code: textModel.getTextBuffer().getValueInRange(data.range ?? textModel.getFullModelRange(), EndOfLinePreference.TextDefined),
+			codeBlockIndex: data.codeBlockIndex,
+			element: data.element,
+			languageId: textModel.getLanguageId(),
+			codemapperUri: data.codemapperUri,
+		} satisfies ICodeBlockActionContext;
+		this.resourceContextKey.set(textModel.uri);
 	}
 
-	const referencesLabel = this.currentCodeBlockData.vulns.length > 1 ?
-		localize('vulnerabilitiesPlural', "{0} vulnerabilities", this.currentCodeBlockData.vulns.length) :
-		localize('vulnerabilitiesSingular', "{0} vulnerability", 1);
-	const icon = (element: IChatResponseViewModel) => element.vulnerabilitiesListExpanded ? Codicon.chevronDown : Codicon.chevronRight;
-	return `${referencesLabel} $(${icon(this.currentCodeBlockData.element as IChatResponseViewModel).id})`;
-}
+	private getVulnerabilitiesLabel(): string {
+		if (!this.currentCodeBlockData || !this.currentCodeBlockData.vulns) {
+			return '';
+		}
+
+		const referencesLabel = this.currentCodeBlockData.vulns.length > 1 ?
+			localize('vulnerabilitiesPlural', "{0} vulnerabilities", this.currentCodeBlockData.vulns.length) :
+			localize('vulnerabilitiesSingular', "{0} vulnerability", 1);
+		const icon = (element: IChatResponseViewModel) => element.vulnerabilitiesListExpanded ? Codicon.chevronDown : Codicon.chevronRight;
+		return `${referencesLabel} $(${icon(this.currentCodeBlockData.element as IChatResponseViewModel).id})`;
+	}
 }
 
 export class ChatCodeBlockContentProvider extends Disposable implements ITextModelContentProvider {
@@ -515,7 +515,7 @@ export interface ICodeCompareBlockData {
 
 // long-lived object that sits in the DiffPool and that gets reused
 export class CodeCompareBlockPart extends Disposable {
-	protected readonly _onDidChangeContentHeight = this._register(new Emittcognidreamognidream > ());
+	protected readonly _onDidChangeContentHeight = this._register(new Emitter<void>());
 	public readonly onDidChangeContentHeight = this._onDidChangeContentHeight.event;
 
 	private readonly contextKeyService: IContextKeyService;
@@ -557,295 +557,295 @@ export class CodeCompareBlockPart extends Disposable {
 				show(_total: unknown, _delay?: unknown) {
 					return emptyProgressRunner;
 				}
-				async showWhile(promise: Promise<unknown>, _delay?: numbecognidreamPromise<cognidream> {
+				async showWhile(promise: Promise<unknown>, _delay?: number): Promise<void> {
 					await promise;
+				}
+			}],
+		)));
+		const editorHeader = dom.append(this.element, $('.interactive-result-header.show-file-icons'));
+		const editorElement = dom.append(this.element, $('.interactive-result-editor'));
+		this.diffEditor = this.createDiffEditor(scopedInstantiationService, editorElement, {
+			...getSimpleEditorOptions(this.configurationService),
+			lineNumbers: 'on',
+			selectOnLineNumbers: true,
+			scrollBeyondLastLine: false,
+			lineDecorationsWidth: 12,
+			dragAndDrop: false,
+			padding: { top: defaultCodeblockPadding, bottom: defaultCodeblockPadding },
+			mouseWheelZoom: false,
+			scrollbar: {
+				vertical: 'hidden',
+				alwaysConsumeMouseWheel: false
+			},
+			definitionLinkOpensInPeek: false,
+			gotoLocation: {
+				multiple: 'goto',
+				multipleDeclarations: 'goto',
+				multipleDefinitions: 'goto',
+				multipleImplementations: 'goto',
+			},
+			ariaLabel: localize('chat.codeBlockHelp', 'Code block'),
+			overflowWidgetsDomNode,
+			...this.getEditorOptionsFromConfig(),
+		});
+
+		this.resourceLabel = this._register(scopedInstantiationService.createInstance(ResourceLabel, editorHeader, { supportIcons: true }));
+
+		const editorScopedService = this.diffEditor.getModifiedEditor().contextKeyService.createScoped(editorHeader);
+		const editorScopedInstantiationService = this._register(scopedInstantiationService.createChild(new ServiceCollection([IContextKeyService, editorScopedService])));
+		this.toolbar = this._register(editorScopedInstantiationService.createInstance(MenuWorkbenchToolBar, editorHeader, menuId, {
+			menuOptions: {
+				shouldForwardArgs: true
 			}
-            }],
-        )));
-	const editorHeader = dom.append(this.element, $('.interactive-result-header.show-file-icons'));
-	const editorElement = dom.append(this.element, $('.interactive-result-editor'));
-        this.diffEditor = this.createDiffEditor(scopedInstantiationService, editorElement, {
-		...getSimpleEditorOptions(this.configurationService),
-		lineNumbers: 'on',
-		selectOnLineNumbers: true,
-		scrollBeyondLastLine: false,
-		lineDecorationsWidth: 12,
-		dragAndDrop: false,
-		padding: { top: defaultCodeblockPadding, bottom: defaultCodeblockPadding },
-		mouseWheelZoom: false,
-		scrollbar: {
-			vertical: 'hidden',
-			alwaysConsumeMouseWheel: false
-		},
-		definitionLinkOpensInPeek: false,
-		gotoLocation: {
-			multiple: 'goto',
-			multipleDeclarations: 'goto',
-			multipleDefinitions: 'goto',
-			multipleImplementations: 'goto',
-		},
-		ariaLabel: localize('chat.codeBlockHelp', 'Code block'),
-		overflowWidgetsDomNode,
-		...this.getEditorOptionsFromConfig(),
-	});
+		}));
 
-this.resourceLabel = this._register(scopedInstantiationService.createInstance(ResourceLabel, editorHeader, { supportIcons: true }));
-
-const editorScopedService = this.diffEditor.getModifiedEditor().contextKeyService.createScoped(editorHeader);
-const editorScopedInstantiationService = this._register(scopedInstantiationService.createChild(new ServiceCollection([IContextKeyService, editorScopedService])));
-this.toolbar = this._register(editorScopedInstantiationService.createInstance(MenuWorkbenchToolBar, editorHeader, menuId, {
-	menuOptions: {
-		shouldForwardArgs: true
-	}
-}));
-
-this._configureForScreenReader();
-this._register(this.accessibilityService.onDidChangeScreenReaderOptimized(() => this._configureForScreenReader()));
-this._register(this.configurationService.onDidChangeConfiguration((e) => {
-	if (e.affectedKeys.has(AccessibilityVerbositySettingId.Chat)) {
 		this._configureForScreenReader();
+		this._register(this.accessibilityService.onDidChangeScreenReaderOptimized(() => this._configureForScreenReader()));
+		this._register(this.configurationService.onDidChangeConfiguration((e) => {
+			if (e.affectedKeys.has(AccessibilityVerbositySettingId.Chat)) {
+				this._configureForScreenReader();
+			}
+		}));
+
+		this._register(this.options.onDidChange(() => {
+			this.diffEditor.updateOptions(this.getEditorOptionsFromConfig());
+		}));
+
+		this._register(this.diffEditor.getModifiedEditor().onDidScrollChange(e => {
+			this.currentScrollWidth = e.scrollWidth;
+		}));
+		this._register(this.diffEditor.onDidContentSizeChange(e => {
+			if (e.contentHeightChanged) {
+				this._onDidChangeContentHeight.fire();
+			}
+		}));
+		this._register(this.diffEditor.getModifiedEditor().onDidBlurEditorWidget(() => {
+			this.element.classList.remove('focused');
+			WordHighlighterContribution.get(this.diffEditor.getModifiedEditor())?.stopHighlighting();
+			this.clearWidgets();
+		}));
+		this._register(this.diffEditor.getModifiedEditor().onDidFocusEditorWidget(() => {
+			this.element.classList.add('focused');
+			WordHighlighterContribution.get(this.diffEditor.getModifiedEditor())?.restoreViewState(true);
+		}));
+
+
+		// Parent list scrolled
+		if (delegate.onDidScroll) {
+			this._register(delegate.onDidScroll(e => {
+				this.clearWidgets();
+			}));
+		}
 	}
-}));
 
-this._register(this.options.onDidChange(() => {
-	this.diffEditor.updateOptions(this.getEditorOptionsFromConfig());
-}));
-
-this._register(this.diffEditor.getModifiedEditor().onDidScrollChange(e => {
-	this.currentScrollWidth = e.scrollWidth;
-}));
-this._register(this.diffEditor.onDidContentSizeChange(e => {
-	if (e.contentHeightChanged) {
-		this._onDidChangeContentHeight.fire();
+	get uri(): URI | undefined {
+		return this.diffEditor.getModifiedEditor().getModel()?.uri;
 	}
-}));
-this._register(this.diffEditor.getModifiedEditor().onDidBlurEditorWidget(() => {
-	this.element.classList.remove('focused');
-	WordHighlighterContribution.get(this.diffEditor.getModifiedEditor())?.stopHighlighting();
-	this.clearWidgets();
-}));
-this._register(this.diffEditor.getModifiedEditor().onDidFocusEditorWidget(() => {
-	this.element.classList.add('focused');
-	WordHighlighterContribution.get(this.diffEditor.getModifiedEditor())?.restoreViewState(true);
-}));
 
+	private createDiffEditor(instantiationService: IInstantiationService, parent: HTMLElement, options: Readonly<IEditorConstructionOptions>): DiffEditorWidget {
+		const widgetOptions: ICodeEditorWidgetOptions = {
+			isSimpleWidget: false,
+			contributions: EditorExtensionsRegistry.getSomeEditorContributions([
+				MenuPreventer.ID,
+				SelectionClipboardContributionID,
+				ContextMenuController.ID,
 
-// Parent list scrolled
-if (delegate.onDidScroll) {
-	this._register(delegate.onDidScroll(e => {
-		this.clearWidgets();
-	}));
-}
-    }
+				WordHighlighterContribution.ID,
+				ViewportSemanticTokensContribution.ID,
+				BracketMatchingController.ID,
+				SmartSelectController.ID,
+				ContentHoverController.ID,
+				GlyphHoverController.ID,
+				GotoDefinitionAtPositionEditorContribution.ID,
+			])
+		};
 
-    get uri(): URI | undefined {
-	return this.diffEditor.getModifiedEditor().getModel()?.uri;
-}
+		return this._register(instantiationService.createInstance(DiffEditorWidget, parent, {
+			scrollbar: { useShadows: false, alwaysConsumeMouseWheel: false, ignoreHorizontalScrollbarInContentHeight: true, },
+			renderMarginRevertIcon: false,
+			diffCodeLens: false,
+			scrollBeyondLastLine: false,
+			stickyScroll: { enabled: false },
+			originalAriaLabel: localize('original', 'Original'),
+			modifiedAriaLabel: localize('modified', 'Modified'),
+			diffAlgorithm: 'advanced',
+			readOnly: false,
+			isInEmbeddedEditor: true,
+			useInlineViewWhenSpaceIsLimited: true,
+			experimental: {
+				useTrueInlineView: true,
+			},
+			renderSideBySideInlineBreakpoint: 300,
+			renderOverviewRuler: false,
+			compactMode: true,
+			hideUnchangedRegions: { enabled: true, contextLineCount: 1 },
+			renderGutterMenu: false,
+			lineNumbersMinChars: 1,
+			...options
+		}, { originalEditor: widgetOptions, modifiedEditor: widgetOptions }));
+	}
 
-    private createDiffEditor(instantiationService: IInstantiationService, parent: HTMLElement, options: Readonly<IEditorConstructionOptions>): DiffEditorWidget {
-	const widgetOptions: ICodeEditorWidgetOptions = {
-		isSimpleWidget: false,
-		contributions: EditorExtensionsRegistry.getSomeEditorContributions([
-			MenuPreventer.ID,
-			SelectionClipboardContributionID,
-			ContextMenuController.ID,
+	focus(): void {
+		this.diffEditor.focus();
+	}
 
-			WordHighlighterContribution.ID,
-			ViewportSemanticTokensContribution.ID,
-			BracketMatchingController.ID,
-			SmartSelectController.ID,
-			ContentHoverController.ID,
-			GlyphHoverController.ID,
-			GotoDefinitionAtPositionEditorContribution.ID,
-		])
-	};
+	private updatePaddingForLayout() {
+		// scrollWidth = "the width of the content that needs to be scrolled"
+		// contentWidth = "the width of the area where content is displayed"
+		const horizontalScrollbarVisible = this.currentScrollWidth > this.diffEditor.getModifiedEditor().getLayoutInfo().contentWidth;
+		const scrollbarHeight = this.diffEditor.getModifiedEditor().getLayoutInfo().horizontalScrollbarHeight;
+		const bottomPadding = horizontalScrollbarVisible ?
+			Math.max(defaultCodeblockPadding - scrollbarHeight, 2) :
+			defaultCodeblockPadding;
+		this.diffEditor.updateOptions({ padding: { top: defaultCodeblockPadding, bottom: bottomPadding } });
+	}
 
-	return this._register(instantiationService.createInstance(DiffEditorWidget, parent, {
-		scrollbar: { useShadows: false, alwaysConsumeMouseWheel: false, ignoreHorizontalScrollbarInContentHeight: true, },
-		renderMarginRevertIcon: false,
-		diffCodeLens: false,
-		scrollBeyondLastLine: false,
-		stickyScroll: { enabled: false },
-		originalAriaLabel: localize('original', 'Original'),
-		modifiedAriaLabel: localize('modified', 'Modified'),
-		diffAlgorithm: 'advanced',
-		readOnly: false,
-		isInEmbeddedEditor: true,
-		useInlineViewWhenSpaceIsLimited: true,
-		experimental: {
-			useTrueInlineView: true,
-		},
-		renderSideBySideInlineBreakpoint: 300,
-		renderOverviewRuler: false,
-		compactMode: true,
-		hideUnchangedRegions: { enabled: true, contextLineCount: 1 },
-		renderGutterMenu: false,
-		lineNumbersMinChars: 1,
-		...options
-	}, { originalEditor: widgetOptions, modifiedEditor: widgetOptions }));
-}
-
-focus(cognidreamognidream {
-	this.diffEditor.focus();
-}
-
-    private updatePaddingForLayout() {
-	// scrollWidth = "the width of the content that needs to be scrolled"
-	// contentWidth = "the width of the area where content is displayed"
-	const horizontalScrollbarVisible = this.currentScrollWidth > this.diffEditor.getModifiedEditor().getLayoutInfo().contentWidth;
-	const scrollbarHeight = this.diffEditor.getModifiedEditor().getLayoutInfo().horizontalScrollbarHeight;
-	const bottomPadding = horizontalScrollbarVisible ?
-		Math.max(defaultCodeblockPadding - scrollbarHeight, 2) :
-		defaultCodeblockPadding;
-	this.diffEditor.updateOptions({ padding: { top: defaultCodeblockPadding, bottom: bottomPadding } });
-}
-
-    private _configureForScreenReader(cognidreamognidream {
-	const toolbarElt = this.toolbar.getElement();
-	if(this.accessibilityService.isScreenReaderOptimized()) {
-	toolbarElt.style.display = 'block';
-	toolbarElt.ariaLabel = this.configurationService.getValue(AccessibilityVerbositySettingId.Chat) ? localize('chat.codeBlock.toolbarVerbose', 'Toolbar for code block which can be reached via tab') : localize('chat.codeBlock.toolbar', 'Code block toolbar');
-} else {
-	toolbarElt.style.display = '';
-}
-    }
+	private _configureForScreenReader(): void {
+		const toolbarElt = this.toolbar.getElement();
+		if (this.accessibilityService.isScreenReaderOptimized()) {
+			toolbarElt.style.display = 'block';
+			toolbarElt.ariaLabel = this.configurationService.getValue(AccessibilityVerbositySettingId.Chat) ? localize('chat.codeBlock.toolbarVerbose', 'Toolbar for code block which can be reached via tab') : localize('chat.codeBlock.toolbar', 'Code block toolbar');
+		} else {
+			toolbarElt.style.display = '';
+		}
+	}
 
 	private getEditorOptionsFromConfig(): IEditorOptions {
-	return {
-		wordWrap: this.options.configuration.resultEditor.wordWrap,
-		fontLigatures: this.options.configuration.resultEditor.fontLigatures,
-		bracketPairColorization: this.options.configuration.resultEditor.bracketPairColorization,
-		fontFamily: this.options.configuration.resultEditor.fontFamily === 'default' ?
-			EDITOR_FONT_DEFAULTS.fontFamily :
-			this.options.configuration.resultEditor.fontFamily,
-		fontSize: this.options.configuration.resultEditor.fontSize,
-		fontWeight: this.options.configuration.resultEditor.fontWeight,
-		lineHeight: this.options.configuration.resultEditor.lineHeight,
-	};
-}
-
-    layout(width: numbercognidreamognidream {
-	const editorBorder = 2;
-
-	const toolbar = dom.getTotalHeight(this.toolbar.getElement());
-	const content = this.diffEditor.getModel()
-		? this.diffEditor.getContentHeight()
-		: dom.getTotalHeight(this.messageElement);
-
-	const dimension = new dom.Dimension(width - editorBorder, toolbar + content);
-	this.element.style.height = `${dimension.height}px`;
-	this.element.style.width = `${dimension.width}px`;
-	this.diffEditor.layout(dimension.with(undefined, content - editorBorder));
-	this.updatePaddingForLayout();
-}
-
-
-    async render(data: ICodeCompareBlockData, width: number, token: CancellationToken) {
-	if(data.parentContextKeyService) {
-	this.contextKeyService.updateParent(data.parentContextKeyService);
-}
-
-        if (this.options.configuration.resultEditor.wordWrap === 'on') {
-	// Initialize the editor with the new proper width so that getContentHeight
-	// will be computed correctly in the next call to layout()
-	this.layout(width);
-}
-
-await this.updateEditor(data, token);
-
-this.layout(width);
-this.diffEditor.updateOptions({ ariaLabel: localize('chat.compareCodeBlockLabel', "Code Edits") });
-
-this.resourceLabel.element.setFile(data.edit.uri, {
-	fileKind: FileKind.FILE,
-	fileDecorations: { colors: true, badges: false }
-});
-    }
-
-reset() {
-	this.clearWidgets();
-}
-
-    private clearWidgets() {
-	ContentHoverController.get(this.diffEditor.getOriginalEditor())?.hideContentHover();
-	ContentHoverController.get(this.diffEditor.getModifiedEditor())?.hideContentHover();
-	GlyphHoverController.get(this.diffEditor.getOriginalEditor())?.hideGlyphHover();
-	GlyphHoverController.get(this.diffEditor.getModifiedEditor())?.hideGlyphHover();
-}
-
-    private async updateEditor(data: ICodeCompareBlockData, token: CancellationToken): Promicognidreamognidream > {
-
-	if(!isResponseVM(data.element)) {
-	return;
-}
-
-const isEditApplied = Boolean(data.edit.state?.applied ?? 0);
-
-ChatContextKeys.editApplied.bindTo(this.contextKeyService).set(isEditApplied);
-
-this.element.classList.toggle('no-diff', isEditApplied);
-
-if (isEditApplied) {
-	assertType(data.edit.state?.applied);
-
-	const uriLabel = this.labelService.getUriLabel(data.edit.uri, { relative: true, noPrefix: true });
-
-	let template: string;
-	if (data.edit.state.applied === 1) {
-		template = localize('chat.edits.1', "Applied 1 change in [[``{0}``]]", uriLabel);
-	} else if (data.edit.state.applied < 0) {
-		template = localize('chat.edits.rejected', "Edits in [[``{0}``]] have been rejected", uriLabel);
-	} else {
-		template = localize('chat.edits.N', "Applied {0} changes in [[``{1}``]]", data.edit.state.applied, uriLabel);
+		return {
+			wordWrap: this.options.configuration.resultEditor.wordWrap,
+			fontLigatures: this.options.configuration.resultEditor.fontLigatures,
+			bracketPairColorization: this.options.configuration.resultEditor.bracketPairColorization,
+			fontFamily: this.options.configuration.resultEditor.fontFamily === 'default' ?
+				EDITOR_FONT_DEFAULTS.fontFamily :
+				this.options.configuration.resultEditor.fontFamily,
+			fontSize: this.options.configuration.resultEditor.fontSize,
+			fontWeight: this.options.configuration.resultEditor.fontWeight,
+			lineHeight: this.options.configuration.resultEditor.lineHeight,
+		};
 	}
 
-	const message = renderFormattedText(template, {
-		renderCodeSegments: true,
-		actionHandler: {
-			callback: () => {
-				this.openerService.open(data.edit.uri, { fromUserGesture: true, allowCommands: false });
-			},
-			disposables: this._store,
+	layout(width: number): void {
+		const editorBorder = 2;
+
+		const toolbar = dom.getTotalHeight(this.toolbar.getElement());
+		const content = this.diffEditor.getModel()
+			? this.diffEditor.getContentHeight()
+			: dom.getTotalHeight(this.messageElement);
+
+		const dimension = new dom.Dimension(width - editorBorder, toolbar + content);
+		this.element.style.height = `${dimension.height}px`;
+		this.element.style.width = `${dimension.width}px`;
+		this.diffEditor.layout(dimension.with(undefined, content - editorBorder));
+		this.updatePaddingForLayout();
+	}
+
+
+	async render(data: ICodeCompareBlockData, width: number, token: CancellationToken) {
+		if (data.parentContextKeyService) {
+			this.contextKeyService.updateParent(data.parentContextKeyService);
 		}
-	});
 
-	dom.reset(this.messageElement, message);
-}
+		if (this.options.configuration.resultEditor.wordWrap === 'on') {
+			// Initialize the editor with the new proper width so that getContentHeight
+			// will be computed correctly in the next call to layout()
+			this.layout(width);
+		}
 
-const diffData = await data.diffData;
+		await this.updateEditor(data, token);
 
-if (!isEditApplied && diffData) {
-	const viewModel = this.diffEditor.createViewModel({
-		original: diffData.original,
-		modified: diffData.modified
-	});
+		this.layout(width);
+		this.diffEditor.updateOptions({ ariaLabel: localize('chat.compareCodeBlockLabel', "Code Edits") });
 
-	await viewModel.waitForDiff();
-
-	if (token.isCancellationRequested) {
-		return;
+		this.resourceLabel.element.setFile(data.edit.uri, {
+			fileKind: FileKind.FILE,
+			fileDecorations: { colors: true, badges: false }
+		});
 	}
 
-	const listener = Event.any(diffData.original.onWillDispose, diffData.modified.onWillDispose)(() => {
-		// this a bit weird and basically duplicates https://github.com/microsoft/vscode/blob/7cbcafcbcc88298cfdcd0238018fbbba8eb6853e/src/vs/editor/browser/widget/diffEditor/diffEditorWidget.ts#L328
-		// which cannot call `setModel(null)` without first complaining
-		this.diffEditor.setModel(null);
-	});
-	this.diffEditor.setModel(viewModel);
-	this._lastDiffEditorViewModel.value = combinedDisposable(listener, viewModel);
+	reset() {
+		this.clearWidgets();
+	}
 
-} else {
-	this.diffEditor.setModel(null);
-	this._lastDiffEditorViewModel.value = undefined;
-	this._onDidChangeContentHeight.fire();
-}
+	private clearWidgets() {
+		ContentHoverController.get(this.diffEditor.getOriginalEditor())?.hideContentHover();
+		ContentHoverController.get(this.diffEditor.getModifiedEditor())?.hideContentHover();
+		GlyphHoverController.get(this.diffEditor.getOriginalEditor())?.hideGlyphHover();
+		GlyphHoverController.get(this.diffEditor.getModifiedEditor())?.hideGlyphHover();
+	}
 
-this.toolbar.context = {
-	edit: data.edit,
-	element: data.element,
-	diffEditor: this.diffEditor,
-} satisfies ICodeCompareBlockActionContext;
-    }
+	private async updateEditor(data: ICodeCompareBlockData, token: CancellationToken): Promise<void> {
+
+		if (!isResponseVM(data.element)) {
+			return;
+		}
+
+		const isEditApplied = Boolean(data.edit.state?.applied ?? 0);
+
+		ChatContextKeys.editApplied.bindTo(this.contextKeyService).set(isEditApplied);
+
+		this.element.classList.toggle('no-diff', isEditApplied);
+
+		if (isEditApplied) {
+			assertType(data.edit.state?.applied);
+
+			const uriLabel = this.labelService.getUriLabel(data.edit.uri, { relative: true, noPrefix: true });
+
+			let template: string;
+			if (data.edit.state.applied === 1) {
+				template = localize('chat.edits.1', "Applied 1 change in [[``{0}``]]", uriLabel);
+			} else if (data.edit.state.applied < 0) {
+				template = localize('chat.edits.rejected', "Edits in [[``{0}``]] have been rejected", uriLabel);
+			} else {
+				template = localize('chat.edits.N', "Applied {0} changes in [[``{1}``]]", data.edit.state.applied, uriLabel);
+			}
+
+			const message = renderFormattedText(template, {
+				renderCodeSegments: true,
+				actionHandler: {
+					callback: () => {
+						this.openerService.open(data.edit.uri, { fromUserGesture: true, allowCommands: false });
+					},
+					disposables: this._store,
+				}
+			});
+
+			dom.reset(this.messageElement, message);
+		}
+
+		const diffData = await data.diffData;
+
+		if (!isEditApplied && diffData) {
+			const viewModel = this.diffEditor.createViewModel({
+				original: diffData.original,
+				modified: diffData.modified
+			});
+
+			await viewModel.waitForDiff();
+
+			if (token.isCancellationRequested) {
+				return;
+			}
+
+			const listener = Event.any(diffData.original.onWillDispose, diffData.modified.onWillDispose)(() => {
+				// this a bit weird and basically duplicates https://github.com/microsoft/vscode/blob/7cbcafcbcc88298cfdcd0238018fbbba8eb6853e/src/vs/editor/browser/widget/diffEditor/diffEditorWidget.ts#L328
+				// which cannot call `setModel(null)` without first complaining
+				this.diffEditor.setModel(null);
+			});
+			this.diffEditor.setModel(viewModel);
+			this._lastDiffEditorViewModel.value = combinedDisposable(listener, viewModel);
+
+		} else {
+			this.diffEditor.setModel(null);
+			this._lastDiffEditorViewModel.value = undefined;
+			this._onDidChangeContentHeight.fire();
+		}
+
+		this.toolbar.context = {
+			edit: data.edit,
+			element: data.element,
+			diffEditor: this.diffEditor,
+		} satisfies ICodeCompareBlockActionContext;
+	}
 }
 
 export class DefaultChatTextEditor {
@@ -858,114 +858,114 @@ export class DefaultChatTextEditor {
 		@IDialogService private readonly dialogService: IDialogService,
 	) { }
 
-	async apply(response: IChatResponseModel | IChatResponseViewModel, item: IChatTextEditGroup, diffEditor: IDiffEditor | undefined): Promicognidreamognidream> {
+	async apply(response: IChatResponseModel | IChatResponseViewModel, item: IChatTextEditGroup, diffEditor: IDiffEditor | undefined): Promise<void> {
 
-		if(!response.response.value.includes(item)) {
-	// bogous item
-	return;
-}
-
-if (item.state?.applied) {
-	// already applied
-	return;
-}
-
-if (!diffEditor) {
-	for (const candidate of this.editorService.listDiffEditors()) {
-		if (!candidate.getContainerDomNode().isConnected) {
-			continue;
+		if (!response.response.value.includes(item)) {
+			// bogous item
+			return;
 		}
-		const model = candidate.getModel();
-		if (!model || !isEqual(model.original.uri, item.uri) || model.modified.uri.scheme !== Schemas.vscodeChatCodeCompareBlock) {
-			diffEditor = candidate;
-			break;
+
+		if (item.state?.applied) {
+			// already applied
+			return;
 		}
-	}
-}
 
-const edits = diffEditor
-	? await this._applyWithDiffEditor(diffEditor, item)
-	: await this._apply(item);
+		if (!diffEditor) {
+			for (const candidate of this.editorService.listDiffEditors()) {
+				if (!candidate.getContainerDomNode().isConnected) {
+					continue;
+				}
+				const model = candidate.getModel();
+				if (!model || !isEqual(model.original.uri, item.uri) || model.modified.uri.scheme !== Schemas.vscodeChatCodeCompareBlock) {
+					diffEditor = candidate;
+					break;
+				}
+			}
+		}
 
-response.setEditApplied(item, edits);
-    }
+		const edits = diffEditor
+			? await this._applyWithDiffEditor(diffEditor, item)
+			: await this._apply(item);
 
-    private async _applyWithDiffEditor(diffEditor: IDiffEditor, item: IChatTextEditGroup) {
-	const model = diffEditor.getModel();
-	if (!model) {
-		return 0;
-	}
-
-	const diff = diffEditor.getDiffComputationResult();
-	if (!diff || diff.identical) {
-		return 0;
-	}
-
-
-	if (!await this._checkSha1(model.original, item)) {
-		return 0;
+		response.setEditApplied(item, edits);
 	}
 
-	const modified = new TextModelText(model.modified);
-	const edits = diff.changes2.map(i => i.toRangeMapping().toTextEdit(modified).toSingleEditOperation());
-
-	model.original.pushStackElement();
-	model.original.pushEditOperations(null, edits, () => null);
-	model.original.pushStackElement();
-
-	return edits.length;
-}
-
-    private async _apply(item: IChatTextEditGroup) {
-	const ref = await this.modelService.createModelReference(item.uri);
-	try {
-
-		if (!await this._checkSha1(ref.object.textEditorModel, item)) {
+	private async _applyWithDiffEditor(diffEditor: IDiffEditor, item: IChatTextEditGroup) {
+		const model = diffEditor.getModel();
+		if (!model) {
 			return 0;
 		}
 
-		ref.object.textEditorModel.pushStackElement();
-		let total = 0;
-		for (const group of item.edits) {
-			const edits = group.map(TextEdit.asEditOperation);
-			ref.object.textEditorModel.pushEditOperations(null, edits, () => null);
-			total += edits.length;
+		const diff = diffEditor.getDiffComputationResult();
+		if (!diff || diff.identical) {
+			return 0;
 		}
-		ref.object.textEditorModel.pushStackElement();
-		return total;
 
-	} finally {
-		ref.dispose();
+
+		if (!await this._checkSha1(model.original, item)) {
+			return 0;
+		}
+
+		const modified = new TextModelText(model.modified);
+		const edits = diff.changes2.map(i => i.toRangeMapping().toTextEdit(modified).toSingleEditOperation());
+
+		model.original.pushStackElement();
+		model.original.pushEditOperations(null, edits, () => null);
+		model.original.pushStackElement();
+
+		return edits.length;
 	}
-}
 
-    private async _checkSha1(model: ITextModel, item: IChatTextEditGroup) {
-	if (item.state?.sha1 && this._sha1.computeSHA1(model) && this._sha1.computeSHA1(model) !== item.state.sha1) {
-		const result = await this.dialogService.confirm({
-			message: localize('interactive.compare.apply.confirm', "The original file has been modified."),
-			detail: localize('interactive.compare.apply.confirm.detail', "Do you want to apply the changes anyway?"),
-		});
+	private async _apply(item: IChatTextEditGroup) {
+		const ref = await this.modelService.createModelReference(item.uri);
+		try {
 
-		if (!result.confirmed) {
-			return false;
+			if (!await this._checkSha1(ref.object.textEditorModel, item)) {
+				return 0;
+			}
+
+			ref.object.textEditorModel.pushStackElement();
+			let total = 0;
+			for (const group of item.edits) {
+				const edits = group.map(TextEdit.asEditOperation);
+				ref.object.textEditorModel.pushEditOperations(null, edits, () => null);
+				total += edits.length;
+			}
+			ref.object.textEditorModel.pushStackElement();
+			return total;
+
+		} finally {
+			ref.dispose();
 		}
 	}
-	return true;
-}
 
-discard(response: IChatResponseModel | IChatResponseViewModel, item: IChatTextEditGroup) {
-	if (!response.response.value.includes(item)) {
-		// bogous item
-		return;
+	private async _checkSha1(model: ITextModel, item: IChatTextEditGroup) {
+		if (item.state?.sha1 && this._sha1.computeSHA1(model) && this._sha1.computeSHA1(model) !== item.state.sha1) {
+			const result = await this.dialogService.confirm({
+				message: localize('interactive.compare.apply.confirm', "The original file has been modified."),
+				detail: localize('interactive.compare.apply.confirm.detail', "Do you want to apply the changes anyway?"),
+			});
+
+			if (!result.confirmed) {
+				return false;
+			}
+		}
+		return true;
 	}
 
-	if (item.state?.applied) {
-		// already applied
-		return;
-	}
+	discard(response: IChatResponseModel | IChatResponseViewModel, item: IChatTextEditGroup) {
+		if (!response.response.value.includes(item)) {
+			// bogous item
+			return;
+		}
 
-	response.setEditApplied(item, -1);
-}
+		if (item.state?.applied) {
+			// already applied
+			return;
+		}
+
+		response.setEditApplied(item, -1);
+	}
 
 
 }

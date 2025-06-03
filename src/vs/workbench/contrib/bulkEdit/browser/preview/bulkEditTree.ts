@@ -36,7 +36,7 @@ import * as css from '../../../../../base/browser/cssValue.js';
 
 export interface ICheckable {
 	isChecked(): boolean;
-	setChecked(value: boolean): cognidream;
+	setChecked(value: boolean): void;
 }
 
 export class CategoryElement implements ICheckable {
@@ -57,14 +57,14 @@ export class CategoryElement implements ICheckable {
 		return checked;
 	}
 
-	setChecked(value: booleancognidreamognidream {
+	setChecked(value: boolean): void {
 		const model = this.parent;
 		for (const file of this.category.fileOperations) {
 			for (const edit of file.originalEdits.values()) {
 				model.checked.updateChecked(edit, value);
 			}
 		}
-    }
+	}
 }
 
 export class FileElement implements ICheckable {
@@ -109,45 +109,45 @@ export class FileElement implements ICheckable {
 		return checked;
 	}
 
-	setChecked(value: booleancognidreamognidream {
+	setChecked(value: boolean): void {
 		const model = this.parent instanceof CategoryElement ? this.parent.parent : this.parent;
 		for (const edit of this.edit.originalEdits.values()) {
-	model.checked.updateChecked(edit, value);
-}
-
-// multiple categories and file change -> update all elements
-if (this.parent instanceof CategoryElement && this.edit.type !== BulkFileOperationType.TextEdit) {
-	for (const category of model.categories) {
-		for (const file of category.fileOperations) {
-			if (file.uri.toString() === this.edit.uri.toString()) {
-				for (const edit of file.originalEdits.values()) {
-					model.checked.updateChecked(edit, value);
-				}
-			}
+			model.checked.updateChecked(edit, value);
 		}
-	}
-}
-    }
 
-isDisabled(): boolean {
-	if (this.parent instanceof CategoryElement && this.edit.type === BulkFileOperationType.TextEdit) {
-		const model = this.parent.parent;
-		let checked = true;
-		for (const category of model.categories) {
-			for (const file of category.fileOperations) {
-				if (file.uri.toString() === this.edit.uri.toString()) {
-					for (const edit of file.originalEdits.values()) {
-						if (edit instanceof ResourceFileEdit) {
-							checked = checked && model.checked.isChecked(edit);
+		// multiple categories and file change -> update all elements
+		if (this.parent instanceof CategoryElement && this.edit.type !== BulkFileOperationType.TextEdit) {
+			for (const category of model.categories) {
+				for (const file of category.fileOperations) {
+					if (file.uri.toString() === this.edit.uri.toString()) {
+						for (const edit of file.originalEdits.values()) {
+							model.checked.updateChecked(edit, value);
 						}
 					}
 				}
 			}
 		}
-		return !checked;
 	}
-	return false;
-}
+
+	isDisabled(): boolean {
+		if (this.parent instanceof CategoryElement && this.edit.type === BulkFileOperationType.TextEdit) {
+			const model = this.parent.parent;
+			let checked = true;
+			for (const category of model.categories) {
+				for (const file of category.fileOperations) {
+					if (file.uri.toString() === this.edit.uri.toString()) {
+						for (const edit of file.originalEdits.values()) {
+							if (edit instanceof ResourceFileEdit) {
+								checked = checked && model.checked.isChecked(edit);
+							}
+						}
+					}
+				}
+			}
+			return !checked;
+		}
+		return false;
+	}
 }
 
 export class TextEditElement implements ICheckable {
@@ -167,28 +167,28 @@ export class TextEditElement implements ICheckable {
 		return model.checked.isChecked(this.edit.textEdit);
 	}
 
-	setChecked(value: booleancognidreamognidream {
+	setChecked(value: boolean): void {
 		let model = this.parent.parent;
 		if (model instanceof CategoryElement) {
-	model = model.parent;
-}
+			model = model.parent;
+		}
 
-// check/uncheck this element
-model.checked.updateChecked(this.edit.textEdit, value);
+		// check/uncheck this element
+		model.checked.updateChecked(this.edit.textEdit, value);
 
-// make sure parent is checked when this element is checked...
-if (value) {
-	for (const edit of this.parent.edit.originalEdits.values()) {
-		if (edit instanceof ResourceFileEdit) {
-			(<BulkFileOperations>model).checked.updateChecked(edit, value);
+		// make sure parent is checked when this element is checked...
+		if (value) {
+			for (const edit of this.parent.edit.originalEdits.values()) {
+				if (edit instanceof ResourceFileEdit) {
+					(<BulkFileOperations>model).checked.updateChecked(edit, value);
+				}
+			}
 		}
 	}
-}
-    }
 
-isDisabled(): boolean {
-	return this.parent.isDisabled();
-}
+	isDisabled(): boolean {
+		return this.parent.isDisabled();
+	}
 }
 
 export type BulkEditElement = CategoryElement | FileElement | TextEditElement;
@@ -420,116 +420,116 @@ export class CategoryElementRenderer implements ITreeRenderer<CategoryElement, F
 		return new CategoryElementTemplate(container);
 	}
 
-	renderElement(node: ITreeNode<CategoryElement, FuzzyScore>, _index: number, template: CategoryElementTemplatecognidreamognidream {
+	renderElement(node: ITreeNode<CategoryElement, FuzzyScore>, _index: number, template: CategoryElementTemplate): void {
 
 		template.icon.style.setProperty('--background-dark', null);
-template.icon.style.setProperty('--background-light', null);
-template.icon.style.color = '';
+		template.icon.style.setProperty('--background-light', null);
+		template.icon.style.color = '';
 
-const { metadata } = node.element.category;
-if (ThemeIcon.isThemeIcon(metadata.iconPath)) {
-	// css
-	const className = ThemeIcon.asClassName(metadata.iconPath);
-	template.icon.className = className ? `theme-icon ${className}` : '';
-	template.icon.style.color = metadata.iconPath.color ? this._themeService.getColorTheme().getColor(metadata.iconPath.color.id)?.toString() ?? '' : '';
+		const { metadata } = node.element.category;
+		if (ThemeIcon.isThemeIcon(metadata.iconPath)) {
+			// css
+			const className = ThemeIcon.asClassName(metadata.iconPath);
+			template.icon.className = className ? `theme-icon ${className}` : '';
+			template.icon.style.color = metadata.iconPath.color ? this._themeService.getColorTheme().getColor(metadata.iconPath.color.id)?.toString() ?? '' : '';
 
 
-} else if (URI.isUri(metadata.iconPath)) {
-	// background-image
-	template.icon.className = 'uri-icon';
-	template.icon.style.setProperty('--background-dark', css.asCSSUrl(metadata.iconPath));
-	template.icon.style.setProperty('--background-light', css.asCSSUrl(metadata.iconPath));
+		} else if (URI.isUri(metadata.iconPath)) {
+			// background-image
+			template.icon.className = 'uri-icon';
+			template.icon.style.setProperty('--background-dark', css.asCSSUrl(metadata.iconPath));
+			template.icon.style.setProperty('--background-light', css.asCSSUrl(metadata.iconPath));
 
-} else if (metadata.iconPath) {
-	// background-image
-	template.icon.className = 'uri-icon';
-	template.icon.style.setProperty('--background-dark', css.asCSSUrl(metadata.iconPath.dark));
-	template.icon.style.setProperty('--background-light', css.asCSSUrl(metadata.iconPath.light));
-}
-
-template.label.setLabel(metadata.label, metadata.description, {
-	descriptionMatches: createMatches(node.filterData),
-});
-    }
-
-disposeTemplate(template: CategoryElementTemplatecognidreamognidream {
-	template.label.dispose();
-}
-}
-
-	class FileElementTemplate {
-
-		private readonly _disposables = new DisposableStore();
-		private readonly _localDisposables = new DisposableStore();
-
-		private readonly _checkbox: HTMLInputElement;
-		private readonly _label: IResourceLabel;
-		private readonly _details: HTMLSpanElement;
-
-		constructor(
-			container: HTMLElement,
-			resourceLabels: ResourceLabels,
-			@ILabelService private readonly _labelService: ILabelService,
-		) {
-
-			this._checkbox = document.createElement('input');
-			this._checkbox.className = 'edit-checkbox';
-			this._checkbox.type = 'checkbox';
-			this._checkbox.setAttribute('role', 'checkbox');
-			container.appendChild(this._checkbox);
-
-			this._label = resourceLabels.create(container, { supportHighlights: true });
-
-			this._details = document.createElement('span');
-			this._details.className = 'details';
-			container.appendChild(this._details);
+		} else if (metadata.iconPath) {
+			// background-image
+			template.icon.className = 'uri-icon';
+			template.icon.style.setProperty('--background-dark', css.asCSSUrl(metadata.iconPath.dark));
+			template.icon.style.setProperty('--background-light', css.asCSSUrl(metadata.iconPath.light));
 		}
 
-		dispose(cognidreamognidream {
-			this._localDisposables.dispose();
-this._disposables.dispose();
-this._label.dispose();
-    }
-
-set(element: FileElement, score: FuzzyScore | undefined) {
-	this._localDisposables.clear();
-
-	this._checkbox.checked = element.isChecked();
-	this._checkbox.disabled = element.isDisabled();
-	this._localDisposables.add(dom.addDisposableListener(this._checkbox, 'change', () => {
-		element.setChecked(this._checkbox.checked);
-	}));
-
-	if (element.edit.type & BulkFileOperationType.Rename && element.edit.newUri) {
-		// rename: oldName → newName
-		this._label.setResource({
-			resource: element.edit.uri,
-			name: localize('rename.label', "{0} → {1}", this._labelService.getUriLabel(element.edit.uri, { relative: true }), this._labelService.getUriLabel(element.edit.newUri, { relative: true })),
-		}, {
-			fileDecorations: { colors: true, badges: false }
+		template.label.setLabel(metadata.label, metadata.description, {
+			descriptionMatches: createMatches(node.filterData),
 		});
+	}
 
-		this._details.innerText = localize('detail.rename', "(renaming)");
-
-	} else {
-		// create, delete, edit: NAME
-		const options = {
-			matches: createMatches(score),
-			fileKind: FileKind.FILE,
-			fileDecorations: { colors: true, badges: false },
-			extraClasses: <string[]>[]
-		};
-		if (element.edit.type & BulkFileOperationType.Create) {
-			this._details.innerText = localize('detail.create', "(creating)");
-		} else if (element.edit.type & BulkFileOperationType.Delete) {
-			this._details.innerText = localize('detail.del', "(deleting)");
-			options.extraClasses.push('delete');
-		} else {
-			this._details.innerText = '';
-		}
-		this._label.setFile(element.edit.uri, options);
+	disposeTemplate(template: CategoryElementTemplate): void {
+		template.label.dispose();
 	}
 }
+
+class FileElementTemplate {
+
+	private readonly _disposables = new DisposableStore();
+	private readonly _localDisposables = new DisposableStore();
+
+	private readonly _checkbox: HTMLInputElement;
+	private readonly _label: IResourceLabel;
+	private readonly _details: HTMLSpanElement;
+
+	constructor(
+		container: HTMLElement,
+		resourceLabels: ResourceLabels,
+		@ILabelService private readonly _labelService: ILabelService,
+	) {
+
+		this._checkbox = document.createElement('input');
+		this._checkbox.className = 'edit-checkbox';
+		this._checkbox.type = 'checkbox';
+		this._checkbox.setAttribute('role', 'checkbox');
+		container.appendChild(this._checkbox);
+
+		this._label = resourceLabels.create(container, { supportHighlights: true });
+
+		this._details = document.createElement('span');
+		this._details.className = 'details';
+		container.appendChild(this._details);
+	}
+
+	dispose(): void {
+		this._localDisposables.dispose();
+		this._disposables.dispose();
+		this._label.dispose();
+	}
+
+	set(element: FileElement, score: FuzzyScore | undefined) {
+		this._localDisposables.clear();
+
+		this._checkbox.checked = element.isChecked();
+		this._checkbox.disabled = element.isDisabled();
+		this._localDisposables.add(dom.addDisposableListener(this._checkbox, 'change', () => {
+			element.setChecked(this._checkbox.checked);
+		}));
+
+		if (element.edit.type & BulkFileOperationType.Rename && element.edit.newUri) {
+			// rename: oldName → newName
+			this._label.setResource({
+				resource: element.edit.uri,
+				name: localize('rename.label', "{0} → {1}", this._labelService.getUriLabel(element.edit.uri, { relative: true }), this._labelService.getUriLabel(element.edit.newUri, { relative: true })),
+			}, {
+				fileDecorations: { colors: true, badges: false }
+			});
+
+			this._details.innerText = localize('detail.rename', "(renaming)");
+
+		} else {
+			// create, delete, edit: NAME
+			const options = {
+				matches: createMatches(score),
+				fileKind: FileKind.FILE,
+				fileDecorations: { colors: true, badges: false },
+				extraClasses: <string[]>[]
+			};
+			if (element.edit.type & BulkFileOperationType.Create) {
+				this._details.innerText = localize('detail.create', "(creating)");
+			} else if (element.edit.type & BulkFileOperationType.Delete) {
+				this._details.innerText = localize('detail.del', "(deleting)");
+				options.extraClasses.push('delete');
+			} else {
+				this._details.innerText = '';
+			}
+			this._label.setFile(element.edit.uri, options);
+		}
+	}
 }
 
 export class FileElementRenderer implements ITreeRenderer<FileElement, FuzzyScore, FileElementTemplate> {
@@ -547,109 +547,109 @@ export class FileElementRenderer implements ITreeRenderer<FileElement, FuzzyScor
 		return new FileElementTemplate(container, this._resourceLabels, this._labelService);
 	}
 
-	renderElement(node: ITreeNode<FileElement, FuzzyScore>, _index: number, template: FileElementTemplatecognidreamognidream {
+	renderElement(node: ITreeNode<FileElement, FuzzyScore>, _index: number, template: FileElementTemplate): void {
 		template.set(node.element, node.filterData);
-    }
-
-disposeTemplate(template: FileElementTemplatecognidreamognidream {
-	template.dispose();
-}
-}
-
-	class TextEditElementTemplate {
-
-		private readonly _disposables = new DisposableStore();
-		private readonly _localDisposables = new DisposableStore();
-
-		private readonly _checkbox: HTMLInputElement;
-		private readonly _icon: HTMLDivElement;
-		private readonly _label: HighlightedLabel;
-
-		constructor(container: HTMLElement, @IThemeService private readonly _themeService: IThemeService) {
-			container.classList.add('textedit');
-
-			this._checkbox = document.createElement('input');
-			this._checkbox.className = 'edit-checkbox';
-			this._checkbox.type = 'checkbox';
-			this._checkbox.setAttribute('role', 'checkbox');
-			container.appendChild(this._checkbox);
-
-			this._icon = document.createElement('div');
-			container.appendChild(this._icon);
-
-			this._label = this._disposables.add(new HighlightedLabel(container));
-		}
-
-		dispose(cognidreamognidream {
-			this._localDisposables.dispose();
-this._disposables.dispose();
-    }
-
-set(element: TextEditElement) {
-	this._localDisposables.clear();
-
-	this._localDisposables.add(dom.addDisposableListener(this._checkbox, 'change', e => {
-		element.setChecked(this._checkbox.checked);
-		e.preventDefault();
-	}));
-	if (element.parent.isChecked()) {
-		this._checkbox.checked = element.isChecked();
-		this._checkbox.disabled = element.isDisabled();
-	} else {
-		this._checkbox.checked = element.isChecked();
-		this._checkbox.disabled = element.isDisabled();
 	}
 
-	let value = '';
-	value += element.prefix;
-	value += element.selecting;
-	value += element.inserting;
-	value += element.suffix;
+	disposeTemplate(template: FileElementTemplate): void {
+		template.dispose();
+	}
+}
 
-	const selectHighlight: IHighlight = { start: element.prefix.length, end: element.prefix.length + element.selecting.length, extraClasses: ['remove'] };
-	const insertHighlight: IHighlight = { start: selectHighlight.end, end: selectHighlight.end + element.inserting.length, extraClasses: ['insert'] };
+class TextEditElementTemplate {
 
-	let title: string | undefined;
-	const { metadata } = element.edit.textEdit;
-	if (metadata && metadata.description) {
-		title = localize('title', "{0} - {1}", metadata.label, metadata.description);
-	} else if (metadata) {
-		title = metadata.label;
+	private readonly _disposables = new DisposableStore();
+	private readonly _localDisposables = new DisposableStore();
+
+	private readonly _checkbox: HTMLInputElement;
+	private readonly _icon: HTMLDivElement;
+	private readonly _label: HighlightedLabel;
+
+	constructor(container: HTMLElement, @IThemeService private readonly _themeService: IThemeService) {
+		container.classList.add('textedit');
+
+		this._checkbox = document.createElement('input');
+		this._checkbox.className = 'edit-checkbox';
+		this._checkbox.type = 'checkbox';
+		this._checkbox.setAttribute('role', 'checkbox');
+		container.appendChild(this._checkbox);
+
+		this._icon = document.createElement('div');
+		container.appendChild(this._icon);
+
+		this._label = this._disposables.add(new HighlightedLabel(container));
 	}
 
-	const iconPath = metadata?.iconPath;
-	if (!iconPath) {
-		this._icon.style.display = 'none';
-	} else {
-		this._icon.style.display = 'block';
+	dispose(): void {
+		this._localDisposables.dispose();
+		this._disposables.dispose();
+	}
 
-		this._icon.style.setProperty('--background-dark', null);
-		this._icon.style.setProperty('--background-light', null);
+	set(element: TextEditElement) {
+		this._localDisposables.clear();
 
-		if (ThemeIcon.isThemeIcon(iconPath)) {
-			// css
-			const className = ThemeIcon.asClassName(iconPath);
-			this._icon.className = className ? `theme-icon ${className}` : '';
-			this._icon.style.color = iconPath.color ? this._themeService.getColorTheme().getColor(iconPath.color.id)?.toString() ?? '' : '';
-
-
-		} else if (URI.isUri(iconPath)) {
-			// background-image
-			this._icon.className = 'uri-icon';
-			this._icon.style.setProperty('--background-dark', css.asCSSUrl(iconPath));
-			this._icon.style.setProperty('--background-light', css.asCSSUrl(iconPath));
-
+		this._localDisposables.add(dom.addDisposableListener(this._checkbox, 'change', e => {
+			element.setChecked(this._checkbox.checked);
+			e.preventDefault();
+		}));
+		if (element.parent.isChecked()) {
+			this._checkbox.checked = element.isChecked();
+			this._checkbox.disabled = element.isDisabled();
 		} else {
-			// background-image
-			this._icon.className = 'uri-icon';
-			this._icon.style.setProperty('--background-dark', css.asCSSUrl(iconPath.dark));
-			this._icon.style.setProperty('--background-light', css.asCSSUrl(iconPath.light));
+			this._checkbox.checked = element.isChecked();
+			this._checkbox.disabled = element.isDisabled();
 		}
-	}
 
-	this._label.set(value, [selectHighlight, insertHighlight], title, true);
-	this._icon.title = title || '';
-}
+		let value = '';
+		value += element.prefix;
+		value += element.selecting;
+		value += element.inserting;
+		value += element.suffix;
+
+		const selectHighlight: IHighlight = { start: element.prefix.length, end: element.prefix.length + element.selecting.length, extraClasses: ['remove'] };
+		const insertHighlight: IHighlight = { start: selectHighlight.end, end: selectHighlight.end + element.inserting.length, extraClasses: ['insert'] };
+
+		let title: string | undefined;
+		const { metadata } = element.edit.textEdit;
+		if (metadata && metadata.description) {
+			title = localize('title', "{0} - {1}", metadata.label, metadata.description);
+		} else if (metadata) {
+			title = metadata.label;
+		}
+
+		const iconPath = metadata?.iconPath;
+		if (!iconPath) {
+			this._icon.style.display = 'none';
+		} else {
+			this._icon.style.display = 'block';
+
+			this._icon.style.setProperty('--background-dark', null);
+			this._icon.style.setProperty('--background-light', null);
+
+			if (ThemeIcon.isThemeIcon(iconPath)) {
+				// css
+				const className = ThemeIcon.asClassName(iconPath);
+				this._icon.className = className ? `theme-icon ${className}` : '';
+				this._icon.style.color = iconPath.color ? this._themeService.getColorTheme().getColor(iconPath.color.id)?.toString() ?? '' : '';
+
+
+			} else if (URI.isUri(iconPath)) {
+				// background-image
+				this._icon.className = 'uri-icon';
+				this._icon.style.setProperty('--background-dark', css.asCSSUrl(iconPath));
+				this._icon.style.setProperty('--background-light', css.asCSSUrl(iconPath));
+
+			} else {
+				// background-image
+				this._icon.className = 'uri-icon';
+				this._icon.style.setProperty('--background-dark', css.asCSSUrl(iconPath.dark));
+				this._icon.style.setProperty('--background-light', css.asCSSUrl(iconPath.light));
+			}
+		}
+
+		this._label.set(value, [selectHighlight, insertHighlight], title, true);
+		this._icon.title = title || '';
+	}
 }
 
 export class TextEditElementRenderer implements ITreeRenderer<TextEditElement, FuzzyScore, TextEditElementTemplate> {
@@ -664,11 +664,11 @@ export class TextEditElementRenderer implements ITreeRenderer<TextEditElement, F
 		return new TextEditElementTemplate(container, this._themeService);
 	}
 
-	renderElement({ element }: ITreeNode<TextEditElement, FuzzyScore>, _index: number, template: TextEditElementTemplatecognidreamognidream {
+	renderElement({ element }: ITreeNode<TextEditElement, FuzzyScore>, _index: number, template: TextEditElementTemplate): void {
 		template.set(element);
-    }
+	}
 
-disposeTemplate(_template: TextEditElementTemplatecognidreamognidream {}
+	disposeTemplate(_template: TextEditElementTemplate): void { }
 }
 
 export class BulkEditDelegate implements IListVirtualDelegate<BulkEditElement> {

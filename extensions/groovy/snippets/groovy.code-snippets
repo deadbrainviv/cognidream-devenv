@@ -137,7 +137,7 @@
 	"setUp() { … }": {
 		"prefix": "setup",
 		"body": [
-			"cognidream setUp() {",
+			"void setUp() {",
 			"\t$0",
 			"}"
 		],
@@ -203,7 +203,7 @@
 	"tearDown() { … }": {
 		"prefix": "tear",
 		"body": [
-			"cognidream tearDown() {",
+			"void tearDown() {",
 			"\t$0",
 			"}"
 		],
@@ -212,7 +212,7 @@
 	"test()": {
 		"prefix": "t",
 		"body": [
-			"cognidream test$1() {",
+			"void test$1() {",
 			"\t$0",
 			"}"
 		],

@@ -6,47 +6,47 @@
 import { useEffect, useRef, useState } from 'react';
 import { useAccessor, useIsDark, useSettingsState } from '../util/services.js';
 import { Brain, Check, ChevronRight, DollarSign, ExternalLink, Lock, X } from 'lucide-react';
-import { displayInfoOfProviderName, ProviderName, providerNames, localProviderNames, featureNames, FeatureName, isFeatureNameDisabled } from '../../../../common/cognidreamSettingsTypes.js';
+import { displayInfoOfProviderName, ProviderName, providerNames, localProviderNames, featureNames, FeatureName, isFeatureNameDisabled } from '../../../../common/voidSettingsTypes.js';
 import { ChatMarkdownRender } from '../markdown/ChatMarkdownRender.js';
-import { OllamaSetupInstructions, OneClickSwitchButton, SettingsForProvider, ModelDump } from '../cognidream-settings-tsx/Settings.js';
+import { OllamaSetupInstructions, OneClickSwitchButton, SettingsForProvider, ModelDump } from '../void-settings-tsx/Settings.js';
 import { ColorScheme } from '../../../../../../../platform/theme/common/theme.js';
 import ErrorBoundary from '../sidebar-tsx/ErrorBoundary.js';
 import { isLinux } from '../../../../../../../base/common/platform.js';
 
 const OVERRIDE_VALUE = false
 
-export const cognidreamOnboarding = () => {
+export const VoidOnboarding = () => {
 
-	const cognidreamSettingsState = useSettingsState()
-	const isOnboardingComplete = cognidreamSettingsState.globalSettings.isOnboardingComplete || OVERRIDE_VALUE
+	const voidSettingsState = useSettingsState()
+	const isOnboardingComplete = voidSettingsState.globalSettings.isOnboardingComplete || OVERRIDE_VALUE
 
 	const isDark = useIsDark()
 
 	return (
-		<div className={`@@cognidream-scope ${isDark ? 'dark' : ''}`}>
+		<div className={`@@void-scope ${isDark ? 'dark' : ''}`}>
 			<div
 				className={`
-					bg-cognidream-bg-3 fixed top-0 right-0 bottom-0 left-0 width-full z-[99999]
+					bg-void-bg-3 fixed top-0 right-0 bottom-0 left-0 width-full z-[99999]
 					transition-all duration-1000 ${isOnboardingComplete ? 'opacity-0 pointer-events-none' : 'opacity-100 pointer-events-auto'}
 				`}
 				style={{ height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
 			>
 				<ErrorBoundary>
-					<cognidreamOnboardingContent />
+					<VoidOnboardingContent />
 				</ErrorBoundary>
 			</div>
 		</div>
 	)
 }
 
-const cognidreamIcon = () => {
+const VoidIcon = () => {
 	const accessor = useAccessor()
 	const themeService = accessor.get('IThemeService')
 
 	const divRef = useRef<HTMLDivElement | null>(null)
 
 	useEffect(() => {
-		// cognidream icon style
+		// void icon style
 		const updateTheme = () => {
 			const theme = themeService.getColorTheme().type
 			const isDark = theme === ColorScheme.DARK || theme === ColorScheme.HIGH_CONTRAST_DARK
@@ -61,7 +61,7 @@ const cognidreamIcon = () => {
 		return () => d.dispose()
 	}, [])
 
-	return <div ref={divRef} className='@@cognidream-cognidream-icon' />
+	return <div ref={divRef} className='@@void-void-icon' />
 }
 
 const FADE_DURATION_MS = 2000
@@ -100,7 +100,7 @@ const tabNames = ['Free', 'Paid', 'Local'] as const;
 type TabName = typeof tabNames[number] | 'Cloud/Other';
 
 // Data for cloud providers tab
-const cloudProviders: ProviderName[] = ['googleVertex', 'liteLLM', 'microsoftAzure', 'openAICompatible'];
+const cloudProviders: ProviderName[] = ['googleVertex', 'liteLLM', 'microsoftAzure', 'awsBedrock', 'openAICompatible'];
 
 // Data structures for provider tabs
 const providerNamesOfTab: Record<TabName, ProviderName[]> = {
@@ -125,7 +125,7 @@ const featureNameMap: { display: string, featureName: FeatureName }[] = [
 	{ display: 'Fast Apply', featureName: 'Apply' },
 ];
 
-const AddProvidersPage = ({ pageIndex, setPageIndex }: { pageIndex: number, setPageIndex: (index: number) => cognidream }) => {
+const AddProvidersPage = ({ pageIndex, setPageIndex }: { pageIndex: number, setPageIndex: (index: number) => void }) => {
 	const [currentTab, setCurrentTab] = useState<TabName>('Free');
 	const settingsState = useSettingsState();
 	const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -150,7 +150,7 @@ const AddProvidersPage = ({ pageIndex, setPageIndex }: { pageIndex: number, setP
 
 	return (<div className="flex flex-col md:flex-row w-full h-[80vh] gap-6 max-w-[900px] mx-auto relative">
 		{/* Left Column */}
-		<div className="md:w-1/4 w-full flex flex-col gap-6 p-6 border-none border-cognidream-border-2 h-full overflow-y-auto">
+		<div className="md:w-1/4 w-full flex flex-col gap-6 p-6 border-none border-void-border-2 h-full overflow-y-auto">
 			{/* Tab Selector */}
 			<div className="flex md:flex-col gap-2">
 				{[...tabNames, 'Cloud/Other'].map(tab => (
@@ -158,7 +158,7 @@ const AddProvidersPage = ({ pageIndex, setPageIndex }: { pageIndex: number, setP
 						key={tab}
 						className={`py-2 px-4 rounded-md text-left ${currentTab === tab
 							? 'bg-[#0e70c0]/80 text-white font-medium shadow-sm'
-							: 'bg-cognidream-bg-2 hover:bg-cognidream-bg-2/80 text-cognidream-fg-1'
+							: 'bg-void-bg-2 hover:bg-void-bg-2/80 text-void-fg-1'
 							} transition-all duration-200`}
 						onClick={() => {
 							setCurrentTab(tab as TabName);
@@ -196,7 +196,7 @@ const AddProvidersPage = ({ pageIndex, setPageIndex }: { pageIndex: number, setP
 
 			<div className="w-full max-w-xl mt-4 mb-10">
 				<div className="text-4xl font-light my-4 w-full">{currentTab}</div>
-				<div className="text-sm opacity-80 text-cognidream-fg-3 my-4 w-full">{descriptionOfTab[currentTab]}</div>
+				<div className="text-sm opacity-80 text-void-fg-3 my-4 w-full">{descriptionOfTab[currentTab]}</div>
 			</div>
 
 			{providerNamesOfTab[currentTab].map((providerName) => (
@@ -205,7 +205,7 @@ const AddProvidersPage = ({ pageIndex, setPageIndex }: { pageIndex: number, setP
 						Add {displayInfoOfProviderName(providerName).title}
 						{providerName === 'gemini' && (
 							<span
-								data-tooltip-id="cognidream-tooltip-provider-info"
+								data-tooltip-id="void-tooltip-provider-info"
 								data-tooltip-content="Gemini 2.5 Pro offers 25 free messages a day, and Gemini 2.5 Flash offers 500. We recommend using models down the line as you run out of free credits."
 								data-tooltip-place="right"
 								className="ml-1 text-xs align-top text-blue-400"
@@ -213,7 +213,7 @@ const AddProvidersPage = ({ pageIndex, setPageIndex }: { pageIndex: number, setP
 						)}
 						{providerName === 'openRouter' && (
 							<span
-								data-tooltip-id="cognidream-tooltip-provider-info"
+								data-tooltip-id="void-tooltip-provider-info"
 								data-tooltip-content="OpenRouter offers 50 free messages a day, and 1000 if you deposit $10. Only applies to models labeled ':free'."
 								data-tooltip-place="right"
 								className="ml-1 text-xs align-top text-blue-400"
@@ -229,13 +229,13 @@ const AddProvidersPage = ({ pageIndex, setPageIndex }: { pageIndex: number, setP
 			))}
 
 			{(currentTab === 'Local' || currentTab === 'Cloud/Other') && (
-				<div className="w-full max-w-xl mt-8 bg-cognidream-bg-2/50 rounded-lg p-6 border border-cognidream-border-4">
+				<div className="w-full max-w-xl mt-8 bg-void-bg-2/50 rounded-lg p-6 border border-void-border-4">
 					<div className="flex items-center gap-2 mb-4">
 						<div className="text-xl font-medium">Models</div>
 					</div>
 
 					{currentTab === 'Local' && (
-						<div className="text-sm opacity-80 text-cognidream-fg-3 my-4 w-full">Local models should be detected automatically. You can add custom models below.</div>
+						<div className="text-sm opacity-80 text-void-fg-3 my-4 w-full">Local models should be detected automatically. You can add custom models below.</div>
 					)}
 
 					{currentTab === 'Local' && <ModelDump filteredProviders={localProviderNames} />}
@@ -274,7 +274,7 @@ const AddProvidersPage = ({ pageIndex, setPageIndex }: { pageIndex: number, setP
 // 	OnboardingPage
 // 		title:
 // 			div
-// 				"Welcome to cognidream"
+// 				"Welcome to Void"
 // 			image
 // 		content:<></>
 // 		title
@@ -284,7 +284,7 @@ const AddProvidersPage = ({ pageIndex, setPageIndex }: { pageIndex: number, setP
 // 	OnboardingPage
 // 		title:
 // 			div
-// 				"How would you like to use cognidream?"
+// 				"How would you like to use Void?"
 // 		content:
 // 			ModelQuestionContent
 // 				|
@@ -312,7 +312,7 @@ const AddProvidersPage = ({ pageIndex, setPageIndex }: { pageIndex: number, setP
 // 		content
 // 		prev/next
 
-const NextButton = ({ onClick, ...props }: { onClick: () => cognidream } & React.ButtonHTMLAttributes<HTMLButtonElement>) => {
+const NextButton = ({ onClick, ...props }: { onClick: () => void } & React.ButtonHTMLAttributes<HTMLButtonElement>) => {
 
 	// Create a new props object without the disabled attribute
 	const { disabled, ...buttonProps } = props;
@@ -327,7 +327,7 @@ const NextButton = ({ onClick, ...props }: { onClick: () => cognidream } & React
 				} rounded text-black duration-600 transition-all
 			`}
 			{...disabled && {
-				'data-tooltip-id': 'cognidream-tooltip',
+				'data-tooltip-id': 'void-tooltip',
 				"data-tooltip-content": 'Please enter all required fields or choose another provider', // (double-click to proceed anyway, can come back in Settings)
 				"data-tooltip-place": 'top',
 			}}
@@ -338,11 +338,11 @@ const NextButton = ({ onClick, ...props }: { onClick: () => cognidream } & React
 	)
 }
 
-const PreviousButton = ({ onClick, ...props }: { onClick: () => cognidream } & React.ButtonHTMLAttributes<HTMLButtonElement>) => {
+const PreviousButton = ({ onClick, ...props }: { onClick: () => void } & React.ButtonHTMLAttributes<HTMLButtonElement>) => {
 	return (
 		<button
 			onClick={onClick}
-			className="px-6 py-2 rounded text-cognidream-fg-3 opacity-80 hover:brightness-115 duration-600 transition-all"
+			className="px-6 py-2 rounded text-void-fg-3 opacity-80 hover:brightness-115 duration-600 transition-all"
 			{...props}
 		>
 			Back
@@ -374,7 +374,7 @@ const OllamaDownloadOrRemoveModelButton = ({ modelName, isModelInstalled, sizeGb
 		href={`https://ollama.com/library/${modelName}`}
 		target="_blank"
 		rel="noopener noreferrer"
-		className="flex items-center justify-center text-cognidream-fg-2 hover:text-cognidream-fg-1"
+		className="flex items-center justify-center text-void-fg-2 hover:text-void-fg-1"
 	>
 		<ExternalLink className="w-3.5 h-3.5" />
 	</a>
@@ -466,14 +466,14 @@ const PrimaryActionButton = ({ children, className, ringSize, ...props }: { chil
 
 type WantToUseOption = 'smart' | 'private' | 'cheap' | 'all'
 
-const cognidreamOnboardingContent = () => {
+const VoidOnboardingContent = () => {
 
 
 	const accessor = useAccessor()
-	const cognidreamSettingsService = accessor.get('IcognidreamSettingsService')
-	const cognidreamMetricsService = accessor.get('IMetricsService')
+	const voidSettingsService = accessor.get('IVoidSettingsService')
+	const voidMetricsService = accessor.get('IMetricsService')
 
-	const cognidreamSettingsState = useSettingsState()
+	const voidSettingsState = useSettingsState()
 
 	const [pageIndex, setPageIndex] = useState(0)
 
@@ -517,9 +517,9 @@ const cognidreamOnboardingContent = () => {
 
 
 	const selectedProviderName = getSelectedProvider();
-	const didFillInProviderSettings = selectedProviderName && cognidreamSettingsState.settingsOfProvider[selectedProviderName]._didFillInProviderSettings
-	const isApiKeyLongEnoughIfApiKeyExists = selectedProviderName && cognidreamSettingsState.settingsOfProvider[selectedProviderName].apiKey ? cognidreamSettingsState.settingsOfProvider[selectedProviderName].apiKey.length > 15 : true
-	const isAtLeastOneModel = selectedProviderName && cognidreamSettingsState.settingsOfProvider[selectedProviderName].models.length >= 1
+	const didFillInProviderSettings = selectedProviderName && voidSettingsState.settingsOfProvider[selectedProviderName]._didFillInProviderSettings
+	const isApiKeyLongEnoughIfApiKeyExists = selectedProviderName && voidSettingsState.settingsOfProvider[selectedProviderName].apiKey ? voidSettingsState.settingsOfProvider[selectedProviderName].apiKey.length > 15 : true
+	const isAtLeastOneModel = selectedProviderName && voidSettingsState.settingsOfProvider[selectedProviderName].models.length >= 1
 
 	const didFillInSelectedProviderSettings = !!(didFillInProviderSettings && isApiKeyLongEnoughIfApiKeyExists && isAtLeastOneModel)
 
@@ -542,11 +542,11 @@ const cognidreamOnboardingContent = () => {
 			/>
 			<PrimaryActionButton
 				onClick={() => {
-					cognidreamSettingsService.setGlobalSetting('isOnboardingComplete', true);
-					cognidreamMetricsService.capture('Completed Onboarding', { selectedProviderName, wantToUseOption })
+					voidSettingsService.setGlobalSetting('isOnboardingComplete', true);
+					voidMetricsService.capture('Completed Onboarding', { selectedProviderName, wantToUseOption })
 				}}
-				ringSize={cognidreamSettingsState.globalSettings.isOnboardingComplete ? 'screen' : undefined}
-			>Enter the cognidream</PrimaryActionButton>
+				ringSize={voidSettingsState.globalSettings.isOnboardingComplete ? 'screen' : undefined}
+			>Enter the Void</PrimaryActionButton>
 		</div>
 	</div>
 
@@ -562,7 +562,7 @@ const cognidreamOnboardingContent = () => {
 	// can be md
 	const detailedDescOfWantToUseOption: { [wantToUseOption in WantToUseOption]: string } = {
 		smart: "Most intelligent and best for agent mode.",
-		private: "Private-hosted so your data never leaves your computer or network. [Email us](mailto:founders@cognidreameditor.com) for help setting up at your company.",
+		private: "Private-hosted so your data never leaves your computer or network. [Email us](mailto:founders@voideditor.com) for help setting up at your company.",
 		cheap: "Use great deals like Gemini 2.5 Pro, or self-host a model with Ollama or vLLM for free.",
 		all: "",
 	}
@@ -585,21 +585,21 @@ const cognidreamOnboardingContent = () => {
 
 	// reset the page to page 0 if the user redos onboarding
 	useEffect(() => {
-		if (!cognidreamSettingsState.globalSettings.isOnboardingComplete) {
+		if (!voidSettingsState.globalSettings.isOnboardingComplete) {
 			setPageIndex(0)
 		}
-	}, [setPageIndex, cognidreamSettingsState.globalSettings.isOnboardingComplete])
+	}, [setPageIndex, voidSettingsState.globalSettings.isOnboardingComplete])
 
 
 	const contentOfIdx: { [pageIndex: number]: React.ReactNode } = {
 		0: <OnboardingPageShell
 			content={
 				<div className='flex flex-col items-center gap-8'>
-					<div className="text-5xl font-light text-center">Welcome to cognidream</div>
+					<div className="text-5xl font-light text-center">Welcome to Void</div>
 
-					{/* Slice of cognidream image */}
+					{/* Slice of Void image */}
 					<div className='max-w-md w-full h-[30vh] mx-auto flex items-center justify-center'>
-						{!isLinux && <cognidreamIcon />}
+						{!isLinux && <VoidIcon />}
 					</div>
 
 
@@ -629,7 +629,7 @@ const cognidreamOnboardingContent = () => {
 					<div className="text-5xl font-light text-center">Settings and Themes</div>
 
 					<div className="mt-8 text-center flex flex-col items-center gap-4 w-full max-w-md mx-auto">
-						<h4 className="text-cognidream-fg-3 mb-4">Transfer your settings from an existing editor?</h4>
+						<h4 className="text-void-fg-3 mb-4">Transfer your settings from an existing editor?</h4>
 						<OneClickSwitchButton className='w-full px-4 py-2' fromEditor="VS Code" />
 						<OneClickSwitchButton className='w-full px-4 py-2' fromEditor="Cursor" />
 						<OneClickSwitchButton className='w-full px-4 py-2' fromEditor="Windsurf" />

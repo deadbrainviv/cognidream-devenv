@@ -78,7 +78,7 @@ export const UPLOAD_LABEL = nls.localize('upload', "Upload...");
 const CONFIRM_DELETE_SETTING_KEY = 'explorer.confirmDelete';
 const MAX_UNDO_FILE_SIZE = 5000000; // 5mb
 
-function onError(notificationService: INotificationService, error: any): cognidream {
+function onError(notificationService: INotificationService, error: any): void {
 	if (error.message === 'string') {
 		error = error.message;
 	}
@@ -86,14 +86,14 @@ function onError(notificationService: INotificationService, error: any): cognidr
 	notificationService.error(toErrorMessage(error, false));
 }
 
-async function refreshIfSeparator(value: string, explorerService: IExplorerService): Promise<cognidreamidream> {
+async function refreshIfSeparator(value: string, explorerService: IExplorerService): Promise<void> {
 	if (value && ((value.indexOf('/') >= 0) || (value.indexOf('\\') >= 0))) {
 		// New input contains separator, multiple resources will get created workaround for #68204
 		await explorerService.refresh();
 	}
 }
 
-async function deleteFiles(explorerService: IExplorerService, workingCopyFileService: IWorkingCopyFileService, dialogService: IDialogService, configurationService: IConfigurationService, filesConfigurationService: IFilesConfigurationService, elements: ExplorerItem[], useTrash: boolean, skipConfirm = false, ignoreIfNotExists = false): Promise<cognidreamidream> {
+async function deleteFiles(explorerService: IExplorerService, workingCopyFileService: IWorkingCopyFileService, dialogService: IDialogService, configurationService: IConfigurationService, filesConfigurationService: IFilesConfigurationService, elements: ExplorerItem[], useTrash: boolean, skipConfirm = false, ignoreIfNotExists = false): Promise<void> {
 	let primaryButton: string;
 	if (useTrash) {
 		primaryButton = isWindows ? nls.localize('deleteButtonLabelRecycleBin', "&&Move to Recycle Bin") : nls.localize({ key: 'deleteButtonLabelTrash', comment: ['&& denotes a mnemonic'] }, "&&Move to Trash");
@@ -520,27 +520,27 @@ export class GlobalCompareResourcesAction extends Action2 {
 		});
 	}
 
-	override async run(accessor: ServicesAccessor): Promicognidreamognidream> {
+	override async run(accessor: ServicesAccessor): Promise<void> {
 		const editorService = accessor.get(IEditorService);
 		const textModelService = accessor.get(ITextModelService);
 		const quickInputService = accessor.get(IQuickInputService);
 
 		const activeInput = editorService.activeEditor;
 		const activeResource = EditorResourceAccessor.getOriginalUri(activeInput);
-		if(activeResource && textModelService.canHandleResource(activeResource)) {
-	const picks = await quickInputService.quickAccess.pick('', { itemActivation: ItemActivation.SECOND });
-	if (picks?.length === 1) {
-		const resource = (picks[0] as unknown as { resource: unknown }).resource;
-		if (URI.isUri(resource) && textModelService.canHandleResource(resource)) {
-			editorService.openEditor({
-				original: { resource: activeResource },
-				modified: { resource: resource },
-				options: { pinned: true }
-			});
+		if (activeResource && textModelService.canHandleResource(activeResource)) {
+			const picks = await quickInputService.quickAccess.pick('', { itemActivation: ItemActivation.SECOND });
+			if (picks?.length === 1) {
+				const resource = (picks[0] as unknown as { resource: unknown }).resource;
+				if (URI.isUri(resource) && textModelService.canHandleResource(resource)) {
+					editorService.openEditor({
+						original: { resource: activeResource },
+						modified: { resource: resource },
+						options: { pinned: true }
+					});
+				}
+			}
 		}
 	}
-}
-    }
 }
 
 export class ToggleAutoSaveAction extends Action2 {
@@ -556,7 +556,7 @@ export class ToggleAutoSaveAction extends Action2 {
 		});
 	}
 
-	override run(accessor: ServicesAccessor): Promicognidreamognidream> {
+	override run(accessor: ServicesAccessor): Promise<void> {
 		const filesConfigurationService = accessor.get(IFilesConfigurationService);
 		return filesConfigurationService.toggleAutoSave();
 	}
@@ -580,29 +580,29 @@ abstract class BaseSaveAllAction extends Action {
 		this.registerListeners();
 	}
 
-	protected abstract doRun(context: unknown): Promicognidreamognidream>;
+	protected abstract doRun(context: unknown): Promise<void>;
 
-    private registerListeners(cognidreamognidream {
+	private registerListeners(): void {
 
 		// update enablement based on working copy changes
 		this._register(this.workingCopyService.onDidChangeDirty(workingCopy => this.updateEnablement(workingCopy)));
 	}
 
-    private updateEnablement(workingCopy: IWorkingCopycognidreamognidream {
+	private updateEnablement(workingCopy: IWorkingCopy): void {
 		const hasDirty = workingCopy.isDirty() || this.workingCopyService.hasDirty;
-		if(this.lastDirtyState !== hasDirty) {
-		this.enabled = hasDirty;
-		this.lastDirtyState = this.enabled;
-	}
-    }
-
-		override async run(context ?: unknown): Promicognidreamognidream > {
-			try {
-				await this.doRun(context);
-			} catch(error) {
-				onError(this.notificationService, error);
-			}
+		if (this.lastDirtyState !== hasDirty) {
+			this.enabled = hasDirty;
+			this.lastDirtyState = this.enabled;
 		}
+	}
+
+	override async run(context?: unknown): Promise<void> {
+		try {
+			await this.doRun(context);
+		} catch (error) {
+			onError(this.notificationService, error);
+		}
+	}
 }
 
 export class SaveAllInGroupAction extends BaseSaveAllAction {
@@ -614,7 +614,7 @@ export class SaveAllInGroupAction extends BaseSaveAllAction {
 		return 'explorer-action ' + ThemeIcon.asClassName(Codicon.saveAll);
 	}
 
-	protected doRun(context: unknown): Promicognidreamognidream> {
+	protected doRun(context: unknown): Promise<void> {
 		return this.commandService.executeCommand(SAVE_ALL_IN_GROUP_COMMAND_ID, {}, context);
 	}
 }
@@ -628,7 +628,7 @@ export class CloseGroupAction extends Action {
 		super(id, label, ThemeIcon.asClassName(Codicon.closeAll));
 	}
 
-	override run(context?: unknown): Promicognidreamognidream> {
+	override run(context?: unknown): Promise<void> {
 		return this.commandService.executeCommand(CLOSE_EDITORS_AND_GROUP_COMMAND_ID, {}, context);
 	}
 }
@@ -650,7 +650,7 @@ export class FocusFilesExplorer extends Action2 {
 		});
 	}
 
-	override async run(accessor: ServicesAccessor): Promicognidreamognidream> {
+	override async run(accessor: ServicesAccessor): Promise<void> {
 		const paneCompositeService = accessor.get(IPaneCompositePartService);
 		await paneCompositeService.openPaneComposite(VIEWLET_ID, ViewContainerLocation.Sidebar, true);
 	}
@@ -673,11 +673,11 @@ export class ShowActiveFileInExplorer extends Action2 {
 		});
 	}
 
-	override async run(accessor: ServicesAccessor): Promicognidreamognidream> {
+	override async run(accessor: ServicesAccessor): Promise<void> {
 		const commandService = accessor.get(ICommandService);
 		const editorService = accessor.get(IEditorService);
 		const resource = EditorResourceAccessor.getOriginalUri(editorService.activeEditor, { supportSideBySide: SideBySideEditor.PRIMARY });
-		if(resource) {
+		if (resource) {
 			commandService.executeCommand(REVEAL_IN_EXPLORER_COMMAND_ID, resource);
 		}
 	}
@@ -702,14 +702,14 @@ export class OpenActiveFileInEmptyWorkspace extends Action2 {
 		});
 	}
 
-	override async run(accessor: ServicesAccessor): Promicognidreamognidream> {
+	override async run(accessor: ServicesAccessor): Promise<void> {
 		const editorService = accessor.get(IEditorService);
 		const hostService = accessor.get(IHostService);
 		const dialogService = accessor.get(IDialogService);
 		const fileService = accessor.get(IFileService);
 
 		const fileResource = EditorResourceAccessor.getOriginalUri(editorService.activeEditor, { supportSideBySide: SideBySideEditor.PRIMARY });
-		if(fileResource) {
+		if (fileResource) {
 			if (fileService.hasProvider(fileResource)) {
 				hostService.openWindow([{ fileUri: fileResource }], { forceNewWindow: true });
 			} else {
@@ -813,7 +813,7 @@ export class CompareNewUntitledTextFilesAction extends Action2 {
 		});
 	}
 
-	override async run(accessor: ServicesAccessor): Promicognidreamognidream> {
+	override async run(accessor: ServicesAccessor): Promise<void> {
 		const editorService = accessor.get(IEditorService);
 
 		await editorService.openEditor({
@@ -845,7 +845,7 @@ export class CompareWithClipboardAction extends Action2 {
 		});
 	}
 
-	override async run(accessor: ServicesAccessor): Promicognidreamognidream> {
+	override async run(accessor: ServicesAccessor): Promise<void> {
 		const editorService = accessor.get(IEditorService);
 		const instantiationService = accessor.get(IInstantiationService);
 		const textModelService = accessor.get(ITextModelService);
@@ -853,31 +853,31 @@ export class CompareWithClipboardAction extends Action2 {
 
 		const resource = EditorResourceAccessor.getOriginalUri(editorService.activeEditor, { supportSideBySide: SideBySideEditor.PRIMARY });
 		const scheme = `clipboardCompare${CompareWithClipboardAction.SCHEME_COUNTER++}`;
-		if(resource && (fileService.hasProvider(resource) || resource.scheme === Schemas.untitled)) {
-	if (!this.registrationDisposal) {
-		const provider = instantiationService.createInstance(ClipboardContentProvider);
-		this.registrationDisposal = textModelService.registerTextModelContentProvider(scheme, provider);
+		if (resource && (fileService.hasProvider(resource) || resource.scheme === Schemas.untitled)) {
+			if (!this.registrationDisposal) {
+				const provider = instantiationService.createInstance(ClipboardContentProvider);
+				this.registrationDisposal = textModelService.registerTextModelContentProvider(scheme, provider);
+			}
+
+			const name = resources.basename(resource);
+			const editorLabel = nls.localize('clipboardComparisonLabel', "Clipboard ↔ {0}", name);
+
+			await editorService.openEditor({
+				original: { resource: resource.with({ scheme }) },
+				modified: { resource: resource },
+				label: editorLabel,
+				options: { pinned: true }
+			}).finally(() => {
+				dispose(this.registrationDisposal);
+				this.registrationDisposal = undefined;
+			});
+		}
 	}
 
-	const name = resources.basename(resource);
-	const editorLabel = nls.localize('clipboardComparisonLabel', "Clipboard ↔ {0}", name);
-
-	await editorService.openEditor({
-		original: { resource: resource.with({ scheme }) },
-		modified: { resource: resource },
-		label: editorLabel,
-		options: { pinned: true }
-	}).finally(() => {
+	dispose(): void {
 		dispose(this.registrationDisposal);
 		this.registrationDisposal = undefined;
-	});
-}
-    }
-
-dispose(cognidreamognidream {
-	dispose(this.registrationDisposal);
-this.registrationDisposal = undefined;
-    }
+	}
 }
 
 class ClipboardContentProvider implements ITextModelContentProvider {
@@ -895,7 +895,7 @@ class ClipboardContentProvider implements ITextModelContentProvider {
 	}
 }
 
-function onErrorWithRetry(notificationService: INotificationService, error: unknown, retry: () => Promise<unknown>): cognidreamidream {
+function onErrorWithRetry(notificationService: INotificationService, error: unknown, retry: () => Promise<unknown>): void {
 	notificationService.prompt(Severity.Error, toErrorMessage(error, false),
 		[{
 			label: nls.localize('retry', "Retry"),
@@ -904,7 +904,7 @@ function onErrorWithRetry(notificationService: INotificationService, error: unkn
 	);
 }
 
-async function openExplorerAndCreate(accessor: ServicesAccessor, isFolder: boolean): Promise<cognidreamidream> {
+async function openExplorerAndCreate(accessor: ServicesAccessor, isFolder: boolean): Promise<void> {
 	const explorerService = accessor.get(IExplorerService);
 	const fileService = accessor.get(IFileService);
 	const configService = accessor.get(IConfigurationService);
@@ -948,7 +948,7 @@ async function openExplorerAndCreate(accessor: ServicesAccessor, isFolder: boole
 	const newStat = new NewExplorerItem(fileService, configService, filesConfigService, folder, isFolder);
 	folder.addChild(newStat);
 
-	const onSuccess = async (value: string): Promicognidreamognidream> => {
+	const onSuccess = async (value: string): Promise<void> => {
 		try {
 			const resourceToCreate = resources.joinPath(folder.resource, value);
 			if (value.endsWith('/')) {
@@ -1350,16 +1350,16 @@ class BaseSetActiveEditorReadonlyInSession extends Action2 {
 		});
 	}
 
-	override async run(accessor: ServicesAccessor): Promicognidreamognidream> {
+	override async run(accessor: ServicesAccessor): Promise<void> {
 		const editorService = accessor.get(IEditorService);
 		const filesConfigurationService = accessor.get(IFilesConfigurationService);
 
 		const fileResource = EditorResourceAccessor.getOriginalUri(editorService.activeEditor, { supportSideBySide: SideBySideEditor.PRIMARY });
-		if(!fileResource) {
+		if (!fileResource) {
 			return;
 		}
 
-        await filesConfigurationService.updateReadonly(fileResource, this.newReadonlyState);
+		await filesConfigurationService.updateReadonly(fileResource, this.newReadonlyState);
 	}
 }
 

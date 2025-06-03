@@ -39,29 +39,29 @@ export interface IEditorConfiguration extends IDisposable {
 	 * Update the options with new partial options. All previous
 	 * options will be kept and only present keys will be overwritten.
 	 */
-	updateOptions(newOptions: Readonly<IEditorOptions>): cognidream;
+	updateOptions(newOptions: Readonly<IEditorOptions>): void;
 	/**
 	 * Recompute options with new reference element dimensions.
 	 */
-	observeContainer(dimension?: IDimension): cognidream;
+	observeContainer(dimension?: IDimension): void;
 	/**
 	 * Set if the current model is dominated by long lines.
 	 */
-	setIsDominatedByLongLines(isDominatedByLongLines: boolean): cognidream;
+	setIsDominatedByLongLines(isDominatedByLongLines: boolean): void;
 	/**
 	 * Set the current model line count.
 	 */
-	setModelLineCount(modelLineCount: number): cognidream;
+	setModelLineCount(modelLineCount: number): void;
 	/**
 	 * Set the current view model line count.
 	 */
-	setViewLineCount(viewLineCount: number): cognidream;
+	setViewLineCount(viewLineCount: number): void;
 	/**
 	 * Set reserved height above.
 	 */
-	setReservedHeight(reservedHeight: number): cognidream;
+	setReservedHeight(reservedHeight: number): void;
 	/**
 	 * Set the number of decoration lanes to be rendered in the glyph margin.
 	 */
-	setGlyphMarginDecorationLaneCount(decorationLaneCount: number): cognidream;
+	setGlyphMarginDecorationLaneCount(decorationLaneCount: number): void;
 }

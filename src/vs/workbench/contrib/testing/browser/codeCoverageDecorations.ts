@@ -67,7 +67,7 @@ export class CodeCoverageDecorations extends Disposable implements IEditorContri
 	private decorationIds = new Map<string, {
 		detail: DetailRange;
 		options: IModelDecorationOptions;
-		applyHoverOptions(target: IModelDecorationOptions): cognidream;
+		applyHoverOptions(target: IModelDecorationOptions): void;
 	}>();
 	private hoveredSubject?: unknown;
 	private details?: CoverageDetailsModel;
@@ -253,7 +253,7 @@ export class CodeCoverageDecorations extends Disposable implements IEditorContri
 					// don't bother showing the miss indicator if the condition wasn't executed at all:
 					const showMissIndicator = !hits && range.isEmpty() && detail.detail.branches!.some(b => b.count);
 					const options: IModelDecorationOptions = {
-						showIfCollapsed: showMissIncognidreamtor, // only acognidream collapsing if we want to show the miss indicator
+						showIfCollapsed: showMissIndicator, // only avoid collapsing if we want to show the miss indicator
 						description: 'coverage-gutter',
 						lineNumberClassName: `coverage-deco-gutter ${cls}`,
 					};
@@ -723,10 +723,10 @@ registerAction2(class ToggleInlineCoverage extends Action2 {
 		});
 	}
 
-	public run(accessor: ServicesAccessorcognidreamognidream {
+	public run(accessor: ServicesAccessor): void {
 		const coverage = accessor.get(ITestCoverageService);
-        coverage.showInline.set(!coverage.showInline.get(), undefined);
-    }
+		coverage.showInline.set(!coverage.showInline.get(), undefined);
+	}
 });
 
 registerAction2(class ToggleCoverageToolbar extends Action2 {
@@ -749,11 +749,11 @@ registerAction2(class ToggleCoverageToolbar extends Action2 {
 		});
 	}
 
-	run(accessor: ServicesAccessorcognidreamognidream {
+	run(accessor: ServicesAccessor): void {
 		const config = accessor.get(IConfigurationService);
-	const value = getTestingConfiguration(config, TestingConfigKeys.CoverageToolbarEnabled);
-        config.updateValue(TestingConfigKeys.CoverageToolbarEnabled, !value);
-}
+		const value = getTestingConfiguration(config, TestingConfigKeys.CoverageToolbarEnabled);
+		config.updateValue(TestingConfigKeys.CoverageToolbarEnabled, !value);
+	}
 });
 
 registerAction2(class FilterCoverageToTestInEditor extends Action2 {
@@ -782,78 +782,78 @@ registerAction2(class FilterCoverageToTestInEditor extends Action2 {
 		});
 	}
 
-	run(accessor: ServicesAccessor, coverageOrUri?: FileCoverage | URI, editor?: ICodeEditorcognidreamognidream {
+	run(accessor: ServicesAccessor, coverageOrUri?: FileCoverage | URI, editor?: ICodeEditor): void {
 		const testCoverageService = accessor.get(ITestCoverageService);
-	const quickInputService = accessor.get(IQuickInputService);
-	const activeEditor = isCodeEditor(editor) ? editor : accessor.get(ICodeEditorService).getActiveCodeEditor();
-        let coverage: FileCoverage | undefined;
-if (coverageOrUri instanceof FileCoverage) {
-	coverage = coverageOrUri;
-} else if (isUriComponents(coverageOrUri)) {
-	coverage = testCoverageService.selected.get()?.getUri(URI.from(coverageOrUri));
-} else {
-	const uri = activeEditor?.getModel()?.uri;
-	coverage = uri && testCoverageService.selected.get()?.getUri(uri);
-}
-
-if (!coverage || !coverage.perTestData?.size) {
-	return;
-}
-
-const tests = [...coverage.perTestData].map(TestId.fromString);
-const commonPrefix = TestId.getLengthOfCommonPrefix(tests.length, i => tests[i]);
-const result = coverage.fromResult;
-const previousSelection = testCoverageService.filterToTest.get();
-
-type TItem = { label: string; testId: TestId | undefined };
-
-const items: QuickPickInput<TItem>[] = [
-	{ label: coverUtils.labels.allTests, testId: undefined },
-	{ type: 'separator' },
-	...tests.map(id => ({ label: coverUtils.getLabelForItem(result, id, commonPrefix), testId: id })),
-];
-
-// These handle the behavior that reveals the start of coverage when the
-// user picks from the quickpick. Scroll position is restored if the user
-// exits without picking an item, or picks "all tets".
-const scrollTop = activeEditor?.getScrollTop() || 0;
-const revealScrollCts = new MutableDisposable<CancellationTokenSource>();
-
-quickInputService.pick(items, {
-	activeItem: items.find((item): item is TItem => 'item' in item && item.item === coverage),
-	placeHolder: coverUtils.labels.pickShowCoverage,
-	onDidFocus: (entry) => {
-		if (!entry.testId) {
-			revealScrollCts.clear();
-			activeEditor?.setScrollTop(scrollTop);
-			testCoverageService.filterToTest.set(undefined, undefined);
+		const quickInputService = accessor.get(IQuickInputService);
+		const activeEditor = isCodeEditor(editor) ? editor : accessor.get(ICodeEditorService).getActiveCodeEditor();
+		let coverage: FileCoverage | undefined;
+		if (coverageOrUri instanceof FileCoverage) {
+			coverage = coverageOrUri;
+		} else if (isUriComponents(coverageOrUri)) {
+			coverage = testCoverageService.selected.get()?.getUri(URI.from(coverageOrUri));
 		} else {
-			const cts = revealScrollCts.value = new CancellationTokenSource();
-			coverage.detailsForTest(entry.testId, cts.token).then(
-				details => {
-					const first = details.find(d => d.type === DetailType.Statement);
-					if (!cts.token.isCancellationRequested && first) {
-						activeEditor?.revealLineNearTop(first.location instanceof Position ? first.location.lineNumber : first.location.startLineNumber);
-					}
-				},
-				() => { /* ignored */ }
-			);
-			testCoverageService.filterToTest.set(entry.testId, undefined);
+			const uri = activeEditor?.getModel()?.uri;
+			coverage = uri && testCoverageService.selected.get()?.getUri(uri);
 		}
-	},
-}).then(selected => {
-	if (!selected) {
-		activeEditor?.setScrollTop(scrollTop);
-	}
 
-	revealScrollCts.dispose();
-	testCoverageService.filterToTest.set(selected ? selected.testId : previousSelection, undefined);
-});
-    }
+		if (!coverage || !coverage.perTestData?.size) {
+			return;
+		}
+
+		const tests = [...coverage.perTestData].map(TestId.fromString);
+		const commonPrefix = TestId.getLengthOfCommonPrefix(tests.length, i => tests[i]);
+		const result = coverage.fromResult;
+		const previousSelection = testCoverageService.filterToTest.get();
+
+		type TItem = { label: string; testId: TestId | undefined };
+
+		const items: QuickPickInput<TItem>[] = [
+			{ label: coverUtils.labels.allTests, testId: undefined },
+			{ type: 'separator' },
+			...tests.map(id => ({ label: coverUtils.getLabelForItem(result, id, commonPrefix), testId: id })),
+		];
+
+		// These handle the behavior that reveals the start of coverage when the
+		// user picks from the quickpick. Scroll position is restored if the user
+		// exits without picking an item, or picks "all tets".
+		const scrollTop = activeEditor?.getScrollTop() || 0;
+		const revealScrollCts = new MutableDisposable<CancellationTokenSource>();
+
+		quickInputService.pick(items, {
+			activeItem: items.find((item): item is TItem => 'item' in item && item.item === coverage),
+			placeHolder: coverUtils.labels.pickShowCoverage,
+			onDidFocus: (entry) => {
+				if (!entry.testId) {
+					revealScrollCts.clear();
+					activeEditor?.setScrollTop(scrollTop);
+					testCoverageService.filterToTest.set(undefined, undefined);
+				} else {
+					const cts = revealScrollCts.value = new CancellationTokenSource();
+					coverage.detailsForTest(entry.testId, cts.token).then(
+						details => {
+							const first = details.find(d => d.type === DetailType.Statement);
+							if (!cts.token.isCancellationRequested && first) {
+								activeEditor?.revealLineNearTop(first.location instanceof Position ? first.location.lineNumber : first.location.startLineNumber);
+							}
+						},
+						() => { /* ignored */ }
+					);
+					testCoverageService.filterToTest.set(entry.testId, undefined);
+				}
+			},
+		}).then(selected => {
+			if (!selected) {
+				activeEditor?.setScrollTop(scrollTop);
+			}
+
+			revealScrollCts.dispose();
+			testCoverageService.filterToTest.set(selected ? selected.testId : previousSelection, undefined);
+		});
+	}
 });
 
 class ActionWithIcon extends Action {
-	constructor(id: string, title: string, public readonly icon: ThemeIcon, enabled: boolean | undefined, run: () cognidreamognidream) {
+	constructor(id: string, title: string, public readonly icon: ThemeIcon, enabled: boolean | undefined, run: () => void) {
 		super(id, title, undefined, enabled, run);
 	}
 }
@@ -862,9 +862,9 @@ class CodiconActionViewItem extends ActionViewItem {
 
 	public themeIcon?: ThemeIcon;
 
-	protected override updateLabel(cognidreamognidream {
+	protected override updateLabel(): void {
 		if (this.options.label && this.label && this.themeIcon) {
-	dom.reset(this.label, renderIcon(this.themeIcon), this.action.label);
-}
-    }
+			dom.reset(this.label, renderIcon(this.themeIcon), this.action.label);
+		}
+	}
 }

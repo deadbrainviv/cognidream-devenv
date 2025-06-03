@@ -49,7 +49,7 @@ export class ExceptionWidget extends ZoneWidget {
 		this._disposables.add(onDidLayoutChangeScheduler);
 	}
 
-	private applyTheme(theme: IColorTheme): cognidream {
+	private applyTheme(theme: IColorTheme): void {
 		this.backgroundColor = theme.getColor(debugExceptionWidgetBackground);
 		const frameColor = theme.getColor(debugExceptionWidgetBorder);
 		this.style({
@@ -58,75 +58,75 @@ export class ExceptionWidget extends ZoneWidget {
 		}); // style() will trigger _applyStyles
 	}
 
-	protected override _applyStyles(cognidreamognidream {
+	protected override _applyStyles(): void {
 		if (this.container) {
-	this.container.style.backgroundColor = this.backgroundColor ? this.backgroundColor.toString() : '';
-}
-super._applyStyles();
-    }
+			this.container.style.backgroundColor = this.backgroundColor ? this.backgroundColor.toString() : '';
+		}
+		super._applyStyles();
+	}
 
-    protected _fillContainer(container: HTMLElementcognidreamognidream {
-	this.setCssClass('exception-widget');
-	// Set the font size and line height to the one from the editor configuration.
-	const fontInfo = this.editor.getOption(EditorOption.fontInfo);
-	container.style.fontSize = `${fontInfo.fontSize}px`;
-	container.style.lineHeight = `${fontInfo.lineHeight}px`;
-	container.tabIndex = 0;
-	const title = $('.title');
-	const label = $('.label');
-	dom.append(title, label);
-	const actions = $('.actions');
-	dom.append(title, actions);
-	label.textContent = this.exceptionInfo.id ? nls.localize('exceptionThrownWithId', 'Exception has occurred: {0}', this.exceptionInfo.id) : nls.localize('exceptionThrown', 'Exception has occurred.');
-	let ariaLabel = label.textContent;
+	protected _fillContainer(container: HTMLElement): void {
+		this.setCssClass('exception-widget');
+		// Set the font size and line height to the one from the editor configuration.
+		const fontInfo = this.editor.getOption(EditorOption.fontInfo);
+		container.style.fontSize = `${fontInfo.fontSize}px`;
+		container.style.lineHeight = `${fontInfo.lineHeight}px`;
+		container.tabIndex = 0;
+		const title = $('.title');
+		const label = $('.label');
+		dom.append(title, label);
+		const actions = $('.actions');
+		dom.append(title, actions);
+		label.textContent = this.exceptionInfo.id ? nls.localize('exceptionThrownWithId', 'Exception has occurred: {0}', this.exceptionInfo.id) : nls.localize('exceptionThrown', 'Exception has occurred.');
+		let ariaLabel = label.textContent;
 
-	const actionBar = new ActionBar(actions);
-	actionBar.push(new Action('editor.closeExceptionWidget', nls.localize('close', "Close"), ThemeIcon.asClassName(widgetClose), true, async () => {
-		const contribution = this.editor.getContribution<IDebugEditorContribution>(EDITOR_CONTRIBUTION_ID);
-		contribution?.closeExceptionWidget();
-	}), { label: false, icon: true });
+		const actionBar = new ActionBar(actions);
+		actionBar.push(new Action('editor.closeExceptionWidget', nls.localize('close', "Close"), ThemeIcon.asClassName(widgetClose), true, async () => {
+			const contribution = this.editor.getContribution<IDebugEditorContribution>(EDITOR_CONTRIBUTION_ID);
+			contribution?.closeExceptionWidget();
+		}), { label: false, icon: true });
 
-	dom.append(container, title);
+		dom.append(container, title);
 
-	if(this.exceptionInfo.description) {
-	const description = $('.description');
-	description.textContent = this.exceptionInfo.description;
-	ariaLabel += ', ' + this.exceptionInfo.description;
-	dom.append(container, description);
-}
+		if (this.exceptionInfo.description) {
+			const description = $('.description');
+			description.textContent = this.exceptionInfo.description;
+			ariaLabel += ', ' + this.exceptionInfo.description;
+			dom.append(container, description);
+		}
 
-if (this.exceptionInfo.details && this.exceptionInfo.details.stackTrace) {
-	const stackTrace = $('.stack-trace');
-	const linkDetector = this.instantiationService.createInstance(LinkDetector);
-	const linkedStackTrace = linkDetector.linkify(this.exceptionInfo.details.stackTrace, true, this.debugSession ? this.debugSession.root : undefined, undefined, { type: DebugLinkHoverBehavior.Rich, store: this._disposables });
-	stackTrace.appendChild(linkedStackTrace);
-	dom.append(container, stackTrace);
-	ariaLabel += ', ' + this.exceptionInfo.details.stackTrace;
-}
-container.setAttribute('aria-label', ariaLabel);
-    }
+		if (this.exceptionInfo.details && this.exceptionInfo.details.stackTrace) {
+			const stackTrace = $('.stack-trace');
+			const linkDetector = this.instantiationService.createInstance(LinkDetector);
+			const linkedStackTrace = linkDetector.linkify(this.exceptionInfo.details.stackTrace, true, this.debugSession ? this.debugSession.root : undefined, undefined, { type: DebugLinkHoverBehavior.Rich, store: this._disposables });
+			stackTrace.appendChild(linkedStackTrace);
+			dom.append(container, stackTrace);
+			ariaLabel += ', ' + this.exceptionInfo.details.stackTrace;
+		}
+		container.setAttribute('aria-label', ariaLabel);
+	}
 
-    protected override _doLayout(_heightInPixel: number | undefined, _widthInPixel: number | undefinedcognidreamognidream {
-	// Reload the height with respect to the exception text content and relayout it to match the line count.
-	this.container!.style.height = 'initial';
+	protected override _doLayout(_heightInPixel: number | undefined, _widthInPixel: number | undefined): void {
+		// Reload the height with respect to the exception text content and relayout it to match the line count.
+		this.container!.style.height = 'initial';
 
-	const lineHeight = this.editor.getOption(EditorOption.lineHeight);
-	const arrowHeight = Math.round(lineHeight / 3);
-	const computedLinesNumber = Math.ceil((this.container!.offsetHeight + arrowHeight) / lineHeight);
+		const lineHeight = this.editor.getOption(EditorOption.lineHeight);
+		const arrowHeight = Math.round(lineHeight / 3);
+		const computedLinesNumber = Math.ceil((this.container!.offsetHeight + arrowHeight) / lineHeight);
 
-	this._relayout(computedLinesNumber);
-}
+		this._relayout(computedLinesNumber);
+	}
 
-    focus(cognidreamognidream {
-	// Focus into the container for accessibility purposes so the exception and stack trace gets read
-	this.container?.focus();
-}
+	focus(): void {
+		// Focus into the container for accessibility purposes so the exception and stack trace gets read
+		this.container?.focus();
+	}
 
-    override hasFocus(): boolean {
-	if(!this.container) {
-	return false;
-}
+	override hasFocus(): boolean {
+		if (!this.container) {
+			return false;
+		}
 
-        return dom.isAncestorOfActiveElement(this.container);
-    }
+		return dom.isAncestorOfActiveElement(this.container);
+	}
 }

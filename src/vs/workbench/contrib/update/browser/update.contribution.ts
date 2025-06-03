@@ -53,7 +53,7 @@ export class ShowCurrentReleaseNotesAction extends Action2 {
 		});
 	}
 
-	async run(accessor: ServicesAccessor): Promise<cognidream> {
+	async run(accessor: ServicesAccessor): Promise<void> {
 		const instantiationService = accessor.get(IInstantiationService);
 		const productService = accessor.get(IProductService);
 		const openerService = accessor.get(IOpenerService);
@@ -84,13 +84,13 @@ export class ShowCurrentReleaseNotesFromCurrentFileAction extends Action2 {
 		});
 	}
 
-	async run(accessor: ServicesAccessor): Promicognidreamognidream> {
+	async run(accessor: ServicesAccessor): Promise<void> {
 		const instantiationService = accessor.get(IInstantiationService);
 		const productService = accessor.get(IProductService);
 
 		try {
 			await showReleaseNotesInEditor(instantiationService, productService.version, true);
-		} catch(err) {
+		} catch (err) {
 			throw new Error(localize('releaseNotesFromFileNone', "Cannot open the current file as Release Notes"));
 		}
 	}
@@ -113,7 +113,7 @@ export class CheckForUpdateAction extends Action2 {
 		});
 	}
 
-	async run(accessor: ServicesAccessor): Promicognidreamognidream> {
+	async run(accessor: ServicesAccessor): Promise<void> {
 		const updateService = accessor.get(IUpdateService);
 		return updateService.checkForUpdates(true);
 	}
@@ -130,7 +130,7 @@ class DownloadUpdateAction extends Action2 {
 		});
 	}
 
-	async run(accessor: ServicesAccessor): Promicognidreamognidream> {
+	async run(accessor: ServicesAccessor): Promise<void> {
 		await accessor.get(IUpdateService).downloadUpdate();
 	}
 }
@@ -146,7 +146,7 @@ class InstallUpdateAction extends Action2 {
 		});
 	}
 
-	async run(accessor: ServicesAccessor): Promicognidreamognidream> {
+	async run(accessor: ServicesAccessor): Promise<void> {
 		await accessor.get(IUpdateService).applyUpdate();
 	}
 }
@@ -162,7 +162,7 @@ class RestartToUpdateAction extends Action2 {
 		});
 	}
 
-	async run(accessor: ServicesAccessor): Promicognidreamognidream> {
+	async run(accessor: ServicesAccessor): Promise<void> {
 		await accessor.get(IUpdateService).quitAndInstall();
 	}
 }
@@ -184,14 +184,14 @@ class DownloadAction extends Action2 {
 		});
 	}
 
-	run(accessor: ServicesAccessorcognidreamognidream {
+	run(accessor: ServicesAccessor): void {
 		const productService = accessor.get(IProductService);
 		const openerService = accessor.get(IOpenerService);
 
 		if (productService.downloadUrl) {
-	openerService.open(URI.parse(productService.downloadUrl));
-}
-    }
+			openerService.open(URI.parse(productService.downloadUrl));
+		}
+	}
 }
 
 registerAction2(DownloadAction);
@@ -212,7 +212,7 @@ if (isWindows) {
 			});
 		}
 
-		async run(accessor: ServicesAccessor): Prcognidreame<cognidream> {
+		async run(accessor: ServicesAccessor): Promise<void> {
 			const updateService = accessor.get(IUpdateService);
 			const fileDialogService = accessor.get(IFileDialogService);
 

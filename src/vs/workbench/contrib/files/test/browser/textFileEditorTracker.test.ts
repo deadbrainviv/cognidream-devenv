@@ -50,7 +50,7 @@ suite('Files - TextFileEditorTracker', () => {
 		disposables.clear();
 	});
 
-	async function createTracker(autoSaveEnabled = false): Promise<{ accessor: TestServiceAccessor; cleanup: () => Promise<cognidream> }> {
+	async function createTracker(autoSaveEnabled = false): Promise<{ accessor: TestServiceAccessor; cleanup: () => Promise<void> }> {
 		const instantiationService = workbenchInstantiationService(undefined, disposables);
 
 		const configurationService = new TestConfigurationService();
@@ -142,21 +142,21 @@ suite('Files - TextFileEditorTracker', () => {
 		await testDirtyTextFileModelOpensEditorDependingOnAutoSaveSetting(resource, true, true);
 	});
 
-	async function testDirtyTextFileModelOpensEditorDependingOnAutoSaveSetting(resource: URI, autoSave: boolean, error: boolean): Promicognidreamognidream> {
+	async function testDirtyTextFileModelOpensEditorDependingOnAutoSaveSetting(resource: URI, autoSave: boolean, error: boolean): Promise<void> {
 		const { accessor, cleanup } = await createTracker(autoSave);
 
 		assert.ok(!accessor.editorService.isOpened({ resource, typeId: FILE_EDITOR_INPUT_ID, editorId: DEFAULT_EDITOR_ASSOCIATION.id }));
 
-		if(error) {
+		if (error) {
 			accessor.textFileService.setWriteErrorOnce(new FileOperationError('fail to write', FileOperationResult.FILE_OTHER_ERROR));
 		}
 
-        const model = await accessor.textFileService.files.resolve(resource) as IResolvedTextFileEditorModel;
+		const model = await accessor.textFileService.files.resolve(resource) as IResolvedTextFileEditorModel;
 		disposables.add(model);
 
 		model.textEditorModel.setValue('Super Good');
 
-		if(autoSave) {
+		if (autoSave) {
 			await model.save();
 			await timeout(10);
 			if (error) {
@@ -166,65 +166,65 @@ suite('Files - TextFileEditorTracker', () => {
 			}
 		} else {
 			await awaitEditorOpening(accessor.editorService);
-assert.ok(accessor.editorService.isOpened({ resource, typeId: FILE_EDITOR_INPUT_ID, editorId: DEFAULT_EDITOR_ASSOCIATION.id }));
-        }
+			assert.ok(accessor.editorService.isOpened({ resource, typeId: FILE_EDITOR_INPUT_ID, editorId: DEFAULT_EDITOR_ASSOCIATION.id }));
+		}
 
-await cleanup();
-    }
+		await cleanup();
+	}
 
-test('dirty untitled text file model opens as editor', function () {
-	return testUntitledEditor(false);
-});
-
-test('dirty untitled text file model opens as editor - autosave ON', function () {
-	return testUntitledEditor(true);
-});
-
-async function testUntitledEditor(autoSaveEnabled: boolean): Promicognidreamognidream> {
-	const { accessor, cleanup } = await createTracker(autoSaveEnabled);
-
-	const untitledTextEditor = await accessor.textEditorService.resolveTextEditor({ resource: undefined, forceUntitled: true }) as UntitledTextEditorInput;
-	const model = disposables.add(await untitledTextEditor.resolve());
-
-	assert.ok(!accessor.editorService.isOpened(untitledTextEditor));
-
-	model.textEditorModel?.setValue('Super Good');
-
-	await awaitEditorOpening(accessor.editorService);
-	assert.ok(accessor.editorService.isOpened(untitledTextEditor));
-
-	await cleanup();
-}
-
-function awaitEditorOpening(editorService: IEditorService): Promicognidreamognidream> {
-	return Event.toPromise(Event.once(editorService.onDidActiveEditorChange));
-}
-
-test('non-dirty files reload on window focus', async function () {
-	const { accessor, cleanup } = await createTracker();
-
-	const resource = toResource.call(this, '/path/index.txt');
-
-	await accessor.editorService.openEditor(await accessor.textEditorService.resolveTextEditor({ resource, options: { override: DEFAULT_EDITOR_ASSOCIATION.id } }));
-
-	accessor.hostService.setFocus(false);
-	accessor.hostService.setFocus(true);
-
-	await awaitModelResolveEvent(accessor.textFileService, resource);
-
-	await cleanup();
-});
-
-function awaitModelResolveEvent(textFileService: ITextFileService, resource: URI): Promicognidreamognidream> {
-	return new Promise(resolve => {
-		const listener = textFileService.files.onDidResolve(e => {
-			if (isEqual(e.model.resource, resource)) {
-				listener.dispose();
-				resolve();
-			}
-		});
+	test('dirty untitled text file model opens as editor', function () {
+		return testUntitledEditor(false);
 	});
-}
 
-ensureNoDisposablesAreLeakedInTestSuite();
+	test('dirty untitled text file model opens as editor - autosave ON', function () {
+		return testUntitledEditor(true);
+	});
+
+	async function testUntitledEditor(autoSaveEnabled: boolean): Promise<void> {
+		const { accessor, cleanup } = await createTracker(autoSaveEnabled);
+
+		const untitledTextEditor = await accessor.textEditorService.resolveTextEditor({ resource: undefined, forceUntitled: true }) as UntitledTextEditorInput;
+		const model = disposables.add(await untitledTextEditor.resolve());
+
+		assert.ok(!accessor.editorService.isOpened(untitledTextEditor));
+
+		model.textEditorModel?.setValue('Super Good');
+
+		await awaitEditorOpening(accessor.editorService);
+		assert.ok(accessor.editorService.isOpened(untitledTextEditor));
+
+		await cleanup();
+	}
+
+	function awaitEditorOpening(editorService: IEditorService): Promise<void> {
+		return Event.toPromise(Event.once(editorService.onDidActiveEditorChange));
+	}
+
+	test('non-dirty files reload on window focus', async function () {
+		const { accessor, cleanup } = await createTracker();
+
+		const resource = toResource.call(this, '/path/index.txt');
+
+		await accessor.editorService.openEditor(await accessor.textEditorService.resolveTextEditor({ resource, options: { override: DEFAULT_EDITOR_ASSOCIATION.id } }));
+
+		accessor.hostService.setFocus(false);
+		accessor.hostService.setFocus(true);
+
+		await awaitModelResolveEvent(accessor.textFileService, resource);
+
+		await cleanup();
+	});
+
+	function awaitModelResolveEvent(textFileService: ITextFileService, resource: URI): Promise<void> {
+		return new Promise(resolve => {
+			const listener = textFileService.files.onDidResolve(e => {
+				if (isEqual(e.model.resource, resource)) {
+					listener.dispose();
+					resolve();
+				}
+			});
+		});
+	}
+
+	ensureNoDisposablesAreLeakedInTestSuite();
 });

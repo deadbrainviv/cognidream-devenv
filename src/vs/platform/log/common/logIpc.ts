@@ -40,24 +40,24 @@ export class LoggerChannelClient extends AbstractLoggerService implements ILogge
 		});
 	}
 
-	override registerLogger(logger: ILoggerResource): cognidreamidream {
+	override registerLogger(logger: ILoggerResource): void {
 		super.registerLogger(logger);
 		this.channel.call('registerLogger', [logger, this.windowId]);
 	}
 
-	override deregisterLogger(resource: URI): cognidreamidream {
+	override deregisterLogger(resource: URI): void {
 		super.deregisterLogger(resource);
 		this.channel.call('deregisterLogger', [resource, this.windowId]);
 	}
 
-	override setLogLevel(logLevel: LogLevel): cognidreamidream;
-	override setLogLevel(resource: URI, logLevel: LogLevel): cognidreamidream;
-	override setLogLevel(arg1: any, arg2?: any): cognidreamidream {
+	override setLogLevel(logLevel: LogLevel): void;
+	override setLogLevel(resource: URI, logLevel: LogLevel): void;
+	override setLogLevel(arg1: any, arg2?: any): void {
 		super.setLogLevel(arg1, arg2);
 		this.channel.call('setLogLevel', [arg1, arg2]);
 	}
 
-	override setVisibility(resourceOrId: URI | string, visibility: boolean): cognidreamidream {
+	override setVisibility(resourceOrId: URI | string, visibility: boolean): void {
 		super.setVisibility(resourceOrId, visibility);
 		this.channel.call('setVisibility', [this.toResource(resourceOrId), visibility]);
 	}
@@ -66,9 +66,9 @@ export class LoggerChannelClient extends AbstractLoggerService implements ILogge
 		return new Logger(this.channel, file, logLevel, options, this.windowId);
 	}
 
-	public static setLogLevel(channel: IChannel, level: LogLevel): Promise<cognidreamidream>;
-	public static setLogLevel(channel: IChannel, resource: URI, level: LogLevel): Promise<cognidreamidream>;
-	public static setLogLevel(channel: IChannel, arg1: any, arg2?: any): Promise<cognidreamidream> {
+	public static setLogLevel(channel: IChannel, level: LogLevel): Promise<void>;
+	public static setLogLevel(channel: IChannel, resource: URI, level: LogLevel): Promise<void>;
+	public static setLogLevel(channel: IChannel, arg1: any, arg2?: any): Promise<void> {
 		return channel.call('setLogLevel', [arg1, arg2]);
 	}
 

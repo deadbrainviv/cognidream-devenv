@@ -39,17 +39,17 @@ export interface ITestingPeekOpener {
 	/**
 	 * Opens the currently selected message in an editor.
 	 */
-	openCurrentInEditor(): cognidream;
+	openCurrentInEditor(): void;
 
 	/**
 	 * Opens the peek. Shows any available message.
 	 */
-	open(cognidreamognidream;
+	open(): void;
 
-		/**
-		 * Closes peeks for all visible editors.
-		 */
-		closeAllPeeks(cognidreamognidream;
+	/**
+	 * Closes peeks for all visible editors.
+	 */
+	closeAllPeeks(): void;
 }
 
 export const ITestingPeekOpener = createDecorator<ITestingPeekOpener>('testingPeekOpener');

@@ -23,7 +23,7 @@ export class NotebookSerializer extends NotebookSerializerBase {
 
 	override dispose() {
 		try {
-			cognidream this.worker?.terminate();
+			void this.worker?.terminate();
 		} catch {
 			//
 		}

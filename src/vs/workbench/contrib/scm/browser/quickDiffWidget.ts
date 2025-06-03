@@ -91,7 +91,7 @@ export class QuickDiffPickerViewItem extends SelectActionViewItem<IQuickDiffSele
 		return this.optionsItems[index];
 	}
 
-	override render(container: HTMLElement): cognidream {
+	override render(container: HTMLElement): void {
 		super.render(container);
 		this.setFocusable(true);
 	}
@@ -102,11 +102,11 @@ export class QuickDiffPickerBaseAction extends Action {
 	public static readonly ID = 'quickDiff.base.switch';
 	public static readonly LABEL = nls.localize('quickDiff.base.switch', "Switch Quick Diff Base");
 
-	constructor(private readonly callback: (event?: IQuickDiffSelectItem) cognidreamognidream) {
+	constructor(private readonly callback: (event?: IQuickDiffSelectItem) => void) {
 		super(QuickDiffPickerBaseAction.ID, QuickDiffPickerBaseAction.LABEL, undefined, undefined);
 	}
 
-	override async run(event?: IQuickDiffSelectItem): Promicognidreamognidream> {
+	override async run(event?: IQuickDiffSelectItem): Promise<void> {
 		return this.callback(event);
 	}
 }
@@ -203,253 +203,253 @@ class QuickDiffWidget extends PeekViewWidget {
 		return visibleRanges.length >= 0 ? visibleRanges[0] : undefined;
 	}
 
-	showChange(index: number, usePosition: boolean = truecognidreamognidream {
+	showChange(index: number, usePosition: boolean = true): void {
 		const labeledChange = this.model.changes[index];
 		const change = labeledChange.change;
 		this._index = index;
 		this.contextKeyService.createKey('originalResourceScheme', this.model.changes[index].original.scheme);
-this.updateActions();
+		this.updateActions();
 
-this._provider = labeledChange.label;
-this.change = change;
+		this._provider = labeledChange.label;
+		this.change = change;
 
-if (Iterable.isEmpty(this.model.originalTextModels)) {
-	return;
-}
+		if (Iterable.isEmpty(this.model.originalTextModels)) {
+			return;
+		}
 
-const onFirstDiffUpdate = Event.once(this.diffEditor.onDidUpdateDiff);
+		const onFirstDiffUpdate = Event.once(this.diffEditor.onDidUpdateDiff);
 
-// TODO@joao TODO@alex need this setTimeout probably because the
-// non-side-by-side diff still hasn't created the view zones
-onFirstDiffUpdate(() => setTimeout(() => this.revealChange(change), 0));
+		// TODO@joao TODO@alex need this setTimeout probably because the
+		// non-side-by-side diff still hasn't created the view zones
+		onFirstDiffUpdate(() => setTimeout(() => this.revealChange(change), 0));
 
-const diffEditorModel = this.model.getDiffEditorModel(labeledChange.original);
-if (!diffEditorModel) {
-	return;
-}
-this.diffEditor.setModel(diffEditorModel);
-this.dropdown?.setSelection(labeledChange.label);
+		const diffEditorModel = this.model.getDiffEditorModel(labeledChange.original);
+		if (!diffEditorModel) {
+			return;
+		}
+		this.diffEditor.setModel(diffEditorModel);
+		this.dropdown?.setSelection(labeledChange.label);
 
-const position = new Position(getModifiedEndLineNumber(change), 1);
+		const position = new Position(getModifiedEndLineNumber(change), 1);
 
-const lineHeight = this.editor.getOption(EditorOption.lineHeight);
-const editorHeight = this.editor.getLayoutInfo().height;
-const editorHeightInLines = Math.floor(editorHeight / lineHeight);
-const height = Math.min(getChangeHeight(change) + /* padding */ 8, Math.floor(editorHeightInLines / 3));
+		const lineHeight = this.editor.getOption(EditorOption.lineHeight);
+		const editorHeight = this.editor.getLayoutInfo().height;
+		const editorHeightInLines = Math.floor(editorHeight / lineHeight);
+		const height = Math.min(getChangeHeight(change) + /* padding */ 8, Math.floor(editorHeightInLines / 3));
 
-this.renderTitle(labeledChange.label);
+		this.renderTitle(labeledChange.label);
 
-const changeType = getChangeType(change);
-const changeTypeColor = getChangeTypeColor(this.themeService.getColorTheme(), changeType);
-this.style({ frameColor: changeTypeColor, arrowColor: changeTypeColor });
+		const changeType = getChangeType(change);
+		const changeTypeColor = getChangeTypeColor(this.themeService.getColorTheme(), changeType);
+		this.style({ frameColor: changeTypeColor, arrowColor: changeTypeColor });
 
-const providerSpecificChanges: IChange[] = [];
-let contextIndex = index;
-for (const change of this.model.changes) {
-	if (change.label === this.model.changes[this._index].label) {
-		providerSpecificChanges.push(change.change);
-		if (labeledChange === change) {
-			contextIndex = providerSpecificChanges.length - 1;
+		const providerSpecificChanges: IChange[] = [];
+		let contextIndex = index;
+		for (const change of this.model.changes) {
+			if (change.label === this.model.changes[this._index].label) {
+				providerSpecificChanges.push(change.change);
+				if (labeledChange === change) {
+					contextIndex = providerSpecificChanges.length - 1;
+				}
+			}
+		}
+		this._actionbarWidget!.context = [diffEditorModel.modified.uri, providerSpecificChanges, contextIndex];
+		if (usePosition) {
+			this.show(position, height);
+			this.editor.setPosition(position);
+			this.editor.focus();
 		}
 	}
-}
-this._actionbarWidget!.context = [diffEditorModel.modified.uri, providerSpecificChanges, contextIndex];
-if (usePosition) {
-	this.show(position, height);
-	this.editor.setPosition(position);
-	this.editor.focus();
-}
-    }
 
-    private renderTitle(label: stringcognidreamognidream {
-	const providerChanges = this.model.quickDiffChanges.get(label)!;
-	const providerIndex = providerChanges.indexOf(this._index);
+	private renderTitle(label: string): void {
+		const providerChanges = this.model.quickDiffChanges.get(label)!;
+		const providerIndex = providerChanges.indexOf(this._index);
 
-	let detail: string;
-	if(!this.shouldUseDropdown()) {
-	detail = this.model.changes.length > 1
-		? nls.localize('changes', "{0} - {1} of {2} changes", label, providerIndex + 1, providerChanges.length)
-		: nls.localize('change', "{0} - {1} of {2} change", label, providerIndex + 1, providerChanges.length);
-	this.dropdownContainer!.style.display = 'none';
-} else {
-	detail = this.model.changes.length > 1
-		? nls.localize('multiChanges', "{0} of {1} changes", providerIndex + 1, providerChanges.length)
-		: nls.localize('multiChange', "{0} of {1} change", providerIndex + 1, providerChanges.length);
-	this.dropdownContainer!.style.display = 'inherit';
-}
-
-this.setTitle(this.title, detail);
-    }
-
-    private switchQuickDiff(event ?: IQuickDiffSelectItem) {
-	const newProvider = event?.provider;
-	if (newProvider === this.model.changes[this._index].label) {
-		return;
-	}
-	let closestGreaterIndex = this._index < this.model.changes.length - 1 ? this._index + 1 : 0;
-	for (let i = closestGreaterIndex; i !== this._index; i < this.model.changes.length - 1 ? i++ : i = 0) {
-		if (this.model.changes[i].label === newProvider) {
-			closestGreaterIndex = i;
-			break;
+		let detail: string;
+		if (!this.shouldUseDropdown()) {
+			detail = this.model.changes.length > 1
+				? nls.localize('changes', "{0} - {1} of {2} changes", label, providerIndex + 1, providerChanges.length)
+				: nls.localize('change', "{0} - {1} of {2} change", label, providerIndex + 1, providerChanges.length);
+			this.dropdownContainer!.style.display = 'none';
+		} else {
+			detail = this.model.changes.length > 1
+				? nls.localize('multiChanges', "{0} of {1} changes", providerIndex + 1, providerChanges.length)
+				: nls.localize('multiChange', "{0} of {1} change", providerIndex + 1, providerChanges.length);
+			this.dropdownContainer!.style.display = 'inherit';
 		}
+
+		this.setTitle(this.title, detail);
 	}
-	let closestLesserIndex = this._index > 0 ? this._index - 1 : this.model.changes.length - 1;
-	for (let i = closestLesserIndex; i !== this._index; i >= 0 ? i-- : i = this.model.changes.length - 1) {
-		if (this.model.changes[i].label === newProvider) {
-			closestLesserIndex = i;
-			break;
+
+	private switchQuickDiff(event?: IQuickDiffSelectItem) {
+		const newProvider = event?.provider;
+		if (newProvider === this.model.changes[this._index].label) {
+			return;
 		}
+		let closestGreaterIndex = this._index < this.model.changes.length - 1 ? this._index + 1 : 0;
+		for (let i = closestGreaterIndex; i !== this._index; i < this.model.changes.length - 1 ? i++ : i = 0) {
+			if (this.model.changes[i].label === newProvider) {
+				closestGreaterIndex = i;
+				break;
+			}
+		}
+		let closestLesserIndex = this._index > 0 ? this._index - 1 : this.model.changes.length - 1;
+		for (let i = closestLesserIndex; i !== this._index; i >= 0 ? i-- : i = this.model.changes.length - 1) {
+			if (this.model.changes[i].label === newProvider) {
+				closestLesserIndex = i;
+				break;
+			}
+		}
+		const closestIndex = Math.abs(this.model.changes[closestGreaterIndex].change.modifiedEndLineNumber - this.model.changes[this._index].change.modifiedEndLineNumber)
+			< Math.abs(this.model.changes[closestLesserIndex].change.modifiedEndLineNumber - this.model.changes[this._index].change.modifiedEndLineNumber)
+			? closestGreaterIndex : closestLesserIndex;
+		this.showChange(closestIndex, false);
 	}
-	const closestIndex = Math.abs(this.model.changes[closestGreaterIndex].change.modifiedEndLineNumber - this.model.changes[this._index].change.modifiedEndLineNumber)
-		< Math.abs(this.model.changes[closestLesserIndex].change.modifiedEndLineNumber - this.model.changes[this._index].change.modifiedEndLineNumber)
-		? closestGreaterIndex : closestLesserIndex;
-	this.showChange(closestIndex, false);
-}
 
-    private shouldUseDropdown(): boolean {
-	const visibleQuickDiffs = this.model.quickDiffs.filter(quickDiff => quickDiff.visible);
-	const visibleQuickDiffResults = this.model.getQuickDiffResults()
-		.filter(result => visibleQuickDiffs.some(quickDiff => quickDiff.label === result.label));
+	private shouldUseDropdown(): boolean {
+		const visibleQuickDiffs = this.model.quickDiffs.filter(quickDiff => quickDiff.visible);
+		const visibleQuickDiffResults = this.model.getQuickDiffResults()
+			.filter(result => visibleQuickDiffs.some(quickDiff => quickDiff.label === result.label));
 
-	return visibleQuickDiffResults
-		.filter(quickDiff => quickDiff.changes.length > 0).length > 1;
-}
+		return visibleQuickDiffResults
+			.filter(quickDiff => quickDiff.changes.length > 0).length > 1;
+	}
 
-    private updateActions(cognidreamognidream {
-	if(!this._actionbarWidget) {
-	return;
-}
-const previous = this.instantiationService.createInstance(QuickDiffWidgetEditorAction, this.editor, new ShowPreviousChangeAction(this.editor), ThemeIcon.asClassName(gotoPreviousLocation));
-const next = this.instantiationService.createInstance(QuickDiffWidgetEditorAction, this.editor, new ShowNextChangeAction(this.editor), ThemeIcon.asClassName(gotoNextLocation));
-
-this._disposables.add(previous);
-this._disposables.add(next);
-
-if (this.menu) {
-	this.menu.dispose();
-}
-this.menu = this.menuService.createMenu(MenuId.SCMChangeContext, this.contextKeyService);
-const actions = getFlatActionBarActions(this.menu.getActions({ shouldForwardArgs: true }));
-this._actionbarWidget.clear();
-this._actionbarWidget.push(actions.reverse(), { label: false, icon: true });
-this._actionbarWidget.push([next, previous], { label: false, icon: true });
-this._actionbarWidget.push(this._disposables.add(new Action('peekview.close', nls.localize('label.close', "Close"), ThemeIcon.asClassName(Codicon.close), true, () => this.dispose())), { label: false, icon: true });
-    }
-
-    protected override _fillHead(container: HTMLElementcognidreamognidream {
-	super._fillHead(container, true);
-
-	const visibleQuickDiffs = this.model.quickDiffs.filter(quickDiff => quickDiff.visible);
-
-	this.dropdownContainer = dom.prepend(this._titleElement!, dom.$('.dropdown'));
-	this.dropdown = this.instantiationService.createInstance(QuickDiffPickerViewItem,
-		new QuickDiffPickerBaseAction((event?: IQuickDiffSelectItem) => this.switchQuickDiff(event)),
-		visibleQuickDiffs.map(quickDiff => quickDiff.label), this.model.changes[this._index].label);
-	this.dropdown.render(this.dropdownContainer);
-	this.updateActions();
-}
-
-    protected override _getActionBarOptions(): IActionBarOptions {
-	const actionRunner = new QuickDiffWidgetActionRunner();
-	this._disposables.add(actionRunner);
-
-	// close widget on successful action
-	this._disposables.add(actionRunner.onDidRun(e => {
-		if (!(e.action instanceof QuickDiffWidgetEditorAction) && !e.error) {
-			this.dispose();
+	private updateActions(): void {
+		if (!this._actionbarWidget) {
+			return;
 		}
-	}));
+		const previous = this.instantiationService.createInstance(QuickDiffWidgetEditorAction, this.editor, new ShowPreviousChangeAction(this.editor), ThemeIcon.asClassName(gotoPreviousLocation));
+		const next = this.instantiationService.createInstance(QuickDiffWidgetEditorAction, this.editor, new ShowNextChangeAction(this.editor), ThemeIcon.asClassName(gotoNextLocation));
 
-	return {
-		...super._getActionBarOptions(),
-		actionRunner
-	};
-}
+		this._disposables.add(previous);
+		this._disposables.add(next);
 
-    protected _fillBody(container: HTMLElementcognidreamognidream {
-	const options: IDiffEditorOptions = {
-		scrollBeyondLastLine: true,
-		scrollbar: {
-			verticalScrollbarSize: 14,
-			horizontal: 'auto',
-			useShadows: true,
-			verticalHasArrows: false,
-			horizontalHasArrows: false
-		},
-		overviewRulerLanes: 2,
-		fixedOverflowWidgets: true,
-		minimap: { enabled: false },
-		renderSideBySide: false,
-		readOnly: false,
-		renderIndicators: false,
-		diffAlgorithm: 'advanced',
-		ignoreTrimWhitespace: false,
-		stickyScroll: { enabled: false }
-	};
+		if (this.menu) {
+			this.menu.dispose();
+		}
+		this.menu = this.menuService.createMenu(MenuId.SCMChangeContext, this.contextKeyService);
+		const actions = getFlatActionBarActions(this.menu.getActions({ shouldForwardArgs: true }));
+		this._actionbarWidget.clear();
+		this._actionbarWidget.push(actions.reverse(), { label: false, icon: true });
+		this._actionbarWidget.push([next, previous], { label: false, icon: true });
+		this._actionbarWidget.push(this._disposables.add(new Action('peekview.close', nls.localize('label.close', "Close"), ThemeIcon.asClassName(Codicon.close), true, () => this.dispose())), { label: false, icon: true });
+	}
 
-	this.diffEditor = this.instantiationService.createInstance(EmbeddedDiffEditorWidget, container, options, {}, this.editor);
-	this._disposables.add(this.diffEditor);
-}
+	protected override _fillHead(container: HTMLElement): void {
+		super._fillHead(container, true);
 
-    protected override _onWidth(width: numbercognidreamognidream {
-	if(typeof this.height === 'undefined') {
-	return;
-}
+		const visibleQuickDiffs = this.model.quickDiffs.filter(quickDiff => quickDiff.visible);
 
-        this.diffEditor.layout({ height: this.height, width });
-    }
+		this.dropdownContainer = dom.prepend(this._titleElement!, dom.$('.dropdown'));
+		this.dropdown = this.instantiationService.createInstance(QuickDiffPickerViewItem,
+			new QuickDiffPickerBaseAction((event?: IQuickDiffSelectItem) => this.switchQuickDiff(event)),
+			visibleQuickDiffs.map(quickDiff => quickDiff.label), this.model.changes[this._index].label);
+		this.dropdown.render(this.dropdownContainer);
+		this.updateActions();
+	}
 
-    protected override _doLayoutBody(height: number, width: numbercognidreamognidream {
-	super._doLayoutBody(height, width);
-	this.diffEditor.layout({ height, width });
+	protected override _getActionBarOptions(): IActionBarOptions {
+		const actionRunner = new QuickDiffWidgetActionRunner();
+		this._disposables.add(actionRunner);
 
-	if(typeof this.height === 'undefined' && this.change) {
-	this.revealChange(this.change);
-}
+		// close widget on successful action
+		this._disposables.add(actionRunner.onDidRun(e => {
+			if (!(e.action instanceof QuickDiffWidgetEditorAction) && !e.error) {
+				this.dispose();
+			}
+		}));
 
-this.height = height;
-    }
+		return {
+			...super._getActionBarOptions(),
+			actionRunner
+		};
+	}
 
-    private revealChange(change: IChangecognidreamognidream {
-	let start: number, end: number;
+	protected _fillBody(container: HTMLElement): void {
+		const options: IDiffEditorOptions = {
+			scrollBeyondLastLine: true,
+			scrollbar: {
+				verticalScrollbarSize: 14,
+				horizontal: 'auto',
+				useShadows: true,
+				verticalHasArrows: false,
+				horizontalHasArrows: false
+			},
+			overviewRulerLanes: 2,
+			fixedOverflowWidgets: true,
+			minimap: { enabled: false },
+			renderSideBySide: false,
+			readOnly: false,
+			renderIndicators: false,
+			diffAlgorithm: 'advanced',
+			ignoreTrimWhitespace: false,
+			stickyScroll: { enabled: false }
+		};
 
-	if(change.modifiedEndLineNumber === 0) { // deletion
-	start = change.modifiedStartLineNumber;
-	end = change.modifiedStartLineNumber + 1;
-} else if (change.originalEndLineNumber > 0) { // modification
-	start = change.modifiedStartLineNumber - 1;
-	end = change.modifiedEndLineNumber + 1;
-} else { // insertion
-	start = change.modifiedStartLineNumber;
-	end = change.modifiedEndLineNumber;
-}
+		this.diffEditor = this.instantiationService.createInstance(EmbeddedDiffEditorWidget, container, options, {}, this.editor);
+		this._disposables.add(this.diffEditor);
+	}
 
-this.diffEditor.revealLinesInCenter(start, end, ScrollType.Immediate);
-    }
+	protected override _onWidth(width: number): void {
+		if (typeof this.height === 'undefined') {
+			return;
+		}
 
-    private _applyTheme(theme: IColorTheme) {
-	const borderColor = theme.getColor(peekViewBorder) || Color.transparent;
-	this.style({
-		arrowColor: borderColor,
-		frameColor: borderColor,
-		headerBackgroundColor: theme.getColor(peekViewTitleBackground) || Color.transparent,
-		primaryHeadingColor: theme.getColor(peekViewTitleForeground),
-		secondaryHeadingColor: theme.getColor(peekViewTitleInfoForeground)
-	});
-}
+		this.diffEditor.layout({ height: this.height, width });
+	}
 
-    protected override revealRange(range: Range) {
-	this.editor.revealLineInCenterIfOutsideViewport(range.endLineNumber, ScrollType.Smooth);
-}
+	protected override _doLayoutBody(height: number, width: number): void {
+		super._doLayoutBody(height, width);
+		this.diffEditor.layout({ height, width });
 
-    override hasFocus(): boolean {
-	return this.diffEditor.hasTextFocus();
-}
+		if (typeof this.height === 'undefined' && this.change) {
+			this.revealChange(this.change);
+		}
 
-    override dispose() {
-	super.dispose();
-	this.menu?.dispose();
-}
+		this.height = height;
+	}
+
+	private revealChange(change: IChange): void {
+		let start: number, end: number;
+
+		if (change.modifiedEndLineNumber === 0) { // deletion
+			start = change.modifiedStartLineNumber;
+			end = change.modifiedStartLineNumber + 1;
+		} else if (change.originalEndLineNumber > 0) { // modification
+			start = change.modifiedStartLineNumber - 1;
+			end = change.modifiedEndLineNumber + 1;
+		} else { // insertion
+			start = change.modifiedStartLineNumber;
+			end = change.modifiedEndLineNumber;
+		}
+
+		this.diffEditor.revealLinesInCenter(start, end, ScrollType.Immediate);
+	}
+
+	private _applyTheme(theme: IColorTheme) {
+		const borderColor = theme.getColor(peekViewBorder) || Color.transparent;
+		this.style({
+			arrowColor: borderColor,
+			frameColor: borderColor,
+			headerBackgroundColor: theme.getColor(peekViewTitleBackground) || Color.transparent,
+			primaryHeadingColor: theme.getColor(peekViewTitleForeground),
+			secondaryHeadingColor: theme.getColor(peekViewTitleInfoForeground)
+		});
+	}
+
+	protected override revealRange(range: Range) {
+		this.editor.revealLineInCenterIfOutsideViewport(range.endLineNumber, ScrollType.Smooth);
+	}
+
+	override hasFocus(): boolean {
+		return this.diffEditor.hasTextFocus();
+	}
+
+	override dispose() {
+		super.dispose();
+		this.menu?.dispose();
+	}
 }
 
 export class QuickDiffEditorController extends Disposable implements IEditorContribution {
@@ -490,15 +490,15 @@ export class QuickDiffEditorController extends Disposable implements IEditorCont
 		}
 	}
 
-	private onDidChangeGutterAction(cognidreamognidream {
+	private onDidChangeGutterAction(): void {
 		const gutterAction = this.configurationService.getValue<'diff' | 'none'>('scm.diffDecorationsGutterAction');
 
 		this.gutterActionDisposables.clear();
 
-if (gutterAction === 'diff') {
-	this.gutterActionDisposables.add(this.editor.onMouseDown(e => this.onEditorMouseDown(e)));
-	this.gutterActionDisposables.add(this.editor.onMouseUp(e => this.onEditorMouseUp(e)));
-	this.stylesheet.textContent = `
+		if (gutterAction === 'diff') {
+			this.gutterActionDisposables.add(this.editor.onMouseDown(e => this.onEditorMouseDown(e)));
+			this.gutterActionDisposables.add(this.editor.onMouseUp(e => this.onEditorMouseUp(e)));
+			this.stylesheet.textContent = `
 				.monaco-editor .dirty-diff-glyph {
 					cursor: pointer;
 				}
@@ -515,223 +515,223 @@ if (gutterAction === 'diff') {
 					border-bottom-width: 0;
 				}
 			`;
-} else {
-	this.stylesheet.textContent = ``;
-}
-    }
-
-canNavigate(): boolean {
-	return !this.widget || (this.widget?.index === -1) || (!!this.model && this.model.changes.length > 1);
-}
-
-refresh(cognidreamognidream {
-	this.widget?.showChange(this.widget.index, false);
-}
-
-    next(lineNumber ?: numbercognidreamognidream {
-	if(!this.assertWidget()) {
-	return;
-}
-        if (!this.widget || !this.model) {
-	return;
-}
-
-let index: number;
-if (this.editor.hasModel() && (typeof lineNumber === 'number' || !this.widget.provider)) {
-	index = this.model.findNextClosestChange(typeof lineNumber === 'number' ? lineNumber : this.editor.getPosition().lineNumber, true, this.widget.provider);
-} else {
-	const providerChanges: number[] = this.model.quickDiffChanges.get(this.widget.provider) ?? this.model.quickDiffChanges.values().next().value!;
-	const mapIndex = providerChanges.findIndex(value => value === this.widget!.index);
-	index = providerChanges[rot(mapIndex + 1, providerChanges.length)];
-}
-
-this.widget.showChange(index);
-    }
-
-previous(lineNumber ?: numbercognidreamognidream {
-	if(!this.assertWidget()) {
-	return;
-}
-if (!this.widget || !this.model) {
-	return;
-}
-
-let index: number;
-if (this.editor.hasModel() && (typeof lineNumber === 'number')) {
-	index = this.model.findPreviousClosestChange(typeof lineNumber === 'number' ? lineNumber : this.editor.getPosition().lineNumber, true, this.widget.provider);
-} else {
-	const providerChanges: number[] = this.model.quickDiffChanges.get(this.widget.provider) ?? this.model.quickDiffChanges.values().next().value!;
-	const mapIndex = providerChanges.findIndex(value => value === this.widget!.index);
-	index = providerChanges[rot(mapIndex - 1, providerChanges.length)];
-}
-
-this.widget.showChange(index);
-    }
-
-close(cognidreamognidream {
-	this.session.dispose();
-	this.session = Disposable.None;
-}
-
-    private assertWidget(): boolean {
-	if(!this.enabled) {
-	return false;
-}
-
-if (this.widget) {
-	if (!this.model || this.model.changes.length === 0) {
-		this.close();
-		return false;
+		} else {
+			this.stylesheet.textContent = ``;
+		}
 	}
 
-	return true;
-}
-
-const editorModel = this.editor.getModel();
-
-if (!editorModel) {
-	return false;
-}
-
-const modelRef = this.quickDiffModelService.createQuickDiffModelReference(editorModel.uri);
-
-if (!modelRef) {
-	return false;
-}
-
-if (modelRef.object.changes.length === 0) {
-	modelRef.dispose();
-	return false;
-}
-
-this.model = modelRef.object;
-this.widget = this.instantiationService.createInstance(QuickDiffWidget, this.editor, this.model);
-this.isQuickDiffVisible.set(true);
-
-const disposables = new DisposableStore();
-disposables.add(Event.once(this.widget.onDidClose)(this.close, this));
-const onDidModelChange = Event.chain(this.model.onDidChange, $ =>
-	$.filter(e => e.diff.length > 0)
-		.map(e => e.diff)
-);
-
-onDidModelChange(this.onDidModelChange, this, disposables);
-
-disposables.add(modelRef);
-disposables.add(this.widget);
-disposables.add(toDisposable(() => {
-	this.model = null;
-	this.widget = null;
-	this.isQuickDiffVisible.set(false);
-	this.editor.focus();
-}));
-
-this.session = disposables;
-return true;
-    }
-
-    private onDidModelChange(splices: ISplice < QuickDiffChange > []cognidreamognidream {
-	if(!this.model || !this.widget || this.widget.hasFocus()) {
-	return;
-}
-
-for (const splice of splices) {
-	if (splice.start <= this.widget.index) {
-		this.next();
-		return;
-	}
-}
-
-this.refresh();
-    }
-
-    private onEditorMouseDown(e: IEditorMouseEventcognidreamognidream {
-	this.mouseDownInfo = null;
-
-	const range = e.target.range;
-
-	if(!range) {
-		return;
+	canNavigate(): boolean {
+		return !this.widget || (this.widget?.index === -1) || (!!this.model && this.model.changes.length > 1);
 	}
 
-        if(!e.event.leftButton) {
-	return;
-}
-
-if (e.target.type !== MouseTargetType.GUTTER_LINE_DECORATIONS) {
-	return;
-}
-if (!e.target.element) {
-	return;
-}
-if (e.target.element.className.indexOf('dirty-diff-glyph') < 0) {
-	return;
-}
-
-const data = e.target.detail;
-const offsetLeftInGutter = e.target.element.offsetLeft;
-const gutterOffsetX = data.offsetX - offsetLeftInGutter;
-
-// TODO@joao TODO@alex TODO@martin this is such that we don't collide with folding
-if (gutterOffsetX < -3 || gutterOffsetX > 3) { // dirty diff decoration on hover is 6px wide
-	return;
-}
-
-this.mouseDownInfo = { lineNumber: range.startLineNumber };
-    }
-
-    private onEditorMouseUp(e: IEditorMouseEventcognidreamognidream {
-	if(!this.mouseDownInfo) {
-	return;
-}
-
-const { lineNumber } = this.mouseDownInfo;
-this.mouseDownInfo = null;
-
-const range = e.target.range;
-
-if (!range || range.startLineNumber !== lineNumber) {
-	return;
-}
-
-if (e.target.type !== MouseTargetType.GUTTER_LINE_DECORATIONS) {
-	return;
-}
-
-const editorModel = this.editor.getModel();
-
-if (!editorModel) {
-	return;
-}
-
-const modelRef = this.quickDiffModelService.createQuickDiffModelReference(editorModel.uri);
-
-if (!modelRef) {
-	return;
-}
-
-try {
-	const index = modelRef.object.changes
-		.findIndex(change => lineIntersectsChange(lineNumber, change.change));
-
-	if (index < 0) {
-		return;
+	refresh(): void {
+		this.widget?.showChange(this.widget.index, false);
 	}
 
-	if (index === this.widget?.index) {
-		this.close();
-	} else {
-		this.next(lineNumber);
-	}
-} finally {
-	modelRef.dispose();
-}
-    }
+	next(lineNumber?: number): void {
+		if (!this.assertWidget()) {
+			return;
+		}
+		if (!this.widget || !this.model) {
+			return;
+		}
 
-    override dispose(cognidreamognidream {
-	this.gutterActionDisposables.dispose();
-	super.dispose();
-}
+		let index: number;
+		if (this.editor.hasModel() && (typeof lineNumber === 'number' || !this.widget.provider)) {
+			index = this.model.findNextClosestChange(typeof lineNumber === 'number' ? lineNumber : this.editor.getPosition().lineNumber, true, this.widget.provider);
+		} else {
+			const providerChanges: number[] = this.model.quickDiffChanges.get(this.widget.provider) ?? this.model.quickDiffChanges.values().next().value!;
+			const mapIndex = providerChanges.findIndex(value => value === this.widget!.index);
+			index = providerChanges[rot(mapIndex + 1, providerChanges.length)];
+		}
+
+		this.widget.showChange(index);
+	}
+
+	previous(lineNumber?: number): void {
+		if (!this.assertWidget()) {
+			return;
+		}
+		if (!this.widget || !this.model) {
+			return;
+		}
+
+		let index: number;
+		if (this.editor.hasModel() && (typeof lineNumber === 'number')) {
+			index = this.model.findPreviousClosestChange(typeof lineNumber === 'number' ? lineNumber : this.editor.getPosition().lineNumber, true, this.widget.provider);
+		} else {
+			const providerChanges: number[] = this.model.quickDiffChanges.get(this.widget.provider) ?? this.model.quickDiffChanges.values().next().value!;
+			const mapIndex = providerChanges.findIndex(value => value === this.widget!.index);
+			index = providerChanges[rot(mapIndex - 1, providerChanges.length)];
+		}
+
+		this.widget.showChange(index);
+	}
+
+	close(): void {
+		this.session.dispose();
+		this.session = Disposable.None;
+	}
+
+	private assertWidget(): boolean {
+		if (!this.enabled) {
+			return false;
+		}
+
+		if (this.widget) {
+			if (!this.model || this.model.changes.length === 0) {
+				this.close();
+				return false;
+			}
+
+			return true;
+		}
+
+		const editorModel = this.editor.getModel();
+
+		if (!editorModel) {
+			return false;
+		}
+
+		const modelRef = this.quickDiffModelService.createQuickDiffModelReference(editorModel.uri);
+
+		if (!modelRef) {
+			return false;
+		}
+
+		if (modelRef.object.changes.length === 0) {
+			modelRef.dispose();
+			return false;
+		}
+
+		this.model = modelRef.object;
+		this.widget = this.instantiationService.createInstance(QuickDiffWidget, this.editor, this.model);
+		this.isQuickDiffVisible.set(true);
+
+		const disposables = new DisposableStore();
+		disposables.add(Event.once(this.widget.onDidClose)(this.close, this));
+		const onDidModelChange = Event.chain(this.model.onDidChange, $ =>
+			$.filter(e => e.diff.length > 0)
+				.map(e => e.diff)
+		);
+
+		onDidModelChange(this.onDidModelChange, this, disposables);
+
+		disposables.add(modelRef);
+		disposables.add(this.widget);
+		disposables.add(toDisposable(() => {
+			this.model = null;
+			this.widget = null;
+			this.isQuickDiffVisible.set(false);
+			this.editor.focus();
+		}));
+
+		this.session = disposables;
+		return true;
+	}
+
+	private onDidModelChange(splices: ISplice<QuickDiffChange>[]): void {
+		if (!this.model || !this.widget || this.widget.hasFocus()) {
+			return;
+		}
+
+		for (const splice of splices) {
+			if (splice.start <= this.widget.index) {
+				this.next();
+				return;
+			}
+		}
+
+		this.refresh();
+	}
+
+	private onEditorMouseDown(e: IEditorMouseEvent): void {
+		this.mouseDownInfo = null;
+
+		const range = e.target.range;
+
+		if (!range) {
+			return;
+		}
+
+		if (!e.event.leftButton) {
+			return;
+		}
+
+		if (e.target.type !== MouseTargetType.GUTTER_LINE_DECORATIONS) {
+			return;
+		}
+		if (!e.target.element) {
+			return;
+		}
+		if (e.target.element.className.indexOf('dirty-diff-glyph') < 0) {
+			return;
+		}
+
+		const data = e.target.detail;
+		const offsetLeftInGutter = e.target.element.offsetLeft;
+		const gutterOffsetX = data.offsetX - offsetLeftInGutter;
+
+		// TODO@joao TODO@alex TODO@martin this is such that we don't collide with folding
+		if (gutterOffsetX < -3 || gutterOffsetX > 3) { // dirty diff decoration on hover is 6px wide
+			return;
+		}
+
+		this.mouseDownInfo = { lineNumber: range.startLineNumber };
+	}
+
+	private onEditorMouseUp(e: IEditorMouseEvent): void {
+		if (!this.mouseDownInfo) {
+			return;
+		}
+
+		const { lineNumber } = this.mouseDownInfo;
+		this.mouseDownInfo = null;
+
+		const range = e.target.range;
+
+		if (!range || range.startLineNumber !== lineNumber) {
+			return;
+		}
+
+		if (e.target.type !== MouseTargetType.GUTTER_LINE_DECORATIONS) {
+			return;
+		}
+
+		const editorModel = this.editor.getModel();
+
+		if (!editorModel) {
+			return;
+		}
+
+		const modelRef = this.quickDiffModelService.createQuickDiffModelReference(editorModel.uri);
+
+		if (!modelRef) {
+			return;
+		}
+
+		try {
+			const index = modelRef.object.changes
+				.findIndex(change => lineIntersectsChange(lineNumber, change.change));
+
+			if (index < 0) {
+				return;
+			}
+
+			if (index === this.widget?.index) {
+				this.close();
+			} else {
+				this.next(lineNumber);
+			}
+		} finally {
+			modelRef.dispose();
+		}
+	}
+
+	override dispose(): void {
+		this.gutterActionDisposables.dispose();
+		super.dispose();
+	}
 }
 
 export class ShowPreviousChangeAction extends EditorAction {
@@ -745,25 +745,25 @@ export class ShowPreviousChangeAction extends EditorAction {
 		});
 	}
 
-	run(accessor: ServicesAccessorcognidreamognidream {
+	run(accessor: ServicesAccessor): void {
 		const outerEditor = this.outerEditor ?? getOuterEditorFromDiffEditor(accessor);
 
 		if (!outerEditor) {
-	return;
-}
+			return;
+		}
 
-const controller = QuickDiffEditorController.get(outerEditor);
+		const controller = QuickDiffEditorController.get(outerEditor);
 
-if (!controller) {
-	return;
-}
+		if (!controller) {
+			return;
+		}
 
-if (!controller.canNavigate()) {
-	return;
-}
+		if (!controller.canNavigate()) {
+			return;
+		}
 
-controller.previous();
-    }
+		controller.previous();
+	}
 }
 registerEditorAction(ShowPreviousChangeAction);
 
@@ -778,25 +778,25 @@ export class ShowNextChangeAction extends EditorAction {
 		});
 	}
 
-	run(accessor: ServicesAccessorcognidreamognidream {
+	run(accessor: ServicesAccessor): void {
 		const outerEditor = this.outerEditor ?? getOuterEditorFromDiffEditor(accessor);
 
 		if (!outerEditor) {
-	return;
-}
+			return;
+		}
 
-const controller = QuickDiffEditorController.get(outerEditor);
+		const controller = QuickDiffEditorController.get(outerEditor);
 
-if (!controller) {
-	return;
-}
+		if (!controller) {
+			return;
+		}
 
-if (!controller.canNavigate()) {
-	return;
-}
+		if (!controller.canNavigate()) {
+			return;
+		}
 
-controller.next();
-    }
+		controller.next();
+	}
 }
 registerEditorAction(ShowNextChangeAction);
 
@@ -811,32 +811,32 @@ export class GotoPreviousChangeAction extends EditorAction {
 		});
 	}
 
-	async run(accessor: ServicesAccessor): Promicognidreamognidream> {
+	async run(accessor: ServicesAccessor): Promise<void> {
 		const outerEditor = getOuterEditorFromDiffEditor(accessor);
 		const accessibilitySignalService = accessor.get(IAccessibilitySignalService);
 		const accessibilityService = accessor.get(IAccessibilityService);
 		const codeEditorService = accessor.get(ICodeEditorService);
 		const quickDiffModelService = accessor.get(IQuickDiffModelService);
 
-		if(!outerEditor || !outerEditor.hasModel()) {
-	return;
-}
+		if (!outerEditor || !outerEditor.hasModel()) {
+			return;
+		}
 
-const modelRef = quickDiffModelService.createQuickDiffModelReference(outerEditor.getModel().uri);
-try {
-	if (!modelRef || modelRef.object.changes.length === 0) {
-		return;
+		const modelRef = quickDiffModelService.createQuickDiffModelReference(outerEditor.getModel().uri);
+		try {
+			if (!modelRef || modelRef.object.changes.length === 0) {
+				return;
+			}
+
+			const lineNumber = outerEditor.getPosition().lineNumber;
+			const index = modelRef.object.findPreviousClosestChange(lineNumber, false);
+			const change = modelRef.object.changes[index];
+			await playAccessibilitySymbolForChange(change.change, accessibilitySignalService);
+			setPositionAndSelection(change.change, outerEditor, accessibilityService, codeEditorService);
+		} finally {
+			modelRef?.dispose();
+		}
 	}
-
-	const lineNumber = outerEditor.getPosition().lineNumber;
-	const index = modelRef.object.findPreviousClosestChange(lineNumber, false);
-	const change = modelRef.object.changes[index];
-	await playAccessibilitySymbolForChange(change.change, accessibilitySignalService);
-	setPositionAndSelection(change.change, outerEditor, accessibilityService, codeEditorService);
-} finally {
-	modelRef?.dispose();
-}
-    }
 }
 registerEditorAction(GotoPreviousChangeAction);
 
@@ -851,32 +851,32 @@ export class GotoNextChangeAction extends EditorAction {
 		});
 	}
 
-	async run(accessor: ServicesAccessor): Promicognidreamognidream> {
+	async run(accessor: ServicesAccessor): Promise<void> {
 		const accessibilitySignalService = accessor.get(IAccessibilitySignalService);
 		const outerEditor = getOuterEditorFromDiffEditor(accessor);
 		const accessibilityService = accessor.get(IAccessibilityService);
 		const codeEditorService = accessor.get(ICodeEditorService);
 		const quickDiffModelService = accessor.get(IQuickDiffModelService);
 
-		if(!outerEditor || !outerEditor.hasModel()) {
-	return;
-}
+		if (!outerEditor || !outerEditor.hasModel()) {
+			return;
+		}
 
-const modelRef = quickDiffModelService.createQuickDiffModelReference(outerEditor.getModel().uri);
-try {
-	if (!modelRef || modelRef.object.changes.length === 0) {
-		return;
+		const modelRef = quickDiffModelService.createQuickDiffModelReference(outerEditor.getModel().uri);
+		try {
+			if (!modelRef || modelRef.object.changes.length === 0) {
+				return;
+			}
+
+			const lineNumber = outerEditor.getPosition().lineNumber;
+			const index = modelRef.object.findNextClosestChange(lineNumber, false);
+			const change = modelRef.object.changes[index].change;
+			await playAccessibilitySymbolForChange(change, accessibilitySignalService);
+			setPositionAndSelection(change, outerEditor, accessibilityService, codeEditorService);
+		} finally {
+			modelRef?.dispose();
+		}
 	}
-
-	const lineNumber = outerEditor.getPosition().lineNumber;
-	const index = modelRef.object.findNextClosestChange(lineNumber, false);
-	const change = modelRef.object.changes[index].change;
-	await playAccessibilitySymbolForChange(change, accessibilitySignalService);
-	setPositionAndSelection(change, outerEditor, accessibilityService, codeEditorService);
-} finally {
-	modelRef?.dispose();
-}
-    }
 }
 registerEditorAction(GotoNextChangeAction);
 

@@ -224,7 +224,7 @@ const KEYCHAIN_ENTRY_LIMIT: usize = 128 * 1024;
 
 const CONTINUE_MARKER: &str = "<MORE>";
 
-/// Implementation that wraps the KeyringStorage on Linux to acognidream
+/// Implementation that wraps the KeyringStorage on Linux to avoid
 /// https://github.com/hwchen/keyring-rs/issues/132
 struct ThreadKeyringStorage {
 	s: Option<KeyringStorage>,

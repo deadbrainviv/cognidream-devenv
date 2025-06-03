@@ -311,9 +311,9 @@ export interface IPtyService {
 		workspaceId: string,
 		workspaceName: string
 	): Promise<number>;
-	attachToProcess(id: number): Promise<cognidream>;
-	detachFromProcess(id: number, forcePersist?: boolean): Promise<cognidream>;
-	shutdownAll(): Promise<cognidream>;
+	attachToProcess(id: number): Promise<void>;
+	detachFromProcess(id: number, forcePersist?: boolean): Promise<void>;
+	shutdownAll(): Promise<void>;
 
 	/**
 	 * Lists all orphaned processes, ie. those without a connected frontend.
@@ -326,29 +326,29 @@ export interface IPtyService {
 	getLatency(): Promise<IPtyHostLatencyMeasurement[]>;
 
 	start(id: number): Promise<ITerminalLaunchError | { injectedArgs: string[] } | undefined>;
-	shutdown(id: number, immediate: boolean): Promise<cognidream>;
-	input(id: number, data: string): Promise<cognidream>;
-	resize(id: number, cols: number, rows: number): Promise<cognidream>;
-	clearBuffer(id: number): Promise<cognidream>;
+	shutdown(id: number, immediate: boolean): Promise<void>;
+	input(id: number, data: string): Promise<void>;
+	resize(id: number, cols: number, rows: number): Promise<void>;
+	clearBuffer(id: number): Promise<void>;
 	getInitialCwd(id: number): Promise<string>;
 	getCwd(id: number): Promise<string>;
-	acknowledgeDataEvent(id: number, charCount: number): Promise<cognidream>;
-	setUnicodeVersion(id: number, version: '6' | '11'): Promise<cognidream>;
-	processBinary(id: number, data: string): Promise<cognidream>;
+	acknowledgeDataEvent(id: number, charCount: number): Promise<void>;
+	setUnicodeVersion(id: number, version: '6' | '11'): Promise<void>;
+	processBinary(id: number, data: string): Promise<void>;
 	/** Confirm the process is _not_ an orphan. */
-	orphanQuestionReply(id: number): Promise<cognidream>;
-	updateTitle(id: number, title: string, titleSource: TitleEventSource): Promise<cognidream>;
-	updateIcon(id: number, userInitiated: boolean, icon: TerminalIcon, color?: string): Promise<cognidream>;
+	orphanQuestionReply(id: number): Promise<void>;
+	updateTitle(id: number, title: string, titleSource: TitleEventSource): Promise<void>;
+	updateIcon(id: number, userInitiated: boolean, icon: TerminalIcon, color?: string): Promise<void>;
 
 	getDefaultSystemShell(osOverride?: OperatingSystem): Promise<string>;
 	getEnvironment(): Promise<IProcessEnvironment>;
 	getWslPath(original: string, direction: 'unix-to-win' | 'win-to-unix'): Promise<string>;
 	getRevivedPtyNewId(workspaceId: string, id: number): Promise<number | undefined>;
-	setTerminalLayoutInfo(args: ISetTerminalLayoutInfoArgs): Promise<cognidream>;
+	setTerminalLayoutInfo(args: ISetTerminalLayoutInfoArgs): Promise<void>;
 	getTerminalLayoutInfo(args: IGetTerminalLayoutInfoArgs): Promise<ITerminalsLayoutInfo | undefined>;
-	reduceConnectionGraceTime(): Promise<cognidream>;
+	reduceConnectionGraceTime(): Promise<void>;
 	requestDetachInstance(workspaceId: string, instanceId: number): Promise<IProcessDetails | undefined>;
-	acceptDetachInstanceReply(requestId: number, persistentProcessId?: number): Promise<cognidream>;
+	acceptDetachInstanceReply(requestId: number, persistentProcessId?: number): Promise<void>;
 	freePortKillProcess(port: string): Promise<{ port: string; processId: string }>;
 	/**
 	 * Serializes and returns terminal state.
@@ -359,38 +359,38 @@ export interface IPtyService {
 	 * Revives a workspaces terminal processes, these can then be reconnected to using the normal
 	 * flow for restoring terminals after reloading.
 	 */
-	reviveTerminalProcesses(workspaceId: string, state: ISerializedTerminalState[], dateTimeFormatLocate: string): Promise<cognidream>;
+	reviveTerminalProcesses(workspaceId: string, state: ISerializedTerminalState[], dateTimeFormatLocate: string): Promise<void>;
 	refreshProperty<T extends ProcessPropertyType>(id: number, property: T): Promise<IProcessPropertyMap[T]>;
-	updateProperty<T extends ProcessPropertyType>(id: number, property: T, value: IProcessPropertyMap[T]): Promise<cognidream>;
+	updateProperty<T extends ProcessPropertyType>(id: number, property: T, value: IProcessPropertyMap[T]): Promise<void>;
 
 	// TODO: Make mandatory and remove impl from pty host service
-	refreshIgnoreProcessNames?(names: string[]): Promise<cognidream>;
+	refreshIgnoreProcessNames?(names: string[]): Promise<void>;
 
 	// #region Pty service contribution RPC calls
 
-	installAutoReply(match: string, reply: string): Promise<cognidream>;
-	uninstallAllAutoReplies(): Promise<cognidream>;
+	installAutoReply(match: string, reply: string): Promise<void>;
+	uninstallAllAutoReplies(): Promise<void>;
 
 	// #endregion
 }
 export const IPtyService = createDecorator<IPtyService>('ptyService');
 
 export interface IPtyServiceContribution {
-	handleProcessReady(persistentProcessId: number, process: ITerminalChildProcess): cognidream;
-	handleProcessDispose(persistentProcessId: number): cognidream;
-	handleProcessInput(persistentProcessId: number, data: string): cognidream;
-	handleProcessResize(persistentProcessId: number, cols: number, rows: number): cognidream;
+	handleProcessReady(persistentProcessId: number, process: ITerminalChildProcess): void;
+	handleProcessDispose(persistentProcessId: number): void;
+	handleProcessInput(persistentProcessId: number, data: string): void;
+	handleProcessResize(persistentProcessId: number, cols: number, rows: number): void;
 }
 
 export interface IPtyHostController {
 	readonly onPtyHostExit: Event<number>;
-	readonly onPtyHostStart: Event<cognidream>;
-	readonly onPtyHostUnresponsive: Event<cognidream>;
-	readonly onPtyHostResponsive: Event<cognidream>;
+	readonly onPtyHostStart: Event<void>;
+	readonly onPtyHostUnresponsive: Event<void>;
+	readonly onPtyHostResponsive: Event<void>;
 	readonly onPtyHostRequestResolveVariables: Event<IRequestResolveVariablesEvent>;
 
-	restartPtyHost(): Promise<cognidream>;
-	acceptPtyHostResolvedVariables(requestId: number, resolved: string[]): Promise<cognidream>;
+	restartPtyHost(): Promise<void>;
+	acceptPtyHostResolvedVariables(requestId: number, resolved: string[]): Promise<void>;
 	getProfiles(workspaceId: string, profiles: unknown, defaultProfile: unknown, includeDetectedProfiles?: boolean): Promise<ITerminalProfile[]>;
 }
 
@@ -455,20 +455,20 @@ export enum HeartbeatConstants {
 	FirstWaitMultiplier = 1.2,
 	/**
 	 * Defines a multiplier for BeatInterval for how long to wait before telling the user about
-	 * non-responsiveness. The second timer is to acognidream informing the user incorrectly when waking
+	 * non-responsiveness. The second timer is to avoid informing the user incorrectly when waking
 	 * the computer up from sleep
 	 */
 	SecondWaitMultiplier = 1,
 	/**
 	 * How long to wait before telling the user about non-responsiveness when they try to create a
 	 * process. This short circuits the standard wait timeouts to tell the user sooner and only
-	 * create process is handled to acognidream additional perf overhead.
+	 * create process is handled to avoid additional perf overhead.
 	 */
 	CreateProcessTimeout = 5000
 }
 
 export interface IHeartbeatService {
-	readonly onBeat: Event<cognidream>;
+	readonly onBeat: Event<void>;
 }
 
 
@@ -752,7 +752,7 @@ export interface ITerminalChildProcess {
 
 	onProcessData: Event<IProcessDataEvent | string>;
 	onProcessReady: Event<IProcessReadyEvent>;
-	onProcessReplayComplete?: Event<cognidream>;
+	onProcessReplayComplete?: Event<void>;
 	onDidChangeProperty: Event<IProcessProperty<any>>;
 	onProcessExit: Event<number | undefined>;
 	onRestoreCommands?: Event<ISerializedCommandDetectionCapability>;
@@ -769,7 +769,7 @@ export interface ITerminalChildProcess {
 	 * Detach the process from the UI and await reconnect.
 	 * @param forcePersist Whether to force the process to persist if it supports persistence.
 	 */
-	detach?(forcePersist?: boolean): Promise<cognidream>;
+	detach?(forcePersist?: boolean): Promise<void>;
 
 	/**
 	 * Frees the port and kills the process
@@ -782,11 +782,11 @@ export interface ITerminalChildProcess {
 	 * @param immediate When true the process will be killed immediately, otherwise the process will
 	 * be given some time to make sure no additional data comes through.
 	 */
-	shutdown(immediate: boolean): cognidream;
-	input(data: string): cognidream;
-	processBinary(data: string): Promise<cognidream>;
-	resize(cols: number, rows: number): cognidream;
-	clearBuffer(): cognidream | Promise<cognidream>;
+	shutdown(immediate: boolean): void;
+	input(data: string): void;
+	processBinary(data: string): Promise<void>;
+	resize(cols: number, rows: number): void;
+	clearBuffer(): void | Promise<void>;
 
 	/**
 	 * Acknowledge a data event has been parsed by the terminal, this is used to implement flow
@@ -794,18 +794,18 @@ export interface ITerminalChildProcess {
 	 * connection.
 	 * @param charCount The number of characters being acknowledged.
 	 */
-	acknowledgeDataEvent(charCount: number): cognidream;
+	acknowledgeDataEvent(charCount: number): void;
 
 	/**
 	 * Sets the unicode version for the process, this drives the size of some characters in the
 	 * xterm-headless instance.
 	 */
-	setUnicodeVersion(version: '6' | '11'): Promise<cognidream>;
+	setUnicodeVersion(version: '6' | '11'): Promise<void>;
 
 	getInitialCwd(): Promise<string>;
 	getCwd(): Promise<string>;
 	refreshProperty<T extends ProcessPropertyType>(property: T): Promise<IProcessPropertyMap[T]>;
-	updateProperty<T extends ProcessPropertyType>(property: T, value: IProcessPropertyMap[T]): Promise<cognidream>;
+	updateProperty<T extends ProcessPropertyType>(property: T, value: IProcessPropertyMap[T]): Promise<void>;
 }
 
 export interface IReconnectConstants {
@@ -854,7 +854,7 @@ export interface IProcessDataEvent {
 	/**
 	 * When trackCommit is set, this will be set to a promise that resolves when the data is parsed.
 	 */
-	writePromise?: Promise<cognidream>;
+	writePromise?: Promise<void>;
 }
 
 export interface ITerminalDimensions {
@@ -955,7 +955,7 @@ export interface IShellIntegration {
 	readonly onDidChangeStatus: Event<ShellIntegrationStatus>;
 	readonly onDidChangeSeenSequences: Event<ReadonlySet<string>>;
 
-	deserialize(serialized: ISerializedCommandDetectionCapability): cognidream;
+	deserialize(serialized: ISerializedCommandDetectionCapability): void;
 }
 
 export interface IDecorationAddon {
@@ -1036,28 +1036,28 @@ export interface ITerminalBackend extends ITerminalBackendPtyServiceContribution
 	 * A promise that resolves when the backend is ready to be used, ie. after terminal persistence
 	 * has been actioned.
 	 */
-	readonly whenReady: Promise<cognidream>;
+	readonly whenReady: Promise<void>;
 
 	/**
 	 * Signal to the backend that persistence has been actioned and is ready for use.
 	 */
-	setReady(): cognidream;
+	setReady(): void;
 
 	/**
 	 * Fired when the ptyHost process becomes non-responsive, this should disable stdin for all
 	 * terminals using this pty host connection and mark them as disconnected.
 	 */
-	onPtyHostUnresponsive: Event<cognidream>;
+	onPtyHostUnresponsive: Event<void>;
 	/**
 	 * Fired when the ptyHost process becomes responsive after being non-responsive. Allowing
 	 * previously disconnected terminals to reconnect.
 	 */
-	onPtyHostResponsive: Event<cognidream>;
+	onPtyHostResponsive: Event<void>;
 	/**
 	 * Fired when the ptyHost has been restarted, this is used as a signal for listening terminals
 	 * that its pty has been lost and will remain disconnected.
 	 */
-	onPtyHostRestart: Event<cognidream>;
+	onPtyHostRestart: Event<void>;
 
 	onDidRequestDetach: Event<{ requestId: number; workspaceId: string; instanceId: number }>;
 
@@ -1070,15 +1070,15 @@ export interface ITerminalBackend extends ITerminalBackendPtyServiceContribution
 	getWslPath(original: string, direction: 'unix-to-win' | 'win-to-unix'): Promise<string>;
 	getEnvironment(): Promise<IProcessEnvironment>;
 	getShellEnvironment(): Promise<IProcessEnvironment | undefined>;
-	setTerminalLayoutInfo(layoutInfo?: ITerminalsLayoutInfoById): Promise<cognidream>;
-	updateTitle(id: number, title: string, titleSource: TitleEventSource): Promise<cognidream>;
-	updateIcon(id: number, userInitiated: boolean, icon: TerminalIcon, color?: string): Promise<cognidream>;
+	setTerminalLayoutInfo(layoutInfo?: ITerminalsLayoutInfoById): Promise<void>;
+	updateTitle(id: number, title: string, titleSource: TitleEventSource): Promise<void>;
+	updateIcon(id: number, userInitiated: boolean, icon: TerminalIcon, color?: string): Promise<void>;
 	getTerminalLayoutInfo(): Promise<ITerminalsLayoutInfo | undefined>;
 	getPerformanceMarks(): Promise<performance.PerformanceMark[]>;
-	reduceConnectionGraceTime(): Promise<cognidream>;
+	reduceConnectionGraceTime(): Promise<void>;
 	requestDetachInstance(workspaceId: string, instanceId: number): Promise<IProcessDetails | undefined>;
-	acceptDetachInstanceReply(requestId: number, persistentProcessId?: number): Promise<cognidream>;
-	persistTerminalState(): Promise<cognidream>;
+	acceptDetachInstanceReply(requestId: number, persistentProcessId?: number): Promise<void>;
+	persistTerminalState(): Promise<void>;
 
 	createProcess(
 		shellLaunchConfig: IShellLaunchConfig,
@@ -1091,12 +1091,12 @@ export interface ITerminalBackend extends ITerminalBackendPtyServiceContribution
 		shouldPersist: boolean
 	): Promise<ITerminalChildProcess>;
 
-	restartPtyHost(): cognidream;
+	restartPtyHost(): void;
 }
 
 export interface ITerminalBackendPtyServiceContributions {
-	installAutoReply(match: string, reply: string): Promise<cognidream>;
-	uninstallAllAutoReplies(): Promise<cognidream>;
+	installAutoReply(match: string, reply: string): Promise<void>;
+	uninstallAllAutoReplies(): Promise<void>;
 }
 
 export const TerminalExtensions = {
@@ -1112,7 +1112,7 @@ export interface ITerminalBackendRegistry {
 	/**
 	 * Registers a terminal backend for a remote authority.
 	 */
-	registerTerminalBackend(backend: ITerminalBackend): cognidream;
+	registerTerminalBackend(backend: ITerminalBackend): void;
 
 	/**
 	 * Returns the registered terminal backend for a remote authority.
@@ -1125,7 +1125,7 @@ class TerminalBackendRegistry implements ITerminalBackendRegistry {
 
 	get backends(): ReadonlyMap<string, ITerminalBackend> { return this._backends; }
 
-	registerTerminalBackend(backend: ITerminalBackend): cognidream {
+	registerTerminalBackend(backend: ITerminalBackend): void {
 		const key = this._sanitizeRemoteAuthority(backend.remoteAuthority);
 		if (this._backends.has(key)) {
 			throw new Error(`A terminal backend with remote authority '${key}' was already registered.`);

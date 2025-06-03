@@ -37,7 +37,7 @@ class ExtHostWebviewPanel extends Disposable implements vscode.WebviewPanel {
 	#active: boolean;
 	#isDisposed: boolean = false;
 
-	readonly #onDidDispose = this._register(new Emitter<cognidream>());
+	readonly #onDidDispose = this._register(new Emitter<void>());
 	public readonly onDidDispose = this.#onDidDispose.event;
 
 	readonly #onDidChangeViewState = this._register(new Emitter<vscode.WebviewPanelOnDidChangeViewStateEvent>());
@@ -154,19 +154,19 @@ class ExtHostWebviewPanel extends Disposable implements vscode.WebviewPanel {
 		}
 	}
 
-	public reveal(viewColumn?: vscode.ViewColumn, preserveFocus?: booleancognidreamognidream {
+	public reveal(viewColumn?: vscode.ViewColumn, preserveFocus?: boolean): void {
 		this.assertNotDisposed();
-this.#proxy.$reveal(this.#handle, {
-	viewColumn: typeof viewColumn === 'undefined' ? undefined : typeConverters.ViewColumn.from(viewColumn),
-	preserveFocus: !!preserveFocus
-});
-    }
-
-    private assertNotDisposed() {
-	if (this.#isDisposed) {
-		throw new Error('Webview is disposed');
+		this.#proxy.$reveal(this.#handle, {
+			viewColumn: typeof viewColumn === 'undefined' ? undefined : typeConverters.ViewColumn.from(viewColumn),
+			preserveFocus: !!preserveFocus
+		});
 	}
-}
+
+	private assertNotDisposed() {
+		if (this.#isDisposed) {
+			throw new Error('Webview is disposed');
+		}
+	}
 }
 
 export class ExtHostWebviewPanels extends Disposable implements extHostProtocol.ExtHostWebviewPanelsShape {
@@ -193,134 +193,134 @@ export class ExtHostWebviewPanels extends Disposable implements extHostProtocol.
 		this._proxy = mainContext.getProxy(extHostProtocol.MainContext.MainThreadWebviewPanels);
 	}
 
-	public override dispose(cognidreamognidream {
+	public override dispose(): void {
 		super.dispose();
 
-this._webviewPanels.forEach(value => value.dispose());
-this._webviewPanels.clear();
-    }
+		this._webviewPanels.forEach(value => value.dispose());
+		this._webviewPanels.clear();
+	}
 
-    public createWebviewPanel(
-	extension: IExtensionDescription,
-	viewType: string,
-	title: string,
-	showOptions: vscode.ViewColumn | { viewColumn: vscode.ViewColumn; preserveFocus?: boolean },
-	options: (vscode.WebviewPanelOptions & vscode.WebviewOptions) = {},
-): vscode.WebviewPanel {
-	const viewColumn = typeof showOptions === 'object' ? showOptions.viewColumn : showOptions;
-	const webviewShowOptions = {
-		viewColumn: typeConverters.ViewColumn.from(viewColumn),
-		preserveFocus: typeof showOptions === 'object' && !!showOptions.preserveFocus
-	};
+	public createWebviewPanel(
+		extension: IExtensionDescription,
+		viewType: string,
+		title: string,
+		showOptions: vscode.ViewColumn | { viewColumn: vscode.ViewColumn; preserveFocus?: boolean },
+		options: (vscode.WebviewPanelOptions & vscode.WebviewOptions) = {},
+	): vscode.WebviewPanel {
+		const viewColumn = typeof showOptions === 'object' ? showOptions.viewColumn : showOptions;
+		const webviewShowOptions = {
+			viewColumn: typeConverters.ViewColumn.from(viewColumn),
+			preserveFocus: typeof showOptions === 'object' && !!showOptions.preserveFocus
+		};
 
-	const serializeBuffersForPostMessage = shouldSerializeBuffersForPostMessage(extension);
-	const handle = ExtHostWebviewPanels.newHandle();
-	this._proxy.$createWebviewPanel(toExtensionData(extension), handle, viewType, {
-		title,
-		panelOptions: serializeWebviewPanelOptions(options),
-		webviewOptions: serializeWebviewOptions(extension, this.workspace, options),
-		serializeBuffersForPostMessage,
-	}, webviewShowOptions);
+		const serializeBuffersForPostMessage = shouldSerializeBuffersForPostMessage(extension);
+		const handle = ExtHostWebviewPanels.newHandle();
+		this._proxy.$createWebviewPanel(toExtensionData(extension), handle, viewType, {
+			title,
+			panelOptions: serializeWebviewPanelOptions(options),
+			webviewOptions: serializeWebviewOptions(extension, this.workspace, options),
+			serializeBuffersForPostMessage,
+		}, webviewShowOptions);
 
-	const webview = this.webviews.createNewWebview(handle, options, extension);
-	const panel = this.createNewWebviewPanel(handle, viewType, title, viewColumn, options, webview, true);
+		const webview = this.webviews.createNewWebview(handle, options, extension);
+		const panel = this.createNewWebviewPanel(handle, viewType, title, viewColumn, options, webview, true);
 
-	return panel;
-}
+		return panel;
+	}
 
-    public $onDidChangeWebviewPanelViewStates(newStates: extHostProtocol.WebviewPanelViewStateDatacognidreamognidream {
-	const handles = Object.keys(newStates);
-	// Notify webviews of state changes in the following order:
-	// - Non-visible
-	// - Visible
-	// - Active
-	handles.sort((a, b) => {
-		const stateA = newStates[a];
-		const stateB = newStates[b];
-		if (stateA.active) {
-			return 1;
+	public $onDidChangeWebviewPanelViewStates(newStates: extHostProtocol.WebviewPanelViewStateData): void {
+		const handles = Object.keys(newStates);
+		// Notify webviews of state changes in the following order:
+		// - Non-visible
+		// - Visible
+		// - Active
+		handles.sort((a, b) => {
+			const stateA = newStates[a];
+			const stateB = newStates[b];
+			if (stateA.active) {
+				return 1;
+			}
+			if (stateB.active) {
+				return -1;
+			}
+			return (+stateA.visible) - (+stateB.visible);
+		});
+
+		for (const handle of handles) {
+			const panel = this.getWebviewPanel(handle);
+			if (!panel) {
+				continue;
+			}
+
+			const newState = newStates[handle];
+			panel._updateViewState({
+				active: newState.active,
+				visible: newState.visible,
+				viewColumn: typeConverters.ViewColumn.to(newState.position),
+			});
 		}
-		if (stateB.active) {
-			return -1;
-		}
-		return (+stateA.visible) - (+stateB.visible);
-	});
+	}
 
-	for(const handle of handles) {
+	async $onDidDisposeWebviewPanel(handle: extHostProtocol.WebviewHandle): Promise<void> {
 		const panel = this.getWebviewPanel(handle);
-		if (!panel) {
-			continue;
+		panel?.dispose();
+
+		this._webviewPanels.delete(handle);
+		this.webviews.deleteWebview(handle);
+	}
+
+	public registerWebviewPanelSerializer(
+		extension: IExtensionDescription,
+		viewType: string,
+		serializer: vscode.WebviewPanelSerializer
+	): vscode.Disposable {
+		if (this._serializers.has(viewType)) {
+			throw new Error(`Serializer for '${viewType}' already registered`);
 		}
 
-		const newState = newStates[handle];
-		panel._updateViewState({
-			active: newState.active,
-			visible: newState.visible,
-			viewColumn: typeConverters.ViewColumn.to(newState.position),
+		this._serializers.set(viewType, { serializer, extension });
+		this._proxy.$registerSerializer(viewType, {
+			serializeBuffersForPostMessage: shouldSerializeBuffersForPostMessage(extension)
+		});
+
+		return new extHostTypes.Disposable(() => {
+			this._serializers.delete(viewType);
+			this._proxy.$unregisterSerializer(viewType);
 		});
 	}
-}
 
-    async $onDidDisposeWebviewPanel(handle: extHostProtocol.WebviewHandle): Promicognidreamognidream > {
-	const panel = this.getWebviewPanel(handle);
-	panel?.dispose();
+	async $deserializeWebviewPanel(
+		webviewHandle: extHostProtocol.WebviewHandle,
+		viewType: string,
+		initData: {
+			title: string;
+			state: any;
+			webviewOptions: extHostProtocol.IWebviewContentOptions;
+			panelOptions: extHostProtocol.IWebviewPanelOptions;
+			active: boolean;
+		},
+		position: EditorGroupColumn
+	): Promise<void> {
+		const entry = this._serializers.get(viewType);
+		if (!entry) {
+			throw new Error(`No serializer found for '${viewType}'`);
+		}
+		const { serializer, extension } = entry;
 
-        this._webviewPanels.delete(handle);
-	this.webviews.deleteWebview(handle);
-}
-
-    public registerWebviewPanelSerializer(
-	extension: IExtensionDescription,
-	viewType: string,
-	serializer: vscode.WebviewPanelSerializer
-): vscode.Disposable {
-	if(this._serializers.has(viewType)) {
-	throw new Error(`Serializer for '${viewType}' already registered`);
-}
-
-this._serializers.set(viewType, { serializer, extension });
-this._proxy.$registerSerializer(viewType, {
-	serializeBuffersForPostMessage: shouldSerializeBuffersForPostMessage(extension)
-});
-
-return new extHostTypes.Disposable(() => {
-	this._serializers.delete(viewType);
-	this._proxy.$unregisterSerializer(viewType);
-});
-    }
-
-    async $deserializeWebviewPanel(
-	webviewHandle: extHostProtocol.WebviewHandle,
-	viewType: string,
-	initData: {
-	title: string;
-	state: any;
-	webviewOptions: extHostProtocol.IWebviewContentOptions;
-	panelOptions: extHostProtocol.IWebviewPanelOptions;
-	active: boolean;
-},
-	position: EditorGroupColumn
-): Promicognidreamognidream > {
-	const entry = this._serializers.get(viewType);
-	if(!entry) {
-		throw new Error(`No serializer found for '${viewType}'`);
+		const webview = this.webviews.createNewWebview(webviewHandle, initData.webviewOptions, extension);
+		const revivedPanel = this.createNewWebviewPanel(webviewHandle, viewType, initData.title, position, initData.panelOptions, webview, initData.active);
+		await serializer.deserializeWebviewPanel(revivedPanel, initData.state);
 	}
-        const { serializer, extension } = entry;
 
-	const webview = this.webviews.createNewWebview(webviewHandle, initData.webviewOptions, extension);
-	const revivedPanel = this.createNewWebviewPanel(webviewHandle, viewType, initData.title, position, initData.panelOptions, webview, initData.active);
-	await serializer.deserializeWebviewPanel(revivedPanel, initData.state);
-}
+	public createNewWebviewPanel(webviewHandle: string, viewType: string, title: string, position: vscode.ViewColumn, options: extHostProtocol.IWebviewPanelOptions, webview: ExtHostWebview, active: boolean) {
+		const panel = new ExtHostWebviewPanel(webviewHandle, this._proxy, webview, { viewType, title, viewColumn: position, panelOptions: options, active });
+		this._webviewPanels.set(webviewHandle, panel);
+		return panel;
+	}
 
-    public createNewWebviewPanel(webviewHandle: string, viewType: string, title: string, position: vscode.ViewColumn, options: extHostProtocol.IWebviewPanelOptions, webview: ExtHostWebview, active: boolean) {
-	const panel = new ExtHostWebviewPanel(webviewHandle, this._proxy, webview, { viewType, title, viewColumn: position, panelOptions: options, active });
-	this._webviewPanels.set(webviewHandle, panel);
-	return panel;
-}
-
-    public getWebviewPanel(handle: extHostProtocol.WebviewHandle): ExtHostWebviewPanel | undefined {
-	return this._webviewPanels.get(handle);
-}
+	public getWebviewPanel(handle: extHostProtocol.WebviewHandle): ExtHostWebviewPanel | undefined {
+		return this._webviewPanels.get(handle);
+	}
 }
 
 function serializeWebviewPanelOptions(options: vscode.WebviewPanelOptions): extHostProtocol.IWebviewPanelOptions {

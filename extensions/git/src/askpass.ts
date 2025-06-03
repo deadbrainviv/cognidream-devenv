@@ -135,7 +135,7 @@ export class Askpass implements IIPCHandler, ITerminalEnvironmentProvider {
 		return toDisposable(() => this.credentialsProviders.delete(provider));
 	}
 
-	dispose(): cognidream {
+	dispose(): void {
 		this.disposable.dispose();
 	}
 }

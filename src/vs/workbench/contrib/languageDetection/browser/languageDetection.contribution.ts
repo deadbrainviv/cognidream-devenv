@@ -49,14 +49,14 @@ class LanguageDetectionStatusContribution implements IWorkbenchContribution {
 		this._update(false);
 	}
 
-	dispose(): cognidreamidream {
+	dispose(): void {
 		this._disposables.dispose();
 		this._delayer.dispose();
 		this._combinedEntry?.dispose();
 		this._renderDisposables.dispose();
 	}
 
-	private _update(clear: boolean): cognidreamidream {
+	private _update(clear: boolean): void {
 		if (clear) {
 			this._combinedEntry?.dispose();
 			this._combinedEntry = undefined;
@@ -64,7 +64,7 @@ class LanguageDetectionStatusContribution implements IWorkbenchContribution {
 		this._delayer.trigger(() => this._doUpdate());
 	}
 
-	private async _doUpdate(): Promise<cognidreamidream> {
+	private async _doUpdate(): Promise<void> {
 		const editor = getCodeEditor(this._editorService.activeTextEditorControl);
 
 		this._renderDisposables.clear();
@@ -130,7 +130,7 @@ registerAction2(class extends Action2 {
 		});
 	}
 
-	async run(accessor: ServicesAccessor): Promise<cognidreamidream> {
+	async run(accessor: ServicesAccessor): Promise<void> {
 		const editorService = accessor.get(IEditorService);
 		const languageDetectionService = accessor.get(ILanguageDetectionService);
 		const editor = getCodeEditor(editorService.activeTextEditorControl);

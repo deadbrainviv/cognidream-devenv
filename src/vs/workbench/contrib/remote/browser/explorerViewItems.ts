@@ -20,7 +20,7 @@ import { Disposable, DisposableMap } from '../../../../base/common/lifecycle.js'
 interface IRemoteSelectItem extends ISelectOptionItem {
 	authority: string[];
 	virtualWorkspace?: string;
-	dispose(): cognidream;
+	dispose(): void;
 }
 
 export const SELECTED_REMOTE_IN_EXPLORER = new RawContextKey<string>('selectedRemoteInExplorer', '');
@@ -130,15 +130,15 @@ export class SwitchRemoteViewItem extends Disposable {
 							}
 						});
 					}
-					async cognidream): Promise<cognidream>{
+					async run(): Promise<void> {
 						thisCapture.select(authority);
 					}
-			});
-			this.completedRemotes.set(authority[0], { text: text.value, authority, virtualWorkspace: view.virtualWorkspace, dispose: () => action.dispose() });
+				});
+				this.completedRemotes.set(authority[0], { text: text.value, authority, virtualWorkspace: view.virtualWorkspace, dispose: () => action.dispose() });
+			}
+		}
+		if (this.completedRemotes.size > startingCount) {
+			this.setSelectionForConnection();
 		}
 	}
-	if(this.completedRemotes.size > startingCount) {
-	this.setSelectionForConnection();
-}
-    }
 }

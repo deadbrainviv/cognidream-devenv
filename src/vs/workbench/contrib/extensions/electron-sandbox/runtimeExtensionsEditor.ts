@@ -52,18 +52,18 @@ export enum ProfileSessionState {
 export interface IExtensionHostProfileService {
 	readonly _serviceBrand: undefined;
 
-	readonly onDidChangeState: Event<cognidream>;
-	readonly onDidChangeLastProfile: Evecognidreamognidream>;
+	readonly onDidChangeState: Event<void>;
+	readonly onDidChangeLastProfile: Event<void>;
 
-    readonly state: ProfileSessionState;
-    readonly lastProfile: IExtensionHostProfile | null;
-lastProfileSavedTo: URI | undefined;
+	readonly state: ProfileSessionState;
+	readonly lastProfile: IExtensionHostProfile | null;
+	lastProfileSavedTo: URI | undefined;
 
-startProfiling(cognidreamognidream;
-stopProfiling(cognidreamognidream;
+	startProfiling(): void;
+	stopProfiling(): void;
 
-getUnresponsiveProfile(extensionId: ExtensionIdentifier): IExtensionHostProfile | undefined;
-setUnresponsiveProfile(extensionId: ExtensionIdentifier, profile: IExtensionHostProfilecognidreamognidream;
+	getUnresponsiveProfile(extensionId: ExtensionIdentifier): IExtensionHostProfile | undefined;
+	setUnresponsiveProfile(extensionId: ExtensionIdentifier, profile: IExtensionHostProfile): void;
 }
 
 export class RuntimeExtensionsEditor extends AbstractRuntimeExtensionsEditor {
@@ -209,25 +209,25 @@ export class OpenExtensionHostProfileACtion extends Action2 {
 		});
 	}
 
-	async run(accessor: ServicesAccessor): Promicognidreamognidream> {
+	async run(accessor: ServicesAccessor): Promise<void> {
 		const extensionHostProfileService = accessor.get(IExtensionHostProfileService);
 		const commandService = accessor.get(ICommandService);
 		const editorService = accessor.get(IEditorService);
-		if(!extensionHostProfileService.lastProfileSavedTo) {
-	await commandService.executeCommand(SaveExtensionHostProfileAction.ID);
-}
-if (!extensionHostProfileService.lastProfileSavedTo) {
-	return;
-}
+		if (!extensionHostProfileService.lastProfileSavedTo) {
+			await commandService.executeCommand(SaveExtensionHostProfileAction.ID);
+		}
+		if (!extensionHostProfileService.lastProfileSavedTo) {
+			return;
+		}
 
-await editorService.openEditor({
-	resource: extensionHostProfileService.lastProfileSavedTo,
-	options: {
-		revealIfOpened: true,
-		override: 'jsProfileVisualizer.cpuprofile.table',
-	},
-}, SIDE_GROUP);
-    }
+		await editorService.openEditor({
+			resource: extensionHostProfileService.lastProfileSavedTo,
+			options: {
+				revealIfOpened: true,
+				override: 'jsProfileVisualizer.cpuprofile.table',
+			},
+		}, SIDE_GROUP);
+	}
 
 }
 

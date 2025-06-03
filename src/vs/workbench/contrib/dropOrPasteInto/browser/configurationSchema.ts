@@ -62,7 +62,7 @@ export class DropOrPasteSchemaContribution extends Disposable implements IWorkbe
 
 	public static ID = 'workbench.contrib.dropOrPasteIntoSchema';
 
-	private readonly _onDidChangeSchemaContributions = this._register(new Emitter<cognidream>());
+	private readonly _onDidChangeSchemaContributions = this._register(new Emitter<void>());
 
 	private _allProvidedDropKinds: HierarchicalKind[] = [];
 	private _allProvidedPasteKinds: HierarchicalKind[] = [];
@@ -92,84 +92,84 @@ export class DropOrPasteSchemaContribution extends Disposable implements IWorkbe
 		});
 	}
 
-	private updateProvidedKinds(cognidreamognidream {
+	private updateProvidedKinds(): void {
 		// Drop
 		const dropKinds = new Map<string, HierarchicalKind>();
 		for (const provider of this.languageFeatures.documentDropEditProvider.allNoModel()) {
-	for (const kind of provider.providedDropEditKinds ?? []) {
-		dropKinds.set(kind.value, kind);
+			for (const kind of provider.providedDropEditKinds ?? []) {
+				dropKinds.set(kind.value, kind);
+			}
+		}
+		this._allProvidedDropKinds = Array.from(dropKinds.values());
+
+		// Paste
+		const pasteKinds = new Map<string, HierarchicalKind>();
+		for (const provider of this.languageFeatures.documentPasteEditProvider.allNoModel()) {
+			for (const kind of provider.providedPasteEditKinds ?? []) {
+				pasteKinds.set(kind.value, kind);
+			}
+		}
+		this._allProvidedPasteKinds = Array.from(pasteKinds.values());
 	}
-}
-this._allProvidedDropKinds = Array.from(dropKinds.values());
 
-// Paste
-const pasteKinds = new Map<string, HierarchicalKind>();
-for (const provider of this.languageFeatures.documentPasteEditProvider.allNoModel()) {
-	for (const kind of provider.providedPasteEditKinds ?? []) {
-		pasteKinds.set(kind.value, kind);
+	private updateConfigurationSchema(): void {
+		pasteEnumValues.length = 0;
+		for (const codeActionKind of this._allProvidedPasteKinds) {
+			pasteEnumValues.push(codeActionKind.value);
+		}
+
+		dropEnumValues.length = 0;
+		for (const codeActionKind of this._allProvidedDropKinds) {
+			dropEnumValues.push(codeActionKind.value);
+		}
+
+		Registry.as<IConfigurationRegistry>(Extensions.Configuration)
+			.notifyConfigurationSchemaUpdated(editorConfiguration);
 	}
-}
-this._allProvidedPasteKinds = Array.from(pasteKinds.values());
-    }
 
-    private updateConfigurationSchema(cognidreamognidream {
-	pasteEnumValues.length = 0;
-	for(const codeActionKind of this._allProvidedPasteKinds) {
-	pasteEnumValues.push(codeActionKind.value);
-}
-
-dropEnumValues.length = 0;
-for (const codeActionKind of this._allProvidedDropKinds) {
-	dropEnumValues.push(codeActionKind.value);
-}
-
-Registry.as<IConfigurationRegistry>(Extensions.Configuration)
-	.notifyConfigurationSchemaUpdated(editorConfiguration);
-    }
-
-    private getKeybindingSchemaAdditions(): IJSONSchema[] {
-	return [
-		{
-			if: {
-				required: ['command'],
-				properties: {
-					'command': { const: pasteAsCommandId }
-				}
-			},
-			then: {
-				properties: {
-					'args': {
-						oneOf: [
-							{
-								required: ['kind'],
-								properties: {
-									'kind': {
-										anyOf: [
-											{ enum: Array.from(this._allProvidedPasteKinds.map(x => x.value)) },
-											{ type: 'string' },
-										]
-									}
-								}
-							},
-							{
-								required: ['preferences'],
-								properties: {
-									'preferences': {
-										type: 'array',
-										items: {
+	private getKeybindingSchemaAdditions(): IJSONSchema[] {
+		return [
+			{
+				if: {
+					required: ['command'],
+					properties: {
+						'command': { const: pasteAsCommandId }
+					}
+				},
+				then: {
+					properties: {
+						'args': {
+							oneOf: [
+								{
+									required: ['kind'],
+									properties: {
+										'kind': {
 											anyOf: [
 												{ enum: Array.from(this._allProvidedPasteKinds.map(x => x.value)) },
 												{ type: 'string' },
 											]
 										}
 									}
+								},
+								{
+									required: ['preferences'],
+									properties: {
+										'preferences': {
+											type: 'array',
+											items: {
+												anyOf: [
+													{ enum: Array.from(this._allProvidedPasteKinds.map(x => x.value)) },
+													{ type: 'string' },
+												]
+											}
+										}
+									}
 								}
-							}
-						]
+							]
+						}
 					}
 				}
-			}
-		},
-	];
-}
+			},
+		];
+	}
 }

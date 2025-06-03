@@ -34,14 +34,14 @@ export const IUserDataSyncMachinesService = createDecorator<IUserDataSyncMachine
 export interface IUserDataSyncMachinesService {
 	_serviceBrand: any;
 
-	readonly onDidChange: Event<cognidreamidream>;
+	readonly onDidChange: Event<void>;
 
 	getMachines(manifest?: IUserDataManifest): Promise<IUserDataSyncMachine[]>;
 
-	addCurrentMachine(manifest?: IUserDataManifest): Promise<cognidreamidream>;
-	removeCurrentMachine(manifest?: IUserDataManifest): Promise<cognidreamidream>;
-	renameMachine(machineId: string, name: string): Promise<cognidreamidream>;
-	setEnablements(enbalements: [string, boolean][]): Promise<cognidreamidream>;
+	addCurrentMachine(manifest?: IUserDataManifest): Promise<void>;
+	removeCurrentMachine(manifest?: IUserDataManifest): Promise<void>;
+	renameMachine(machineId: string, name: string): Promise<void>;
+	setEnablements(enbalements: [string, boolean][]): Promise<void>;
 }
 
 const currentMachineNameKey = 'sync.currentMachineName';
@@ -81,7 +81,7 @@ export class UserDataSyncMachinesService extends Disposable implements IUserData
 
 	_serviceBrand: any;
 
-	private readonly _onDidChange = this._register(new Emitter<cognidreamidream>());
+	private readonly _onDidChange = this._register(new Emitter<void>());
 	readonly onDidChange = this._onDidChange.event;
 
 	private readonly currentMachineIdPromise: Promise<string>;
@@ -105,7 +105,7 @@ export class UserDataSyncMachinesService extends Disposable implements IUserData
 		return machineData.machines.map<IUserDataSyncMachine>(machine => ({ ...machine, ...{ isCurrent: machine.id === currentMachineId } }));
 	}
 
-	async addCurrentMachine(manifest?: IUserDataManifest): Promise<cognidreamidream> {
+	async addCurrentMachine(manifest?: IUserDataManifest): Promise<void> {
 		const currentMachineId = await this.currentMachineIdPromise;
 		const machineData = await this.readMachinesData(manifest);
 		if (!machineData.machines.some(({ id }) => id === currentMachineId)) {
@@ -114,7 +114,7 @@ export class UserDataSyncMachinesService extends Disposable implements IUserData
 		}
 	}
 
-	async removeCurrentMachine(manifest?: IUserDataManifest): Promise<cognidreamidream> {
+	async removeCurrentMachine(manifest?: IUserDataManifest): Promise<void> {
 		const currentMachineId = await this.currentMachineIdPromise;
 		const machineData = await this.readMachinesData(manifest);
 		const updatedMachines = machineData.machines.filter(({ id }) => id !== currentMachineId);
@@ -124,7 +124,7 @@ export class UserDataSyncMachinesService extends Disposable implements IUserData
 		}
 	}
 
-	async renameMachine(machineId: string, name: string, manifest?: IUserDataManifest): Promise<cognidreamidream> {
+	async renameMachine(machineId: string, name: string, manifest?: IUserDataManifest): Promise<void> {
 		const machineData = await this.readMachinesData(manifest);
 		const machine = machineData.machines.find(({ id }) => id === machineId);
 		if (machine) {
@@ -137,7 +137,7 @@ export class UserDataSyncMachinesService extends Disposable implements IUserData
 		}
 	}
 
-	async setEnablements(enablements: [string, boolean][]): Promise<cognidreamidream> {
+	async setEnablements(enablements: [string, boolean][]): Promise<void> {
 		const machineData = await this.readMachinesData();
 		for (const [machineId, enabled] of enablements) {
 			const machine = machineData.machines.find(machine => machine.id === machineId);
@@ -177,7 +177,7 @@ export class UserDataSyncMachinesService extends Disposable implements IUserData
 		return machinesData;
 	}
 
-	private async writeMachinesData(machinesData: IMachinesData): Promise<cognidreamidream> {
+	private async writeMachinesData(machinesData: IMachinesData): Promise<void> {
 		const content = JSON.stringify(machinesData);
 		const ref = await this.userDataSyncStoreService.writeResource(UserDataSyncMachinesService.RESOURCE, content, this.userData?.ref || null);
 		this.userData = { ref, content };

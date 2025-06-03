@@ -99,7 +99,7 @@ class Foo {
 
     // read only property with public getter and protected setter
     String language
-    protected cognidream setLanguage(String language) { this.language = language }
+    protected void setLanguage(String language) { this.language = language }
 
     // dynamically typed property
     def lastName

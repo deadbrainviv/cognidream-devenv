@@ -30,410 +30,410 @@ export class FolderMatchImpl extends Disposable implements ISearchTreeFolderMatc
 	protected _onChange = this._register(new Emitter<IChangeEvent>());
 	readonly onChange: Event<IChangeEvent> = this._onChange.event;
 
-	private _onDispose = this._register(new Emitter<cognidream>());
-	readonly onDispose: Evecognidreamognidream> = this._onDispose.event;
+	private _onDispose = this._register(new Emitter<void>());
+	readonly onDispose: Event<void> = this._onDispose.event;
 
-    protected _fileMatches: ResourceMap<ISearchTreeFileMatch>;
-    protected _folderMatches: ResourceMap<FolderMatchWithResourceImpl>;
-    protected _folderMatchesMap: TernarySearchTree<URI, FolderMatchWithResourceImpl>;
-    protected _unDisposedFileMatches: ResourceMap<ISearchTreeFileMatch>;
-    protected _unDisposedFolderMatches: ResourceMap<FolderMatchWithResourceImpl>;
-    private _replacingAll: boolean = false;
-    private _name: Lazy<string>;
-    private readonly _id: string;
+	protected _fileMatches: ResourceMap<ISearchTreeFileMatch>;
+	protected _folderMatches: ResourceMap<FolderMatchWithResourceImpl>;
+	protected _folderMatchesMap: TernarySearchTree<URI, FolderMatchWithResourceImpl>;
+	protected _unDisposedFileMatches: ResourceMap<ISearchTreeFileMatch>;
+	protected _unDisposedFolderMatches: ResourceMap<FolderMatchWithResourceImpl>;
+	private _replacingAll: boolean = false;
+	private _name: Lazy<string>;
+	private readonly _id: string;
 
-constructor(
-	protected _resource: URI | null,
-	_id: string,
-	protected _index: number,
-	protected _query: ITextQuery,
-	private _parent: ITextSearchHeading | FolderMatchImpl,
-	private _searchResult: ISearchResult,
-	private _closestRoot: ISearchTreeFolderMatchWorkspaceRoot | null,
-	@IReplaceService private readonly replaceService: IReplaceService,
-	@IInstantiationService protected readonly instantiationService: IInstantiationService,
-	@ILabelService labelService: ILabelService,
-	@IUriIdentityService protected readonly uriIdentityService: IUriIdentityService
-) {
-	super();
-	this._fileMatches = new ResourceMap<ISearchTreeFileMatch>();
-	this._folderMatches = new ResourceMap<FolderMatchWithResourceImpl>();
-	this._folderMatchesMap = TernarySearchTree.forUris<FolderMatchWithResourceImpl>(key => this.uriIdentityService.extUri.ignorePathCasing(key));
-	this._unDisposedFileMatches = new ResourceMap<ISearchTreeFileMatch>();
-	this._unDisposedFolderMatches = new ResourceMap<FolderMatchWithResourceImpl>();
-	this._name = new Lazy(() => this.resource ? labelService.getUriBasenameLabel(this.resource) : '');
-	this._id = FOLDER_MATCH_PREFIX + _id;
-}
-
-    get searchModel(): ISearchModel {
-	return this._searchResult.searchModel;
-}
-
-    get showHighlights(): boolean {
-	return this._parent.showHighlights;
-}
-
-    get closestRoot(): ISearchTreeFolderMatchWorkspaceRoot | null {
-	return this._closestRoot;
-}
-
-    set replacingAll(b: boolean) {
-	this._replacingAll = b;
-}
-
-id(): string {
-	return this._id;
-}
-
-    get resource(): URI | null {
-	return this._resource;
-}
-
-index(): number {
-	return this._index;
-}
-
-name(): string {
-	return this._name.value;
-}
-
-parent(): ITextSearchHeading | FolderMatchImpl {
-	return this._parent;
-}
-
-isAIContributed(): boolean {
-	return false;
-}
-
-    get hasChildren(): boolean {
-	return this._fileMatches.size > 0 || this._folderMatches.size > 0;
-}
-
-bindModel(model: ITextModelcognidreamognidream {
-	const fileMatch = this._fileMatches.get(model.uri);
-
-	if(fileMatch) {
-		fileMatch.bindModel(model);
-	} else {
-		const folderMatch = this.getFolderMatch(model.uri);
-		const match = folderMatch?.getDownstreamFileMatch(model.uri);
-		match?.bindModel(model);
-	}
-}
-
-    public createIntermediateFolderMatch(resource: URI, id: string, index: number, query: ITextQuery, baseWorkspaceFolder: ISearchTreeFolderMatchWorkspaceRoot): FolderMatchWithResourceImpl {
-	const folderMatch = this._register(this.instantiationService.createInstance(FolderMatchWithResourceImpl, resource, id, index, query, this, this._searchResult, baseWorkspaceFolder));
-	this.configureIntermediateMatch(folderMatch);
-	this.doAddFolder(folderMatch);
-	return folderMatch;
-}
-
-    public configureIntermediateMatch(folderMatch: FolderMatchWithResourceImpl) {
-	const disposable = folderMatch.onChange((event) => this.onFolderChange(folderMatch, event));
-	this._register(folderMatch.onDispose(() => disposable.dispose()));
-}
-
-    clear(clearingAll = falsecognidreamognidream {
-	const changed: ISearchTreeFileMatch[] = this.allDownstreamFileMatches();
-	this.disposeMatches();
-	this._onChange.fire({ elements: changed, removed: true, added: false, clearingAll });
-}
-
-    remove(matches: ISearchTreeFileMatch | ISearchTreeFolderMatchWithResource | (ISearchTreeFileMatch | ISearchTreeFolderMatchWithResource)[]cognidreamognidream {
-	if(!Array.isArray(matches)) {
-	matches =[matches];
-}
-        const allMatches = getFileMatches(matches);
-this.doRemoveFile(allMatches);
-    }
-
-    async replace(match: FileMatchImpl): Promise < any > {
-	return this.replaceService.replace([match]).then(() => {
-		this.doRemoveFile([match], true, true, true);
-	});
-}
-
-replaceAll(): Promise < any > {
-	const matches = this.matches();
-	return this.batchReplace(matches);
-}
-
-matches(): (ISearchTreeFileMatch | ISearchTreeFolderMatchWithResource)[] {
-	return [...this.fileMatchesIterator(), ...this.folderMatchesIterator()];
-}
-
-fileMatchesIterator(): IterableIterator < ISearchTreeFileMatch > {
-	return this._fileMatches.values();
-}
-
-folderMatchesIterator(): IterableIterator < ISearchTreeFolderMatchWithResource > {
-	return this._folderMatches.values();
-}
-
-isEmpty(): boolean {
-	return (this.fileCount() + this.folderCount()) === 0;
-}
-
-getDownstreamFileMatch(uri: URI): ISearchTreeFileMatch | null {
-	const directChildFileMatch = this._fileMatches.get(uri);
-	if (directChildFileMatch) {
-		return directChildFileMatch;
+	constructor(
+		protected _resource: URI | null,
+		_id: string,
+		protected _index: number,
+		protected _query: ITextQuery,
+		private _parent: ITextSearchHeading | FolderMatchImpl,
+		private _searchResult: ISearchResult,
+		private _closestRoot: ISearchTreeFolderMatchWorkspaceRoot | null,
+		@IReplaceService private readonly replaceService: IReplaceService,
+		@IInstantiationService protected readonly instantiationService: IInstantiationService,
+		@ILabelService labelService: ILabelService,
+		@IUriIdentityService protected readonly uriIdentityService: IUriIdentityService
+	) {
+		super();
+		this._fileMatches = new ResourceMap<ISearchTreeFileMatch>();
+		this._folderMatches = new ResourceMap<FolderMatchWithResourceImpl>();
+		this._folderMatchesMap = TernarySearchTree.forUris<FolderMatchWithResourceImpl>(key => this.uriIdentityService.extUri.ignorePathCasing(key));
+		this._unDisposedFileMatches = new ResourceMap<ISearchTreeFileMatch>();
+		this._unDisposedFolderMatches = new ResourceMap<FolderMatchWithResourceImpl>();
+		this._name = new Lazy(() => this.resource ? labelService.getUriBasenameLabel(this.resource) : '');
+		this._id = FOLDER_MATCH_PREFIX + _id;
 	}
 
-	const folderMatch = this.getFolderMatch(uri);
-	const match = folderMatch?.getDownstreamFileMatch(uri);
-	if (match) {
-		return match;
+	get searchModel(): ISearchModel {
+		return this._searchResult.searchModel;
 	}
 
-	return null;
-}
-
-allDownstreamFileMatches(): ISearchTreeFileMatch[] {
-	let recursiveChildren: ISearchTreeFileMatch[] = [];
-	const iterator = this.folderMatchesIterator();
-	for (const elem of iterator) {
-		recursiveChildren = recursiveChildren.concat(elem.allDownstreamFileMatches());
+	get showHighlights(): boolean {
+		return this._parent.showHighlights;
 	}
 
-	return [...this.fileMatchesIterator(), ...recursiveChildren];
-}
-
-    private fileCount(): number {
-	return this._fileMatches.size;
-}
-
-    private folderCount(): number {
-	return this._folderMatches.size;
-}
-
-count(): number {
-	return this.fileCount() + this.folderCount();
-}
-
-recursiveFileCount(): number {
-	return this.allDownstreamFileMatches().length;
-}
-
-recursiveMatchCount(): number {
-	return this.allDownstreamFileMatches().reduce<number>((prev, match) => prev + match.count(), 0);
-}
-
-    get query(): ITextQuery | null {
-	return this._query;
-}
-
-doAddFile(fileMatch: ISearchTreeFileMatchcognidreamognidream {
-	this._fileMatches.set(fileMatch.resource, fileMatch);
-	if(this._unDisposedFileMatches.has(fileMatch.resource)) {
-	this._unDisposedFileMatches.delete(fileMatch.resource);
-}
-    }
-
-hasOnlyReadOnlyMatches(): boolean {
-	return Array.from(this._fileMatches.values()).every(fm => fm.hasOnlyReadOnlyMatches());
-}
-
-    protected uriHasParent(parent: URI, child: URI) {
-	return this.uriIdentityService.extUri.isEqualOrParent(child, parent) && !this.uriIdentityService.extUri.isEqual(child, parent);
-}
-
-    private isInParentChain(folderMatch: FolderMatchWithResourceImpl) {
-
-	let matchItem: FolderMatchImpl | ITextSearchHeading = this;
-	while (matchItem instanceof FolderMatchImpl) {
-		if (matchItem.id() === folderMatch.id()) {
-			return true;
-		}
-		matchItem = matchItem.parent();
-	}
-	return false;
-}
-
-    public getFolderMatch(resource: URI): FolderMatchWithResourceImpl | undefined {
-	const folderMatch = this._folderMatchesMap.findSubstr(resource);
-	return folderMatch;
-}
-
-doAddFolder(folderMatch: FolderMatchWithResourceImpl) {
-	if (this.resource && !this.uriHasParent(this.resource, folderMatch.resource)) {
-		throw Error(`${folderMatch.resource} does not belong as a child of ${this.resource}`);
-	} else if (this.isInParentChain(folderMatch)) {
-		throw Error(`${folderMatch.resource} is a parent of ${this.resource}`);
+	get closestRoot(): ISearchTreeFolderMatchWorkspaceRoot | null {
+		return this._closestRoot;
 	}
 
-	this._folderMatches.set(folderMatch.resource, folderMatch);
-	this._folderMatchesMap.set(folderMatch.resource, folderMatch);
-	if (this._unDisposedFolderMatches.has(folderMatch.resource)) {
-		this._unDisposedFolderMatches.delete(folderMatch.resource);
-	}
-}
-
-    private async batchReplace(matches: (ISearchTreeFileMatch | ISearchTreeFolderMatchWithResource)[]): Promise < any > {
-	const allMatches = getFileMatches(matches);
-
-	await this.replaceService.replace(allMatches);
-	this.doRemoveFile(allMatches, true, true, true);
-}
-
-    public onFileChange(fileMatch: ISearchTreeFileMatch, removed = falsecognidreamognidream {
-	let added = false;
-	if(!this._fileMatches.has(fileMatch.resource)) {
-	this.doAddFile(fileMatch);
-	added = true;
-}
-if (fileMatch.count() === 0) {
-	this.doRemoveFile([fileMatch], false, false);
-	added = false;
-	removed = true;
-}
-if (!this._replacingAll) {
-	this._onChange.fire({ elements: [fileMatch], added: added, removed: removed });
-}
-    }
-
-    public onFolderChange(folderMatch: FolderMatchWithResourceImpl, event: IChangeEventcognidreamognidream {
-	if(!this._folderMatches.has(folderMatch.resource)) {
-	this.doAddFolder(folderMatch);
-}
-if (folderMatch.isEmpty()) {
-	this._folderMatches.delete(folderMatch.resource);
-	folderMatch.dispose();
-}
-
-this._onChange.fire(event);
-    }
-
-doRemoveFile(fileMatches: ISearchTreeFileMatch[], dispose: boolean = true, trigger: boolean = true, keepReadonly = falsecognidreamognidream {
-
-	const removed = [];
-	for(const match of fileMatches as ISearchTreeFileMatch[]) {
-		if (this._fileMatches.get(match.resource)) {
-			if (keepReadonly && match.hasReadonlyMatches()) {
-				continue;
-			}
-			this._fileMatches.delete(match.resource);
-			if (dispose) {
-				match.dispose();
-			} else {
-				this._unDisposedFileMatches.set(match.resource, match);
-			}
-			removed.push(match);
-		} else {
-			const folder = this.getFolderMatch(match.resource);
-			if (folder) {
-				folder.doRemoveFile([match], dispose, trigger);
-			} else {
-				throw Error(`FileMatch ${match.resource} is not located within FolderMatch ${this.resource}`);
-			}
-		}
+	set replacingAll(b: boolean) {
+		this._replacingAll = b;
 	}
 
-        if(trigger) {
-		this._onChange.fire({ elements: removed, removed: true });
+	id(): string {
+		return this._id;
 	}
-}
 
-    async bindNotebookEditorWidget(editor: NotebookEditorWidget, resource: URI) {
-	const fileMatch = this._fileMatches.get(resource);
-	if(isNotebookFileMatch(fileMatch)) {
-	if (fileMatch) {
-		fileMatch.bindNotebookEditorWidget(editor);
-		await fileMatch.updateMatchesForEditorWidget();
-	} else {
-		const folderMatches = this.folderMatchesIterator();
-		for (const elem of folderMatches) {
-			await elem.bindNotebookEditorWidget(editor, resource);
-		}
+	get resource(): URI | null {
+		return this._resource;
 	}
-}
-    }
 
-addFileMatch(raw: IFileMatch[], silent: boolean, searchInstanceID: stringcognidreamognidream {
-	// when adding a fileMatch that has intermediate directories
-	const added: ISearchTreeFileMatch[] = [];
-	const updated: ISearchTreeFileMatch[] = [];
+	index(): number {
+		return this._index;
+	}
 
-	raw.forEach(rawFileMatch => {
-		const existingFileMatch = this.getDownstreamFileMatch(rawFileMatch.resource);
-		if (existingFileMatch) {
+	name(): string {
+		return this._name.value;
+	}
 
-			if (rawFileMatch.results) {
-				rawFileMatch
-					.results
-					.filter(resultIsMatch)
-					.forEach(m => {
-						textSearchResultToMatches(m, existingFileMatch, false)
-							.forEach(m => existingFileMatch.add(m));
-					});
-			}
+	parent(): ITextSearchHeading | FolderMatchImpl {
+		return this._parent;
+	}
 
-			// add cell matches
-			if (isINotebookFileMatchWithModel(rawFileMatch) || isINotebookFileMatchNoModel(rawFileMatch)) {
-				rawFileMatch.cellResults?.forEach(rawCellMatch => {
-					if (isNotebookFileMatch(existingFileMatch)) {
-						const existingCellMatch = existingFileMatch.getCellMatch(getIDFromINotebookCellMatch(rawCellMatch));
-						if (existingCellMatch) {
-							existingCellMatch.addContentMatches(rawCellMatch.contentResults);
-							existingCellMatch.addWebviewMatches(rawCellMatch.webviewResults);
-						} else {
-							existingFileMatch.addCellMatch(rawCellMatch);
-						}
-					}
-				});
-			}
+	isAIContributed(): boolean {
+		return false;
+	}
 
-			updated.push(existingFileMatch);
+	get hasChildren(): boolean {
+		return this._fileMatches.size > 0 || this._folderMatches.size > 0;
+	}
 
-			if (rawFileMatch.results && rawFileMatch.results.length > 0) {
-				existingFileMatch.addContext(rawFileMatch.results);
-			}
-		} else {
-			if (isSearchTreeFolderMatchWorkspaceRoot(this) || isSearchTreeFolderMatchNoRoot(this)) {
-				const fileMatch = this.createAndConfigureFileMatch(rawFileMatch, searchInstanceID);
-				added.push(fileMatch);
-			}
-		}
-	});
+	bindModel(model: ITextModel): void {
+		const fileMatch = this._fileMatches.get(model.uri);
 
-	const elements = [...added, ...updated];
-	if(!silent && elements.length) {
-	this._onChange.fire({ elements, added: !!added.length });
-}
-    }
-
-unbindNotebookEditorWidget(editor: NotebookEditorWidget, resource: URI) {
-	const fileMatch = this._fileMatches.get(resource);
-
-	if (isNotebookFileMatch(fileMatch)) {
 		if (fileMatch) {
-			fileMatch.unbindNotebookEditorWidget(editor);
+			fileMatch.bindModel(model);
 		} else {
-			const folderMatches = this.folderMatchesIterator();
-			for (const elem of folderMatches) {
-				elem.unbindNotebookEditorWidget(editor, resource);
+			const folderMatch = this.getFolderMatch(model.uri);
+			const match = folderMatch?.getDownstreamFileMatch(model.uri);
+			match?.bindModel(model);
+		}
+	}
+
+	public createIntermediateFolderMatch(resource: URI, id: string, index: number, query: ITextQuery, baseWorkspaceFolder: ISearchTreeFolderMatchWorkspaceRoot): FolderMatchWithResourceImpl {
+		const folderMatch = this._register(this.instantiationService.createInstance(FolderMatchWithResourceImpl, resource, id, index, query, this, this._searchResult, baseWorkspaceFolder));
+		this.configureIntermediateMatch(folderMatch);
+		this.doAddFolder(folderMatch);
+		return folderMatch;
+	}
+
+	public configureIntermediateMatch(folderMatch: FolderMatchWithResourceImpl) {
+		const disposable = folderMatch.onChange((event) => this.onFolderChange(folderMatch, event));
+		this._register(folderMatch.onDispose(() => disposable.dispose()));
+	}
+
+	clear(clearingAll = false): void {
+		const changed: ISearchTreeFileMatch[] = this.allDownstreamFileMatches();
+		this.disposeMatches();
+		this._onChange.fire({ elements: changed, removed: true, added: false, clearingAll });
+	}
+
+	remove(matches: ISearchTreeFileMatch | ISearchTreeFolderMatchWithResource | (ISearchTreeFileMatch | ISearchTreeFolderMatchWithResource)[]): void {
+		if (!Array.isArray(matches)) {
+			matches = [matches];
+		}
+		const allMatches = getFileMatches(matches);
+		this.doRemoveFile(allMatches);
+	}
+
+	async replace(match: FileMatchImpl): Promise<any> {
+		return this.replaceService.replace([match]).then(() => {
+			this.doRemoveFile([match], true, true, true);
+		});
+	}
+
+	replaceAll(): Promise<any> {
+		const matches = this.matches();
+		return this.batchReplace(matches);
+	}
+
+	matches(): (ISearchTreeFileMatch | ISearchTreeFolderMatchWithResource)[] {
+		return [...this.fileMatchesIterator(), ...this.folderMatchesIterator()];
+	}
+
+	fileMatchesIterator(): IterableIterator<ISearchTreeFileMatch> {
+		return this._fileMatches.values();
+	}
+
+	folderMatchesIterator(): IterableIterator<ISearchTreeFolderMatchWithResource> {
+		return this._folderMatches.values();
+	}
+
+	isEmpty(): boolean {
+		return (this.fileCount() + this.folderCount()) === 0;
+	}
+
+	getDownstreamFileMatch(uri: URI): ISearchTreeFileMatch | null {
+		const directChildFileMatch = this._fileMatches.get(uri);
+		if (directChildFileMatch) {
+			return directChildFileMatch;
+		}
+
+		const folderMatch = this.getFolderMatch(uri);
+		const match = folderMatch?.getDownstreamFileMatch(uri);
+		if (match) {
+			return match;
+		}
+
+		return null;
+	}
+
+	allDownstreamFileMatches(): ISearchTreeFileMatch[] {
+		let recursiveChildren: ISearchTreeFileMatch[] = [];
+		const iterator = this.folderMatchesIterator();
+		for (const elem of iterator) {
+			recursiveChildren = recursiveChildren.concat(elem.allDownstreamFileMatches());
+		}
+
+		return [...this.fileMatchesIterator(), ...recursiveChildren];
+	}
+
+	private fileCount(): number {
+		return this._fileMatches.size;
+	}
+
+	private folderCount(): number {
+		return this._folderMatches.size;
+	}
+
+	count(): number {
+		return this.fileCount() + this.folderCount();
+	}
+
+	recursiveFileCount(): number {
+		return this.allDownstreamFileMatches().length;
+	}
+
+	recursiveMatchCount(): number {
+		return this.allDownstreamFileMatches().reduce<number>((prev, match) => prev + match.count(), 0);
+	}
+
+	get query(): ITextQuery | null {
+		return this._query;
+	}
+
+	doAddFile(fileMatch: ISearchTreeFileMatch): void {
+		this._fileMatches.set(fileMatch.resource, fileMatch);
+		if (this._unDisposedFileMatches.has(fileMatch.resource)) {
+			this._unDisposedFileMatches.delete(fileMatch.resource);
+		}
+	}
+
+	hasOnlyReadOnlyMatches(): boolean {
+		return Array.from(this._fileMatches.values()).every(fm => fm.hasOnlyReadOnlyMatches());
+	}
+
+	protected uriHasParent(parent: URI, child: URI) {
+		return this.uriIdentityService.extUri.isEqualOrParent(child, parent) && !this.uriIdentityService.extUri.isEqual(child, parent);
+	}
+
+	private isInParentChain(folderMatch: FolderMatchWithResourceImpl) {
+
+		let matchItem: FolderMatchImpl | ITextSearchHeading = this;
+		while (matchItem instanceof FolderMatchImpl) {
+			if (matchItem.id() === folderMatch.id()) {
+				return true;
+			}
+			matchItem = matchItem.parent();
+		}
+		return false;
+	}
+
+	public getFolderMatch(resource: URI): FolderMatchWithResourceImpl | undefined {
+		const folderMatch = this._folderMatchesMap.findSubstr(resource);
+		return folderMatch;
+	}
+
+	doAddFolder(folderMatch: FolderMatchWithResourceImpl) {
+		if (this.resource && !this.uriHasParent(this.resource, folderMatch.resource)) {
+			throw Error(`${folderMatch.resource} does not belong as a child of ${this.resource}`);
+		} else if (this.isInParentChain(folderMatch)) {
+			throw Error(`${folderMatch.resource} is a parent of ${this.resource}`);
+		}
+
+		this._folderMatches.set(folderMatch.resource, folderMatch);
+		this._folderMatchesMap.set(folderMatch.resource, folderMatch);
+		if (this._unDisposedFolderMatches.has(folderMatch.resource)) {
+			this._unDisposedFolderMatches.delete(folderMatch.resource);
+		}
+	}
+
+	private async batchReplace(matches: (ISearchTreeFileMatch | ISearchTreeFolderMatchWithResource)[]): Promise<any> {
+		const allMatches = getFileMatches(matches);
+
+		await this.replaceService.replace(allMatches);
+		this.doRemoveFile(allMatches, true, true, true);
+	}
+
+	public onFileChange(fileMatch: ISearchTreeFileMatch, removed = false): void {
+		let added = false;
+		if (!this._fileMatches.has(fileMatch.resource)) {
+			this.doAddFile(fileMatch);
+			added = true;
+		}
+		if (fileMatch.count() === 0) {
+			this.doRemoveFile([fileMatch], false, false);
+			added = false;
+			removed = true;
+		}
+		if (!this._replacingAll) {
+			this._onChange.fire({ elements: [fileMatch], added: added, removed: removed });
+		}
+	}
+
+	public onFolderChange(folderMatch: FolderMatchWithResourceImpl, event: IChangeEvent): void {
+		if (!this._folderMatches.has(folderMatch.resource)) {
+			this.doAddFolder(folderMatch);
+		}
+		if (folderMatch.isEmpty()) {
+			this._folderMatches.delete(folderMatch.resource);
+			folderMatch.dispose();
+		}
+
+		this._onChange.fire(event);
+	}
+
+	doRemoveFile(fileMatches: ISearchTreeFileMatch[], dispose: boolean = true, trigger: boolean = true, keepReadonly = false): void {
+
+		const removed = [];
+		for (const match of fileMatches as ISearchTreeFileMatch[]) {
+			if (this._fileMatches.get(match.resource)) {
+				if (keepReadonly && match.hasReadonlyMatches()) {
+					continue;
+				}
+				this._fileMatches.delete(match.resource);
+				if (dispose) {
+					match.dispose();
+				} else {
+					this._unDisposedFileMatches.set(match.resource, match);
+				}
+				removed.push(match);
+			} else {
+				const folder = this.getFolderMatch(match.resource);
+				if (folder) {
+					folder.doRemoveFile([match], dispose, trigger);
+				} else {
+					throw Error(`FileMatch ${match.resource} is not located within FolderMatch ${this.resource}`);
+				}
+			}
+		}
+
+		if (trigger) {
+			this._onChange.fire({ elements: removed, removed: true });
+		}
+	}
+
+	async bindNotebookEditorWidget(editor: NotebookEditorWidget, resource: URI) {
+		const fileMatch = this._fileMatches.get(resource);
+		if (isNotebookFileMatch(fileMatch)) {
+			if (fileMatch) {
+				fileMatch.bindNotebookEditorWidget(editor);
+				await fileMatch.updateMatchesForEditorWidget();
+			} else {
+				const folderMatches = this.folderMatchesIterator();
+				for (const elem of folderMatches) {
+					await elem.bindNotebookEditorWidget(editor, resource);
+				}
 			}
 		}
 	}
 
-}
+	addFileMatch(raw: IFileMatch[], silent: boolean, searchInstanceID: string): void {
+		// when adding a fileMatch that has intermediate directories
+		const added: ISearchTreeFileMatch[] = [];
+		const updated: ISearchTreeFileMatch[] = [];
 
-disposeMatches(cognidreamognidream {
-	[...this._fileMatches.values()].forEach((fileMatch: ISearchTreeFileMatch) => fileMatch.dispose());
-	[...this._folderMatches.values()].forEach((folderMatch: FolderMatchImpl) => folderMatch.disposeMatches());
-	[...this._unDisposedFileMatches.values()].forEach((fileMatch: ISearchTreeFileMatch) => fileMatch.dispose());
-	[...this._unDisposedFolderMatches.values()].forEach((folderMatch: FolderMatchImpl) => folderMatch.disposeMatches());
-	this._fileMatches.clear();
-	this._folderMatches.clear();
-	this._unDisposedFileMatches.clear();
-	this._unDisposedFolderMatches.clear();
-}
+		raw.forEach(rawFileMatch => {
+			const existingFileMatch = this.getDownstreamFileMatch(rawFileMatch.resource);
+			if (existingFileMatch) {
 
-    override dispose(cognidreamognidream {
-	this.disposeMatches();
-	this._onDispose.fire();
-	super.dispose();
-}
+				if (rawFileMatch.results) {
+					rawFileMatch
+						.results
+						.filter(resultIsMatch)
+						.forEach(m => {
+							textSearchResultToMatches(m, existingFileMatch, false)
+								.forEach(m => existingFileMatch.add(m));
+						});
+				}
+
+				// add cell matches
+				if (isINotebookFileMatchWithModel(rawFileMatch) || isINotebookFileMatchNoModel(rawFileMatch)) {
+					rawFileMatch.cellResults?.forEach(rawCellMatch => {
+						if (isNotebookFileMatch(existingFileMatch)) {
+							const existingCellMatch = existingFileMatch.getCellMatch(getIDFromINotebookCellMatch(rawCellMatch));
+							if (existingCellMatch) {
+								existingCellMatch.addContentMatches(rawCellMatch.contentResults);
+								existingCellMatch.addWebviewMatches(rawCellMatch.webviewResults);
+							} else {
+								existingFileMatch.addCellMatch(rawCellMatch);
+							}
+						}
+					});
+				}
+
+				updated.push(existingFileMatch);
+
+				if (rawFileMatch.results && rawFileMatch.results.length > 0) {
+					existingFileMatch.addContext(rawFileMatch.results);
+				}
+			} else {
+				if (isSearchTreeFolderMatchWorkspaceRoot(this) || isSearchTreeFolderMatchNoRoot(this)) {
+					const fileMatch = this.createAndConfigureFileMatch(rawFileMatch, searchInstanceID);
+					added.push(fileMatch);
+				}
+			}
+		});
+
+		const elements = [...added, ...updated];
+		if (!silent && elements.length) {
+			this._onChange.fire({ elements, added: !!added.length });
+		}
+	}
+
+	unbindNotebookEditorWidget(editor: NotebookEditorWidget, resource: URI) {
+		const fileMatch = this._fileMatches.get(resource);
+
+		if (isNotebookFileMatch(fileMatch)) {
+			if (fileMatch) {
+				fileMatch.unbindNotebookEditorWidget(editor);
+			} else {
+				const folderMatches = this.folderMatchesIterator();
+				for (const elem of folderMatches) {
+					elem.unbindNotebookEditorWidget(editor, resource);
+				}
+			}
+		}
+
+	}
+
+	disposeMatches(): void {
+		[...this._fileMatches.values()].forEach((fileMatch: ISearchTreeFileMatch) => fileMatch.dispose());
+		[...this._folderMatches.values()].forEach((folderMatch: FolderMatchImpl) => folderMatch.disposeMatches());
+		[...this._unDisposedFileMatches.values()].forEach((fileMatch: ISearchTreeFileMatch) => fileMatch.dispose());
+		[...this._unDisposedFolderMatches.values()].forEach((folderMatch: FolderMatchImpl) => folderMatch.disposeMatches());
+		this._fileMatches.clear();
+		this._folderMatches.clear();
+		this._unDisposedFileMatches.clear();
+		this._unDisposedFolderMatches.clear();
+	}
+
+	override dispose(): void {
+		this.disposeMatches();
+		this._onDispose.fire();
+		super.dispose();
+	}
 }
 
 export class FolderMatchWithResourceImpl extends FolderMatchImpl implements ISearchTreeFolderMatchWithResource {

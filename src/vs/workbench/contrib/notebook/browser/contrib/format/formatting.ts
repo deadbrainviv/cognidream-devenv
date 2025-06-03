@@ -58,7 +58,7 @@ registerAction2(class extends Action2 {
 		});
 	}
 
-	async run(accessor: ServicesAccessor): Promise<cognidream> {
+	async run(accessor: ServicesAccessor): Promise<void> {
 		const editorService = accessor.get(IEditorService);
 		const textModelService = accessor.get(ITextModelService);
 		const editorWorkerService = accessor.get(IEditorWorkerService);
@@ -133,12 +133,12 @@ registerEditorAction(class FormatCellAction extends EditorAction {
 		});
 	}
 
-	async run(accessor: ServicesAccessor, editor: ICodeEditor): Promicognidreamognidream> {
-	if(editor.hasModel()) {
-	const instaService = accessor.get(IInstantiationService);
-	await instaService.invokeFunction(formatDocumentWithSelectedProvider, editor, FormattingMode.Explicit, Progress.None, CancellationToken.None, true);
-}
-    }
+	async run(accessor: ServicesAccessor, editor: ICodeEditor): Promise<void> {
+		if (editor.hasModel()) {
+			const instaService = accessor.get(IInstantiationService);
+			await instaService.invokeFunction(formatDocumentWithSelectedProvider, editor, FormattingMode.Explicit, Progress.None, CancellationToken.None, true);
+		}
+	}
 });
 
 class FormatOnCellExecutionParticipant implements ICellExecutionParticipant {
@@ -152,14 +152,14 @@ class FormatOnCellExecutionParticipant implements ICellExecutionParticipant {
 	) {
 	}
 
-	async onWillExecuteCell(executions: INotebookCellExecution[]): Promicognidreamognidream> {
+	async onWillExecuteCell(executions: INotebookCellExecution[]): Promise<void> {
 
 		const enabled = this.configurationService.getValue<boolean>(NotebookSetting.formatOnCellExecution);
-		if(!enabled) {
+		if (!enabled) {
 			return;
 		}
 
-        const disposable = new DisposableStore();
+		const disposable = new DisposableStore();
 		try {
 			const allCellEdits = await Promise.all(executions.map(async cellExecution => {
 				const nbModel = this._notebookService.getNotebookTextModel(cellExecution.notebook);
@@ -217,9 +217,9 @@ export class CellExecutionParticipantsContribution extends Disposable implements
 		this.registerKernelExecutionParticipants();
 	}
 
-	private registerKernelExecutionParticipants(cognidreamognidream {
+	private registerKernelExecutionParticipants(): void {
 		this._register(this.notebookExecutionService.registerExecutionParticipant(this.instantiationService.createInstance(FormatOnCellExecutionParticipant)));
-    }
+	}
 }
 
 const workbenchContributionsRegistry = Registry.as<IWorkbenchContributionsRegistry>(WorkbenchContributionsExtensions.Workbench);

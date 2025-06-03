@@ -6,7 +6,7 @@
 use std::io;
 
 use winapi::{
-	ctypes::c_cognidream,
+	ctypes::c_void,
 	um::{
 		handleapi::CloseHandle,
 		minwinbase::REASON_CONTEXT,
@@ -20,7 +20,7 @@ use winapi::{
 
 use crate::constants::TUNNEL_ACTIVITY_NAME;
 
-struct Request(*mut c_cognidream);
+struct Request(*mut c_void);
 
 impl Request {
 	pub fn new() -> io::Result<Self> {

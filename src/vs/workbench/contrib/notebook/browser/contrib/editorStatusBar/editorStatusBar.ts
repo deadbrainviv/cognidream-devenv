@@ -25,7 +25,7 @@ import { Event } from '../../../../../../base/common/event.js';
 
 class ImplictKernelSelector implements IDisposable {
 
-	readonly dispose: () => cognidream;
+	readonly dispose: () => void;
 
 	constructor(
 		notebook: NotebookTextModel,
@@ -354,15 +354,15 @@ class NotebookEditorStatusContribution extends Disposable implements IWorkbenchC
 		this._register(editorGroupService.onDidCreateAuxiliaryEditorPart(part => this.createNotebookStatus(part)));
 	}
 
-	private createNotebookStatus(part: IEditorPartcognidreamognidream {
+	private createNotebookStatus(part: IEditorPart): void {
 		const disposables = new DisposableStore();
 		Event.once(part.onWillDispose)(() => disposables.dispose());
 
-const scopedInstantiationService = this.editorGroupService.getScopedInstantiationService(part);
-disposables.add(scopedInstantiationService.createInstance(KernelStatus));
-disposables.add(scopedInstantiationService.createInstance(ActiveCellStatus));
-disposables.add(scopedInstantiationService.createInstance(NotebookIndentationStatus));
-    }
+		const scopedInstantiationService = this.editorGroupService.getScopedInstantiationService(part);
+		disposables.add(scopedInstantiationService.createInstance(KernelStatus));
+		disposables.add(scopedInstantiationService.createInstance(ActiveCellStatus));
+		disposables.add(scopedInstantiationService.createInstance(NotebookIndentationStatus));
+	}
 }
 
 registerWorkbenchContribution2(NotebookEditorStatusContribution.ID, NotebookEditorStatusContribution, WorkbenchPhase.AfterRestored);

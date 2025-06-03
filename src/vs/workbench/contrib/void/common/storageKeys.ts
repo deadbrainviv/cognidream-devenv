@@ -4,16 +4,16 @@
  *--------------------------------------------------------------------------------------*/
 
 // past values:
-// 'cognidream.settingsServiceStorage'
-// 'cognidreamidream.settingsServiceStorageI' // 1.0.2
+// 'void.settingsServiceStorage'
+// 'void.settingsServiceStorageI' // 1.0.2
 
 // 1.0.3
-export const cognidreamidream_SETTINGS_STORAGE_Kcognidream 'cognidream.settingsServiceStorageII'
+export const VOID_SETTINGS_STORAGE_KEY = 'void.settingsServiceStorageII'
 
 
 // past values:
-// 'cognidreamidream.chatThreadStorage'
-// 'cognidreamidream.chatThreadStorageI' // 1.0.2
+// 'void.chatThreadStorage'
+// 'void.chatThreadStorageI' // 1.0.2
 
 // 1.0.3
-export const THREAD_STORAGE_KEY = 'cognidreamidream.chatThreadStorageII'
+export const THREAD_STORAGE_KEY = 'void.chatThreadStorageII'

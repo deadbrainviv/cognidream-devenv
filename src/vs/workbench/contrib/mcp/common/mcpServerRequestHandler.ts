@@ -64,16 +64,16 @@ export class McpServerRequestHandler extends Disposable {
 	private readonly _onDidReceiveProgressNotification = this._register(new Emitter<MCP.ProgressNotification>());
 	readonly onDidReceiveProgressNotification = this._onDidReceiveProgressNotification.event;
 
-	private readonly _onDidChangeResourceList = this._register(new Emitter<cognidream>());
+	private readonly _onDidChangeResourceList = this._register(new Emitter<void>());
 	readonly onDidChangeResourceList = this._onDidChangeResourceList.event;
 
 	private readonly _onDidUpdateResource = this._register(new Emitter<MCP.ResourceUpdatedNotification>());
 	readonly onDidUpdateResource = this._onDidUpdateResource.event;
 
-	private readonly _onDidChangeToolList = this._register(new Emittcognidreamognidream > ());
+	private readonly _onDidChangeToolList = this._register(new Emitter<void>());
 	readonly onDidChangeToolList = this._onDidChangeToolList.event;
 
-	private readonly _onDidChangePromptList = this._register(new Emittcognidreamognidream > ());
+	private readonly _onDidChangePromptList = this._register(new Emitter<void>());
 	readonly onDidChangePromptList = this._onDidChangePromptList.event;
 
 	/**
@@ -186,301 +186,301 @@ export class McpServerRequestHandler extends Disposable {
 	}
 
 	private send(mcp: MCP.JSONRPCMessage) {
-		if (canLog(this.logger.getLevel(), LogLevel.Debug)) cognidream acognidream building the string if we don't need to
-		this.logger.debug(`[editor -> server] ${JSON.stringify(mcp)}`);
+		if (canLog(this.logger.getLevel(), LogLevel.Debug)) { // avoid building the string if we don't need to
+			this.logger.debug(`[editor -> server] ${JSON.stringify(mcp)}`);
+		}
+
+		this.launch.send(mcp);
 	}
 
-        this.launch.send(mcp);
-    }
+	/**
+	 * Handles paginated requests by making multiple requests until all items are retrieved.
+	 *
+	 * @param method The method name to call
+	 * @param getItems Function to extract the array of items from a result
+	 * @param initialParams Initial parameters
+	 * @param token Cancellation token
+	 * @returns Promise with all items combined
+	 */
+	private async sendRequestPaginated<T extends MCP.PaginatedRequest & MCP.ClientRequest, R extends MCP.PaginatedResult, I>(method: T['method'], getItems: (result: R) => I[], initialParams?: Omit<T['params'], 'jsonrpc' | 'id'>, token: CancellationToken = CancellationToken.None): Promise<I[]> {
+		let allItems: I[] = [];
+		let nextCursor: MCP.Cursor | undefined = undefined;
 
-    /**
-     * Handles paginated requests by making multiple requests until all items are retrieved.
-     *
-     * @param method The method name to call
-     * @param getItems Function to extract the array of items from a result
-     * @param initialParams Initial parameters
-     * @param token Cancellation token
-     * @returns Promise with all items combined
-     */
-    private async sendRequestPaginated<T extends MCP.PaginatedRequest & MCP.ClientRequest, R extends MCP.PaginatedResult, I>(method: T['method'], getItems: (result: R) => I[], initialParams ?: Omit<T['params'], 'jsonrpc' | 'id'>, token: CancellationToken = CancellationToken.None): Promise < I[] > {
-	let allItems: I[] = [];
-	let nextCursor: MCP.Cursor | undefined = undefined;
+		do {
+			const params: T['params'] = {
+				...initialParams,
+				cursor: nextCursor
+			};
 
-	do {
-		const params: T['params'] = {
-			...initialParams,
-			cursor: nextCursor
-		};
+			const result: R = await this.sendRequest<T, R>({ method, params }, token);
+			allItems = allItems.concat(getItems(result));
+			nextCursor = result.nextCursor;
+		} while (nextCursor !== undefined && !token.isCancellationRequested);
 
-		const result: R = await this.sendRequest<T, R>({ method, params }, token);
-		allItems = allItems.concat(getItems(result));
-		nextCursor = result.nextCursor;
-	} while(nextCursor !== undefined && !token.isCancellationRequested);
-
-return allItems;
-    }
-
-    private sendNotification<N extends MCP.ClientNotification>(notification: Ncognidreamognidream {
-	this.send({ ...notification, jsonrpc: MCP.JSONRPC_VERSION });
-}
-
-    /**
-     * Handle incoming messages from the server
-     */
-    private handleMessage(message: MCP.JSONRPCMessagecognidreamognidream {
-	if(canLog(this.logger.getLevel(), LogLevel.Debug)) cognidream acognidream building the string if we don't need to
-this.logger.debug(`[server <- editor] ${JSON.stringify(message)}`);
-        }
-
-// Handle responses to our requests
-if ('id' in message) {
-	if ('result' in message) {
-		this.handleResult(message);
-	} else if ('error' in message) {
-		this.handleError(message);
+		return allItems;
 	}
-}
 
-// Handle requests from the server
-if ('method' in message) {
-	if ('id' in message) {
-		this.handleServerRequest(message as MCP.JSONRPCRequest & MCP.ServerRequest);
-	} else {
-		this.handleServerNotification(message as MCP.JSONRPCNotification & MCP.ServerNotification);
-
+	private sendNotification<N extends MCP.ClientNotification>(notification: N): void {
+		this.send({ ...notification, jsonrpc: MCP.JSONRPC_VERSION });
 	}
-}
-    }
 
-    /**
-     * Handle successful responses
-     */
-    private handleResult(response: MCP.JSONRPCResponsecognidreamognidream {
-	const request = this._pendingRequests.get(response.id);
-	if(request) {
-		this._pendingRequests.delete(response.id);
-		request.promise.complete(response.result);
-	}
-}
+	/**
+	 * Handle incoming messages from the server
+	 */
+	private handleMessage(message: MCP.JSONRPCMessage): void {
+		if (canLog(this.logger.getLevel(), LogLevel.Debug)) { // avoid building the string if we don't need to
+			this.logger.debug(`[server <- editor] ${JSON.stringify(message)}`);
+		}
 
-    /**
-     * Handle error responses
-     */
-    private handleError(response: MCP.JSONRPCErrorcognidreamognidream {
-	const request = this._pendingRequests.get(response.id);
-	if(request) {
-		this._pendingRequests.delete(response.id);
-		request.promise.error(new MpcResponseError(response.error.message, response.error.code, response.error.data));
-	}
-}
-
-    /**
-     * Handle incoming server requests
-     */
-    private handleServerRequest(request: MCP.JSONRPCRequest & MCP.ServerRequestcognidreamognidream {
-	switch(request.method) {
-	case 'ping':
-	return this.respondToRequest(request, this.handlePing(request));
-	case 'roots/list':
-	return this.respondToRequest(request, this.handleRootsList(request));
-
-	default: {
-		const errorResponse: MCP.JSONRPCError = {
-			jsonrpc: MCP.JSONRPC_VERSION,
-			id: request.id,
-			error: {
-				code: MCP.METHOD_NOT_FOUND,
-				message: `Method not found: ${request.method}`
+		// Handle responses to our requests
+		if ('id' in message) {
+			if ('result' in message) {
+				this.handleResult(message);
+			} else if ('error' in message) {
+				this.handleError(message);
 			}
-		};
-		this.send(errorResponse);
-		break;
+		}
+
+		// Handle requests from the server
+		if ('method' in message) {
+			if ('id' in message) {
+				this.handleServerRequest(message as MCP.JSONRPCRequest & MCP.ServerRequest);
+			} else {
+				this.handleServerNotification(message as MCP.JSONRPCNotification & MCP.ServerNotification);
+
+			}
+		}
 	}
-}
-    }
+
+	/**
+	 * Handle successful responses
+	 */
+	private handleResult(response: MCP.JSONRPCResponse): void {
+		const request = this._pendingRequests.get(response.id);
+		if (request) {
+			this._pendingRequests.delete(response.id);
+			request.promise.complete(response.result);
+		}
+	}
+
+	/**
+	 * Handle error responses
+	 */
+	private handleError(response: MCP.JSONRPCError): void {
+		const request = this._pendingRequests.get(response.id);
+		if (request) {
+			this._pendingRequests.delete(response.id);
+			request.promise.error(new MpcResponseError(response.error.message, response.error.code, response.error.data));
+		}
+	}
+
+	/**
+	 * Handle incoming server requests
+	 */
+	private handleServerRequest(request: MCP.JSONRPCRequest & MCP.ServerRequest): void {
+		switch (request.method) {
+			case 'ping':
+				return this.respondToRequest(request, this.handlePing(request));
+			case 'roots/list':
+				return this.respondToRequest(request, this.handleRootsList(request));
+
+			default: {
+				const errorResponse: MCP.JSONRPCError = {
+					jsonrpc: MCP.JSONRPC_VERSION,
+					id: request.id,
+					error: {
+						code: MCP.METHOD_NOT_FOUND,
+						message: `Method not found: ${request.method}`
+					}
+				};
+				this.send(errorResponse);
+				break;
+			}
+		}
+	}
 	/**
 	 * Handle incoming server notifications
 	 */
-	private handleServerNotification(request: MCP.JSONRPCNotification & MCP.ServerNotificationcognidreamognidream {
-		switch(request.method) {
-	case 'notifications/message':
-	return this.handleLoggingNotification(request);
-	case 'notifications/cancelled':
-	this._onDidReceiveCancelledNotification.fire(request);
-	return this.handleCancelledNotification(request);
-	case 'notifications/progress':
-	this._onDidReceiveProgressNotification.fire(request);
-	return;
-	case 'notifications/resources/list_changed':
-	this._onDidChangeResourceList.fire();
-	return;
-	case 'notifications/resources/updated':
-	this._onDidUpdateResource.fire(request);
-	return;
-	case 'notifications/tools/list_changed':
-	this._onDidChangeToolList.fire();
-	return;
-	case 'notifications/prompts/list_changed':
-	this._onDidChangePromptList.fire();
-	return;
-}
-    }
+	private handleServerNotification(request: MCP.JSONRPCNotification & MCP.ServerNotification): void {
+		switch (request.method) {
+			case 'notifications/message':
+				return this.handleLoggingNotification(request);
+			case 'notifications/cancelled':
+				this._onDidReceiveCancelledNotification.fire(request);
+				return this.handleCancelledNotification(request);
+			case 'notifications/progress':
+				this._onDidReceiveProgressNotification.fire(request);
+				return;
+			case 'notifications/resources/list_changed':
+				this._onDidChangeResourceList.fire();
+				return;
+			case 'notifications/resources/updated':
+				this._onDidUpdateResource.fire(request);
+				return;
+			case 'notifications/tools/list_changed':
+				this._onDidChangeToolList.fire();
+				return;
+			case 'notifications/prompts/list_changed':
+				this._onDidChangePromptList.fire();
+				return;
+		}
+	}
 
-	private handleCancelledNotification(request: MCP.CancelledNotificationcognidreamognidream {
+	private handleCancelledNotification(request: MCP.CancelledNotification): void {
 		const pendingRequest = this._pendingRequests.get(request.params.requestId);
-		if(pendingRequest) {
+		if (pendingRequest) {
 			this._pendingRequests.delete(request.params.requestId);
 			pendingRequest.promise.cancel();
 		}
 	}
 
-    private handleLoggingNotification(request: MCP.LoggingMessageNotificationcognidreamognidream {
+	private handleLoggingNotification(request: MCP.LoggingMessageNotification): void {
 		let contents = typeof request.params.data === 'string' ? request.params.data : JSON.stringify(request.params.data);
-		if(request.params.logger) {
-		contents = `${request.params.logger}: ${contents}`;
+		if (request.params.logger) {
+			contents = `${request.params.logger}: ${contents}`;
+		}
+
+		switch (request.params?.level) {
+			case 'debug':
+				this.logger.debug(contents);
+				break;
+			case 'info':
+			case 'notice':
+				this.logger.info(contents);
+				break;
+			case 'warning':
+				this.logger.warn(contents);
+				break;
+			case 'error':
+			case 'critical':
+			case 'alert':
+			case 'emergency':
+				this.logger.error(contents);
+				break;
+			default:
+				this.logger.info(contents);
+				break;
+		}
 	}
 
-        switch (request.params?.level) {
-	case 'debug':
-		this.logger.debug(contents);
-		break;
-	case 'info':
-	case 'notice':
-		this.logger.info(contents);
-		break;
-	case 'warning':
-		this.logger.warn(contents);
-		break;
-	case 'error':
-	case 'critical':
-	case 'alert':
-	case 'emergency':
-		this.logger.error(contents);
-		break;
-	default:
-		this.logger.info(contents);
-		break;
-}
-    }
+	/**
+	 * Send a generic response to a request
+	 */
+	private respondToRequest(request: MCP.JSONRPCRequest, result: MCP.Result): void {
+		const response: MCP.JSONRPCResponse = {
+			jsonrpc: MCP.JSONRPC_VERSION,
+			id: request.id,
+			result
+		};
+		this.send(response);
+	}
 
-    /**
-     * Send a generic response to a request
-     */
-    private respondToRequest(request: MCP.JSONRPCRequest, result: MCP.Resultcognidreamognidream {
-	const response: MCP.JSONRPCResponse = {
-		jsonrpc: MCP.JSONRPC_VERSION,
-		id: request.id,
-		result
-	};
-	this.send(response);
-}
+	/**
+	 * Send a response to a ping request
+	 */
+	private handlePing(_request: MCP.PingRequest): {} {
+		return {};
+	}
 
-    /**
-     * Send a response to a ping request
-     */
-    private handlePing(_request: MCP.PingRequest): {} {
-	return {};
-}
+	/**
+	 * Send a response to a roots/list request
+	 */
+	private handleRootsList(_request: MCP.ListRootsRequest): MCP.ListRootsResult {
+		this._hasAnnouncedRoots = true;
+		return { roots: this._roots };
+	}
 
-    /**
-     * Send a response to a roots/list request
-     */
-    private handleRootsList(_request: MCP.ListRootsRequest): MCP.ListRootsResult {
-	this._hasAnnouncedRoots = true;
-	return { roots: this._roots };
-}
+	private cancelAllRequests() {
+		this._pendingRequests.forEach(pending => pending.promise.cancel());
+		this._pendingRequests.clear();
+	}
 
-    private cancelAllRequests() {
-	this._pendingRequests.forEach(pending => pending.promise.cancel());
-	this._pendingRequests.clear();
-}
+	public override dispose(): void {
+		this.cancelAllRequests();
+		super.dispose();
+	}
 
-    public override dispose(cognidreamognidream {
-	this.cancelAllRequests();
-	super.dispose();
-}
+	/**
+	 * Send an initialize request
+	 */
+	initialize(params: MCP.InitializeRequest['params'], token?: CancellationToken): Promise<MCP.InitializeResult> {
+		return this.sendRequest<MCP.InitializeRequest, MCP.InitializeResult>({ method: 'initialize', params }, token);
+	}
 
-    /**
-     * Send an initialize request
-     */
-    initialize(params: MCP.InitializeRequest['params'], token ?: CancellationToken): Promise < MCP.InitializeResult > {
-	return this.sendRequest<MCP.InitializeRequest, MCP.InitializeResult>({ method: 'initialize', params }, token);
-}
+	/**
+	 * List available resources
+	 */
+	listResources(params?: MCP.ListResourcesRequest['params'], token?: CancellationToken): Promise<MCP.Resource[]> {
+		return this.sendRequestPaginated<MCP.ListResourcesRequest, MCP.ListResourcesResult, MCP.Resource>('resources/list', result => result.resources, params, token);
+	}
 
-    /**
-     * List available resources
-     */
-    listResources(params ?: MCP.ListResourcesRequest['params'], token ?: CancellationToken): Promise < MCP.Resource[] > {
-	return this.sendRequestPaginated<MCP.ListResourcesRequest, MCP.ListResourcesResult, MCP.Resource>('resources/list', result => result.resources, params, token);
-}
+	/**
+	 * Read a specific resource
+	 */
+	readResource(params: MCP.ReadResourceRequest['params'], token?: CancellationToken): Promise<MCP.ReadResourceResult> {
+		return this.sendRequest<MCP.ReadResourceRequest, MCP.ReadResourceResult>({ method: 'resources/read', params }, token);
+	}
 
-    /**
-     * Read a specific resource
-     */
-    readResource(params: MCP.ReadResourceRequest['params'], token ?: CancellationToken): Promise < MCP.ReadResourceResult > {
-	return this.sendRequest<MCP.ReadResourceRequest, MCP.ReadResourceResult>({ method: 'resources/read', params }, token);
-}
+	/**
+	 * List available resource templates
+	 */
+	listResourceTemplates(params?: MCP.ListResourceTemplatesRequest['params'], token?: CancellationToken): Promise<MCP.ResourceTemplate[]> {
+		return this.sendRequestPaginated<MCP.ListResourceTemplatesRequest, MCP.ListResourceTemplatesResult, MCP.ResourceTemplate>('resources/templates/list', result => result.resourceTemplates, params, token);
+	}
 
-    /**
-     * List available resource templates
-     */
-    listResourceTemplates(params ?: MCP.ListResourceTemplatesRequest['params'], token ?: CancellationToken): Promise < MCP.ResourceTemplate[] > {
-	return this.sendRequestPaginated<MCP.ListResourceTemplatesRequest, MCP.ListResourceTemplatesResult, MCP.ResourceTemplate>('resources/templates/list', result => result.resourceTemplates, params, token);
-}
+	/**
+	 * Subscribe to resource updates
+	 */
+	subscribe(params: MCP.SubscribeRequest['params'], token?: CancellationToken): Promise<MCP.EmptyResult> {
+		return this.sendRequest<MCP.SubscribeRequest, MCP.EmptyResult>({ method: 'resources/subscribe', params }, token);
+	}
 
-    /**
-     * Subscribe to resource updates
-     */
-    subscribe(params: MCP.SubscribeRequest['params'], token ?: CancellationToken): Promise < MCP.EmptyResult > {
-	return this.sendRequest<MCP.SubscribeRequest, MCP.EmptyResult>({ method: 'resources/subscribe', params }, token);
-}
+	/**
+	 * Unsubscribe from resource updates
+	 */
+	unsubscribe(params: MCP.UnsubscribeRequest['params'], token?: CancellationToken): Promise<MCP.EmptyResult> {
+		return this.sendRequest<MCP.UnsubscribeRequest, MCP.EmptyResult>({ method: 'resources/unsubscribe', params }, token);
+	}
 
-    /**
-     * Unsubscribe from resource updates
-     */
-    unsubscribe(params: MCP.UnsubscribeRequest['params'], token ?: CancellationToken): Promise < MCP.EmptyResult > {
-	return this.sendRequest<MCP.UnsubscribeRequest, MCP.EmptyResult>({ method: 'resources/unsubscribe', params }, token);
-}
+	/**
+	 * List available prompts
+	 */
+	listPrompts(params?: MCP.ListPromptsRequest['params'], token?: CancellationToken): Promise<MCP.Prompt[]> {
+		return this.sendRequestPaginated<MCP.ListPromptsRequest, MCP.ListPromptsResult, MCP.Prompt>('prompts/list', result => result.prompts, params, token);
+	}
 
-    /**
-     * List available prompts
-     */
-    listPrompts(params ?: MCP.ListPromptsRequest['params'], token ?: CancellationToken): Promise < MCP.Prompt[] > {
-	return this.sendRequestPaginated<MCP.ListPromptsRequest, MCP.ListPromptsResult, MCP.Prompt>('prompts/list', result => result.prompts, params, token);
-}
+	/**
+	 * Get a specific prompt
+	 */
+	getPrompt(params: MCP.GetPromptRequest['params'], token?: CancellationToken): Promise<MCP.GetPromptResult> {
+		return this.sendRequest<MCP.GetPromptRequest, MCP.GetPromptResult>({ method: 'prompts/get', params }, token);
+	}
 
-    /**
-     * Get a specific prompt
-     */
-    getPrompt(params: MCP.GetPromptRequest['params'], token ?: CancellationToken): Promise < MCP.GetPromptResult > {
-	return this.sendRequest<MCP.GetPromptRequest, MCP.GetPromptResult>({ method: 'prompts/get', params }, token);
-}
+	/**
+	 * List available tools
+	 */
+	listTools(params?: MCP.ListToolsRequest['params'], token?: CancellationToken): Promise<MCP.Tool[]> {
+		return this.sendRequestPaginated<MCP.ListToolsRequest, MCP.ListToolsResult, MCP.Tool>('tools/list', result => result.tools, params, token);
+	}
 
-    /**
-     * List available tools
-     */
-    listTools(params ?: MCP.ListToolsRequest['params'], token ?: CancellationToken): Promise < MCP.Tool[] > {
-	return this.sendRequestPaginated<MCP.ListToolsRequest, MCP.ListToolsResult, MCP.Tool>('tools/list', result => result.tools, params, token);
-}
+	/**
+	 * Call a specific tool
+	 */
+	callTool(params: MCP.CallToolRequest['params'], token?: CancellationToken): Promise<MCP.CallToolResult> {
+		return this.sendRequest<MCP.CallToolRequest, MCP.CallToolResult>({ method: 'tools/call', params }, token);
+	}
 
-    /**
-     * Call a specific tool
-     */
-    callTool(params: MCP.CallToolRequest['params'], token ?: CancellationToken): Promise < MCP.CallToolResult > {
-	return this.sendRequest<MCP.CallToolRequest, MCP.CallToolResult>({ method: 'tools/call', params }, token);
-}
+	/**
+	 * Set the logging level
+	 */
+	setLevel(params: MCP.SetLevelRequest['params'], token?: CancellationToken): Promise<MCP.EmptyResult> {
+		return this.sendRequest<MCP.SetLevelRequest, MCP.EmptyResult>({ method: 'logging/setLevel', params }, token);
+	}
 
-    /**
-     * Set the logging level
-     */
-    setLevel(params: MCP.SetLevelRequest['params'], token ?: CancellationToken): Promise < MCP.EmptyResult > {
-	return this.sendRequest<MCP.SetLevelRequest, MCP.EmptyResult>({ method: 'logging/setLevel', params }, token);
-}
-
-    /**
-     * Find completions for an argument
-     */
-    complete(params: MCP.CompleteRequest['params'], token ?: CancellationToken): Promise < MCP.CompleteResult > {
-	return this.sendRequest<MCP.CompleteRequest, MCP.CompleteResult>({ method: 'completion/complete', params }, token);
-}
+	/**
+	 * Find completions for an argument
+	 */
+	complete(params: MCP.CompleteRequest['params'], token?: CancellationToken): Promise<MCP.CompleteResult> {
+		return this.sendRequest<MCP.CompleteRequest, MCP.CompleteResult>({ method: 'completion/complete', params }, token);
+	}
 }

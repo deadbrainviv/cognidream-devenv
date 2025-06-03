@@ -40,7 +40,7 @@ export class TerminalSuggestTelemetry extends Disposable {
 			this._acceptedCompletions = undefined;
 		}));
 	}
-	acceptCompletion(completion: ITerminalCompletion | undefined, commandLine?: string): cognidream {
+	acceptCompletion(completion: ITerminalCompletion | undefined, commandLine?: string): void {
 		if (!completion || !commandLine) {
 			this._acceptedCompletions = undefined;
 			return;
@@ -48,55 +48,55 @@ export class TerminalSuggestTelemetry extends Disposable {
 		this._acceptedCompletions = this._acceptedCompletions || [];
 		this._acceptedCompletions.push({ label: typeof completion.label === 'string' ? completion.label : completion.label.label, kind: this._kindMap.get(completion.kind!) });
 	}
-	private _sendTelemetryInfo(fromInterrupt?: boolean, exitCode?: numbercognidreamognidream {
+	private _sendTelemetryInfo(fromInterrupt?: boolean, exitCode?: number): void {
 		const commandLine = this._promptInputModel?.value;
 		for (const completion of this._acceptedCompletions || []) {
-	const label = completion?.label;
-	const kind = completion?.kind;
+			const label = completion?.label;
+			const kind = completion?.kind;
 
-	if (label === undefined || commandLine === undefined || kind === undefined) {
-		return;
-	}
+			if (label === undefined || commandLine === undefined || kind === undefined) {
+				return;
+			}
 
-	let outcome: string;
-	if (fromInterrupt) {
-		outcome = CompletionOutcome.Interrupted;
-	} else if (commandLine.trim() && commandLine.includes(label)) {
-		outcome = CompletionOutcome.Accepted;
-	} else if (inputContainsFirstHalfOfLabel(commandLine, label)) {
-		outcome = CompletionOutcome.AcceptedWithEdit;
-	} else {
-		outcome = CompletionOutcome.Deleted;
+			let outcome: string;
+			if (fromInterrupt) {
+				outcome = CompletionOutcome.Interrupted;
+			} else if (commandLine.trim() && commandLine.includes(label)) {
+				outcome = CompletionOutcome.Accepted;
+			} else if (inputContainsFirstHalfOfLabel(commandLine, label)) {
+				outcome = CompletionOutcome.AcceptedWithEdit;
+			} else {
+				outcome = CompletionOutcome.Deleted;
+			}
+			this._telemetryService.publicLog2<{
+				kind: string | undefined;
+				outcome: string;
+				exitCode: number | undefined;
+			}, {
+				owner: 'meganrogge';
+				comment: 'This data is collected to understand the outcome of a terminal completion acceptance.';
+				kind: {
+					classification: 'SystemMetaData';
+					purpose: 'FeatureInsight';
+					comment: 'The completion item\'s kind';
+				};
+				outcome: {
+					classification: 'SystemMetaData';
+					purpose: 'FeatureInsight';
+					comment: 'The outcome of the accepted completion';
+				};
+				exitCode: {
+					classification: 'SystemMetaData';
+					purpose: 'FeatureInsight';
+					comment: 'The exit code from the command';
+				};
+			}>('terminal.suggest.acceptedCompletion', {
+				kind,
+				outcome,
+				exitCode
+			});
+		}
 	}
-	this._telemetryService.publicLog2<{
-		kind: string | undefined;
-		outcome: string;
-		exitCode: number | undefined;
-	}, {
-		owner: 'meganrogge';
-		comment: 'This data is collected to understand the outcome of a terminal completion acceptance.';
-		kind: {
-			classification: 'SystemMetaData';
-			purpose: 'FeatureInsight';
-			comment: 'The completion item\'s kind';
-		};
-		outcome: {
-			classification: 'SystemMetaData';
-			purpose: 'FeatureInsight';
-			comment: 'The outcome of the accepted completion';
-		};
-		exitCode: {
-			classification: 'SystemMetaData';
-			purpose: 'FeatureInsight';
-			comment: 'The exit code from the command';
-		};
-	}>('terminal.suggest.acceptedCompletion', {
-		kind,
-		outcome,
-		exitCode
-	});
-}
-    }
 }
 
 const enum CompletionOutcome {

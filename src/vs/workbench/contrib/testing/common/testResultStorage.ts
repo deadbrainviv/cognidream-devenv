@@ -34,7 +34,7 @@ export interface ITestResultStorage {
 	/**
 	 * Persists the list of test results.
 	 */
-	persist(results: ReadonlyArray<ITestResult>): Promise<cognidream>;
+	persist(results: ReadonlyArray<ITestResult>): Promise<void>;
 }
 
 export const ITestResultStorage = createDecorator('ITestResultStorage');
@@ -105,78 +105,78 @@ export abstract class BaseTestResultStorage extends Disposable implements ITestR
 	/**
 	 * @override
 	 */
-	public async persist(results: ReadonlyArray<ITestResult>): Promicognidreamognidream> {
+	public async persist(results: ReadonlyArray<ITestResult>): Promise<void> {
 		const toDelete = new Map(this.stored.get([]).map(({ id, bytes }) => [id, bytes]));
-		const toStore: { rev: number; id: string; bytes: number } [] = [];
-const todo: Promise<unknown>[] = [];
-let budget = RETAIN_MAX_BYTES;
+		const toStore: { rev: number; id: string; bytes: number }[] = [];
+		const todo: Promise<unknown>[] = [];
+		let budget = RETAIN_MAX_BYTES;
 
-// Run until either:
-// 1. We store all results
-// 2. We store the max results
-// 3. We store the min results, and have no more byte budget
-for (
-	let i = 0;
-	i < results.length && i < RETAIN_MAX_RESULTS && (budget > 0 || toStore.length < RETAIN_MIN_RESULTS);
-	i++
-) {
-	const result = results[i];
-	const existingBytes = toDelete.get(result.id);
-	if (existingBytes !== undefined) {
-		toDelete.delete(result.id);
-		toStore.push({ id: result.id, rev: currentRevision, bytes: existingBytes });
-		budget -= existingBytes;
-		continue;
+		// Run until either:
+		// 1. We store all results
+		// 2. We store the max results
+		// 3. We store the min results, and have no more byte budget
+		for (
+			let i = 0;
+			i < results.length && i < RETAIN_MAX_RESULTS && (budget > 0 || toStore.length < RETAIN_MIN_RESULTS);
+			i++
+		) {
+			const result = results[i];
+			const existingBytes = toDelete.get(result.id);
+			if (existingBytes !== undefined) {
+				toDelete.delete(result.id);
+				toStore.push({ id: result.id, rev: currentRevision, bytes: existingBytes });
+				budget -= existingBytes;
+				continue;
+			}
+
+			const obj = result.toJSON();
+			if (!obj) {
+				continue;
+			}
+
+			const contents = VSBuffer.fromString(JSON.stringify(obj));
+			todo.push(this.storeForResultId(result.id, obj));
+			toStore.push({ id: result.id, rev: currentRevision, bytes: contents.byteLength });
+			budget -= contents.byteLength;
+		}
+
+		for (const id of toDelete.keys()) {
+			todo.push(this.deleteForResultId(id).catch(() => undefined));
+		}
+
+		this.stored.store(toStore);
+		await Promise.all(todo);
 	}
 
-	const obj = result.toJSON();
-	if (!obj) {
-		continue;
-	}
+	/**
+	 * Reads serialized results for the test. Is allowed to throw.
+	 */
+	protected abstract readForResultId(id: string): Promise<ISerializedTestResults | undefined>;
 
-	const contents = VSBuffer.fromString(JSON.stringify(obj));
-	todo.push(this.storeForResultId(result.id, obj));
-	toStore.push({ id: result.id, rev: currentRevision, bytes: contents.byteLength });
-	budget -= contents.byteLength;
-}
+	/**
+	 * Reads output as a stream for the test.
+	 */
+	protected abstract readOutputForResultId(id: string): Promise<VSBufferReadableStream>;
 
-for (const id of toDelete.keys()) {
-	todo.push(this.deleteForResultId(id).catch(() => undefined));
-}
+	/**
+	 * Reads an output range for the test.
+	 */
+	protected abstract readOutputRangeForResultId(id: string, offset: number, length: number): Promise<VSBuffer>;
 
-this.stored.store(toStore);
-await Promise.all(todo);
-    }
+	/**
+	 * Deletes serialized results for the test.
+	 */
+	protected abstract deleteForResultId(id: string): Promise<unknown>;
 
-    /**
-     * Reads serialized results for the test. Is allowed to throw.
-     */
-    protected abstract readForResultId(id: string): Promise<ISerializedTestResults | undefined>;
+	/**
+	 * Stores test results by ID.
+	 */
+	protected abstract storeForResultId(id: string, data: ISerializedTestResults): Promise<unknown>;
 
-    /**
-     * Reads output as a stream for the test.
-     */
-    protected abstract readOutputForResultId(id: string): Promise<VSBufferReadableStream>;
-
-    /**
-     * Reads an output range for the test.
-     */
-    protected abstract readOutputRangeForResultId(id: string, offset: number, length: number): Promise<VSBuffer>;
-
-    /**
-     * Deletes serialized results for the test.
-     */
-    protected abstract deleteForResultId(id: string): Promise<unknown>;
-
-    /**
-     * Stores test results by ID.
-     */
-    protected abstract storeForResultId(id: string, data: ISerializedTestResults): Promise<unknown>;
-
-    /**
-     * Reads serialized results for the test. Is allowed to throw.
-     */
-    protected abstract storeOutputForResultId(id: string, input: VSBufferWriteableStream): Promicognidreamognidream >;
+	/**
+	 * Reads serialized results for the test. Is allowed to throw.
+	 */
+	protected abstract storeOutputForResultId(id: string, input: VSBufferWriteableStream): Promise<void>;
 }
 
 export class InMemoryResultStorage extends BaseTestResultStorage {
@@ -200,13 +200,13 @@ export class InMemoryResultStorage extends BaseTestResultStorage {
 		throw new Error('Method not implemented.');
 	}
 
-	protected storeOutputForResultId(id: string, input: VSBufferWriteableStream): Promicognidreamognidream> {
+	protected storeOutputForResultId(id: string, input: VSBufferWriteableStream): Promise<void> {
 		throw new Error('Method not implemented.');
 	}
 
-    protected readOutputRangeForResultId(id: string, offset: number, length: number): Promise < VSBuffer > {
-	throw new Error('Method not implemented.');
-}
+	protected readOutputRangeForResultId(id: string, offset: number, length: number): Promise<VSBuffer> {
+		throw new Error('Method not implemented.');
+	}
 }
 
 export class TestResultStorage extends BaseTestResultStorage {

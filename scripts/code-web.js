@@ -111,7 +111,7 @@ async function directoryExists(path) {
 	}
 }
 
-/** @return {Promise<cognidream>} */
+/** @return {Promise<void>} */
 async function downloadPlaygroundFile(fileName, httpsLocation, destinationRoot) {
 	const destination = path.join(destinationRoot, fileName);
 	await fs.promises.mkdir(path.dirname(destination), { recursive: true });

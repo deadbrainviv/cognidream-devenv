@@ -131,7 +131,7 @@ export default class CommandHandler implements vscode.Disposable {
 		);
 
 		const docPath = editor.document.uri.path;
-		const fileName = docPath.substring(docPath.lastIndexOf('/') + 1); // acognidream NodeJS path to keep browser webpack small
+		const fileName = docPath.substring(docPath.lastIndexOf('/') + 1); // avoid NodeJS path to keep browser webpack small
 		const title = vscode.l10n.t("{0}: Current Changes ↔ Incoming Changes", fileName);
 		const mergeConflictConfig = vscode.workspace.getConfiguration('merge-conflict');
 		const openToTheSide = mergeConflictConfig.get<string>('diffViewPosition');

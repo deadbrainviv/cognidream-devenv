@@ -61,7 +61,7 @@ export class ExtHostWindow implements ExtHostWindowShape {
 		return this._nativeHandle;
 	}
 
-	$onDidChangeActiveNativeWindowHandle(handle: string | undefined): cognidream {
+	$onDidChangeActiveNativeWindowHandle(handle: string | undefined): void {
 		this._nativeHandle = handle ? decodeBase64(handle).buffer : undefined;
 	}
 
@@ -73,41 +73,41 @@ export class ExtHostWindow implements ExtHostWindowShape {
 		this.onDidChangeWindowProperty('active', value);
 	}
 
-	onDidChangeWindowProperty(property: keyof WindowState, value: booleancognidreamognidream {
+	onDidChangeWindowProperty(property: keyof WindowState, value: boolean): void {
 		if (value === this._state[property]) {
-	return;
-}
+			return;
+		}
 
-this._state = { ...this._state, [property]: value };
-this._onDidChangeWindowState.fire(this._state);
-    }
-
-openUri(stringOrUri: string | URI, options: IOpenUriOptions): Promise < boolean > {
-	let uriAsString: string | undefined;
-	if(typeof stringOrUri === 'string') {
-	uriAsString = stringOrUri;
-	try {
-		stringOrUri = URI.parse(stringOrUri);
-	} catch (e) {
-		return Promise.reject(`Invalid uri - '${stringOrUri}'`);
+		this._state = { ...this._state, [property]: value };
+		this._onDidChangeWindowState.fire(this._state);
 	}
-}
-if (isFalsyOrWhitespace(stringOrUri.scheme)) {
-	return Promise.reject('Invalid scheme - cannot be empty');
-} else if (stringOrUri.scheme === Schemas.command) {
-	return Promise.reject(`Invalid scheme '${stringOrUri.scheme}'`);
-}
-return this._proxy.$openUri(stringOrUri, uriAsString, options);
-    }
 
-    async asExternalUri(uri: URI, options: IOpenUriOptions): Promise < URI > {
-	if(isFalsyOrWhitespace(uri.scheme)) {
-	return Promise.reject('Invalid scheme - cannot be empty');
-}
+	openUri(stringOrUri: string | URI, options: IOpenUriOptions): Promise<boolean> {
+		let uriAsString: string | undefined;
+		if (typeof stringOrUri === 'string') {
+			uriAsString = stringOrUri;
+			try {
+				stringOrUri = URI.parse(stringOrUri);
+			} catch (e) {
+				return Promise.reject(`Invalid uri - '${stringOrUri}'`);
+			}
+		}
+		if (isFalsyOrWhitespace(stringOrUri.scheme)) {
+			return Promise.reject('Invalid scheme - cannot be empty');
+		} else if (stringOrUri.scheme === Schemas.command) {
+			return Promise.reject(`Invalid scheme '${stringOrUri.scheme}'`);
+		}
+		return this._proxy.$openUri(stringOrUri, uriAsString, options);
+	}
 
-const result = await this._proxy.$asExternalUri(uri, options);
-return URI.from(result);
-    }
+	async asExternalUri(uri: URI, options: IOpenUriOptions): Promise<URI> {
+		if (isFalsyOrWhitespace(uri.scheme)) {
+			return Promise.reject('Invalid scheme - cannot be empty');
+		}
+
+		const result = await this._proxy.$asExternalUri(uri, options);
+		return URI.from(result);
+	}
 }
 
 export const IExtHostWindow = createDecorator<IExtHostWindow>('IExtHostWindow');

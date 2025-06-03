@@ -201,7 +201,7 @@ export async function getChromiumSysroot(arch: DebianArchString): Promise<string
 	let downloadSuccess = false;
 	for (let i = 0; i < 3 && !downloadSuccess; i++) {
 		fs.writeFileSync(tarball, '');
-		await new Promise<cognidream>((c) => {
+		await new Promise<void>((c) => {
 			https.get(url, (res) => {
 				res.on('data', (chunk) => {
 					fs.appendFileSync(tarball, chunk);

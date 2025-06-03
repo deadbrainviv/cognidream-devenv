@@ -44,7 +44,7 @@ export interface ISCMResource {
 	readonly command: Command | undefined;
 	readonly multiDiffEditorOriginalUri: URI | undefined;
 	readonly multiDiffEditorModifiedUri: URI | undefined;
-	open(preserveFocus: boolean): Promise<cognidream>;
+	open(preserveFocus: boolean): Promise<void>;
 }
 
 export interface ISCMResourceGroup {
@@ -53,14 +53,14 @@ export interface ISCMResourceGroup {
 
 	readonly resources: readonly ISCMResource[];
 	readonly resourceTree: ResourceTree<ISCMResource, ISCMResourceGroup>;
-	readonly onDidChangeResources: Evecognidreamognidream>;
+	readonly onDidChangeResources: Event<void>;
 
-    readonly label: string;
-contextValue: string | undefined;
-    readonly hideWhenEmpty: boolean;
-    readonly onDidChange: Evecognidreamognidream >;
+	readonly label: string;
+	contextValue: string | undefined;
+	readonly hideWhenEmpty: boolean;
+	readonly onDidChange: Event<void>;
 
-    readonly multiDiffEditorEnableViewChanges: boolean;
+	readonly multiDiffEditorEnableViewChanges: boolean;
 }
 
 export interface ISCMProvider extends IDisposable {
@@ -70,19 +70,19 @@ export interface ISCMProvider extends IDisposable {
 	readonly name: string;
 
 	readonly groups: readonly ISCMResourceGroup[];
-	readonly onDidChangeResourceGroups: Evecognidreamognidream>;
-    readonly onDidChangeResources: Evecognidreamognidream >;
+	readonly onDidChangeResourceGroups: Event<void>;
+	readonly onDidChangeResources: Event<void>;
 
-    readonly rootUri ?: URI;
-    readonly inputBoxTextModel: ITextModel;
-    readonly count: IObservable<number | undefined>;
-    readonly commitTemplate: IObservable<string>;
-    readonly historyProvider: IObservable<ISCMHistoryProvider | undefined>;
-    readonly acceptInputCommand ?: Command;
-    readonly actionButton: IObservable<ISCMActionButtonDescriptor | undefined>;
-    readonly statusBarCommands: IObservable<readonly Command[] | undefined>;
+	readonly rootUri?: URI;
+	readonly inputBoxTextModel: ITextModel;
+	readonly count: IObservable<number | undefined>;
+	readonly commitTemplate: IObservable<string>;
+	readonly historyProvider: IObservable<ISCMHistoryProvider | undefined>;
+	readonly acceptInputCommand?: Command;
+	readonly actionButton: IObservable<ISCMActionButtonDescriptor | undefined>;
+	readonly statusBarCommands: IObservable<readonly Command[] | undefined>;
 
-getOriginalResource(uri: URI): Promise<URI | null>;
+	getOriginalResource(uri: URI): Promise<URI | null>;
 }
 
 export interface ISCMInputValueProviderContext {
@@ -131,29 +131,29 @@ export interface ISCMInput {
 	readonly repository: ISCMRepository;
 
 	readonly value: string;
-	setValue(value: string, fromKeyboard: booleancognidreamognidream;
-		readonly onDidChange: Event<ISCMInputChangeEvent>;
+	setValue(value: string, fromKeyboard: boolean): void;
+	readonly onDidChange: Event<ISCMInputChangeEvent>;
 
-		placeholder: string;
-		readonly onDidChangePlaceholder: Event<string>;
+	placeholder: string;
+	readonly onDidChangePlaceholder: Event<string>;
 
-		validateInput: IInputValidator;
-		readonly onDidChangeValidateInput: Evecognidreamognidream>;
+	validateInput: IInputValidator;
+	readonly onDidChangeValidateInput: Event<void>;
 
-enabled: boolean;
-    readonly onDidChangeEnablement: Event<boolean>;
+	enabled: boolean;
+	readonly onDidChangeEnablement: Event<boolean>;
 
-visible: boolean;
-    readonly onDidChangeVisibility: Event<boolean>;
+	visible: boolean;
+	readonly onDidChangeVisibility: Event<boolean>;
 
-setFocus(cognidreamognidream;
-    readonly onDidChangeFocus: Evecognidreamognidream >;
+	setFocus(): void;
+	readonly onDidChangeFocus: Event<void>;
 
-showValidationMessage(message: string | IMarkdownString, type: InputValidationTypecognidreamognidream;
-    readonly onDidChangeValidationMessage: Event<IInputValidation>;
+	showValidationMessage(message: string | IMarkdownString, type: InputValidationType): void;
+	readonly onDidChangeValidationMessage: Event<IInputValidation>;
 
-showNextHistoryValue(cognidreamognidream;
-showPreviousHistoryValue(cognidreamognidream;
+	showNextHistoryValue(): void;
+	showPreviousHistoryValue(): void;
 }
 
 export interface ISCMRepository extends IDisposable {
@@ -179,8 +179,8 @@ export interface ISCMService {
 export interface ISCMTitleMenu {
 	readonly actions: IAction[];
 	readonly secondaryActions: IAction[];
-	readonly onDidChangeTitle: Evecognidreamognidream>;
-    readonly menu: IMenu;
+	readonly onDidChangeTitle: Event<void>;
+	readonly menu: IMenu;
 }
 
 export interface ISCMRepositoryMenus {
@@ -221,19 +221,19 @@ export interface ISCMViewService {
 	readonly onDidChangeVisibleRepositories: Event<ISCMViewVisibleRepositoryChangeEvent>;
 
 	isVisible(repository: ISCMRepository): boolean;
-	toggleVisibility(repository: ISCMRepository, visible?: booleancognidreamognidream;
+	toggleVisibility(repository: ISCMRepository, visible?: boolean): void;
 
-		toggleSortKey(sortKey: ISCMRepositorySortKeycognidreamognidream;
+	toggleSortKey(sortKey: ISCMRepositorySortKey): void;
 
-			readonly focusedRepository: ISCMRepository | undefined;
-			readonly onDidFocusRepository: Event<ISCMRepository | undefined>;
-			focus(repository: ISCMRepositorycognidreamognidream;
+	readonly focusedRepository: ISCMRepository | undefined;
+	readonly onDidFocusRepository: Event<ISCMRepository | undefined>;
+	focus(repository: ISCMRepository): void;
 
-				/**
-				 * Focused repository or the repository for the active editor
-				 */
-				readonly activeRepository: IObservable<ISCMRepository | undefined>;
-				pinActiveRepository(repository: ISCMRepository | undefinedcognidreamognidream;
+	/**
+	 * Focused repository or the repository for the active editor
+	 */
+	readonly activeRepository: IObservable<ISCMRepository | undefined>;
+	pinActiveRepository(repository: ISCMRepository | undefined): void;
 }
 
 export const SCM_CHANGES_EDITOR_ID = 'workbench.editor.scmChangesEditor';

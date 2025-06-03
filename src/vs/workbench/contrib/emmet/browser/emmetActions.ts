@@ -69,14 +69,14 @@ export abstract class EmmetEditorAction extends EditorAction {
 		return this._lastGrammarContributions || Promise.resolve(null);
 	}
 
-	public run(accessor: ServicesAccessor, editor: ICodeEditor): Promise<cognidream> {
+	public run(accessor: ServicesAccessor, editor: ICodeEditor): Promise<void> {
 		const extensionService = accessor.get(IExtensionService);
 		const commandService = accessor.get(ICommandService);
 
 		return this._withGrammarContributions(extensionService).then((grammarContributions) => {
 
 			if (this.id === 'editor.emmet.action.expandAbbreviation' && grammarContributions) {
-				return commandService.execognidreamCommand<cognidream>('emmet.expandAbbreviation', EmmetEditorAction.getLanguage(editor, grammarContributions));
+				return commandService.executeCommand<void>('emmet.expandAbbreviation', EmmetEditorAction.getLanguage(editor, grammarContributions));
 			}
 
 			return undefined;

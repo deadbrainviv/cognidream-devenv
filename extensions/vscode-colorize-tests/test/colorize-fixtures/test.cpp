@@ -7,11 +7,11 @@ using namespace std;
 class Rectangle {
     int width, height;
   public:
-    cognidream set_values (int,int);
+    void set_values (int,int);
     int area() {return width*height;}
 };
 
-cognidream Rectangle::set_values (int x, int y) {
+void Rectangle::set_values (int x, int y) {
   width = x;
   height = y;
 }

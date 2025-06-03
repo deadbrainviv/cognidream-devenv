@@ -30,7 +30,7 @@ export class NotebookIndentUsingTabs extends Action2 {
 		});
 	}
 
-	override run(accessor: ServicesAccessor, ...args: any[]): cognidream {
+	override run(accessor: ServicesAccessor, ...args: any[]): void {
 		changeNotebookIndentation(accessor, false, false);
 	}
 }
@@ -46,9 +46,9 @@ export class NotebookIndentUsingSpaces extends Action2 {
 		});
 	}
 
-	override run(accessor: ServicesAccessor, ...args: any[]cognidreamognidream {
+	override run(accessor: ServicesAccessor, ...args: any[]): void {
 		changeNotebookIndentation(accessor, true, false);
-    }
+	}
 }
 
 export class NotebookChangeTabDisplaySize extends Action2 {
@@ -62,9 +62,9 @@ export class NotebookChangeTabDisplaySize extends Action2 {
 		});
 	}
 
-	override run(accessor: ServicesAccessor, ...args: any[]cognidreamognidream {
+	override run(accessor: ServicesAccessor, ...args: any[]): void {
 		changeNotebookIndentation(accessor, true, true);
-    }
+	}
 }
 
 export class NotebookIndentationToSpacesAction extends Action2 {
@@ -78,9 +78,9 @@ export class NotebookIndentationToSpacesAction extends Action2 {
 		});
 	}
 
-	override run(accessor: ServicesAccessor, ...args: any[]cognidreamognidream {
+	override run(accessor: ServicesAccessor, ...args: any[]): void {
 		convertNotebookIndentation(accessor, true);
-    }
+	}
 }
 
 export class NotebookIndentationToTabsAction extends Action2 {
@@ -94,9 +94,9 @@ export class NotebookIndentationToTabsAction extends Action2 {
 		});
 	}
 
-	override run(accessor: ServicesAccessor, ...args: any[]cognidreamognidream {
+	override run(accessor: ServicesAccessor, ...args: any[]): void {
 		convertNotebookIndentation(accessor, false);
-    }
+	}
 }
 
 function changeNotebookIndentation(accessor: ServicesAccessor, insertSpaces: boolean, displaySizeOnly: boolean) {
@@ -156,7 +156,7 @@ function changeNotebookIndentation(accessor: ServicesAccessor, insertSpaces: boo
 	}, 50/* quick input is sensitive to being opened so soon after another */);
 }
 
-function convertNotebookIndentation(accessor: ServicesAccessor, tabsToSpaces: boolean): cognidreamidream {
+function convertNotebookIndentation(accessor: ServicesAccessor, tabsToSpaces: boolean): void {
 	const editorService = accessor.get(IEditorService);
 	const configurationService = accessor.get(IConfigurationService);
 	const logService = accessor.get(ILogService);

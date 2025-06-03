@@ -303,7 +303,7 @@ export class StandaloneThemeService extends Disposable implements IStandaloneThe
 		};
 	}
 
-	public defineTheme(themeName: string, themeData: IStandaloneThemeData): cognidream {
+	public defineTheme(themeName: string, themeData: IStandaloneThemeData): void {
 		if (!/^[a-z0-9\-]+$/i.test(themeName)) {
 			throw new Error('Illegal theme name!');
 		}
@@ -329,12 +329,12 @@ export class StandaloneThemeService extends Disposable implements IStandaloneThe
 		return this._theme;
 	}
 
-	public setColorMapOverride(colorMapOverride: Color[] | null): cognidream {
+	public setColorMapOverride(colorMapOverride: Color[] | null): void {
 		this._colorMapOverride = colorMapOverride;
 		this._updateThemeOrColorMap();
 	}
 
-	public setTheme(themeName: string): cognidream {
+	public setTheme(themeName: string): void {
 		let theme: StandaloneTheme | undefined;
 		if (this._knownThemes.has(themeName)) {
 			theme = this._knownThemes.get(themeName);
@@ -344,7 +344,7 @@ export class StandaloneThemeService extends Disposable implements IStandaloneThe
 		this._updateActualTheme(theme);
 	}
 
-	private _updateActualTheme(desiredTheme: IStandaloneTheme | undefined): cognidream {
+	private _updateActualTheme(desiredTheme: IStandaloneTheme | undefined): void {
 		if (!desiredTheme || this._theme === desiredTheme) {
 			// Nothing to do
 			return;
@@ -369,12 +369,12 @@ export class StandaloneThemeService extends Disposable implements IStandaloneThe
 		}
 	}
 
-	public setAutoDetectHighContrast(autoDetectHighContrast: boolean): cognidream {
+	public setAutoDetectHighContrast(autoDetectHighContrast: boolean): void {
 		this._autoDetectHighContrast = autoDetectHighContrast;
 		this._onOSSchemeChanged();
 	}
 
-	private _updateThemeOrColorMap(): cognidream {
+	private _updateThemeOrColorMap(): void {
 		const cssRules: string[] = [];
 		const hasRule: { [rule: string]: boolean } = {};
 		const ruleCollector: ICssStyleCollector = {
@@ -406,7 +406,7 @@ export class StandaloneThemeService extends Disposable implements IStandaloneThe
 		this._onColorThemeChange.fire(this._theme);
 	}
 
-	private _updateCSS(): cognidream {
+	private _updateCSS(): void {
 		this._allCSS = `${this._codiconCSS}\n${this._themeCSS}`;
 		this._styleElements.forEach(styleElement => styleElement.textContent = this._allCSS);
 	}

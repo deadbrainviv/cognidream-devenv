@@ -77,7 +77,7 @@ function getFocusedWebviewDelegate(accessor: ServicesAccessor): IWebview | undef
 	return webview;
 }
 
-function withWebview(accessor: ServicesAccessor, f: (webviewe: IWebview) => cognidream) {
+function withWebview(accessor: ServicesAccessor, f: (webviewe: IWebview) => void) {
 	const webview = getFocusedWebviewDelegate(accessor);
 	if (webview) {
 		f(webview);
@@ -579,13 +579,13 @@ registerAction2(class extends Action2 {
 		});
 	}
 
-	run(accessor: ServicesAccessorcognidreamognidream {
+	run(accessor: ServicesAccessor): void {
 		toggleLogging();
-if (_logging) {
-	const commandService = accessor.get(ICommandService);
-	commandService.executeCommand(showWindowLogActionId);
-}
-    }
+		if (_logging) {
+			const commandService = accessor.get(ICommandService);
+			commandService.executeCommand(showWindowLogActionId);
+		}
+	}
 });
 
 

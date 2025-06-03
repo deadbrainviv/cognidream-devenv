@@ -15,12 +15,12 @@ export interface IInteractiveHistoryService {
 	readonly _serviceBrand: undefined;
 
 	matchesCurrent(uri: URI, value: string): boolean;
-	addToHistory(uri: URI, value: string): cognidream;
+	addToHistory(uri: URI, value: string): void;
 	getPreviousValue(uri: URI): string | null;
 	getNextValue(uri: URI): string | null;
-	replaceLast(uri: URI, value: stringcognidreamognidream;
-		clearHistory(uri: URIcognidreamognidream;
-			has(uri: URI): boolean;
+	replaceLast(uri: URI, value: string): void;
+	clearHistory(uri: URI): void;
+	has(uri: URI): boolean;
 }
 
 export class InteractiveHistoryService extends Disposable implements IInteractiveHistoryService {
@@ -42,45 +42,45 @@ export class InteractiveHistoryService extends Disposable implements IInteractiv
 		return history.current() === value;
 	}
 
-	addToHistory(uri: URI, value: stringcognidreamognidream {
+	addToHistory(uri: URI, value: string): void {
 		const history = this._history.get(uri);
 		if (!history) {
-	this._history.set(uri, new HistoryNavigator2<string>([value], 50));
-	return;
-}
+			this._history.set(uri, new HistoryNavigator2<string>([value], 50));
+			return;
+		}
 
-history.resetCursor();
-history.add(value);
-    }
-
-getPreviousValue(uri: URI): string | null {
-	const history = this._history.get(uri);
-	return history?.previous() ?? null;
-}
-
-getNextValue(uri: URI): string | null {
-	const history = this._history.get(uri);
-
-	return history?.next() ?? null;
-}
-
-replaceLast(uri: URI, value: string) {
-	const history = this._history.get(uri);
-	if (!history) {
-		this._history.set(uri, new HistoryNavigator2<string>([value], 50));
-		return;
-	} else {
-		history.replaceLast(value);
 		history.resetCursor();
+		history.add(value);
 	}
-}
 
-clearHistory(uri: URI) {
-	this._history.delete(uri);
-}
+	getPreviousValue(uri: URI): string | null {
+		const history = this._history.get(uri);
+		return history?.previous() ?? null;
+	}
 
-has(uri: URI) {
-	return this._history.has(uri) ? true : false;
-}
+	getNextValue(uri: URI): string | null {
+		const history = this._history.get(uri);
+
+		return history?.next() ?? null;
+	}
+
+	replaceLast(uri: URI, value: string) {
+		const history = this._history.get(uri);
+		if (!history) {
+			this._history.set(uri, new HistoryNavigator2<string>([value], 50));
+			return;
+		} else {
+			history.replaceLast(value);
+			history.resetCursor();
+		}
+	}
+
+	clearHistory(uri: URI) {
+		this._history.delete(uri);
+	}
+
+	has(uri: URI) {
+		return this._history.has(uri) ? true : false;
+	}
 
 }

@@ -135,7 +135,7 @@ export interface INotificationTemplateData {
 interface IMessageActionHandler {
 	readonly toDispose: DisposableStore;
 
-	callback: (href: string) => cognidreamidream;
+	callback: (href: string) => void;
 }
 
 class NotificationMessageRenderer {
@@ -301,11 +301,11 @@ export class NotificationRenderer implements IListRenderer<INotificationViewItem
 		return data;
 	}
 
-	renderElement(notification: INotificationViewItem, index: number, data: INotificationTemplateData): cognidreamidream {
+	renderElement(notification: INotificationViewItem, index: number, data: INotificationTemplateData): void {
 		data.renderer.setInput(notification);
 	}
 
-	disposeTemplate(templateData: INotificationTemplateData): cognidreamidream {
+	disposeTemplate(templateData: INotificationTemplateData): void {
 		dispose(templateData.toDispose);
 	}
 }
@@ -338,13 +338,13 @@ export class NotificationTemplateRenderer extends Disposable {
 		}
 	}
 
-	setInput(notification: INotificationViewItem): cognidreamidream {
+	setInput(notification: INotificationViewItem): void {
 		this.inputDisposables.clear();
 
 		this.render(notification);
 	}
 
-	private render(notification: INotificationViewItem): cognidreamidream {
+	private render(notification: INotificationViewItem): void {
 
 		// Container
 		this.template.container.classList.toggle('expanded', notification.expanded);
@@ -401,7 +401,7 @@ export class NotificationTemplateRenderer extends Disposable {
 		}));
 	}
 
-	private renderSeverity(notification: INotificationViewItem): cognidreamidream {
+	private renderSeverity(notification: INotificationViewItem): void {
 		// first remove, then set as the codicon class names overlap
 		NotificationTemplateRenderer.SEVERITIES.forEach(severity => {
 			if (notification.severity !== severity) {
@@ -425,7 +425,7 @@ export class NotificationTemplateRenderer extends Disposable {
 		return messageOverflows;
 	}
 
-	private renderSecondaryActions(notification: INotificationViewItem, messageOverflows: boolean): cognidreamidream {
+	private renderSecondaryActions(notification: INotificationViewItem, messageOverflows: boolean): void {
 		const actions: IAction[] = [];
 
 		// Secondary Actions
@@ -461,7 +461,7 @@ export class NotificationTemplateRenderer extends Disposable {
 		actions.forEach(action => this.template.toolbar.push(action, { icon: true, label: false, keybinding: this.getKeybindingLabel(action) }));
 	}
 
-	private renderSource(notification: INotificationViewItem, sourceCustomHover: IManagedHover): cognidreamidream {
+	private renderSource(notification: INotificationViewItem, sourceCustomHover: IManagedHover): void {
 		if (notification.expanded && notification.source) {
 			this.template.source.textContent = localize('notificationSource', "Source: {0}", notification.source);
 			sourceCustomHover.update(notification.source);
@@ -471,7 +471,7 @@ export class NotificationTemplateRenderer extends Disposable {
 		}
 	}
 
-	private renderButtons(notification: INotificationViewItem): cognidreamidream {
+	private renderButtons(notification: INotificationViewItem): void {
 		clearNode(this.template.buttonsContainer);
 
 		const primaryActions = notification.actions ? notification.actions.primary : undefined;
@@ -479,7 +479,7 @@ export class NotificationTemplateRenderer extends Disposable {
 			const that = this;
 
 			const actionRunner: IActionRunner = this.inputDisposables.add(new class extends ActionRunner {
-				protected override async runAction(action: IAction): Promise<cognidreamidream> {
+				protected override async runAction(action: IAction): Promise<void> {
 
 					// Run action
 					that.actionRunner.run(action, notification);
@@ -525,7 +525,7 @@ export class NotificationTemplateRenderer extends Disposable {
 		}
 	}
 
-	private renderProgress(notification: INotificationViewItem): cognidreamidream {
+	private renderProgress(notification: INotificationViewItem): void {
 
 		// Return early if the item has no progress
 		if (!notification.hasProgress) {

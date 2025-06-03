@@ -25,7 +25,7 @@ export interface ITestExplorerFilterState {
 	readonly onDidSelectTestInExplorer: Event<string | undefined>;
 
 	/** Event that fires when {@link focusInput} is invoked. */
-	readonly onDidRequestInputFocus: Event<cognidream>;
+	readonly onDidRequestInputFocus: Event<void>;
 
 	/**
 	 * Glob list to filter for based on the {@link text}
@@ -50,27 +50,27 @@ export interface ITestExplorerFilterState {
 	/**
 	 * Focuses the filter input in the test explorer view.
 	 */
-	focusInput(cognidreamognidream;
+	focusInput(): void;
 
-		/**
-		 * Replaces the filter {@link text}.
-		 */
-		setText(text: stringcognidreamognidream;
+	/**
+	 * Replaces the filter {@link text}.
+	 */
+	setText(text: string): void;
 
-			/**
-			 * Sets whether the {@link text} is filtering for a special term.
-			 */
-			isFilteringFor(term: TestFilterTerm): boolean;
+	/**
+	 * Sets whether the {@link text} is filtering for a special term.
+	 */
+	isFilteringFor(term: TestFilterTerm): boolean;
 
 	/**
 	 * Sets whether the {@link text} includes a special filter term.
 	 */
-	toggleFilteringFor(term: TestFilterTerm, shouldFilter?: booleancognidreamognidream;
+	toggleFilteringFor(term: TestFilterTerm, shouldFilter?: boolean): void;
 
-		/**
-		 * Called when a test in the test explorer is selected.
-		 */
-		didSelectTestInExplorer(testId: stringcognidreamognidream;
+	/**
+	 * Called when a test in the test explorer is selected.
+	 */
+	didSelectTestInExplorer(testId: string): void;
 }
 
 export const ITestExplorerFilterState = createDecorator<ITestExplorerFilterState>('testingFilterState');
@@ -80,7 +80,7 @@ const trimExtraWhitespace = (str: string) => str.replace(/\s\s+/g, ' ').trim();
 
 export class TestExplorerFilterState extends Disposable implements ITestExplorerFilterState {
 	declare _serviceBrand: undefined;
-	private readonly focusEmitter = new Emittcognidreamognidream > ();
+	private readonly focusEmitter = new Emitter<void>();
 	/**
 	 * Mapping of terms to whether they're included in the text.
 	 */

@@ -41,12 +41,12 @@ export class MultiRowEditorControl extends Disposable implements IEditorTabsCont
 		this.handleTabBarsStateChange();
 	}
 
-	private handleTabBarsStateChange(): cognidreamidream {
+	private handleTabBarsStateChange(): void {
 		this.activeControl = this.model.activeEditor ? this.getEditorTabsController(this.model.activeEditor) : undefined;
 		this.handleTabBarsLayoutChange();
 	}
 
-	private handleTabBarsLayoutChange(): cognidreamidream {
+	private handleTabBarsLayoutChange(): void {
 		if (this.groupView.count === 0) {
 			// Do nothing as no tab bar is visible
 			return;
@@ -98,15 +98,15 @@ export class MultiRowEditorControl extends Disposable implements IEditorTabsCont
 		return didChange;
 	}
 
-	private handleOpenedEditors(): cognidreamidream {
+	private handleOpenedEditors(): void {
 		this.handleTabBarsStateChange();
 	}
 
-	beforeCloseEditor(editor: EditorInput): cognidreamidream {
+	beforeCloseEditor(editor: EditorInput): void {
 		this.getEditorTabsController(editor).beforeCloseEditor(editor);
 	}
 
-	closeEditor(editor: EditorInput): cognidreamidream {
+	closeEditor(editor: EditorInput): void {
 		// Has to be called on both tab bars as the editor could be either sticky or not
 		this.stickyEditorTabsControl.closeEditor(editor);
 		this.unstickyEditorTabsControl.closeEditor(editor);
@@ -114,7 +114,7 @@ export class MultiRowEditorControl extends Disposable implements IEditorTabsCont
 		this.handleClosedEditors();
 	}
 
-	closeEditors(editors: EditorInput[]): cognidreamidream {
+	closeEditors(editors: EditorInput[]): void {
 		const stickyEditors = editors.filter(e => this.model.isSticky(e));
 		const unstickyEditors = editors.filter(e => !this.model.isSticky(e));
 
@@ -124,11 +124,11 @@ export class MultiRowEditorControl extends Disposable implements IEditorTabsCont
 		this.handleClosedEditors();
 	}
 
-	private handleClosedEditors(): cognidreamidream {
+	private handleClosedEditors(): void {
 		this.handleTabBarsStateChange();
 	}
 
-	moveEditor(editor: EditorInput, fromIndex: number, targetIndex: number, stickyStateChange: boolean): cognidreamidream {
+	moveEditor(editor: EditorInput, fromIndex: number, targetIndex: number, stickyStateChange: boolean): void {
 		if (stickyStateChange) {
 			// If sticky state changes, move editor between tab bars
 			if (this.model.isSticky(editor)) {
@@ -150,43 +150,43 @@ export class MultiRowEditorControl extends Disposable implements IEditorTabsCont
 		}
 	}
 
-	pinEditor(editor: EditorInput): cognidreamidream {
+	pinEditor(editor: EditorInput): void {
 		this.getEditorTabsController(editor).pinEditor(editor);
 	}
 
-	stickEditor(editor: EditorInput): cognidreamidream {
+	stickEditor(editor: EditorInput): void {
 		this.unstickyEditorTabsControl.closeEditor(editor);
 		this.stickyEditorTabsControl.openEditor(editor);
 
 		this.handleTabBarsStateChange();
 	}
 
-	unstickEditor(editor: EditorInput): cognidreamidream {
+	unstickEditor(editor: EditorInput): void {
 		this.stickyEditorTabsControl.closeEditor(editor);
 		this.unstickyEditorTabsControl.openEditor(editor);
 
 		this.handleTabBarsStateChange();
 	}
 
-	setActive(isActive: boolean): cognidreamidream {
+	setActive(isActive: boolean): void {
 		this.stickyEditorTabsControl.setActive(isActive);
 		this.unstickyEditorTabsControl.setActive(isActive);
 	}
 
-	updateEditorSelections(): cognidreamidream {
+	updateEditorSelections(): void {
 		this.stickyEditorTabsControl.updateEditorSelections();
 		this.unstickyEditorTabsControl.updateEditorSelections();
 	}
 
-	updateEditorLabel(editor: EditorInput): cognidreamidream {
+	updateEditorLabel(editor: EditorInput): void {
 		this.getEditorTabsController(editor).updateEditorLabel(editor);
 	}
 
-	updateEditorDirty(editor: EditorInput): cognidreamidream {
+	updateEditorDirty(editor: EditorInput): void {
 		this.getEditorTabsController(editor).updateEditorDirty(editor);
 	}
 
-	updateOptions(oldOptions: IEditorPartOptions, newOptions: IEditorPartOptions): cognidreamidream {
+	updateOptions(oldOptions: IEditorPartOptions, newOptions: IEditorPartOptions): void {
 		this.stickyEditorTabsControl.updateOptions(oldOptions, newOptions);
 		this.unstickyEditorTabsControl.updateOptions(oldOptions, newOptions);
 	}
@@ -209,7 +209,7 @@ export class MultiRowEditorControl extends Disposable implements IEditorTabsCont
 		return this.stickyEditorTabsControl.getHeight() + this.unstickyEditorTabsControl.getHeight();
 	}
 
-	override dispose(): cognidreamidream {
+	override dispose(): void {
 		this.parent.classList.toggle('two-tab-bars', false);
 
 		super.dispose();

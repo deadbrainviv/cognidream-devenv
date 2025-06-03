@@ -57,7 +57,7 @@ export abstract class AbstractResourceEditorInput extends EditorInput implements
 		this.registerListeners();
 	}
 
-	private registerListeners(): cognidream {
+	private registerListeners(): void {
 
 		// Clear our labels on certain label related events
 		this._register(this.labelService.onDidChangeFormatters(e => this.onLabelEvent(e.scheme)));
@@ -67,146 +67,146 @@ export abstract class AbstractResourceEditorInput extends EditorInput implements
 		this._register(this.filesConfigurationService.onDidChangeReadonly(() => this._onDidChangeCapabilities.fire()));
 	}
 
-	private onLabelEvent(scheme: stringcognidreamognidream {
+	private onLabelEvent(scheme: string): void {
 		if (scheme === this._preferredResource.scheme) {
-	this.updateLabel();
-}
-    }
+			this.updateLabel();
+		}
+	}
 
-    private updateLabel(cognidreamognidream {
+	private updateLabel(): void {
 
-	// Clear any cached labels from before
-	this._name = undefined;
-	this._shortDescription = undefined;
-	this._mediumDescription = undefined;
-	this._longDescription = undefined;
-	this._shortTitle = undefined;
-	this._mediumTitle = undefined;
-	this._longTitle = undefined;
+		// Clear any cached labels from before
+		this._name = undefined;
+		this._shortDescription = undefined;
+		this._mediumDescription = undefined;
+		this._longDescription = undefined;
+		this._shortTitle = undefined;
+		this._mediumTitle = undefined;
+		this._longTitle = undefined;
 
-	// Trigger recompute of label
-	this._onDidChangeLabel.fire();
-}
+		// Trigger recompute of label
+		this._onDidChangeLabel.fire();
+	}
 
-    setPreferredResource(preferredResource: URIcognidreamognidream {
-	if(!isEqual(preferredResource, this._preferredResource)) {
-	this._preferredResource = preferredResource;
+	setPreferredResource(preferredResource: URI): void {
+		if (!isEqual(preferredResource, this._preferredResource)) {
+			this._preferredResource = preferredResource;
 
-	this.updateLabel();
-}
-    }
+			this.updateLabel();
+		}
+	}
 
 	private _name: string | undefined = undefined;
-    override getName(): string {
-	if (typeof this._name !== 'string') {
-		this._name = this.customEditorLabelService.getName(this._preferredResource) ?? this.labelService.getUriBasenameLabel(this._preferredResource);
+	override getName(): string {
+		if (typeof this._name !== 'string') {
+			this._name = this.customEditorLabelService.getName(this._preferredResource) ?? this.labelService.getUriBasenameLabel(this._preferredResource);
+		}
+
+		return this._name;
 	}
 
-	return this._name;
-}
-
-    override getDescription(verbosity = Verbosity.MEDIUM): string | undefined {
-	switch (verbosity) {
-		case Verbosity.SHORT:
-			return this.shortDescription;
-		case Verbosity.LONG:
-			return this.longDescription;
-		case Verbosity.MEDIUM:
-		default:
-			return this.mediumDescription;
-	}
-}
-
-    private _shortDescription: string | undefined = undefined;
-    private get shortDescription(): string {
-	if (typeof this._shortDescription !== 'string') {
-		this._shortDescription = this.labelService.getUriBasenameLabel(dirname(this._preferredResource));
+	override getDescription(verbosity = Verbosity.MEDIUM): string | undefined {
+		switch (verbosity) {
+			case Verbosity.SHORT:
+				return this.shortDescription;
+			case Verbosity.LONG:
+				return this.longDescription;
+			case Verbosity.MEDIUM:
+			default:
+				return this.mediumDescription;
+		}
 	}
 
-	return this._shortDescription;
-}
+	private _shortDescription: string | undefined = undefined;
+	private get shortDescription(): string {
+		if (typeof this._shortDescription !== 'string') {
+			this._shortDescription = this.labelService.getUriBasenameLabel(dirname(this._preferredResource));
+		}
 
-    private _mediumDescription: string | undefined = undefined;
-    private get mediumDescription(): string {
-	if (typeof this._mediumDescription !== 'string') {
-		this._mediumDescription = this.labelService.getUriLabel(dirname(this._preferredResource), { relative: true });
+		return this._shortDescription;
 	}
 
-	return this._mediumDescription;
-}
+	private _mediumDescription: string | undefined = undefined;
+	private get mediumDescription(): string {
+		if (typeof this._mediumDescription !== 'string') {
+			this._mediumDescription = this.labelService.getUriLabel(dirname(this._preferredResource), { relative: true });
+		}
 
-    private _longDescription: string | undefined = undefined;
-    private get longDescription(): string {
-	if (typeof this._longDescription !== 'string') {
-		this._longDescription = this.labelService.getUriLabel(dirname(this._preferredResource));
+		return this._mediumDescription;
 	}
 
-	return this._longDescription;
-}
+	private _longDescription: string | undefined = undefined;
+	private get longDescription(): string {
+		if (typeof this._longDescription !== 'string') {
+			this._longDescription = this.labelService.getUriLabel(dirname(this._preferredResource));
+		}
 
-    private _shortTitle: string | undefined = undefined;
-    private get shortTitle(): string {
-	if (typeof this._shortTitle !== 'string') {
-		this._shortTitle = this.getName();
+		return this._longDescription;
 	}
 
-	return this._shortTitle;
-}
+	private _shortTitle: string | undefined = undefined;
+	private get shortTitle(): string {
+		if (typeof this._shortTitle !== 'string') {
+			this._shortTitle = this.getName();
+		}
 
-    private _mediumTitle: string | undefined = undefined;
-    private get mediumTitle(): string {
-	if (typeof this._mediumTitle !== 'string') {
-		this._mediumTitle = this.labelService.getUriLabel(this._preferredResource, { relative: true });
+		return this._shortTitle;
 	}
 
-	return this._mediumTitle;
-}
+	private _mediumTitle: string | undefined = undefined;
+	private get mediumTitle(): string {
+		if (typeof this._mediumTitle !== 'string') {
+			this._mediumTitle = this.labelService.getUriLabel(this._preferredResource, { relative: true });
+		}
 
-    private _longTitle: string | undefined = undefined;
-    private get longTitle(): string {
-	if (typeof this._longTitle !== 'string') {
-		this._longTitle = this.labelService.getUriLabel(this._preferredResource);
+		return this._mediumTitle;
 	}
 
-	return this._longTitle;
-}
+	private _longTitle: string | undefined = undefined;
+	private get longTitle(): string {
+		if (typeof this._longTitle !== 'string') {
+			this._longTitle = this.labelService.getUriLabel(this._preferredResource);
+		}
 
-    override getTitle(verbosity ?: Verbosity): string {
-	switch (verbosity) {
-		case Verbosity.SHORT:
-			return this.shortTitle;
-		case Verbosity.LONG:
-			return this.longTitle;
-		default:
-		case Verbosity.MEDIUM:
-			return this.mediumTitle;
-	}
-}
-
-    override isReadonly(): boolean | IMarkdownString {
-	return this.filesConfigurationService.isReadonly(this.resource);
-}
-
-    protected ensureLimits(options ?: IFileLimitedEditorInputOptions): IFileReadLimits | undefined {
-	if (options?.limits) {
-		return options.limits; // respect passed in limits if any
+		return this._longTitle;
 	}
 
-	// We want to determine the large file configuration based on the best defaults
-	// for the resource but also respecting user settings. We only apply user settings
-	// if explicitly configured by the user. Otherwise we pick the best limit for the
-	// resource scheme.
-
-	const defaultSizeLimit = getLargeFileConfirmationLimit(this.resource);
-	let configuredSizeLimit: number | undefined = undefined;
-
-	const configuredSizeLimitMb = this.textResourceConfigurationService.inspect<number>(this.resource, null, 'workbench.editorLargeFileConfirmation');
-	if (isConfigured(configuredSizeLimitMb)) {
-		configuredSizeLimit = configuredSizeLimitMb.value * ByteSize.MB; // normalize to MB
+	override getTitle(verbosity?: Verbosity): string {
+		switch (verbosity) {
+			case Verbosity.SHORT:
+				return this.shortTitle;
+			case Verbosity.LONG:
+				return this.longTitle;
+			default:
+			case Verbosity.MEDIUM:
+				return this.mediumTitle;
+		}
 	}
 
-	return {
-		size: configuredSizeLimit ?? defaultSizeLimit
-	};
-}
+	override isReadonly(): boolean | IMarkdownString {
+		return this.filesConfigurationService.isReadonly(this.resource);
+	}
+
+	protected ensureLimits(options?: IFileLimitedEditorInputOptions): IFileReadLimits | undefined {
+		if (options?.limits) {
+			return options.limits; // respect passed in limits if any
+		}
+
+		// We want to determine the large file configuration based on the best defaults
+		// for the resource but also respecting user settings. We only apply user settings
+		// if explicitly configured by the user. Otherwise we pick the best limit for the
+		// resource scheme.
+
+		const defaultSizeLimit = getLargeFileConfirmationLimit(this.resource);
+		let configuredSizeLimit: number | undefined = undefined;
+
+		const configuredSizeLimitMb = this.textResourceConfigurationService.inspect<number>(this.resource, null, 'workbench.editorLargeFileConfirmation');
+		if (isConfigured(configuredSizeLimitMb)) {
+			configuredSizeLimit = configuredSizeLimitMb.value * ByteSize.MB; // normalize to MB
+		}
+
+		return {
+			size: configuredSizeLimit ?? defaultSizeLimit
+		};
+	}
 }

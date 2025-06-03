@@ -57,11 +57,11 @@ export class ContextViewHandler extends Disposable implements IContextViewProvid
 		return openContextView;
 	}
 
-	layout(): cognidreamidream {
+	layout(): void {
 		this.contextView.layout();
 	}
 
-	hideContextView(data?: any): cognidreamidream {
+	hideContextView(data?: any): void {
 		this.contextView.hide(data);
 		this.openContextView = undefined;
 	}

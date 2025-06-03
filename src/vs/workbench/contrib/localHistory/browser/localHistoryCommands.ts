@@ -61,7 +61,7 @@ registerAction2(class extends Action2 {
 			}
 		});
 	}
-	async run(accessor: ServicesAccessor, item: ITimelineCommandArgument): Promise<cognidream> {
+	async run(accessor: ServicesAccessor, item: ITimelineCommandArgument): Promise<void> {
 		const commandService = accessor.get(ICommandService);
 		const workingCopyHistoryService = accessor.get(IWorkingCopyHistoryService);
 
@@ -89,23 +89,23 @@ registerAction2(class extends Action2 {
 			}
 		});
 	}
-	async run(accessor: ServicesAccessor, item: ITimelineCommandArgument): Promicognidreamognidream> {
-	const commandService = accessor.get(ICommandService);
-	const workingCopyHistoryService = accessor.get(IWorkingCopyHistoryService);
-	const editorService = accessor.get(IEditorService);
+	async run(accessor: ServicesAccessor, item: ITimelineCommandArgument): Promise<void> {
+		const commandService = accessor.get(ICommandService);
+		const workingCopyHistoryService = accessor.get(IWorkingCopyHistoryService);
+		const editorService = accessor.get(IEditorService);
 
-	const { entry, previous } = await findLocalHistoryEntry(workingCopyHistoryService, item);
-	if(entry) {
+		const { entry, previous } = await findLocalHistoryEntry(workingCopyHistoryService, item);
+		if (entry) {
 
-		// Without a previous entry, just show the entry directly
-		if (!previous) {
-			return openEntry(entry, editorService);
+			// Without a previous entry, just show the entry directly
+			if (!previous) {
+				return openEntry(entry, editorService);
+			}
+
+			// Open real diff editor
+			return commandService.executeCommand(API_OPEN_DIFF_EDITOR_COMMAND_ID, ...toDiffEditorArguments(previous, entry));
 		}
-
-		// Open real diff editor
-		return commandService.executeCommand(API_OPEN_DIFF_EDITOR_COMMAND_ID, ...toDiffEditorArguments(previous, entry));
 	}
-}
 });
 
 //#endregion
@@ -129,16 +129,16 @@ registerAction2(class extends Action2 {
 			}
 		});
 	}
-	async run(accessor: ServicesAccessor, item: ITimelineCommandArgument): Promicognidreamognidream> {
-	const workingCopyHistoryService = accessor.get(IWorkingCopyHistoryService);
-	const contextKeyService = accessor.get(IContextKeyService);
+	async run(accessor: ServicesAccessor, item: ITimelineCommandArgument): Promise<void> {
+		const workingCopyHistoryService = accessor.get(IWorkingCopyHistoryService);
+		const contextKeyService = accessor.get(IContextKeyService);
 
-	const { entry } = await findLocalHistoryEntry(workingCopyHistoryService, item);
-	if(entry) {
-		itemSelectedForCompare = item;
-		LocalHistoryItemSelectedForCompare.bindTo(contextKeyService).set(true);
+		const { entry } = await findLocalHistoryEntry(workingCopyHistoryService, item);
+		if (entry) {
+			itemSelectedForCompare = item;
+			LocalHistoryItemSelectedForCompare.bindTo(contextKeyService).set(true);
+		}
 	}
-}
 });
 
 registerAction2(class extends Action2 {
@@ -154,24 +154,24 @@ registerAction2(class extends Action2 {
 			}
 		});
 	}
-	async run(accessor: ServicesAccessor, item: ITimelineCommandArgument): Promicognidreamognidream> {
-	const workingCopyHistoryService = accessor.get(IWorkingCopyHistoryService);
-	const commandService = accessor.get(ICommandService);
+	async run(accessor: ServicesAccessor, item: ITimelineCommandArgument): Promise<void> {
+		const workingCopyHistoryService = accessor.get(IWorkingCopyHistoryService);
+		const commandService = accessor.get(ICommandService);
 
-	if(!itemSelectedForCompare) {
-		return;
-	}
+		if (!itemSelectedForCompare) {
+			return;
+		}
 
-        const selectedEntry = (await findLocalHistoryEntry(workingCopyHistoryService, itemSelectedForCompare)).entry;
-	if(!selectedEntry) {
-		return;
-	}
+		const selectedEntry = (await findLocalHistoryEntry(workingCopyHistoryService, itemSelectedForCompare)).entry;
+		if (!selectedEntry) {
+			return;
+		}
 
-        const { entry } = await findLocalHistoryEntry(workingCopyHistoryService, item);
-	if(entry) {
-		return commandService.executeCommand(API_OPEN_DIFF_EDITOR_COMMAND_ID, ...toDiffEditorArguments(selectedEntry, entry));
+		const { entry } = await findLocalHistoryEntry(workingCopyHistoryService, item);
+		if (entry) {
+			return commandService.executeCommand(API_OPEN_DIFF_EDITOR_COMMAND_ID, ...toDiffEditorArguments(selectedEntry, entry));
+		}
 	}
-}
 });
 
 //#endregion
@@ -191,15 +191,15 @@ registerAction2(class extends Action2 {
 			}
 		});
 	}
-	async run(accessor: ServicesAccessor, item: ITimelineCommandArgument): Promicognidreamognidream> {
-	const workingCopyHistoryService = accessor.get(IWorkingCopyHistoryService);
-	const editorService = accessor.get(IEditorService);
+	async run(accessor: ServicesAccessor, item: ITimelineCommandArgument): Promise<void> {
+		const workingCopyHistoryService = accessor.get(IWorkingCopyHistoryService);
+		const editorService = accessor.get(IEditorService);
 
-	const { entry } = await findLocalHistoryEntry(workingCopyHistoryService, item);
-	if(entry) {
-		return openEntry(entry, editorService);
+		const { entry } = await findLocalHistoryEntry(workingCopyHistoryService, item);
+		if (entry) {
+			return openEntry(entry, editorService);
+		}
 	}
-}
 });
 
 //#region Restore Contents
@@ -220,11 +220,11 @@ registerAction2(class extends Action2 {
 			icon: LOCAL_HISTORY_ICON_RESTORE
 		});
 	}
-	async run(accessor: ServicesAccessor, uri: URI): Promicognidreamognidream> {
-	const { associatedResource, location } = LocalHistoryFileSystemProvider.fromLocalHistoryFileSystem(uri);
+	async run(accessor: ServicesAccessor, uri: URI): Promise<void> {
+		const { associatedResource, location } = LocalHistoryFileSystemProvider.fromLocalHistoryFileSystem(uri);
 
-	return restore(accessor, { uri: associatedResource, handle: basenameOrAuthority(location) });
-}
+		return restore(accessor, { uri: associatedResource, handle: basenameOrAuthority(location) });
+	}
 });
 
 registerAction2(class extends Action2 {
@@ -240,14 +240,14 @@ registerAction2(class extends Action2 {
 			}
 		});
 	}
-	async run(accessor: ServicesAccessor, item: ITimelineCommandArgument): Promicognidreamognidream> {
-	return restore(accessor, item);
-}
+	async run(accessor: ServicesAccessor, item: ITimelineCommandArgument): Promise<void> {
+		return restore(accessor, item);
+	}
 });
 
 const restoreSaveSource = SaveSourceRegistry.registerSource('localHistoryRestore.source', localize('localHistoryRestore.source', "File Restored"));
 
-async function restore(accessor: ServicesAccessor, item: ITimelineCommandArgument): Promise<cognidreamidream> {
+async function restore(accessor: ServicesAccessor, item: ITimelineCommandArgument): Promise<void> {
 	const fileService = accessor.get(IFileService);
 	const dialogService = accessor.get(IDialogService);
 	const workingCopyService = accessor.get(IWorkingCopyService);
@@ -325,107 +325,107 @@ registerAction2(class extends Action2 {
 			precondition: CTX_LOCAL_HISTORY_ENABLED
 		});
 	}
-	async run(accessor: ServicesAccessor): Promicognidreamognidream> {
-	const workingCopyHistoryService = accessor.get(IWorkingCopyHistoryService);
-	const quickInputService = accessor.get(IQuickInputService);
-	const modelService = accessor.get(IModelService);
-	const languageService = accessor.get(ILanguageService);
-	const labelService = accessor.get(ILabelService);
-	const editorService = accessor.get(IEditorService);
-	const fileService = accessor.get(IFileService);
-	const commandService = accessor.get(ICommandService);
-	const historyService = accessor.get(IHistoryService);
+	async run(accessor: ServicesAccessor): Promise<void> {
+		const workingCopyHistoryService = accessor.get(IWorkingCopyHistoryService);
+		const quickInputService = accessor.get(IQuickInputService);
+		const modelService = accessor.get(IModelService);
+		const languageService = accessor.get(ILanguageService);
+		const labelService = accessor.get(ILabelService);
+		const editorService = accessor.get(IEditorService);
+		const fileService = accessor.get(IFileService);
+		const commandService = accessor.get(ICommandService);
+		const historyService = accessor.get(IHistoryService);
 
-	// Show all resources with associated history entries in picker
-	// with progress because this operation will take longer the more
-	// files have been saved overall.
-	//
-	// Sort the resources by history to put more relevant entries
-	// to the top.
+		// Show all resources with associated history entries in picker
+		// with progress because this operation will take longer the more
+		// files have been saved overall.
+		//
+		// Sort the resources by history to put more relevant entries
+		// to the top.
 
-	const resourcePickerDisposables = new DisposableStore();
-	const resourcePicker = resourcePickerDisposables.add(quickInputService.createQuickPick<IQuickPickItem & { resource: URI }>());
+		const resourcePickerDisposables = new DisposableStore();
+		const resourcePicker = resourcePickerDisposables.add(quickInputService.createQuickPick<IQuickPickItem & { resource: URI }>());
 
-	let cts = new CancellationTokenSource();
-	resourcePickerDisposables.add(resourcePicker.onDidHide(() => cts.dispose(true)));
+		let cts = new CancellationTokenSource();
+		resourcePickerDisposables.add(resourcePicker.onDidHide(() => cts.dispose(true)));
 
-	resourcePicker.busy = true;
-	resourcePicker.show();
+		resourcePicker.busy = true;
+		resourcePicker.show();
 
-	const resources = new ResourceSet(await workingCopyHistoryService.getAll(cts.token));
-	const recentEditorResources = new ResourceSet(coalesce(historyService.getHistory().map(({ resource }) => resource)));
+		const resources = new ResourceSet(await workingCopyHistoryService.getAll(cts.token));
+		const recentEditorResources = new ResourceSet(coalesce(historyService.getHistory().map(({ resource }) => resource)));
 
-	const resourcesSortedByRecency: URI[] = [];
-	for(const resource of recentEditorResources) {
-		if (resources.has(resource)) {
-			resourcesSortedByRecency.push(resource);
-			resources.delete(resource);
+		const resourcesSortedByRecency: URI[] = [];
+		for (const resource of recentEditorResources) {
+			if (resources.has(resource)) {
+				resourcesSortedByRecency.push(resource);
+				resources.delete(resource);
+			}
 		}
-	}
-        resourcesSortedByRecency.push(...[...resources].sort((r1, r2) => r1.fsPath < r2.fsPath ? -1 : 1));
+		resourcesSortedByRecency.push(...[...resources].sort((r1, r2) => r1.fsPath < r2.fsPath ? -1 : 1));
 
-	resourcePicker.busy = false;
-	resourcePicker.placeholder = localize('restoreViaPicker.filePlaceholder', "Select the file to show local history for");
-	resourcePicker.matchOnLabel = true;
-	resourcePicker.matchOnDescription = true;
-	resourcePicker.items = [...resourcesSortedByRecency].map(resource => ({
-		resource,
-		label: basenameOrAuthority(resource),
-		description: labelService.getUriLabel(dirname(resource), { relative: true }),
-		iconClasses: getIconClasses(modelService, languageService, resource)
-	}));
+		resourcePicker.busy = false;
+		resourcePicker.placeholder = localize('restoreViaPicker.filePlaceholder', "Select the file to show local history for");
+		resourcePicker.matchOnLabel = true;
+		resourcePicker.matchOnDescription = true;
+		resourcePicker.items = [...resourcesSortedByRecency].map(resource => ({
+			resource,
+			label: basenameOrAuthority(resource),
+			description: labelService.getUriLabel(dirname(resource), { relative: true }),
+			iconClasses: getIconClasses(modelService, languageService, resource)
+		}));
 
-	await Event.toPromise(resourcePicker.onDidAccept);
-	resourcePickerDisposables.dispose();
+		await Event.toPromise(resourcePicker.onDidAccept);
+		resourcePickerDisposables.dispose();
 
-	const resource = resourcePicker.selectedItems.at(0)?.resource;
-	if(!resource) {
-		return;
-	}
-
-        // Show all entries for the picked resource in another picker
-        // and open the entry in the end that was selected by the user
-
-        const entryPickerDisposables = new DisposableStore();
-	const entryPicker = entryPickerDisposables.add(quickInputService.createQuickPick<IQuickPickItem & { entry: IWorkingCopyHistoryEntry }>());
-
-	cts = new CancellationTokenSource();
-	entryPickerDisposables.add(entryPicker.onDidHide(() => cts.dispose(true)));
-
-	entryPicker.busy = true;
-	entryPicker.show();
-
-	const entries = await workingCopyHistoryService.getEntries(resource, cts.token);
-
-	entryPicker.busy = false;
-	entryPicker.canAcceptInBackground = true;
-	entryPicker.placeholder = localize('restoreViaPicker.entryPlaceholder', "Select the local history entry to open");
-	entryPicker.matchOnLabel = true;
-	entryPicker.matchOnDescription = true;
-	entryPicker.items = Array.from(entries).reverse().map(entry => ({
-		entry,
-		label: `$(circle-outline) ${SaveSourceRegistry.getSourceLabel(entry.source)}`,
-		description: toLocalHistoryEntryDateLabel(entry.timestamp)
-	}));
-
-	entryPickerDisposables.add(entryPicker.onDidAccept(async e => {
-		if (!e.inBackground) {
-			entryPickerDisposables.dispose();
-		}
-
-		const selectedItem = entryPicker.selectedItems.at(0);
-		if (!selectedItem) {
+		const resource = resourcePicker.selectedItems.at(0)?.resource;
+		if (!resource) {
 			return;
 		}
 
-		const resourceExists = await fileService.exists(selectedItem.entry.workingCopy.resource);
-		if (resourceExists) {
-			return commandService.executeCommand(API_OPEN_DIFF_EDITOR_COMMAND_ID, ...toDiffEditorArguments(selectedItem.entry, selectedItem.entry.workingCopy.resource, { preserveFocus: e.inBackground }));
-		}
+		// Show all entries for the picked resource in another picker
+		// and open the entry in the end that was selected by the user
 
-		return openEntry(selectedItem.entry, editorService, { preserveFocus: e.inBackground });
-	}));
-}
+		const entryPickerDisposables = new DisposableStore();
+		const entryPicker = entryPickerDisposables.add(quickInputService.createQuickPick<IQuickPickItem & { entry: IWorkingCopyHistoryEntry }>());
+
+		cts = new CancellationTokenSource();
+		entryPickerDisposables.add(entryPicker.onDidHide(() => cts.dispose(true)));
+
+		entryPicker.busy = true;
+		entryPicker.show();
+
+		const entries = await workingCopyHistoryService.getEntries(resource, cts.token);
+
+		entryPicker.busy = false;
+		entryPicker.canAcceptInBackground = true;
+		entryPicker.placeholder = localize('restoreViaPicker.entryPlaceholder', "Select the local history entry to open");
+		entryPicker.matchOnLabel = true;
+		entryPicker.matchOnDescription = true;
+		entryPicker.items = Array.from(entries).reverse().map(entry => ({
+			entry,
+			label: `$(circle-outline) ${SaveSourceRegistry.getSourceLabel(entry.source)}`,
+			description: toLocalHistoryEntryDateLabel(entry.timestamp)
+		}));
+
+		entryPickerDisposables.add(entryPicker.onDidAccept(async e => {
+			if (!e.inBackground) {
+				entryPickerDisposables.dispose();
+			}
+
+			const selectedItem = entryPicker.selectedItems.at(0);
+			if (!selectedItem) {
+				return;
+			}
+
+			const resourceExists = await fileService.exists(selectedItem.entry.workingCopy.resource);
+			if (resourceExists) {
+				return commandService.executeCommand(API_OPEN_DIFF_EDITOR_COMMAND_ID, ...toDiffEditorArguments(selectedItem.entry, selectedItem.entry.workingCopy.resource, { preserveFocus: e.inBackground }));
+			}
+
+			return openEntry(selectedItem.entry, editorService, { preserveFocus: e.inBackground });
+		}));
+	}
 });
 
 MenuRegistry.appendMenuItem(MenuId.TimelineTitle, { command: { id: 'workbench.action.localHistory.restoreViaPicker', title: localize2('localHistory.restoreViaPickerMenu', 'Local History: Find Entry to Restore...') }, group: 'submenu', order: 1, when: CTX_LOCAL_HISTORY_ENABLED });
@@ -447,27 +447,27 @@ registerAction2(class extends Action2 {
 			}
 		});
 	}
-	async run(accessor: ServicesAccessor, item: ITimelineCommandArgument): Promicognidreamognidream> {
-	const workingCopyHistoryService = accessor.get(IWorkingCopyHistoryService);
-	const quickInputService = accessor.get(IQuickInputService);
+	async run(accessor: ServicesAccessor, item: ITimelineCommandArgument): Promise<void> {
+		const workingCopyHistoryService = accessor.get(IWorkingCopyHistoryService);
+		const quickInputService = accessor.get(IQuickInputService);
 
-	const { entry } = await findLocalHistoryEntry(workingCopyHistoryService, item);
-	if(entry) {
-		const disposables = new DisposableStore();
-		const inputBox = disposables.add(quickInputService.createInputBox());
-		inputBox.title = localize('renameLocalHistoryEntryTitle', "Rename Local History Entry");
-		inputBox.ignoreFocusOut = true;
-		inputBox.placeholder = localize('renameLocalHistoryPlaceholder', "Enter the new name of the local history entry");
-		inputBox.value = SaveSourceRegistry.getSourceLabel(entry.source);
-		inputBox.show();
-		disposables.add(inputBox.onDidAccept(() => {
-			if (inputBox.value) {
-				workingCopyHistoryService.updateEntry(entry, { source: inputBox.value }, CancellationToken.None);
-			}
-			disposables.dispose();
-		}));
+		const { entry } = await findLocalHistoryEntry(workingCopyHistoryService, item);
+		if (entry) {
+			const disposables = new DisposableStore();
+			const inputBox = disposables.add(quickInputService.createInputBox());
+			inputBox.title = localize('renameLocalHistoryEntryTitle', "Rename Local History Entry");
+			inputBox.ignoreFocusOut = true;
+			inputBox.placeholder = localize('renameLocalHistoryPlaceholder', "Enter the new name of the local history entry");
+			inputBox.value = SaveSourceRegistry.getSourceLabel(entry.source);
+			inputBox.show();
+			disposables.add(inputBox.onDidAccept(() => {
+				if (inputBox.value) {
+					workingCopyHistoryService.updateEntry(entry, { source: inputBox.value }, CancellationToken.None);
+				}
+				disposables.dispose();
+			}));
+		}
 	}
-}
 });
 
 //#endregion
@@ -487,33 +487,33 @@ registerAction2(class extends Action2 {
 			}
 		});
 	}
-	async run(accessor: ServicesAccessor, item: ITimelineCommandArgument): Promicognidreamognidream> {
-	const workingCopyHistoryService = accessor.get(IWorkingCopyHistoryService);
-	const editorService = accessor.get(IEditorService);
-	const dialogService = accessor.get(IDialogService);
+	async run(accessor: ServicesAccessor, item: ITimelineCommandArgument): Promise<void> {
+		const workingCopyHistoryService = accessor.get(IWorkingCopyHistoryService);
+		const editorService = accessor.get(IEditorService);
+		const dialogService = accessor.get(IDialogService);
 
-	const { entry } = await findLocalHistoryEntry(workingCopyHistoryService, item);
-	if(entry) {
+		const { entry } = await findLocalHistoryEntry(workingCopyHistoryService, item);
+		if (entry) {
 
-		// Ask for confirmation
-		const { confirmed } = await dialogService.confirm({
-			type: 'warning',
-			message: localize('confirmDeleteMessage', "Do you want to delete the local history entry of '{0}' from {1}?", entry.workingCopy.name, toLocalHistoryEntryDateLabel(entry.timestamp)),
-			detail: localize('confirmDeleteDetail', "This action is irreversible!"),
-			primaryButton: localize({ key: 'deleteButtonLabel', comment: ['&& denotes a mnemonic'] }, "&&Delete"),
-		});
+			// Ask for confirmation
+			const { confirmed } = await dialogService.confirm({
+				type: 'warning',
+				message: localize('confirmDeleteMessage', "Do you want to delete the local history entry of '{0}' from {1}?", entry.workingCopy.name, toLocalHistoryEntryDateLabel(entry.timestamp)),
+				detail: localize('confirmDeleteDetail', "This action is irreversible!"),
+				primaryButton: localize({ key: 'deleteButtonLabel', comment: ['&& denotes a mnemonic'] }, "&&Delete"),
+			});
 
-		if (!confirmed) {
-			return;
+			if (!confirmed) {
+				return;
+			}
+
+			// Remove via service
+			await workingCopyHistoryService.removeEntry(entry, CancellationToken.None);
+
+			// Close any opened editors
+			await closeEntry(entry, editorService);
 		}
-
-		// Remove via service
-		await workingCopyHistoryService.removeEntry(entry, CancellationToken.None);
-
-		// Close any opened editors
-		await closeEntry(entry, editorService);
 	}
-}
 });
 
 //#endregion
@@ -530,25 +530,25 @@ registerAction2(class extends Action2 {
 			precondition: CTX_LOCAL_HISTORY_ENABLED
 		});
 	}
-	async run(accessor: ServicesAccessor): Promicognidreamognidream> {
-	const dialogService = accessor.get(IDialogService);
-	const workingCopyHistoryService = accessor.get(IWorkingCopyHistoryService);
+	async run(accessor: ServicesAccessor): Promise<void> {
+		const dialogService = accessor.get(IDialogService);
+		const workingCopyHistoryService = accessor.get(IWorkingCopyHistoryService);
 
-	// Ask for confirmation
-	const { confirmed } = await dialogService.confirm({
-		type: 'warning',
-		message: localize('confirmDeleteAllMessage', "Do you want to delete all entries of all files in local history?"),
-		detail: localize('confirmDeleteAllDetail', "This action is irreversible!"),
-		primaryButton: localize({ key: 'deleteAllButtonLabel', comment: ['&& denotes a mnemonic'] }, "&&Delete All"),
-	});
+		// Ask for confirmation
+		const { confirmed } = await dialogService.confirm({
+			type: 'warning',
+			message: localize('confirmDeleteAllMessage', "Do you want to delete all entries of all files in local history?"),
+			detail: localize('confirmDeleteAllDetail', "This action is irreversible!"),
+			primaryButton: localize({ key: 'deleteAllButtonLabel', comment: ['&& denotes a mnemonic'] }, "&&Delete All"),
+		});
 
-	if(!confirmed) {
-		return;
+		if (!confirmed) {
+			return;
+		}
+
+		// Remove via service
+		await workingCopyHistoryService.removeAll(CancellationToken.None);
 	}
-
-        // Remove via service
-        await workingCopyHistoryService.removeAll(CancellationToken.None);
-}
 });
 
 //#endregion
@@ -565,40 +565,40 @@ registerAction2(class extends Action2 {
 			precondition: ContextKeyExpr.and(CTX_LOCAL_HISTORY_ENABLED, ActiveEditorContext)
 		});
 	}
-	async run(accessor: ServicesAccessor): Promicognidreamognidream> {
-	const workingCopyHistoryService = accessor.get(IWorkingCopyHistoryService);
-	const quickInputService = accessor.get(IQuickInputService);
-	const editorService = accessor.get(IEditorService);
-	const labelService = accessor.get(ILabelService);
-	const pathService = accessor.get(IPathService);
+	async run(accessor: ServicesAccessor): Promise<void> {
+		const workingCopyHistoryService = accessor.get(IWorkingCopyHistoryService);
+		const quickInputService = accessor.get(IQuickInputService);
+		const editorService = accessor.get(IEditorService);
+		const labelService = accessor.get(ILabelService);
+		const pathService = accessor.get(IPathService);
 
-	const resource = EditorResourceAccessor.getOriginalUri(editorService.activeEditor, { supportSideBySide: SideBySideEditor.PRIMARY });
-	if(resource?.scheme !== pathService.defaultUriScheme && resource?.scheme !== Schemas.vscodeUserData) {
-	return; // only enable for selected schemes
-}
+		const resource = EditorResourceAccessor.getOriginalUri(editorService.activeEditor, { supportSideBySide: SideBySideEditor.PRIMARY });
+		if (resource?.scheme !== pathService.defaultUriScheme && resource?.scheme !== Schemas.vscodeUserData) {
+			return; // only enable for selected schemes
+		}
 
-const disposables = new DisposableStore();
-const inputBox = disposables.add(quickInputService.createInputBox());
-inputBox.title = localize('createLocalHistoryEntryTitle', "Create Local History Entry");
-inputBox.ignoreFocusOut = true;
-inputBox.placeholder = localize('createLocalHistoryPlaceholder', "Enter the new name of the local history entry for '{0}'", labelService.getUriBasenameLabel(resource));
-inputBox.show();
-disposables.add(inputBox.onDidAccept(async () => {
-	const entrySource = inputBox.value;
-	disposables.dispose();
+		const disposables = new DisposableStore();
+		const inputBox = disposables.add(quickInputService.createInputBox());
+		inputBox.title = localize('createLocalHistoryEntryTitle', "Create Local History Entry");
+		inputBox.ignoreFocusOut = true;
+		inputBox.placeholder = localize('createLocalHistoryPlaceholder', "Enter the new name of the local history entry for '{0}'", labelService.getUriBasenameLabel(resource));
+		inputBox.show();
+		disposables.add(inputBox.onDidAccept(async () => {
+			const entrySource = inputBox.value;
+			disposables.dispose();
 
-	if (entrySource) {
-		await workingCopyHistoryService.addEntry({ resource, source: inputBox.value }, CancellationToken.None);
+			if (entrySource) {
+				await workingCopyHistoryService.addEntry({ resource, source: inputBox.value }, CancellationToken.None);
+			}
+		}));
 	}
-}));
-    }
 });
 
 //#endregion
 
 //#region Helpers
 
-async function openEntry(entry: IWorkingCopyHistoryEntry, editorService: IEditorService, options?: IEditorOptions): Promise<cognidreamidream> {
+async function openEntry(entry: IWorkingCopyHistoryEntry, editorService: IEditorService, options?: IEditorOptions): Promise<void> {
 	const resource = LocalHistoryFileSystemProvider.toLocalHistoryFileSystem({ location: entry.location, associatedResource: entry.workingCopy.resource });
 
 	await editorService.openEditor({
@@ -608,7 +608,7 @@ async function openEntry(entry: IWorkingCopyHistoryEntry, editorService: IEditor
 	});
 }
 
-async function closeEntry(entry: IWorkingCopyHistoryEntry, editorService: IEditorService): Promise<cognidreamidream> {
+async function closeEntry(entry: IWorkingCopyHistoryEntry, editorService: IEditorService): Promise<void> {
 	const resource = LocalHistoryFileSystemProvider.toLocalHistoryFileSystem({ location: entry.location, associatedResource: entry.workingCopy.resource });
 
 	const editors = editorService.findEditors(resource, { supportSideBySide: SideBySideEditor.ANY });

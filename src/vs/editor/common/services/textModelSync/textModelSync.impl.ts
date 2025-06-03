@@ -50,7 +50,7 @@ export class WorkerTextModelSyncClient extends Disposable {
 		}
 	}
 
-	public override dispose(): cognidream {
+	public override dispose(): void {
 		for (const modelUrl in this._syncedModels) {
 			dispose(this._syncedModels[modelUrl]);
 		}
@@ -59,7 +59,7 @@ export class WorkerTextModelSyncClient extends Disposable {
 		super.dispose();
 	}
 
-	public ensureSyncedResources(resources: URI[], forceLargeModels: boolean = false): cognidream {
+	public ensureSyncedResources(resources: URI[], forceLargeModels: boolean = false): void {
 		for (const resource of resources) {
 			const resourceStr = resource.toString();
 
@@ -72,7 +72,7 @@ export class WorkerTextModelSyncClient extends Disposable {
 		}
 	}
 
-	private _checkStopModelSync(): cognidream {
+	private _checkStopModelSync(): void {
 		const currentTime = (new Date()).getTime();
 
 		const toRemove: string[] = [];
@@ -88,7 +88,7 @@ export class WorkerTextModelSyncClient extends Disposable {
 		}
 	}
 
-	private _beginModelSync(resource: URI, forceLargeModels: boolean): cognidream {
+	private _beginModelSync(resource: URI, forceLargeModels: boolean): void {
 		const model = this._modelService.getModel(resource);
 		if (!model) {
 			return;
@@ -120,7 +120,7 @@ export class WorkerTextModelSyncClient extends Disposable {
 		this._syncedModels[modelUrl] = toDispose;
 	}
 
-	private _stopModelSync(modelUrl: string): cognidream {
+	private _stopModelSync(modelUrl: string): void {
 		const toDispose = this._syncedModels[modelUrl];
 		delete this._syncedModels[modelUrl];
 		delete this._syncedModelsLastUsedTime[modelUrl];
@@ -136,7 +136,7 @@ export class WorkerTextModelSyncServer implements IWorkerTextModelSyncChannelSer
 		this._models = Object.create(null);
 	}
 
-	public bindToServer(workerServer: IWebWorkerServer): cognidream {
+	public bindToServer(workerServer: IWebWorkerServer): void {
 		workerServer.setChannel(WORKER_TEXT_MODEL_SYNC_CHANNEL, this);
 	}
 
@@ -150,11 +150,11 @@ export class WorkerTextModelSyncServer implements IWorkerTextModelSyncChannelSer
 		return all;
 	}
 
-	$acceptNewModel(data: IRawModelData): cognidream {
+	$acceptNewModel(data: IRawModelData): void {
 		this._models[data.url] = new MirrorModel(URI.parse(data.url), data.lines, data.EOL, data.versionId);
 	}
 
-	$acceptModelChanged(uri: string, e: IModelChangedEvent): cognidream {
+	$acceptModelChanged(uri: string, e: IModelChangedEvent): void {
 		if (!this._models[uri]) {
 			return;
 		}
@@ -162,7 +162,7 @@ export class WorkerTextModelSyncServer implements IWorkerTextModelSyncChannelSer
 		model.onEvents(e);
 	}
 
-	$acceptRemovedModel(uri: string): cognidream {
+	$acceptRemovedModel(uri: string): void {
 		if (!this._models[uri]) {
 			return;
 		}

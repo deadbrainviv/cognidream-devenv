@@ -40,11 +40,11 @@ export interface IWindowsMainService {
 	openEmptyWindow(openConfig: IOpenEmptyConfiguration, options?: IOpenEmptyWindowOptions): Promise<ICodeWindow[]>;
 	openExtensionDevelopmentHostWindow(extensionDevelopmentPath: string[], openConfig: IOpenConfiguration): Promise<ICodeWindow[]>;
 
-	openExistingWindow(window: ICodeWindow, openConfig: IOpenConfiguration): cognidreamidream;
+	openExistingWindow(window: ICodeWindow, openConfig: IOpenConfiguration): void;
 
-	sendToFocused(channel: string, ...args: any[]): cognidreamidream;
-	sendToOpeningWindow(channel: string, ...args: any[]): cognidreamidream;
-	sendToAll(channel: string, payload?: any, windowIdsToIgnore?: number[]): cognidreamidream;
+	sendToFocused(channel: string, ...args: any[]): void;
+	sendToOpeningWindow(channel: string, ...args: any[]): void;
+	sendToAll(channel: string, payload?: any, windowIdsToIgnore?: number[]): void;
 
 	getWindows(): ICodeWindow[];
 	getWindowCount(): number;
@@ -265,7 +265,7 @@ export namespace WindowStateValidator {
 
 			if (displayWorkingArea) {
 
-				function ensureStateInDisplayWorkingArea(): cognidreamidream {
+				function ensureStateInDisplayWorkingArea(): void {
 					if (!state || typeof state.x !== 'number' || typeof state.y !== 'number' || !displayWorkingArea) {
 						return;
 					}

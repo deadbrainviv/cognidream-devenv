@@ -85,7 +85,7 @@ export function mergeSearchResultEvents(events: IChangeEvent[]): IChangeEvent {
 }
 
 export interface ISearchModel {
-	readonly onReplaceTermChanged: Event<cognidream>;
+	readonly onReplaceTermChanged: Event<void>;
 	readonly onSearchResultChanged: Event<IChangeEvent>;
 	location: SearchModelLocation;
 	id(): string;
@@ -97,18 +97,18 @@ export interface ISearchModel {
 	replaceString: string;
 	preserveCase: boolean;
 	searchResult: ISearchResult;
-	addAIResults(onProgress?: (result: ISearchProgressItem) cognidreamognidream): Promise<ISearchComplete>;
-	aiSearch(query: IAITextQuery, onProgress?: (result: ISearchProgressItem) cognidreamognidream): Promise<ISearchComplete>;
+	addAIResults(onProgress?: (result: ISearchProgressItem) => void): Promise<ISearchComplete>;
+	aiSearch(query: IAITextQuery, onProgress?: (result: ISearchProgressItem) => void): Promise<ISearchComplete>;
 	hasAIResults: boolean;
 	hasPlainResults: boolean;
-	search(query: ITextQuery, onProgress?: (result: ISearchProgressItem) cognidreamognidream, callerToken?: CancellationToken): {
+	search(query: ITextQuery, onProgress?: (result: ISearchProgressItem) => void, callerToken?: CancellationToken): {
 		asyncResults: Promise<ISearchComplete>;
 		syncResults: IFileMatch<URI>[];
 	};
 	cancelSearch(cancelledForNewSearch?: boolean): boolean;
 	cancelAISearch(cancelledForNewSearch?: boolean): boolean;
-	clearAiSearchResults(cognidreamognidream;
-		dispose(cognidreamognidream;
+	clearAiSearchResults(): void;
+	dispose(): void;
 }
 
 
@@ -122,25 +122,25 @@ export interface ISearchResult {
 	readonly isDirty: boolean;
 	query: ITextQuery | null;
 
-	batchReplace(elementsToReplace: RenderableMatch[]): Promicognidreamognidream>;
-batchRemove(elementsToRemove: RenderableMatch[]cognidreamognidream;
-folderMatches(ai ?: boolean): ISearchTreeFolderMatch[];
-add(allRaw: IFileMatch[], searchInstanceID: string, ai: boolean, silent ?: booleancognidreamognidream;
-clear(cognidreamognidream;
-remove(matches: ISearchTreeFileMatch | ISearchTreeFolderMatch | (ISearchTreeFileMatch | ISearchTreeFolderMatch)[], ai ?: booleancognidreamognidream;
-replace(match: ISearchTreeFileMatch): Promise<any>;
-matches(ai ?: boolean): ISearchTreeFileMatch[];
-isEmpty(): boolean;
-fileCount(): number;
-count(): number;
-id(): string;
-setCachedSearchComplete(cachedSearchComplete: ISearchComplete | undefined, ai: booleancognidreamognidream;
-getCachedSearchComplete(ai: boolean): ISearchComplete | undefined;
-toggleHighlights(value: boolean, ai ?: booleancognidreamognidream;
-getRangeHighlightDecorations(ai ?: boolean): RangeHighlightDecorations;
-replaceAll(progress: IProgress<IProgressStep>): Promise<any>;
-setAIQueryUsingTextQuery(query ?: ITextQuery | nullcognidreamognidream;
-dispose(cognidreamognidream;
+	batchReplace(elementsToReplace: RenderableMatch[]): Promise<void>;
+	batchRemove(elementsToRemove: RenderableMatch[]): void;
+	folderMatches(ai?: boolean): ISearchTreeFolderMatch[];
+	add(allRaw: IFileMatch[], searchInstanceID: string, ai: boolean, silent?: boolean): void;
+	clear(): void;
+	remove(matches: ISearchTreeFileMatch | ISearchTreeFolderMatch | (ISearchTreeFileMatch | ISearchTreeFolderMatch)[], ai?: boolean): void;
+	replace(match: ISearchTreeFileMatch): Promise<any>;
+	matches(ai?: boolean): ISearchTreeFileMatch[];
+	isEmpty(): boolean;
+	fileCount(): number;
+	count(): number;
+	id(): string;
+	setCachedSearchComplete(cachedSearchComplete: ISearchComplete | undefined, ai: boolean): void;
+	getCachedSearchComplete(ai: boolean): ISearchComplete | undefined;
+	toggleHighlights(value: boolean, ai?: boolean): void;
+	getRangeHighlightDecorations(ai?: boolean): RangeHighlightDecorations;
+	replaceAll(progress: IProgress<IProgressStep>): Promise<any>;
+	setAIQueryUsingTextQuery(query?: ITextQuery | null): void;
+	dispose(): void;
 }
 
 export interface ITextSearchHeading {
@@ -148,29 +148,29 @@ export interface ITextSearchHeading {
 	resource: URI | null;
 	hidden: boolean;
 	cachedSearchComplete: ISearchComplete | undefined;
-	hide(cognidreamognidream;
-		readonly isAIContributed: boolean;
-		id(): string;
+	hide(): void;
+	readonly isAIContributed: boolean;
+	id(): string;
 	parent(): ISearchResult;
 	readonly hasChildren: boolean;
 	name(): string;
 	readonly isDirty: boolean;
 	getFolderMatch(resource: URI): ISearchTreeFolderMatch | undefined;
-	add(allRaw: IFileMatch[], searchInstanceID: string, ai: boolean, silent?: booleancognidreamognidream;
-		remove(matches: ISearchTreeFileMatch | ISearchTreeFolderMatch | (ISearchTreeFileMatch | ISearchTreeFolderMatch)[], ai?: booleancognidreamognidream;
-			groupFilesByFolder(fileMatches: ISearchTreeFileMatch[]): { byFolder: Map<URI, ISearchTreeFileMatch[]>; other: ISearchTreeFileMatch[] };
+	add(allRaw: IFileMatch[], searchInstanceID: string, ai: boolean, silent?: boolean): void;
+	remove(matches: ISearchTreeFileMatch | ISearchTreeFolderMatch | (ISearchTreeFileMatch | ISearchTreeFolderMatch)[], ai?: boolean): void;
+	groupFilesByFolder(fileMatches: ISearchTreeFileMatch[]): { byFolder: Map<URI, ISearchTreeFileMatch[]>; other: ISearchTreeFileMatch[] };
 	isEmpty(): boolean;
 	findFolderSubstr(resource: URI): ISearchTreeFolderMatch | undefined;
 	query: ITextSearchQuery | null;
 	folderMatches(): ISearchTreeFolderMatch[];
 	matches(): ISearchTreeFileMatch[];
 	showHighlights: boolean;
-	toggleHighlights(value: booleancognidreamognidream;
-		rangeHighlightDecorations: RangeHighlightDecorations;
-		fileCount(): number;
+	toggleHighlights(value: boolean): void;
+	rangeHighlightDecorations: RangeHighlightDecorations;
+	fileCount(): number;
 	count(): number;
-	clear(clearAll: booleancognidreamognidream;
-		dispose(cognidreamognidream;
+	clear(clearAll: boolean): void;
+	dispose(): void;
 }
 
 export interface IPlainTextSearchHeading extends ITextSearchHeading {
@@ -180,40 +180,40 @@ export interface IPlainTextSearchHeading extends ITextSearchHeading {
 
 export interface ISearchTreeFolderMatch {
 	readonly onChange: Event<IChangeEvent>;
-	readonly onDispose: Evecognidreamognidream>;
-id(): string;
-resource: URI | null;
-index(): number;
-name(): string;
-count(): number;
-hasChildren: boolean;
-parent(): ISearchTreeFolderMatch | ITextSearchHeading;
-matches(): (ISearchTreeFileMatch | ISearchTreeFolderMatchWithResource)[];
-allDownstreamFileMatches(): ISearchTreeFileMatch[];
-remove(matches: ISearchTreeFileMatch | ISearchTreeFolderMatchWithResource | (ISearchTreeFileMatch | ISearchTreeFolderMatchWithResource)[]cognidreamognidream;
-addFileMatch(raw: IFileMatch[], silent: boolean, searchInstanceID: stringcognidreamognidream;
-isEmpty(): boolean;
-clear(clearingAll ?: booleancognidreamognidream;
-showHighlights: boolean;
-searchModel: ISearchModel;
-query: ITextSearchQuery | null;
-replace(match: ISearchTreeFileMatch): Promise<any>;
-replacingAll: boolean;
-bindModel(model: ITextModelcognidreamognidream;
-getDownstreamFileMatch(uri: URI): ISearchTreeFileMatch | null;
-replaceAll(): Promise<any>;
-recursiveFileCount(): number;
-doRemoveFile(fileMatches: ISearchTreeFileMatch[], dispose ?: boolean, trigger ?: boolean, keepReadonly ?: booleancognidreamognidream;
-unbindNotebookEditorWidget(editor: NotebookEditorWidget, resource: URIcognidreamognidream;
-bindNotebookEditorWidget(editor: NotebookEditorWidget, resource: URI): Promicognidreamognidream >;
-unbindNotebookEditorWidget(editor: NotebookEditorWidget, resource: URIcognidreamognidream;
-hasOnlyReadOnlyMatches(): boolean;
-fileMatchesIterator(): IterableIterator<ISearchTreeFileMatch>;
-folderMatchesIterator(): IterableIterator<ISearchTreeFolderMatchWithResource>;
-recursiveFileCount(): number;
-recursiveMatchCount(): number;
-dispose(cognidreamognidream;
-isAIContributed(): boolean;
+	readonly onDispose: Event<void>;
+	id(): string;
+	resource: URI | null;
+	index(): number;
+	name(): string;
+	count(): number;
+	hasChildren: boolean;
+	parent(): ISearchTreeFolderMatch | ITextSearchHeading;
+	matches(): (ISearchTreeFileMatch | ISearchTreeFolderMatchWithResource)[];
+	allDownstreamFileMatches(): ISearchTreeFileMatch[];
+	remove(matches: ISearchTreeFileMatch | ISearchTreeFolderMatchWithResource | (ISearchTreeFileMatch | ISearchTreeFolderMatchWithResource)[]): void;
+	addFileMatch(raw: IFileMatch[], silent: boolean, searchInstanceID: string): void;
+	isEmpty(): boolean;
+	clear(clearingAll?: boolean): void;
+	showHighlights: boolean;
+	searchModel: ISearchModel;
+	query: ITextSearchQuery | null;
+	replace(match: ISearchTreeFileMatch): Promise<any>;
+	replacingAll: boolean;
+	bindModel(model: ITextModel): void;
+	getDownstreamFileMatch(uri: URI): ISearchTreeFileMatch | null;
+	replaceAll(): Promise<any>;
+	recursiveFileCount(): number;
+	doRemoveFile(fileMatches: ISearchTreeFileMatch[], dispose?: boolean, trigger?: boolean, keepReadonly?: boolean): void;
+	unbindNotebookEditorWidget(editor: NotebookEditorWidget, resource: URI): void;
+	bindNotebookEditorWidget(editor: NotebookEditorWidget, resource: URI): Promise<void>;
+	unbindNotebookEditorWidget(editor: NotebookEditorWidget, resource: URI): void;
+	hasOnlyReadOnlyMatches(): boolean;
+	fileMatchesIterator(): IterableIterator<ISearchTreeFileMatch>;
+	folderMatchesIterator(): IterableIterator<ISearchTreeFolderMatchWithResource>;
+	recursiveFileCount(): number;
+	recursiveMatchCount(): number;
+	dispose(): void;
+	isAIContributed(): boolean;
 }
 
 export interface ISearchTreeFolderMatchWithResource extends ISearchTreeFolderMatch {
@@ -236,28 +236,28 @@ export interface ISearchTreeFileMatch {
 		forceUpdateModel?: boolean;
 	}>;
 	hasChildren: boolean;
-	readonly onDispose: Evecognidreamognidream>;
-name(): string;
-count(): number;
-hasOnlyReadOnlyMatches(): boolean;
-matches(): ISearchTreeMatch[];
-updateHighlights(cognidreamognidream;
-getSelectedMatch(): ISearchTreeMatch | null;
-parent(): ISearchTreeFolderMatch;
-bindModel(model: ITextModelcognidreamognidream;
-hasReadonlyMatches(): boolean;
-addContext(results: ITextSearchResult[] | undefinedcognidreamognidream;
-add(match: ISearchTreeMatch, trigger ?: booleancognidreamognidream;
-replace(toReplace: ISearchTreeMatch): Promicognidreamognidream >;
-remove(matches: ISearchTreeMatch | (ISearchTreeMatch[])cognidreamognidream;
-setSelectedMatch(match: ISearchTreeMatch | nullcognidreamognidream;
-fileStat: IFileStatWithPartialMetadata | undefined;
-resolveFileStat(fileService: IFileService): Promicognidreamognidream >;
-textMatches(): ISearchTreeMatch[];
-    readonly context: Map<number, string>;
-    readonly closestRoot: ISearchTreeFolderMatchWorkspaceRoot | null;
-isMatchSelected(match: ISearchTreeMatch): boolean;
-dispose(cognidreamognidream;
+	readonly onDispose: Event<void>;
+	name(): string;
+	count(): number;
+	hasOnlyReadOnlyMatches(): boolean;
+	matches(): ISearchTreeMatch[];
+	updateHighlights(): void;
+	getSelectedMatch(): ISearchTreeMatch | null;
+	parent(): ISearchTreeFolderMatch;
+	bindModel(model: ITextModel): void;
+	hasReadonlyMatches(): boolean;
+	addContext(results: ITextSearchResult[] | undefined): void;
+	add(match: ISearchTreeMatch, trigger?: boolean): void;
+	replace(toReplace: ISearchTreeMatch): Promise<void>;
+	remove(matches: ISearchTreeMatch | (ISearchTreeMatch[])): void;
+	setSelectedMatch(match: ISearchTreeMatch | null): void;
+	fileStat: IFileStatWithPartialMetadata | undefined;
+	resolveFileStat(fileService: IFileService): Promise<void>;
+	textMatches(): ISearchTreeMatch[];
+	readonly context: Map<number, string>;
+	readonly closestRoot: ISearchTreeFolderMatchWorkspaceRoot | null;
+	isMatchSelected(match: ISearchTreeMatch): boolean;
+	dispose(): void;
 }
 
 export interface ISearchTreeMatch {

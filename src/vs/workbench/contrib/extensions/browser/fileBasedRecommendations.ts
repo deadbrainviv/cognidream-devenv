@@ -95,7 +95,7 @@ export class FileBasedRecommendations extends ExtensionRecommendations {
 		}
 	}
 
-	protected async doActivate(): Promise<cognidream> {
+	protected async doActivate(): Promise<void> {
 		if (isEmptyObject(this.fileOpenRecommendations)) {
 			return;
 		}
@@ -116,257 +116,257 @@ export class FileBasedRecommendations extends ExtensionRecommendations {
 		this.modelService.getModels().forEach(model => this.onModelAdded(model));
 	}
 
-	private onModelAdded(model: ITextModelcognidreamognidream {
+	private onModelAdded(model: ITextModel): void {
 		const uri = model.uri.scheme === Schemas.vscodeNotebookCell ? CellUri.parse(model.uri)?.notebook : model.uri;
 		if (!uri) {
-	return;
-}
-
-const supportedSchemes = distinct([Schemas.untitled, Schemas.file, Schemas.vscodeRemote, ...this.workspaceContextService.getWorkspace().folders.map(folder => folder.uri.scheme)]);
-if (!uri || !supportedSchemes.includes(uri.scheme)) {
-	return;
-}
-
-// re-schedule this bit of the operation to be off the critical path - in case glob-match is slow
-disposableTimeout(() => this.promptImportantRecommendations(uri, model), 0, this._store);
-    }
-
-    /**
-     * Prompt the user to either install the recommended extension for the file type in the current editor model
-     * or prompt to search the marketplace if it has extensions that can support the file type
-     */
-    private promptImportantRecommendations(uri: URI, model: ITextModel, extensionRecommendations ?: IStringDictionary < IFileOpenCondition[] > cognidreamognidream {
-	if(model.isDisposed()) {
-	return;
-}
-
-const pattern = extname(uri).toLowerCase();
-extensionRecommendations = extensionRecommendations ?? this.recommendationsByPattern.get(pattern) ?? this.fileOpenRecommendations;
-const extensionRecommendationEntries = Object.entries(extensionRecommendations);
-if (extensionRecommendationEntries.length === 0) {
-	return;
-}
-
-const processedPathGlobs = new Map<string, boolean>();
-const installed = this.extensionsWorkbenchService.local;
-const recommendationsByPattern: IStringDictionary<IFileOpenCondition[]> = {};
-const matchedRecommendations: IStringDictionary<IFileOpenCondition[]> = {};
-const unmatchedRecommendations: IStringDictionary<IFileOpenCondition[]> = {};
-let listenOnLanguageChange = false;
-const languageId = model.getLanguageId();
-
-for (const [extensionId, conditions] of extensionRecommendationEntries) {
-	const conditionsByPattern: IFileOpenCondition[] = [];
-	const matchedConditions: IFileOpenCondition[] = [];
-	const unmatchedConditions: IFileOpenCondition[] = [];
-	for (const condition of conditions) {
-		let languageMatched = false;
-		let pathGlobMatched = false;
-
-		const isLanguageCondition = !!(<IFileLanguageCondition>condition).languages;
-		const isFileContentCondition = !!(<IFileContentCondition>condition).contentPattern;
-		if (isLanguageCondition || isFileContentCondition) {
-			conditionsByPattern.push(condition);
+			return;
 		}
 
-		if (isLanguageCondition) {
-			if ((<IFileLanguageCondition>condition).languages.includes(languageId)) {
-				languageMatched = true;
-			}
+		const supportedSchemes = distinct([Schemas.untitled, Schemas.file, Schemas.vscodeRemote, ...this.workspaceContextService.getWorkspace().folders.map(folder => folder.uri.scheme)]);
+		if (!uri || !supportedSchemes.includes(uri.scheme)) {
+			return;
 		}
 
-		if ((<IFilePathCondition>condition).pathGlob) {
-			const pathGlob = (<IFilePathCondition>condition).pathGlob;
-			if (processedPathGlobs.get(pathGlob) ?? match((<IFilePathCondition>condition).pathGlob, uri.with({ fragment: '' }).toString())) {
-				pathGlobMatched = true;
-			}
-			processedPathGlobs.set(pathGlob, pathGlobMatched);
+		// re-schedule this bit of the operation to be off the critical path - in case glob-match is slow
+		disposableTimeout(() => this.promptImportantRecommendations(uri, model), 0, this._store);
+	}
+
+	/**
+	 * Prompt the user to either install the recommended extension for the file type in the current editor model
+	 * or prompt to search the marketplace if it has extensions that can support the file type
+	 */
+	private promptImportantRecommendations(uri: URI, model: ITextModel, extensionRecommendations?: IStringDictionary<IFileOpenCondition[]>): void {
+		if (model.isDisposed()) {
+			return;
 		}
 
-		let matched = languageMatched || pathGlobMatched;
-
-		// If the resource has pattern (extension) and not matched, then we don't need to check the other conditions
-		if (pattern && !matched) {
-			continue;
+		const pattern = extname(uri).toLowerCase();
+		extensionRecommendations = extensionRecommendations ?? this.recommendationsByPattern.get(pattern) ?? this.fileOpenRecommendations;
+		const extensionRecommendationEntries = Object.entries(extensionRecommendations);
+		if (extensionRecommendationEntries.length === 0) {
+			return;
 		}
 
-		if (matched && condition.whenInstalled) {
-			if (!condition.whenInstalled.every(id => installed.some(local => areSameExtensions({ id }, local.identifier)))) {
-				matched = false;
-			}
-		}
+		const processedPathGlobs = new Map<string, boolean>();
+		const installed = this.extensionsWorkbenchService.local;
+		const recommendationsByPattern: IStringDictionary<IFileOpenCondition[]> = {};
+		const matchedRecommendations: IStringDictionary<IFileOpenCondition[]> = {};
+		const unmatchedRecommendations: IStringDictionary<IFileOpenCondition[]> = {};
+		let listenOnLanguageChange = false;
+		const languageId = model.getLanguageId();
 
-		if (matched && condition.whenNotInstalled) {
-			if (installed.some(local => condition.whenNotInstalled?.some(id => areSameExtensions({ id }, local.identifier)))) {
-				matched = false;
-			}
-		}
+		for (const [extensionId, conditions] of extensionRecommendationEntries) {
+			const conditionsByPattern: IFileOpenCondition[] = [];
+			const matchedConditions: IFileOpenCondition[] = [];
+			const unmatchedConditions: IFileOpenCondition[] = [];
+			for (const condition of conditions) {
+				let languageMatched = false;
+				let pathGlobMatched = false;
 
-		if (matched && isFileContentCondition) {
-			if (!model.findMatches((<IFileContentCondition>condition).contentPattern, false, true, false, null, false).length) {
-				matched = false;
-			}
-		}
+				const isLanguageCondition = !!(<IFileLanguageCondition>condition).languages;
+				const isFileContentCondition = !!(<IFileContentCondition>condition).contentPattern;
+				if (isLanguageCondition || isFileContentCondition) {
+					conditionsByPattern.push(condition);
+				}
 
-		if (matched) {
-			matchedConditions.push(condition);
-			conditionsByPattern.pop();
-		} else {
-			if (isLanguageCondition || isFileContentCondition) {
-				unmatchedConditions.push(condition);
 				if (isLanguageCondition) {
-					listenOnLanguageChange = true;
+					if ((<IFileLanguageCondition>condition).languages.includes(languageId)) {
+						languageMatched = true;
+					}
+				}
+
+				if ((<IFilePathCondition>condition).pathGlob) {
+					const pathGlob = (<IFilePathCondition>condition).pathGlob;
+					if (processedPathGlobs.get(pathGlob) ?? match((<IFilePathCondition>condition).pathGlob, uri.with({ fragment: '' }).toString())) {
+						pathGlobMatched = true;
+					}
+					processedPathGlobs.set(pathGlob, pathGlobMatched);
+				}
+
+				let matched = languageMatched || pathGlobMatched;
+
+				// If the resource has pattern (extension) and not matched, then we don't need to check the other conditions
+				if (pattern && !matched) {
+					continue;
+				}
+
+				if (matched && condition.whenInstalled) {
+					if (!condition.whenInstalled.every(id => installed.some(local => areSameExtensions({ id }, local.identifier)))) {
+						matched = false;
+					}
+				}
+
+				if (matched && condition.whenNotInstalled) {
+					if (installed.some(local => condition.whenNotInstalled?.some(id => areSameExtensions({ id }, local.identifier)))) {
+						matched = false;
+					}
+				}
+
+				if (matched && isFileContentCondition) {
+					if (!model.findMatches((<IFileContentCondition>condition).contentPattern, false, true, false, null, false).length) {
+						matched = false;
+					}
+				}
+
+				if (matched) {
+					matchedConditions.push(condition);
+					conditionsByPattern.pop();
+				} else {
+					if (isLanguageCondition || isFileContentCondition) {
+						unmatchedConditions.push(condition);
+						if (isLanguageCondition) {
+							listenOnLanguageChange = true;
+						}
+					}
+				}
+
+			}
+			if (matchedConditions.length) {
+				matchedRecommendations[extensionId] = matchedConditions;
+			}
+			if (unmatchedConditions.length) {
+				unmatchedRecommendations[extensionId] = unmatchedConditions;
+			}
+			if (conditionsByPattern.length) {
+				recommendationsByPattern[extensionId] = conditionsByPattern;
+			}
+		}
+
+		if (pattern) {
+			this.recommendationsByPattern.set(pattern, recommendationsByPattern);
+		}
+		if (Object.keys(unmatchedRecommendations).length) {
+			if (listenOnLanguageChange) {
+				const disposables = new DisposableStore();
+				disposables.add(model.onDidChangeLanguage(() => {
+					// re-schedule this bit of the operation to be off the critical path - in case glob-match is slow
+					disposableTimeout(() => {
+						if (!disposables.isDisposed) {
+							this.promptImportantRecommendations(uri, model, unmatchedRecommendations);
+							disposables.dispose();
+						}
+					}, 0, disposables);
+				}));
+				disposables.add(model.onWillDispose(() => disposables.dispose()));
+			}
+		}
+
+		if (Object.keys(matchedRecommendations).length) {
+			this.promptFromRecommendations(uri, model, matchedRecommendations);
+		}
+	}
+
+	private promptFromRecommendations(uri: URI, model: ITextModel, extensionRecommendations: IStringDictionary<IFileOpenCondition[]>): void {
+		let isImportantRecommendationForLanguage = false;
+		const importantRecommendations = new Set<string>();
+		const fileBasedRecommendations = new Set<string>();
+		for (const [extensionId, conditions] of Object.entries(extensionRecommendations)) {
+			for (const condition of conditions) {
+				fileBasedRecommendations.add(extensionId);
+				if (condition.important) {
+					importantRecommendations.add(extensionId);
+					this.fileBasedImportantRecommendations.add(extensionId);
+				}
+				if ((<IFileLanguageCondition>condition).languages) {
+					isImportantRecommendationForLanguage = true;
 				}
 			}
 		}
 
-	}
-	if (matchedConditions.length) {
-		matchedRecommendations[extensionId] = matchedConditions;
-	}
-	if (unmatchedConditions.length) {
-		unmatchedRecommendations[extensionId] = unmatchedConditions;
-	}
-	if (conditionsByPattern.length) {
-		recommendationsByPattern[extensionId] = conditionsByPattern;
-	}
-}
-
-if (pattern) {
-	this.recommendationsByPattern.set(pattern, recommendationsByPattern);
-}
-if (Object.keys(unmatchedRecommendations).length) {
-	if (listenOnLanguageChange) {
-		const disposables = new DisposableStore();
-		disposables.add(model.onDidChangeLanguage(() => {
-			// re-schedule this bit of the operation to be off the critical path - in case glob-match is slow
-			disposableTimeout(() => {
-				if (!disposables.isDisposed) {
-					this.promptImportantRecommendations(uri, model, unmatchedRecommendations);
-					disposables.dispose();
-				}
-			}, 0, disposables);
-		}));
-		disposables.add(model.onWillDispose(() => disposables.dispose()));
-	}
-}
-
-if (Object.keys(matchedRecommendations).length) {
-	this.promptFromRecommendations(uri, model, matchedRecommendations);
-}
-    }
-
-    private promptFromRecommendations(uri: URI, model: ITextModel, extensionRecommendations: IStringDictionary < IFileOpenCondition[] > cognidreamognidream {
-	let isImportantRecommendationForLanguage = false;
-	const importantRecommendations = new Set<string>();
-	const fileBasedRecommendations = new Set<string>();
-	for(const [extensionId, conditions] of Object.entries(extensionRecommendations)) {
-	for (const condition of conditions) {
-		fileBasedRecommendations.add(extensionId);
-		if (condition.important) {
-			importantRecommendations.add(extensionId);
-			this.fileBasedImportantRecommendations.add(extensionId);
+		// Update file based recommendations
+		for (const recommendation of fileBasedRecommendations) {
+			const filedBasedRecommendation = this.fileBasedRecommendations.get(recommendation) || { recommendedTime: Date.now(), sources: [] };
+			filedBasedRecommendation.recommendedTime = Date.now();
+			this.fileBasedRecommendations.set(recommendation, filedBasedRecommendation);
 		}
-		if ((<IFileLanguageCondition>condition).languages) {
-			isImportantRecommendationForLanguage = true;
+
+		this.storeCachedRecommendations();
+
+		if (this.extensionRecommendationNotificationService.hasToIgnoreRecommendationNotifications()) {
+			return;
+		}
+
+		const language = model.getLanguageId();
+		const languageName = this.languageService.getLanguageName(language);
+		if (importantRecommendations.size &&
+			this.promptRecommendedExtensionForFileType(languageName && isImportantRecommendationForLanguage && language !== PLAINTEXT_LANGUAGE_ID ? localize('languageName', "the {0} language", languageName) : basename(uri), language, [...importantRecommendations])) {
+			return;
 		}
 	}
-}
 
-// Update file based recommendations
-for (const recommendation of fileBasedRecommendations) {
-	const filedBasedRecommendation = this.fileBasedRecommendations.get(recommendation) || { recommendedTime: Date.now(), sources: [] };
-	filedBasedRecommendation.recommendedTime = Date.now();
-	this.fileBasedRecommendations.set(recommendation, filedBasedRecommendation);
-}
-
-this.storeCachedRecommendations();
-
-if (this.extensionRecommendationNotificationService.hasToIgnoreRecommendationNotifications()) {
-	return;
-}
-
-const language = model.getLanguageId();
-const languageName = this.languageService.getLanguageName(language);
-if (importantRecommendations.size &&
-	this.promptRecommendedExtensionForFileType(languageName && isImportantRecommendationForLanguage && language !== PLAINTEXT_LANGUAGE_ID ? localize('languageName', "the {0} language", languageName) : basename(uri), language, [...importantRecommendations])) {
-	return;
-}
-    }
-
-    private promptRecommendedExtensionForFileType(name: string, language: string, recommendations: string[]): boolean {
-	recommendations = this.filterIgnoredOrNotAllowed(recommendations);
-	if (recommendations.length === 0) {
-		return false;
-	}
-
-	recommendations = this.filterInstalled(recommendations, this.extensionsWorkbenchService.local)
-		.filter(extensionId => this.fileBasedImportantRecommendations.has(extensionId));
-
-	const promptedRecommendations = language !== PLAINTEXT_LANGUAGE_ID ? this.getPromptedRecommendations()[language] : undefined;
-	if (promptedRecommendations) {
-		recommendations = recommendations.filter(extensionId => promptedRecommendations.includes(extensionId));
-	}
-
-	if (recommendations.length === 0) {
-		return false;
-	}
-
-	this.promptImportantExtensionsInstallNotification(recommendations, name, language);
-	return true;
-}
-
-    private async promptImportantExtensionsInstallNotification(extensions: string[], name: string, language: string): Promicognidreamognidream > {
-	try {
-		const result = await this.extensionRecommendationNotificationService.promptImportantExtensionsInstallNotification({ extensions, name, source: RecommendationSource.FILE });
-		if(result === RecommendationsNotificationResult.Accepted) {
-	this.addToPromptedRecommendations(language, extensions);
-}
-        } catch (error) { /* Ignore */ }
-    }
-
-    private getPromptedRecommendations(): IStringDictionary < string[] > {
-	return JSON.parse(this.storageService.get(promptedRecommendationsStorageKey, StorageScope.PROFILE, '{}'));
-}
-
-    private addToPromptedRecommendations(language: string, extensions: string[]) {
-	const promptedRecommendations = this.getPromptedRecommendations();
-	promptedRecommendations[language] = distinct([...(promptedRecommendations[language] ?? []), ...extensions]);
-	this.storageService.store(promptedRecommendationsStorageKey, JSON.stringify(promptedRecommendations), StorageScope.PROFILE, StorageTarget.USER);
-}
-
-    private filterIgnoredOrNotAllowed(recommendationsToSuggest: string[]): string[] {
-	const ignoredRecommendations = [...this.extensionIgnoredRecommendationsService.ignoredRecommendations, ...this.extensionRecommendationNotificationService.ignoredRecommendations];
-	return recommendationsToSuggest.filter(id => !ignoredRecommendations.includes(id));
-}
-
-    private filterInstalled(recommendationsToSuggest: string[], installed: IExtension[]): string[] {
-	const installedExtensionsIds = installed.reduce((result, i) => {
-		if (i.enablementState !== EnablementState.DisabledByExtensionKind) {
-			result.add(i.identifier.id.toLowerCase());
+	private promptRecommendedExtensionForFileType(name: string, language: string, recommendations: string[]): boolean {
+		recommendations = this.filterIgnoredOrNotAllowed(recommendations);
+		if (recommendations.length === 0) {
+			return false;
 		}
+
+		recommendations = this.filterInstalled(recommendations, this.extensionsWorkbenchService.local)
+			.filter(extensionId => this.fileBasedImportantRecommendations.has(extensionId));
+
+		const promptedRecommendations = language !== PLAINTEXT_LANGUAGE_ID ? this.getPromptedRecommendations()[language] : undefined;
+		if (promptedRecommendations) {
+			recommendations = recommendations.filter(extensionId => promptedRecommendations.includes(extensionId));
+		}
+
+		if (recommendations.length === 0) {
+			return false;
+		}
+
+		this.promptImportantExtensionsInstallNotification(recommendations, name, language);
+		return true;
+	}
+
+	private async promptImportantExtensionsInstallNotification(extensions: string[], name: string, language: string): Promise<void> {
+		try {
+			const result = await this.extensionRecommendationNotificationService.promptImportantExtensionsInstallNotification({ extensions, name, source: RecommendationSource.FILE });
+			if (result === RecommendationsNotificationResult.Accepted) {
+				this.addToPromptedRecommendations(language, extensions);
+			}
+		} catch (error) { /* Ignore */ }
+	}
+
+	private getPromptedRecommendations(): IStringDictionary<string[]> {
+		return JSON.parse(this.storageService.get(promptedRecommendationsStorageKey, StorageScope.PROFILE, '{}'));
+	}
+
+	private addToPromptedRecommendations(language: string, extensions: string[]) {
+		const promptedRecommendations = this.getPromptedRecommendations();
+		promptedRecommendations[language] = distinct([...(promptedRecommendations[language] ?? []), ...extensions]);
+		this.storageService.store(promptedRecommendationsStorageKey, JSON.stringify(promptedRecommendations), StorageScope.PROFILE, StorageTarget.USER);
+	}
+
+	private filterIgnoredOrNotAllowed(recommendationsToSuggest: string[]): string[] {
+		const ignoredRecommendations = [...this.extensionIgnoredRecommendationsService.ignoredRecommendations, ...this.extensionRecommendationNotificationService.ignoredRecommendations];
+		return recommendationsToSuggest.filter(id => !ignoredRecommendations.includes(id));
+	}
+
+	private filterInstalled(recommendationsToSuggest: string[], installed: IExtension[]): string[] {
+		const installedExtensionsIds = installed.reduce((result, i) => {
+			if (i.enablementState !== EnablementState.DisabledByExtensionKind) {
+				result.add(i.identifier.id.toLowerCase());
+			}
+			return result;
+		}, new Set<string>());
+		return recommendationsToSuggest.filter(id => !installedExtensionsIds.has(id.toLowerCase()));
+	}
+
+	private getCachedRecommendations(): IStringDictionary<number> {
+		let storedRecommendations = JSON.parse(this.storageService.get(recommendationsStorageKey, StorageScope.PROFILE, '[]'));
+		if (Array.isArray(storedRecommendations)) {
+			storedRecommendations = storedRecommendations.reduce<IStringDictionary<number>>((result, id) => { result[id] = Date.now(); return result; }, {});
+		}
+		const result: IStringDictionary<number> = {};
+		Object.entries(storedRecommendations).forEach(([key, value]) => {
+			if (typeof value === 'number') {
+				result[key.toLowerCase()] = value;
+			}
+		});
 		return result;
-	}, new Set<string>());
-	return recommendationsToSuggest.filter(id => !installedExtensionsIds.has(id.toLowerCase()));
-}
-
-    private getCachedRecommendations(): IStringDictionary < number > {
-	let storedRecommendations = JSON.parse(this.storageService.get(recommendationsStorageKey, StorageScope.PROFILE, '[]'));
-	if(Array.isArray(storedRecommendations)) {
-	storedRecommendations = storedRecommendations.reduce<IStringDictionary<number>>((result, id) => { result[id] = Date.now(); return result; }, {});
-}
-const result: IStringDictionary<number> = {};
-Object.entries(storedRecommendations).forEach(([key, value]) => {
-	if (typeof value === 'number') {
-		result[key.toLowerCase()] = value;
 	}
-});
-return result;
-    }
 
-    private storeCachedRecommendations(cognidreamognidream {
-	const storedRecommendations: IStringDictionary<number> = {};
-this.fileBasedRecommendations.forEach((value, key) => storedRecommendations[key] = value.recommendedTime);
-this.storageService.store(recommendationsStorageKey, JSON.stringify(storedRecommendations), StorageScope.PROFILE, StorageTarget.MACHINE);
-    }
+	private storeCachedRecommendations(): void {
+		const storedRecommendations: IStringDictionary<number> = {};
+		this.fileBasedRecommendations.forEach((value, key) => storedRecommendations[key] = value.recommendedTime);
+		this.storageService.store(recommendationsStorageKey, JSON.stringify(storedRecommendations), StorageScope.PROFILE, StorageTarget.MACHINE);
+	}
 }

@@ -49,7 +49,7 @@ export class EmergencyAlert implements IWorkbenchContribution {
 		this.fetchAlerts(emergencyAlertUrl);
 	}
 
-	private async fetchAlerts(url: string): Promise<cognidream> {
+	private async fetchAlerts(url: string): Promise<void> {
 		try {
 			await this.doFetchAlerts(url);
 		} catch (e) {
@@ -57,37 +57,37 @@ export class EmergencyAlert implements IWorkbenchContribution {
 		}
 	}
 
-	private async doFetchAlerts(url: string): Promicognidreamognidream> {
+	private async doFetchAlerts(url: string): Promise<void> {
 		const requestResult = await this.requestService.request({ type: 'GET', url, disableCache: true }, CancellationToken.None);
 
-		if(requestResult.res.statusCode !== 200) {
-	throw new Error(`Failed to fetch emergency alerts: HTTP ${requestResult.res.statusCode}`);
-}
+		if (requestResult.res.statusCode !== 200) {
+			throw new Error(`Failed to fetch emergency alerts: HTTP ${requestResult.res.statusCode}`);
+		}
 
-const emergencyAlerts = await asJson<IEmergencyAlerts>(requestResult);
-if (!emergencyAlerts) {
-	return;
-}
+		const emergencyAlerts = await asJson<IEmergencyAlerts>(requestResult);
+		if (!emergencyAlerts) {
+			return;
+		}
 
-for (const emergencyAlert of emergencyAlerts.alerts) {
-	if (
-		(emergencyAlert.commit !== this.productService.commit) ||				// version mismatch
-		(emergencyAlert.platform && emergencyAlert.platform !== platform) ||	// platform mismatch
-		(emergencyAlert.arch && emergencyAlert.arch !== arch)					// arch mismatch
-	) {
-		return;
+		for (const emergencyAlert of emergencyAlerts.alerts) {
+			if (
+				(emergencyAlert.commit !== this.productService.commit) ||				// version mismatch
+				(emergencyAlert.platform && emergencyAlert.platform !== platform) ||	// platform mismatch
+				(emergencyAlert.arch && emergencyAlert.arch !== arch)					// arch mismatch
+			) {
+				return;
+			}
+
+			this.bannerService.show({
+				id: 'emergencyAlert.banner',
+				icon: Codicon.warning,
+				message: emergencyAlert.message,
+				actions: emergencyAlert.actions
+			});
+
+			break;
+		}
 	}
-
-	this.bannerService.show({
-		id: 'emergencyAlert.banner',
-		icon: Codicon.warning,
-		message: emergencyAlert.message,
-		actions: emergencyAlert.actions
-	});
-
-	break;
-}
-    }
 }
 
 registerWorkbenchContribution2('workbench.emergencyAlert', EmergencyAlert, WorkbenchPhase.Eventually);

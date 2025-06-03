@@ -224,70 +224,70 @@ export class ResourceContextKey {
 		}));
 	}
 
-	dispose(): cognidream {
+	dispose(): void {
 		this._disposables.dispose();
 	}
 
-	private _setLangId(cognidreamognidream {
+	private _setLangId(): void {
 		const value = this.get();
 		if (!value) {
-	this._langIdKey.set(null);
-	return;
-}
-const langId = this._modelService.getModel(value)?.getLanguageId() ?? this._languageService.guessLanguageIdByFilepathOrFirstLine(value);
-this._langIdKey.set(langId);
-    }
-
-set(value: URI | null | undefined) {
-	value = value ?? undefined;
-	if (isEqual(this._value, value)) {
-		return;
-	}
-	this._value = value;
-	this._contextKeyService.bufferChangeEvents(() => {
-		this._resourceKey.set(value ? value.toString() : null);
-		this._schemeKey.set(value ? value.scheme : null);
-		this._filenameKey.set(value ? basename(value) : null);
-		this._dirnameKey.set(value ? this.uriToPath(dirname(value)) : null);
-		this._pathKey.set(value ? this.uriToPath(value) : null);
-		this._setLangId();
-		this._extensionKey.set(value ? extname(value) : null);
-		this._hasResource.set(Boolean(value));
-		this._isFileSystemResource.set(value ? this._fileService.hasProvider(value) : false);
-	});
-}
-
-    private uriToPath(uri: URI): string {
-	if (uri.scheme === Schemas.file) {
-		return uri.fsPath;
+			this._langIdKey.set(null);
+			return;
+		}
+		const langId = this._modelService.getModel(value)?.getLanguageId() ?? this._languageService.guessLanguageIdByFilepathOrFirstLine(value);
+		this._langIdKey.set(langId);
 	}
 
-	return uri.path;
-}
+	set(value: URI | null | undefined) {
+		value = value ?? undefined;
+		if (isEqual(this._value, value)) {
+			return;
+		}
+		this._value = value;
+		this._contextKeyService.bufferChangeEvents(() => {
+			this._resourceKey.set(value ? value.toString() : null);
+			this._schemeKey.set(value ? value.scheme : null);
+			this._filenameKey.set(value ? basename(value) : null);
+			this._dirnameKey.set(value ? this.uriToPath(dirname(value)) : null);
+			this._pathKey.set(value ? this.uriToPath(value) : null);
+			this._setLangId();
+			this._extensionKey.set(value ? extname(value) : null);
+			this._hasResource.set(Boolean(value));
+			this._isFileSystemResource.set(value ? this._fileService.hasProvider(value) : false);
+		});
+	}
 
-reset(cognidreamognidream {
-	this._value = undefined;
-	this._contextKeyService.bufferChangeEvents(() => {
-		this._resourceKey.reset();
-		this._schemeKey.reset();
-		this._filenameKey.reset();
-		this._dirnameKey.reset();
-		this._pathKey.reset();
-		this._langIdKey.reset();
-		this._extensionKey.reset();
-		this._hasResource.reset();
-		this._isFileSystemResource.reset();
-	});
-}
+	private uriToPath(uri: URI): string {
+		if (uri.scheme === Schemas.file) {
+			return uri.fsPath;
+		}
 
-    get(): URI | undefined {
-	return this._value;
-}
+		return uri.path;
+	}
+
+	reset(): void {
+		this._value = undefined;
+		this._contextKeyService.bufferChangeEvents(() => {
+			this._resourceKey.reset();
+			this._schemeKey.reset();
+			this._filenameKey.reset();
+			this._dirnameKey.reset();
+			this._pathKey.reset();
+			this._langIdKey.reset();
+			this._extensionKey.reset();
+			this._hasResource.reset();
+			this._isFileSystemResource.reset();
+		});
+	}
+
+	get(): URI | undefined {
+		return this._value;
+	}
 }
 
 //#endregion
 
-export function applyAvailableEditorIds(contextKey: IContextKey<string>, editor: EditorInput | undefined | null, editorResolverService: IEditorResolverService): cognidreamidream {
+export function applyAvailableEditorIds(contextKey: IContextKey<string>, editor: EditorInput | undefined | null, editorResolverService: IEditorResolverService): void {
 	if (!editor) {
 		contextKey.set('');
 		return;

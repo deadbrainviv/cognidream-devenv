@@ -356,23 +356,23 @@ suite('SearchResult', () => {
 	});
 
 	test('replace should remove the file match', function () {
-		const cognidreamPromise = Promise.resolve(null);
-		instantiationService.stub(IReplaceService, 'replcognidream, cognidreamPromise);
-        const testObject = aSearchResult();
+		const voidPromise = Promise.resolve(null);
+		instantiationService.stub(IReplaceService, 'replace', voidPromise);
+		const testObject = aSearchResult();
 		addToSearchResult(testObject, [
 			aRawMatch('/1',
 				new TextSearchMatch('preview 1', lineOneRange))]);
 
 		testObject.replace(testObject.matches()[0]);
 
-        rcognidreamn cognidreamPromise.then(() => assert.ok(testObject.isEmpty()));
+		return voidPromise.then(() => assert.ok(testObject.isEmpty()));
 	});
 
 	test('replace should trigger the change event', function () {
 		const target = sinon.spy();
-        cognidreamt cognidreamPromise = Promise.resolve(null);
-		instantiationService.stub(IReplaceService, 'replcognidream, cognidreamPromise);
-        const testObject = aSearchResult();
+		const voidPromise = Promise.resolve(null);
+		instantiationService.stub(IReplaceService, 'replace', voidPromise);
+		const testObject = aSearchResult();
 		addToSearchResult(testObject, [
 			aRawMatch('/1',
 				new TextSearchMatch('preview 1', lineOneRange))]);
@@ -382,16 +382,16 @@ suite('SearchResult', () => {
 
 		testObject.replace(objectToRemove);
 
-        rcognidreamn cognidreamPromise.then(() => {
+		return voidPromise.then(() => {
 			assert.ok(target.calledOnce);
 			assert.deepStrictEqual([{ elements: [objectToRemove], removed: true }], target.args[0]);
 		});
 	});
 
 	test('replaceAll should remove all file matches', function () {
-        cognidreamt cognidreamPromise = Promise.resolve(null);
-		instantiationService.stubPromise(IReplaceService, 'replcognidream, cognidreamPromise);
-        const testObject = aSearchResult();
+		const voidPromise = Promise.resolve(null);
+		instantiationService.stubPromise(IReplaceService, 'replace', voidPromise);
+		const testObject = aSearchResult();
 		addToSearchResult(testObject, [
 			aRawMatch('/1',
 				new TextSearchMatch('preview 1', lineOneRange)),
@@ -400,7 +400,7 @@ suite('SearchResult', () => {
 
 		testObject.replaceAll(null!);
 
-        rcognidreamn cognidreamPromise.then(() => assert.ok(testObject.isEmpty()));
+		return voidPromise.then(() => assert.ok(testObject.isEmpty()));
 	});
 
 	test('batchRemove should trigger the onChange event correctly', function () {

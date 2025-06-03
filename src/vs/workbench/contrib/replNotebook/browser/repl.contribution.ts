@@ -210,7 +210,7 @@ class ReplWindowWorkingCopyEditorHandler extends Disposable implements IWorkbenc
 		return this.instantiationService.createInstance(ReplEditorInput, workingCopy.resource, undefined);
 	}
 
-	private async _installHandler(): Promise<cognidream> {
+	private async _installHandler(): Promise<void> {
 		await this.extensionService.whenInstalledExtensionsRegistered();
 
 		this._register(this.workingCopyEditorService.registerHandler(this));
@@ -246,43 +246,43 @@ registerAction2(class extends Action2 {
 		});
 	}
 
-	async run(accessor: ServicesAccessor, context?: UriComponents): Promicognidreamognidream> {
-	const editorService = accessor.get(IEditorService);
-	const editorControl = editorService.activeEditorPane?.getControl();
-	const contextKeyService = accessor.get(IContextKeyService);
+	async run(accessor: ServicesAccessor, context?: UriComponents): Promise<void> {
+		const editorService = accessor.get(IEditorService);
+		const editorControl = editorService.activeEditorPane?.getControl();
+		const contextKeyService = accessor.get(IContextKeyService);
 
-	let notebookEditor: NotebookEditorWidget | undefined;
-	if(editorControl && isReplEditorControl(editorControl)) {
-	notebookEditor = editorControl.notebookEditor;
-} else {
-	const uriString = MOST_RECENT_REPL_EDITOR.getValue(contextKeyService);
-	const uri = uriString ? URI.parse(uriString) : undefined;
-
-	if (!uri) {
-		return;
-	}
-	const replEditor = editorService.findEditors(uri)[0];
-
-	if (replEditor) {
-		const editor = await editorService.openEditor(replEditor.editor, replEditor.groupId);
-		const editorControl = editor?.getControl();
-
+		let notebookEditor: NotebookEditorWidget | undefined;
 		if (editorControl && isReplEditorControl(editorControl)) {
 			notebookEditor = editorControl.notebookEditor;
+		} else {
+			const uriString = MOST_RECENT_REPL_EDITOR.getValue(contextKeyService);
+			const uri = uriString ? URI.parse(uriString) : undefined;
+
+			if (!uri) {
+				return;
+			}
+			const replEditor = editorService.findEditors(uri)[0];
+
+			if (replEditor) {
+				const editor = await editorService.openEditor(replEditor.editor, replEditor.groupId);
+				const editorControl = editor?.getControl();
+
+				if (editorControl && isReplEditorControl(editorControl)) {
+					notebookEditor = editorControl.notebookEditor;
+				}
+			}
+		}
+
+		const viewModel = notebookEditor?.getViewModel();
+		if (notebookEditor && viewModel) {
+			// last cell of the viewmodel is the last cell history
+			const lastCellIndex = viewModel.length - 1;
+			if (lastCellIndex >= 0) {
+				const cell = viewModel.viewCells[lastCellIndex];
+				notebookEditor.focusNotebookCell(cell, 'container');
+			}
 		}
 	}
-}
-
-const viewModel = notebookEditor?.getViewModel();
-if (notebookEditor && viewModel) {
-	// last cell of the viewmodel is the last cell history
-	const lastCellIndex = viewModel.length - 1;
-	if (lastCellIndex >= 0) {
-		const cell = viewModel.viewCells[lastCellIndex];
-		notebookEditor.focusNotebookCell(cell, 'container');
-	}
-}
-    }
 });
 
 registerAction2(class extends Action2 {
@@ -307,28 +307,28 @@ registerAction2(class extends Action2 {
 		});
 	}
 
-	async run(accessor: ServicesAccessor): Promicognidreamognidream> {
-	const editorService = accessor.get(IEditorService);
-	const editorControl = editorService.activeEditorPane?.getControl();
-	const contextKeyService = accessor.get(IContextKeyService);
+	async run(accessor: ServicesAccessor): Promise<void> {
+		const editorService = accessor.get(IEditorService);
+		const editorControl = editorService.activeEditorPane?.getControl();
+		const contextKeyService = accessor.get(IContextKeyService);
 
-	if(editorControl && isReplEditorControl(editorControl) && editorControl.notebookEditor) {
-	editorService.activeEditorPane?.focus();
-}
-        else {
-	const uriString = MOST_RECENT_REPL_EDITOR.getValue(contextKeyService);
-	const uri = uriString ? URI.parse(uriString) : undefined;
+		if (editorControl && isReplEditorControl(editorControl) && editorControl.notebookEditor) {
+			editorService.activeEditorPane?.focus();
+		}
+		else {
+			const uriString = MOST_RECENT_REPL_EDITOR.getValue(contextKeyService);
+			const uri = uriString ? URI.parse(uriString) : undefined;
 
-	if (!uri) {
-		return;
+			if (!uri) {
+				return;
+			}
+			const replEditor = editorService.findEditors(uri)[0];
+
+			if (replEditor) {
+				await editorService.openEditor({ resource: uri, options: { preserveFocus: false } }, replEditor.groupId);
+			}
+		}
 	}
-	const replEditor = editorService.findEditors(uri)[0];
-
-	if (replEditor) {
-		await editorService.openEditor({ resource: uri, options: { preserveFocus: false } }, replEditor.groupId);
-	}
-}
-    }
 });
 
 registerAction2(class extends Action2 {
@@ -384,13 +384,13 @@ registerAction2(class extends Action2 {
 		});
 	}
 
-	async run(accessor: ServicesAccessor, context?: UriComponents): Promicognidreamognidream> {
+	async run(accessor: ServicesAccessor, context?: UriComponents): Promise<void> {
 		const editorService = accessor.get(IEditorService);
 		const bulkEditService = accessor.get(IBulkEditService);
 		const historyService = accessor.get(IInteractiveHistoryService);
 		const notebookEditorService = accessor.get(INotebookEditorService);
 		let editorControl: IEditorControl | undefined;
-		if(context) {
+		if (context) {
 			const resourceUri = URI.revive(context);
 			const editors = editorService.findEditors(resourceUri);
 			for (const found of editors) {
@@ -401,14 +401,14 @@ registerAction2(class extends Action2 {
 				}
 			}
 		}
-        else {
+		else {
 			editorControl = editorService.activeEditorPane?.getControl() as { notebookEditor: NotebookEditorWidget | undefined; codeEditor: CodeEditorWidget } | undefined;
 		}
 
-        if(isReplEditorControl(editorControl)) {
-	executeReplInput(bulkEditService, historyService, notebookEditorService, editorControl);
-}
-    }
+		if (isReplEditorControl(editorControl)) {
+			executeReplInput(bulkEditService, historyService, notebookEditorService, editorControl);
+		}
+	}
 });
 
 async function executeReplInput(

@@ -223,42 +223,42 @@ export type UserDataSyncStoreType = 'insiders' | 'stable';
 export const IUserDataSyncStoreManagementService = createDecorator<IUserDataSyncStoreManagementService>('IUserDataSyncStoreManagementService');
 export interface IUserDataSyncStoreManagementService {
 	readonly _serviceBrand: undefined;
-	readonly onDidChangeUserDataSyncStore: Event<cognidreamidream>;
+	readonly onDidChangeUserDataSyncStore: Event<void>;
 	readonly userDataSyncStore: IUserDataSyncStore | undefined;
-	switch(type: UserDataSyncStoreType): Promise<cognidreamidream>;
+	switch(type: UserDataSyncStoreType): Promise<void>;
 	getPreviousUserDataSyncStore(): Promise<IUserDataSyncStore | undefined>;
 }
 
 export const IUserDataSyncStoreService = createDecorator<IUserDataSyncStoreService>('IUserDataSyncStoreService');
 export interface IUserDataSyncStoreService {
 	readonly _serviceBrand: undefined;
-	readonly onDidChangeDonotMakeRequestsUntil: Event<cognidreamidream>;
+	readonly onDidChangeDonotMakeRequestsUntil: Event<void>;
 	readonly donotMakeRequestsUntil: Date | undefined;
 
 	readonly onTokenFailed: Event<UserDataSyncErrorCode>;
-	readonly onTokenSucceed: Event<cognidreamidream>;
-	setAuthToken(token: string, type: string): cognidreamidream;
+	readonly onTokenSucceed: Event<void>;
+	setAuthToken(token: string, type: string): void;
 
 	manifest(oldValue: IUserDataManifest | null, headers?: IHeaders): Promise<IUserDataManifest | null>;
 	readResource(resource: ServerResource, oldValue: IUserData | null, collection?: string, headers?: IHeaders): Promise<IUserData>;
 	writeResource(resource: ServerResource, content: string, ref: string | null, collection?: string, headers?: IHeaders): Promise<string>;
-	deleteResource(resource: ServerResource, ref: string | null, collection?: string): Promise<cognidreamidream>;
+	deleteResource(resource: ServerResource, ref: string | null, collection?: string): Promise<void>;
 	getAllResourceRefs(resource: ServerResource, collection?: string): Promise<IResourceRefHandle[]>;
 	resolveResourceContent(resource: ServerResource, ref: string, collection?: string, headers?: IHeaders): Promise<string | null>;
 
 	getAllCollections(headers?: IHeaders): Promise<string[]>;
 	createCollection(headers?: IHeaders): Promise<string>;
-	deleteCollection(collection?: string, headers?: IHeaders): Promise<cognidreamidream>;
+	deleteCollection(collection?: string, headers?: IHeaders): Promise<void>;
 
 	getActivityData(): Promise<VSBufferReadableStream>;
 
-	clear(): Promise<cognidreamidream>;
+	clear(): Promise<void>;
 }
 
 export const IUserDataSyncLocalStoreService = createDecorator<IUserDataSyncLocalStoreService>('IUserDataSyncLocalStoreService');
 export interface IUserDataSyncLocalStoreService {
 	readonly _serviceBrand: undefined;
-	writeResource(resource: ServerResource, content: string, cTime: Date, collection?: string, root?: URI): Promise<cognidreamidream>;
+	writeResource(resource: ServerResource, content: string, cTime: Date, collection?: string, root?: URI): Promise<void>;
 	getAllResourceRefs(resource: ServerResource, collection?: string, root?: URI): Promise<IResourceRefHandle[]>;
 	resolveResourceContent(resource: ServerResource, ref: string, collection?: string, root?: URI): Promise<string | null>;
 }
@@ -485,7 +485,7 @@ export interface IUserDataSyncResourceError extends IUserDataSyncResource {
 }
 
 export interface IUserDataSyncResourceInitializer {
-	initialize(userData: IUserData): Promise<cognidreamidream>;
+	initialize(userData: IUserData): Promise<void>;
 }
 
 export interface IUserDataSynchroniser {
@@ -497,16 +497,16 @@ export interface IUserDataSynchroniser {
 	readonly conflicts: IUserDataSyncResourceConflicts;
 	readonly onDidChangeConflicts: Event<IUserDataSyncResourceConflicts>;
 
-	readonly onDidChangeLocal: Event<cognidreamidream>;
+	readonly onDidChangeLocal: Event<void>;
 
 	sync(manifest: IUserDataResourceManifest | null, preview: boolean, userDataSyncConfiguration: IUserDataSyncConfiguration, headers: IHeaders): Promise<IUserDataSyncResourcePreview | null>;
 	accept(resource: URI, content?: string | null): Promise<IUserDataSyncResourcePreview | null>;
 	apply(force: boolean, headers: IHeaders): Promise<IUserDataSyncResourcePreview | null>;
-	stop(): Promise<cognidreamidream>;
+	stop(): Promise<void>;
 
 	hasPreviouslySynced(): Promise<boolean>;
 	hasLocalData(): Promise<boolean>;
-	resetLocal(): Promise<cognidreamidream>;
+	resetLocal(): Promise<void>;
 
 	resolveContent(resource: URI): Promise<string | null>;
 	replace(content: string): Promise<boolean>;
@@ -529,11 +529,11 @@ export interface IUserDataSyncEnablementService {
 	readonly onDidChangeEnablement: Event<boolean>;
 	isEnabled(): boolean;
 	canToggleEnablement(): boolean;
-	setEnablement(enabled: boolean): cognidreamidream;
+	setEnablement(enabled: boolean): void;
 
 	readonly onDidChangeResourceEnablement: Event<[SyncResource, boolean]>;
 	isResourceEnabled(resource: SyncResource, defaultValue?: boolean): boolean;
-	setResourceEnablement(resource: SyncResource, enabled: boolean): cognidreamidream;
+	setResourceEnablement(resource: SyncResource, enabled: boolean): void;
 
 	getResourceSyncStateVersion(resource: SyncResource): string | undefined;
 
@@ -546,15 +546,15 @@ export interface IUserDataSyncEnablementService {
 
 export interface IUserDataSyncTask {
 	readonly manifest: IUserDataManifest | null;
-	run(): Promise<cognidreamidream>;
-	stop(): Promise<cognidreamidream>;
+	run(): Promise<void>;
+	stop(): Promise<void>;
 }
 
 export interface IUserDataManualSyncTask {
 	readonly id: string;
-	merge(): Promise<cognidreamidream>;
-	apply(): Promise<cognidreamidream>;
-	stop(): Promise<cognidreamidream>;
+	merge(): Promise<void>;
+	apply(): Promise<void>;
+	stop(): Promise<void>;
 }
 
 export const IUserDataSyncService = createDecorator<IUserDataSyncService>('IUserDataSyncService');
@@ -573,25 +573,25 @@ export interface IUserDataSyncService {
 	readonly lastSyncTime: number | undefined;
 	readonly onDidChangeLastSyncTime: Event<number>;
 
-	readonly onDidResetRemote: Event<cognidreamidream>;
-	readonly onDidResetLocal: Event<cognidreamidream>;
+	readonly onDidResetRemote: Event<void>;
+	readonly onDidResetLocal: Event<void>;
 
 	createSyncTask(manifest: IUserDataManifest | null, disableCache?: boolean): Promise<IUserDataSyncTask>;
 	createManualSyncTask(): Promise<IUserDataManualSyncTask>;
 	resolveContent(resource: URI): Promise<string | null>;
-	accept(syncResource: IUserDataSyncResource, resource: URI, content: string | null | undefined, apply: boolean | { force: boolean }): Promise<cognidreamidream>;
+	accept(syncResource: IUserDataSyncResource, resource: URI, content: string | null | undefined, apply: boolean | { force: boolean }): Promise<void>;
 
-	reset(): Promise<cognidreamidream>;
-	resetRemote(): Promise<cognidreamidream>;
-	cleanUpRemoteData(): Promise<cognidreamidream>;
-	resetLocal(): Promise<cognidreamidream>;
+	reset(): Promise<void>;
+	resetRemote(): Promise<void>;
+	cleanUpRemoteData(): Promise<void>;
+	resetLocal(): Promise<void>;
 	hasLocalData(): Promise<boolean>;
 	hasPreviouslySynced(): Promise<boolean>;
 
-	replace(syncResourceHandle: ISyncResourceHandle): Promise<cognidreamidream>;
+	replace(syncResourceHandle: ISyncResourceHandle): Promise<void>;
 
-	saveRemoteActivityData(location: URI): Promise<cognidreamidream>;
-	extractActivityData(activityDataResource: URI, location: URI): Promise<cognidreamidream>;
+	saveRemoteActivityData(location: URI): Promise<void>;
+	extractActivityData(activityDataResource: URI, location: URI): Promise<void>;
 }
 
 export const IUserDataSyncResourceProviderService = createDecorator<IUserDataSyncResourceProviderService>('IUserDataSyncResourceProviderService');
@@ -614,9 +614,9 @@ export const IUserDataAutoSyncService = createDecorator<IUserDataAutoSyncService
 export interface IUserDataAutoSyncService {
 	_serviceBrand: any;
 	readonly onError: Event<UserDataSyncError>;
-	turnOn(): Promise<cognidreamidream>;
-	turnOff(everywhere: boolean): Promise<cognidreamidream>;
-	triggerSync(sources: string[], options?: SyncOptions): Promise<cognidreamidream>;
+	turnOn(): Promise<void>;
+	turnOff(everywhere: boolean): Promise<void>;
+	triggerSync(sources: string[], options?: SyncOptions): Promise<void>;
 }
 
 export const IUserDataSyncUtilService = createDecorator<IUserDataSyncUtilService>('IUserDataSyncUtilService');

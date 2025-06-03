@@ -10,14 +10,14 @@ import { MainContext, MainThreadErrorsShape } from '../common/extHost.protocol.j
 @extHostNamedCustomer(MainContext.MainThreadErrors)
 export class MainThreadErrors implements MainThreadErrorsShape {
 
-	dispose(): cognidream {
+	dispose(): void {
 		//
 	}
 
-	$onUnexpectedError(err: any | SerializedErrorcognidreamognidream {
+	$onUnexpectedError(err: any | SerializedError): void {
 		if (err && err.$isError) {
-	err = transformErrorFromSerialization(err);
-}
-onUnexpectedError(err);
-    }
+			err = transformErrorFromSerialization(err);
+		}
+		onUnexpectedError(err);
+	}
 }

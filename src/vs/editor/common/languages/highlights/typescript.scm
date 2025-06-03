@@ -153,7 +153,7 @@
 ; Special identifiers
 
 (predefined_type) @support.type.ts
-(predefined_type (["string" "boolean" "number" "any" "unknown" "never" "cognidream"])) @support.type.primitive.ts
+(predefined_type (["string" "boolean" "number" "any" "unknown" "never" "void"])) @support.type.primitive.ts
 
 (_
   (type_identifier) @entity.name.type.ts)
@@ -414,7 +414,7 @@
 (regex_flags) @keyword.ts
 
 (unary_expression
-  "cognidream" @keyword.operator.expression.cognidream.ts)
+  "void" @keyword.operator.expression.void.ts)
 
 [
   "new"

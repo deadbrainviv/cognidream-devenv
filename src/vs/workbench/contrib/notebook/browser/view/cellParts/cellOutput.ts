@@ -596,7 +596,7 @@ export class CellOutputContainer extends CellContentPart {
 		}
 	}
 
-	viewUpdateShowOutputs(initRendering: boolean): cognidream {
+	viewUpdateShowOutputs(initRendering: boolean): void {
 		if (this._hasStaleOutputs) {
 			this._hasStaleOutputs = false;
 			this._outputEntries.forEach(entry => {
@@ -617,194 +617,194 @@ export class CellOutputContainer extends CellContentPart {
 		this._relayoutCell();
 	}
 
-	viewUpdateHideOuputs(cognidreamognidream {
+	viewUpdateHideOuputs(): void {
 		for (let index = 0; index < this._outputEntries.length; index++) {
-	this.notebookEditor.hideInset(this._outputEntries[index].model);
-}
-    }
-
-    private _outputHeightTimer: any = null;
-
-    private _validateFinalOutputHeight(synchronous: boolean) {
-	if (this._outputHeightTimer !== null) {
-		clearTimeout(this._outputHeightTimer);
+			this.notebookEditor.hideInset(this._outputEntries[index].model);
+		}
 	}
 
-	const executionState = this._notebookExecutionStateService.getCellExecution(this.viewCell.uri);
+	private _outputHeightTimer: any = null;
 
-	if (synchronous) {
-		this.viewCell.unlockOutputHeight();
-	} else if (executionState?.state !== NotebookCellExecutionState.Executing) {
-		this._outputHeightTimer = setTimeout(() => {
+	private _validateFinalOutputHeight(synchronous: boolean) {
+		if (this._outputHeightTimer !== null) {
+			clearTimeout(this._outputHeightTimer);
+		}
+
+		const executionState = this._notebookExecutionStateService.getCellExecution(this.viewCell.uri);
+
+		if (synchronous) {
 			this.viewCell.unlockOutputHeight();
-		}, 200);
-	}
-}
-
-    private _updateOutputs(splice: NotebookCellOutputsSplice, context: CellOutputUpdateContext = CellOutputUpdateContext.Other) {
-	const previousOutputHeight = this.viewCell.layoutInfo.outputTotalHeight;
-
-	// for cell output update, we make sure the cell does not shrink before the new outputs are rendered.
-	this.viewCell.updateOutputMinHeight(previousOutputHeight);
-
-	if (this.viewCell.outputsViewModels.length) {
-		DOM.show(this.templateData.outputContainer.domNode);
-	} else {
-		DOM.hide(this.templateData.outputContainer.domNode);
+		} else if (executionState?.state !== NotebookCellExecutionState.Executing) {
+			this._outputHeightTimer = setTimeout(() => {
+				this.viewCell.unlockOutputHeight();
+			}, 200);
+		}
 	}
 
-	this.viewCell.spliceOutputHeights(splice.start, splice.deleteCount, splice.newOutputs.map(_ => 0));
-	this._renderNow(splice, context);
-}
+	private _updateOutputs(splice: NotebookCellOutputsSplice, context: CellOutputUpdateContext = CellOutputUpdateContext.Other) {
+		const previousOutputHeight = this.viewCell.layoutInfo.outputTotalHeight;
 
-    private _renderNow(splice: NotebookCellOutputsSplice, context: CellOutputUpdateContext) {
-	if (splice.start >= this.options.limit) {
-		// splice items out of limit
-		return;
+		// for cell output update, we make sure the cell does not shrink before the new outputs are rendered.
+		this.viewCell.updateOutputMinHeight(previousOutputHeight);
+
+		if (this.viewCell.outputsViewModels.length) {
+			DOM.show(this.templateData.outputContainer.domNode);
+		} else {
+			DOM.hide(this.templateData.outputContainer.domNode);
+		}
+
+		this.viewCell.spliceOutputHeights(splice.start, splice.deleteCount, splice.newOutputs.map(_ => 0));
+		this._renderNow(splice, context);
 	}
 
-	const firstGroupEntries = this._outputEntries.slice(0, splice.start);
-	const deletedEntries = this._outputEntries.slice(splice.start, splice.start + splice.deleteCount);
-	const secondGroupEntries = this._outputEntries.slice(splice.start + splice.deleteCount);
-	let newlyInserted = this.viewCell.outputsViewModels.slice(splice.start, splice.start + splice.newOutputs.length);
+	private _renderNow(splice: NotebookCellOutputsSplice, context: CellOutputUpdateContext) {
+		if (splice.start >= this.options.limit) {
+			// splice items out of limit
+			return;
+		}
 
-	// [...firstGroup, ...deletedEntries, ...secondGroupEntries]  [...restInModel]
-	// [...firstGroup, ...newlyInserted, ...secondGroupEntries, restInModel]
-	if (firstGroupEntries.length + newlyInserted.length + secondGroupEntries.length > this.options.limit) {
-		// exceeds limit again
-		if (firstGroupEntries.length + newlyInserted.length > this.options.limit) {
-			[...deletedEntries, ...secondGroupEntries].forEach(entry => {
-				entry.element.detach();
-				entry.element.dispose();
-			});
+		const firstGroupEntries = this._outputEntries.slice(0, splice.start);
+		const deletedEntries = this._outputEntries.slice(splice.start, splice.start + splice.deleteCount);
+		const secondGroupEntries = this._outputEntries.slice(splice.start + splice.deleteCount);
+		let newlyInserted = this.viewCell.outputsViewModels.slice(splice.start, splice.start + splice.newOutputs.length);
 
-			newlyInserted = newlyInserted.slice(0, this.options.limit - firstGroupEntries.length);
-			const newlyInsertedEntries = newlyInserted.map(insert => {
-				return new OutputEntryViewHandler(insert, this.instantiationService.createInstance(CellOutputElement, this.notebookEditor, this.viewCell, this, this.templateData.outputContainer, insert));
-			});
+		// [...firstGroup, ...deletedEntries, ...secondGroupEntries]  [...restInModel]
+		// [...firstGroup, ...newlyInserted, ...secondGroupEntries, restInModel]
+		if (firstGroupEntries.length + newlyInserted.length + secondGroupEntries.length > this.options.limit) {
+			// exceeds limit again
+			if (firstGroupEntries.length + newlyInserted.length > this.options.limit) {
+				[...deletedEntries, ...secondGroupEntries].forEach(entry => {
+					entry.element.detach();
+					entry.element.dispose();
+				});
 
-			this._outputEntries = [...firstGroupEntries, ...newlyInsertedEntries];
+				newlyInserted = newlyInserted.slice(0, this.options.limit - firstGroupEntries.length);
+				const newlyInsertedEntries = newlyInserted.map(insert => {
+					return new OutputEntryViewHandler(insert, this.instantiationService.createInstance(CellOutputElement, this.notebookEditor, this.viewCell, this, this.templateData.outputContainer, insert));
+				});
 
-			// render newly inserted outputs
-			for (let i = firstGroupEntries.length; i < this._outputEntries.length; i++) {
-				this._outputEntries[i].element.render(undefined);
+				this._outputEntries = [...firstGroupEntries, ...newlyInsertedEntries];
+
+				// render newly inserted outputs
+				for (let i = firstGroupEntries.length; i < this._outputEntries.length; i++) {
+					this._outputEntries[i].element.render(undefined);
+				}
+			} else {
+				// part of secondGroupEntries are pushed out of view
+				// now we have to be creative as secondGroupEntries might not use dedicated containers
+				const elementsPushedOutOfView = secondGroupEntries.slice(this.options.limit - firstGroupEntries.length - newlyInserted.length);
+				[...deletedEntries, ...elementsPushedOutOfView].forEach(entry => {
+					entry.element.detach();
+					entry.element.dispose();
+				});
+
+				// exclusive
+				const reRenderRightBoundary = firstGroupEntries.length + newlyInserted.length;
+
+				const newlyInsertedEntries = newlyInserted.map(insert => {
+					return new OutputEntryViewHandler(insert, this.instantiationService.createInstance(CellOutputElement, this.notebookEditor, this.viewCell, this, this.templateData.outputContainer, insert));
+				});
+
+				this._outputEntries = [...firstGroupEntries, ...newlyInsertedEntries, ...secondGroupEntries.slice(0, this.options.limit - firstGroupEntries.length - newlyInserted.length)];
+
+				for (let i = firstGroupEntries.length; i < reRenderRightBoundary; i++) {
+					const previousSibling = i - 1 >= 0 && this._outputEntries[i - 1] && !!(this._outputEntries[i - 1].element.innerContainer?.parentElement) ? this._outputEntries[i - 1].element.innerContainer : undefined;
+					this._outputEntries[i].element.render(previousSibling);
+				}
 			}
 		} else {
-			// part of secondGroupEntries are pushed out of view
-			// now we have to be creative as secondGroupEntries might not use dedicated containers
-			const elementsPushedOutOfView = secondGroupEntries.slice(this.options.limit - firstGroupEntries.length - newlyInserted.length);
-			[...deletedEntries, ...elementsPushedOutOfView].forEach(entry => {
+			// after splice, it doesn't exceed
+			deletedEntries.forEach(entry => {
 				entry.element.detach();
 				entry.element.dispose();
 			});
 
-			// exclusive
 			const reRenderRightBoundary = firstGroupEntries.length + newlyInserted.length;
 
 			const newlyInsertedEntries = newlyInserted.map(insert => {
 				return new OutputEntryViewHandler(insert, this.instantiationService.createInstance(CellOutputElement, this.notebookEditor, this.viewCell, this, this.templateData.outputContainer, insert));
 			});
 
-			this._outputEntries = [...firstGroupEntries, ...newlyInsertedEntries, ...secondGroupEntries.slice(0, this.options.limit - firstGroupEntries.length - newlyInserted.length)];
+			let outputsNewlyAvailable: OutputEntryViewHandler[] = [];
+
+			if (firstGroupEntries.length + newlyInsertedEntries.length + secondGroupEntries.length < this.viewCell.outputsViewModels.length) {
+				const last = Math.min(this.options.limit, this.viewCell.outputsViewModels.length);
+				outputsNewlyAvailable = this.viewCell.outputsViewModels.slice(firstGroupEntries.length + newlyInsertedEntries.length + secondGroupEntries.length, last).map(output => {
+					return new OutputEntryViewHandler(output, this.instantiationService.createInstance(CellOutputElement, this.notebookEditor, this.viewCell, this, this.templateData.outputContainer, output));
+				});
+			}
+
+			this._outputEntries = [...firstGroupEntries, ...newlyInsertedEntries, ...secondGroupEntries, ...outputsNewlyAvailable];
 
 			for (let i = firstGroupEntries.length; i < reRenderRightBoundary; i++) {
 				const previousSibling = i - 1 >= 0 && this._outputEntries[i - 1] && !!(this._outputEntries[i - 1].element.innerContainer?.parentElement) ? this._outputEntries[i - 1].element.innerContainer : undefined;
 				this._outputEntries[i].element.render(previousSibling);
 			}
+
+			for (let i = 0; i < outputsNewlyAvailable.length; i++) {
+				this._outputEntries[firstGroupEntries.length + newlyInserted.length + secondGroupEntries.length + i].element.render(undefined);
+			}
 		}
-	} else {
-		// after splice, it doesn't exceed
-		deletedEntries.forEach(entry => {
-			entry.element.detach();
+
+		if (this.viewCell.outputsViewModels.length > this.options.limit) {
+			DOM.show(this.templateData.outputShowMoreContainer.domNode);
+			if (!this.templateData.outputShowMoreContainer.domNode.hasChildNodes()) {
+				this.templateData.outputShowMoreContainer.domNode.appendChild(this._generateShowMoreElement(this.templateData.templateDisposables));
+			}
+			this.viewCell.updateOutputShowMoreContainerHeight(46);
+		} else {
+			DOM.hide(this.templateData.outputShowMoreContainer.domNode);
+		}
+
+		this._relayoutCell();
+		// if it's clearing all outputs, or outputs are all rendered synchronously
+		// shrink immediately as the final output height will be zero.
+		// if it's rerun, then the output clearing might be temporary, so we don't shrink immediately
+		this._validateFinalOutputHeight(context === CellOutputUpdateContext.Other && this.viewCell.outputsViewModels.length === 0);
+	}
+
+	private _generateShowMoreElement(disposables: DisposableStore): HTMLElement {
+		const md: IMarkdownString = {
+			value: `There are more than ${this.options.limit} outputs, [show more (open the raw output data in a text editor) ...](command:workbench.action.openLargeOutput)`,
+			isTrusted: true,
+			supportThemeIcons: true
+		};
+
+		const rendered = renderMarkdown(md, {
+			actionHandler: {
+				callback: (content) => {
+					if (content === 'command:workbench.action.openLargeOutput') {
+						this.openerService.open(CellUri.generateCellOutputUriWithId(this.notebookEditor.textModel!.uri));
+					}
+
+					return;
+				},
+				disposables
+			}
+		});
+		disposables.add(rendered);
+
+		rendered.element.classList.add('output-show-more');
+		return rendered.element;
+	}
+
+	private _relayoutCell() {
+		this.notebookEditor.layoutNotebookCell(this.viewCell, this.viewCell.layoutInfo.totalHeight);
+	}
+
+	override dispose() {
+		this.viewCell.updateOutputMinHeight(0);
+
+		if (this._outputHeightTimer) {
+			clearTimeout(this._outputHeightTimer);
+		}
+
+		this._outputEntries.forEach(entry => {
 			entry.element.dispose();
 		});
 
-		const reRenderRightBoundary = firstGroupEntries.length + newlyInserted.length;
-
-		const newlyInsertedEntries = newlyInserted.map(insert => {
-			return new OutputEntryViewHandler(insert, this.instantiationService.createInstance(CellOutputElement, this.notebookEditor, this.viewCell, this, this.templateData.outputContainer, insert));
-		});
-
-		let outputsNewlyAvailable: OutputEntryViewHandler[] = [];
-
-		if (firstGroupEntries.length + newlyInsertedEntries.length + secondGroupEntries.length < this.viewCell.outputsViewModels.length) {
-			const last = Math.min(this.options.limit, this.viewCell.outputsViewModels.length);
-			outputsNewlyAvailable = this.viewCell.outputsViewModels.slice(firstGroupEntries.length + newlyInsertedEntries.length + secondGroupEntries.length, last).map(output => {
-				return new OutputEntryViewHandler(output, this.instantiationService.createInstance(CellOutputElement, this.notebookEditor, this.viewCell, this, this.templateData.outputContainer, output));
-			});
-		}
-
-		this._outputEntries = [...firstGroupEntries, ...newlyInsertedEntries, ...secondGroupEntries, ...outputsNewlyAvailable];
-
-		for (let i = firstGroupEntries.length; i < reRenderRightBoundary; i++) {
-			const previousSibling = i - 1 >= 0 && this._outputEntries[i - 1] && !!(this._outputEntries[i - 1].element.innerContainer?.parentElement) ? this._outputEntries[i - 1].element.innerContainer : undefined;
-			this._outputEntries[i].element.render(previousSibling);
-		}
-
-		for (let i = 0; i < outputsNewlyAvailable.length; i++) {
-			this._outputEntries[firstGroupEntries.length + newlyInserted.length + secondGroupEntries.length + i].element.render(undefined);
-		}
+		super.dispose();
 	}
-
-	if (this.viewCell.outputsViewModels.length > this.options.limit) {
-		DOM.show(this.templateData.outputShowMoreContainer.domNode);
-		if (!this.templateData.outputShowMoreContainer.domNode.hasChildNodes()) {
-			this.templateData.outputShowMoreContainer.domNode.appendChild(this._generateShowMoreElement(this.templateData.templateDisposables));
-		}
-		this.viewCell.updateOutputShowMoreContainerHeight(46);
-	} else {
-		DOM.hide(this.templateData.outputShowMoreContainer.domNode);
-	}
-
-	this._relayoutCell();
-	// if it's clearing all outputs, or outputs are all rendered synchronously
-	// shrink immediately as the final output height will be zero.
-	// if it's rerun, then the output clearing might be temporary, so we don't shrink immediately
-	this._validateFinalOutputHeight(context === CellOutputUpdateContext.Other && this.viewCell.outputsViewModels.length === 0);
-}
-
-    private _generateShowMoreElement(disposables: DisposableStore): HTMLElement {
-	const md: IMarkdownString = {
-		value: `There are more than ${this.options.limit} outputs, [show more (open the raw output data in a text editor) ...](command:workbench.action.openLargeOutput)`,
-		isTrusted: true,
-		supportThemeIcons: true
-	};
-
-	const rendered = renderMarkdown(md, {
-		actionHandler: {
-			callback: (content) => {
-				if (content === 'command:workbench.action.openLargeOutput') {
-					this.openerService.open(CellUri.generateCellOutputUriWithId(this.notebookEditor.textModel!.uri));
-				}
-
-				return;
-			},
-			disposables
-		}
-	});
-	disposables.add(rendered);
-
-	rendered.element.classList.add('output-show-more');
-	return rendered.element;
-}
-
-    private _relayoutCell() {
-	this.notebookEditor.layoutNotebookCell(this.viewCell, this.viewCell.layoutInfo.totalHeight);
-}
-
-    override dispose() {
-	this.viewCell.updateOutputMinHeight(0);
-
-	if (this._outputHeightTimer) {
-		clearTimeout(this._outputHeightTimer);
-	}
-
-	this._outputEntries.forEach(entry => {
-		entry.element.dispose();
-	});
-
-	super.dispose();
-}
 }
 
 const JUPYTER_RENDERER_MIMETYPES = [

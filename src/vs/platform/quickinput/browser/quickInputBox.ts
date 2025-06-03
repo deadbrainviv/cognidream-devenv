@@ -40,7 +40,7 @@ export class QuickInputBox extends Disposable {
 		return this.findInput.onMouseDown;
 	}
 
-	onDidChange = (handler: (event: string) => cognidream): IDisposable => {
+	onDidChange = (handler: (event: string) => void): IDisposable => {
 		return this.findInput.onDidChange(handler);
 	};
 
@@ -52,7 +52,7 @@ export class QuickInputBox extends Disposable {
 		this.findInput.setValue(value);
 	}
 
-	select(range: IRange | null = null): cognidream {
+	select(range: IRange | null = null): void {
 		this.findInput.inputBox.select(range);
 	}
 
@@ -64,7 +64,7 @@ export class QuickInputBox extends Disposable {
 		return this.findInput.inputBox.isSelectionAtEnd();
 	}
 
-	setPlaceholder(placeholder: string): cognidream {
+	setPlaceholder(placeholder: string): void {
 		this.findInput.inputBox.setPlaceHolder(placeholder);
 	}
 
@@ -104,15 +104,15 @@ export class QuickInputBox extends Disposable {
 		return this.findInput.inputBox.hasFocus();
 	}
 
-	setAttribute(name: string, value: string): cognidream {
+	setAttribute(name: string, value: string): void {
 		this.findInput.inputBox.inputElement.setAttribute(name, value);
 	}
 
-	removeAttribute(name: string): cognidream {
+	removeAttribute(name: string): void {
 		this.findInput.inputBox.inputElement.removeAttribute(name);
 	}
 
-	showDecoration(decoration: Severity): cognidream {
+	showDecoration(decoration: Severity): void {
 		if (decoration === Severity.Ignore) {
 			this.findInput.clearMessage();
 		} else {
@@ -124,11 +124,11 @@ export class QuickInputBox extends Disposable {
 		return this.findInput.inputBox.stylesForType(decoration === Severity.Info ? MessageType.INFO : decoration === Severity.Warning ? MessageType.WARNING : MessageType.ERROR);
 	}
 
-	setFocus(): cognidream {
+	setFocus(): void {
 		this.findInput.focus();
 	}
 
-	layout(): cognidream {
+	layout(): void {
 		this.findInput.inputBox.layout();
 	}
 }

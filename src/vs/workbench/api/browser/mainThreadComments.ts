@@ -360,7 +360,7 @@ export class MainThreadCommentController implements ICommentController {
 	updateCommentThread(commentThreadHandle: number,
 		threadId: string,
 		resource: UriComponents,
-		changes: CommentThreadChanges): cognidream {
+		changes: CommentThreadChanges): void {
 		const thread = this.getKnownThread(commentThreadHandle);
 		thread.batchUpdate(changes);
 
@@ -498,33 +498,33 @@ export class MainThreadCommentController implements ICommentController {
 		};
 	}
 
-	async toggleReaction(uri: URI, thread: languages.CommentThread, comment: languages.Comment, reaction: languages.CommentReaction, token: CancellationToken): Promicognidreamognidream> {
+	async toggleReaction(uri: URI, thread: languages.CommentThread, comment: languages.Comment, reaction: languages.CommentReaction, token: CancellationToken): Promise<void> {
 		return this._proxy.$toggleReaction(this._handle, thread.commentThreadHandle, uri, comment, reaction);
 	}
 
-getAllComments(): MainThreadCommentThread < IRange | ICellRange > [] {
-	const ret: MainThreadCommentThread<IRange | ICellRange>[] = [];
-	for (const thread of [...this._threads.keys()]) {
-		ret.push(this._threads.get(thread)!.thread);
+	getAllComments(): MainThreadCommentThread<IRange | ICellRange>[] {
+		const ret: MainThreadCommentThread<IRange | ICellRange>[] = [];
+		for (const thread of [...this._threads.keys()]) {
+			ret.push(this._threads.get(thread)!.thread);
+		}
+
+		return ret;
 	}
 
-	return ret;
-}
+	createCommentThreadTemplate(resource: UriComponents, range: IRange | undefined, editorId?: string): Promise<void> {
+		return this._proxy.$createCommentThreadTemplate(this.handle, resource, range, editorId);
+	}
 
-createCommentThreadTemplate(resource: UriComponents, range: IRange | undefined, editorId ?: string): Promicognidreamognidream > {
-	return this._proxy.$createCommentThreadTemplate(this.handle, resource, range, editorId);
-}
+	async updateCommentThreadTemplate(threadHandle: number, range: IRange) {
+		await this._proxy.$updateCommentThreadTemplate(this.handle, threadHandle, range);
+	}
 
-    async updateCommentThreadTemplate(threadHandle: number, range: IRange) {
-	await this._proxy.$updateCommentThreadTemplate(this.handle, threadHandle, range);
-}
-
-toJSON(): any {
-	return {
-		$mid: MarshalledId.CommentController,
-		handle: this.handle
-	};
-}
+	toJSON(): any {
+		return {
+			$mid: MarshalledId.CommentController,
+			handle: this.handle
+		};
+	}
 }
 
 
@@ -570,219 +570,219 @@ export class MainThreadComments extends Disposable implements MainThreadComments
 		}));
 	}
 
-	$registerCommentController(handle: number, id: string, label: string, extensionId: stringcognidreamognidream {
+	$registerCommentController(handle: number, id: string, label: string, extensionId: string): void {
 		const providerId = `${id}-${extensionId}`;
 		this._handlers.set(handle, providerId);
 
-const provider = new MainThreadCommentController(this._proxy, this._commentService, handle, providerId, id, label, {});
-this._commentService.registerCommentController(providerId, provider);
-this._commentControllers.set(handle, provider);
+		const provider = new MainThreadCommentController(this._proxy, this._commentService, handle, providerId, id, label, {});
+		this._commentService.registerCommentController(providerId, provider);
+		this._commentControllers.set(handle, provider);
 
-this._register(this._commentService.onResourceHasCommentingRanges(e => {
-	this.registerView();
-}));
+		this._register(this._commentService.onResourceHasCommentingRanges(e => {
+			this.registerView();
+		}));
 
-this._register(this._commentService.onDidUpdateCommentThreads(e => {
-	this.registerView();
-}));
+		this._register(this._commentService.onDidUpdateCommentThreads(e => {
+			this.registerView();
+		}));
 
-this._commentService.setWorkspaceComments(String(handle), []);
-    }
-
-$unregisterCommentController(handle: numbercognidreamognidream {
-	const providerId = this._handlers.get(handle);
-	this._handlers.delete(handle);
-	this._commentControllers.delete(handle);
-
-	if(typeof providerId !== 'string') {
-	return;
-	// throw new Error('unknown handler');
-} else {
-	this._commentService.unregisterCommentController(providerId);
-}
-    }
-
-$updateCommentControllerFeatures(handle: number, features: CommentProviderFeaturescognidreamognidream {
-	const provider = this._commentControllers.get(handle);
-
-	if(!provider) {
-		return undefined;
+		this._commentService.setWorkspaceComments(String(handle), []);
 	}
 
-        provider.updateFeatures(features);
-}
+	$unregisterCommentController(handle: number): void {
+		const providerId = this._handlers.get(handle);
+		this._handlers.delete(handle);
+		this._commentControllers.delete(handle);
 
-    $createCommentThread(handle: number,
-	commentThreadHandle: number,
-	threadId: string,
-	resource: UriComponents,
-	range: IRange | ICellRange | undefined,
-	comments: languages.Comment[],
-	extensionId: ExtensionIdentifier,
-	isTemplate: boolean,
-	editorId ?: string
-): languages.CommentThread<IRange | ICellRange> | undefined {
-	const provider = this._commentControllers.get(handle);
-
-	if(!provider) {
-		return undefined;
-	}
-
-        return provider.createCommentThread(extensionId.value, commentThreadHandle, threadId, resource, range, comments, isTemplate, editorId);
-}
-
-    $updateCommentThread(handle: number,
-	commentThreadHandle: number,
-	threadId: string,
-	resource: UriComponents,
-	changes: CommentThreadChancognidream: cognidream {
-	const provider = this._commentControllers.get(handle);
-
-	if(!provider) {
-		return undefined;
-	}
-
-        return provider.updateCommentThread(commentThreadHandle, threadId, resource, changes);
-}
-
-    $deleteCommentThread(handle: number, commentThreadHandle: number) {
-	const provider = this._commentControllers.get(handle);
-
-	if(!provider) {
-		return;
-	}
-
-        return provider.deleteCommentThread(commentThreadHandle);
-}
-
-    $updateCommentingRanges(handle: number, resourceHints ?: languages.CommentingRangeResourceHint) {
-	const provider = this._commentControllers.get(handle);
-
-	if(!provider) {
-		return;
-	}
-
-        provider.updateCommentingRanges(resourceHints);
-}
-
-    async $revealCommentThread(handle: number, commentThreadHandle: number, commentUniqueIdInThread: number, options: languages.CommentThreadRevealOptions): Promicognidreamognidream > {
-	const provider = this._commentControllers.get(handle);
-
-	if(!provider) {
-		return Promise.resolve();
-	}
-
-        const thread = provider.getAllComments().find(thread => thread.commentThreadHandle === commentThreadHandle);
-	if(!thread || !thread.isDocumentCommentThread()) {
-	return Promise.resolve();
-}
-
-        const comment = thread.comments?.find(comment => comment.uniqueIdInThread === commentUniqueIdInThread);
-
-revealCommentThread(this._commentService, this._editorService, this._uriIdentityService, thread, comment, options.focusReply, undefined, options.preserveFocus);
-    }
-
-    async $hideCommentThread(handle: number, commentThreadHandle: number): Promicognidreamognidream > {
-	const provider = this._commentControllers.get(handle);
-
-	if(!provider) {
-		return Promise.resolve();
-	}
-
-        const thread = provider.getAllComments().find(thread => thread.commentThreadHandle === commentThreadHandle);
-	if(!thread || !thread.isDocumentCommentThread()) {
-	return Promise.resolve();
-}
-
-thread.collapsibleState = languages.CommentThreadCollapsibleState.Collapsed;
-    }
-
-    private registerView() {
-	const commentsPanelAlreadyConstructed = !!this._viewDescriptorService.getViewDescriptorById(COMMENTS_VIEW_ID);
-	if (!commentsPanelAlreadyConstructed) {
-		const VIEW_CONTAINER: ViewContainer = Registry.as<IViewContainersRegistry>(ViewExtensions.ViewContainersRegistry).registerViewContainer({
-			id: COMMENTS_VIEW_ID,
-			title: COMMENTS_VIEW_TITLE,
-			ctorDescriptor: new SyncDescriptor(ViewPaneContainer, [COMMENTS_VIEW_ID, { mergeViewWithContainerWhenSingleView: true }]),
-			storageId: COMMENTS_VIEW_STORAGE_ID,
-			hideIfEmpty: true,
-			icon: commentsViewIcon,
-			order: 10,
-		}, ViewContainerLocation.Panel);
-
-		Registry.as<IViewsRegistry>(ViewExtensions.ViewsRegistry).registerViews([{
-			id: COMMENTS_VIEW_ID,
-			name: COMMENTS_VIEW_TITLE,
-			canToggleVisibility: false,
-			ctorDescriptor: new SyncDescriptor(CommentsPanel),
-			canMoveView: true,
-			containerIcon: commentsViewIcon,
-			focusCommand: {
-				id: 'workbench.action.focusCommentsPanel'
-			}
-		}], VIEW_CONTAINER);
-	}
-	this.registerViewListeners(commentsPanelAlreadyConstructed);
-}
-
-    private setComments() {
-	[...this._commentControllers.keys()].forEach(handle => {
-		const threads = this._commentControllers.get(handle)!.getAllComments();
-
-		if (threads.length) {
-			const providerId = this.getHandler(handle);
-			this._commentService.setWorkspaceComments(providerId, threads);
+		if (typeof providerId !== 'string') {
+			return;
+			// throw new Error('unknown handler');
+		} else {
+			this._commentService.unregisterCommentController(providerId);
 		}
-	});
-}
+	}
 
-    private registerViewOpenedListener() {
-	if (!this._openViewListener.value) {
-		this._openViewListener.value = this._viewsService.onDidChangeViewVisibility(e => {
-			if (e.id === COMMENTS_VIEW_ID && e.visible) {
-				this.setComments();
-				if (this._openViewListener) {
-					this._openViewListener.dispose();
+	$updateCommentControllerFeatures(handle: number, features: CommentProviderFeatures): void {
+		const provider = this._commentControllers.get(handle);
+
+		if (!provider) {
+			return undefined;
+		}
+
+		provider.updateFeatures(features);
+	}
+
+	$createCommentThread(handle: number,
+		commentThreadHandle: number,
+		threadId: string,
+		resource: UriComponents,
+		range: IRange | ICellRange | undefined,
+		comments: languages.Comment[],
+		extensionId: ExtensionIdentifier,
+		isTemplate: boolean,
+		editorId?: string
+	): languages.CommentThread<IRange | ICellRange> | undefined {
+		const provider = this._commentControllers.get(handle);
+
+		if (!provider) {
+			return undefined;
+		}
+
+		return provider.createCommentThread(extensionId.value, commentThreadHandle, threadId, resource, range, comments, isTemplate, editorId);
+	}
+
+	$updateCommentThread(handle: number,
+		commentThreadHandle: number,
+		threadId: string,
+		resource: UriComponents,
+		changes: CommentThreadChanges): void {
+		const provider = this._commentControllers.get(handle);
+
+		if (!provider) {
+			return undefined;
+		}
+
+		return provider.updateCommentThread(commentThreadHandle, threadId, resource, changes);
+	}
+
+	$deleteCommentThread(handle: number, commentThreadHandle: number) {
+		const provider = this._commentControllers.get(handle);
+
+		if (!provider) {
+			return;
+		}
+
+		return provider.deleteCommentThread(commentThreadHandle);
+	}
+
+	$updateCommentingRanges(handle: number, resourceHints?: languages.CommentingRangeResourceHint) {
+		const provider = this._commentControllers.get(handle);
+
+		if (!provider) {
+			return;
+		}
+
+		provider.updateCommentingRanges(resourceHints);
+	}
+
+	async $revealCommentThread(handle: number, commentThreadHandle: number, commentUniqueIdInThread: number, options: languages.CommentThreadRevealOptions): Promise<void> {
+		const provider = this._commentControllers.get(handle);
+
+		if (!provider) {
+			return Promise.resolve();
+		}
+
+		const thread = provider.getAllComments().find(thread => thread.commentThreadHandle === commentThreadHandle);
+		if (!thread || !thread.isDocumentCommentThread()) {
+			return Promise.resolve();
+		}
+
+		const comment = thread.comments?.find(comment => comment.uniqueIdInThread === commentUniqueIdInThread);
+
+		revealCommentThread(this._commentService, this._editorService, this._uriIdentityService, thread, comment, options.focusReply, undefined, options.preserveFocus);
+	}
+
+	async $hideCommentThread(handle: number, commentThreadHandle: number): Promise<void> {
+		const provider = this._commentControllers.get(handle);
+
+		if (!provider) {
+			return Promise.resolve();
+		}
+
+		const thread = provider.getAllComments().find(thread => thread.commentThreadHandle === commentThreadHandle);
+		if (!thread || !thread.isDocumentCommentThread()) {
+			return Promise.resolve();
+		}
+
+		thread.collapsibleState = languages.CommentThreadCollapsibleState.Collapsed;
+	}
+
+	private registerView() {
+		const commentsPanelAlreadyConstructed = !!this._viewDescriptorService.getViewDescriptorById(COMMENTS_VIEW_ID);
+		if (!commentsPanelAlreadyConstructed) {
+			const VIEW_CONTAINER: ViewContainer = Registry.as<IViewContainersRegistry>(ViewExtensions.ViewContainersRegistry).registerViewContainer({
+				id: COMMENTS_VIEW_ID,
+				title: COMMENTS_VIEW_TITLE,
+				ctorDescriptor: new SyncDescriptor(ViewPaneContainer, [COMMENTS_VIEW_ID, { mergeViewWithContainerWhenSingleView: true }]),
+				storageId: COMMENTS_VIEW_STORAGE_ID,
+				hideIfEmpty: true,
+				icon: commentsViewIcon,
+				order: 10,
+			}, ViewContainerLocation.Panel);
+
+			Registry.as<IViewsRegistry>(ViewExtensions.ViewsRegistry).registerViews([{
+				id: COMMENTS_VIEW_ID,
+				name: COMMENTS_VIEW_TITLE,
+				canToggleVisibility: false,
+				ctorDescriptor: new SyncDescriptor(CommentsPanel),
+				canMoveView: true,
+				containerIcon: commentsViewIcon,
+				focusCommand: {
+					id: 'workbench.action.focusCommentsPanel'
 				}
-			}
-		});
-	}
-}
-
-    /**
-     * If the comments view has never been opened, the constructor for it has not yet run so it has
-     * no listeners for comment threads being set or updated. Listen for the view opening for the
-     * first time and send it comments then.
-     */
-    private registerViewListeners(commentsPanelAlreadyConstructed: boolean) {
-	if (!commentsPanelAlreadyConstructed) {
-		this.registerViewOpenedListener();
+			}], VIEW_CONTAINER);
+		}
+		this.registerViewListeners(commentsPanelAlreadyConstructed);
 	}
 
-	if (!this._onChangeContainerListener.value) {
-		this._onChangeContainerListener.value = this._viewDescriptorService.onDidChangeContainer(e => {
-			if (e.views.find(view => view.id === COMMENTS_VIEW_ID)) {
-				this.setComments();
-				this.registerViewOpenedListener();
+	private setComments() {
+		[...this._commentControllers.keys()].forEach(handle => {
+			const threads = this._commentControllers.get(handle)!.getAllComments();
+
+			if (threads.length) {
+				const providerId = this.getHandler(handle);
+				this._commentService.setWorkspaceComments(providerId, threads);
 			}
 		});
 	}
 
-	if (!this._onChangeContainerLocationListener.value) {
-		this._onChangeContainerLocationListener.value = this._viewDescriptorService.onDidChangeContainerLocation(e => {
-			const commentsContainer = this._viewDescriptorService.getViewContainerByViewId(COMMENTS_VIEW_ID);
-			if (e.viewContainer.id === commentsContainer?.id) {
-				this.setComments();
-				this.registerViewOpenedListener();
-			}
-		});
+	private registerViewOpenedListener() {
+		if (!this._openViewListener.value) {
+			this._openViewListener.value = this._viewsService.onDidChangeViewVisibility(e => {
+				if (e.id === COMMENTS_VIEW_ID && e.visible) {
+					this.setComments();
+					if (this._openViewListener) {
+						this._openViewListener.dispose();
+					}
+				}
+			});
+		}
 	}
-}
 
-    private getHandler(handle: number) {
-	if (!this._handlers.has(handle)) {
-		throw new Error('Unknown handler');
+	/**
+	 * If the comments view has never been opened, the constructor for it has not yet run so it has
+	 * no listeners for comment threads being set or updated. Listen for the view opening for the
+	 * first time and send it comments then.
+	 */
+	private registerViewListeners(commentsPanelAlreadyConstructed: boolean) {
+		if (!commentsPanelAlreadyConstructed) {
+			this.registerViewOpenedListener();
+		}
+
+		if (!this._onChangeContainerListener.value) {
+			this._onChangeContainerListener.value = this._viewDescriptorService.onDidChangeContainer(e => {
+				if (e.views.find(view => view.id === COMMENTS_VIEW_ID)) {
+					this.setComments();
+					this.registerViewOpenedListener();
+				}
+			});
+		}
+
+		if (!this._onChangeContainerLocationListener.value) {
+			this._onChangeContainerLocationListener.value = this._viewDescriptorService.onDidChangeContainerLocation(e => {
+				const commentsContainer = this._viewDescriptorService.getViewContainerByViewId(COMMENTS_VIEW_ID);
+				if (e.viewContainer.id === commentsContainer?.id) {
+					this.setComments();
+					this.registerViewOpenedListener();
+				}
+			});
+		}
 	}
-	return this._handlers.get(handle)!;
-}
+
+	private getHandler(handle: number) {
+		if (!this._handlers.has(handle)) {
+			throw new Error('Unknown handler');
+		}
+		return this._handlers.get(handle)!;
+	}
 }

@@ -248,7 +248,7 @@ export class ModifiedBaseRangeGutterItemModel implements IGutterItemInfo {
 		};
 	});
 
-	public setState(value: boolean, tx: ITransaction): cognidream {
+	public setState(value: boolean, tx: ITransaction): void {
 		this.viewModel.setState(
 			this.baseRange,
 			this.model
@@ -259,7 +259,7 @@ export class ModifiedBaseRangeGutterItemModel implements IGutterItemInfo {
 			this.inputNumber
 		);
 	}
-	public toggleBothSides(cognidreamognidream {
+	public toggleBothSides(): void {
 		transaction(tx => {
 			/** @description Context Menu: toggle both sides */
 			const state = this.model
@@ -274,89 +274,89 @@ export class ModifiedBaseRangeGutterItemModel implements IGutterItemInfo {
 				tx
 			);
 		});
-    }
-
-    public getContextMenuActions(): readonly IAction[] {
-	const state = this.model.getState(this.baseRange).get();
-	const handled = this.model.isHandled(this.baseRange).get();
-
-	const update = (newState: ModifiedBaseRangeState) => {
-		transaction(tx => {
-			/** @description Context Menu: Update Base Range State */
-			return this.viewModel.setState(this.baseRange, newState, tx, this.inputNumber);
-		});
-	};
-
-	function action(id: string, label: string, targetState: ModifiedBaseRangeState, checked: boolean) {
-		const action = new Action(id, label, undefined, true, () => {
-			update(targetState);
-		});
-		action.checked = checked;
-		return action;
 	}
-	const both = state.includesInput1 && state.includesInput2;
 
-	return [
-		this.baseRange.input1Diffs.length > 0
-			? action(
-				'mergeEditor.acceptInput1',
-				localize('mergeEditor.accept', 'Accept {0}', this.model.input1.title),
-				state.toggle(1),
-				state.includesInput1
-			)
-			: undefined,
-		this.baseRange.input2Diffs.length > 0
-			? action(
-				'mergeEditor.acceptInput2',
-				localize('mergeEditor.accept', 'Accept {0}', this.model.input2.title),
-				state.toggle(2),
-				state.includesInput2
-			)
-			: undefined,
-		this.baseRange.isConflicting
-			? setFields(
-				action(
-					'mergeEditor.acceptBoth',
-					localize(
+	public getContextMenuActions(): readonly IAction[] {
+		const state = this.model.getState(this.baseRange).get();
+		const handled = this.model.isHandled(this.baseRange).get();
+
+		const update = (newState: ModifiedBaseRangeState) => {
+			transaction(tx => {
+				/** @description Context Menu: Update Base Range State */
+				return this.viewModel.setState(this.baseRange, newState, tx, this.inputNumber);
+			});
+		};
+
+		function action(id: string, label: string, targetState: ModifiedBaseRangeState, checked: boolean) {
+			const action = new Action(id, label, undefined, true, () => {
+				update(targetState);
+			});
+			action.checked = checked;
+			return action;
+		}
+		const both = state.includesInput1 && state.includesInput2;
+
+		return [
+			this.baseRange.input1Diffs.length > 0
+				? action(
+					'mergeEditor.acceptInput1',
+					localize('mergeEditor.accept', 'Accept {0}', this.model.input1.title),
+					state.toggle(1),
+					state.includesInput1
+				)
+				: undefined,
+			this.baseRange.input2Diffs.length > 0
+				? action(
+					'mergeEditor.acceptInput2',
+					localize('mergeEditor.accept', 'Accept {0}', this.model.input2.title),
+					state.toggle(2),
+					state.includesInput2
+				)
+				: undefined,
+			this.baseRange.isConflicting
+				? setFields(
+					action(
 						'mergeEditor.acceptBoth',
-						'Accept Both'
+						localize(
+							'mergeEditor.acceptBoth',
+							'Accept Both'
+						),
+						state.withInputValue(1, !both).withInputValue(2, !both),
+						both
 					),
-					state.withInputValue(1, !both).withInputValue(2, !both),
-					both
-				),
-				{ enabled: this.baseRange.canBeCombined }
-			)
-			: undefined,
-		new Separator(),
-		this.baseRange.isConflicting
-			? setFields(
-				action(
-					'mergeEditor.swap',
-					localize('mergeEditor.swap', 'Swap'),
-					state.swap(),
-					false
-				),
-				{ enabled: !state.kind && (!both || this.baseRange.isOrderRelevant) }
-			)
-			: undefined,
+					{ enabled: this.baseRange.canBeCombined }
+				)
+				: undefined,
+			new Separator(),
+			this.baseRange.isConflicting
+				? setFields(
+					action(
+						'mergeEditor.swap',
+						localize('mergeEditor.swap', 'Swap'),
+						state.swap(),
+						false
+					),
+					{ enabled: !state.kind && (!both || this.baseRange.isOrderRelevant) }
+				)
+				: undefined,
 
-		setFields(
-			new Action(
-				'mergeEditor.markAsHandled',
-				localize('mergeEditor.markAsHandled', 'Mark as Handled'),
-				undefined,
-				true,
-				() => {
-					transaction((tx) => {
-						/** @description Context Menu: Mark as handled */
-						this.model.setHandled(this.baseRange, !handled, tx);
-					});
-				}
+			setFields(
+				new Action(
+					'mergeEditor.markAsHandled',
+					localize('mergeEditor.markAsHandled', 'Mark as Handled'),
+					undefined,
+					true,
+					() => {
+						transaction((tx) => {
+							/** @description Context Menu: Mark as handled */
+							this.model.setHandled(this.baseRange, !handled, tx);
+						});
+					}
+				),
+				{ checked: handled }
 			),
-			{ checked: handled }
-		),
-	].filter(isDefined);
-}
+		].filter(isDefined);
+	}
 }
 
 export class MergeConflictGutterItemView extends Disposable implements IGutterItemView<ModifiedBaseRangeGutterItemModel> {
@@ -456,7 +456,7 @@ export class MergeConflictGutterItemView extends Disposable implements IGutterIt
 		);
 	}
 
-	layout(top: number, height: number, viewTop: number, viewHeight: numbercognidreamognidream {
+	layout(top: number, height: number, viewTop: number, viewHeight: number): void {
 		const checkboxHeight = this.checkboxDiv.clientHeight;
 		const middleHeight = height / 2 - checkboxHeight / 2;
 
@@ -475,22 +475,22 @@ export class MergeConflictGutterItemView extends Disposable implements IGutterIt
 		];
 
 		if (preferredParentRange[0] < preferredParentRange[1]) {
-	effectiveCheckboxTop = clamp(effectiveCheckboxTop, preferredViewPortRange[0], preferredViewPortRange[1]);
-	effectiveCheckboxTop = clamp(effectiveCheckboxTop, preferredParentRange[0], preferredParentRange[1]);
-}
+			effectiveCheckboxTop = clamp(effectiveCheckboxTop, preferredViewPortRange[0], preferredViewPortRange[1]);
+			effectiveCheckboxTop = clamp(effectiveCheckboxTop, preferredParentRange[0], preferredParentRange[1]);
+		}
 
-this.checkboxDiv.style.top = `${effectiveCheckboxTop - top}px`;
+		this.checkboxDiv.style.top = `${effectiveCheckboxTop - top}px`;
 
-transaction((tx) => {
-	/** @description MergeConflictGutterItemView: Update Is Multi Line */
-	this.isMultiLine.set(height > 30, tx);
-});
-    }
+		transaction((tx) => {
+			/** @description MergeConflictGutterItemView: Update Is Multi Line */
+			this.isMultiLine.set(height > 30, tx);
+		});
+	}
 
-update(baseRange: ModifiedBaseRangeGutterItemModelcognidreamognidream {
-	transaction(tx => {
-		/** @description MergeConflictGutterItemView: Updating new base range */
-		this.item.set(baseRange, tx);
-});
-    }
+	update(baseRange: ModifiedBaseRangeGutterItemModel): void {
+		transaction(tx => {
+			/** @description MergeConflictGutterItemView: Updating new base range */
+			this.item.set(baseRange, tx);
+		});
+	}
 }

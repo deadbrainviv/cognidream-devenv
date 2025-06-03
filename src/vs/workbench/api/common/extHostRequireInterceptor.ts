@@ -50,7 +50,7 @@ export abstract class RequireInterceptor {
 		this._alternatives = [];
 	}
 
-	async install(): Promise<cognidream> {
+	async install(): Promise<void> {
 
 		this._installInterceptor();
 
@@ -66,25 +66,25 @@ export abstract class RequireInterceptor {
 		}
 	}
 
-	protected abstract _installInterceptor(cognidreamognidream;
+	protected abstract _installInterceptor(): void;
 
-		public register(interceptor: INodeModuleFactory | IAlternativeModuleProvidercognidreamognidream {
-			if ('nodeModuleName' in interceptor) {
-	if (Array.isArray(interceptor.nodeModuleName)) {
-		for (const moduleName of interceptor.nodeModuleName) {
-			this._factories.set(moduleName, interceptor);
+	public register(interceptor: INodeModuleFactory | IAlternativeModuleProvider): void {
+		if ('nodeModuleName' in interceptor) {
+			if (Array.isArray(interceptor.nodeModuleName)) {
+				for (const moduleName of interceptor.nodeModuleName) {
+					this._factories.set(moduleName, interceptor);
+				}
+			} else {
+				this._factories.set(interceptor.nodeModuleName, interceptor);
+			}
 		}
-	} else {
-		this._factories.set(interceptor.nodeModuleName, interceptor);
-	}
-}
 
-if (typeof interceptor.alternativeModuleName === 'function') {
-	this._alternatives.push((moduleName) => {
-		return interceptor.alternativeModuleName!(moduleName);
-	});
-}
-    }
+		if (typeof interceptor.alternativeModuleName === 'function') {
+			this._alternatives.push((moduleName) => {
+				return interceptor.alternativeModuleName!(moduleName);
+			});
+		}
+	}
 }
 
 //#region --- module renames
@@ -197,7 +197,7 @@ interface IOriginalOpen {
 }
 
 interface IOpenModule {
-	(target: string, options?: OpenOptions): Thenabcognidreamognidream>;
+	(target: string, options?: OpenOptions): Thenable<void>;
 }
 
 class OpenNodeModuleFactory implements INodeModuleFactory {
@@ -250,29 +250,29 @@ class OpenNodeModuleFactory implements INodeModuleFactory {
 		return this._original!(target, options);
 	}
 
-	private sendShimmingTelemetry(cognidreamognidream {
+	private sendShimmingTelemetry(): void {
 		if (!this._extensionId) {
-	return;
-}
-type ShimmingOpenClassification = {
-	owner: 'jrieken';
-	comment: 'Know when the open-shim was used';
-	extension: { classification: 'SystemMetaData'; purpose: 'FeatureInsight'; comment: 'The extension is question' };
-};
-this._mainThreadTelemetry.$publicLog2<{ extension: string }, ShimmingOpenClassification>('shimming.open', { extension: this._extensionId });
-    }
+			return;
+		}
+		type ShimmingOpenClassification = {
+			owner: 'jrieken';
+			comment: 'Know when the open-shim was used';
+			extension: { classification: 'SystemMetaData'; purpose: 'FeatureInsight'; comment: 'The extension is question' };
+		};
+		this._mainThreadTelemetry.$publicLog2<{ extension: string }, ShimmingOpenClassification>('shimming.open', { extension: this._extensionId });
+	}
 
-    private sendNoForwardTelemetry(cognidreamognidream {
-	if(!this._extensionId) {
-	return;
-}
-type ShimmingOpenCallNoForwardClassification = {
-	owner: 'jrieken';
-	comment: 'Know when the open-shim was used';
-	extension: { classification: 'SystemMetaData'; purpose: 'FeatureInsight'; comment: 'The extension is question' };
-};
-this._mainThreadTelemetry.$publicLog2<{ extension: string }, ShimmingOpenCallNoForwardClassification>('shimming.open.call.noForward', { extension: this._extensionId });
-    }
+	private sendNoForwardTelemetry(): void {
+		if (!this._extensionId) {
+			return;
+		}
+		type ShimmingOpenCallNoForwardClassification = {
+			owner: 'jrieken';
+			comment: 'Know when the open-shim was used';
+			extension: { classification: 'SystemMetaData'; purpose: 'FeatureInsight'; comment: 'The extension is question' };
+		};
+		this._mainThreadTelemetry.$publicLog2<{ extension: string }, ShimmingOpenCallNoForwardClassification>('shimming.open.call.noForward', { extension: this._extensionId });
+	}
 }
 
 //#endregion

@@ -16,63 +16,63 @@ import { ILifecycleService, StartupKind } from '../../lifecycle/common/lifecycle
 
 export class NativeHostColorSchemeService extends Disposable implements IHostColorSchemeService {
 
-    // we remember the last color scheme value to restore for reloaded window
-    static readonly STORAGE_KEY = 'HostColorSchemeData';
+	// we remember the last color scheme value to restore for reloaded window
+	static readonly STORAGE_KEY = 'HostColorSchemeData';
 
-    declare readonly _serviceBrand: undefined;
+	declare readonly _serviceBrand: undefined;
 
-    private readonly _onDidChangeColorScheme = this._register(new Emitter<cognidream>());
-    readonly onDidChangeColorScheme = this._onDidChangeColorScheme.event;
+	private readonly _onDidChangeColorScheme = this._register(new Emitter<void>());
+	readonly onDidChangeColorScheme = this._onDidChangeColorScheme.event;
 
-    public dark: boolean;
-    public highContrast: boolean;
+	public dark: boolean;
+	public highContrast: boolean;
 
-    constructor(
-        @INativeHostService private readonly nativeHostService: INativeHostService,
-        @INativeWorkbenchEnvironmentService environmentService: INativeWorkbenchEnvironmentService,
-        @IStorageService private storageService: IStorageService,
-        @ILifecycleService lifecycleService: ILifecycleService
-    ) {
-        super();
+	constructor(
+		@INativeHostService private readonly nativeHostService: INativeHostService,
+		@INativeWorkbenchEnvironmentService environmentService: INativeWorkbenchEnvironmentService,
+		@IStorageService private storageService: IStorageService,
+		@ILifecycleService lifecycleService: ILifecycleService
+	) {
+		super();
 
-        // register listener with the OS
-        this._register(this.nativeHostService.onDidChangeColorScheme(scheme => this.update(scheme)));
+		// register listener with the OS
+		this._register(this.nativeHostService.onDidChangeColorScheme(scheme => this.update(scheme)));
 
-        let initial = environmentService.window.colorScheme;
-        if (lifecycleService.startupKind === StartupKind.ReloadedWindow) {
-            initial = this.getStoredValue(initial);
-        }
-        this.dark = initial.dark;
-        this.highContrast = initial.highContrast;
+		let initial = environmentService.window.colorScheme;
+		if (lifecycleService.startupKind === StartupKind.ReloadedWindow) {
+			initial = this.getStoredValue(initial);
+		}
+		this.dark = initial.dark;
+		this.highContrast = initial.highContrast;
 
-        // fetch the actual value from the OS
-        this.nativeHostService.getOSColorScheme().then(scheme => this.update(scheme));
-    }
+		// fetch the actual value from the OS
+		this.nativeHostService.getOSColorScheme().then(scheme => this.update(scheme));
+	}
 
-    private getStoredValue(dftl: IColorScheme): IColorScheme {
-        const stored = this.storageService.get(NativeHostColorSchemeService.STORAGE_KEY, StorageScope.APPLICATION);
-        if (stored) {
-            try {
-                const scheme = JSON.parse(stored);
-                if (isObject(scheme) && isBoolean(scheme.highContrast) && isBoolean(scheme.dark)) {
-                    return scheme as IColorScheme;
-                }
-            } catch (e) {
-                // ignore
-            }
-        }
-        return dftl;
-    }
+	private getStoredValue(dftl: IColorScheme): IColorScheme {
+		const stored = this.storageService.get(NativeHostColorSchemeService.STORAGE_KEY, StorageScope.APPLICATION);
+		if (stored) {
+			try {
+				const scheme = JSON.parse(stored);
+				if (isObject(scheme) && isBoolean(scheme.highContrast) && isBoolean(scheme.dark)) {
+					return scheme as IColorScheme;
+				}
+			} catch (e) {
+				// ignore
+			}
+		}
+		return dftl;
+	}
 
-    private update({ highContrast, dark }: IColorScheme) {
-        if (dark !== this.dark || highContrast !== this.highContrast) {
+	private update({ highContrast, dark }: IColorScheme) {
+		if (dark !== this.dark || highContrast !== this.highContrast) {
 
-            this.dark = dark;
-            this.highContrast = highContrast;
-            this.storageService.store(NativeHostColorSchemeService.STORAGE_KEY, JSON.stringify({ highContrast, dark }), StorageScope.APPLICATION, StorageTarget.MACHINE);
-            this._onDidChangeColorScheme.fire();
-        }
-    }
+			this.dark = dark;
+			this.highContrast = highContrast;
+			this.storageService.store(NativeHostColorSchemeService.STORAGE_KEY, JSON.stringify({ highContrast, dark }), StorageScope.APPLICATION, StorageTarget.MACHINE);
+			this._onDidChangeColorScheme.fire();
+		}
+	}
 
 }
 

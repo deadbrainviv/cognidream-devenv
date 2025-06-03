@@ -28,8 +28,8 @@ interface INavigableContainer {
 	 */
 	readonly focusNotifiers: readonly IFocusNotifier[];
 	readonly name?: string; // for debugging
-	focusPreviousWidget(): cognidreamidream;
-	focusNextWidget(): cognidreamidream;
+	focusPreviousWidget(): void;
+	focusNextWidget(): void;
 }
 
 interface IFocusNotifier {
@@ -37,7 +37,7 @@ interface IFocusNotifier {
 	readonly onDidBlur: Event<any>;
 }
 
-function handleFocusEventsGroup(group: readonly IFocusNotifier[], handler: (isFocus: boolean) => cognidreamidream, onPartFocusChange?: (index: number, state: strincognidream> cognidream): IDisposable {
+function handleFocusEventsGroup(group: readonly IFocusNotifier[], handler: (isFocus: boolean) => void, onPartFocusChange?: (index: number, state: string) => void): IDisposable {
 	const focusedIndices = new Set<number>();
 	return combinedDisposable(...group.map((events, index) => combinedDisposable(
 		events.onDidFocus(() => {
@@ -78,7 +78,7 @@ class NavigableContainerManager implements IDisposable {
 		NavigableContainerManager.INSTANCE = this;
 	}
 
-	dispose(): cognidreamidream {
+	dispose(): void {
 		this.containers.clear();
 		this.focused.reset();
 		NavigableContainerManager.INSTANCE = undefined;
@@ -88,7 +88,7 @@ class NavigableContainerManager implements IDisposable {
 		return this.configurationService.getValue('workbench.navigibleContainer.enableDebug');
 	}
 
-	private log(msg: string, ...args: any[]): cognidreamidream {
+	private log(msg: string, ...args: any[]): void {
 		if (this.debugEnabled) {
 			this.logService.debug(msg, ...args);
 		}

@@ -52,34 +52,34 @@ export class NotebookStatusBarController extends Disposable {
 		this._updateEverything();
 	}
 
-	private _updateEverything(): cognidream {
+	private _updateEverything(): void {
 		this._visibleCells.forEach(dispose);
 		this._visibleCells.clear();
 		this._updateVisibleCells({ added: this._observer.visibleCells, removed: [] });
 	}
 
-	private _updateVisibleCells(e: ICellVisibilityChangeEventcognidreamognidream {
+	private _updateVisibleCells(e: ICellVisibilityChangeEvent): void {
 		const vm = this._notebookEditor.getViewModel();
 		if (!vm) {
-	return;
-}
+			return;
+		}
 
-for (const oldCell of e.removed) {
-	this._visibleCells.get(oldCell.handle)?.dispose();
-	this._visibleCells.delete(oldCell.handle);
-}
+		for (const oldCell of e.removed) {
+			this._visibleCells.get(oldCell.handle)?.dispose();
+			this._visibleCells.delete(oldCell.handle);
+		}
 
-for (const newCell of e.added) {
-	this._visibleCells.set(newCell.handle, this._itemFactory(vm, newCell));
-}
-    }
+		for (const newCell of e.added) {
+			this._visibleCells.set(newCell.handle, this._itemFactory(vm, newCell));
+		}
+	}
 
-    override dispose(cognidreamognidream {
-	super.dispose();
+	override dispose(): void {
+		super.dispose();
 
-	this._visibleCells.forEach(dispose);
-	this._visibleCells.clear();
-}
+		this._visibleCells.forEach(dispose);
+		this._visibleCells.clear();
+	}
 }
 
 export class ExecutionStateCellStatusBarContrib extends Disposable implements INotebookEditorContribution {

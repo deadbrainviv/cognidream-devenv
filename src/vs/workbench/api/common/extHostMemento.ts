@@ -19,7 +19,7 @@ export class ExtensionMemento implements vscode.Memento {
 	private _value?: { [n: string]: any };
 	private readonly _storageListener: IDisposable;
 
-	private _deferredPromises: Map<string, DeferredPromise<cognidream>> = new Map();
+	private _deferredPromises: Map<string, DeferredPromise<void>> = new Map();
 	private _scheduler: RunOnceScheduler;
 
 	constructor(id: string, global: boolean, storage: ExtHostStorage) {
@@ -75,48 +75,48 @@ export class ExtensionMemento implements vscode.Memento {
 		return value;
 	}
 
-	update(key: string, value: any): Promicognidreamognidream> {
-		if(value !== null && typeof value === 'object') {
-	// Prevent the value from being as-is for until we have
-	// received the change event from the main side by emulating
-	// the treatment of values via JSON parsing and stringifying.
-	// (https://github.com/microsoft/vscode/issues/209479)
-	this._value![key] = JSON.parse(JSON.stringify(value));
-} else {
-	this._value![key] = value;
-}
+	update(key: string, value: any): Promise<void> {
+		if (value !== null && typeof value === 'object') {
+			// Prevent the value from being as-is for until we have
+			// received the change event from the main side by emulating
+			// the treatment of values via JSON parsing and stringifying.
+			// (https://github.com/microsoft/vscode/issues/209479)
+			this._value![key] = JSON.parse(JSON.stringify(value));
+		} else {
+			this._value![key] = value;
+		}
 
-const record = this._deferredPromises.get(key);
-if (record !== undefined) {
-	return record.p;
-}
+		const record = this._deferredPromises.get(key);
+		if (record !== undefined) {
+			return record.p;
+		}
 
-const promise = new DeferredPrcognidreame<cognidream>();
-this._deferredPromises.set(key, promise);
+		const promise = new DeferredPromise<void>();
+		this._deferredPromises.set(key, promise);
 
-if (!this._scheduler.isScheduled()) {
-	this._scheduler.schedule();
-}
+		if (!this._scheduler.isScheduled()) {
+			this._scheduler.schedule();
+		}
 
-return promise.p;
-    }
+		return promise.p;
+	}
 
-dispose(cognidreamognidream {
-	this._storageListener.dispose();
-}
+	dispose(): void {
+		this._storageListener.dispose();
+	}
 }
 
 export class ExtensionGlobalMemento extends ExtensionMemento {
 
 	private readonly _extension: IExtensionDescription;
 
-	setKeysForSync(keys: string[]cognidreamognidream {
+	setKeysForSync(keys: string[]): void {
 		this._storage.registerExtensionStorageKeysToSync({ id: this._id, version: this._extension.version }, keys);
-    }
+	}
 
-constructor(extensionDescription: IExtensionDescription, storage: ExtHostStorage) {
-	super(extensionDescription.identifier.value, true, storage);
-	this._extension = extensionDescription;
-}
+	constructor(extensionDescription: IExtensionDescription, storage: ExtHostStorage) {
+		super(extensionDescription.identifier.value, true, storage);
+		this._extension = extensionDescription;
+	}
 
 }

@@ -59,7 +59,7 @@ afterEach(async () => {
 	}
 });
 
-describe('API Integration Tests', function (): cognidream {
+describe('API Integration Tests', function (): void {
 	this.timeout(TIMEOUT);
 
 	beforeEach(async () => {

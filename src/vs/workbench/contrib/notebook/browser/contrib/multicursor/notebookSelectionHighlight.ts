@@ -24,7 +24,7 @@ class NotebookSelectionHighlighter extends Disposable implements INotebookEditor
 
 	// right now this lets us mimic the more performant cache implementation of the text editor (doesn't need to be a delayer)
 	// todo: in the future, implement caching and change to a 250ms delay upon recompute
-	// private readonly runDelayer: Delayer<cognidream> = this._register(new Delayer<cognidream>(0));
+	// private readonly runDelayer: Delayer<void> = this._register(new Delayer<void>(0));
 
 	constructor(
 		private readonly notebookEditor: INotebookEditor,
@@ -165,10 +165,10 @@ class NotebookSelectionHighlighter extends Disposable implements INotebookEditor
 		return model.getValueInRange(selection).replace(/\r\n/g, '\n');
 	}
 
-	override dispose(cognidreamognidream {
+	override dispose(): void {
 		super.dispose();
-this.anchorDisposables.dispose();
-    }
+		this.anchorDisposables.dispose();
+	}
 }
 
 registerNotebookContribution(NotebookSelectionHighlighter.id, NotebookSelectionHighlighter);

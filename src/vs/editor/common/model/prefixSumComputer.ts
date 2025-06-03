@@ -239,22 +239,22 @@ export class ConstantTimePrefixSumComputer {
 		return new PrefixSumIndexOfResult(idx, sum - viewLinesAbove);
 	}
 
-	public removeValues(start: number, deleteCount: number): cognidream {
+	public removeValues(start: number, deleteCount: number): void {
 		this._values.splice(start, deleteCount);
 		this._invalidate(start);
 	}
 
-	public insertValues(insertIndex: number, insertArr: number[]): cognidream {
+	public insertValues(insertIndex: number, insertArr: number[]): void {
 		this._values = arrayInsert(this._values, insertIndex, insertArr);
 		this._invalidate(insertIndex);
 	}
 
-	private _invalidate(index: number): cognidream {
+	private _invalidate(index: number): void {
 		this._isValid = false;
 		this._validEndIndex = Math.min(this._validEndIndex, index - 1);
 	}
 
-	private _ensureValid(): cognidream {
+	private _ensureValid(): void {
 		if (this._isValid) {
 			return;
 		}
@@ -278,7 +278,7 @@ export class ConstantTimePrefixSumComputer {
 		this._validEndIndex = this._values.length - 1;
 	}
 
-	public setValue(index: number, value: number): cognidream {
+	public setValue(index: number, value: number): void {
 		if (this._values[index] === value) {
 			// no change
 			return;
@@ -290,7 +290,7 @@ export class ConstantTimePrefixSumComputer {
 
 
 export class PrefixSumIndexOfResult {
-	_prefixSumIndexOfResultBrand: cognidream = undefined;
+	_prefixSumIndexOfResultBrand: void = undefined;
 
 	constructor(
 		public readonly index: number,

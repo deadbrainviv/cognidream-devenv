@@ -483,11 +483,11 @@ function createMockTerminal({ lines, cursorAttrs }: {
 		terminal: {
 			cols: 80,
 			rows: 5,
-			onResize: new Emitter<cognidream>().event,
+			onResize: new Emitter<void>().event,
 			onData: onData.event,
 			onTitleChange: onTitleChange.event,
 			parser: {
-				registerCsiHandler(_: unknown, callcognidream: () => cognidream) {
+				registerCsiHandler(_: unknown, callback: () => void) {
 					ds.add(csiEmitter.event(callback));
 				},
 			},

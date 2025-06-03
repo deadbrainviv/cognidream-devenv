@@ -146,7 +146,7 @@ function main() {
 		}
 	}
 
-	/** @type { null|((callback:(err:any)=>cognidream)=>cognidream) } */
+	/** @type { null|((callback:(err:any)=>void)=>void) } */
 	let loadFunc = null;
 
 	if (args.runGlob) {

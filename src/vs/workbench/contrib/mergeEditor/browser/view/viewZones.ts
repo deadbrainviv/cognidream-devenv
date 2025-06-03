@@ -182,7 +182,7 @@ export class MergeEditorViewZones {
  * This is an abstract class to create various editor view zones.
 */
 export abstract class MergeEditorViewZone {
-	abstract create(viewZoneChangeAccessor: IViewZoneChangeAccessor, viewZoneIdsToCleanUp: string[], disposableStore: DisposableStore): cognidream;
+	abstract create(viewZoneChangeAccessor: IViewZoneChangeAccessor, viewZoneIdsToCleanUp: string[], disposableStore: DisposableStore): void;
 }
 
 class Spacer extends MergeEditorViewZone {
@@ -197,15 +197,15 @@ class Spacer extends MergeEditorViewZone {
 		viewZoneChangeAccessor: IViewZoneChangeAccessor,
 		viewZoneIdsToCleanUp: string[],
 		disposableStore: DisposableStore
-    cognidreamognidream {
-			viewZoneIdsToCleanUp.push(
-				viewZoneChangeAccessor.addZone({
-					afterLineNumber: this.afterLineNumber,
-					heightInLines: this.heightInLines,
-					domNode: $('div.diagonal-fill'),
-				})
-			);
-    }
+	): void {
+		viewZoneIdsToCleanUp.push(
+			viewZoneChangeAccessor.addZone({
+				afterLineNumber: this.afterLineNumber,
+				heightInLines: this.heightInLines,
+				domNode: $('div.diagonal-fill'),
+			})
+		);
+	}
 }
 
 class Placeholder extends MergeEditorViewZone {
@@ -220,15 +220,15 @@ class Placeholder extends MergeEditorViewZone {
 		viewZoneChangeAccessor: IViewZoneChangeAccessor,
 		viewZoneIdsToCleanUp: string[],
 		disposableStore: DisposableStore
-    cognidreamognidream {
-			viewZoneIdsToCleanUp.push(
-				viewZoneChangeAccessor.addZone({
-					afterLineNumber: this.afterLineNumber,
-					heightInPx: this.heightPx,
-					domNode: $('div.conflict-actions-placeholder'),
-				})
-			);
-    }
+	): void {
+		viewZoneIdsToCleanUp.push(
+			viewZoneChangeAccessor.addZone({
+				afterLineNumber: this.afterLineNumber,
+				heightInPx: this.heightPx,
+				domNode: $('div.conflict-actions-placeholder'),
+			})
+		);
+	}
 }
 
 class CommandViewZone extends MergeEditorViewZone {
@@ -240,7 +240,7 @@ class CommandViewZone extends MergeEditorViewZone {
 		super();
 	}
 
-	override create(viewZoneChangeAccessor: IViewZoneChangeAccessor, viewZoneIdsToCleanUp: string[], disposableStore: DisposableStorecognidreamognidream {
+	override create(viewZoneChangeAccessor: IViewZoneChangeAccessor, viewZoneIdsToCleanUp: string[], disposableStore: DisposableStore): void {
 		disposableStore.add(
 			this.conflictActionsFactory.createWidget(
 				viewZoneChangeAccessor,
@@ -249,5 +249,5 @@ class CommandViewZone extends MergeEditorViewZone {
 				viewZoneIdsToCleanUp,
 			)
 		);
-    }
+	}
 }

@@ -20,6 +20,11 @@ import { URI } from '../../../../../../../base/common/uri.js';
 import { getBasename, getFolderName } from '../sidebar-tsx/SidebarChat.js';
 import { ChevronRight, File, Folder, FolderClosed, LucideProps } from 'lucide-react';
 import { StagingSelectionItem } from '../../../../common/chatThreadServiceTypes.js';
+import { DiffEditorWidget } from '../../../../../../../editor/browser/widget/diffEditor/diffEditorWidget.js';
+import { extractSearchReplaceBlocks, ExtractedSearchReplaceBlock } from '../../../../common/helpers/extractCodeFromResult.js';
+import { IAccessibilitySignalService } from '../../../../../../../platform/accessibilitySignal/browser/accessibilitySignalService.js';
+import { IEditorProgressService } from '../../../../../../../platform/progress/common/progress.js';
+import { detectLanguage } from '../../../../common/helpers/languageHelpers.js';
 
 
 // type guard
@@ -33,7 +38,7 @@ export const WidgetComponent = <CtorParams extends any[], Instance>({ ctor, prop
 		ctor: { new(...params: CtorParams): Instance } | ((container: HTMLDivElement) => Instance),
 		propsFn: (container: HTMLDivElement) => CtorParams, // unused if fn
 		onCreateInstance: (instance: Instance) => IDisposable[],
-		dispose: (instance: Instance) => cognidream,
+		dispose: (instance: Instance) => void,
 		children?: React.ReactNode,
 		className?: string
 	}
@@ -335,7 +340,7 @@ const getOptionsAtPath = async (accessor: ReturnType<typeof useAccessor>, path: 
 
 
 
-export type TextAreaFns = { setValue: (v: string) => cognidream, enable: () => cognidream, disable: () => cognidream }
+export type TextAreaFns = { setValue: (v: string) => void, enable: () => void, disable: () => void }
 type InputBox2Props = {
 	initValue?: string | null;
 	placeholder: string;
@@ -343,13 +348,13 @@ type InputBox2Props = {
 	enableAtToMention?: boolean;
 	fnsRef?: { current: null | TextAreaFns };
 	className?: string;
-	onChangeText?: (value: string) => cognidream;
-	onKeyDown?: (e: React.KeyboardEvent<HTMLTextAreaElement>) => cognidream;
-	onFocus?: (e: React.FocusEvent<HTMLTextAreaElement>) => cognidream;
-	onBlur?: (e: React.FocusEvent<HTMLTextAreaElement>) => cognidream;
-	onChangeHeight?: (newHeight: number) => cognidream;
+	onChangeText?: (value: string) => void;
+	onKeyDown?: (e: React.KeyboardEvent<HTMLTextAreaElement>) => void;
+	onFocus?: (e: React.FocusEvent<HTMLTextAreaElement>) => void;
+	onBlur?: (e: React.FocusEvent<HTMLTextAreaElement>) => void;
+	onChangeHeight?: (newHeight: number) => void;
 }
-export const cognidreamInputBox2 = forwardRef<HTMLTextAreaElement, InputBox2Props>(function X({ initValue, placeholder, multiline, enableAtToMention, fnsRef, className, onKeyDown, onFocus, onBlur, onChangeText }, ref) {
+export const VoidInputBox2 = forwardRef<HTMLTextAreaElement, InputBox2Props>(function X({ initValue, placeholder, multiline, enableAtToMention, fnsRef, className, onKeyDown, onFocus, onBlur, onChangeText }, ref) {
 
 
 	// mirrors whatever is in ref
@@ -700,7 +705,7 @@ export const cognidreamInputBox2 = forwardRef<HTMLTextAreaElement, InputBox2Prop
 
 		if (r.scrollHeight === 0) return requestAnimationFrame(adjustHeight)
 		const h = r.scrollHeight
-		const newHeight = Math.min(h + 1, 500) // plus one to acognidream scrollbar appearing when it shouldn't
+		const newHeight = Math.min(h + 1, 500) // plus one to avoid scrollbar appearing when it shouldn't
 		r.style.height = `${newHeight}px`
 	}, []);
 
@@ -748,7 +753,7 @@ export const cognidreamInputBox2 = forwardRef<HTMLTextAreaElement, InputBox2Prop
 
 			disabled={!isEnabled}
 
-			className={`w-full resize-none max-h-[500px] overflow-y-auto text-cognidream-fg-1 placeholder:text-cognidream-fg-3 ${className}`}
+			className={`w-full resize-none max-h-[500px] overflow-y-auto text-void-fg-1 placeholder:text-void-fg-3 ${className}`}
 			style={{
 				// defaultInputBoxStyles
 				background: asCssVariable(inputBackground),
@@ -804,7 +809,7 @@ export const cognidreamInputBox2 = forwardRef<HTMLTextAreaElement, InputBox2Prop
 		{isMenuOpen && (
 			<div
 				ref={refs.setFloating}
-				className="z-[100] border-cognidream-border-3 bg-cognidream-bg-2-alt border rounded shadow-lg flex flex-col overflow-hidden"
+				className="z-[100] border-void-border-3 bg-void-bg-2-alt border rounded shadow-lg flex flex-col overflow-hidden"
 				style={{
 					position: strategy,
 					top: y ?? 0,
@@ -814,7 +819,7 @@ export const cognidreamInputBox2 = forwardRef<HTMLTextAreaElement, InputBox2Prop
 				onWheel={(e) => e.stopPropagation()}
 			>
 				{/* Breadcrumbs Header */}
-				{isBreadcrumbsShowing && <div className="px-2 py-1 text-cognidream-fg-1 bg-cognidream-bg-2-alt border-b border-cognidream-border-3 sticky top-0 bg-cognidream-bg-1 z-10 select-none pointer-events-none">
+				{isBreadcrumbsShowing && <div className="px-2 py-1 text-void-fg-1 bg-void-bg-2-alt border-b border-void-border-3 sticky top-0 bg-void-bg-1 z-10 select-none pointer-events-none">
 					{optionText ?
 						<div className="flex items-center">
 							{/* {optionPath.map((path, index) => (
@@ -834,7 +839,7 @@ export const cognidreamInputBox2 = forwardRef<HTMLTextAreaElement, InputBox2Prop
 				<div className='max-h-[400px] w-full max-w-full overflow-y-auto overflow-x-auto'>
 					<div className="w-max min-w-full flex flex-col gap-0 text-nowrap flex-nowrap">
 						{options.length === 0 ?
-							<div className="text-cognidream-fg-3 px-3 py-0.5">No results found</div>
+							<div className="text-void-fg-3 px-3 py-0.5">No results found</div>
 							: options.map((o, oIdx) => {
 
 								return (
@@ -845,7 +850,7 @@ export const cognidreamInputBox2 = forwardRef<HTMLTextAreaElement, InputBox2Prop
 										className={`
 											flex items-center gap-2
 											px-3 py-1 cursor-pointer
-											${oIdx === optionIdx ? 'bg-blue-500 text-white/80' : 'bg-cognidream-bg-2-alt text-cognidream-fg-1'}
+											${oIdx === optionIdx ? 'bg-blue-500 text-white/80' : 'bg-void-bg-2-alt text-void-fg-1'}
 										`}
 										onClick={() => { onSelectOption(); }}
 										onMouseMove={() => { setOptionIdx(oIdx) }}
@@ -873,9 +878,9 @@ export const cognidreamInputBox2 = forwardRef<HTMLTextAreaElement, InputBox2Prop
 })
 
 
-export const cognidreamSimpleInputBox = ({ value, onChangeValue, placeholder, className, disabled, passwordBlur, compact, ...inputProps }: {
+export const VoidSimpleInputBox = ({ value, onChangeValue, placeholder, className, disabled, passwordBlur, compact, ...inputProps }: {
 	value: string;
-	onChangeValue: (value: string) => cognidream;
+	onChangeValue: (value: string) => void;
 	placeholder: string;
 	className?: string;
 	disabled?: boolean;
@@ -916,11 +921,11 @@ export const cognidreamSimpleInputBox = ({ value, onChangeValue, placeholder, cl
 	return (
 		<input
 			ref={inputRef}
-			defaultValue={value} // Use defaultValue instead of value to acognidream recreation
+			defaultValue={value} // Use defaultValue instead of value to avoid recreation
 			onChange={handleChange}
 			placeholder={placeholder}
 			disabled={disabled}
-			className={`w-full resize-none bg-cognidream-bg-1 text-cognidream-fg-1 placeholder:text-cognidream-fg-3 border border-cognidream-border-2 focus:border-cognidream-border-1
+			className={`w-full resize-none bg-void-bg-1 text-void-fg-1 placeholder:text-void-fg-3 border border-void-border-2 focus:border-void-border-1
 				${compact ? 'py-1 px-2' : 'py-2 px-4 '}
 				rounded
 				${disabled ? 'opacity-50 cursor-not-allowed' : ''}
@@ -937,10 +942,10 @@ export const cognidreamSimpleInputBox = ({ value, onChangeValue, placeholder, cl
 };
 
 
-export const cognidreamInputBox = ({ onChangeText, onCreateInstance, inputBoxRef, placeholder, isPasswordField, multiline }: {
-	onChangeText: (value: string) => cognidream;
+export const VoidInputBox = ({ onChangeText, onCreateInstance, inputBoxRef, placeholder, isPasswordField, multiline }: {
+	onChangeText: (value: string) => void;
 	styles?: Partial<IInputBoxStyles>,
-	onCreateInstance?: (instance: InputBox) => cognidream | IDisposable[];
+	onCreateInstance?: (instance: InputBox) => void | IDisposable[];
 	inputBoxRef?: { current: InputBox | null };
 	placeholder: string;
 	isPasswordField?: boolean;
@@ -951,11 +956,11 @@ export const cognidreamInputBox = ({ onChangeText, onCreateInstance, inputBoxRef
 
 	const contextViewProvider = accessor.get('IContextViewService')
 	return <WidgetComponent
-		ctor={InputBox}
 		className='
-			bg-cognidream-bg-1
-			@@cognidream-force-child-placeholder-cognidream-fg-1
+			bg-void-bg-1
+			@@void-force-child-placeholder-void-fg-1
 		'
+		ctor={InputBox}
 		propsFn={useCallback((container) => [
 			container,
 			contextViewProvider,
@@ -991,8 +996,7 @@ export const cognidreamInputBox = ({ onChangeText, onCreateInstance, inputBoxRef
 				inputBoxRef.current = instance;
 
 			return disposables
-		}, [onChangeText, onCreateInstance, inputBoxRef])
-		}
+		}, [onChangeText, onCreateInstance, inputBoxRef])}
 	/>
 };
 
@@ -1000,7 +1004,7 @@ export const cognidreamInputBox = ({ onChangeText, onCreateInstance, inputBoxRef
 
 
 
-export const cognidreamSlider = ({
+export const VoidSlider = ({
 	value,
 	onChange,
 	size = 'md',
@@ -1012,7 +1016,7 @@ export const cognidreamSlider = ({
 	width = 200,
 }: {
 	value: number;
-	onChange: (value: number) => cognidream;
+	onChange: (value: number) => void;
 	disabled?: boolean;
 	size?: 'xxs' | 'xs' | 'sm' | 'sm+' | 'md';
 	min?: number;
@@ -1104,7 +1108,7 @@ export const cognidreamSlider = ({
 							size === 'xs' ? 'h-1' :
 								size === 'sm' ? 'h-1.5' :
 									size === 'sm+' ? 'h-2' : 'h-2.5'
-							} bg-cognidream-bg-2 rounded-full cursor-pointer`}
+							} bg-void-bg-2 rounded-full cursor-pointer`}
 						onClick={handleTrackClick}
 					>
 						{/* Filled part of track */}
@@ -1113,7 +1117,7 @@ export const cognidreamSlider = ({
 								size === 'xs' ? 'h-1' :
 									size === 'sm' ? 'h-1.5' :
 										size === 'sm+' ? 'h-2' : 'h-2.5'
-								} bg-cognidream-fg-1 rounded-full`}
+								} bg-void-fg-1 rounded-full`}
 							style={{ width: `${percentage}%` }}
 						/>
 					</div>
@@ -1126,8 +1130,8 @@ export const cognidreamSlider = ({
 									size === 'sm' ? 'h-3 w-3' :
 										size === 'sm+' ? 'h-3.5 w-3.5' : 'h-4 w-4'
 							}
-							bg-cognidream-fg-1 rounded-full shadow-md ${disabled ? 'cursor-not-allowed' : 'cursor-grab active:cursor-grabbing'}
-							border border-cognidream-fg-1`}
+							bg-void-fg-1 rounded-full shadow-md ${disabled ? 'cursor-not-allowed' : 'cursor-grab active:cursor-grabbing'}
+							border border-void-fg-1`}
 						style={{ left: `${percentage}%`, zIndex: 2 }}  // Ensure thumb is above the invisible clickable area
 						onMouseDown={(e) => {
 							if (disabled) return;
@@ -1161,7 +1165,7 @@ export const cognidreamSlider = ({
 
 
 
-export const cognidreamSwitch = ({
+export const VoidSwitch = ({
 	value,
 	onChange,
 	size = 'md',
@@ -1169,7 +1173,7 @@ export const cognidreamSwitch = ({
 	...props
 }: {
 	value: boolean;
-	onChange: (value: boolean) => cognidream;
+	onChange: (value: boolean) => void;
 	disabled?: boolean;
 	size?: 'xxs' | 'xs' | 'sm' | 'sm+' | 'md';
 }) => {
@@ -1213,7 +1217,7 @@ export const cognidreamSwitch = ({
 
 
 
-export const cognidreamCheckBox = ({ label, value, onClick, className }: { label: string, value: boolean, onClick: (checked: boolean) => cognidream, className?: string }) => {
+export const VoidCheckBox = ({ label, value, onClick, className }: { label: string, value: boolean, onClick: (checked: boolean) => void, className?: string }) => {
 	const divRef = useRef<HTMLDivElement | null>(null)
 	const instanceRef = useRef<Checkbox | null>(null)
 
@@ -1247,7 +1251,7 @@ export const cognidreamCheckBox = ({ label, value, onClick, className }: { label
 
 
 
-export const cognidreamCustomDropdownBox = <T extends NonNullable<any>>({
+export const VoidCustomDropdownBox = <T extends NonNullable<any>>({
 	options,
 	selectedOption,
 	onChangeOption,
@@ -1263,7 +1267,7 @@ export const cognidreamCustomDropdownBox = <T extends NonNullable<any>>({
 }: {
 	options: T[];
 	selectedOption: T | undefined;
-	onChangeOption: (newValue: T) => cognidream;
+	onChangeOption: (newValue: T) => void;
 	getOptionDropdownName: (option: T) => string;
 	getOptionDropdownDetail?: (option: T) => string;
 	getOptionDisplayName: (option: T) => string;
@@ -1412,7 +1416,7 @@ export const cognidreamCustomDropdownBox = <T extends NonNullable<any>>({
 			{isOpen && (
 				<div
 					ref={refs.setFloating}
-					className="z-[100] bg-cognidream-bg-1 border-cognidream-border-3 border rounded shadow-lg"
+					className="z-[100] bg-void-bg-1 border-void-border-3 border rounded shadow-lg"
 					style={{
 						position: strategy,
 						top: y ?? 0,
@@ -1474,9 +1478,9 @@ export const cognidreamCustomDropdownBox = <T extends NonNullable<any>>({
 
 
 
-export const _cognidreamSelectBox = <T,>({ onChangeSelection, onCreateInstance, selectBoxRef, options, className }: {
-	onChangeSelection: (value: T) => cognidream;
-	onCreateInstance?: ((instance: SelectBox) => cognidream | IDisposable[]);
+export const _VoidSelectBox = <T,>({ onChangeSelection, onCreateInstance, selectBoxRef, options, className }: {
+	onChangeSelection: (value: T) => void;
+	onCreateInstance?: ((instance: SelectBox) => void | IDisposable[]);
 	selectBoxRef?: React.MutableRefObject<SelectBox | null>;
 	options: readonly { text: string, value: T }[];
 	className?: string;
@@ -1489,9 +1493,9 @@ export const _cognidreamSelectBox = <T,>({ onChangeSelection, onCreateInstance, 
 	return <WidgetComponent
 		className={`
 			@@select-child-restyle
-			@@[&_select]:!cognidream-text-cognidream-fg-3
-			@@[&_select]:!cognidream-text-xs
-			!text-cognidream-fg-3
+			@@[&_select]:!void-text-void-fg-3
+			@@[&_select]:!void-text-xs
+			!text-void-fg-3
 			${className ?? ''}
 		`}
 		ctor={SelectBox}
@@ -1611,7 +1615,7 @@ export const BlockCode = ({ initValue, language, maxHeight, showScrollbars }: Bl
 		if (language) modelRef.current?.setLanguage(language)
 	}, [language])
 
-	return <div ref={divRef} className='relative z-0 px-2 py-1 bg-cognidream-bg-3'>
+	return <div ref={divRef} className='relative z-0 px-2 py-1 bg-void-bg-3'>
 		<WidgetComponent
 			className='@@bg-editor-style-override' // text-sm
 			ctor={useCallback((container) => {
@@ -1712,14 +1716,14 @@ export const BlockCode = ({ initValue, language, maxHeight, showScrollbars }: Bl
 }
 
 
-export const cognidreamButtonBgDarken = ({ children, disabled, onClick, className }: { children: React.ReactNode; disabled?: boolean; onClick: () => cognidream; className?: string }) => {
+export const VoidButtonBgDarken = ({ children, disabled, onClick, className }: { children: React.ReactNode; disabled?: boolean; onClick: () => void; className?: string }) => {
 	return <button disabled={disabled}
 		className={`px-3 py-1 bg-black/10 dark:bg-white/10 rounded-sm overflow-hidden whitespace-nowrap flex items-center justify-center ${className || ''}`}
 		onClick={onClick}
 	>{children}</button>
 }
 
-// export const cognidreamScrollableElt = ({ options, children }: { options: ScrollableElementCreationOptions, children: React.ReactNode }) => {
+// export const VoidScrollableElt = ({ options, children }: { options: ScrollableElementCreationOptions, children: React.ReactNode }) => {
 // 	const instanceRef = useRef<DomScrollableElement | null>(null);
 // 	const [childrenPortal, setChildrenPortal] = useState<React.ReactNode | null>(null)
 
@@ -1746,11 +1750,11 @@ export const cognidreamButtonBgDarken = ({ children, disabled, onClick, classNam
 // 	</>
 // }
 
-// export const cognidreamSelectBox = <T,>({ onChangeSelection, initVal, selectBoxRef, options }: {
+// export const VoidSelectBox = <T,>({ onChangeSelection, initVal, selectBoxRef, options }: {
 // 	initVal: T;
 // 	selectBoxRef: React.MutableRefObject<SelectBox | null>;
 // 	options: readonly { text: string, value: T }[];
-// 	onChangeSelection: (value: T) => cognidream;
+// 	onChangeSelection: (value: T) => void;
 // }) => {
 
 
@@ -1789,8 +1793,8 @@ export const cognidreamButtonBgDarken = ({ children, disabled, onClick, classNam
 
 
 
-// export const cognidreamCheckBox = ({ onChangeChecked, initVal, label, checkboxRef, }: {
-// 	onChangeChecked: (checked: boolean) => cognidream;
+// export const VoidCheckBox = ({ onChangeChecked, initVal, label, checkboxRef, }: {
+// 	onChangeChecked: (checked: boolean) => void;
 // 	initVal: boolean;
 // 	checkboxRef: React.MutableRefObject<ObjectSettingCheckboxWidget | null>;
 // 	label: string;
@@ -1839,5 +1843,156 @@ export const cognidreamButtonBgDarken = ({ children, disabled, onClick, classNam
 
 // 	return <div ref={containerRef} className="w-full" />;
 // };
+
+
+
+
+const SingleDiffEditor = ({ block, lang }: { block: ExtractedSearchReplaceBlock, lang: string | undefined }) => {
+	const accessor = useAccessor();
+	const modelService = accessor.get('IModelService');
+	const instantiationService = accessor.get('IInstantiationService');
+	const languageService = accessor.get('ILanguageService');
+
+	const languageSelection = useMemo(() => languageService.createById(lang), [lang, languageService]);
+
+	// Create models for original and modified
+	const originalModel = useMemo(() =>
+		modelService.createModel(block.orig, languageSelection),
+		[block.orig, languageSelection, modelService]
+	);
+	const modifiedModel = useMemo(() =>
+		modelService.createModel(block.final, languageSelection),
+		[block.final, languageSelection, modelService]
+	);
+
+	// Clean up models on unmount
+	useEffect(() => {
+		return () => {
+			originalModel.dispose();
+			modifiedModel.dispose();
+		};
+	}, [originalModel, modifiedModel]);
+
+	// Imperatively mount the DiffEditorWidget
+	const divRef = useRef<HTMLDivElement | null>(null);
+	const editorRef = useRef<any>(null);
+
+	useEffect(() => {
+		if (!divRef.current) return;
+		// Create the diff editor instance
+		const editor = instantiationService.createInstance(
+			DiffEditorWidget,
+			divRef.current,
+			{
+				automaticLayout: true,
+				readOnly: true,
+				renderSideBySide: true,
+				minimap: { enabled: false },
+				lineNumbers: 'off',
+				scrollbar: {
+					vertical: 'hidden',
+					horizontal: 'auto',
+					verticalScrollbarSize: 0,
+					horizontalScrollbarSize: 8,
+					alwaysConsumeMouseWheel: false,
+					ignoreHorizontalScrollbarInContentHeight: true,
+				},
+				hover: { enabled: false },
+				folding: false,
+				selectionHighlight: false,
+				renderLineHighlight: 'none',
+				overviewRulerLanes: 0,
+				hideCursorInOverviewRuler: true,
+				overviewRulerBorder: false,
+				glyphMargin: false,
+				stickyScroll: { enabled: false },
+				scrollBeyondLastLine: false,
+				renderGutterMenu: false,
+				renderIndicators: false,
+			},
+			{ originalEditor: { isSimpleWidget: true }, modifiedEditor: { isSimpleWidget: true } }
+		);
+		editor.setModel({ original: originalModel, modified: modifiedModel });
+
+		// Calculate the height based on content
+		const updateHeight = () => {
+			const contentHeight = Math.max(
+				originalModel.getLineCount() * 19, // approximate line height
+				modifiedModel.getLineCount() * 19
+			) + 19 * 2 + 1; // add padding
+
+			// Set reasonable min/max heights
+			const height = Math.min(Math.max(contentHeight, 100), 300);
+			if (divRef.current) {
+				divRef.current.style.height = `${height}px`;
+				editor.layout();
+			}
+		};
+
+		updateHeight();
+		editorRef.current = editor;
+
+		// Update height when content changes
+		const disposable1 = originalModel.onDidChangeContent(() => updateHeight());
+		const disposable2 = modifiedModel.onDidChangeContent(() => updateHeight());
+
+		return () => {
+			disposable1.dispose();
+			disposable2.dispose();
+			editor.dispose();
+			editorRef.current = null;
+		};
+	}, [originalModel, modifiedModel, instantiationService]);
+
+	return (
+		<div className="w-full bg-void-bg-3 @@bg-editor-style-override" ref={divRef} />
+	);
+};
+
+
+
+
+
+/**
+ * ToolDiffEditor mounts a native VSCode DiffEditorWidget to show a diff between original and modified code blocks.
+ * Props:
+ *   - uri: URI of the file (for language detection, etc)
+ *   - searchReplaceBlocks: string in search/replace format (from LLM)
+ *   - language?: string (optional, fallback to 'plaintext')
+ */
+export const VoidDiffEditor = ({ uri, searchReplaceBlocks, language }: { uri?: any, searchReplaceBlocks: string, language?: string }) => {
+	const accessor = useAccessor();
+	const languageService = accessor.get('ILanguageService');
+
+	// Extract all blocks
+	const blocks = extractSearchReplaceBlocks(searchReplaceBlocks);
+
+	// Use detectLanguage for language detection if not provided
+	let lang = language;
+	if (!lang && blocks.length > 0) {
+		lang = detectLanguage(languageService, { uri: uri ?? null, fileContents: blocks[0].orig });
+	}
+
+	// If no blocks, show empty state
+	if (blocks.length === 0) {
+		return <div className="w-full p-4 text-void-fg-4 text-sm">No changes found</div>;
+	}
+
+	// Display all blocks
+	return (
+		<div className="w-full flex flex-col gap-2">
+			{blocks.map((block, index) => (
+				<div key={index} className="w-full">
+					{blocks.length > 1 && (
+						<div className="text-void-fg-4 text-xs mb-1 px-1">
+							Change {index + 1} of {blocks.length}
+						</div>
+					)}
+					<SingleDiffEditor block={block} lang={lang} />
+				</div>
+			))}
+		</div>
+	);
+};
 
 

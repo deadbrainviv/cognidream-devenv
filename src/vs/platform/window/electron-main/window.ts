@@ -15,29 +15,29 @@ import { ISingleFolderWorkspaceIdentifier, IWorkspaceIdentifier } from '../../wo
 
 export interface IBaseWindow extends IDisposable {
 
-	readonly onDidMaximize: Event<cognidreamidream>;
-	readonly onDidUnmaximize: Event<cognidreamidream>;
+	readonly onDidMaximize: Event<void>;
+	readonly onDidUnmaximize: Event<void>;
 	readonly onDidTriggerSystemContextMenu: Event<{ readonly x: number; readonly y: number }>;
-	readonly onDidEnterFullScreen: Event<cognidreamidream>;
-	readonly onDidLeaveFullScreen: Event<cognidreamidream>;
-	readonly onDidClose: Event<cognidreamidream>;
+	readonly onDidEnterFullScreen: Event<void>;
+	readonly onDidLeaveFullScreen: Event<void>;
+	readonly onDidClose: Event<void>;
 
 	readonly id: number;
 	readonly win: electron.BrowserWindow | null;
 
 	readonly lastFocusTime: number;
-	focus(options?: { force: boolean }): cognidreamidream;
+	focus(options?: { force: boolean }): void;
 
-	setRepresentedFilename(name: string): cognidreamidream;
+	setRepresentedFilename(name: string): void;
 	getRepresentedFilename(): string | undefined;
 
-	setDocumentEdited(edited: boolean): cognidreamidream;
+	setDocumentEdited(edited: boolean): void;
 	isDocumentEdited(): boolean;
 
 	readonly isFullScreen: boolean;
-	toggleFullScreen(): cognidreamidream;
+	toggleFullScreen(): void;
 
-	updateWindowControls(options: { height?: number; backgroundColor?: string; foregroundColor?: string }): cognidreamidream;
+	updateWindowControls(options: { height?: number; backgroundColor?: string; foregroundColor?: string }): void;
 
 	matches(webContents: electron.WebContents): boolean;
 }
@@ -45,10 +45,10 @@ export interface IBaseWindow extends IDisposable {
 export interface ICodeWindow extends IBaseWindow {
 
 	readonly onWillLoad: Event<ILoadEvent>;
-	readonly onDidSignalReady: Event<cognidreamidream>;
-	readonly onDidDestroy: Event<cognidreamidream>;
+	readonly onDidSignalReady: Event<void>;
+	readonly onDidDestroy: Event<void>;
 
-	readonly whenClosedOrLoaded: Promise<cognidreamidream>;
+	readonly whenClosedOrLoaded: Promise<void>;
 
 	readonly config: INativeWindowConfiguration | undefined;
 
@@ -65,23 +65,23 @@ export interface ICodeWindow extends IBaseWindow {
 
 	readonly isReady: boolean;
 	ready(): Promise<ICodeWindow>;
-	setReady(): cognidreamidream;
+	setReady(): void;
 
-	addTabbedWindow(window: ICodeWindow): cognidreamidream;
+	addTabbedWindow(window: ICodeWindow): void;
 
-	load(config: INativeWindowConfiguration, options?: { isReload?: boolean }): cognidreamidream;
-	reload(cli?: NativeParsedArgs): cognidreamidream;
+	load(config: INativeWindowConfiguration, options?: { isReload?: boolean }): void;
+	reload(cli?: NativeParsedArgs): void;
 
-	close(): cognidreamidream;
+	close(): void;
 
 	getBounds(): electron.Rectangle;
 
-	send(channel: string, ...args: any[]): cognidreamidream;
-	sendWhenReady(channel: string, token: CancellationToken, ...args: any[]): cognidreamidream;
+	send(channel: string, ...args: any[]): void;
+	sendWhenReady(channel: string, token: CancellationToken, ...args: any[]): void;
 
-	updateTouchBar(items: ISerializableCommandAction[][]): cognidreamidream;
+	updateTouchBar(items: ISerializableCommandAction[][]): void;
 
-	notifyZoomLevel(zoomLevel: number | undefined): cognidreamidream;
+	notifyZoomLevel(zoomLevel: number | undefined): void;
 
 	serializeWindowState(): IWindowState;
 }

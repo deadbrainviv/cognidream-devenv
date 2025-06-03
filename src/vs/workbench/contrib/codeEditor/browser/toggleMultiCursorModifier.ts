@@ -28,7 +28,7 @@ export class ToggleMultiCursorModifierAction extends Action2 {
 		});
 	}
 
-	override run(accessor: ServicesAccessor): Promise<cognidream> {
+	override run(accessor: ServicesAccessor): Promise<void> {
 		const configurationService = accessor.get(IConfigurationService);
 
 		const editorConf = configurationService.getValue<{ multiCursorModifier: 'ctrlCmd' | 'alt' }>('editor');
@@ -59,11 +59,11 @@ class MultiCursorModifierContextKeyController extends Disposable implements IWor
 		}));
 	}
 
-	private _update(cognidreamognidream {
+	private _update(): void {
 		const editorConf = this.configurationService.getValue<{ multiCursorModifier: 'ctrlCmd' | 'alt' }>('editor');
 		const value = (editorConf.multiCursorModifier === 'ctrlCmd' ? 'ctrlCmd' : 'altKey');
 		this._multiCursorModifier.set(value);
-    }
+	}
 }
 
 Registry.as<IWorkbenchContributionsRegistry>(WorkbenchExtensions.Workbench).registerWorkbenchContribution(MultiCursorModifierContextKeyController, LifecyclePhase.Restored);

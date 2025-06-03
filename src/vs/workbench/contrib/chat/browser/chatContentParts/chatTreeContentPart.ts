@@ -32,67 +32,67 @@ const $ = dom.$;
 export class ChatTreeContentPart extends Disposable implements IChatContentPart {
 	public readonly domNode: HTMLElement;
 
-	private readonly _onDidChangeHeight = this._register(new Emitter<cognidream>());
+	private readonly _onDidChangeHeight = this._register(new Emitter<void>());
 	public readonly onDidChangeHeight = this._onDidChangeHeight.event;
 
-	public readonly onDidFocus: Evecognidreamognidream>;
+	public readonly onDidFocus: Event<void>;
 
-    private tree: WorkbenchCompressibleAsyncDataTree<IChatResponseProgressFileTreeData, IChatResponseProgressFileTreeDatcognidreamognidream>;
+	private tree: WorkbenchCompressibleAsyncDataTree<IChatResponseProgressFileTreeData, IChatResponseProgressFileTreeData, void>;
 
-constructor(
-	data: IChatResponseProgressFileTreeData,
-	element: ChatTreeItem,
-	treePool: TreePool,
-	treeDataIndex: number,
-	@IOpenerService private readonly openerService: IOpenerService
-) {
-	super();
+	constructor(
+		data: IChatResponseProgressFileTreeData,
+		element: ChatTreeItem,
+		treePool: TreePool,
+		treeDataIndex: number,
+		@IOpenerService private readonly openerService: IOpenerService
+	) {
+		super();
 
-	const ref = this._register(treePool.get());
-	this.tree = ref.object;
-	this.onDidFocus = this.tree.onDidFocus;
+		const ref = this._register(treePool.get());
+		this.tree = ref.object;
+		this.onDidFocus = this.tree.onDidFocus;
 
-	this._register(this.tree.onDidOpen((e) => {
-		if (e.element && !('children' in e.element)) {
-			this.openerService.open(e.element.uri);
-		}
-	}));
-	this._register(this.tree.onDidChangeCollapseState(() => {
-		this._onDidChangeHeight.fire();
-	}));
-	this._register(this.tree.onContextMenu((e) => {
-		e.browserEvent.preventDefault();
-		e.browserEvent.stopPropagation();
-	}));
-
-	this.tree.setInput(data).then(() => {
-		if (!ref.isStale()) {
-			this.tree.layout();
+		this._register(this.tree.onDidOpen((e) => {
+			if (e.element && !('children' in e.element)) {
+				this.openerService.open(e.element.uri);
+			}
+		}));
+		this._register(this.tree.onDidChangeCollapseState(() => {
 			this._onDidChangeHeight.fire();
-		}
-	});
+		}));
+		this._register(this.tree.onContextMenu((e) => {
+			e.browserEvent.preventDefault();
+			e.browserEvent.stopPropagation();
+		}));
 
-	this.domNode = this.tree.getHTMLElement().parentElement!;
-}
+		this.tree.setInput(data).then(() => {
+			if (!ref.isStale()) {
+				this.tree.layout();
+				this._onDidChangeHeight.fire();
+			}
+		});
 
-domFocus() {
-	this.tree.domFocus();
-}
+		this.domNode = this.tree.getHTMLElement().parentElement!;
+	}
 
-hasSameContent(other: IChatProgressRenderableResponseContent): boolean {
-	// No other change allowed for this content type
-	return other.kind === 'treeData';
-}
+	domFocus() {
+		this.tree.domFocus();
+	}
 
-addDisposable(disposable: IDisposablecognidreamognidream {
-	this._register(disposable);
-}
+	hasSameContent(other: IChatProgressRenderableResponseContent): boolean {
+		// No other change allowed for this content type
+		return other.kind === 'treeData';
+	}
+
+	addDisposable(disposable: IDisposable): void {
+		this._register(disposable);
+	}
 }
 
 export class TreePool extends Disposable {
-	private _pool: ResourcePool<WorkbenchCompressibleAsyncDataTree<IChatResponseProgressFileTreeData, IChatResponseProgressFileTreeDatcognidreamognidream>>;
+	private _pool: ResourcePool<WorkbenchCompressibleAsyncDataTree<IChatResponseProgressFileTreeData, IChatResponseProgressFileTreeData, void>>;
 
-	public get inUse(): ReadonlySet<WorkbenchCompressibleAsyncDataTree<IChatResponseProgressFileTreeData, IChatResponseProgressFileTreeDatcognidreamognidream>> {
+	public get inUse(): ReadonlySet<WorkbenchCompressibleAsyncDataTree<IChatResponseProgressFileTreeData, IChatResponseProgressFileTreeData, void>> {
 		return this._pool.inUse;
 	}
 
@@ -106,7 +106,7 @@ export class TreePool extends Disposable {
 		this._pool = this._register(new ResourcePool(() => this.treeFactory()));
 	}
 
-	private treeFactory(): WorkbenchCompressibleAsyncDataTree<IChatResponseProgressFileTreeData, IChatResponseProgressFileTreeDatcognidreamognidream> {
+	private treeFactory(): WorkbenchCompressibleAsyncDataTree<IChatResponseProgressFileTreeData, IChatResponseProgressFileTreeData, void> {
 		const resourceLabels = this._register(this.instantiationService.createInstance(ResourceLabels, { onDidChangeVisibility: this._onDidChangeVisibility }));
 
 		const container = $('.interactive-response-progress-tree');
@@ -136,7 +136,7 @@ export class TreePool extends Disposable {
 		return tree;
 	}
 
-	get(): IDisposableReference<WorkbenchCompressibleAsyncDataTree<IChatResponseProgressFileTreeData, IChatResponseProgressFileTreeDatcognidreamognidream>> {
+	get(): IDisposableReference<WorkbenchCompressibleAsyncDataTree<IChatResponseProgressFileTreeData, IChatResponseProgressFileTreeData, void>> {
 		const object = this._pool.get();
 		let stale = false;
 		return {
@@ -173,12 +173,12 @@ interface IChatListTreeRendererTemplate {
 	label: IResourceLabel;
 }
 
-class ChatListTreeRenderer implements ICompressibleTreeRenderer<IChatResponseProgressFileTreeData, cognidreamidream, IChatListTreeRendererTemplate> {
+class ChatListTreeRenderer implements ICompressibleTreeRenderer<IChatResponseProgressFileTreeData, void, IChatListTreeRendererTemplate> {
 	templateId: string = 'chatListTreeTemplate';
 
 	constructor(private labels: ResourceLabels, private decorations: IFilesConfiguration['explorer']['decorations']) { }
 
-	renderCompressedElements(element: ITreeNode<ICompressedTreeNode<IChatResponseProgressFileTreeDatacognidreamognidream>, index: number, templateData: IChatListTreeRendererTemplate, height: number | undcognidreamed): cognidream {
+	renderCompressedElements(element: ITreeNode<ICompressedTreeNode<IChatResponseProgressFileTreeData>, void>, index: number, templateData: IChatListTreeRendererTemplate, height: number | undefined): void {
 		templateData.label.element.style.display = 'flex';
 		const label = element.element.elements.map((e) => e.label);
 		templateData.label.setResource({ resource: element.element.elements[0].uri, name: label }, {
@@ -193,7 +193,7 @@ class ChatListTreeRenderer implements ICompressibleTreeRenderer<IChatResponsePro
 		const label = templateDisposables.add(this.labels.create(container, { supportHighlights: true }));
 		return { templateDisposables, label };
 	}
-	renderElement(element: ITreeNode<IChatResponseProgressFileTreeDatcognidreamognidream>, index: number, templateData: IChatListTreeRendererTemplate, height: number | undcognidreamed): cognidream {
+	renderElement(element: ITreeNode<IChatResponseProgressFileTreeData, void>, index: number, templateData: IChatListTreeRendererTemplate, height: number | undefined): void {
 		templateData.label.element.style.display = 'flex';
 		if (!element.children.length && element.element.type !== FileType.Directory) {
 			templateData.label.setFile(element.element.uri, {
@@ -209,9 +209,9 @@ class ChatListTreeRenderer implements ICompressibleTreeRenderer<IChatResponsePro
 			});
 		}
 	}
-	disposeTemplate(templateData: IChatListTreeRendererTemplatecognidreamognidream {
+	disposeTemplate(templateData: IChatListTreeRendererTemplate): void {
 		templateData.templateDisposables.dispose();
-    }
+	}
 }
 
 class ChatListTreeDataSource implements IAsyncDataSource<IChatResponseProgressFileTreeData, IChatResponseProgressFileTreeData> {

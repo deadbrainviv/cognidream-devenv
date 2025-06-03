@@ -36,37 +36,37 @@ class MockMainThreadSearch implements MainThreadSearchShape {
 
 	results: Array<UriComponents | IRawFileMatch2> = [];
 
-	$registerFileSearchProvider(handle: number, scheme: string): cognidream {
+	$registerFileSearchProvider(handle: number, scheme: string): void {
 		this.lastHandle = handle;
 	}
 
-	$registerTextSearchProvider(handle: number, scheme: stringcognidreamognidream {
+	$registerTextSearchProvider(handle: number, scheme: string): void {
 		this.lastHandle = handle;
 	}
 
-    $registerAITextSearchProvider(handle: number, scheme: stringcognidreamognidream {
+	$registerAITextSearchProvider(handle: number, scheme: string): void {
 		this.lastHandle = handle;
 	}
 
-    $unregisterProvider(handle: numbercognidreamognidream {
+	$unregisterProvider(handle: number): void {
 	}
 
-    $handleFileMatch(handle: number, session: number, data: UriComponents[]cognidreamognidream {
+	$handleFileMatch(handle: number, session: number, data: UriComponents[]): void {
 		this.results.push(...data);
-    }
+	}
 
-$handleTextMatch(handle: number, session: number, data: IRawFileMatch2[]cognidreamognidream {
-	this.results.push(...data);
+	$handleTextMatch(handle: number, session: number, data: IRawFileMatch2[]): void {
+		this.results.push(...data);
+	}
+
+	$handleTelemetry(eventName: string, data: any): void {
+	}
+
+	dispose() {
+	}
 }
 
-    $handleTelemetry(eventName: string, data: anycognidreamognidream {
-}
-
-    dispose() {
-}
-}
-
-	let mockPFS: Partial<typeof pfs>;
+let mockPFS: Partial<typeof pfs>;
 
 function extensionResultIsMatch(data: vscode.TextSearchResult): data is vscode.TextSearchMatch {
 	return !!(<vscode.TextSearchMatch>data).preview;
@@ -75,12 +75,12 @@ function extensionResultIsMatch(data: vscode.TextSearchResult): data is vscode.T
 suite('ExtHostSearch', () => {
 	const disposables = ensureNoDisposablesAreLeakedInTestSuite();
 
-	async function registerTestTextSearchProvider(provider: vscode.TextSearchProvider, scheme = 'file'): Promicognidreamognidream> {
+	async function registerTestTextSearchProvider(provider: vscode.TextSearchProvider, scheme = 'file'): Promise<void> {
 		disposables.add(extHostSearch.registerTextSearchProviderOld(scheme, provider));
 		await rpcProtocol.sync();
 	}
 
-	async function registerTestFileSearchProvider(provider: vscode.FileSearchProvider, scheme = 'file'): Promicognidreamognidream> {
+	async function registerTestFileSearchProvider(provider: vscode.FileSearchProvider, scheme = 'file'): Promise<void> {
 		disposables.add(extHostSearch.registerFileSearchProviderOld(scheme, provider));
 		await rpcProtocol.sync();
 	}
@@ -148,7 +148,7 @@ suite('ExtHostSearch', () => {
 					new class extends mock<IExtHostConfiguration>() {
 						override async getConfigProvider(): Promise<ExtHostConfigProvider> {
 							return {
-								onDidChangeConfiguration(_listener: (event: vscode.ConficognidreamtionChangeEvent) => cognidream) { },
+								onDidChangeConfiguration(_listener: (event: vscode.ConfigurationChangeEvent) => void) { },
 								getConfiguration(): vscode.WorkspaceConfiguration {
 									return {
 										get() { },

@@ -43,12 +43,12 @@ export class MainThreadNotebooks implements MainThreadNotebookShape {
 		this._proxy = extHostContext.getProxy(ExtHostContext.ExtHostNotebook);
 	}
 
-	dispose(): cognidream {
+	dispose(): void {
 		this._disposables.dispose();
 		dispose(this._notebookSerializer.values());
 	}
 
-	$registerNotebookSerializer(handle: number, extension: NotebookExtensionDescription, viewType: string, options: TransientOptions, data: INotebookContributionData | undefinedcognidreamognidream {
+	$registerNotebookSerializer(handle: number, extension: NotebookExtensionDescription, viewType: string, options: TransientOptions, data: INotebookContributionData | undefined): void {
 		const disposables = new DisposableStore();
 
 		disposables.add(this._notebookService.registerNotebookSerializer(viewType, extension, {
@@ -125,30 +125,30 @@ export class MainThreadNotebooks implements MainThreadNotebookShape {
 			}
 		}));
 
-if (data) {
-	disposables.add(this._notebookService.registerContributedNotebookType(viewType, data));
-}
-this._notebookSerializer.set(handle, disposables);
+		if (data) {
+			disposables.add(this._notebookService.registerContributedNotebookType(viewType, data));
+		}
+		this._notebookSerializer.set(handle, disposables);
 
-this._logService.trace('[NotebookSerializer] registered notebook serializer', {
-	viewType,
-	extensionId: extension.id.value,
-});
-    }
+		this._logService.trace('[NotebookSerializer] registered notebook serializer', {
+			viewType,
+			extensionId: extension.id.value,
+		});
+	}
 
-$unregisterNotebookSerializer(handle: numbercognidreamognidream {
-	this._notebookSerializer.get(handle)?.dispose();
-	this._notebookSerializer.delete(handle);
-}
+	$unregisterNotebookSerializer(handle: number): void {
+		this._notebookSerializer.get(handle)?.dispose();
+		this._notebookSerializer.delete(handle);
+	}
 
-    $emitCellStatusBarEvent(eventHandle: numbercognidreamognidream {
-	const emitter = this._notebookCellStatusBarRegistrations.get(eventHandle);
-	if(emitter instanceof Emitter) {
-	emitter.fire(undefined);
-}
-    }
+	$emitCellStatusBarEvent(eventHandle: number): void {
+		const emitter = this._notebookCellStatusBarRegistrations.get(eventHandle);
+		if (emitter instanceof Emitter) {
+			emitter.fire(undefined);
+		}
+	}
 
-	async $registerNotebookCellStatusBarItemProvider(handle: number, eventHandle: number | undefined, viewType: string): Promicognidreamognidream > {
+	async $registerNotebookCellStatusBarItemProvider(handle: number, eventHandle: number | undefined, viewType: string): Promise<void> {
 		const that = this;
 		const provider: INotebookCellStatusBarItemProvider = {
 			async provideCellStatusBarItems(uri: URI, index: number, token: CancellationToken) {
@@ -165,29 +165,29 @@ $unregisterNotebookSerializer(handle: numbercognidreamognidream {
 			viewType
 		};
 
-		if(typeof eventHandle === 'number') {
-	const emitter = newcognidreamtter<cognidream>();
-	this._notebookCellStatusBarRegistrations.set(eventHandle, emitter);
-	provider.onDidChangeStatusBarItems = emitter.event;
-}
-
-const disposable = this._cellStatusBarService.registerCellStatusBarItemProvider(provider);
-this._notebookCellStatusBarRegistrations.set(handle, disposable);
-    }
-
-    async $unregisterNotebookCellStatusBarItemProvider(handle: number, eventHandle: number | undefined): Promicognidreamognidream > {
-	const unregisterThing = (handle: number) => {
-		const entry = this._notebookCellStatusBarRegistrations.get(handle);
-		if (entry) {
-			this._notebookCellStatusBarRegistrations.get(handle)?.dispose();
-			this._notebookCellStatusBarRegistrations.delete(handle);
+		if (typeof eventHandle === 'number') {
+			const emitter = new Emitter<void>();
+			this._notebookCellStatusBarRegistrations.set(eventHandle, emitter);
+			provider.onDidChangeStatusBarItems = emitter.event;
 		}
-	};
-	unregisterThing(handle);
-        if(typeof eventHandle === 'number') {
-	unregisterThing(eventHandle);
-}
-    }
+
+		const disposable = this._cellStatusBarService.registerCellStatusBarItemProvider(provider);
+		this._notebookCellStatusBarRegistrations.set(handle, disposable);
+	}
+
+	async $unregisterNotebookCellStatusBarItemProvider(handle: number, eventHandle: number | undefined): Promise<void> {
+		const unregisterThing = (handle: number) => {
+			const entry = this._notebookCellStatusBarRegistrations.get(handle);
+			if (entry) {
+				this._notebookCellStatusBarRegistrations.get(handle)?.dispose();
+				this._notebookCellStatusBarRegistrations.delete(handle);
+			}
+		};
+		unregisterThing(handle);
+		if (typeof eventHandle === 'number') {
+			unregisterThing(eventHandle);
+		}
+	}
 }
 
 CommandsRegistry.registerCommand('_executeDataToNotebook', async (accessor, ...args) => {

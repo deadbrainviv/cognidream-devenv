@@ -60,7 +60,7 @@ export abstract class InsertCellCommand extends NotebookAction {
 		super(desc);
 	}
 
-	async runWithContext(accessor: ServicesAccessor, context: INotebookActionContext): Promise<cognidream> {
+	async runWithContext(accessor: ServicesAccessor, context: INotebookActionContext): Promise<void> {
 		const newCell = await insertNewCell(accessor, context, this.kind, this.direction, this.focusEditor);
 
 		if (newCell) {
@@ -187,22 +187,22 @@ registerAction2(class InsertCodeCellAtTopAction extends NotebookAction {
 			});
 	}
 
-	override async run(accessor: ServicesAccessor, context?: INotebookActionContext): Promicognidreamognidream> {
-	context = context ?? this.getEditorContextFromArgsOrActive(accessor);
-	if(context) {
-		this.runWithContext(accessor, context);
+	override async run(accessor: ServicesAccessor, context?: INotebookActionContext): Promise<void> {
+		context = context ?? this.getEditorContextFromArgsOrActive(accessor);
+		if (context) {
+			this.runWithContext(accessor, context);
+		}
 	}
-}
 
-    async runWithContext(accessor: ServicesAccessor, context: INotebookActionContext): Promicognidreamognidream > {
-	const languageService = accessor.get(ILanguageService);
-	const kernelHistoryService = accessor.get(INotebookKernelHistoryService);
-	const newCell = insertCell(languageService, context.notebookEditor, 0, CellKind.Code, 'above', undefined, true, kernelHistoryService);
+	async runWithContext(accessor: ServicesAccessor, context: INotebookActionContext): Promise<void> {
+		const languageService = accessor.get(ILanguageService);
+		const kernelHistoryService = accessor.get(INotebookKernelHistoryService);
+		const newCell = insertCell(languageService, context.notebookEditor, 0, CellKind.Code, 'above', undefined, true, kernelHistoryService);
 
-	if(newCell) {
-		await context.notebookEditor.focusNotebookCell(newCell, 'editor');
+		if (newCell) {
+			await context.notebookEditor.focusNotebookCell(newCell, 'editor');
+		}
 	}
-}
 });
 
 registerAction2(class InsertMarkdownCellAtTopAction extends NotebookAction {
@@ -215,23 +215,23 @@ registerAction2(class InsertMarkdownCellAtTopAction extends NotebookAction {
 			});
 	}
 
-	override async run(accessor: ServicesAccessor, context?: INotebookActionContext): Promicognidreamognidream> {
-	context = context ?? this.getEditorContextFromArgsOrActive(accessor);
-	if(context) {
-		this.runWithContext(accessor, context);
+	override async run(accessor: ServicesAccessor, context?: INotebookActionContext): Promise<void> {
+		context = context ?? this.getEditorContextFromArgsOrActive(accessor);
+		if (context) {
+			this.runWithContext(accessor, context);
+		}
 	}
-}
 
-    async runWithContext(accessor: ServicesAccessor, context: INotebookActionContext): Promicognidreamognidream > {
-	const languageService = accessor.get(ILanguageService);
-	const kernelHistoryService = accessor.get(INotebookKernelHistoryService);
+	async runWithContext(accessor: ServicesAccessor, context: INotebookActionContext): Promise<void> {
+		const languageService = accessor.get(ILanguageService);
+		const kernelHistoryService = accessor.get(INotebookKernelHistoryService);
 
-	const newCell = insertCell(languageService, context.notebookEditor, 0, CellKind.Markup, 'above', undefined, true, kernelHistoryService);
+		const newCell = insertCell(languageService, context.notebookEditor, 0, CellKind.Markup, 'above', undefined, true, kernelHistoryService);
 
-	if(newCell) {
-		await context.notebookEditor.focusNotebookCell(newCell, 'editor');
+		if (newCell) {
+			await context.notebookEditor.focusNotebookCell(newCell, 'editor');
+		}
 	}
-}
 });
 
 MenuRegistry.appendMenuItem(MenuId.NotebookCellBetween, {

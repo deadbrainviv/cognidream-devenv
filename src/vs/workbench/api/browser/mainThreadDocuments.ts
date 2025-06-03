@@ -26,7 +26,7 @@ import { ErrorNoTelemetry } from '../../../base/common/errors.js';
 
 export class BoundModelReferenceCollection {
 
-	private _data = new Array<{ uri: URI; length: number; dispose(): cognidream }>();
+	private _data = new Array<{ uri: URI; length: number; dispose(): void }>();
 	private _length = 0;
 
 	constructor(
@@ -38,48 +38,48 @@ export class BoundModelReferenceCollection {
 		//
 	}
 
-	dispose(cognidreamognidream {
+	dispose(): void {
 		this._data = dispose(this._data);
 	}
 
-    remove(uri: URIcognidreamognidream {
+	remove(uri: URI): void {
 		for (const entry of [...this._data] /* copy array because dispose will modify it */) {
-	if (this._extUri.isEqualOrParent(entry.uri, uri)) {
-		entry.dispose();
-	}
-}
-    }
-
-add(uri: URI, ref: IReference<any>, length: number = 0cognidreamognidream {
-	// const length = ref.object.textEditorModel.getValueLength();
-	const dispose = () => {
-		const idx = this._data.indexOf(entry);
-		if (idx >= 0) {
-			this._length -= length;
-			ref.dispose();
-			clearTimeout(handle);
-			this._data.splice(idx, 1);
+			if (this._extUri.isEqualOrParent(entry.uri, uri)) {
+				entry.dispose();
+			}
 		}
-	};
-	const handle = setTimeout(dispose, this._maxAge);
-	const entry = { uri, length, dispose };
+	}
 
-	this._data.push(entry);
-	this._length += length;
-	this._cleanup();
-}
+	add(uri: URI, ref: IReference<any>, length: number = 0): void {
+		// const length = ref.object.textEditorModel.getValueLength();
+		const dispose = () => {
+			const idx = this._data.indexOf(entry);
+			if (idx >= 0) {
+				this._length -= length;
+				ref.dispose();
+				clearTimeout(handle);
+				this._data.splice(idx, 1);
+			}
+		};
+		const handle = setTimeout(dispose, this._maxAge);
+		const entry = { uri, length, dispose };
 
-    private _cleanup(cognidreamognidream {
-	// clean-up wrt total length
-	while(this._length > this._maxLength) {
-	this._data[0].dispose();
-}
-        // clean-up wrt number of documents
-        const extraSize = Math.ceil(this._maxSize * 1.2);
-if (this._data.length >= extraSize) {
-	dispose(this._data.slice(0, extraSize - this._maxSize));
-}
-    }
+		this._data.push(entry);
+		this._length += length;
+		this._cleanup();
+	}
+
+	private _cleanup(): void {
+		// clean-up wrt total length
+		while (this._length > this._maxLength) {
+			this._data[0].dispose();
+		}
+		// clean-up wrt number of documents
+		const extraSize = Math.ceil(this._maxSize * 1.2);
+		if (this._data.length >= extraSize) {
+			dispose(this._data.slice(0, extraSize - this._maxSize));
+		}
+	}
 }
 
 class ModelTracker extends Disposable {
@@ -168,137 +168,137 @@ export class MainThreadDocuments extends Disposable implements MainThreadDocumen
 		}));
 	}
 
-	override dispose(cognidreamognidream {
+	override dispose(): void {
 		dispose(this._modelTrackers.values());
-this._modelTrackers.clear();
-super.dispose();
-    }
-
-isCaughtUpWithContentChanges(resource: URI): boolean {
-	const tracker = this._modelTrackers.get(resource);
-	if (tracker) {
-		return tracker.isCaughtUpWithContentChanges();
+		this._modelTrackers.clear();
+		super.dispose();
 	}
-	return true;
-}
 
-    private _shouldHandleFileEvent(resource: URI): boolean {
-	const model = this._modelService.getModel(resource);
-	return !!model && shouldSynchronizeModel(model);
-}
-
-handleModelAdded(model: ITextModelcognidreamognidream {
-	// Same filter as in mainThreadEditorsTracker
-	if(!shouldSynchronizeModel(model)) {
-	// don't synchronize too large models
-	return;
-}
-this._modelTrackers.set(model.uri, new ModelTracker(model, this._onIsCaughtUpWithContentChanges, this._proxy, this._textFileService));
-    }
-
-    private _onModelModeChanged(event: { model: ITextModel; oldLanguageId: string }cognidreamognidream {
-	const { model } = event;
-	if(!this._modelTrackers.has(model.uri)) {
-	return;
-}
-this._proxy.$acceptModelLanguageChanged(model.uri, model.getLanguageId());
-    }
-
-handleModelRemoved(modelUrl: URIcognidreamognidream {
-	if(!this._modelTrackers.has(modelUrl)) {
-	return;
-}
-this._modelTrackers.get(modelUrl)!.dispose();
-this._modelTrackers.delete(modelUrl);
-    }
-
-    // --- from extension host process
-
-    async $trySaveDocument(uri: UriComponents): Promise < boolean > {
-	const target = await this._textFileService.save(URI.revive(uri));
-	return Boolean(target);
-}
-
-    async $tryOpenDocument(uriData: UriComponents, options ?: { encoding?: string }): Promise < URI > {
-	const inputUri = URI.revive(uriData);
-	if(!inputUri.scheme || !(inputUri.fsPath || inputUri.authority)) {
-	throw new ErrorNoTelemetry(`Invalid uri. Scheme and authority or path must be set.`);
-}
-
-const canonicalUri = this._uriIdentityService.asCanonicalUri(inputUri);
-
-let promise: Promise<URI>;
-switch (canonicalUri.scheme) {
-	case Schemas.untitled:
-		promise = this._handleUntitledScheme(canonicalUri, options);
-		break;
-	case Schemas.file:
-	default:
-		promise = this._handleAsResourceInput(canonicalUri, options);
-		break;
-}
-
-let documentUri: URI | undefined;
-try {
-	documentUri = await promise;
-} catch (err) {
-	throw new ErrorNoTelemetry(`cannot open ${canonicalUri.toString()}. Detail: ${toErrorMessage(err)}`);
-}
-if (!documentUri) {
-	throw new ErrorNoTelemetry(`cannot open ${canonicalUri.toString()}`);
-} else if (!extUri.isEqual(documentUri, canonicalUri)) {
-	throw new ErrorNoTelemetry(`cannot open ${canonicalUri.toString()}. Detail: Actual document opened as ${documentUri.toString()}`);
-} else if (!this._modelTrackers.has(canonicalUri)) {
-	throw new ErrorNoTelemetry(`cannot open ${canonicalUri.toString()}. Detail: Files above 50MB cannot be synchronized with extensions.`);
-} else {
-	return canonicalUri;
-}
-    }
-
-$tryCreateDocument(options ?: { language?: string; content?: string; encoding?: string }): Promise < URI > {
-	return this._doCreateUntitled(undefined, options);
-}
-
-    private async _handleAsResourceInput(uri: URI, options ?: { encoding?: string }): Promise < URI > {
-	if(options?.encoding) {
-		const model = await this._textFileService.files.resolve(uri, { encoding: options.encoding, reason: TextFileResolveReason.REFERENCE });
-		if (model.isDirty()) {
-			throw new ErrorNoTelemetry(`Cannot re-open a dirty text document with different encoding. Save it first.`);
+	isCaughtUpWithContentChanges(resource: URI): boolean {
+		const tracker = this._modelTrackers.get(resource);
+		if (tracker) {
+			return tracker.isCaughtUpWithContentChanges();
 		}
-		await model.setEncoding(options.encoding, EncodingMode.Decode);
+		return true;
 	}
 
-        const ref = await this._textModelResolverService.createModelReference(uri);
-	this._modelReferenceCollection.add(uri, ref, ref.object.textEditorModel.getValueLength());
-	return ref.object.textEditorModel.uri;
-}
-
-    private async _handleUntitledScheme(uri: URI, options ?: { encoding?: string }): Promise < URI > {
-	const asLocalUri = toLocalResource(uri, this._environmentService.remoteAuthority, this._pathService.defaultUriScheme);
-	const exists = await this._fileService.exists(asLocalUri);
-	if(exists) {
-		// don't create a new file ontop of an existing file
-		return Promise.reject(new Error('file already exists'));
+	private _shouldHandleFileEvent(resource: URI): boolean {
+		const model = this._modelService.getModel(resource);
+		return !!model && shouldSynchronizeModel(model);
 	}
-        return await this._doCreateUntitled(Boolean(uri.path) ? uri : undefined, options);
-}
 
-    private async _doCreateUntitled(associatedResource ?: URI, options ?: { language?: string; content?: string; encoding?: string }): Promise < URI > {
-	const model = this._textFileService.untitled.create({
-		associatedResource,
-		languageId: options?.language,
-		initialValue: options?.content,
-		encoding: options?.encoding
-	});
-	const resource = model.resource;
-	const ref = await this._textModelResolverService.createModelReference(resource);
-	if(!this._modelTrackers.has(resource)) {
-	ref.dispose();
-	throw new Error(`expected URI ${resource.toString()} to have come to LIFE`);
-}
-this._modelReferenceCollection.add(resource, ref, ref.object.textEditorModel.getValueLength());
-Event.once(model.onDidRevert)(() => this._modelReferenceCollection.remove(resource));
-this._proxy.$acceptDirtyStateChanged(resource, true); // mark as dirty
-return resource;
-    }
+	handleModelAdded(model: ITextModel): void {
+		// Same filter as in mainThreadEditorsTracker
+		if (!shouldSynchronizeModel(model)) {
+			// don't synchronize too large models
+			return;
+		}
+		this._modelTrackers.set(model.uri, new ModelTracker(model, this._onIsCaughtUpWithContentChanges, this._proxy, this._textFileService));
+	}
+
+	private _onModelModeChanged(event: { model: ITextModel; oldLanguageId: string }): void {
+		const { model } = event;
+		if (!this._modelTrackers.has(model.uri)) {
+			return;
+		}
+		this._proxy.$acceptModelLanguageChanged(model.uri, model.getLanguageId());
+	}
+
+	handleModelRemoved(modelUrl: URI): void {
+		if (!this._modelTrackers.has(modelUrl)) {
+			return;
+		}
+		this._modelTrackers.get(modelUrl)!.dispose();
+		this._modelTrackers.delete(modelUrl);
+	}
+
+	// --- from extension host process
+
+	async $trySaveDocument(uri: UriComponents): Promise<boolean> {
+		const target = await this._textFileService.save(URI.revive(uri));
+		return Boolean(target);
+	}
+
+	async $tryOpenDocument(uriData: UriComponents, options?: { encoding?: string }): Promise<URI> {
+		const inputUri = URI.revive(uriData);
+		if (!inputUri.scheme || !(inputUri.fsPath || inputUri.authority)) {
+			throw new ErrorNoTelemetry(`Invalid uri. Scheme and authority or path must be set.`);
+		}
+
+		const canonicalUri = this._uriIdentityService.asCanonicalUri(inputUri);
+
+		let promise: Promise<URI>;
+		switch (canonicalUri.scheme) {
+			case Schemas.untitled:
+				promise = this._handleUntitledScheme(canonicalUri, options);
+				break;
+			case Schemas.file:
+			default:
+				promise = this._handleAsResourceInput(canonicalUri, options);
+				break;
+		}
+
+		let documentUri: URI | undefined;
+		try {
+			documentUri = await promise;
+		} catch (err) {
+			throw new ErrorNoTelemetry(`cannot open ${canonicalUri.toString()}. Detail: ${toErrorMessage(err)}`);
+		}
+		if (!documentUri) {
+			throw new ErrorNoTelemetry(`cannot open ${canonicalUri.toString()}`);
+		} else if (!extUri.isEqual(documentUri, canonicalUri)) {
+			throw new ErrorNoTelemetry(`cannot open ${canonicalUri.toString()}. Detail: Actual document opened as ${documentUri.toString()}`);
+		} else if (!this._modelTrackers.has(canonicalUri)) {
+			throw new ErrorNoTelemetry(`cannot open ${canonicalUri.toString()}. Detail: Files above 50MB cannot be synchronized with extensions.`);
+		} else {
+			return canonicalUri;
+		}
+	}
+
+	$tryCreateDocument(options?: { language?: string; content?: string; encoding?: string }): Promise<URI> {
+		return this._doCreateUntitled(undefined, options);
+	}
+
+	private async _handleAsResourceInput(uri: URI, options?: { encoding?: string }): Promise<URI> {
+		if (options?.encoding) {
+			const model = await this._textFileService.files.resolve(uri, { encoding: options.encoding, reason: TextFileResolveReason.REFERENCE });
+			if (model.isDirty()) {
+				throw new ErrorNoTelemetry(`Cannot re-open a dirty text document with different encoding. Save it first.`);
+			}
+			await model.setEncoding(options.encoding, EncodingMode.Decode);
+		}
+
+		const ref = await this._textModelResolverService.createModelReference(uri);
+		this._modelReferenceCollection.add(uri, ref, ref.object.textEditorModel.getValueLength());
+		return ref.object.textEditorModel.uri;
+	}
+
+	private async _handleUntitledScheme(uri: URI, options?: { encoding?: string }): Promise<URI> {
+		const asLocalUri = toLocalResource(uri, this._environmentService.remoteAuthority, this._pathService.defaultUriScheme);
+		const exists = await this._fileService.exists(asLocalUri);
+		if (exists) {
+			// don't create a new file ontop of an existing file
+			return Promise.reject(new Error('file already exists'));
+		}
+		return await this._doCreateUntitled(Boolean(uri.path) ? uri : undefined, options);
+	}
+
+	private async _doCreateUntitled(associatedResource?: URI, options?: { language?: string; content?: string; encoding?: string }): Promise<URI> {
+		const model = this._textFileService.untitled.create({
+			associatedResource,
+			languageId: options?.language,
+			initialValue: options?.content,
+			encoding: options?.encoding
+		});
+		const resource = model.resource;
+		const ref = await this._textModelResolverService.createModelReference(resource);
+		if (!this._modelTrackers.has(resource)) {
+			ref.dispose();
+			throw new Error(`expected URI ${resource.toString()} to have come to LIFE`);
+		}
+		this._modelReferenceCollection.add(resource, ref, ref.object.textEditorModel.getValueLength());
+		Event.once(model.onDidRevert)(() => this._modelReferenceCollection.remove(resource));
+		this._proxy.$acceptDirtyStateChanged(resource, true); // mark as dirty
+		return resource;
+	}
 }

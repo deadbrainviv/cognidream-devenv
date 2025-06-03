@@ -726,7 +726,7 @@
 						}
 					},
 					"name": "string.docstring.julia",
-					"comment": "This only matches docstrings that start and end with triple quotes on\ntheir own line in the cognidream",
+					"comment": "This only matches docstrings that start and end with triple quotes on\ntheir own line in the void",
 					"patterns": [
 						{
 							"include": "#string_escaped_char"

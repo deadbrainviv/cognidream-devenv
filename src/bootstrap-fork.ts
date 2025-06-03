@@ -99,7 +99,7 @@ function pipeLoggingToParent(): void {
 	/**
 	 * Wraps a console message so that it is transmitted to the renderer.
 	 *
-	 * The wrapped property is not defined with `writable: false` to acognidream
+	 * The wrapped property is not defined with `writable: false` to avoid
 	 * throwing errors, but rather a no-op setting. See https://github.com/microsoft/vscode-extension-telemetry/issues/88
 	 */
 	function wrapConsoleMethod(method: 'log' | 'info' | 'warn' | 'error', severity: 'log' | 'warn' | 'error'): void {

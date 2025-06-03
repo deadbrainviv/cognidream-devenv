@@ -75,7 +75,7 @@ class BaseTreeItem {
 		return undefined;
 	}
 
-	setSource(session: IDebugSession, source: Source): cognidream {
+	setSource(session: IDebugSession, source: Source): void {
 		this._source = source;
 		this._children.clear();
 		if (source.raw && source.raw.sources) {
@@ -103,139 +103,139 @@ class BaseTreeItem {
 		return this._children.get(key);
 	}
 
-	remove(key: stringcognidreamognidream {
+	remove(key: string): void {
 		this._children.delete(key);
-    }
-
-removeFromParent(cognidreamognidream {
-	if(this._parent) {
-	this._parent.remove(this._label);
-	if (this._parent._children.size === 0) {
-		this._parent.removeFromParent();
 	}
-}
-    }
 
-getTemplateId(): string {
-	return 'id';
-}
-
-// a dynamic ID based on the parent chain; required for reparenting (see #55448)
-getId(): string {
-	const parent = this.getParent();
-	return parent ? `${parent.getId()}/${this.getInternalId()}` : this.getInternalId();
-}
-
-getInternalId(): string {
-	return this._label;
-}
-
-// skips intermediate single-child nodes
-getParent(): BaseTreeItem | undefined {
-	if (this._parent) {
-		if (this._parent.isSkipped()) {
-			return this._parent.getParent();
-		}
-		return this._parent;
-	}
-	return undefined;
-}
-
-isSkipped(): boolean {
-	if (this._parent) {
-		if (this._parent.oneChild()) {
-			return true;	// skipped if I'm the only child of my parents
-		}
-		return false;
-	}
-	return true;	// roots are never skipped
-}
-
-// skips intermediate single-child nodes
-hasChildren(): boolean {
-	const child = this.oneChild();
-	if (child) {
-		return child.hasChildren();
-	}
-	return this._children.size > 0;
-}
-
-// skips intermediate single-child nodes
-getChildren(): BaseTreeItem[] {
-	const child = this.oneChild();
-	if (child) {
-		return child.getChildren();
-	}
-	const array: BaseTreeItem[] = [];
-	for (const child of this._children.values()) {
-		array.push(child);
-	}
-	return array.sort((a, b) => this.compare(a, b));
-}
-
-// skips intermediate single-child nodes
-getLabel(separateRootFolder = true): string {
-	const child = this.oneChild();
-	if (child) {
-		const sep = (this instanceof RootFolderTreeItem && separateRootFolder) ? ' • ' : posix.sep;
-		return `${this._label}${sep}${child.getLabel()}`;
-	}
-	return this._label;
-}
-
-// skips intermediate single-child nodes
-getHoverLabel(): string | undefined {
-	if (this._source && this._parent && this._parent._source) {
-		return this._source.raw.path || this._source.raw.name;
-	}
-	const label = this.getLabel(false);
-	const parent = this.getParent();
-	if (parent) {
-		const hover = parent.getHoverLabel();
-		if (hover) {
-			return `${hover}/${label}`;
+	removeFromParent(): void {
+		if (this._parent) {
+			this._parent.remove(this._label);
+			if (this._parent._children.size === 0) {
+				this._parent.removeFromParent();
+			}
 		}
 	}
-	return label;
-}
 
-// skips intermediate single-child nodes
-getSource(): Source | undefined {
-	const child = this.oneChild();
-	if (child) {
-		return child.getSource();
+	getTemplateId(): string {
+		return 'id';
 	}
-	return this._source;
-}
 
-    protected compare(a: BaseTreeItem, b: BaseTreeItem): number {
-	if (a._label && b._label) {
-		return a._label.localeCompare(b._label);
+	// a dynamic ID based on the parent chain; required for reparenting (see #55448)
+	getId(): string {
+		const parent = this.getParent();
+		return parent ? `${parent.getId()}/${this.getInternalId()}` : this.getInternalId();
 	}
-	return 0;
-}
 
-    private oneChild(): BaseTreeItem | undefined {
-	if (!this._source && !this._showedMoreThanOne && this.skipOneChild()) {
-		if (this._children.size === 1) {
-			return this._children.values().next().value;
+	getInternalId(): string {
+		return this._label;
+	}
+
+	// skips intermediate single-child nodes
+	getParent(): BaseTreeItem | undefined {
+		if (this._parent) {
+			if (this._parent.isSkipped()) {
+				return this._parent.getParent();
+			}
+			return this._parent;
 		}
-		// if a node had more than one child once, it will never be skipped again
-		if (this._children.size > 1) {
-			this._showedMoreThanOne = true;
+		return undefined;
+	}
+
+	isSkipped(): boolean {
+		if (this._parent) {
+			if (this._parent.oneChild()) {
+				return true;	// skipped if I'm the only child of my parents
+			}
+			return false;
+		}
+		return true;	// roots are never skipped
+	}
+
+	// skips intermediate single-child nodes
+	hasChildren(): boolean {
+		const child = this.oneChild();
+		if (child) {
+			return child.hasChildren();
+		}
+		return this._children.size > 0;
+	}
+
+	// skips intermediate single-child nodes
+	getChildren(): BaseTreeItem[] {
+		const child = this.oneChild();
+		if (child) {
+			return child.getChildren();
+		}
+		const array: BaseTreeItem[] = [];
+		for (const child of this._children.values()) {
+			array.push(child);
+		}
+		return array.sort((a, b) => this.compare(a, b));
+	}
+
+	// skips intermediate single-child nodes
+	getLabel(separateRootFolder = true): string {
+		const child = this.oneChild();
+		if (child) {
+			const sep = (this instanceof RootFolderTreeItem && separateRootFolder) ? ' • ' : posix.sep;
+			return `${this._label}${sep}${child.getLabel()}`;
+		}
+		return this._label;
+	}
+
+	// skips intermediate single-child nodes
+	getHoverLabel(): string | undefined {
+		if (this._source && this._parent && this._parent._source) {
+			return this._source.raw.path || this._source.raw.name;
+		}
+		const label = this.getLabel(false);
+		const parent = this.getParent();
+		if (parent) {
+			const hover = parent.getHoverLabel();
+			if (hover) {
+				return `${hover}/${label}`;
+			}
+		}
+		return label;
+	}
+
+	// skips intermediate single-child nodes
+	getSource(): Source | undefined {
+		const child = this.oneChild();
+		if (child) {
+			return child.getSource();
+		}
+		return this._source;
+	}
+
+	protected compare(a: BaseTreeItem, b: BaseTreeItem): number {
+		if (a._label && b._label) {
+			return a._label.localeCompare(b._label);
+		}
+		return 0;
+	}
+
+	private oneChild(): BaseTreeItem | undefined {
+		if (!this._source && !this._showedMoreThanOne && this.skipOneChild()) {
+			if (this._children.size === 1) {
+				return this._children.values().next().value;
+			}
+			// if a node had more than one child once, it will never be skipped again
+			if (this._children.size > 1) {
+				this._showedMoreThanOne = true;
+			}
+		}
+		return undefined;
+	}
+
+	private skipOneChild(): boolean {
+		if (NEW_STYLE_COMPRESS) {
+			// if the root node has only one Session, don't show the session
+			return this instanceof RootTreeItem;
+		} else {
+			return !(this instanceof RootFolderTreeItem) && !(this instanceof SessionTreeItem);
 		}
 	}
-	return undefined;
-}
-
-    private skipOneChild(): boolean {
-	if (NEW_STYLE_COMPRESS) {
-		// if the root node has only one Session, don't show the session
-		return this instanceof RootTreeItem;
-	} else {
-		return !(this instanceof RootFolderTreeItem) && !(this instanceof SessionTreeItem);
-	}
-}
 }
 
 class RootFolderTreeItem extends BaseTreeItem {
@@ -316,80 +316,80 @@ class SessionTreeItem extends BaseTreeItem {
 		return 999;
 	}
 
-	async addPath(source: Source): Promicognidreamognidream> {
+	async addPath(source: Source): Promise<void> {
 
 		let folder: IWorkspaceFolder | null;
 		let url: string;
 
 		let path = source.raw.path;
-		if(!path) {
+		if (!path) {
 			return;
 		}
 
-        if(this._labelService && URI_SCHEMA_PATTERN.test(path)) {
-	path = this._labelService.getUriLabel(URI.parse(path));
-}
+		if (this._labelService && URI_SCHEMA_PATTERN.test(path)) {
+			path = this._labelService.getUriLabel(URI.parse(path));
+		}
 
-const match = SessionTreeItem.URL_REGEXP.exec(path);
-if (match && match.length === 3) {
-	url = match[1];
-	path = decodeURI(match[2]);
-} else {
-	if (isAbsolute(path)) {
-		const resource = URI.file(path);
-
-		// return early if we can resolve a relative path label from the root folder
-		folder = this.rootProvider ? this.rootProvider.getWorkspaceFolder(resource) : null;
-		if (folder) {
-			// strip off the root folder path
-			path = normalize(ltrim(resource.path.substring(folder.uri.path.length), posix.sep));
-			const hasMultipleRoots = this.rootProvider.getWorkspace().folders.length > 1;
-			if (hasMultipleRoots) {
-				path = posix.sep + path;
-			} else {
-				// don't show root folder
-				folder = null;
-			}
+		const match = SessionTreeItem.URL_REGEXP.exec(path);
+		if (match && match.length === 3) {
+			url = match[1];
+			path = decodeURI(match[2]);
 		} else {
-			// on unix try to tildify absolute paths
-			path = normalize(path);
-			if (isWindows) {
-				path = normalizeDriveLetter(path);
-			} else {
-				path = tildify(path, (await this._pathService.userHome()).fsPath);
+			if (isAbsolute(path)) {
+				const resource = URI.file(path);
+
+				// return early if we can resolve a relative path label from the root folder
+				folder = this.rootProvider ? this.rootProvider.getWorkspaceFolder(resource) : null;
+				if (folder) {
+					// strip off the root folder path
+					path = normalize(ltrim(resource.path.substring(folder.uri.path.length), posix.sep));
+					const hasMultipleRoots = this.rootProvider.getWorkspace().folders.length > 1;
+					if (hasMultipleRoots) {
+						path = posix.sep + path;
+					} else {
+						// don't show root folder
+						folder = null;
+					}
+				} else {
+					// on unix try to tildify absolute paths
+					path = normalize(path);
+					if (isWindows) {
+						path = normalizeDriveLetter(path);
+					} else {
+						path = tildify(path, (await this._pathService.userHome()).fsPath);
+					}
+				}
 			}
 		}
-	}
-}
 
-let leaf: BaseTreeItem = this;
-path.split(/[\/\\]/).forEach((segment, i) => {
-	if (i === 0 && folder) {
-		const f = folder;
-		leaf = leaf.createIfNeeded(folder.name, parent => new RootFolderTreeItem(parent, f));
-	} else if (i === 0 && url) {
-		leaf = leaf.createIfNeeded(url, parent => new BaseTreeItem(parent, url));
-	} else {
-		leaf = leaf.createIfNeeded(segment, parent => new BaseTreeItem(parent, segment));
-	}
-});
+		let leaf: BaseTreeItem = this;
+		path.split(/[\/\\]/).forEach((segment, i) => {
+			if (i === 0 && folder) {
+				const f = folder;
+				leaf = leaf.createIfNeeded(folder.name, parent => new RootFolderTreeItem(parent, f));
+			} else if (i === 0 && url) {
+				leaf = leaf.createIfNeeded(url, parent => new BaseTreeItem(parent, url));
+			} else {
+				leaf = leaf.createIfNeeded(segment, parent => new BaseTreeItem(parent, segment));
+			}
+		});
 
-leaf.setSource(this._session, source);
-if (source.raw.path) {
-	this._map.set(source.raw.path, leaf);
-}
-    }
-
-removePath(source: Source): boolean {
-	if (source.raw.path) {
-		const leaf = this._map.get(source.raw.path);
-		if (leaf) {
-			leaf.removeFromParent();
-			return true;
+		leaf.setSource(this._session, source);
+		if (source.raw.path) {
+			this._map.set(source.raw.path, leaf);
 		}
 	}
-	return false;
-}
+
+	removePath(source: Source): boolean {
+		if (source.raw.path) {
+			const leaf = this._map.get(source.raw.path);
+			if (leaf) {
+				leaf.removeFromParent();
+				return true;
+			}
+		}
+		return false;
+	}
 }
 
 interface IViewState {
@@ -442,202 +442,202 @@ export class LoadedScriptsView extends ViewPane {
 		this.loadedScriptsItemType = CONTEXT_LOADED_SCRIPTS_ITEM_TYPE.bindTo(contextKeyService);
 	}
 
-	protected override renderBody(container: HTMLElementcognidreamognidream {
+	protected override renderBody(container: HTMLElement): void {
 		super.renderBody(container);
 
-this.element.classList.add('debug-pane');
-container.classList.add('debug-loaded-scripts', 'show-file-icons');
+		this.element.classList.add('debug-pane');
+		container.classList.add('debug-loaded-scripts', 'show-file-icons');
 
-this.treeContainer = renderViewTree(container);
+		this.treeContainer = renderViewTree(container);
 
-this.filter = new LoadedScriptsFilter();
+		this.filter = new LoadedScriptsFilter();
 
-const root = new RootTreeItem(this.pathService, this.contextService, this.labelService);
+		const root = new RootTreeItem(this.pathService, this.contextService, this.labelService);
 
-this.treeLabels = this.instantiationService.createInstance(ResourceLabels, { onDidChangeVisibility: this.onDidChangeBodyVisibility });
-this._register(this.treeLabels);
+		this.treeLabels = this.instantiationService.createInstance(ResourceLabels, { onDidChangeVisibility: this.onDidChangeBodyVisibility });
+		this._register(this.treeLabels);
 
-const onFileIconThemeChange = (fileIconTheme: IFileIconTheme) => {
-	this.treeContainer.classList.toggle('align-icons-and-twisties', fileIconTheme.hasFileIcons && !fileIconTheme.hasFolderIcons);
-	this.treeContainer.classList.toggle('hide-arrows', fileIconTheme.hidesExplorerArrows === true);
-};
+		const onFileIconThemeChange = (fileIconTheme: IFileIconTheme) => {
+			this.treeContainer.classList.toggle('align-icons-and-twisties', fileIconTheme.hasFileIcons && !fileIconTheme.hasFolderIcons);
+			this.treeContainer.classList.toggle('hide-arrows', fileIconTheme.hidesExplorerArrows === true);
+		};
 
-this._register(this.themeService.onDidFileIconThemeChange(onFileIconThemeChange));
-onFileIconThemeChange(this.themeService.getFileIconTheme());
+		this._register(this.themeService.onDidFileIconThemeChange(onFileIconThemeChange));
+		onFileIconThemeChange(this.themeService.getFileIconTheme());
 
-this.tree = this.instantiationService.createInstance(WorkbenchCompressibleObjectTree<LoadedScriptsItem, FuzzyScore>,
-	'LoadedScriptsView',
-	this.treeContainer,
-	new LoadedScriptsDelegate(),
-	[new LoadedScriptsRenderer(this.treeLabels)],
-	{
-		compressionEnabled: NEW_STYLE_COMPRESS,
-		collapseByDefault: true,
-		hideTwistiesOfChildlessElements: true,
-		identityProvider: {
-			getId: (element: LoadedScriptsItem) => element.getId()
-		},
-		keyboardNavigationLabelProvider: {
-			getKeyboardNavigationLabel: (element: LoadedScriptsItem) => {
-				return element.getLabel();
-			},
-			getCompressedNodeKeyboardNavigationLabel: (elements: LoadedScriptsItem[]) => {
-				return elements.map(e => e.getLabel()).join('/');
+		this.tree = this.instantiationService.createInstance(WorkbenchCompressibleObjectTree<LoadedScriptsItem, FuzzyScore>,
+			'LoadedScriptsView',
+			this.treeContainer,
+			new LoadedScriptsDelegate(),
+			[new LoadedScriptsRenderer(this.treeLabels)],
+			{
+				compressionEnabled: NEW_STYLE_COMPRESS,
+				collapseByDefault: true,
+				hideTwistiesOfChildlessElements: true,
+				identityProvider: {
+					getId: (element: LoadedScriptsItem) => element.getId()
+				},
+				keyboardNavigationLabelProvider: {
+					getKeyboardNavigationLabel: (element: LoadedScriptsItem) => {
+						return element.getLabel();
+					},
+					getCompressedNodeKeyboardNavigationLabel: (elements: LoadedScriptsItem[]) => {
+						return elements.map(e => e.getLabel()).join('/');
+					}
+				},
+				filter: this.filter,
+				accessibilityProvider: new LoadedSciptsAccessibilityProvider(),
+				overrideStyles: this.getLocationBasedColors().listOverrideStyles
 			}
-		},
-		filter: this.filter,
-		accessibilityProvider: new LoadedSciptsAccessibilityProvider(),
-		overrideStyles: this.getLocationBasedColors().listOverrideStyles
-	}
-);
+		);
 
-const updateView = (viewState?: IViewState) => this.tree.setChildren(null, asTreeElement(root, viewState).children);
+		const updateView = (viewState?: IViewState) => this.tree.setChildren(null, asTreeElement(root, viewState).children);
 
-updateView();
-
-this.changeScheduler = new RunOnceScheduler(() => {
-	this.treeNeedsRefreshOnVisible = false;
-	if (this.tree) {
 		updateView();
-	}
-}, 300);
-this._register(this.changeScheduler);
 
-this._register(this.tree.onDidOpen(e => {
-	if (e.element instanceof BaseTreeItem) {
-		const source = e.element.getSource();
-		if (source && source.available) {
-			const nullRange = { startLineNumber: 0, startColumn: 0, endLineNumber: 0, endColumn: 0 };
-			source.openInEditor(this.editorService, nullRange, e.editorOptions.preserveFocus, e.sideBySide, e.editorOptions.pinned);
-		}
-	}
-}));
-
-this._register(this.tree.onDidChangeFocus(() => {
-	const focus = this.tree.getFocus();
-	if (focus instanceof SessionTreeItem) {
-		this.loadedScriptsItemType.set('session');
-	} else {
-		this.loadedScriptsItemType.reset();
-	}
-}));
-
-const scheduleRefreshOnVisible = () => {
-	if (this.isBodyVisible()) {
-		this.changeScheduler.schedule();
-	} else {
-		this.treeNeedsRefreshOnVisible = true;
-	}
-};
-
-const addSourcePathsToSession = async (session: IDebugSession) => {
-	if (session.capabilities.supportsLoadedSourcesRequest) {
-		const sessionNode = root.add(session);
-		const paths = await session.getLoadedSources();
-		for (const path of paths) {
-			await sessionNode.addPath(path);
-		}
-		scheduleRefreshOnVisible();
-	}
-};
-
-const registerSessionListeners = (session: IDebugSession) => {
-	this._register(session.onDidChangeName(async () => {
-		const sessionRoot = root.find(session);
-		if (sessionRoot) {
-			sessionRoot.updateLabel(session.getLabel());
-			scheduleRefreshOnVisible();
-		}
-	}));
-	this._register(session.onDidLoadedSource(async event => {
-		let sessionRoot: SessionTreeItem;
-		switch (event.reason) {
-			case 'new':
-			case 'changed':
-				sessionRoot = root.add(session);
-				await sessionRoot.addPath(event.source);
-				scheduleRefreshOnVisible();
-				if (event.reason === 'changed') {
-					DebugContentProvider.refreshDebugContent(event.source.uri);
-				}
-				break;
-			case 'removed':
-				sessionRoot = root.find(session);
-				if (sessionRoot && sessionRoot.removePath(event.source)) {
-					scheduleRefreshOnVisible();
-				}
-				break;
-			default:
-				this.filter.setFilter(event.source.name);
-				this.tree.refilter();
-				break;
-		}
-	}));
-};
-
-this._register(this.debugService.onDidNewSession(registerSessionListeners));
-this.debugService.getModel().getSessions().forEach(registerSessionListeners);
-
-this._register(this.debugService.onDidEndSession(({ session }) => {
-	root.remove(session.getId());
-	this.changeScheduler.schedule();
-}));
-
-this.changeScheduler.schedule(0);
-
-this._register(this.onDidChangeBodyVisibility(visible => {
-	if (visible && this.treeNeedsRefreshOnVisible) {
-		this.changeScheduler.schedule();
-	}
-}));
-
-// feature: expand all nodes when filtering (not when finding)
-let viewState: IViewState | undefined;
-this._register(this.tree.onDidChangeFindPattern(pattern => {
-	if (this.tree.findMode === TreeFindMode.Highlight) {
-		return;
-	}
-
-	if (!viewState && pattern) {
-		const expanded = new Set<string>();
-		const visit = (node: ITreeNode<BaseTreeItem | null, FuzzyScore>) => {
-			if (node.element && !node.collapsed) {
-				expanded.add(node.element.getId());
+		this.changeScheduler = new RunOnceScheduler(() => {
+			this.treeNeedsRefreshOnVisible = false;
+			if (this.tree) {
+				updateView();
 			}
+		}, 300);
+		this._register(this.changeScheduler);
 
-			for (const child of node.children) {
-				visit(child);
+		this._register(this.tree.onDidOpen(e => {
+			if (e.element instanceof BaseTreeItem) {
+				const source = e.element.getSource();
+				if (source && source.available) {
+					const nullRange = { startLineNumber: 0, startColumn: 0, endLineNumber: 0, endColumn: 0 };
+					source.openInEditor(this.editorService, nullRange, e.editorOptions.preserveFocus, e.sideBySide, e.editorOptions.pinned);
+				}
+			}
+		}));
+
+		this._register(this.tree.onDidChangeFocus(() => {
+			const focus = this.tree.getFocus();
+			if (focus instanceof SessionTreeItem) {
+				this.loadedScriptsItemType.set('session');
+			} else {
+				this.loadedScriptsItemType.reset();
+			}
+		}));
+
+		const scheduleRefreshOnVisible = () => {
+			if (this.isBodyVisible()) {
+				this.changeScheduler.schedule();
+			} else {
+				this.treeNeedsRefreshOnVisible = true;
 			}
 		};
 
-		visit(this.tree.getNode());
-		viewState = { expanded };
-		this.tree.expandAll();
-	} else if (!pattern && viewState) {
-		this.tree.setFocus([]);
-		updateView(viewState);
-		viewState = undefined;
+		const addSourcePathsToSession = async (session: IDebugSession) => {
+			if (session.capabilities.supportsLoadedSourcesRequest) {
+				const sessionNode = root.add(session);
+				const paths = await session.getLoadedSources();
+				for (const path of paths) {
+					await sessionNode.addPath(path);
+				}
+				scheduleRefreshOnVisible();
+			}
+		};
+
+		const registerSessionListeners = (session: IDebugSession) => {
+			this._register(session.onDidChangeName(async () => {
+				const sessionRoot = root.find(session);
+				if (sessionRoot) {
+					sessionRoot.updateLabel(session.getLabel());
+					scheduleRefreshOnVisible();
+				}
+			}));
+			this._register(session.onDidLoadedSource(async event => {
+				let sessionRoot: SessionTreeItem;
+				switch (event.reason) {
+					case 'new':
+					case 'changed':
+						sessionRoot = root.add(session);
+						await sessionRoot.addPath(event.source);
+						scheduleRefreshOnVisible();
+						if (event.reason === 'changed') {
+							DebugContentProvider.refreshDebugContent(event.source.uri);
+						}
+						break;
+					case 'removed':
+						sessionRoot = root.find(session);
+						if (sessionRoot && sessionRoot.removePath(event.source)) {
+							scheduleRefreshOnVisible();
+						}
+						break;
+					default:
+						this.filter.setFilter(event.source.name);
+						this.tree.refilter();
+						break;
+				}
+			}));
+		};
+
+		this._register(this.debugService.onDidNewSession(registerSessionListeners));
+		this.debugService.getModel().getSessions().forEach(registerSessionListeners);
+
+		this._register(this.debugService.onDidEndSession(({ session }) => {
+			root.remove(session.getId());
+			this.changeScheduler.schedule();
+		}));
+
+		this.changeScheduler.schedule(0);
+
+		this._register(this.onDidChangeBodyVisibility(visible => {
+			if (visible && this.treeNeedsRefreshOnVisible) {
+				this.changeScheduler.schedule();
+			}
+		}));
+
+		// feature: expand all nodes when filtering (not when finding)
+		let viewState: IViewState | undefined;
+		this._register(this.tree.onDidChangeFindPattern(pattern => {
+			if (this.tree.findMode === TreeFindMode.Highlight) {
+				return;
+			}
+
+			if (!viewState && pattern) {
+				const expanded = new Set<string>();
+				const visit = (node: ITreeNode<BaseTreeItem | null, FuzzyScore>) => {
+					if (node.element && !node.collapsed) {
+						expanded.add(node.element.getId());
+					}
+
+					for (const child of node.children) {
+						visit(child);
+					}
+				};
+
+				visit(this.tree.getNode());
+				viewState = { expanded };
+				this.tree.expandAll();
+			} else if (!pattern && viewState) {
+				this.tree.setFocus([]);
+				updateView(viewState);
+				viewState = undefined;
+			}
+		}));
+
+		// populate tree model with source paths from all debug sessions
+		this.debugService.getModel().getSessions().forEach(session => addSourcePathsToSession(session));
 	}
-}));
 
-// populate tree model with source paths from all debug sessions
-this.debugService.getModel().getSessions().forEach(session => addSourcePathsToSession(session));
-    }
+	protected override layoutBody(height: number, width: number): void {
+		super.layoutBody(height, width);
+		this.tree.layout(height, width);
+	}
 
-    protected override layoutBody(height: number, width: numbercognidreamognidream {
-	super.layoutBody(height, width);
-	this.tree.layout(height, width);
-}
+	collapseAll(): void {
+		this.tree.collapseAll();
+	}
 
-    collapseAll(cognidreamognidream {
-	this.tree.collapseAll();
-}
-
-    override dispose(cognidreamognidream {
-	dispose(this.tree);
-dispose(this.treeLabels);
-super.dispose();
-    }
+	override dispose(): void {
+		dispose(this.tree);
+		dispose(this.treeLabels);
+		super.dispose();
+	}
 }
 
 class LoadedScriptsDelegate implements IListVirtualDelegate<LoadedScriptsItem> {
@@ -673,126 +673,126 @@ class LoadedScriptsRenderer implements ICompressibleTreeRenderer<BaseTreeItem, F
 		return { label };
 	}
 
-	renderElement(node: ITreeNode<BaseTreeItem, FuzzyScore>, index: number, data: ILoadedScriptsItemTemplateDatacognidreamognidream {
+	renderElement(node: ITreeNode<BaseTreeItem, FuzzyScore>, index: number, data: ILoadedScriptsItemTemplateData): void {
 
 		const element = node.element;
 		const label = element.getLabel();
 
 		this.render(element, label, data, node.filterData);
-    }
-
-renderCompressedElements(node: ITreeNode<ICompressedTreeNode<BaseTreeItem>, FuzzyScore>, index: number, data: ILoadedScriptsItemTemplateData, height: number | undefinedcognidreamognidream {
-
-	const element = node.element.elements[node.element.elements.length - 1];
-	const labels = node.element.elements.map(e => e.getLabel());
-
-	this.render(element, labels, data, node.filterData);
-}
-
-    private render(element: BaseTreeItem, labels: string | string[], data: ILoadedScriptsItemTemplateData, filterData: FuzzyScore | undefined) {
-
-	const label: IResourceLabelProps = {
-		name: labels
-	};
-	const options: IResourceLabelOptions = {
-		title: element.getHoverLabel()
-	};
-
-	if(element instanceof RootFolderTreeItem) {
-
-	options.fileKind = FileKind.ROOT_FOLDER;
-
-} else if (element instanceof SessionTreeItem) {
-
-	options.title = nls.localize('loadedScriptsSession', "Debug Session");
-	options.hideIcon = true;
-
-} else if (element instanceof BaseTreeItem) {
-
-	const src = element.getSource();
-	if (src && src.uri) {
-		label.resource = src.uri;
-		options.fileKind = FileKind.FILE;
-	} else {
-		options.fileKind = FileKind.FOLDER;
 	}
-}
-options.matches = createMatches(filterData);
 
-data.label.setResource(label, options);
-    }
+	renderCompressedElements(node: ITreeNode<ICompressedTreeNode<BaseTreeItem>, FuzzyScore>, index: number, data: ILoadedScriptsItemTemplateData, height: number | undefined): void {
 
-disposeTemplate(templateData: ILoadedScriptsItemTemplateDatacognidreamognidream {
-	templateData.label.dispose();
-}
-}
+		const element = node.element.elements[node.element.elements.length - 1];
+		const labels = node.element.elements.map(e => e.getLabel());
 
-	class LoadedSciptsAccessibilityProvider implements IListAccessibilityProvider<LoadedScriptsItem> {
+		this.render(element, labels, data, node.filterData);
+	}
 
-		getWidgetAriaLabel(): string {
-			return nls.localize({ comment: ['Debug is a noun in this context, not a verb.'], key: 'loadedScriptsAriaLabel' }, "Debug Loaded Scripts");
-		}
+	private render(element: BaseTreeItem, labels: string | string[], data: ILoadedScriptsItemTemplateData, filterData: FuzzyScore | undefined) {
 
-		getAriaLabel(element: LoadedScriptsItem): string {
+		const label: IResourceLabelProps = {
+			name: labels
+		};
+		const options: IResourceLabelOptions = {
+			title: element.getHoverLabel()
+		};
 
-			if (element instanceof RootFolderTreeItem) {
-				return nls.localize('loadedScriptsRootFolderAriaLabel', "Workspace folder {0}, loaded script, debug", element.getLabel());
-			}
+		if (element instanceof RootFolderTreeItem) {
 
-			if (element instanceof SessionTreeItem) {
-				return nls.localize('loadedScriptsSessionAriaLabel', "Session {0}, loaded script, debug", element.getLabel());
-			}
+			options.fileKind = FileKind.ROOT_FOLDER;
 
-			if (element.hasChildren()) {
-				return nls.localize('loadedScriptsFolderAriaLabel', "Folder {0}, loaded script, debug", element.getLabel());
+		} else if (element instanceof SessionTreeItem) {
+
+			options.title = nls.localize('loadedScriptsSession', "Debug Session");
+			options.hideIcon = true;
+
+		} else if (element instanceof BaseTreeItem) {
+
+			const src = element.getSource();
+			if (src && src.uri) {
+				label.resource = src.uri;
+				options.fileKind = FileKind.FILE;
 			} else {
-				return nls.localize('loadedScriptsSourceAriaLabel', "{0}, loaded script, debug", element.getLabel());
+				options.fileKind = FileKind.FOLDER;
 			}
 		}
+		options.matches = createMatches(filterData);
+
+		data.label.setResource(label, options);
 	}
+
+	disposeTemplate(templateData: ILoadedScriptsItemTemplateData): void {
+		templateData.label.dispose();
+	}
+}
+
+class LoadedSciptsAccessibilityProvider implements IListAccessibilityProvider<LoadedScriptsItem> {
+
+	getWidgetAriaLabel(): string {
+		return nls.localize({ comment: ['Debug is a noun in this context, not a verb.'], key: 'loadedScriptsAriaLabel' }, "Debug Loaded Scripts");
+	}
+
+	getAriaLabel(element: LoadedScriptsItem): string {
+
+		if (element instanceof RootFolderTreeItem) {
+			return nls.localize('loadedScriptsRootFolderAriaLabel', "Workspace folder {0}, loaded script, debug", element.getLabel());
+		}
+
+		if (element instanceof SessionTreeItem) {
+			return nls.localize('loadedScriptsSessionAriaLabel', "Session {0}, loaded script, debug", element.getLabel());
+		}
+
+		if (element.hasChildren()) {
+			return nls.localize('loadedScriptsFolderAriaLabel', "Folder {0}, loaded script, debug", element.getLabel());
+		} else {
+			return nls.localize('loadedScriptsSourceAriaLabel', "{0}, loaded script, debug", element.getLabel());
+		}
+	}
+}
 
 class LoadedScriptsFilter implements ITreeFilter<BaseTreeItem, FuzzyScore> {
 
-		private filterText: string | undefined;
+	private filterText: string | undefined;
 
-		setFilter(filterText: string) {
-			this.filterText = filterText;
+	setFilter(filterText: string) {
+		this.filterText = filterText;
+	}
+
+	filter(element: BaseTreeItem, parentVisibility: TreeVisibility): TreeFilterResult<FuzzyScore> {
+
+		if (!this.filterText) {
+			return TreeVisibility.Visible;
 		}
 
-		filter(element: BaseTreeItem, parentVisibility: TreeVisibility): TreeFilterResult<FuzzyScore> {
-
-			if (!this.filterText) {
+		if (element.isLeaf()) {
+			const name = element.getLabel();
+			if (name.indexOf(this.filterText) >= 0) {
 				return TreeVisibility.Visible;
 			}
-
-			if (element.isLeaf()) {
-				const name = element.getLabel();
-				if (name.indexOf(this.filterText) >= 0) {
-					return TreeVisibility.Visible;
-				}
-				return TreeVisibility.Hidden;
-			}
-			return TreeVisibility.Recurse;
+			return TreeVisibility.Hidden;
 		}
+		return TreeVisibility.Recurse;
 	}
+}
 registerAction2(class Collapse extends ViewAction<LoadedScriptsView> {
-		constructor() {
-			super({
-				id: 'loadedScripts.collapse',
-				viewId: LOADED_SCRIPTS_VIEW_ID,
-				title: nls.localize('collapse', "Collapse All"),
-				f1: false,
-				icon: Codicon.collapseAll,
-				menu: {
-					id: MenuId.ViewTitle,
-					order: 30,
-					group: 'navigation',
-					when: ContextKeyExpr.equals('view', LOADED_SCRIPTS_VIEW_ID)
-				}
-			});
-		}
+	constructor() {
+		super({
+			id: 'loadedScripts.collapse',
+			viewId: LOADED_SCRIPTS_VIEW_ID,
+			title: nls.localize('collapse', "Collapse All"),
+			f1: false,
+			icon: Codicon.collapseAll,
+			menu: {
+				id: MenuId.ViewTitle,
+				order: 30,
+				group: 'navigation',
+				when: ContextKeyExpr.equals('view', LOADED_SCRIPTS_VIEW_ID)
+			}
+		});
+	}
 
-		runInView(_accessor: ServicesAccessor, view: LoadedScriptsView) {
-			view.collapseAll();
-		}
-	});
+	runInView(_accessor: ServicesAccessor, view: LoadedScriptsView) {
+		view.collapseAll();
+	}
+});

@@ -21,7 +21,7 @@ export class GitProtocolHandler implements UriHandler {
 		this.disposables.push(window.registerUriHandler(this));
 	}
 
-	handleUri(uri: Uri): cognidream {
+	handleUri(uri: Uri): void {
 		this.logger.info(`[GitProtocolHandler][handleUri] URI:(${uri.toString()})`);
 
 		switch (uri.path) {
@@ -29,7 +29,7 @@ export class GitProtocolHandler implements UriHandler {
 		}
 	}
 
-	private async clone(uri: Uri): Promise<cognidream> {
+	private async clone(uri: Uri): Promise<void> {
 		const data = querystring.parse(uri.query);
 		const ref = data.ref;
 
@@ -91,7 +91,7 @@ export class GitProtocolHandler implements UriHandler {
 		}
 	}
 
-	dispose(): cognidream {
+	dispose(): void {
 		this.disposables = dispose(this.disposables);
 	}
 }

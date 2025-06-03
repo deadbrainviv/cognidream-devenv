@@ -41,12 +41,12 @@ export class FileQueryCacheState {
 	private readonly query = this.cacheQuery(this._cacheKey);
 
 	private loadingPhase = LoadingPhase.Created;
-	private loadPromise: Promise<cognidream> | undefined;
+	private loadPromise: Promise<void> | undefined;
 
 	constructor(
 		private cacheQuery: (cacheKey: string) => IFileQuery,
 		private loadFn: (query: IFileQuery) => Promise<any>,
-		private disposeFn: (cacheKey: string) => Prcognidreame<cognidream>,
+		private disposeFn: (cacheKey: string) => Promise<void>,
 		private previousCacheState: FileQueryCacheState | undefined
 	) {
 		if (this.previousCacheState) {
@@ -86,25 +86,25 @@ export class FileQueryCacheState {
 		return this;
 	}
 
-	dispose(cognidreamognidream {
+	dispose(): void {
 		if (this.loadPromise) {
-	(async () => {
-		try {
-			await this.loadPromise;
-		} catch (error) {
-			// ignore
+			(async () => {
+				try {
+					await this.loadPromise;
+				} catch (error) {
+					// ignore
+				}
+
+				this.loadingPhase = LoadingPhase.Disposed;
+				this.disposeFn(this._cacheKey);
+			})();
+		} else {
+			this.loadingPhase = LoadingPhase.Disposed;
 		}
 
-		this.loadingPhase = LoadingPhase.Disposed;
-		this.disposeFn(this._cacheKey);
-	})();
-} else {
-	this.loadingPhase = LoadingPhase.Disposed;
-}
-
-if (this.previousCacheState) {
-	this.previousCacheState.dispose();
-	this.previousCacheState = undefined;
-}
-    }
+		if (this.previousCacheState) {
+			this.previousCacheState.dispose();
+			this.previousCacheState = undefined;
+		}
+	}
 }

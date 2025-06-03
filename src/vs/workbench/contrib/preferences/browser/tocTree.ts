@@ -59,13 +59,13 @@ export class TOCTreeModel {
 		return this._settingsTreeRoot.children;
 	}
 
-	update(): cognidreamidream {
+	update(): void {
 		if (this._settingsTreeRoot) {
 			this.updateGroupCount(this._settingsTreeRoot);
 		}
 	}
 
-	private updateGroupCount(group: SettingsTreeGroupElement): cognidreamidream {
+	private updateGroupCount(group: SettingsTreeGroupElement): void {
 		group.children.forEach(child => {
 			if (child instanceof SettingsTreeGroupElement) {
 				this.updateGroupCount(child);
@@ -123,7 +123,7 @@ export class TOCRenderer implements ITreeRenderer<SettingsTreeGroupElement, neve
 		};
 	}
 
-	renderElement(node: ITreeNode<SettingsTreeGroupElement>, index: number, template: ITOCEntryTemplate): cognidreamidream {
+	renderElement(node: ITreeNode<SettingsTreeGroupElement>, index: number, template: ITOCEntryTemplate): void {
 		template.elementDisposables.clear();
 
 		const element = node.element;
@@ -140,7 +140,7 @@ export class TOCRenderer implements ITreeRenderer<SettingsTreeGroupElement, neve
 		}
 	}
 
-	disposeTemplate(templateData: ITOCEntryTemplate): cognidreamidream {
+	disposeTemplate(templateData: ITOCEntryTemplate): void {
 		templateData.elementDisposables.dispose();
 	}
 }
@@ -217,7 +217,7 @@ export class TOCTree extends WorkbenchObjectTree<SettingsTreeGroupElement> {
 		// test open mode
 
 		const filter = instantiationService.createInstance(SettingsTreeFilter, viewState);
-		const options: IWorkbenchObjectTreeOptions<SettingsTreeGroupElement, cognidreamidream> = {
+		const options: IWorkbenchObjectTreeOptions<SettingsTreeGroupElement, void> = {
 			filter,
 			multipleSelectionSupport: false,
 			identityProvider: {

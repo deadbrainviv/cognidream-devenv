@@ -19,34 +19,34 @@ import { generateUuid } from '../../../../../base/common/uuid.js';
 
 export class ChatAgentCommandContentPart extends Disposable implements IChatContentPart {
 
-    readonly domNode: HTMLElement = document.createElement('span');
+	readonly domNode: HTMLElement = document.createElement('span');
 
-    constructor(
-        cmd: IChatAgentCommand,
-        onClick: () => cognidream,
-        @IHoverService private readonly _hoverService: IHoverService,
-    ) {
-        super();
-        this.domNode.classList.add('chat-agent-command');
-        this.domNode.setAttribute('aria-label', cmd.name);
-        this.domNode.setAttribute('role', 'button');
+	constructor(
+		cmd: IChatAgentCommand,
+		onClick: () => void,
+		@IHoverService private readonly _hoverService: IHoverService,
+	) {
+		super();
+		this.domNode.classList.add('chat-agent-command');
+		this.domNode.setAttribute('aria-label', cmd.name);
+		this.domNode.setAttribute('role', 'button');
 
-        const groupId = generateUuid();
+		const groupId = generateUuid();
 
-        const commandSpan = document.createElement('span');
-        this.domNode.appendChild(commandSpan);
-        commandSpan.innerText = chatSubcommandLeader + cmd.name;
-        this._store.add(this._hoverService.setupDelayedHover(commandSpan, { content: cmd.description, appearance: { showPointer: true } }, { groupId }));
+		const commandSpan = document.createElement('span');
+		this.domNode.appendChild(commandSpan);
+		commandSpan.innerText = chatSubcommandLeader + cmd.name;
+		this._store.add(this._hoverService.setupDelayedHover(commandSpan, { content: cmd.description, appearance: { showPointer: true } }, { groupId }));
 
-        const rerun = localize('rerun', "Rerun without {0}{1}", chatSubcommandLeader, cmd.name);
-        const btn = new Button(this.domNode, { ariaLabel: rerun });
-        btn.icon = Codicon.close;
-        this._store.add(btn.onDidClick(() => onClick()));
-        this._store.add(btn);
-        this._store.add(this._hoverService.setupDelayedHover(btn.element, { content: rerun, appearance: { showPointer: true } }, { groupId }));
-    }
+		const rerun = localize('rerun', "Rerun without {0}{1}", chatSubcommandLeader, cmd.name);
+		const btn = new Button(this.domNode, { ariaLabel: rerun });
+		btn.icon = Codicon.close;
+		this._store.add(btn.onDidClick(() => onClick()));
+		this._store.add(btn);
+		this._store.add(this._hoverService.setupDelayedHover(btn.element, { content: rerun, appearance: { showPointer: true } }, { groupId }));
+	}
 
-    hasSameContent(other: IChatRendererContent, followingContent: IChatRendererContent[], element: ChatTreeItem): boolean {
-        return false;
-    }
+	hasSameContent(other: IChatRendererContent, followingContent: IChatRendererContent[], element: ChatTreeItem): boolean {
+		return false;
+	}
 }

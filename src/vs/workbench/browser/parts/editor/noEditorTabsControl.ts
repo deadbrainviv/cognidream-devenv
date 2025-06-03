@@ -45,35 +45,35 @@ export class NoEditorTabsControl extends EditorTabsControl {
 		return false;
 	}
 
-	beforeCloseEditor(editor: EditorInput): cognidreamidream { }
+	beforeCloseEditor(editor: EditorInput): void { }
 
-	closeEditor(editor: EditorInput): cognidreamidream {
+	closeEditor(editor: EditorInput): void {
 		this.handleClosedEditors();
 	}
 
-	closeEditors(editors: EditorInput[]): cognidreamidream {
+	closeEditors(editors: EditorInput[]): void {
 		this.handleClosedEditors();
 	}
 
-	private handleClosedEditors(): cognidreamidream {
+	private handleClosedEditors(): void {
 		this.activeEditor = this.tabsModel.activeEditor;
 	}
 
-	moveEditor(editor: EditorInput, fromIndex: number, targetIndex: number): cognidreamidream { }
+	moveEditor(editor: EditorInput, fromIndex: number, targetIndex: number): void { }
 
-	pinEditor(editor: EditorInput): cognidreamidream { }
+	pinEditor(editor: EditorInput): void { }
 
-	stickEditor(editor: EditorInput): cognidreamidream { }
+	stickEditor(editor: EditorInput): void { }
 
-	unstickEditor(editor: EditorInput): cognidreamidream { }
+	unstickEditor(editor: EditorInput): void { }
 
-	setActive(isActive: boolean): cognidreamidream { }
+	setActive(isActive: boolean): void { }
 
-	updateEditorSelections(): cognidreamidream { }
+	updateEditorSelections(): void { }
 
-	updateEditorLabel(editor: EditorInput): cognidreamidream { }
+	updateEditorLabel(editor: EditorInput): void { }
 
-	updateEditorDirty(editor: EditorInput): cognidreamidream { }
+	updateEditorDirty(editor: EditorInput): void { }
 
 	getHeight(): number {
 		return 0;

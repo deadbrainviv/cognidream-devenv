@@ -17,7 +17,7 @@ export interface IWorkbenchUIElementFactory {
 }
 
 export interface IResourceLabel extends IDisposable {
-	setUri(uri: URI | undefined, options?: IResourceLabelOptions): cognidream;
+	setUri(uri: URI | undefined, options?: IResourceLabelOptions): void;
 }
 
 export interface IResourceLabelOptions {

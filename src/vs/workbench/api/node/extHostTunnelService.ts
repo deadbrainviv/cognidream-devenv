@@ -195,7 +195,7 @@ export class NodeExtHostTunnelService extends ExtHostTunnelService {
 		}
 	}
 
-	override async $registerCandidateFinder(enable: boolean): Promise<cognidream> {
+	override async $registerCandidateFinder(enable: boolean): Promise<void> {
 		if (enable && this._candidateFindingEnabled) {
 			// already enabled
 			return;
@@ -229,7 +229,7 @@ export class NodeExtHostTunnelService extends ExtHostTunnelService {
 			}
 			const delay = this.calculateDelay(movingAverage.value);
 			this.logService.trace(`ForwardedPorts: (ExtHostTunnelService) next candidate port scan in ${delay} ms.`);
-			await (newcognidreammise<cognidream>(resolve => setTimeout(() => resolve(), delay)));
+			await (new Promise<void>(resolve => setTimeout(() => resolve(), delay)));
 		}
 	}
 
@@ -238,132 +238,132 @@ export class NodeExtHostTunnelService extends ExtHostTunnelService {
 		return Math.max(movingAverage * 20, 2000);
 	}
 
-	private async setInitialCandidates(): Promicognidreamognidream> {
+	private async setInitialCandidates(): Promise<void> {
 		this._initialCandidates = await this.findCandidatePorts();
 		this.logService.trace(`ForwardedPorts: (ExtHostTunnelService) Initial candidates found: ${this._initialCandidates.map(c => c.port).join(', ')}`);
 	}
 
-    private async findCandidatePorts(): Promise < CandidatePort[] > {
-	let tcp: string = '';
-	let tcp6: string = '';
-	try {
-		tcp = await fs.promises.readFile('/proc/net/tcp', 'utf8');
-		tcp6 = await fs.promises.readFile('/proc/net/tcp6', 'utf8');
-	} catch(e) {
-		// File reading error. No additional handling needed.
-	}
-        const connections: { socket: number; ip: string; port: number } [] = loadListeningPorts(tcp, tcp6);
-
-const procSockets: string = await (new Promise(resolve => {
-	exec('ls -l /proc/[0-9]*/fd/[0-9]* | grep socket:', (error, stdout, stderr) => {
-		resolve(stdout);
-	});
-}));
-const socketMap = getSockets(procSockets);
-
-const procChildren = await pfs.Promises.readdir('/proc');
-const processes: {
-	pid: number; cwd: string; cmd: string;
-}[] = [];
-for (const childName of procChildren) {
-	try {
-		const pid: number = Number(childName);
-		const childUri = resources.joinPath(URI.file('/proc'), childName);
-		const childStat = await fs.promises.stat(childUri.fsPath);
-		if (childStat.isDirectory() && !isNaN(pid)) {
-			const cwd = await fs.promises.readlink(resources.joinPath(childUri, 'cwd').fsPath);
-			const cmd = await fs.promises.readFile(resources.joinPath(childUri, 'cmdline').fsPath, 'utf8');
-			processes.push({ pid, cwd, cmd });
+	private async findCandidatePorts(): Promise<CandidatePort[]> {
+		let tcp: string = '';
+		let tcp6: string = '';
+		try {
+			tcp = await fs.promises.readFile('/proc/net/tcp', 'utf8');
+			tcp6 = await fs.promises.readFile('/proc/net/tcp6', 'utf8');
+		} catch (e) {
+			// File reading error. No additional handling needed.
 		}
-	} catch (e) {
-		//
-	}
-}
+		const connections: { socket: number; ip: string; port: number }[] = loadListeningPorts(tcp, tcp6);
 
-const unFoundConnections: { socket: number; ip: string; port: number }[] = [];
-const filteredConnections = connections.filter((connection => {
-	const foundConnection = socketMap[connection.socket];
-	if (!foundConnection) {
-		unFoundConnections.push(connection);
-	}
-	return foundConnection;
-}));
+		const procSockets: string = await (new Promise(resolve => {
+			exec('ls -l /proc/[0-9]*/fd/[0-9]* | grep socket:', (error, stdout, stderr) => {
+				resolve(stdout);
+			});
+		}));
+		const socketMap = getSockets(procSockets);
 
-const foundPorts = findPorts(filteredConnections, socketMap, processes);
-let heuristicPorts: CandidatePort[] | undefined;
-this.logService.trace(`ForwardedPorts: (ExtHostTunnelService) number of possible root ports ${unFoundConnections.length}`);
-if (unFoundConnections.length > 0) {
-	const rootProcesses: string = await (new Promise(resolve => {
-		exec('ps -F -A -l | grep root', (error, stdout, stderr) => {
-			resolve(stdout);
+		const procChildren = await pfs.Promises.readdir('/proc');
+		const processes: {
+			pid: number; cwd: string; cmd: string;
+		}[] = [];
+		for (const childName of procChildren) {
+			try {
+				const pid: number = Number(childName);
+				const childUri = resources.joinPath(URI.file('/proc'), childName);
+				const childStat = await fs.promises.stat(childUri.fsPath);
+				if (childStat.isDirectory() && !isNaN(pid)) {
+					const cwd = await fs.promises.readlink(resources.joinPath(childUri, 'cwd').fsPath);
+					const cmd = await fs.promises.readFile(resources.joinPath(childUri, 'cmdline').fsPath, 'utf8');
+					processes.push({ pid, cwd, cmd });
+				}
+			} catch (e) {
+				//
+			}
+		}
+
+		const unFoundConnections: { socket: number; ip: string; port: number }[] = [];
+		const filteredConnections = connections.filter((connection => {
+			const foundConnection = socketMap[connection.socket];
+			if (!foundConnection) {
+				unFoundConnections.push(connection);
+			}
+			return foundConnection;
+		}));
+
+		const foundPorts = findPorts(filteredConnections, socketMap, processes);
+		let heuristicPorts: CandidatePort[] | undefined;
+		this.logService.trace(`ForwardedPorts: (ExtHostTunnelService) number of possible root ports ${unFoundConnections.length}`);
+		if (unFoundConnections.length > 0) {
+			const rootProcesses: string = await (new Promise(resolve => {
+				exec('ps -F -A -l | grep root', (error, stdout, stderr) => {
+					resolve(stdout);
+				});
+			}));
+			this._foundRootPorts = tryFindRootPorts(unFoundConnections, rootProcesses, this._foundRootPorts);
+			heuristicPorts = Array.from(this._foundRootPorts.values());
+			this.logService.trace(`ForwardedPorts: (ExtHostTunnelService) heuristic ports ${heuristicPorts.map(heuristicPort => heuristicPort.port).join(', ')}`);
+
+		}
+		return foundPorts.then(foundCandidates => {
+			if (heuristicPorts) {
+				return foundCandidates.concat(heuristicPorts);
+			} else {
+				return foundCandidates;
+			}
 		});
-	}));
-	this._foundRootPorts = tryFindRootPorts(unFoundConnections, rootProcesses, this._foundRootPorts);
-	heuristicPorts = Array.from(this._foundRootPorts.values());
-	this.logService.trace(`ForwardedPorts: (ExtHostTunnelService) heuristic ports ${heuristicPorts.map(heuristicPort => heuristicPort.port).join(', ')}`);
-
-}
-return foundPorts.then(foundCandidates => {
-	if (heuristicPorts) {
-		return foundCandidates.concat(heuristicPorts);
-	} else {
-		return foundCandidates;
 	}
-});
-    }
 
-    protected override makeManagedTunnelFactory(authority: vscode.ManagedResolvedAuthority): vscode.RemoteAuthorityResolver['tunnelFactory'] {
-	return async (tunnelOptions) => {
-		const t = new NodeRemoteTunnel(
-			{
-				commit: this.initData.commit,
-				quality: this.initData.quality,
-				logService: this.logService,
-				ipcLogger: null,
-				// services and address providers have stubs since we don't need
-				// the connection identification that the renderer process uses
-				remoteSocketFactoryService: {
-					_serviceBrand: undefined,
-					async connect(_connectTo: ManagedRemoteConnection, path: string, query: string, debugLabel: string): Promise<ISocket> {
-						const result = await authority.makeConnection();
-						return ExtHostManagedSocket.connect(result, path, query, debugLabel);
+	protected override makeManagedTunnelFactory(authority: vscode.ManagedResolvedAuthority): vscode.RemoteAuthorityResolver['tunnelFactory'] {
+		return async (tunnelOptions) => {
+			const t = new NodeRemoteTunnel(
+				{
+					commit: this.initData.commit,
+					quality: this.initData.quality,
+					logService: this.logService,
+					ipcLogger: null,
+					// services and address providers have stubs since we don't need
+					// the connection identification that the renderer process uses
+					remoteSocketFactoryService: {
+						_serviceBrand: undefined,
+						async connect(_connectTo: ManagedRemoteConnection, path: string, query: string, debugLabel: string): Promise<ISocket> {
+							const result = await authority.makeConnection();
+							return ExtHostManagedSocket.connect(result, path, query, debugLabel);
+						},
+						register() {
+							throw new Error('not implemented');
+						},
 					},
-					register() {
-						throw new Error('not implemented');
+					addressProvider: {
+						getAddress() {
+							return Promise.resolve({
+								connectTo: new ManagedRemoteConnection(0),
+								connectionToken: authority.connectionToken,
+							});
+						},
 					},
+					signService: this.signService,
 				},
-				addressProvider: {
-					getAddress() {
-						return Promise.resolve({
-							connectTo: new ManagedRemoteConnection(0),
-							connectionToken: authority.connectionToken,
-						});
-					},
+				'localhost',
+				tunnelOptions.remoteAddress.host || 'localhost',
+				tunnelOptions.remoteAddress.port,
+				tunnelOptions.localAddressPort,
+			);
+
+			await t.waitForReady();
+
+			const disposeEmitter = new Emitter<void>();
+
+			return {
+				localAddress: parseAddress(t.localAddress) ?? t.localAddress,
+				remoteAddress: { port: t.tunnelRemotePort, host: t.tunnelRemoteHost },
+				onDidDispose: disposeEmitter.event,
+				dispose: () => {
+					t.dispose();
+					disposeEmitter.fire();
+					disposeEmitter.dispose();
 				},
-				signService: this.signService,
-			},
-			'localhost',
-			tunnelOptions.remoteAddress.host || 'localhost',
-			tunnelOptions.remoteAddress.port,
-			tunnelOptions.localAddressPort,
-		);
-
-		await t.waitForReady();
-
-		const disposeEmitter = newcognidreamtter<cognidream>();
-
-		return {
-			localAddress: parseAddress(t.localAddress) ?? t.localAddress,
-			remoteAddress: { port: t.tunnelRemotePort, host: t.tunnelRemoteHost },
-			onDidDispose: disposeEmitter.event,
-			dispose: () => {
-				t.dispose();
-				disposeEmitter.fire();
-				disposeEmitter.dispose();
-			},
+			};
 		};
-	};
-}
+	}
 }
 
 class ExtHostManagedSocket extends ManagedSocket {
@@ -399,14 +399,14 @@ class ExtHostManagedSocket extends ManagedSocket {
 		super(debugLabel, half);
 	}
 
-	public override write(buffer: VSBuffercognidreamognidream {
+	public override write(buffer: VSBuffer): void {
 		this.passing.send(buffer.buffer);
-    }
-    protected override closeRemote(cognidreamognidream {
-			this.passing.end();
-		}
+	}
+	protected override closeRemote(): void {
+		this.passing.end();
+	}
 
-    public override async drain(): Promicognidreamognidream > {
-			await this.passing.drain?.();
-		}
+	public override async drain(): Promise<void> {
+		await this.passing.drain?.();
+	}
 }

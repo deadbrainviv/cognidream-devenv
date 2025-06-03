@@ -629,7 +629,7 @@
 				},
 				{
 					"name": "constant.other.fsharp",
-					"match": "\\b(null|cognidream)\\b"
+					"match": "\\b(null|void)\\b"
 				}
 			]
 		},

@@ -3,15 +3,15 @@
   "version": "1.99.3",
   "distro": "21c8d8ea1e46d97c5639a7cabda6c0e063cc8dd5",
   "author": {
-    "name": "CogniDream LLC"
+    "name": "Microsoft Corporation"
   },
   "license": "MIT",
   "main": "./out/main.js",
   "type": "module",
   "private": true,
   "scripts": {
-    "buildreact": "cd ./src/vs/workbench/contrib/cognidream/browser/react/ && node build.js && cd ../../../../../../../",
-    "watchreact": "cd ./src/vs/workbench/contrib/cognidream/browser/react/ && node build.js --watch && cd ../../../../../../../",
+    "buildreact": "cd ./src/vs/workbench/contrib/void/browser/react/ && node build.js && cd ../../../../../../../",
+    "watchreact": "cd ./src/vs/workbench/contrib/void/browser/react/ && node build.js --watch && cd ../../../../../../../",
     "watchreactd": "deemon npm run watchreact",
     "test": "echo Please run any of the test scripts from the scripts folder.",
     "test-browser": "npx playwright install && node test/unit/browser/index.js",
@@ -79,7 +79,7 @@
     "@microsoft/1ds-core-js": "^3.2.13",
     "@microsoft/1ds-post-js": "^3.2.13",
     "@mistralai/mistralai": "^1.6.0",
-    "@modelcontextprotocol/sdk": "^1.10.2",
+    "@modelcontextprotocol/sdk": "^1.11.2",
     "@parcel/watcher": "2.5.1",
     "@types/semver": "^7.5.8",
     "@vscode/deviceid": "^0.1.1",

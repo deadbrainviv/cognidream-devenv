@@ -25,21 +25,21 @@ export type FromWebviewMessage = {
 	'onmessage': { message: any; transfer?: ArrayBuffer[] };
 	'did-click-link': { uri: string };
 	'did-scroll': { scrollYPercentage: number };
-	'did-focus': cognidream;
-	'did-blurcognidreamognidream;
-	'did-loadcognidreamognidream;
+	'did-focus': void;
+	'did-blur': void;
+	'did-load': void;
 	'did-find': { didFind: boolean };
 	'do-update-state': string;
-	'do-reloadcognidreamognidream;
+	'do-reload': void;
 	'load-resource': { id: number; path: string; query: string; scheme: string; authority: string; ifNoneMatch?: string };
 	'load-localhost': { id: string; origin: string };
 	'did-scroll-wheel': IMouseWheelEvent;
 	'fatal-error': { message: string };
-	'no-csp-foundcognidreamognidream;
+	'no-csp-found': void;
 	'did-keydown': KeyEvent;
 	'did-keyup': KeyEvent;
 	'did-context-menu': { clientX: number; clientY: number; context: { [key: string]: unknown } };
-	'drag-startcognidreamognidream;
+	'drag-start': void;
 	'drag': WebViewDragEvent
 };
 
@@ -57,7 +57,7 @@ interface UpdateContentEvent {
 }
 
 export type ToWebviewMessage = {
-	'focuscognidreamognidream;
+	'focus': void;
 	'message': { message: any; transfer?: ArrayBuffer[] };
 	'execCommand': string;
 	'did-load-resource':
@@ -89,7 +89,7 @@ export type ToWebviewMessage = {
 
 
 export interface WebviewHostMessaging {
-	postMessage<K extends keyof FromWebviewMessage>(channel: K, data: FromWebviewMessage[K], transfer?: []cognidreamognidream;
+	postMessage<K extends keyof FromWebviewMessage>(channel: K, data: FromWebviewMessage[K], transfer?: []): void;
 
-		onMessage<K extends keyof ToWebviewMessage> (channel: K, handler: (e: Event, data: ToWebviewMessage[K]) cognidreamogncognidreamam): cognidream;
+	onMessage<K extends keyof ToWebviewMessage>(channel: K, handler: (e: Event, data: ToWebviewMessage[K]) => void): void;
 }

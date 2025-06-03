@@ -62,22 +62,22 @@ suite('vscode API - debug', function () {
 
 	test('start debugging', async function () {
 		let stoppedEvents = 0;
-		let variablesReceived: () => cognidream;
-		let initializedReceived: () => cognidream;
-		let configurationDoneReceived: () => cognidream;
+		let variablesReceived: () => void;
+		let initializedReceived: () => void;
+		let configurationDoneReceived: () => void;
 		const toDispose: Disposable[] = [];
 		if (debug.activeDebugSession) {
 			// We are re-running due to flakyness, make sure to clear out state
-			let sessionTerminatedRetry: () => cognidream;
+			let sessionTerminatedRetry: () => void;
 			toDispose.push(debug.onDidTerminateDebugSession(() => {
 				sessionTerminatedRetry();
 			}));
-			const sessionTerminatedPromise = new Promise<cognidream>(resolve => sessionTerminatedRetry = resolve);
+			const sessionTerminatedPromise = new Promise<void>(resolve => sessionTerminatedRetry = resolve);
 			await commands.executeCommand('workbench.action.debug.stop');
 			await sessionTerminatedPromise;
 		}
 
-		const firstVariablesRetrieved = new Promise<cognidream>(resolve => variablesReceived = resolve);
+		const firstVariablesRetrieved = new Promise<void>(resolve => variablesReceived = resolve);
 		toDispose.push(debug.registerDebugAdapterTrackerFactory('*', {
 			createDebugAdapterTracker: () => ({
 				onDidSendMessage: m => {
@@ -97,8 +97,8 @@ suite('vscode API - debug', function () {
 			})
 		}));
 
-		const initializedPromise = new Promise<cognidream>(resolve => initializedReceived = resolve);
-		const configurationDonePromise = new Promise<cognidream>(resolve => configurationDoneReceived = resolve);
+		const initializedPromise = new Promise<void>(resolve => initializedReceived = resolve);
+		const configurationDonePromise = new Promise<void>(resolve => configurationDoneReceived = resolve);
 		const success = await debug.startDebugging(workspace.workspaceFolders![0], 'Launch debug.js');
 		assert.strictEqual(success, true);
 		await initializedPromise;
@@ -108,7 +108,7 @@ suite('vscode API - debug', function () {
 		assert.notStrictEqual(debug.activeDebugSession, undefined);
 		assert.strictEqual(stoppedEvents, 1);
 
-		const secondVariablesRetrieved = new Promise<cognidream>(resolve => variablesReceived = resolve);
+		const secondVariablesRetrieved = new Promise<void>(resolve => variablesReceived = resolve);
 		await commands.executeCommand('workbench.action.debug.stepOver');
 		await secondVariablesRetrieved;
 		assert.strictEqual(stoppedEvents, 2);
@@ -116,26 +116,26 @@ suite('vscode API - debug', function () {
 		assert.notStrictEqual(editor, undefined);
 		assert.strictEqual(basename(editor!.document.fileName), 'debug.js');
 
-		const thirdVariablesRetrieved = new Promise<cognidream>(resolve => variablesReceived = resolve);
+		const thirdVariablesRetrieved = new Promise<void>(resolve => variablesReceived = resolve);
 		await commands.executeCommand('workbench.action.debug.stepOver');
 		await thirdVariablesRetrieved;
 		assert.strictEqual(stoppedEvents, 3);
 
-		const fourthVariablesRetrieved = new Promise<cognidream>(resolve => variablesReceived = resolve);
+		const fourthVariablesRetrieved = new Promise<void>(resolve => variablesReceived = resolve);
 		await commands.executeCommand('workbench.action.debug.stepInto');
 		await fourthVariablesRetrieved;
 		assert.strictEqual(stoppedEvents, 4);
 
-		const fifthVariablesRetrieved = new Promise<cognidream>(resolve => variablesReceived = resolve);
+		const fifthVariablesRetrieved = new Promise<void>(resolve => variablesReceived = resolve);
 		await commands.executeCommand('workbench.action.debug.stepOut');
 		await fifthVariablesRetrieved;
 		assert.strictEqual(stoppedEvents, 5);
 
-		let sessionTerminated: () => cognidream;
+		let sessionTerminated: () => void;
 		toDispose.push(debug.onDidTerminateDebugSession(() => {
 			sessionTerminated();
 		}));
-		const sessionTerminatedPromise = new Promise<cognidream>(resolve => sessionTerminated = resolve);
+		const sessionTerminatedPromise = new Promise<void>(resolve => sessionTerminated = resolve);
 		await commands.executeCommand('workbench.action.debug.stop');
 		await sessionTerminatedPromise;
 		disposeAll(toDispose);

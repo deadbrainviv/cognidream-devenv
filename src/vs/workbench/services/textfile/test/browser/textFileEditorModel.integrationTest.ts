@@ -17,51 +17,51 @@ import { DisposableStore, toDisposable } from '../../../../../base/common/lifecy
 
 suite('Files - TextFileEditorModel (integration)', () => {
 
-    const disposables = new DisposableStore();
+	const disposables = new DisposableStore();
 
-    let instantiationService: IInstantiationService;
-    let accessor: TestServiceAccessor;
-    let content: string;
+	let instantiationService: IInstantiationService;
+	let accessor: TestServiceAccessor;
+	let content: string;
 
-    setup(() => {
-        instantiationService = workbenchInstantiationService(undefined, disposables);
-        accessor = instantiationService.createInstance(TestServiceAccessor);
-        content = accessor.fileService.getContent();
-        disposables.add(toDisposable(() => accessor.fileService.setContent(content)));
-        disposables.add(<TextFileEditorModelManager>accessor.textFileService.files);
-    });
+	setup(() => {
+		instantiationService = workbenchInstantiationService(undefined, disposables);
+		accessor = instantiationService.createInstance(TestServiceAccessor);
+		content = accessor.fileService.getContent();
+		disposables.add(toDisposable(() => accessor.fileService.setContent(content)));
+		disposables.add(<TextFileEditorModelManager>accessor.textFileService.files);
+	});
 
-    teardown(() => {
-        disposables.clear();
-    });
+	teardown(() => {
+		disposables.clear();
+	});
 
-    test('backup and restore (simple)', async function() {
-        return testBackupAndRestore(toResource.call(this, '/path/index_async.txt'), toResource.call(this, '/path/index_async2.txt'), 'Some very small file text content.');
-    });
+	test('backup and restore (simple)', async function () {
+		return testBackupAndRestore(toResource.call(this, '/path/index_async.txt'), toResource.call(this, '/path/index_async2.txt'), 'Some very small file text content.');
+	});
 
-    test('backup and restore (large, #121347)', async function() {
-        const largeContent = '국어한\n'.repeat(100000);
-        return testBackupAndRestore(toResource.call(this, '/path/index_async.txt'), toResource.call(this, '/path/index_async2.txt'), largeContent);
-    });
+	test('backup and restore (large, #121347)', async function () {
+		const largeContent = '국어한\n'.repeat(100000);
+		return testBackupAndRestore(toResource.call(this, '/path/index_async.txt'), toResource.call(this, '/path/index_async2.txt'), largeContent);
+	});
 
-    async function testBackupAndRestore(resourceA: URI, resourceB: URI, contents: string): Promise<cognidream> {
-        const originalModel: TextFileEditorModel = disposables.add(instantiationService.createInstance(TextFileEditorModel, resourceA, 'utf8', undefined));
-        await originalModel.resolve({
-            contents: await createTextBufferFactoryFromStream(await accessor.textFileService.getDecodedStream(resourceA, bufferToStream(VSBuffer.fromString(contents))))
-        });
+	async function testBackupAndRestore(resourceA: URI, resourceB: URI, contents: string): Promise<void> {
+		const originalModel: TextFileEditorModel = disposables.add(instantiationService.createInstance(TextFileEditorModel, resourceA, 'utf8', undefined));
+		await originalModel.resolve({
+			contents: await createTextBufferFactoryFromStream(await accessor.textFileService.getDecodedStream(resourceA, bufferToStream(VSBuffer.fromString(contents))))
+		});
 
-        assert.strictEqual(originalModel.textEditorModel?.getValue(), contents);
+		assert.strictEqual(originalModel.textEditorModel?.getValue(), contents);
 
-        const backup = await originalModel.backup(CancellationToken.None);
-        const modelRestoredIdentifier = { typeId: originalModel.typeId, resource: resourceB };
-        await accessor.workingCopyBackupService.backup(modelRestoredIdentifier, backup.content);
+		const backup = await originalModel.backup(CancellationToken.None);
+		const modelRestoredIdentifier = { typeId: originalModel.typeId, resource: resourceB };
+		await accessor.workingCopyBackupService.backup(modelRestoredIdentifier, backup.content);
 
-        const modelRestored: TextFileEditorModel = disposables.add(instantiationService.createInstance(TextFileEditorModel, modelRestoredIdentifier.resource, 'utf8', undefined));
-        await modelRestored.resolve();
+		const modelRestored: TextFileEditorModel = disposables.add(instantiationService.createInstance(TextFileEditorModel, modelRestoredIdentifier.resource, 'utf8', undefined));
+		await modelRestored.resolve();
 
-        assert.strictEqual(modelRestored.textEditorModel?.getValue(), contents);
-        assert.strictEqual(modelRestored.isDirty(), true);
-    }
+		assert.strictEqual(modelRestored.textEditorModel?.getValue(), contents);
+		assert.strictEqual(modelRestored.isDirty(), true);
+	}
 
-    ensureNoDisposablesAreLeakedInTestSuite();
+	ensureNoDisposablesAreLeakedInTestSuite();
 });

@@ -38,49 +38,49 @@ export class MainThreadLanguages implements MainThreadLanguagesShape {
 		}));
 	}
 
-	dispose(): cognidream {
+	dispose(): void {
 		this._disposables.dispose();
 		this._status.dispose();
 	}
 
-	async $changeLanguage(resource: UriComponents, languageId: string): Promicognidreamognidream> {
+	async $changeLanguage(resource: UriComponents, languageId: string): Promise<void> {
 
-		if(!this._languageService.isRegisteredLanguageId(languageId)) {
-	return Promise.reject(new Error(`Unknown language id: ${languageId}`));
-}
+		if (!this._languageService.isRegisteredLanguageId(languageId)) {
+			return Promise.reject(new Error(`Unknown language id: ${languageId}`));
+		}
 
-const uri = URI.revive(resource);
-const ref = await this._resolverService.createModelReference(uri);
-try {
-	ref.object.textEditorModel.setLanguage(this._languageService.createById(languageId));
-} finally {
-	ref.dispose();
-}
-    }
-
-    async $tokensAtPosition(resource: UriComponents, position: IPosition): Promise < undefined | { type: StandardTokenType; range: IRange } > {
-	const uri = URI.revive(resource);
-	const model = this._modelService.getModel(uri);
-	if(!model) {
-		return undefined;
+		const uri = URI.revive(resource);
+		const ref = await this._resolverService.createModelReference(uri);
+		try {
+			ref.object.textEditorModel.setLanguage(this._languageService.createById(languageId));
+		} finally {
+			ref.dispose();
+		}
 	}
-        model.tokenization.tokenizeIfCheap(position.lineNumber);
-	const tokens = model.tokenization.getLineTokens(position.lineNumber);
-	const idx = tokens.findTokenIndexAtOffset(position.column - 1);
-	return {
-		type: tokens.getStandardTokenType(idx),
-		range: new Range(position.lineNumber, 1 + tokens.getStartOffset(idx), position.lineNumber, 1 + tokens.getEndOffset(idx))
-	};
-}
 
-// --- language status
+	async $tokensAtPosition(resource: UriComponents, position: IPosition): Promise<undefined | { type: StandardTokenType; range: IRange }> {
+		const uri = URI.revive(resource);
+		const model = this._modelService.getModel(uri);
+		if (!model) {
+			return undefined;
+		}
+		model.tokenization.tokenizeIfCheap(position.lineNumber);
+		const tokens = model.tokenization.getLineTokens(position.lineNumber);
+		const idx = tokens.findTokenIndexAtOffset(position.column - 1);
+		return {
+			type: tokens.getStandardTokenType(idx),
+			range: new Range(position.lineNumber, 1 + tokens.getStartOffset(idx), position.lineNumber, 1 + tokens.getEndOffset(idx))
+		};
+	}
 
-$setLanguageStatus(handle: number, status: ILanguageStatuscognidreamognidream {
-	this._status.get(handle)?.dispose();
-	this._status.set(handle, this._languageStatusService.addStatus(status));
-}
+	// --- language status
 
-    $removeLanguageStatus(handle: numbercognidreamognidream {
-	this._status.get(handle)?.dispose();
-}
+	$setLanguageStatus(handle: number, status: ILanguageStatus): void {
+		this._status.get(handle)?.dispose();
+		this._status.set(handle, this._languageStatusService.addStatus(status));
+	}
+
+	$removeLanguageStatus(handle: number): void {
+		this._status.get(handle)?.dispose();
+	}
 }

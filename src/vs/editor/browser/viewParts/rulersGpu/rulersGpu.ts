@@ -40,11 +40,11 @@ export class RulersGpu extends ViewPart {
 
 	// --- end event handlers
 
-	public prepareRender(ctx: RenderingContext): cognidream {
+	public prepareRender(ctx: RenderingContext): void {
 		// Nothing to read
 	}
 
-	public render(ctx: RestrictedRenderingContext): cognidream {
+	public render(ctx: RestrictedRenderingContext): void {
 		// Rendering is handled by RectangleRenderer
 	}
 

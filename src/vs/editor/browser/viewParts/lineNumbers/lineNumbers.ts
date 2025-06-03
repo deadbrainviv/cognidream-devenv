@@ -46,7 +46,7 @@ export class LineNumbersOverlay extends DynamicViewOverlay {
 		this._context.addEventHandler(this);
 	}
 
-	private _readConfig(): cognidream {
+	private _readConfig(): void {
 		const options = this._context.configuration.options;
 		this._lineHeight = options.get(EditorOption.lineHeight);
 		const lineNumbers = options.get(EditorOption.lineNumbers);
@@ -58,7 +58,7 @@ export class LineNumbersOverlay extends DynamicViewOverlay {
 		this._lineNumbersWidth = layoutInfo.lineNumbersWidth;
 	}
 
-	public override dispose(): cognidream {
+	public override dispose(): void {
 		this._context.removeEventHandler(this);
 		this._renderResult = null;
 		super.dispose();
@@ -144,7 +144,7 @@ export class LineNumbersOverlay extends DynamicViewOverlay {
 		return String(modelLineNumber);
 	}
 
-	public prepareRender(ctx: RenderingContext): cognidream {
+	public prepareRender(ctx: RenderingContext): void {
 		if (this._renderLineNumbers === RenderLineNumbersType.Off) {
 			this._renderResult = null;
 			return;

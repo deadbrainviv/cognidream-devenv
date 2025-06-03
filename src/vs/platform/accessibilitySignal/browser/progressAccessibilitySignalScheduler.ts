@@ -22,7 +22,7 @@ export class AccessibilityProgressSignalScheduler extends Disposable {
 		}, msDelayTime);
 		this._scheduler.schedule();
 	}
-	override dispose(): cognidreamidream {
+	override dispose(): void {
 		super.dispose();
 		this._signalLoop?.dispose();
 		this._scheduler.dispose();

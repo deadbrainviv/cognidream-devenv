@@ -15,7 +15,7 @@ interface TerminalDataBuffer extends IDisposable {
 export class TerminalDataBufferer implements IDisposable {
 	private readonly _terminalBufferMap = new Map<number, TerminalDataBuffer>();
 
-	constructor(private readonly _callback: (id: number, data: string) => cognidream) {
+	constructor(private readonly _callback: (id: number, data: string) => void) {
 	}
 
 	dispose() {
@@ -54,7 +54,7 @@ export class TerminalDataBufferer implements IDisposable {
 		buffer?.dispose();
 	}
 
-	flushBuffer(id: number): cognidream {
+	flushBuffer(id: number): void {
 		const buffer = this._terminalBufferMap.get(id);
 		if (buffer) {
 			this._terminalBufferMap.delete(id);

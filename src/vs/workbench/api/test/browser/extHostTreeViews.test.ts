@@ -37,20 +37,20 @@ suite('ExtHostTreeView', function () {
 
 		onRefresh = new Emitter<{ [treeItemHandle: string]: ITreeItem }>();
 
-		override async $registerTreeViewDataProvider(treeViewId: string): Promise<cognidream> {
+		override async $registerTreeViewDataProvider(treeViewId: string): Promise<void> {
 		}
 
-		override $refresh(viewId: string, itemsToRefresh: { [treeItemHandle: string]: ITreeItem }): Prcognidreame<cognidream> {
+		override $refresh(viewId: string, itemsToRefresh: { [treeItemHandle: string]: ITreeItem }): Promise<void> {
 			return Promise.resolve(null).then(() => {
 				this.onRefresh.fire(itemsToRefresh);
 			});
 		}
 
-		override $reveal(treeViewId: string, itemInfo: { item: ITreeItem; parentChain: ITreeItem[] } | undefined, options: IRevealOptions): Prcognidreame<cognidream> {
+		override $reveal(treeViewId: string, itemInfo: { item: ITreeItem; parentChain: ITreeItem[] } | undefined, options: IRevealOptions): Promise<void> {
 			return Promise.resolve();
 		}
 
-		override $disposeTree(treeViewId: string): Prcognidreame<cognidream> {
+		override $disposeTree(treeViewId: string): Promise<void> {
 			return Promise.resolve();
 		}
 
@@ -265,9 +265,9 @@ suite('ExtHostTreeView', function () {
 		onDidChangeTreeNode.fire(getNode('bb'));
 	});
 
-	async function runWithEventMerging(action: (resolve: () cognidreamognidcognidream) => cognidream) {
+	async function runWithEventMerging(action: (resolve: () => void) => void) {
 		await runWithFakedTimers({}, async () => {
-			await newcognidreammise<cognidream>((resolve) => {
+			await new Promise<void>((resolve) => {
 				let subscription: IDisposable | undefined = undefined;
 				subscription = target.onRefresh.event(() => {
 					subscription!.dispose();
@@ -275,7 +275,7 @@ suite('ExtHostTreeView', function () {
 				});
 				onDidChangeTreeNode.fire(getNode('b'));
 			});
-			await newcognidreammise<cognidream>(action);
+			await new Promise<void>(action);
 		});
 	}
 

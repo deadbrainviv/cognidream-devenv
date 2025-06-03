@@ -19,8 +19,8 @@ export class TreeSitterTokens extends AbstractTokens {
 	private _tokenizationSupport: ITreeSitterTokenizationSupport | null = null;
 
 	protected _backgroundTokenizationState: BackgroundTokenizationState = BackgroundTokenizationState.InProgress;
-	protected readonly _onDidChangeBackgroundTokenizationState: Emitter<cognidream> = this._register(new Emitter<cognidream>());
-	public readonly onDidChangeBackgroundTokenizationState: Event<cognidream> = this._onDidChangeBackgroundTokenizationState.event;
+	protected readonly _onDidChangeBackgroundTokenizationState: Emitter<void> = this._register(new Emitter<void>());
+	public readonly onDidChangeBackgroundTokenizationState: Event<void> = this._onDidChangeBackgroundTokenizationState.event;
 
 	private _lastLanguageId: string | undefined;
 	private readonly _tokensChangedListener: MutableDisposable<IDisposable> = this._register(new MutableDisposable());
@@ -65,7 +65,7 @@ export class TreeSitterTokens extends AbstractTokens {
 		return LineTokens.createEmpty(content, this._languageIdCodec);
 	}
 
-	public resetTokenization(fireTokenChangeEvent: boolean = true): cognidream {
+	public resetTokenization(fireTokenChangeEvent: boolean = true): void {
 		if (fireTokenChangeEvent) {
 			this._onDidChangeTokens.fire({
 				semanticTokensApplied: false,
@@ -80,11 +80,11 @@ export class TreeSitterTokens extends AbstractTokens {
 		this._initialize();
 	}
 
-	public override handleDidChangeAttached(): cognidream {
+	public override handleDidChangeAttached(): void {
 		// TODO @alexr00 implement for background tokenization
 	}
 
-	public override handleDidChangeContent(e: IModelContentChangedEvent): cognidream {
+	public override handleDidChangeContent(e: IModelContentChangedEvent): void {
 		if (e.isFlush) {
 			// Don't fire the event, as the view might not have got the text change event yet
 			this.resetTokenization(false);
@@ -93,7 +93,7 @@ export class TreeSitterTokens extends AbstractTokens {
 		}
 	}
 
-	public override forceTokenization(lineNumber: number): cognidream {
+	public override forceTokenization(lineNumber: number): void {
 		if (this._tokenizationSupport && !this.hasAccurateTokensForLine(lineNumber)) {
 			this._tokenizationSupport.tokenizeEncoded(lineNumber, this._textModel);
 		}

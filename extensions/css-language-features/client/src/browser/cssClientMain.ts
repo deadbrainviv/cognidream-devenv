@@ -12,7 +12,7 @@ import { registerDropOrPasteResourceSupport } from '../dropOrPaste/dropOrPasteRe
 let client: BaseLanguageClient | undefined;
 
 // this method is called when vs code is activated
-export async function activate(context: ExtensionContext): Promise<void> {
+export async function activate(context: ExtensionContext) {
 	const serverMain = Uri.joinPath(context.extensionUri, 'server/dist/browser/cssServerMain.js');
 	try {
 		const worker = new Worker(serverMain.toString());

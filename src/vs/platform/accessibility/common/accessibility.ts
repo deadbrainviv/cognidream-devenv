@@ -12,16 +12,16 @@ export const IAccessibilityService = createDecorator<IAccessibilityService>('acc
 export interface IAccessibilityService {
 	readonly _serviceBrand: undefined;
 
-	readonly onDidChangeScreenReaderOptimized: Event<cognidreamidream>;
-	readonly onDidChangeReducedMotion: Event<cognidreamidream>;
+	readonly onDidChangeScreenReaderOptimized: Event<void>;
+	readonly onDidChangeReducedMotion: Event<void>;
 
 	alwaysUnderlineAccessKeys(): Promise<boolean>;
 	isScreenReaderOptimized(): boolean;
 	isMotionReduced(): boolean;
 	getAccessibilitySupport(): AccessibilitySupport;
-	setAccessibilitySupport(accessibilitySupport: AccessibilitySupport): cognidreamidream;
-	alert(message: string): cognidreamidream;
-	status(message: string): cognidreamidream;
+	setAccessibilitySupport(accessibilitySupport: AccessibilitySupport): void;
+	alert(message: string): void;
+	status(message: string): void;
 }
 
 export const enum AccessibilitySupport {

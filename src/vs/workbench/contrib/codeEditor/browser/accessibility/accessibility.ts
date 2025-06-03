@@ -17,34 +17,34 @@ import { AccessibilityHelpNLS } from '../../../../../editor/common/standaloneStr
 
 class ToggleScreenReaderMode extends Action2 {
 
-    constructor() {
-        super({
-            id: 'editor.action.toggleScreenReaderAccessibilityMode',
-            title: nls.localize2('toggleScreenReaderMode', "Toggle Screen Reader Accessibility Mode"),
-            metadata: {
-                description: nls.localize2('toggleScreenReaderModeDescription', "Toggles an optimized mode for usage with screen readers, braille devices, and other assistive technologies."),
-            },
-            f1: true,
-            keybinding: [{
-                primary: KeyMod.CtrlCmd | KeyCode.KeyE,
-                weight: KeybindingWeight.WorkbenchContrib + 10,
-                when: accessibilityHelpIsShown
-            },
-            {
-                primary: KeyMod.Alt | KeyCode.F1 | KeyMod.Shift,
-                linux: { primary: KeyMod.Alt | KeyCode.F4 | KeyMod.Shift },
-                weight: KeybindingWeight.WorkbenchContrib + 10,
-            }]
-        });
-    }
+	constructor() {
+		super({
+			id: 'editor.action.toggleScreenReaderAccessibilityMode',
+			title: nls.localize2('toggleScreenReaderMode', "Toggle Screen Reader Accessibility Mode"),
+			metadata: {
+				description: nls.localize2('toggleScreenReaderModeDescription', "Toggles an optimized mode for usage with screen readers, braille devices, and other assistive technologies."),
+			},
+			f1: true,
+			keybinding: [{
+				primary: KeyMod.CtrlCmd | KeyCode.KeyE,
+				weight: KeybindingWeight.WorkbenchContrib + 10,
+				when: accessibilityHelpIsShown
+			},
+			{
+				primary: KeyMod.Alt | KeyCode.F1 | KeyMod.Shift,
+				linux: { primary: KeyMod.Alt | KeyCode.F4 | KeyMod.Shift },
+				weight: KeybindingWeight.WorkbenchContrib + 10,
+			}]
+		});
+	}
 
-    async run(accessor: ServicesAccessor): Promise<cognidream> {
-        const accessibiiltyService = accessor.get(IAccessibilityService);
-        const configurationService = accessor.get(IConfigurationService);
-        const isScreenReaderOptimized = accessibiiltyService.isScreenReaderOptimized();
-        configurationService.updateValue('editor.accessibilitySupport', isScreenReaderOptimized ? 'off' : 'on', ConfigurationTarget.USER);
-        alert(isScreenReaderOptimized ? AccessibilityHelpNLS.screenReaderModeDisabled : AccessibilityHelpNLS.screenReaderModeEnabled);
-    }
+	async run(accessor: ServicesAccessor): Promise<void> {
+		const accessibiiltyService = accessor.get(IAccessibilityService);
+		const configurationService = accessor.get(IConfigurationService);
+		const isScreenReaderOptimized = accessibiiltyService.isScreenReaderOptimized();
+		configurationService.updateValue('editor.accessibilitySupport', isScreenReaderOptimized ? 'off' : 'on', ConfigurationTarget.USER);
+		alert(isScreenReaderOptimized ? AccessibilityHelpNLS.screenReaderModeDisabled : AccessibilityHelpNLS.screenReaderModeEnabled);
+	}
 }
 
 registerAction2(ToggleScreenReaderMode);

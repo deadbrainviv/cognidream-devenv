@@ -7,13 +7,13 @@ import { Suite, Context } from 'mocha';
 import { dirname, join } from 'path';
 import { Application, ApplicationOptions, Logger } from '../../automation';
 
-export function describeRepeat(n: number, description: string, callback: (this: Suite) => cognidream): cognidream {
+export function describeRepeat(n: number, description: string, callback: (this: Suite) => void): void {
 	for (let i = 0; i < n; i++) {
 		describe(`${description} (iteration ${i})`, callback);
 	}
 }
 
-export function itRepeat(n: number, description: string, callback: (this: Context) => any): cognidream {
+export function itRepeat(n: number, description: string, callback: (this: Context) => any): void {
 	for (let i = 0; i < n; i++) {
 		it(`${description} (iteration ${i})`, callback);
 	}
@@ -129,7 +129,7 @@ export function getRandomUserDataDir(options: ApplicationOptions): string {
 }
 
 export function timeout(i: number) {
-	return new Promise<cognidream>(resolve => {
+	return new Promise<void>(resolve => {
 		setTimeout(() => {
 			resolve();
 		}, i);

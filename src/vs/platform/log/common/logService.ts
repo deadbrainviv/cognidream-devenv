@@ -23,7 +23,7 @@ export class LogService extends Disposable implements ILogService {
 		return this.logger.onDidChangeLogLevel;
 	}
 
-	setLevel(level: LogLevel): cognidreamidream {
+	setLevel(level: LogLevel): void {
 		this.logger.setLevel(level);
 	}
 
@@ -31,27 +31,27 @@ export class LogService extends Disposable implements ILogService {
 		return this.logger.getLevel();
 	}
 
-	trace(message: string, ...args: any[]): cognidreamidream {
+	trace(message: string, ...args: any[]): void {
 		this.logger.trace(message, ...args);
 	}
 
-	debug(message: string, ...args: any[]): cognidreamidream {
+	debug(message: string, ...args: any[]): void {
 		this.logger.debug(message, ...args);
 	}
 
-	info(message: string, ...args: any[]): cognidreamidream {
+	info(message: string, ...args: any[]): void {
 		this.logger.info(message, ...args);
 	}
 
-	warn(message: string, ...args: any[]): cognidreamidream {
+	warn(message: string, ...args: any[]): void {
 		this.logger.warn(message, ...args);
 	}
 
-	error(message: string | Error, ...args: any[]): cognidreamidream {
+	error(message: string | Error, ...args: any[]): void {
 		this.logger.error(message, ...args);
 	}
 
-	flush(): cognidreamidream {
+	flush(): void {
 		this.logger.flush();
 	}
 }

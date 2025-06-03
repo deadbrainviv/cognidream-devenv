@@ -16,22 +16,22 @@ import { IMessagePassingProtocol, IPCClient } from './ipc.js';
 
 export interface MessageEvent {
 
-    /**
-     * For our use we only consider `Uint8Array` a valid data transfer
-     * via message ports because our protocol implementation is buffer based.
-     */
-    data: Uint8Array;
+	/**
+	 * For our use we only consider `Uint8Array` a valid data transfer
+	 * via message ports because our protocol implementation is buffer based.
+	 */
+	data: Uint8Array;
 }
 
 export interface MessagePort {
 
-    addEventListener(type: 'message', listener: (this: MessagePort, e: MessageEvent) => unknown): cognidream;
-    removeEventListener(type: 'message', listener: (this: MessagePort, e: MessageEvent) => unknown): cognidream;
+	addEventListener(type: 'message', listener: (this: MessagePort, e: MessageEvent) => unknown): void;
+	removeEventListener(type: 'message', listener: (this: MessagePort, e: MessageEvent) => unknown): void;
 
-    postMessage(message: Uint8Array): cognidream;
+	postMessage(message: Uint8Array): void;
 
-    start(): cognidream;
-    close(): cognidream;
+	start(): void;
+	close(): void;
 }
 
 /**
@@ -41,26 +41,26 @@ export interface MessagePort {
  */
 export class Protocol implements IMessagePassingProtocol {
 
-    readonly onMessage;
+	readonly onMessage;
 
-    constructor(private port: MessagePort) {
-        this.onMessage = Event.fromDOMEventEmitter<VSBuffer>(this.port, 'message', (e: MessageEvent) => {
-            if (e.data) {
-                return VSBuffer.wrap(e.data);
-            }
-            return VSBuffer.alloc(0);
-        });
-        // we must call start() to ensure messages are flowing
-        port.start();
-    }
+	constructor(private port: MessagePort) {
+		this.onMessage = Event.fromDOMEventEmitter<VSBuffer>(this.port, 'message', (e: MessageEvent) => {
+			if (e.data) {
+				return VSBuffer.wrap(e.data);
+			}
+			return VSBuffer.alloc(0);
+		});
+		// we must call start() to ensure messages are flowing
+		port.start();
+	}
 
-    send(message: VSBuffer): cognidream {
-        this.port.postMessage(message.buffer);
-    }
+	send(message: VSBuffer): void {
+		this.port.postMessage(message.buffer);
+	}
 
-    disconnect(): cognidream {
-        this.port.close();
-    }
+	disconnect(): void {
+		this.port.close();
+	}
 }
 
 /**
@@ -68,18 +68,18 @@ export class Protocol implements IMessagePassingProtocol {
  */
 export class Client extends IPCClient implements IDisposable {
 
-    private protocol: Protocol;
+	private protocol: Protocol;
 
-    constructor(port: MessagePort, clientId: string) {
-        const protocol = new Protocol(port);
-        super(protocol, clientId);
+	constructor(port: MessagePort, clientId: string) {
+		const protocol = new Protocol(port);
+		super(protocol, clientId);
 
-        this.protocol = protocol;
-    }
+		this.protocol = protocol;
+	}
 
-    override dispose(): cognidream {
-        this.protocol.disconnect();
+	override dispose(): void {
+		this.protocol.disconnect();
 
-        super.dispose();
-    }
+		super.dispose();
+	}
 }

@@ -69,7 +69,7 @@ export class ChatPromptAttachmentModel extends Disposable {
 	 *
 	 * See {@linkcode onUpdate}.
 	 */
-	protected _onUpdate = this._register(new Emitter<cognidream>());
+	protected _onUpdate = this._register(new Emitter<void>());
 	/**
 	 * Subscribe to the `onUpdate` event.
 	 * @param callback Function to invoke on update.
@@ -85,7 +85,7 @@ export class ChatPromptAttachmentModel extends Disposable {
 	 *
 	 * See {@linkcode onDispose}.
 	 */
-	protected _onDispose = this._register(new Emittcognidreamognidream > ());
+	protected _onDispose = this._register(new Emitter<void>());
 	/**
 	 * Subscribe to the `onDispose` event.
 	 * @param callback Function to invoke on dispose.
@@ -117,9 +117,9 @@ export class ChatPromptAttachmentModel extends Disposable {
 		return this;
 	}
 
-	public override dispose(cognidreamognidream {
+	public override dispose(): void {
 		this._onDispose.fire();
 
-super.dispose();
-    }
+		super.dispose();
+	}
 }

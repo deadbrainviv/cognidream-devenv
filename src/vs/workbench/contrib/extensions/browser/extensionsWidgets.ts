@@ -55,11 +55,11 @@ export abstract class ExtensionWidget extends Disposable implements IExtensionCo
 	private _extension: IExtension | null = null;
 	get extension(): IExtension | null { return this._extension; }
 	set extension(extension: IExtension | null) { this._extension = extension; this.update(); }
-	update(): cognidream { this.render(); }
-	abstract render(cognidreamognidream;
+	update(): void { this.render(); }
+	abstract render(): void;
 }
 
-export function onClick(element: HTMLElement, callback: () => cognidreamidream): IDisposable {
+export function onClick(element: HTMLElement, callback: () => void): IDisposable {
 	const disposables: DisposableStore = new DisposableStore();
 	disposables.add(addDisposableListener(element, EventType.CLICK, finalHandler(callback)));
 	disposables.add(addDisposableListener(element, EventType.KEY_UP, e => {
@@ -88,61 +88,61 @@ export class InstallCountWidget extends ExtensionWidget {
 		this._register(toDisposable(() => this.clear()));
 	}
 
-	private clear(cognidreamognidream {
+	private clear(): void {
 		this.container.innerText = '';
 		this.disposables.clear();
-    }
-
-render(cognidreamognidream {
-	this.clear();
-
-	if(!this.extension) {
-	return;
-}
-
-if (this.small && this.extension.state !== ExtensionState.Uninstalled) {
-	return;
-}
-
-const installLabel = InstallCountWidget.getInstallLabel(this.extension, this.small);
-if (!installLabel) {
-	return;
-}
-
-const parent = this.small ? this.container : append(this.container, $('span.install', { tabIndex: 0 }));
-append(parent, $('span' + ThemeIcon.asCSSSelector(installCountIcon)));
-const count = append(parent, $('span.count'));
-count.textContent = installLabel;
-
-if (!this.small) {
-	this.disposables.add(this.hoverService.setupManagedHover(getDefaultHoverDelegate('mouse'), this.container, localize('install count', "Install count")));
-}
-    }
-
-    static getInstallLabel(extension: IExtension, small: boolean): string | undefined {
-	const installCount = extension.installCount;
-
-	if (!installCount) {
-		return undefined;
 	}
 
-	let installLabel: string;
+	render(): void {
+		this.clear();
 
-	if (small) {
-		if (installCount > 1000000) {
-			installLabel = `${Math.floor(installCount / 100000) / 10}M`;
-		} else if (installCount > 1000) {
-			installLabel = `${Math.floor(installCount / 1000)}K`;
-		} else {
-			installLabel = String(installCount);
+		if (!this.extension) {
+			return;
+		}
+
+		if (this.small && this.extension.state !== ExtensionState.Uninstalled) {
+			return;
+		}
+
+		const installLabel = InstallCountWidget.getInstallLabel(this.extension, this.small);
+		if (!installLabel) {
+			return;
+		}
+
+		const parent = this.small ? this.container : append(this.container, $('span.install', { tabIndex: 0 }));
+		append(parent, $('span' + ThemeIcon.asCSSSelector(installCountIcon)));
+		const count = append(parent, $('span.count'));
+		count.textContent = installLabel;
+
+		if (!this.small) {
+			this.disposables.add(this.hoverService.setupManagedHover(getDefaultHoverDelegate('mouse'), this.container, localize('install count', "Install count")));
 		}
 	}
-	else {
-		installLabel = installCount.toLocaleString(platform.language);
-	}
 
-	return installLabel;
-}
+	static getInstallLabel(extension: IExtension, small: boolean): string | undefined {
+		const installCount = extension.installCount;
+
+		if (!installCount) {
+			return undefined;
+		}
+
+		let installLabel: string;
+
+		if (small) {
+			if (installCount > 1000000) {
+				installLabel = `${Math.floor(installCount / 100000) / 10}M`;
+			} else if (installCount > 1000) {
+				installLabel = `${Math.floor(installCount / 1000)}K`;
+			} else {
+				installLabel = String(installCount);
+			}
+		}
+		else {
+			installLabel = installCount.toLocaleString(platform.language);
+		}
+
+		return installLabel;
+	}
 }
 
 export class RatingsWidget extends ExtensionWidget {
@@ -167,64 +167,64 @@ export class RatingsWidget extends ExtensionWidget {
 		this._register(toDisposable(() => this.clear()));
 	}
 
-	private clear(cognidreamognidream {
+	private clear(): void {
 		this.container.innerText = '';
 		this.disposables.clear();
-    }
+	}
 
-render(cognidreamognidream {
-	this.clear();
+	render(): void {
+		this.clear();
 
-	if(!this.extension) {
-	return;
-}
+		if (!this.extension) {
+			return;
+		}
 
-if (this.small && this.extension.state !== ExtensionState.Uninstalled) {
-	return;
-}
+		if (this.small && this.extension.state !== ExtensionState.Uninstalled) {
+			return;
+		}
 
-if (this.extension.rating === undefined) {
-	return;
-}
+		if (this.extension.rating === undefined) {
+			return;
+		}
 
-if (this.small && !this.extension.ratingCount) {
-	return;
-}
+		if (this.small && !this.extension.ratingCount) {
+			return;
+		}
 
-if (!this.extension.url) {
-	return;
-}
+		if (!this.extension.url) {
+			return;
+		}
 
-const rating = Math.round(this.extension.rating * 2) / 2;
-if (this.small) {
-	append(this.container, $('span' + ThemeIcon.asCSSSelector(starFullIcon)));
+		const rating = Math.round(this.extension.rating * 2) / 2;
+		if (this.small) {
+			append(this.container, $('span' + ThemeIcon.asCSSSelector(starFullIcon)));
 
-	const count = append(this.container, $('span.count'));
-	count.textContent = String(rating);
-} else {
-	const element = append(this.container, $('span.rating.clickable', { tabIndex: 0 }));
-	for (let i = 1; i <= 5; i++) {
-		if (rating >= i) {
-			append(element, $('span' + ThemeIcon.asCSSSelector(starFullIcon)));
-		} else if (rating >= i - 0.5) {
-			append(element, $('span' + ThemeIcon.asCSSSelector(starHalfIcon)));
+			const count = append(this.container, $('span.count'));
+			count.textContent = String(rating);
 		} else {
-			append(element, $('span' + ThemeIcon.asCSSSelector(starEmptyIcon)));
+			const element = append(this.container, $('span.rating.clickable', { tabIndex: 0 }));
+			for (let i = 1; i <= 5; i++) {
+				if (rating >= i) {
+					append(element, $('span' + ThemeIcon.asCSSSelector(starFullIcon)));
+				} else if (rating >= i - 0.5) {
+					append(element, $('span' + ThemeIcon.asCSSSelector(starHalfIcon)));
+				} else {
+					append(element, $('span' + ThemeIcon.asCSSSelector(starEmptyIcon)));
+				}
+			}
+			if (this.extension.ratingCount) {
+				const ratingCountElemet = append(element, $('span', undefined, ` (${this.extension.ratingCount})`));
+				ratingCountElemet.style.paddingLeft = '1px';
+			}
+
+			this.containerHover = this._register(this.hoverService.setupManagedHover(getDefaultHoverDelegate('mouse'), element, ''));
+			this.containerHover.update(localize('ratedLabel', "Average rating: {0} out of 5", rating));
+			element.setAttribute('role', 'link');
+			if (this.extension.ratingUrl) {
+				this.disposables.add(onClick(element, () => this.openerService.open(URI.parse(this.extension!.ratingUrl!))));
+			}
 		}
 	}
-	if (this.extension.ratingCount) {
-		const ratingCountElemet = append(element, $('span', undefined, ` (${this.extension.ratingCount})`));
-		ratingCountElemet.style.paddingLeft = '1px';
-	}
-
-	this.containerHover = this._register(this.hoverService.setupManagedHover(getDefaultHoverDelegate('mouse'), element, ''));
-	this.containerHover.update(localize('ratedLabel', "Average rating: {0} out of 5", rating));
-	element.setAttribute('role', 'link');
-	if (this.extension.ratingUrl) {
-		this.disposables.add(onClick(element, () => this.openerService.open(URI.parse(this.extension!.ratingUrl!))));
-	}
-}
-    }
 
 }
 
@@ -248,63 +248,63 @@ export class PublisherWidget extends ExtensionWidget {
 		this._register(toDisposable(() => this.clear()));
 	}
 
-	private clear(cognidreamognidream {
+	private clear(): void {
 		this.element?.remove();
-this.disposables.clear();
-    }
-
-render(cognidreamognidream {
-	this.clear();
-	if(!this.extension) {
-	return;
-}
-
-if (this.extension.resourceExtension) {
-	return;
-}
-
-if (this.extension.local?.source === 'resource') {
-	return;
-}
-
-this.element = append(this.container, $('.publisher'));
-const publisherDisplayName = $('.publisher-name.ellipsis');
-publisherDisplayName.textContent = this.extension.publisherDisplayName;
-
-const verifiedPublisher = $('.verified-publisher');
-append(verifiedPublisher, $('span.extension-verified-publisher.clickable'), renderIcon(verifiedPublisherIcon));
-
-if (this.small) {
-	if (this.extension.publisherDomain) {
-		append(this.element, verifiedPublisher);
-	}
-	append(this.element, publisherDisplayName);
-} else {
-	this.element.classList.toggle('clickable', !!this.extension.url);
-	this.element.setAttribute('role', 'button');
-	this.element.tabIndex = 0;
-
-	this.containerHover = this.disposables.add(this.hoverService.setupManagedHover(getDefaultHoverDelegate('mouse'), this.element, localize('publisher', "Publisher ({0})", this.extension.publisherDisplayName)));
-	append(this.element, publisherDisplayName);
-
-	if (this.extension.publisherDomain) {
-		append(this.element, verifiedPublisher);
-		const publisherDomainLink = URI.parse(this.extension.publisherDomain.link);
-		verifiedPublisher.tabIndex = 0;
-		verifiedPublisher.setAttribute('role', 'button');
-		this.containerHover.update(localize('verified publisher', "This publisher has verified ownership of {0}", this.extension.publisherDomain.link));
-		verifiedPublisher.setAttribute('role', 'link');
-
-		append(verifiedPublisher, $('span.extension-verified-publisher-domain', undefined, publisherDomainLink.authority.startsWith('www.') ? publisherDomainLink.authority.substring(4) : publisherDomainLink.authority));
-		this.disposables.add(onClick(verifiedPublisher, () => this.openerService.open(publisherDomainLink)));
+		this.disposables.clear();
 	}
 
-	if (this.extension.url) {
-		this.disposables.add(onClick(this.element, () => this.extensionsWorkbenchService.openSearch(`publisher:"${this.extension?.publisherDisplayName}"`)));
-	}
-}
+	render(): void {
+		this.clear();
+		if (!this.extension) {
+			return;
+		}
 
-    }
+		if (this.extension.resourceExtension) {
+			return;
+		}
+
+		if (this.extension.local?.source === 'resource') {
+			return;
+		}
+
+		this.element = append(this.container, $('.publisher'));
+		const publisherDisplayName = $('.publisher-name.ellipsis');
+		publisherDisplayName.textContent = this.extension.publisherDisplayName;
+
+		const verifiedPublisher = $('.verified-publisher');
+		append(verifiedPublisher, $('span.extension-verified-publisher.clickable'), renderIcon(verifiedPublisherIcon));
+
+		if (this.small) {
+			if (this.extension.publisherDomain) {
+				append(this.element, verifiedPublisher);
+			}
+			append(this.element, publisherDisplayName);
+		} else {
+			this.element.classList.toggle('clickable', !!this.extension.url);
+			this.element.setAttribute('role', 'button');
+			this.element.tabIndex = 0;
+
+			this.containerHover = this.disposables.add(this.hoverService.setupManagedHover(getDefaultHoverDelegate('mouse'), this.element, localize('publisher', "Publisher ({0})", this.extension.publisherDisplayName)));
+			append(this.element, publisherDisplayName);
+
+			if (this.extension.publisherDomain) {
+				append(this.element, verifiedPublisher);
+				const publisherDomainLink = URI.parse(this.extension.publisherDomain.link);
+				verifiedPublisher.tabIndex = 0;
+				verifiedPublisher.setAttribute('role', 'button');
+				this.containerHover.update(localize('verified publisher', "This publisher has verified ownership of {0}", this.extension.publisherDomain.link));
+				verifiedPublisher.setAttribute('role', 'link');
+
+				append(verifiedPublisher, $('span.extension-verified-publisher-domain', undefined, publisherDomainLink.authority.startsWith('www.') ? publisherDomainLink.authority.substring(4) : publisherDomainLink.authority));
+				this.disposables.add(onClick(verifiedPublisher, () => this.openerService.open(publisherDomainLink)));
+			}
+
+			if (this.extension.url) {
+				this.disposables.add(onClick(this.element, () => this.extensionsWorkbenchService.openSearch(`publisher:"${this.extension?.publisherDisplayName}"`)));
+			}
+		}
+
+	}
 
 }
 
@@ -321,23 +321,23 @@ export class SponsorWidget extends ExtensionWidget {
 		this.render();
 	}
 
-	render(cognidreamognidream {
+	render(): void {
 		reset(this.container);
-this.disposables.clear();
-if (!this.extension?.publisherSponsorLink) {
-	return;
-}
+		this.disposables.clear();
+		if (!this.extension?.publisherSponsorLink) {
+			return;
+		}
 
-const sponsor = append(this.container, $('span.sponsor.clickable', { tabIndex: 0 }));
-this.disposables.add(this.hoverService.setupManagedHover(getDefaultHoverDelegate('mouse'), sponsor, this.extension?.publisherSponsorLink.toString() ?? ''));
-sponsor.setAttribute('role', 'link'); // #132645
-const sponsorIconElement = renderIcon(sponsorIcon);
-const label = $('span', undefined, localize('sponsor', "Sponsor"));
-append(sponsor, sponsorIconElement, label);
-this.disposables.add(onClick(sponsor, () => {
-	this.openerService.open(this.extension!.publisherSponsorLink!);
-}));
-    }
+		const sponsor = append(this.container, $('span.sponsor.clickable', { tabIndex: 0 }));
+		this.disposables.add(this.hoverService.setupManagedHover(getDefaultHoverDelegate('mouse'), sponsor, this.extension?.publisherSponsorLink.toString() ?? ''));
+		sponsor.setAttribute('role', 'link'); // #132645
+		const sponsorIconElement = renderIcon(sponsorIcon);
+		const label = $('span', undefined, localize('sponsor', "Sponsor"));
+		append(sponsor, sponsorIconElement, label);
+		this.disposables.add(onClick(sponsor, () => {
+			this.openerService.open(this.extension!.publisherSponsorLink!);
+		}));
+	}
 }
 
 export class RecommendationWidget extends ExtensionWidget {
@@ -355,24 +355,24 @@ export class RecommendationWidget extends ExtensionWidget {
 		this._register(this.extensionRecommendationsService.onDidChangeRecommendations(() => this.render()));
 	}
 
-	private clear(cognidreamognidream {
+	private clear(): void {
 		this.element?.remove();
-this.element = undefined;
-this.disposables.clear();
-    }
+		this.element = undefined;
+		this.disposables.clear();
+	}
 
-render(cognidreamognidream {
-	this.clear();
-	if(!this.extension || this.extension.state === ExtensionState.Installed || this.extension.deprecationInfo) {
-	return;
-}
-const extRecommendations = this.extensionRecommendationsService.getAllRecommendationsWithReason();
-if (extRecommendations[this.extension.identifier.id.toLowerCase()]) {
-	this.element = append(this.parent, $('div.extension-bookmark'));
-	const recommendation = append(this.element, $('.recommendation'));
-	append(recommendation, $('span' + ThemeIcon.asCSSSelector(ratingIcon)));
-}
-    }
+	render(): void {
+		this.clear();
+		if (!this.extension || this.extension.state === ExtensionState.Installed || this.extension.deprecationInfo) {
+			return;
+		}
+		const extRecommendations = this.extensionRecommendationsService.getAllRecommendationsWithReason();
+		if (extRecommendations[this.extension.identifier.id.toLowerCase()]) {
+			this.element = append(this.parent, $('div.extension-bookmark'));
+			const recommendation = append(this.element, $('.recommendation'));
+			append(recommendation, $('span' + ThemeIcon.asCSSSelector(ratingIcon)));
+		}
+	}
 
 }
 
@@ -389,20 +389,20 @@ export class PreReleaseBookmarkWidget extends ExtensionWidget {
 		this._register(toDisposable(() => this.clear()));
 	}
 
-	private clear(cognidreamognidream {
+	private clear(): void {
 		this.element?.remove();
-this.element = undefined;
-this.disposables.clear();
-    }
+		this.element = undefined;
+		this.disposables.clear();
+	}
 
-render(cognidreamognidream {
-	this.clear();
-	if(this.extension?.state === ExtensionState.Installed ? this.extension.preRelease : this.extension?.hasPreReleaseVersion) {
-	this.element = append(this.parent, $('div.extension-bookmark'));
-	const preRelease = append(this.element, $('.pre-release'));
-	append(preRelease, $('span' + ThemeIcon.asCSSSelector(preReleaseIcon)));
-}
-    }
+	render(): void {
+		this.clear();
+		if (this.extension?.state === ExtensionState.Installed ? this.extension.preRelease : this.extension?.hasPreReleaseVersion) {
+			this.element = append(this.parent, $('div.extension-bookmark'));
+			const preRelease = append(this.element, $('.pre-release'));
+			append(preRelease, $('span' + ThemeIcon.asCSSSelector(preReleaseIcon)));
+		}
+	}
 
 }
 
@@ -424,19 +424,19 @@ export class RemoteBadgeWidget extends ExtensionWidget {
 		this._register(toDisposable(() => this.clear()));
 	}
 
-	private clear(cognidreamognidream {
+	private clear(): void {
 		this.remoteBadge.value?.element.remove();
-this.remoteBadge.clear();
-    }
+		this.remoteBadge.clear();
+	}
 
-render(cognidreamognidream {
-	this.clear();
-	if(!this.extension || !this.extension.local || !this.extension.server || !(this.extensionManagementServerService.localExtensionManagementServer && this.extensionManagementServerService.remoteExtensionManagementServer) || this.extension.server !== this.extensionManagementServerService.remoteExtensionManagementServer) {
-	return;
-}
-this.remoteBadge.value = this.instantiationService.createInstance(RemoteBadge, this.tooltip);
-append(this.element, this.remoteBadge.value.element);
-    }
+	render(): void {
+		this.clear();
+		if (!this.extension || !this.extension.local || !this.extension.server || !(this.extensionManagementServerService.localExtensionManagementServer && this.extensionManagementServerService.remoteExtensionManagementServer) || this.extension.server !== this.extensionManagementServerService.remoteExtensionManagementServer) {
+			return;
+		}
+		this.remoteBadge.value = this.instantiationService.createInstance(RemoteBadge, this.tooltip);
+		append(this.element, this.remoteBadge.value.element);
+	}
 }
 
 class RemoteBadge extends Disposable {
@@ -457,31 +457,31 @@ class RemoteBadge extends Disposable {
 		this.render();
 	}
 
-	private render(cognidreamognidream {
+	private render(): void {
 		append(this.element, $('span' + ThemeIcon.asCSSSelector(remoteIcon)));
 
-const applyBadgeStyle = () => {
-	if (!this.element) {
-		return;
-	}
-	const bgColor = this.themeService.getColorTheme().getColor(EXTENSION_BADGE_REMOTE_BACKGROUND);
-	const fgColor = this.themeService.getColorTheme().getColor(EXTENSION_BADGE_REMOTE_FOREGROUND);
-	this.element.style.backgroundColor = bgColor ? bgColor.toString() : '';
-	this.element.style.color = fgColor ? fgColor.toString() : '';
-};
-applyBadgeStyle();
-this._register(this.themeService.onDidColorThemeChange(() => applyBadgeStyle()));
+		const applyBadgeStyle = () => {
+			if (!this.element) {
+				return;
+			}
+			const bgColor = this.themeService.getColorTheme().getColor(EXTENSION_BADGE_REMOTE_BACKGROUND);
+			const fgColor = this.themeService.getColorTheme().getColor(EXTENSION_BADGE_REMOTE_FOREGROUND);
+			this.element.style.backgroundColor = bgColor ? bgColor.toString() : '';
+			this.element.style.color = fgColor ? fgColor.toString() : '';
+		};
+		applyBadgeStyle();
+		this._register(this.themeService.onDidColorThemeChange(() => applyBadgeStyle()));
 
-if (this.tooltip) {
-	const updateTitle = () => {
-		if (this.element && this.extensionManagementServerService.remoteExtensionManagementServer) {
-			this.elementHover.update(localize('remote extension title', "Extension in {0}", this.extensionManagementServerService.remoteExtensionManagementServer.label));
+		if (this.tooltip) {
+			const updateTitle = () => {
+				if (this.element && this.extensionManagementServerService.remoteExtensionManagementServer) {
+					this.elementHover.update(localize('remote extension title', "Extension in {0}", this.extensionManagementServerService.remoteExtensionManagementServer.label));
+				}
+			};
+			this._register(this.labelService.onDidChangeFormatters(() => updateTitle()));
+			updateTitle();
 		}
-	};
-	this._register(this.labelService.onDidChangeFormatters(() => updateTitle()));
-	updateTitle();
-}
-    }
+	}
 }
 
 export class ExtensionPackCountWidget extends ExtensionWidget {
@@ -497,21 +497,21 @@ export class ExtensionPackCountWidget extends ExtensionWidget {
 		this._register(toDisposable(() => this.clear()));
 	}
 
-	private clear(cognidreamognidream {
+	private clear(): void {
 		this.element?.remove();
-this.countBadge?.dispose();
-this.countBadge = undefined;
-    }
+		this.countBadge?.dispose();
+		this.countBadge = undefined;
+	}
 
-render(cognidreamognidream {
-	this.clear();
-	if(!this.extension || !(this.extension.categories?.some(category => category.toLowerCase() === 'extension packs')) || !this.extension.extensionPack.length) {
-	return;
-}
-this.element = append(this.parent, $('.extension-badge.extension-pack-badge'));
-this.countBadge = new CountBadge(this.element, {}, defaultCountBadgeStyles);
-this.countBadge.setCount(this.extension.extensionPack.length);
-    }
+	render(): void {
+		this.clear();
+		if (!this.extension || !(this.extension.categories?.some(category => category.toLowerCase() === 'extension packs')) || !this.extension.extensionPack.length) {
+			return;
+		}
+		this.element = append(this.parent, $('.extension-badge.extension-pack-badge'));
+		this.countBadge = new CountBadge(this.element, {}, defaultCountBadgeStyles);
+		this.countBadge.setCount(this.extension.extensionPack.length);
+	}
 }
 
 export class ExtensionKindIndicatorWidget extends ExtensionWidget {
@@ -534,51 +534,51 @@ export class ExtensionKindIndicatorWidget extends ExtensionWidget {
 		this._register(toDisposable(() => this.clear()));
 	}
 
-	private clear(cognidreamognidream {
+	private clear(): void {
 		this.element?.remove();
-this.disposables.clear();
-    }
-
-render(cognidreamognidream {
-	this.clear();
-
-	if(this.small) {
-	return;
-}
-
-if (!this.extension) {
-	return;
-}
-
-if (this.extension?.private) {
-	this.element = append(this.container, $('.extension-kind-indicator'));
-	append(this.element, $('span' + ThemeIcon.asCSSSelector(privateExtensionIcon)));
-	if (!this.small) {
-		append(this.element, $('span.private-extension-label', undefined, localize('privateExtension', "Private Extension")));
+		this.disposables.clear();
 	}
-	return;
-}
 
-const location = this.extension.resourceExtension?.location ?? (this.extension.local?.source === 'resource' ? this.extension.local?.location : undefined);
-if (!location) {
-	return;
-}
+	render(): void {
+		this.clear();
 
-this.element = append(this.container, $('.extension-kind-indicator'));
-const workspaceFolder = this.contextService.getWorkspaceFolder(location);
-if (workspaceFolder && this.extension.isWorkspaceScoped) {
-	this.element.textContent = localize('workspace extension', "Workspace Extension");
-	this.element.classList.add('clickable');
-	this.element.setAttribute('role', 'button');
-	this.disposables.add(this.hoverService.setupManagedHover(getDefaultHoverDelegate('mouse'), this.element, this.uriIdentityService.extUri.relativePath(workspaceFolder.uri, location)));
-	this.disposables.add(onClick(this.element, () => {
-		this.viewsService.openView(EXPLORER_VIEW_ID, true).then(() => this.explorerService.select(location, true));
-	}));
-} else {
-	this.disposables.add(this.hoverService.setupManagedHover(getDefaultHoverDelegate('mouse'), this.element, location.path));
-	this.element.textContent = localize('local extension', "Local Extension");
-}
-    }
+		if (this.small) {
+			return;
+		}
+
+		if (!this.extension) {
+			return;
+		}
+
+		if (this.extension?.private) {
+			this.element = append(this.container, $('.extension-kind-indicator'));
+			append(this.element, $('span' + ThemeIcon.asCSSSelector(privateExtensionIcon)));
+			if (!this.small) {
+				append(this.element, $('span.private-extension-label', undefined, localize('privateExtension', "Private Extension")));
+			}
+			return;
+		}
+
+		const location = this.extension.resourceExtension?.location ?? (this.extension.local?.source === 'resource' ? this.extension.local?.location : undefined);
+		if (!location) {
+			return;
+		}
+
+		this.element = append(this.container, $('.extension-kind-indicator'));
+		const workspaceFolder = this.contextService.getWorkspaceFolder(location);
+		if (workspaceFolder && this.extension.isWorkspaceScoped) {
+			this.element.textContent = localize('workspace extension', "Workspace Extension");
+			this.element.classList.add('clickable');
+			this.element.setAttribute('role', 'button');
+			this.disposables.add(this.hoverService.setupManagedHover(getDefaultHoverDelegate('mouse'), this.element, this.uriIdentityService.extUri.relativePath(workspaceFolder.uri, location)));
+			this.disposables.add(onClick(this.element, () => {
+				this.viewsService.openView(EXPLORER_VIEW_ID, true).then(() => this.explorerService.select(location, true));
+			}));
+		} else {
+			this.disposables.add(this.hoverService.setupManagedHover(getDefaultHoverDelegate('mouse'), this.element, location.path));
+			this.element.textContent = localize('local extension', "Local Extension");
+		}
+	}
 }
 
 export class SyncIgnoredWidget extends ExtensionWidget {
@@ -598,16 +598,16 @@ export class SyncIgnoredWidget extends ExtensionWidget {
 		this.render();
 	}
 
-	render(cognidreamognidream {
+	render(): void {
 		this.disposables.clear();
-this.container.innerText = '';
+		this.container.innerText = '';
 
-if (this.extension && this.extension.state === ExtensionState.Installed && this.userDataSyncEnablementService.isEnabled() && this.extensionsWorkbenchService.isExtensionIgnoredToSync(this.extension)) {
-	const element = append(this.container, $('span.extension-sync-ignored' + ThemeIcon.asCSSSelector(syncIgnoredIcon)));
-	this.disposables.add(this.hoverService.setupManagedHover(getDefaultHoverDelegate('mouse'), element, localize('syncingore.label', "This extension is ignored during sync.")));
-	element.classList.add(...ThemeIcon.asClassNameArray(syncIgnoredIcon));
-}
-    }
+		if (this.extension && this.extension.state === ExtensionState.Installed && this.userDataSyncEnablementService.isEnabled() && this.extensionsWorkbenchService.isExtensionIgnoredToSync(this.extension)) {
+			const element = append(this.container, $('span.extension-sync-ignored' + ThemeIcon.asCSSSelector(syncIgnoredIcon)));
+			this.disposables.add(this.hoverService.setupManagedHover(getDefaultHoverDelegate('mouse'), element, localize('syncingore.label', "This extension is ignored during sync.")));
+			element.classList.add(...ThemeIcon.asClassNameArray(syncIgnoredIcon));
+		}
+	}
 }
 
 export class ExtensionRuntimeStatusWidget extends ExtensionWidget {
@@ -632,33 +632,33 @@ export class ExtensionRuntimeStatusWidget extends ExtensionWidget {
 		}));
 	}
 
-	render(cognidreamognidream {
+	render(): void {
 		this.container.innerText = '';
 
 		if (!this.extension) {
-	return;
-}
+			return;
+		}
 
-if (this.extensionViewState.filters.featureId && this.extension.state === ExtensionState.Installed) {
-	const accessData = this.extensionFeaturesManagementService.getAllAccessDataForExtension(new ExtensionIdentifier(this.extension.identifier.id)).get(this.extensionViewState.filters.featureId);
-	const feature = Registry.as<IExtensionFeaturesRegistry>(Extensions.ExtensionFeaturesRegistry).getExtensionFeature(this.extensionViewState.filters.featureId);
-	if (feature?.icon && accessData) {
-		const featureAccessTimeElement = append(this.container, $('span.activationTime'));
-		featureAccessTimeElement.textContent = localize('feature access label', "{0} reqs", accessData.accessTimes.length);
-		const iconElement = append(this.container, $('span' + ThemeIcon.asCSSSelector(feature.icon)));
-		iconElement.style.paddingLeft = '4px';
-		return;
+		if (this.extensionViewState.filters.featureId && this.extension.state === ExtensionState.Installed) {
+			const accessData = this.extensionFeaturesManagementService.getAllAccessDataForExtension(new ExtensionIdentifier(this.extension.identifier.id)).get(this.extensionViewState.filters.featureId);
+			const feature = Registry.as<IExtensionFeaturesRegistry>(Extensions.ExtensionFeaturesRegistry).getExtensionFeature(this.extensionViewState.filters.featureId);
+			if (feature?.icon && accessData) {
+				const featureAccessTimeElement = append(this.container, $('span.activationTime'));
+				featureAccessTimeElement.textContent = localize('feature access label', "{0} reqs", accessData.accessTimes.length);
+				const iconElement = append(this.container, $('span' + ThemeIcon.asCSSSelector(feature.icon)));
+				iconElement.style.paddingLeft = '4px';
+				return;
+			}
+		}
+
+		const extensionStatus = this.extensionsWorkbenchService.getExtensionRuntimeStatus(this.extension);
+		if (extensionStatus?.activationTimes) {
+			const activationTime = extensionStatus.activationTimes.codeLoadingTime + extensionStatus.activationTimes.activateCallTime;
+			append(this.container, $('span' + ThemeIcon.asCSSSelector(activationTimeIcon)));
+			const activationTimeElement = append(this.container, $('span.activationTime'));
+			activationTimeElement.textContent = `${activationTime}ms`;
+		}
 	}
-}
-
-const extensionStatus = this.extensionsWorkbenchService.getExtensionRuntimeStatus(this.extension);
-if (extensionStatus?.activationTimes) {
-	const activationTime = extensionStatus.activationTimes.codeLoadingTime + extensionStatus.activationTimes.activateCallTime;
-	append(this.container, $('span' + ThemeIcon.asCSSSelector(activationTimeIcon)));
-	const activationTimeElement = append(this.container, $('span.activationTime'));
-	activationTimeElement.textContent = `${activationTime}ms`;
-}
-    }
 
 }
 
@@ -685,221 +685,221 @@ export class ExtensionHoverWidget extends ExtensionWidget {
 		super();
 	}
 
-	render(cognidreamognidream {
+	render(): void {
 		this.hover.value = undefined;
 		if (this.extension) {
-	this.hover.value = this.hoverService.setupManagedHover({
-		delay: this.configurationService.getValue<number>('workbench.hover.delay'),
-		showHover: (options, focus) => {
-			return this.hoverService.showInstantHover({
-				...options,
-				additionalClasses: ['extension-hover'],
-				position: {
-					hoverPosition: this.options.position(),
-					forcePosition: true,
+			this.hover.value = this.hoverService.setupManagedHover({
+				delay: this.configurationService.getValue<number>('workbench.hover.delay'),
+				showHover: (options, focus) => {
+					return this.hoverService.showInstantHover({
+						...options,
+						additionalClasses: ['extension-hover'],
+						position: {
+							hoverPosition: this.options.position(),
+							forcePosition: true,
+						},
+						persistence: {
+							hideOnKeyDown: true,
+						}
+					}, focus);
 				},
-				persistence: {
-					hideOnKeyDown: true,
+				placement: 'element'
+			},
+				this.options.target,
+				{
+					markdown: () => Promise.resolve(this.getHoverMarkdown()),
+					markdownNotSupportedFallback: undefined
+				},
+				{
+					appearance: {
+						showHoverHint: true
+					}
 				}
-			}, focus);
-		},
-		placement: 'element'
-	},
-		this.options.target,
-		{
-			markdown: () => Promise.resolve(this.getHoverMarkdown()),
-			markdownNotSupportedFallback: undefined
-		},
-		{
-			appearance: {
-				showHoverHint: true
-			}
+			);
 		}
-	);
-}
-    }
-
-    private getHoverMarkdown(): MarkdownString | undefined {
-	if (!this.extension) {
-		return undefined;
 	}
-	const markdown = new MarkdownString('', { isTrusted: true, supportThemeIcons: true });
 
-	markdown.appendMarkdown(`**${this.extension.displayName}**`);
-	if (semver.valid(this.extension.version)) {
-		markdown.appendMarkdown(`&nbsp;<span style="background-color:#8080802B;">**&nbsp;_v${this.extension.version}${(this.extension.isPreReleaseVersion ? ' (pre-release)' : '')}_**&nbsp;</span>`);
-	}
-	markdown.appendText(`\n`);
+	private getHoverMarkdown(): MarkdownString | undefined {
+		if (!this.extension) {
+			return undefined;
+		}
+		const markdown = new MarkdownString('', { isTrusted: true, supportThemeIcons: true });
 
-	let addSeparator = false;
-	if (this.extension.private) {
-		markdown.appendMarkdown(`$(${privateExtensionIcon.id}) ${localize('privateExtension', "Private Extension")}`);
-		addSeparator = true;
-	}
-	if (this.extension.state === ExtensionState.Installed) {
-		const installLabel = InstallCountWidget.getInstallLabel(this.extension, true);
-		if (installLabel) {
-			if (addSeparator) {
-				markdown.appendText(`  |  `);
-			}
-			markdown.appendMarkdown(`$(${installCountIcon.id}) ${installLabel}`);
+		markdown.appendMarkdown(`**${this.extension.displayName}**`);
+		if (semver.valid(this.extension.version)) {
+			markdown.appendMarkdown(`&nbsp;<span style="background-color:#8080802B;">**&nbsp;_v${this.extension.version}${(this.extension.isPreReleaseVersion ? ' (pre-release)' : '')}_**&nbsp;</span>`);
+		}
+		markdown.appendText(`\n`);
+
+		let addSeparator = false;
+		if (this.extension.private) {
+			markdown.appendMarkdown(`$(${privateExtensionIcon.id}) ${localize('privateExtension', "Private Extension")}`);
 			addSeparator = true;
 		}
-		if (this.extension.rating) {
-			if (addSeparator) {
-				markdown.appendText(`  |  `);
-			}
-			const rating = Math.round(this.extension.rating * 2) / 2;
-			markdown.appendMarkdown(`$(${starFullIcon.id}) [${rating}](${this.extension.url}&ssr=false#review-details)`);
-			addSeparator = true;
-		}
-		if (this.extension.publisherSponsorLink) {
-			if (addSeparator) {
-				markdown.appendText(`  |  `);
-			}
-			markdown.appendMarkdown(`$(${sponsorIcon.id}) [${localize('sponsor', "Sponsor")}](${this.extension.publisherSponsorLink})`);
-			addSeparator = true;
-		}
-	}
-	if (addSeparator) {
-		markdown.appendText(`\n`);
-	}
-
-	const location = this.extension.resourceExtension?.location ?? (this.extension.local?.source === 'resource' ? this.extension.local?.location : undefined);
-	if (location) {
-		if (this.extension.isWorkspaceScoped && this.contextService.isInsideWorkspace(location)) {
-			markdown.appendMarkdown(localize('workspace extension', "Workspace Extension"));
-		} else {
-			markdown.appendMarkdown(localize('local extension', "Local Extension"));
-		}
-		markdown.appendText(`\n`);
-	}
-
-	if (this.extension.description) {
-		markdown.appendMarkdown(`${this.extension.description}`);
-		markdown.appendText(`\n`);
-	}
-
-	if (this.extension.publisherDomain?.verified) {
-		const bgColor = this.themeService.getColorTheme().getColor(extensionVerifiedPublisherIconColor);
-		const publisherVerifiedTooltip = localize('publisher verified tooltip', "This publisher has verified ownership of {0}", `[${URI.parse(this.extension.publisherDomain.link).authority}](${this.extension.publisherDomain.link})`);
-		markdown.appendMarkdown(`<span style="color:${bgColor ? Color.Format.CSS.formatHex(bgColor) : '#ffffff'};">$(${verifiedPublisherIcon.id})</span>&nbsp;${publisherVerifiedTooltip}`);
-		markdown.appendText(`\n`);
-	}
-
-	if (this.extension.outdated) {
-		markdown.appendMarkdown(localize('updateRequired', "Latest version:"));
-		markdown.appendMarkdown(`&nbsp;<span style="background-color:#8080802B;">**&nbsp;_v${this.extension.latestVersion}_**&nbsp;</span>`);
-		markdown.appendText(`\n`);
-	}
-
-	const preReleaseMessage = ExtensionHoverWidget.getPreReleaseMessage(this.extension);
-	const extensionRuntimeStatus = this.extensionsWorkbenchService.getExtensionRuntimeStatus(this.extension);
-	const extensionFeaturesAccessData = this.extensionFeaturesManagementService.getAllAccessDataForExtension(new ExtensionIdentifier(this.extension.identifier.id));
-	const extensionStatus = this.extensionStatusAction.status;
-	const runtimeState = this.extension.runtimeState;
-	const recommendationMessage = this.getRecommendationMessage(this.extension);
-
-	if (extensionRuntimeStatus || extensionFeaturesAccessData.size || extensionStatus.length || runtimeState || recommendationMessage || preReleaseMessage) {
-
-		markdown.appendMarkdown(`---`);
-		markdown.appendText(`\n`);
-
-		if (extensionRuntimeStatus) {
-			if (extensionRuntimeStatus.activationTimes) {
-				const activationTime = extensionRuntimeStatus.activationTimes.codeLoadingTime + extensionRuntimeStatus.activationTimes.activateCallTime;
-				markdown.appendMarkdown(`${localize('activation', "Activation time")}${extensionRuntimeStatus.activationTimes.activationReason.startup ? ` (${localize('startup', "Startup")})` : ''}: \`${activationTime}ms\``);
-				markdown.appendText(`\n`);
-			}
-			if (extensionRuntimeStatus.runtimeErrors.length || extensionRuntimeStatus.messages.length) {
-				const hasErrors = extensionRuntimeStatus.runtimeErrors.length || extensionRuntimeStatus.messages.some(message => message.type === Severity.Error);
-				const hasWarnings = extensionRuntimeStatus.messages.some(message => message.type === Severity.Warning);
-				const errorsLink = extensionRuntimeStatus.runtimeErrors.length ? `[${extensionRuntimeStatus.runtimeErrors.length === 1 ? localize('uncaught error', '1 uncaught error') : localize('uncaught errors', '{0} uncaught errors', extensionRuntimeStatus.runtimeErrors.length)}](${URI.parse(`command:extension.open?${encodeURIComponent(JSON.stringify([this.extension.identifier.id, ExtensionEditorTab.Features]))}`)})` : undefined;
-				const messageLink = extensionRuntimeStatus.messages.length ? `[${extensionRuntimeStatus.messages.length === 1 ? localize('message', '1 message') : localize('messages', '{0} messages', extensionRuntimeStatus.messages.length)}](${URI.parse(`command:extension.open?${encodeURIComponent(JSON.stringify([this.extension.identifier.id, ExtensionEditorTab.Features]))}`)})` : undefined;
-				markdown.appendMarkdown(`$(${hasErrors ? errorIcon.id : hasWarnings ? warningIcon.id : infoIcon.id}) This extension has reported `);
-				if (errorsLink && messageLink) {
-					markdown.appendMarkdown(`${errorsLink} and ${messageLink}`);
-				} else {
-					markdown.appendMarkdown(`${errorsLink || messageLink}`);
+		if (this.extension.state === ExtensionState.Installed) {
+			const installLabel = InstallCountWidget.getInstallLabel(this.extension, true);
+			if (installLabel) {
+				if (addSeparator) {
+					markdown.appendText(`  |  `);
 				}
-				markdown.appendText(`\n`);
+				markdown.appendMarkdown(`$(${installCountIcon.id}) ${installLabel}`);
+				addSeparator = true;
+			}
+			if (this.extension.rating) {
+				if (addSeparator) {
+					markdown.appendText(`  |  `);
+				}
+				const rating = Math.round(this.extension.rating * 2) / 2;
+				markdown.appendMarkdown(`$(${starFullIcon.id}) [${rating}](${this.extension.url}&ssr=false#review-details)`);
+				addSeparator = true;
+			}
+			if (this.extension.publisherSponsorLink) {
+				if (addSeparator) {
+					markdown.appendText(`  |  `);
+				}
+				markdown.appendMarkdown(`$(${sponsorIcon.id}) [${localize('sponsor', "Sponsor")}](${this.extension.publisherSponsorLink})`);
+				addSeparator = true;
 			}
 		}
+		if (addSeparator) {
+			markdown.appendText(`\n`);
+		}
 
-		if (extensionFeaturesAccessData.size) {
-			const registry = Registry.as<IExtensionFeaturesRegistry>(Extensions.ExtensionFeaturesRegistry);
-			for (const [featureId, accessData] of extensionFeaturesAccessData) {
-				if (accessData?.accessTimes.length) {
-					const feature = registry.getExtensionFeature(featureId);
-					if (feature) {
-						markdown.appendMarkdown(localize('feature usage label', "{0} usage", feature.label));
-						markdown.appendMarkdown(`: [${localize('total', "{0} {1} requests in last 30 days", accessData.accessTimes.length, feature.accessDataLabel ?? feature.label)}](${URI.parse(`command:extension.open?${encodeURIComponent(JSON.stringify([this.extension.identifier.id, ExtensionEditorTab.Features]))}`)})`);
-						markdown.appendText(`\n`);
+		const location = this.extension.resourceExtension?.location ?? (this.extension.local?.source === 'resource' ? this.extension.local?.location : undefined);
+		if (location) {
+			if (this.extension.isWorkspaceScoped && this.contextService.isInsideWorkspace(location)) {
+				markdown.appendMarkdown(localize('workspace extension', "Workspace Extension"));
+			} else {
+				markdown.appendMarkdown(localize('local extension', "Local Extension"));
+			}
+			markdown.appendText(`\n`);
+		}
+
+		if (this.extension.description) {
+			markdown.appendMarkdown(`${this.extension.description}`);
+			markdown.appendText(`\n`);
+		}
+
+		if (this.extension.publisherDomain?.verified) {
+			const bgColor = this.themeService.getColorTheme().getColor(extensionVerifiedPublisherIconColor);
+			const publisherVerifiedTooltip = localize('publisher verified tooltip', "This publisher has verified ownership of {0}", `[${URI.parse(this.extension.publisherDomain.link).authority}](${this.extension.publisherDomain.link})`);
+			markdown.appendMarkdown(`<span style="color:${bgColor ? Color.Format.CSS.formatHex(bgColor) : '#ffffff'};">$(${verifiedPublisherIcon.id})</span>&nbsp;${publisherVerifiedTooltip}`);
+			markdown.appendText(`\n`);
+		}
+
+		if (this.extension.outdated) {
+			markdown.appendMarkdown(localize('updateRequired', "Latest version:"));
+			markdown.appendMarkdown(`&nbsp;<span style="background-color:#8080802B;">**&nbsp;_v${this.extension.latestVersion}_**&nbsp;</span>`);
+			markdown.appendText(`\n`);
+		}
+
+		const preReleaseMessage = ExtensionHoverWidget.getPreReleaseMessage(this.extension);
+		const extensionRuntimeStatus = this.extensionsWorkbenchService.getExtensionRuntimeStatus(this.extension);
+		const extensionFeaturesAccessData = this.extensionFeaturesManagementService.getAllAccessDataForExtension(new ExtensionIdentifier(this.extension.identifier.id));
+		const extensionStatus = this.extensionStatusAction.status;
+		const runtimeState = this.extension.runtimeState;
+		const recommendationMessage = this.getRecommendationMessage(this.extension);
+
+		if (extensionRuntimeStatus || extensionFeaturesAccessData.size || extensionStatus.length || runtimeState || recommendationMessage || preReleaseMessage) {
+
+			markdown.appendMarkdown(`---`);
+			markdown.appendText(`\n`);
+
+			if (extensionRuntimeStatus) {
+				if (extensionRuntimeStatus.activationTimes) {
+					const activationTime = extensionRuntimeStatus.activationTimes.codeLoadingTime + extensionRuntimeStatus.activationTimes.activateCallTime;
+					markdown.appendMarkdown(`${localize('activation', "Activation time")}${extensionRuntimeStatus.activationTimes.activationReason.startup ? ` (${localize('startup', "Startup")})` : ''}: \`${activationTime}ms\``);
+					markdown.appendText(`\n`);
+				}
+				if (extensionRuntimeStatus.runtimeErrors.length || extensionRuntimeStatus.messages.length) {
+					const hasErrors = extensionRuntimeStatus.runtimeErrors.length || extensionRuntimeStatus.messages.some(message => message.type === Severity.Error);
+					const hasWarnings = extensionRuntimeStatus.messages.some(message => message.type === Severity.Warning);
+					const errorsLink = extensionRuntimeStatus.runtimeErrors.length ? `[${extensionRuntimeStatus.runtimeErrors.length === 1 ? localize('uncaught error', '1 uncaught error') : localize('uncaught errors', '{0} uncaught errors', extensionRuntimeStatus.runtimeErrors.length)}](${URI.parse(`command:extension.open?${encodeURIComponent(JSON.stringify([this.extension.identifier.id, ExtensionEditorTab.Features]))}`)})` : undefined;
+					const messageLink = extensionRuntimeStatus.messages.length ? `[${extensionRuntimeStatus.messages.length === 1 ? localize('message', '1 message') : localize('messages', '{0} messages', extensionRuntimeStatus.messages.length)}](${URI.parse(`command:extension.open?${encodeURIComponent(JSON.stringify([this.extension.identifier.id, ExtensionEditorTab.Features]))}`)})` : undefined;
+					markdown.appendMarkdown(`$(${hasErrors ? errorIcon.id : hasWarnings ? warningIcon.id : infoIcon.id}) This extension has reported `);
+					if (errorsLink && messageLink) {
+						markdown.appendMarkdown(`${errorsLink} and ${messageLink}`);
+					} else {
+						markdown.appendMarkdown(`${errorsLink || messageLink}`);
+					}
+					markdown.appendText(`\n`);
+				}
+			}
+
+			if (extensionFeaturesAccessData.size) {
+				const registry = Registry.as<IExtensionFeaturesRegistry>(Extensions.ExtensionFeaturesRegistry);
+				for (const [featureId, accessData] of extensionFeaturesAccessData) {
+					if (accessData?.accessTimes.length) {
+						const feature = registry.getExtensionFeature(featureId);
+						if (feature) {
+							markdown.appendMarkdown(localize('feature usage label', "{0} usage", feature.label));
+							markdown.appendMarkdown(`: [${localize('total', "{0} {1} requests in last 30 days", accessData.accessTimes.length, feature.accessDataLabel ?? feature.label)}](${URI.parse(`command:extension.open?${encodeURIComponent(JSON.stringify([this.extension.identifier.id, ExtensionEditorTab.Features]))}`)})`);
+							markdown.appendText(`\n`);
+						}
 					}
 				}
 			}
-		}
 
-		for (const status of extensionStatus) {
-			if (status.icon) {
-				markdown.appendMarkdown(`$(${status.icon.id})&nbsp;`);
+			for (const status of extensionStatus) {
+				if (status.icon) {
+					markdown.appendMarkdown(`$(${status.icon.id})&nbsp;`);
+				}
+				markdown.appendMarkdown(status.message.value);
+				markdown.appendText(`\n`);
 			}
-			markdown.appendMarkdown(status.message.value);
-			markdown.appendText(`\n`);
+
+			if (runtimeState) {
+				markdown.appendMarkdown(`$(${infoIcon.id})&nbsp;`);
+				markdown.appendMarkdown(`${runtimeState.reason}`);
+				markdown.appendText(`\n`);
+			}
+
+			if (preReleaseMessage) {
+				const extensionPreReleaseIcon = this.themeService.getColorTheme().getColor(extensionPreReleaseIconColor);
+				markdown.appendMarkdown(`<span style="color:${extensionPreReleaseIcon ? Color.Format.CSS.formatHex(extensionPreReleaseIcon) : '#ffffff'};">$(${preReleaseIcon.id})</span>&nbsp;${preReleaseMessage}`);
+				markdown.appendText(`\n`);
+			}
+
+			if (recommendationMessage) {
+				markdown.appendMarkdown(recommendationMessage);
+				markdown.appendText(`\n`);
+			}
 		}
 
-		if (runtimeState) {
-			markdown.appendMarkdown(`$(${infoIcon.id})&nbsp;`);
-			markdown.appendMarkdown(`${runtimeState.reason}`);
-			markdown.appendText(`\n`);
+		return markdown;
+	}
+
+	private getRecommendationMessage(extension: IExtension): string | undefined {
+		if (extension.state === ExtensionState.Installed) {
+			return undefined;
 		}
-
-		if (preReleaseMessage) {
-			const extensionPreReleaseIcon = this.themeService.getColorTheme().getColor(extensionPreReleaseIconColor);
-			markdown.appendMarkdown(`<span style="color:${extensionPreReleaseIcon ? Color.Format.CSS.formatHex(extensionPreReleaseIcon) : '#ffffff'};">$(${preReleaseIcon.id})</span>&nbsp;${preReleaseMessage}`);
-			markdown.appendText(`\n`);
+		if (extension.deprecationInfo) {
+			return undefined;
 		}
-
-		if (recommendationMessage) {
-			markdown.appendMarkdown(recommendationMessage);
-			markdown.appendText(`\n`);
+		const recommendation = this.extensionRecommendationsService.getAllRecommendationsWithReason()[extension.identifier.id.toLowerCase()];
+		if (!recommendation?.reasonText) {
+			return undefined;
 		}
+		const bgColor = this.themeService.getColorTheme().getColor(extensionButtonProminentBackground);
+		return `<span style="color:${bgColor ? Color.Format.CSS.formatHex(bgColor) : '#ffffff'};">$(${starEmptyIcon.id})</span>&nbsp;${recommendation.reasonText}`;
 	}
 
-	return markdown;
-}
-
-    private getRecommendationMessage(extension: IExtension): string | undefined {
-	if (extension.state === ExtensionState.Installed) {
-		return undefined;
+	static getPreReleaseMessage(extension: IExtension): string | undefined {
+		if (!extension.hasPreReleaseVersion) {
+			return undefined;
+		}
+		if (extension.isBuiltin) {
+			return undefined;
+		}
+		if (extension.isPreReleaseVersion) {
+			return undefined;
+		}
+		if (extension.preRelease) {
+			return undefined;
+		}
+		const preReleaseVersionLink = `[${localize('Show prerelease version', "Pre-Release version")}](${URI.parse(`command:workbench.extensions.action.showPreReleaseVersion?${encodeURIComponent(JSON.stringify([extension.identifier.id]))}`)})`;
+		return localize('has prerelease', "This extension has a {0} available", preReleaseVersionLink);
 	}
-	if (extension.deprecationInfo) {
-		return undefined;
-	}
-	const recommendation = this.extensionRecommendationsService.getAllRecommendationsWithReason()[extension.identifier.id.toLowerCase()];
-	if (!recommendation?.reasonText) {
-		return undefined;
-	}
-	const bgColor = this.themeService.getColorTheme().getColor(extensionButtonProminentBackground);
-	return `<span style="color:${bgColor ? Color.Format.CSS.formatHex(bgColor) : '#ffffff'};">$(${starEmptyIcon.id})</span>&nbsp;${recommendation.reasonText}`;
-}
-
-    static getPreReleaseMessage(extension: IExtension): string | undefined {
-	if (!extension.hasPreReleaseVersion) {
-		return undefined;
-	}
-	if (extension.isBuiltin) {
-		return undefined;
-	}
-	if (extension.isPreReleaseVersion) {
-		return undefined;
-	}
-	if (extension.preRelease) {
-		return undefined;
-	}
-	const preReleaseVersionLink = `[${localize('Show prerelease version', "Pre-Release version")}](${URI.parse(`command:workbench.extensions.action.showPreReleaseVersion?${encodeURIComponent(JSON.stringify([extension.identifier.id]))}`)})`;
-	return localize('has prerelease', "This extension has a {0} available", preReleaseVersionLink);
-}
 
 }
 
@@ -907,96 +907,96 @@ export class ExtensionStatusWidget extends ExtensionWidget {
 
 	private readonly renderDisposables = this._register(new MutableDisposable());
 
-	private readonly _onDidRender = this._register(new Emittcognidreamognidream > ());
-	readonly onDidRender: Evecognidreamognidream> = this._onDidRender.event;
+	private readonly _onDidRender = this._register(new Emitter<void>());
+	readonly onDidRender: Event<void> = this._onDidRender.event;
 
-constructor(
-	private readonly container: HTMLElement,
-	private readonly extensionStatusAction: ExtensionStatusAction,
-	@IOpenerService private readonly openerService: IOpenerService,
-) {
-	super();
-	this.render();
-	this._register(extensionStatusAction.onDidChangeStatus(() => this.render()));
-}
-
-render(cognidreamognidream {
-	reset(this.container);
-this.renderDisposables.value = undefined;
-const disposables = new DisposableStore();
-this.renderDisposables.value = disposables;
-const extensionStatus = this.extensionStatusAction.status;
-if (extensionStatus.length) {
-	const markdown = new MarkdownString('', { isTrusted: true, supportThemeIcons: true });
-	for (let i = 0; i < extensionStatus.length; i++) {
-		const status = extensionStatus[i];
-		if (status.icon) {
-			markdown.appendMarkdown(`$(${status.icon.id})&nbsp;`);
-		}
-		markdown.appendMarkdown(status.message.value);
-		if (i < extensionStatus.length - 1) {
-			markdown.appendText(`\n`);
-		}
+	constructor(
+		private readonly container: HTMLElement,
+		private readonly extensionStatusAction: ExtensionStatusAction,
+		@IOpenerService private readonly openerService: IOpenerService,
+	) {
+		super();
+		this.render();
+		this._register(extensionStatusAction.onDidChangeStatus(() => this.render()));
 	}
-	const rendered = disposables.add(renderMarkdown(markdown, {
-		actionHandler: {
-			callback: (content) => {
-				this.openerService.open(content, { allowCommands: true }).catch(onUnexpectedError);
-			},
-			disposables
+
+	render(): void {
+		reset(this.container);
+		this.renderDisposables.value = undefined;
+		const disposables = new DisposableStore();
+		this.renderDisposables.value = disposables;
+		const extensionStatus = this.extensionStatusAction.status;
+		if (extensionStatus.length) {
+			const markdown = new MarkdownString('', { isTrusted: true, supportThemeIcons: true });
+			for (let i = 0; i < extensionStatus.length; i++) {
+				const status = extensionStatus[i];
+				if (status.icon) {
+					markdown.appendMarkdown(`$(${status.icon.id})&nbsp;`);
+				}
+				markdown.appendMarkdown(status.message.value);
+				if (i < extensionStatus.length - 1) {
+					markdown.appendText(`\n`);
+				}
+			}
+			const rendered = disposables.add(renderMarkdown(markdown, {
+				actionHandler: {
+					callback: (content) => {
+						this.openerService.open(content, { allowCommands: true }).catch(onUnexpectedError);
+					},
+					disposables
+				}
+			}));
+			append(this.container, rendered.element);
 		}
-	}));
-	append(this.container, rendered.element);
-}
-this._onDidRender.fire();
-    }
+		this._onDidRender.fire();
+	}
 }
 
 export class ExtensionRecommendationWidget extends ExtensionWidget {
 
-	private readonly _onDidRender = this._register(new Emittcognidreamognidream > ());
-	readonly onDidRender: Evecognidreamognidream> = this._onDidRender.event;
+	private readonly _onDidRender = this._register(new Emitter<void>());
+	readonly onDidRender: Event<void> = this._onDidRender.event;
 
-constructor(
-	private readonly container: HTMLElement,
-	@IExtensionRecommendationsService private readonly extensionRecommendationsService: IExtensionRecommendationsService,
-	@IExtensionIgnoredRecommendationsService private readonly extensionIgnoredRecommendationsService: IExtensionIgnoredRecommendationsService,
-) {
-	super();
-	this.render();
-	this._register(this.extensionRecommendationsService.onDidChangeRecommendations(() => this.render()));
-}
-
-render(cognidreamognidream {
-	reset(this.container);
-const recommendationStatus = this.getRecommendationStatus();
-if (recommendationStatus) {
-	if (recommendationStatus.icon) {
-		append(this.container, $(`div${ThemeIcon.asCSSSelector(recommendationStatus.icon)}`));
-	}
-	append(this.container, $(`div.recommendation-text`, undefined, recommendationStatus.message));
-}
-this._onDidRender.fire();
-    }
-
-    private getRecommendationStatus(): { icon: ThemeIcon | undefined; message: string } | undefined {
-	if (!this.extension
-		|| this.extension.deprecationInfo
-		|| this.extension.state === ExtensionState.Installed
+	constructor(
+		private readonly container: HTMLElement,
+		@IExtensionRecommendationsService private readonly extensionRecommendationsService: IExtensionRecommendationsService,
+		@IExtensionIgnoredRecommendationsService private readonly extensionIgnoredRecommendationsService: IExtensionIgnoredRecommendationsService,
 	) {
+		super();
+		this.render();
+		this._register(this.extensionRecommendationsService.onDidChangeRecommendations(() => this.render()));
+	}
+
+	render(): void {
+		reset(this.container);
+		const recommendationStatus = this.getRecommendationStatus();
+		if (recommendationStatus) {
+			if (recommendationStatus.icon) {
+				append(this.container, $(`div${ThemeIcon.asCSSSelector(recommendationStatus.icon)}`));
+			}
+			append(this.container, $(`div.recommendation-text`, undefined, recommendationStatus.message));
+		}
+		this._onDidRender.fire();
+	}
+
+	private getRecommendationStatus(): { icon: ThemeIcon | undefined; message: string } | undefined {
+		if (!this.extension
+			|| this.extension.deprecationInfo
+			|| this.extension.state === ExtensionState.Installed
+		) {
+			return undefined;
+		}
+		const extRecommendations = this.extensionRecommendationsService.getAllRecommendationsWithReason();
+		if (extRecommendations[this.extension.identifier.id.toLowerCase()]) {
+			const reasonText = extRecommendations[this.extension.identifier.id.toLowerCase()].reasonText;
+			if (reasonText) {
+				return { icon: starEmptyIcon, message: reasonText };
+			}
+		} else if (this.extensionIgnoredRecommendationsService.globalIgnoredRecommendations.indexOf(this.extension.identifier.id.toLowerCase()) !== -1) {
+			return { icon: undefined, message: localize('recommendationHasBeenIgnored', "You have chosen not to receive recommendations for this extension.") };
+		}
 		return undefined;
 	}
-	const extRecommendations = this.extensionRecommendationsService.getAllRecommendationsWithReason();
-	if (extRecommendations[this.extension.identifier.id.toLowerCase()]) {
-		const reasonText = extRecommendations[this.extension.identifier.id.toLowerCase()].reasonText;
-		if (reasonText) {
-			return { icon: starEmptyIcon, message: reasonText };
-		}
-	} else if (this.extensionIgnoredRecommendationsService.globalIgnoredRecommendations.indexOf(this.extension.identifier.id.toLowerCase()) !== -1) {
-		return { icon: undefined, message: localize('recommendationHasBeenIgnored', "You have chosen not to receive recommendations for this extension.") };
-	}
-	return undefined;
-}
 }
 
 export const extensionRatingIconColor = registerColor('extensionIcon.starForeground', { light: '#DF6100', dark: '#FF8E00', hcDark: '#FF8E00', hcLight: textLinkForeground }, localize('extensionIconStarForeground', "The icon color for extension ratings."), false);

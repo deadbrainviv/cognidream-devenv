@@ -14,7 +14,7 @@ export class DomReadingContext {
 		return this._didDomLayout;
 	}
 
-	private readClientRect(): cognidream {
+	private readClientRect(): void {
 		if (!this._clientRectRead) {
 			this._clientRectRead = true;
 			const rect = this._domNode.getBoundingClientRect();
@@ -44,7 +44,7 @@ export class DomReadingContext {
 	) {
 	}
 
-	public markDidDomLayout(): cognidream {
+	public markDidDomLayout(): void {
 		this._didDomLayout = true;
 	}
 }

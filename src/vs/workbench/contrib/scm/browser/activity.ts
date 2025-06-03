@@ -127,7 +127,7 @@ export class SCMActiveRepositoryController extends Disposable implements IWorkbe
 		return observableFromEvent(this, repository.provider.onDidChangeResources, () => /** @description repositoryResourceCount */ getRepositoryResourceCount(repository.provider));
 	}
 
-	private _updateActivityCountBadge(count: number, store: DisposableStore): cognidream {
+	private _updateActivityCountBadge(count: number, store: DisposableStore): void {
 		if (count === 0) {
 			return;
 		}
@@ -136,71 +136,71 @@ export class SCMActiveRepositoryController extends Disposable implements IWorkbe
 		store.add(this.activityService.showViewActivity(VIEW_PANE_ID, { badge }));
 	}
 
-	private _updateStatusBar(repository: ISCMRepository | undefined, commands: readonly Command[], store: DisposableStorecognidreamognidream {
+	private _updateStatusBar(repository: ISCMRepository | undefined, commands: readonly Command[], store: DisposableStore): void {
 		if (!repository) {
-	return;
-}
-
-const label = repository.provider.rootUri
-	? `${basename(repository.provider.rootUri)} (${repository.provider.label})`
-	: repository.provider.label;
-
-for (let index = 0; index < commands.length; index++) {
-	const command = commands[index];
-	const tooltip = `${label}${command.tooltip ? ` - ${command.tooltip}` : ''}`;
-
-	// Get a repository agnostic name for the status bar action, derive this from the
-	// first command argument which is in the form "git.<command>/<number>"
-	let repoAgnosticActionName = command.arguments?.[0];
-	if (repoAgnosticActionName && typeof repoAgnosticActionName === 'string') {
-		repoAgnosticActionName = repoAgnosticActionName
-			.substring(0, repoAgnosticActionName.lastIndexOf('/'))
-			.replace(/^git\./, '');
-		if (repoAgnosticActionName.length > 1) {
-			repoAgnosticActionName = repoAgnosticActionName[0].toLocaleUpperCase() + repoAgnosticActionName.slice(1);
+			return;
 		}
-	} else {
-		repoAgnosticActionName = '';
+
+		const label = repository.provider.rootUri
+			? `${basename(repository.provider.rootUri)} (${repository.provider.label})`
+			: repository.provider.label;
+
+		for (let index = 0; index < commands.length; index++) {
+			const command = commands[index];
+			const tooltip = `${label}${command.tooltip ? ` - ${command.tooltip}` : ''}`;
+
+			// Get a repository agnostic name for the status bar action, derive this from the
+			// first command argument which is in the form "git.<command>/<number>"
+			let repoAgnosticActionName = command.arguments?.[0];
+			if (repoAgnosticActionName && typeof repoAgnosticActionName === 'string') {
+				repoAgnosticActionName = repoAgnosticActionName
+					.substring(0, repoAgnosticActionName.lastIndexOf('/'))
+					.replace(/^git\./, '');
+				if (repoAgnosticActionName.length > 1) {
+					repoAgnosticActionName = repoAgnosticActionName[0].toLocaleUpperCase() + repoAgnosticActionName.slice(1);
+				}
+			} else {
+				repoAgnosticActionName = '';
+			}
+
+			const statusbarEntry: IStatusbarEntry = {
+				name: localize('status.scm', "Source Control") + (repoAgnosticActionName ? ` ${repoAgnosticActionName}` : ''),
+				text: command.title,
+				ariaLabel: tooltip,
+				tooltip,
+				command: command.id ? command : undefined
+			};
+
+			store.add(index === 0 ?
+				this.statusbarService.addEntry(statusbarEntry, `status.scm.${index}`, MainThreadStatusBarAlignment.LEFT, 10000) :
+				this.statusbarService.addEntry(statusbarEntry, `status.scm.${index}`, MainThreadStatusBarAlignment.LEFT, { location: { id: `status.scm.${index - 1}`, priority: 10000 }, alignment: MainThreadStatusBarAlignment.RIGHT, compact: true })
+			);
+		}
+
+		// Ssource control provider status bar entry
+		if (this.scmService.repositoryCount > 1) {
+			const repositoryStatusbarEntry: IStatusbarEntry = {
+				name: localize('status.scm.provider', "Source Control Provider"),
+				text: `$(repo) ${repository.provider.name}`,
+				ariaLabel: label,
+				tooltip: label,
+				command: 'scm.setActiveProvider'
+			};
+
+			store.add(this.statusbarService.addEntry(repositoryStatusbarEntry, 'status.scm.provider', MainThreadStatusBarAlignment.LEFT, { location: { id: `status.scm.0`, priority: 10000 }, alignment: MainThreadStatusBarAlignment.LEFT, compact: true }));
+		}
 	}
 
-	const statusbarEntry: IStatusbarEntry = {
-		name: localize('status.scm', "Source Control") + (repoAgnosticActionName ? ` ${repoAgnosticActionName}` : ''),
-		text: command.title,
-		ariaLabel: tooltip,
-		tooltip,
-		command: command.id ? command : undefined
-	};
-
-	store.add(index === 0 ?
-		this.statusbarService.addEntry(statusbarEntry, `status.scm.${index}`, MainThreadStatusBarAlignment.LEFT, 10000) :
-		this.statusbarService.addEntry(statusbarEntry, `status.scm.${index}`, MainThreadStatusBarAlignment.LEFT, { location: { id: `status.scm.${index - 1}`, priority: 10000 }, alignment: MainThreadStatusBarAlignment.RIGHT, compact: true })
-	);
-}
-
-// Ssource control provider status bar entry
-if (this.scmService.repositoryCount > 1) {
-	const repositoryStatusbarEntry: IStatusbarEntry = {
-		name: localize('status.scm.provider', "Source Control Provider"),
-		text: `$(repo) ${repository.provider.name}`,
-		ariaLabel: label,
-		tooltip: label,
-		command: 'scm.setActiveProvider'
-	};
-
-	store.add(this.statusbarService.addEntry(repositoryStatusbarEntry, 'status.scm.provider', MainThreadStatusBarAlignment.LEFT, { location: { id: `status.scm.0`, priority: 10000 }, alignment: MainThreadStatusBarAlignment.LEFT, compact: true }));
-}
-    }
-
-    private _updateActiveRepositoryContextKeys(repositoryName: string | undefined, branchName: string | undefinedcognidreamognidream {
-	this._activeRepositoryNameContextKey.set(repositoryName ?? '');
-	this._activeRepositoryBranchNameContextKey.set(branchName ?? '');
-}
+	private _updateActiveRepositoryContextKeys(repositoryName: string | undefined, branchName: string | undefined): void {
+		this._activeRepositoryNameContextKey.set(repositoryName ?? '');
+		this._activeRepositoryBranchNameContextKey.set(branchName ?? '');
+	}
 }
 
 export class SCMActiveResourceContextKeyController extends Disposable implements IWorkbenchContribution {
 	private readonly _repositories: IObservable<Iterable<ISCMRepository>>;
 
-	private readonly _onDidRepositoryChange = new Emittcognidreamognidream > ();
+	private readonly _onDidRepositoryChange = new Emitter<void>();
 
 	constructor(
 		@IEditorGroupsService editorGroupsService: IEditorGroupsService,
@@ -269,8 +269,8 @@ export class SCMActiveResourceContextKeyController extends Disposable implements
 		return activeResourceRepository?.id;
 	}
 
-	override dispose(cognidreamognidream {
+	override dispose(): void {
 		this._onDidRepositoryChange.dispose();
-super.dispose();
-    }
+		super.dispose();
+	}
 }

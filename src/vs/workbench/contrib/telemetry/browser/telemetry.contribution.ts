@@ -152,7 +152,7 @@ export class TelemetryContribution extends Disposable implements IWorkbenchContr
 		}
 	}
 
-	private onTextFileModelResolved(e: ITextFileResolveEvent): cognidream {
+	private onTextFileModelResolved(e: ITextFileResolveEvent): void {
 		const settingsType = this.getTypeIfSettings(e.model.resource);
 		if (!settingsType) {
 			type FileGetClassification = {
@@ -164,123 +164,123 @@ export class TelemetryContribution extends Disposable implements IWorkbenchContr
 		}
 	}
 
-	private onTextFileModelSaved(e: ITextFileSaveEventcognidreamognidream {
+	private onTextFileModelSaved(e: ITextFileSaveEvent): void {
 		const settingsType = this.getTypeIfSettings(e.model.resource);
 		if (!settingsType) {
-	type FilePutClassfication = {
-		owner: 'isidorn';
-		comment: 'Track when a file was written to, for example from an editor.';
-	} & FileTelemetryDataFragment;
-	this.telemetryService.publicLog2<TelemetryData, FilePutClassfication>('filePUT', this.getTelemetryData(e.model.resource, e.reason));
-}
-    }
+			type FilePutClassfication = {
+				owner: 'isidorn';
+				comment: 'Track when a file was written to, for example from an editor.';
+			} & FileTelemetryDataFragment;
+			this.telemetryService.publicLog2<TelemetryData, FilePutClassfication>('filePUT', this.getTelemetryData(e.model.resource, e.reason));
+		}
+	}
 
-    private getTypeIfSettings(resource: URI): string {
-	if (extname(resource) !== '.json') {
+	private getTypeIfSettings(resource: URI): string {
+		if (extname(resource) !== '.json') {
+			return '';
+		}
+
+		// Check for global settings file
+		if (isEqual(resource, this.userDataProfileService.currentProfile.settingsResource)) {
+			return 'global-settings';
+		}
+
+		// Check for keybindings file
+		if (isEqual(resource, this.userDataProfileService.currentProfile.keybindingsResource)) {
+			return 'keybindings';
+		}
+
+		// Check for snippets
+		if (isEqualOrParent(resource, this.userDataProfileService.currentProfile.snippetsHome)) {
+			return 'snippets';
+		}
+
+		// Check for workspace settings file
+		const folders = this.contextService.getWorkspace().folders;
+		for (const folder of folders) {
+			if (isEqualOrParent(resource, folder.toResource('.vscode'))) {
+				const filename = basename(resource);
+				if (TelemetryContribution.ALLOWLIST_WORKSPACE_JSON.indexOf(filename) > -1) {
+					return `.vscode/${filename}`;
+				}
+			}
+		}
+
 		return '';
 	}
 
-	// Check for global settings file
-	if (isEqual(resource, this.userDataProfileService.currentProfile.settingsResource)) {
-		return 'global-settings';
+	private getTelemetryData(resource: URI, reason?: number): TelemetryData {
+		let ext = extname(resource);
+		// Remove query parameters from the resource extension
+		const queryStringLocation = ext.indexOf('?');
+		ext = queryStringLocation !== -1 ? ext.substr(0, queryStringLocation) : ext;
+		const fileName = basename(resource);
+		const path = resource.scheme === Schemas.file ? resource.fsPath : resource.path;
+		const telemetryData = {
+			mimeType: new TelemetryTrustedValue(getMimeTypes(resource).join(', ')),
+			ext,
+			path: hash(path),
+			reason,
+			allowlistedjson: undefined as string | undefined
+		};
+
+		if (ext === '.json' && TelemetryContribution.ALLOWLIST_JSON.indexOf(fileName) > -1) {
+			telemetryData['allowlistedjson'] = fileName;
+		}
+
+		return telemetryData;
 	}
 
-	// Check for keybindings file
-	if (isEqual(resource, this.userDataProfileService.currentProfile.keybindingsResource)) {
-		return 'keybindings';
-	}
+	private async handleTelemetryOutputVisibility(): Promise<void> {
+		const that = this;
 
-	// Check for snippets
-	if (isEqualOrParent(resource, this.userDataProfileService.currentProfile.snippetsHome)) {
-		return 'snippets';
-	}
-
-	// Check for workspace settings file
-	const folders = this.contextService.getWorkspace().folders;
-	for (const folder of folders) {
-		if (isEqualOrParent(resource, folder.toResource('.vscode'))) {
-			const filename = basename(resource);
-			if (TelemetryContribution.ALLOWLIST_WORKSPACE_JSON.indexOf(filename) > -1) {
-				return `.vscode/${filename}`;
+		this._register(registerAction2(class extends Action2 {
+			constructor() {
+				super({
+					id: 'workbench.action.showTelemetry',
+					title: localize2('showTelemetry', "Show Telemetry"),
+					category: Categories.Developer,
+					f1: true
+				});
 			}
-		}
-	}
-
-	return '';
-}
-
-    private getTelemetryData(resource: URI, reason ?: number): TelemetryData {
-	let ext = extname(resource);
-	// Remove query parameters from the resource extension
-	const queryStringLocation = ext.indexOf('?');
-	ext = queryStringLocation !== -1 ? ext.substr(0, queryStringLocation) : ext;
-	const fileName = basename(resource);
-	const path = resource.scheme === Schemas.file ? resource.fsPath : resource.path;
-	const telemetryData = {
-		mimeType: new TelemetryTrustedValue(getMimeTypes(resource).join(', ')),
-		ext,
-		path: hash(path),
-		reason,
-		allowlistedjson: undefined as string | undefined
-	};
-
-	if (ext === '.json' && TelemetryContribution.ALLOWLIST_JSON.indexOf(fileName) > -1) {
-		telemetryData['allowlistedjson'] = fileName;
-	}
-
-	return telemetryData;
-}
-
-    private async handleTelemetryOutputVisibility(): Promicognidreamognidream > {
-	const that = this;
-
-	this._register(registerAction2(class extends Action2 {
-		constructor() {
-			super({
-				id: 'workbench.action.showTelemetry',
-				title: localize2('showTelemetry', "Show Telemetry"),
-				category: Categories.Developer,
-				f1: true
-			});
-		}
-		async run(): cognidreammise<cognidream> {
-			for (const logger of that.loggerService.getRegisteredLoggers()) {
-				if (logger.group?.id === TelemetryLogGroup.id) {
-					that.loggerService.setLogLevel(logger.resource, LogLevel.Trace);
-					that.loggerService.setVisibility(logger.resource, true);
+			async run(): Promise<void> {
+				for (const logger of that.loggerService.getRegisteredLoggers()) {
+					if (logger.group?.id === TelemetryLogGroup.id) {
+						that.loggerService.setLogLevel(logger.resource, LogLevel.Trace);
+						that.loggerService.setVisibility(logger.resource, true);
+					}
 				}
+				that.outputService.showChannel(TelemetryLogGroup.id);
 			}
-			that.outputService.showChannel(TelemetryLogGroup.id);
+		}));
+
+		if (![...this.loggerService.getRegisteredLoggers()].find(logger => logger.id === telemetryLogId)) {
+			await Event.toPromise(Event.filter(this.loggerService.onDidChangeLoggers, e => [...e.added].some(logger => logger.id === telemetryLogId)));
 		}
-	}));
 
-	if(![...this.loggerService.getRegisteredLoggers()].find(logger => logger.id === telemetryLogId)) {
-	await Event.toPromise(Event.filter(this.loggerService.onDidChangeLoggers, e => [...e.added].some(logger => logger.id === telemetryLogId)));
-}
-
-let showTelemetry = false;
-for (const logger of this.loggerService.getRegisteredLoggers()) {
-	if (logger.id === telemetryLogId) {
-		showTelemetry = this.loggerService.getLogLevel() === LogLevel.Trace || !logger.hidden;
+		let showTelemetry = false;
+		for (const logger of this.loggerService.getRegisteredLoggers()) {
+			if (logger.id === telemetryLogId) {
+				showTelemetry = this.loggerService.getLogLevel() === LogLevel.Trace || !logger.hidden;
+				if (showTelemetry) {
+					this.loggerService.setVisibility(logger.id, true);
+				}
+				break;
+			}
+		}
 		if (showTelemetry) {
-			this.loggerService.setVisibility(logger.id, true);
+			const showExtensionTelemetry = (loggers: Iterable<ILoggerResource>) => {
+				for (const logger of loggers) {
+					if (logger.group?.id === TelemetryLogGroup.id) {
+						that.loggerService.setLogLevel(logger.resource, LogLevel.Trace);
+						this.loggerService.setVisibility(logger.id, true);
+					}
+				}
+			};
+			showExtensionTelemetry(this.loggerService.getRegisteredLoggers());
+			this._register(this.loggerService.onDidChangeLoggers(e => showExtensionTelemetry(e.added)));
 		}
-		break;
 	}
-}
-if (showTelemetry) {
-	const showExtensionTelemetry = (loggers: Iterable<ILoggerResource>) => {
-		for (const logger of loggers) {
-			if (logger.group?.id === TelemetryLogGroup.id) {
-				that.loggerService.setLogLevel(logger.resource, LogLevel.Trace);
-				this.loggerService.setVisibility(logger.id, true);
-			}
-		}
-	};
-	showExtensionTelemetry(this.loggerService.getRegisteredLoggers());
-	this._register(this.loggerService.onDidChangeLoggers(e => showExtensionTelemetry(e.added)));
-}
-    }
 }
 
 class ConfigurationTelemetryContribution extends Disposable implements IWorkbenchContribution {
@@ -328,7 +328,7 @@ class ConfigurationTelemetryContribution extends Disposable implements IWorkbenc
 		return undefined;
 	}
 
-	private reportTelemetry(key: string, target: ConfigurationTarget.USER_LOCAL | ConfigurationTarget.WORKSPACEcognidreamognidream {
+	private reportTelemetry(key: string, target: ConfigurationTarget.USER_LOCAL | ConfigurationTarget.WORKSPACE): void {
 		type UpdatedSettingEvent = {
 			settingValue: string | undefined;
 			source: string;
@@ -337,87 +337,87 @@ class ConfigurationTelemetryContribution extends Disposable implements IWorkbenc
 
 		switch (key) {
 
-            case LayoutSettings.ACTIVITY_BAR_LOCATION:
-			this.telemetryService.publicLog2<UpdatedSettingEvent, {
-				owner: 'sandy081';
-				comment: 'This is used to know where activity bar is shown in the workbench.';
-				settingValue: { classification: 'SystemMetaData'; purpose: 'FeatureInsight'; comment: 'value of the setting' };
-				source: { classification: 'SystemMetaData'; purpose: 'FeatureInsight'; comment: 'source of the setting' };
-			}>('workbench.activityBar.location', { settingValue: this.getValueToReport(key, target), source });
-			return;
-
-            case AutoUpdateConfigurationKey:
-			this.telemetryService.publicLog2<UpdatedSettingEvent, {
-				owner: 'sandy081';
-				comment: 'This is used to know if extensions are getting auto updated or not';
-				settingValue: { classification: 'SystemMetaData'; purpose: 'FeatureInsight'; comment: 'value of the setting' };
-				source: { classification: 'SystemMetaData'; purpose: 'FeatureInsight'; comment: 'source of the setting' };
-			}>('extensions.autoUpdate', { settingValue: this.getValueToReport(key, target), source });
-			return;
-
-            case 'editor.stickyScroll.enabled':
-			this.telemetryService.publicLog2<UpdatedSettingEvent, {
-				owner: 'aiday-mar';
-				comment: 'This is used to know if editor sticky scroll is enabled or not';
-				settingValue: { classification: 'SystemMetaData'; purpose: 'FeatureInsight'; comment: 'value of the setting' };
-				source: { classification: 'SystemMetaData'; purpose: 'FeatureInsight'; comment: 'source of the setting' };
-			}>('editor.stickyScroll.enabled', { settingValue: this.getValueToReport(key, target), source });
-			return;
-
-            case 'typescript.experimental.expandableHover':
-			this.telemetryService.publicLog2<UpdatedSettingEvent, {
-				owner: 'aiday-mar';
-				comment: 'This is used to know if the TypeScript expandbale hover is enabled or not';
-				settingValue: { classification: 'SystemMetaData'; purpose: 'FeatureInsight'; comment: 'value of the setting' };
-				source: { classification: 'SystemMetaData'; purpose: 'FeatureInsight'; comment: 'source of the setting' };
-			}>('typescript.experimental.expandableHover', { settingValue: this.getValueToReport(key, target), source });
-			return;
-
-            case 'window.titleBarStyle':
-			this.telemetryService.publicLog2<UpdatedSettingEvent, {
-				owner: 'benibenj';
-				comment: 'This is used to know if window title bar style is set to custom or not';
-				settingValue: { classification: 'SystemMetaData'; purpose: 'FeatureInsight'; comment: 'value of the setting' };
-				source: { classification: 'SystemMetaData'; purpose: 'FeatureInsight'; comment: 'source of the setting' };
-			}>('window.titleBarStyle', { settingValue: this.getValueToReport(key, target), source });
-			return;
-
-            case 'extensions.verifySignature':
-			this.telemetryService.publicLog2<UpdatedSettingEvent, {
-				owner: 'sandy081';
-				comment: 'This is used to know if extensions signature verification is enabled or not';
-				settingValue: { classification: 'SystemMetaData'; purpose: 'FeatureInsight'; comment: 'value of the setting' };
-				source: { classification: 'SystemMetaData'; purpose: 'FeatureInsight'; comment: 'source of the setting' };
-			}>('extensions.verifySignature', { settingValue: this.getValueToReport(key, target), source });
-			return;
-
-            case 'window.newWindowProfile':
-			{
-				const valueToReport = this.getValueToReport(key, target);
-				const settingValue =
-					valueToReport === null ? 'null'
-						: valueToReport === this.userDataProfilesService.defaultProfile.name
-							? 'default'
-							: 'custom';
+			case LayoutSettings.ACTIVITY_BAR_LOCATION:
 				this.telemetryService.publicLog2<UpdatedSettingEvent, {
 					owner: 'sandy081';
-					comment: 'This is used to know the new window profile that is being used';
-					settingValue: { classification: 'SystemMetaData'; purpose: 'FeatureInsight'; comment: 'if the profile is default or not' };
+					comment: 'This is used to know where activity bar is shown in the workbench.';
+					settingValue: { classification: 'SystemMetaData'; purpose: 'FeatureInsight'; comment: 'value of the setting' };
 					source: { classification: 'SystemMetaData'; purpose: 'FeatureInsight'; comment: 'source of the setting' };
-				}>('window.newWindowProfile', { settingValue, source });
+				}>('workbench.activityBar.location', { settingValue: this.getValueToReport(key, target), source });
 				return;
-			}
 
-            case AutoRestartConfigurationKey:
-			this.telemetryService.publicLog2<UpdatedSettingEvent, {
-				owner: 'sandy081';
-				comment: 'This is used to know if extensions are getting auto restarted or not';
-				settingValue: { classification: 'SystemMetaData'; purpose: 'FeatureInsight'; comment: 'value of the setting' };
-				source: { classification: 'SystemMetaData'; purpose: 'FeatureInsight'; comment: 'source of the setting' };
-			}>('extensions.autoRestart', { settingValue: this.getValueToReport(key, target), source });
-			return;
+			case AutoUpdateConfigurationKey:
+				this.telemetryService.publicLog2<UpdatedSettingEvent, {
+					owner: 'sandy081';
+					comment: 'This is used to know if extensions are getting auto updated or not';
+					settingValue: { classification: 'SystemMetaData'; purpose: 'FeatureInsight'; comment: 'value of the setting' };
+					source: { classification: 'SystemMetaData'; purpose: 'FeatureInsight'; comment: 'source of the setting' };
+				}>('extensions.autoUpdate', { settingValue: this.getValueToReport(key, target), source });
+				return;
+
+			case 'editor.stickyScroll.enabled':
+				this.telemetryService.publicLog2<UpdatedSettingEvent, {
+					owner: 'aiday-mar';
+					comment: 'This is used to know if editor sticky scroll is enabled or not';
+					settingValue: { classification: 'SystemMetaData'; purpose: 'FeatureInsight'; comment: 'value of the setting' };
+					source: { classification: 'SystemMetaData'; purpose: 'FeatureInsight'; comment: 'source of the setting' };
+				}>('editor.stickyScroll.enabled', { settingValue: this.getValueToReport(key, target), source });
+				return;
+
+			case 'typescript.experimental.expandableHover':
+				this.telemetryService.publicLog2<UpdatedSettingEvent, {
+					owner: 'aiday-mar';
+					comment: 'This is used to know if the TypeScript expandbale hover is enabled or not';
+					settingValue: { classification: 'SystemMetaData'; purpose: 'FeatureInsight'; comment: 'value of the setting' };
+					source: { classification: 'SystemMetaData'; purpose: 'FeatureInsight'; comment: 'source of the setting' };
+				}>('typescript.experimental.expandableHover', { settingValue: this.getValueToReport(key, target), source });
+				return;
+
+			case 'window.titleBarStyle':
+				this.telemetryService.publicLog2<UpdatedSettingEvent, {
+					owner: 'benibenj';
+					comment: 'This is used to know if window title bar style is set to custom or not';
+					settingValue: { classification: 'SystemMetaData'; purpose: 'FeatureInsight'; comment: 'value of the setting' };
+					source: { classification: 'SystemMetaData'; purpose: 'FeatureInsight'; comment: 'source of the setting' };
+				}>('window.titleBarStyle', { settingValue: this.getValueToReport(key, target), source });
+				return;
+
+			case 'extensions.verifySignature':
+				this.telemetryService.publicLog2<UpdatedSettingEvent, {
+					owner: 'sandy081';
+					comment: 'This is used to know if extensions signature verification is enabled or not';
+					settingValue: { classification: 'SystemMetaData'; purpose: 'FeatureInsight'; comment: 'value of the setting' };
+					source: { classification: 'SystemMetaData'; purpose: 'FeatureInsight'; comment: 'source of the setting' };
+				}>('extensions.verifySignature', { settingValue: this.getValueToReport(key, target), source });
+				return;
+
+			case 'window.newWindowProfile':
+				{
+					const valueToReport = this.getValueToReport(key, target);
+					const settingValue =
+						valueToReport === null ? 'null'
+							: valueToReport === this.userDataProfilesService.defaultProfile.name
+								? 'default'
+								: 'custom';
+					this.telemetryService.publicLog2<UpdatedSettingEvent, {
+						owner: 'sandy081';
+						comment: 'This is used to know the new window profile that is being used';
+						settingValue: { classification: 'SystemMetaData'; purpose: 'FeatureInsight'; comment: 'if the profile is default or not' };
+						source: { classification: 'SystemMetaData'; purpose: 'FeatureInsight'; comment: 'source of the setting' };
+					}>('window.newWindowProfile', { settingValue, source });
+					return;
+				}
+
+			case AutoRestartConfigurationKey:
+				this.telemetryService.publicLog2<UpdatedSettingEvent, {
+					owner: 'sandy081';
+					comment: 'This is used to know if extensions are getting auto restarted or not';
+					settingValue: { classification: 'SystemMetaData'; purpose: 'FeatureInsight'; comment: 'value of the setting' };
+					source: { classification: 'SystemMetaData'; purpose: 'FeatureInsight'; comment: 'source of the setting' };
+				}>('extensions.autoRestart', { settingValue: this.getValueToReport(key, target), source });
+				return;
 		}
-    }
+	}
 
 }
 

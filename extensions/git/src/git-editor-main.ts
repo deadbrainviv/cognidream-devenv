@@ -4,12 +4,12 @@
  *--------------------------------------------------------------------------------------------*/
 import { IPCClient } from './ipc/ipcClient';
 
-function fatal(err: any): cognidream {
+function fatal(err: any): void {
 	console.error(err);
 	process.exit(1);
 }
 
-function main(argv: string[]): cognidream {
+function main(argv: string[]): void {
 	const ipcClient = new IPCClient('git-editor');
 	const commitMessagePath = argv[argv.length - 1];
 

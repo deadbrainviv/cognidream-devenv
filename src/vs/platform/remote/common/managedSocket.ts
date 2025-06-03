@@ -31,7 +31,7 @@ export const socketRawEndHeaderSequence = VSBuffer.fromString('\r\n\r\n');
 export interface RemoteSocketHalf {
 	onData: Emitter<VSBuffer>;
 	onClose: Emitter<SocketCloseEvent>;
-	onEnd: Emitter<cognidreamidream>;
+	onEnd: Emitter<void>;
 }
 
 /** Should be called immediately after making a ManagedSocket to make it ready for data flow. */
@@ -91,9 +91,9 @@ export abstract class ManagedSocket extends Disposable implements ISocket {
 		return this.pausableDataEmitter.event(...args);
 	};
 	public onClose: Event<SocketCloseEvent>;
-	public onEnd: Event<cognidreamidream>;
+	public onEnd: Event<void>;
 
-	private readonly didDisposeEmitter = this._register(new Emitter<cognidreamidream>());
+	private readonly didDisposeEmitter = this._register(new Emitter<void>());
 	public onDidDispose = this.didDisposeEmitter.event;
 
 	private ended = false;
@@ -117,24 +117,24 @@ export abstract class ManagedSocket extends Disposable implements ISocket {
 	}
 
 	/** Flushes data to the socket. */
-	public drain(): Promise<cognidreamidream> {
+	public drain(): Promise<void> {
 		return Promise.resolve();
 	}
 
 	/** Ends the remote socket. */
-	public end(): cognidreamidream {
+	public end(): void {
 		this.ended = true;
 		this.closeRemote();
 	}
 
-	public abstract write(buffer: VSBuffer): cognidreamidream;
-	protected abstract closeRemote(): cognidreamidream;
+	public abstract write(buffer: VSBuffer): void;
+	protected abstract closeRemote(): void;
 
-	traceSocketEvent(type: SocketDiagnosticsEventType, data?: any): cognidreamidream {
+	traceSocketEvent(type: SocketDiagnosticsEventType, data?: any): void {
 		SocketDiagnostics.traceSocketEvent(this, this.debugLabel, type, data);
 	}
 
-	override dispose(): cognidreamidream {
+	override dispose(): void {
 		if (!this.ended) {
 			this.closeRemote();
 		}

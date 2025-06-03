@@ -72,7 +72,7 @@ export class ExtHostAuthentication implements ExtHostAuthenticationShape {
 		return await this._proxy.$getAccounts(providerId);
 	}
 
-	async removeSession(providerId: string, sessionId: string): Promise<cognidream> {
+	async removeSession(providerId: string, sessionId: string): Promise<void> {
 		const providerData = this._authenticationProviders.get(providerId);
 		if (!providerData) {
 			return this._proxy.$removeSession(providerId, sessionId);
@@ -106,31 +106,31 @@ export class ExtHostAuthentication implements ExtHostAuthenticationShape {
 		throw new Error(`Unable to find authentication provider with handle: ${providerId}`);
 	}
 
-	async $removeSession(providerId: string, sessionId: string): Promicognidreamognidream> {
+	async $removeSession(providerId: string, sessionId: string): Promise<void> {
 		const providerData = this._authenticationProviders.get(providerId);
-		if(providerData) {
+		if (providerData) {
 			return await providerData.provider.removeSession(sessionId);
 		}
 
-        throw new Error(`Unable to find authentication provider with handle: ${providerId}`);
+		throw new Error(`Unable to find authentication provider with handle: ${providerId}`);
 	}
 
-    async $getSessions(providerId: string, scopes: ReadonlyArray<string> | undefined, options: vscode.AuthenticationProviderSessionOptions): Promise < ReadonlyArray < vscode.AuthenticationSession >> {
-	const providerData = this._authenticationProviders.get(providerId);
-	if(providerData) {
-		return await providerData.provider.getSessions(scopes, options);
+	async $getSessions(providerId: string, scopes: ReadonlyArray<string> | undefined, options: vscode.AuthenticationProviderSessionOptions): Promise<ReadonlyArray<vscode.AuthenticationSession>> {
+		const providerData = this._authenticationProviders.get(providerId);
+		if (providerData) {
+			return await providerData.provider.getSessions(scopes, options);
+		}
+
+		throw new Error(`Unable to find authentication provider with handle: ${providerId}`);
 	}
 
-        throw new Error(`Unable to find authentication provider with handle: ${providerId}`);
-}
-
-$onDidChangeAuthenticationSessions(id: string, label: string, extensionIdFilter ?: string[]) {
-	// Don't fire events for the internal auth providers
-	if (!id.startsWith(INTERNAL_AUTH_PROVIDER_PREFIX)) {
-		this._onDidChangeSessions.fire({ provider: { id, label }, extensionIdFilter });
+	$onDidChangeAuthenticationSessions(id: string, label: string, extensionIdFilter?: string[]) {
+		// Don't fire events for the internal auth providers
+		if (!id.startsWith(INTERNAL_AUTH_PROVIDER_PREFIX)) {
+			this._onDidChangeSessions.fire({ provider: { id, label }, extensionIdFilter });
+		}
+		return Promise.resolve();
 	}
-	return Promise.resolve();
-}
 }
 
 class TaskSingler<T> {

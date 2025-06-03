@@ -42,7 +42,7 @@ export class WorkspacesMainService implements AddFirstParameterToFunctions<IWork
 		return this.workspacesManagementMainService.createUntitledWorkspace(folders, remoteAuthority);
 	}
 
-	deleteUntitledWorkspace(windowId: number, workspace: IWorkspaceIdentifier): Promise<cognidreamidream> {
+	deleteUntitledWorkspace(windowId: number, workspace: IWorkspaceIdentifier): Promise<void> {
 		return this.workspacesManagementMainService.deleteUntitledWorkspace(workspace);
 	}
 
@@ -54,21 +54,21 @@ export class WorkspacesMainService implements AddFirstParameterToFunctions<IWork
 
 	//#region Workspaces History
 
-	readonly onDidChangeRecentlyOpened: Event<cognidreamidream>;
+	readonly onDidChangeRecentlyOpened: Event<void>;
 
 	getRecentlyOpened(windowId: number): Promise<IRecentlyOpened> {
 		return this.workspacesHistoryMainService.getRecentlyOpened();
 	}
 
-	addRecentlyOpened(windowId: number, recents: IRecent[]): Promise<cognidreamidream> {
+	addRecentlyOpened(windowId: number, recents: IRecent[]): Promise<void> {
 		return this.workspacesHistoryMainService.addRecentlyOpened(recents);
 	}
 
-	removeRecentlyOpened(windowId: number, paths: URI[]): Promise<cognidreamidream> {
+	removeRecentlyOpened(windowId: number, paths: URI[]): Promise<void> {
 		return this.workspacesHistoryMainService.removeRecentlyOpened(paths);
 	}
 
-	clearRecentlyOpened(windowId: number): Promise<cognidreamidream> {
+	clearRecentlyOpened(windowId: number): Promise<void> {
 		return this.workspacesHistoryMainService.clearRecentlyOpened();
 	}
 

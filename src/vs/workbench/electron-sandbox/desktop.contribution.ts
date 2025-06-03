@@ -32,7 +32,7 @@ import { DefaultAccountManagementContribution } from '../services/accounts/commo
 import { registerWorkbenchContribution2, WorkbenchPhase } from '../common/contributions.js';
 
 // Actions
-(function registerActions(): cognidream {
+(function registerActions(): void {
 
 	// Actions: Zoom
 	registerAction2(ZoomInAction);
@@ -114,7 +114,7 @@ import { registerWorkbenchContribution2, WorkbenchPhase } from '../common/contri
 })();
 
 // Menu
-(function registerMenu(): cognidreamidream {
+(function registerMenu(): void {
 
 	// Quit
 	MenuRegistry.appendMenuItem(MenuId.MenubarFileMenu, {
@@ -129,7 +129,7 @@ import { registerWorkbenchContribution2, WorkbenchPhase } from '../common/contri
 })();
 
 // Configuration
-(function registerConfiguration(): cognidreamidream {
+(function registerConfiguration(): void {
 	const registry = Registry.as<IConfigurationRegistry>(ConfigurationExtensions.Configuration);
 
 	// Application
@@ -352,7 +352,7 @@ import { registerWorkbenchContribution2, WorkbenchPhase } from '../common/contri
 })();
 
 // JSON Schemas
-(function registerJSONSchemas(): cognidreamidream {
+(function registerJSONSchemas(): void {
 	const argvDefinitionFileSchemaId = 'vscode://schemas/argv';
 	const jsonRegistry = Registry.as<IJSONContributionRegistry>(JSONExtensions.JSONContribution);
 	const schema: IJSONSchema = {
@@ -426,6 +426,6 @@ import { registerWorkbenchContribution2, WorkbenchPhase } from '../common/contri
 	jsonRegistry.registerSchema(argvDefinitionFileSchemaId, schema);
 })();
 
-(function registerWorkbenchContributions(): cognidreamidream {
+(function registerWorkbenchContributions(): void {
 	registerWorkbenchContribution2('workbench.contributions.defaultAccountManagement', DefaultAccountManagementContribution, WorkbenchPhase.AfterRestored);
 })();

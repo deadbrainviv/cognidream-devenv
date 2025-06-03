@@ -81,14 +81,14 @@ export class ReplEvaluationInputsRenderer implements ITreeRenderer<ReplEvaluatio
 		return { label };
 	}
 
-	renderElement(element: ITreeNode<ReplEvaluationInput, FuzzyScore>, index: number, templateData: IReplEvaluationInputTemplateData): cognidream {
+	renderElement(element: ITreeNode<ReplEvaluationInput, FuzzyScore>, index: number, templateData: IReplEvaluationInputTemplateData): void {
 		const evaluation = element.element;
 		templateData.label.set(evaluation.value, createMatches(element.filterData));
 	}
 
-	disposeTemplate(templateData: IReplEvaluationInputTemplateDatacognidreamognidream {
+	disposeTemplate(templateData: IReplEvaluationInputTemplateData): void {
 		templateData.label.dispose();
-    }
+	}
 }
 
 export class ReplGroupRenderer implements ITreeRenderer<ReplGroup, FuzzyScore, IReplGroupTemplateData> {
@@ -111,19 +111,19 @@ export class ReplGroupRenderer implements ITreeRenderer<ReplGroup, FuzzyScore, I
 		return { label, source };
 	}
 
-	renderElement(element: ITreeNode<ReplGroup, FuzzyScore>, _index: number, templateData: IReplGroupTemplateDatacognidreamognidream {
+	renderElement(element: ITreeNode<ReplGroup, FuzzyScore>, _index: number, templateData: IReplGroupTemplateData): void {
 
 		templateData.elementDisposable?.dispose();
-const replGroup = element.element;
-dom.clearNode(templateData.label);
-templateData.elementDisposable = this.expressionRenderer.renderValue(templateData.label, replGroup.name, { wasANSI: true, session: element.element.session });
-templateData.source.setSource(replGroup.sourceData);
-    }
+		const replGroup = element.element;
+		dom.clearNode(templateData.label);
+		templateData.elementDisposable = this.expressionRenderer.renderValue(templateData.label, replGroup.name, { wasANSI: true, session: element.element.session });
+		templateData.source.setSource(replGroup.sourceData);
+	}
 
-disposeTemplate(templateData: IReplGroupTemplateDatacognidreamognidream {
-	templateData.elementDisposable?.dispose();
-	templateData.source.dispose();
-}
+	disposeTemplate(templateData: IReplGroupTemplateData): void {
+		templateData.elementDisposable?.dispose();
+		templateData.source.dispose();
+	}
 }
 
 export class ReplEvaluationResultsRenderer implements ITreeRenderer<ReplEvaluationResult | Variable, FuzzyScore, IReplEvaluationResultTemplateData> {
@@ -144,19 +144,19 @@ export class ReplEvaluationResultsRenderer implements ITreeRenderer<ReplEvaluati
 		return { value, elementStore: new DisposableStore() };
 	}
 
-	renderElement(element: ITreeNode<ReplEvaluationResult | Variable, FuzzyScore>, index: number, templateData: IReplEvaluationResultTemplateDatacognidreamognidream {
+	renderElement(element: ITreeNode<ReplEvaluationResult | Variable, FuzzyScore>, index: number, templateData: IReplEvaluationResultTemplateData): void {
 		templateData.elementStore.clear();
-const expression = element.element;
-templateData.elementStore.add(this.expressionRenderer.renderValue(templateData.value, expression, {
-	colorize: true,
-	hover: false,
-	session: element.element.getSession(),
-}));
-    }
+		const expression = element.element;
+		templateData.elementStore.add(this.expressionRenderer.renderValue(templateData.value, expression, {
+			colorize: true,
+			hover: false,
+			session: element.element.getSession(),
+		}));
+	}
 
-disposeTemplate(templateData: IReplEvaluationResultTemplateDatacognidreamognidream {
-	templateData.elementStore.dispose();
-}
+	disposeTemplate(templateData: IReplEvaluationResultTemplateData): void {
+		templateData.elementStore.dispose();
+	}
 }
 
 export class ReplOutputElementRenderer implements ITreeRenderer<ReplOutputElement, FuzzyScore, IOutputReplElementTemplateData> {
@@ -186,46 +186,46 @@ export class ReplOutputElementRenderer implements ITreeRenderer<ReplOutputElemen
 		return data;
 	}
 
-	renderElement({ element }: ITreeNode<ReplOutputElement, FuzzyScore>, index: number, templateData: IOutputReplElementTemplateDatacognidreamognidream {
+	renderElement({ element }: ITreeNode<ReplOutputElement, FuzzyScore>, index: number, templateData: IOutputReplElementTemplateData): void {
 		templateData.elementDisposable.clear();
-this.setElementCount(element, templateData);
-templateData.elementDisposable.add(element.onDidChangeCount(() => this.setElementCount(element, templateData)));
-// value
-dom.clearNode(templateData.value);
-// Reset classes to clear ansi decorations since templates are reused
-templateData.value.className = 'value';
+		this.setElementCount(element, templateData);
+		templateData.elementDisposable.add(element.onDidChangeCount(() => this.setElementCount(element, templateData)));
+		// value
+		dom.clearNode(templateData.value);
+		// Reset classes to clear ansi decorations since templates are reused
+		templateData.value.className = 'value';
 
-const locationReference = element.expression?.valueLocationReference;
-templateData.elementDisposable.add(this.expressionRenderer.renderValue(templateData.value, element.value, {
-	wasANSI: true,
-	session: element.session,
-	locationReference,
-	hover: false,
-}));
+		const locationReference = element.expression?.valueLocationReference;
+		templateData.elementDisposable.add(this.expressionRenderer.renderValue(templateData.value, element.value, {
+			wasANSI: true,
+			session: element.session,
+			locationReference,
+			hover: false,
+		}));
 
-templateData.value.classList.add((element.severity === severity.Warning) ? 'warn' : (element.severity === severity.Error) ? 'error' : (element.severity === severity.Ignore) ? 'ignore' : 'info');
-templateData.source.setSource(element.sourceData);
-templateData.getReplElementSource = () => element.sourceData;
-    }
+		templateData.value.classList.add((element.severity === severity.Warning) ? 'warn' : (element.severity === severity.Error) ? 'error' : (element.severity === severity.Ignore) ? 'ignore' : 'info');
+		templateData.source.setSource(element.sourceData);
+		templateData.getReplElementSource = () => element.sourceData;
+	}
 
-    private setElementCount(element: ReplOutputElement, templateData: IOutputReplElementTemplateDatacognidreamognidream {
-	if(element.count >= 2) {
-	templateData.count.setCount(element.count);
-	templateData.countContainer.hidden = false;
-} else {
-	templateData.countContainer.hidden = true;
-}
-    }
+	private setElementCount(element: ReplOutputElement, templateData: IOutputReplElementTemplateData): void {
+		if (element.count >= 2) {
+			templateData.count.setCount(element.count);
+			templateData.countContainer.hidden = false;
+		} else {
+			templateData.countContainer.hidden = true;
+		}
+	}
 
-disposeTemplate(templateData: IOutputReplElementTemplateDatacognidreamognidream {
-	templateData.source.dispose();
-	templateData.elementDisposable.dispose();
-	templateData.count.dispose();
-}
+	disposeTemplate(templateData: IOutputReplElementTemplateData): void {
+		templateData.source.dispose();
+		templateData.elementDisposable.dispose();
+		templateData.count.dispose();
+	}
 
-    disposeElement(_element: ITreeNode<ReplOutputElement, FuzzyScore>, _index: number, templateData: IOutputReplElementTemplateDatacognidreamognidream {
-	templateData.elementDisposable.clear();
-}
+	disposeElement(_element: ITreeNode<ReplOutputElement, FuzzyScore>, _index: number, templateData: IOutputReplElementTemplateData): void {
+		templateData.elementDisposable.clear();
+	}
 }
 
 export class ReplVariablesRenderer extends AbstractExpressionsRenderer<IExpression | ReplVariableElement> {
@@ -245,28 +245,28 @@ export class ReplVariablesRenderer extends AbstractExpressionsRenderer<IExpressi
 		super(debugService, contextViewService, hoverService);
 	}
 
-	public renderElement(node: ITreeNode<IExpression | ReplVariableElement, FuzzyScore>, _index: number, data: IExpressionTemplateDatacognidreamognidream {
+	public renderElement(node: ITreeNode<IExpression | ReplVariableElement, FuzzyScore>, _index: number, data: IExpressionTemplateData): void {
 		const element = node.element;
 		data.elementDisposable.clear();
-super.renderExpressionElement(element instanceof ReplVariableElement ? element.expression : element, node, data);
-    }
+		super.renderExpressionElement(element instanceof ReplVariableElement ? element.expression : element, node, data);
+	}
 
-    protected renderExpression(expression: IExpression | ReplVariableElement, data: IExpressionTemplateData, highlights: IHighlight[]cognidreamognidream {
-	const isReplVariable = expression instanceof ReplVariableElement;
-	if(isReplVariable || !expression.name) {
-	data.label.set('');
-	const value = isReplVariable ? expression.expression : expression;
-	data.elementDisposable.add(this.expressionRenderer.renderValue(data.value, value, { colorize: true, hover: false, session: expression.getSession() }));
-	data.expression.classList.remove('nested-variable');
-} else {
-	data.elementDisposable.add(this.expressionRenderer.renderVariable(data, expression as Variable, { showChanged: true, highlights }));
-	data.expression.classList.toggle('nested-variable', isNestedVariable(expression));
-}
-    }
+	protected renderExpression(expression: IExpression | ReplVariableElement, data: IExpressionTemplateData, highlights: IHighlight[]): void {
+		const isReplVariable = expression instanceof ReplVariableElement;
+		if (isReplVariable || !expression.name) {
+			data.label.set('');
+			const value = isReplVariable ? expression.expression : expression;
+			data.elementDisposable.add(this.expressionRenderer.renderValue(data.value, value, { colorize: true, hover: false, session: expression.getSession() }));
+			data.expression.classList.remove('nested-variable');
+		} else {
+			data.elementDisposable.add(this.expressionRenderer.renderVariable(data, expression as Variable, { showChanged: true, highlights }));
+			data.expression.classList.toggle('nested-variable', isNestedVariable(expression));
+		}
+	}
 
-    protected getInputBoxOptions(expression: IExpression): IInputBoxOptions | undefined {
-	return undefined;
-}
+	protected getInputBoxOptions(expression: IExpression): IInputBoxOptions | undefined {
+		return undefined;
+	}
 }
 
 export class ReplRawObjectsRenderer implements ITreeRenderer<RawObjectReplElement, FuzzyScore, IRawObjectReplTemplateData> {
@@ -291,34 +291,34 @@ export class ReplRawObjectsRenderer implements ITreeRenderer<RawObjectReplElemen
 		return { container, expression, name, label, value, elementStore: new DisposableStore() };
 	}
 
-	renderElement(node: ITreeNode<RawObjectReplElement, FuzzyScore>, index: number, templateData: IRawObjectReplTemplateDatacognidreamognidream {
+	renderElement(node: ITreeNode<RawObjectReplElement, FuzzyScore>, index: number, templateData: IRawObjectReplTemplateData): void {
 		templateData.elementStore.clear();
 
-// key
-const element = node.element;
-templateData.label.set(element.name ? `${element.name}:` : '', createMatches(node.filterData));
-if (element.name) {
-	templateData.name.textContent = `${element.name}:`;
-} else {
-	templateData.name.textContent = '';
-}
+		// key
+		const element = node.element;
+		templateData.label.set(element.name ? `${element.name}:` : '', createMatches(node.filterData));
+		if (element.name) {
+			templateData.name.textContent = `${element.name}:`;
+		} else {
+			templateData.name.textContent = '';
+		}
 
-// value
-templateData.elementStore.add(this.expressionRenderer.renderValue(templateData.value, element.value, {
-	hover: false,
-	session: node.element.getSession(),
-}));
-    }
-
-disposeTemplate(templateData: IRawObjectReplTemplateDatacognidreamognidream {
-	templateData.elementStore.dispose();
-	templateData.label.dispose();
-}
-}
-
-	function isNestedVariable(element: IReplElement) {
-		return element instanceof Variable && (element.parent instanceof ReplEvaluationResult || element.parent instanceof Variable);
+		// value
+		templateData.elementStore.add(this.expressionRenderer.renderValue(templateData.value, element.value, {
+			hover: false,
+			session: node.element.getSession(),
+		}));
 	}
+
+	disposeTemplate(templateData: IRawObjectReplTemplateData): void {
+		templateData.elementStore.dispose();
+		templateData.label.dispose();
+	}
+}
+
+function isNestedVariable(element: IReplElement) {
+	return element instanceof Variable && (element.parent instanceof ReplEvaluationResult || element.parent instanceof Variable);
+}
 
 export class ReplDelegate extends CachedListVirtualDelegate<IReplElement> {
 

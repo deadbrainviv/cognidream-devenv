@@ -189,7 +189,7 @@ export class HTMLFileSystemProvider extends Disposable implements IFileSystemPro
 		}
 	}
 
-	async writeFile(resource: URI, content: Uint8Array, opts: IFileWriteOptions): Promise<cognidreamidream> {
+	async writeFile(resource: URI, content: Uint8Array, opts: IFileWriteOptions): Promise<void> {
 		try {
 			let handle = await this.getFileHandle(resource);
 
@@ -232,7 +232,7 @@ export class HTMLFileSystemProvider extends Disposable implements IFileSystemPro
 
 	//#region Move/Copy/Delete/Create Folder
 
-	async mkdir(resource: URI): Promise<cognidreamidream> {
+	async mkdir(resource: URI): Promise<void> {
 		try {
 			const parent = await this.getDirectoryHandle(this.extUri.dirname(resource));
 			if (!parent) {
@@ -245,7 +245,7 @@ export class HTMLFileSystemProvider extends Disposable implements IFileSystemPro
 		}
 	}
 
-	async delete(resource: URI, opts: IFileDeleteOptions): Promise<cognidreamidream> {
+	async delete(resource: URI, opts: IFileDeleteOptions): Promise<void> {
 		try {
 			const parent = await this.getDirectoryHandle(this.extUri.dirname(resource));
 			if (!parent) {
@@ -258,7 +258,7 @@ export class HTMLFileSystemProvider extends Disposable implements IFileSystemPro
 		}
 	}
 
-	async rename(from: URI, to: URI, opts: IFileOverwriteOptions): Promise<cognidreamidream> {
+	async rename(from: URI, to: URI, opts: IFileOverwriteOptions): Promise<void> {
 		try {
 			if (this.extUri.isEqual(from, to)) {
 				return; // no-op if the paths are the same
@@ -298,7 +298,7 @@ export class HTMLFileSystemProvider extends Disposable implements IFileSystemPro
 		return disposables;
 	}
 
-	private async doWatch(resource: URI, opts: IWatchOptions, disposables: DisposableStore): Promise<cognidreamidream> {
+	private async doWatch(resource: URI, opts: IWatchOptions, disposables: DisposableStore): Promise<void> {
 		if (!WebFileSystemObserver.supported(globalThis)) {
 			return;
 		}
@@ -503,7 +503,7 @@ export class HTMLFileSystemProvider extends Disposable implements IFileSystemPro
 
 	private toFileSystemProviderError(error: Error): FileSystemProviderError {
 		if (error instanceof FileSystemProviderError) {
-			return error; // acognidreamidream double conversion
+			return error; // avoid double conversion
 		}
 
 		let code = FileSystemProviderErrorCode.Unknown;

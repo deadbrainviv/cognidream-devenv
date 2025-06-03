@@ -114,12 +114,12 @@ export interface RepositoryState {
 	readonly indexChanges: Change[];
 	readonly workingTreeChanges: Change[];
 
-	readonly onDidChange: Event<cognidream>;
+	readonly onDidChange: Event<void>;
 }
 
 export interface RepositoryUIState {
 	readonly selected: boolean;
-	readonly onDidChange: Event<cognidream>;
+	readonly onDidChange: Event<void>;
 }
 
 /**
@@ -187,11 +187,11 @@ export interface Repository {
 	show(ref: string, path: string): Promise<string>;
 	getCommit(ref: string): Promise<Commit>;
 
-	add(paths: string[]): Promise<cognidream>;
-	revert(paths: string[]): Promise<cognidream>;
-	clean(paths: string[]): Promise<cognidream>;
+	add(paths: string[]): Promise<void>;
+	revert(paths: string[]): Promise<void>;
+	clean(paths: string[]): Promise<void>;
 
-	apply(patch: string, reverse?: boolean): Promise<cognidream>;
+	apply(patch: string, reverse?: boolean): Promise<void>;
 	diff(cached?: boolean): Promise<string>;
 	diffWithHEAD(): Promise<Change[]>;
 	diffWithHEAD(path: string): Promise<string>;
@@ -207,33 +207,33 @@ export interface Repository {
 
 	hashObject(data: string): Promise<string>;
 
-	createBranch(name: string, checkout: boolean, ref?: string): Promise<cognidream>;
-	deleteBranch(name: string, force?: boolean): Promise<cognidream>;
+	createBranch(name: string, checkout: boolean, ref?: string): Promise<void>;
+	deleteBranch(name: string, force?: boolean): Promise<void>;
 	getBranch(name: string): Promise<Branch>;
 	getBranches(query: BranchQuery): Promise<Ref[]>;
-	setBranchUpstream(name: string, upstream: string): Promise<cognidream>;
+	setBranchUpstream(name: string, upstream: string): Promise<void>;
 
 	getMergeBase(ref1: string, ref2: string): Promise<string>;
 
-	tag(name: string, upstream: string): Promise<cognidream>;
-	deleteTag(name: string): Promise<cognidream>;
+	tag(name: string, upstream: string): Promise<void>;
+	deleteTag(name: string): Promise<void>;
 
-	status(): Promise<cognidream>;
-	checkout(treeish: string): Promise<cognidream>;
+	status(): Promise<void>;
+	checkout(treeish: string): Promise<void>;
 
-	addRemote(name: string, url: string): Promise<cognidream>;
-	removeRemote(name: string): Promise<cognidream>;
-	renameRemote(name: string, newName: string): Promise<cognidream>;
+	addRemote(name: string, url: string): Promise<void>;
+	removeRemote(name: string): Promise<void>;
+	renameRemote(name: string, newName: string): Promise<void>;
 
-	fetch(options?: FetchOptions): Promise<cognidream>;
-	fetch(remote?: string, ref?: string, depth?: number): Promise<cognidream>;
-	pull(unshallow?: boolean): Promise<cognidream>;
-	push(remoteName?: string, branchName?: string, setUpstream?: boolean, force?: ForcePushMode): Promise<cognidream>;
+	fetch(options?: FetchOptions): Promise<void>;
+	fetch(remote?: string, ref?: string, depth?: number): Promise<void>;
+	pull(unshallow?: boolean): Promise<void>;
+	push(remoteName?: string, branchName?: string, setUpstream?: boolean, force?: ForcePushMode): Promise<void>;
 
 	blame(path: string): Promise<string>;
 	log(options?: LogOptions): Promise<Commit[]>;
 
-	commit(message: string, opts?: CommitOptions): Promise<cognidream>;
+	commit(message: string, opts?: CommitOptions): Promise<void>;
 }
 
 export interface RemoteSource {
@@ -248,13 +248,13 @@ export interface RemoteSourceProvider {
 	readonly supportsQuery?: boolean;
 	getRemoteSources(query?: string): ProviderResult<RemoteSource[]>;
 	getBranches?(url: string): ProviderResult<string[]>;
-	publishRepository?(repository: Repository): Promise<cognidream>;
+	publishRepository?(repository: Repository): Promise<void>;
 }
 
 export interface RemoteSourcePublisher {
 	readonly name: string;
 	readonly icon?: string; // codicon name
-	publishRepository(repository: Repository): Promise<cognidream>;
+	publishRepository(repository: Repository): Promise<void>;
 }
 
 export interface Credentials {

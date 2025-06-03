@@ -16,78 +16,78 @@ export class ExtHostEmbeddings implements ExtHostEmbeddingsShape {
 	private readonly _proxy: MainThreadEmbeddingsShape;
 	private readonly _provider = new Map<number, { id: string; provider: vscode.EmbeddingsProvider }>();
 
-	private readonly _onDidChange = new Emitter<cognidream>();
-	readonly onDidChange: Evecognidreamognidream> = this._onDidChange.event;
+	private readonly _onDidChange = new Emitter<void>();
+	readonly onDidChange: Event<void> = this._onDidChange.event;
 
-    private _allKnownModels = new Set<string>();
-    private _handlePool: number = 0;
+	private _allKnownModels = new Set<string>();
+	private _handlePool: number = 0;
 
-constructor(
-	mainContext: IMainContext
-) {
-	this._proxy = mainContext.getProxy(MainContext.MainThreadEmbeddings);
-}
-
-registerEmbeddingsProvider(_extension: IExtensionDescription, embeddingsModel: string, provider: vscode.EmbeddingsProvider): IDisposable {
-	if (this._allKnownModels.has(embeddingsModel)) {
-		throw new Error('An embeddings provider for this model is already registered');
+	constructor(
+		mainContext: IMainContext
+	) {
+		this._proxy = mainContext.getProxy(MainContext.MainThreadEmbeddings);
 	}
 
-	const handle = this._handlePool++;
+	registerEmbeddingsProvider(_extension: IExtensionDescription, embeddingsModel: string, provider: vscode.EmbeddingsProvider): IDisposable {
+		if (this._allKnownModels.has(embeddingsModel)) {
+			throw new Error('An embeddings provider for this model is already registered');
+		}
 
-	this._proxy.$registerEmbeddingProvider(handle, embeddingsModel);
-	this._provider.set(handle, { id: embeddingsModel, provider });
+		const handle = this._handlePool++;
 
-	return toDisposable(() => {
-		this._allKnownModels.delete(embeddingsModel);
-		this._proxy.$unregisterEmbeddingProvider(handle);
-		this._provider.delete(handle);
-	});
-}
+		this._proxy.$registerEmbeddingProvider(handle, embeddingsModel);
+		this._provider.set(handle, { id: embeddingsModel, provider });
 
-    async computeEmbeddings(embeddingsModel: string, input: string, token ?: vscode.CancellationToken): Promise<vscode.Embedding>;
-    async computeEmbeddings(embeddingsModel: string, input: string[], token ?: vscode.CancellationToken): Promise<vscode.Embedding[]>;
-    async computeEmbeddings(embeddingsModel: string, input: string | string[], token ?: vscode.CancellationToken): Promise < vscode.Embedding[] | vscode.Embedding > {
-
-	token ??= CancellationToken.None;
-
-	let returnSingle = false;
-	if(typeof input === 'string') {
-	input = [input];
-	returnSingle = true;
-}
-const result = await this._proxy.$computeEmbeddings(embeddingsModel, input, token);
-if (result.length !== input.length) {
-	throw new Error();
-}
-if (returnSingle) {
-	if (result.length !== 1) {
-		throw new Error();
+		return toDisposable(() => {
+			this._allKnownModels.delete(embeddingsModel);
+			this._proxy.$unregisterEmbeddingProvider(handle);
+			this._provider.delete(handle);
+		});
 	}
-	return result[0];
-}
-return result;
 
-    }
+	async computeEmbeddings(embeddingsModel: string, input: string, token?: vscode.CancellationToken): Promise<vscode.Embedding>;
+	async computeEmbeddings(embeddingsModel: string, input: string[], token?: vscode.CancellationToken): Promise<vscode.Embedding[]>;
+	async computeEmbeddings(embeddingsModel: string, input: string | string[], token?: vscode.CancellationToken): Promise<vscode.Embedding[] | vscode.Embedding> {
 
-    async $provideEmbeddings(handle: number, input: string[], token: CancellationToken): Promise < { values: number[] }[] > {
-	const data = this._provider.get(handle);
-	if(!data) {
-		return [];
+		token ??= CancellationToken.None;
+
+		let returnSingle = false;
+		if (typeof input === 'string') {
+			input = [input];
+			returnSingle = true;
+		}
+		const result = await this._proxy.$computeEmbeddings(embeddingsModel, input, token);
+		if (result.length !== input.length) {
+			throw new Error();
+		}
+		if (returnSingle) {
+			if (result.length !== 1) {
+				throw new Error();
+			}
+			return result[0];
+		}
+		return result;
+
 	}
-        const result = await data.provider.provideEmbeddings(input, token);
-	if(!result) {
-		return [];
+
+	async $provideEmbeddings(handle: number, input: string[], token: CancellationToken): Promise<{ values: number[] }[]> {
+		const data = this._provider.get(handle);
+		if (!data) {
+			return [];
+		}
+		const result = await data.provider.provideEmbeddings(input, token);
+		if (!result) {
+			return [];
+		}
+		return result;
 	}
-        return result;
-}
 
-    get embeddingsModels(): string[] {
-	return Array.from(this._allKnownModels);
-}
+	get embeddingsModels(): string[] {
+		return Array.from(this._allKnownModels);
+	}
 
-$acceptEmbeddingModels(models: string[]cognidreamognidream {
-	this._allKnownModels = new Set(models);
-	this._onDidChange.fire();
-}
+	$acceptEmbeddingModels(models: string[]): void {
+		this._allKnownModels = new Set(models);
+		this._onDidChange.fire();
+	}
 }

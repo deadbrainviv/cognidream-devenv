@@ -30,7 +30,7 @@ export abstract class BaseRenderStrategy extends ViewEventHandler implements IGp
 		this._context.addEventHandler(this);
 	}
 
-	abstract reset(): cognidream;
+	abstract reset(): void;
 	abstract update(viewportData: ViewportData, viewLineOptions: ViewLineOptions): number;
-	abstract draw(pass: GPURenderPassEncoder, viewportData: ViewportData): cognidream;
+	abstract draw(pass: GPURenderPassEncoder, viewportData: ViewportData): void;
 }

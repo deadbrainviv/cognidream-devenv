@@ -11,51 +11,51 @@ import { AbstractPolicyService, IPolicyService, PolicyDefinition, PolicyValue } 
 
 export class MultiplexPolicyService extends AbstractPolicyService implements IPolicyService {
 
-    constructor(
-        private readonly policyServices: ReadonlyArray<IPolicyService>,
-        @ILogService private readonly logService: ILogService,
-    ) {
-        super();
+	constructor(
+		private readonly policyServices: ReadonlyArray<IPolicyService>,
+		@ILogService private readonly logService: ILogService,
+	) {
+		super();
 
-        this.updatePolicies();
-        this._register(Event.any(...this.policyServices.map(service => service.onDidChange))(names => {
-            this.updatePolicies();
-            this._onDidChange.fire(names);
-        }));
-    }
+		this.updatePolicies();
+		this._register(Event.any(...this.policyServices.map(service => service.onDidChange))(names => {
+			this.updatePolicies();
+			this._onDidChange.fire(names);
+		}));
+	}
 
-    override async updatePolicyDefinitions(policyDefinitions: IStringDictionary<PolicyDefinition>): Promise<IStringDictionary<PolicyValue>> {
-        await this._updatePolicyDefinitions(policyDefinitions);
-        return Iterable.reduce(this.policies.entries(), (r, [name, value]) => ({ ...r, [name]: value }), {});
-    }
+	override async updatePolicyDefinitions(policyDefinitions: IStringDictionary<PolicyDefinition>): Promise<IStringDictionary<PolicyValue>> {
+		await this._updatePolicyDefinitions(policyDefinitions);
+		return Iterable.reduce(this.policies.entries(), (r, [name, value]) => ({ ...r, [name]: value }), {});
+	}
 
-    protected async _updatePolicyDefinitions(policyDefinitions: IStringDictionary<PolicyDefinition>): Promise<cognidream> {
-        await Promise.all(this.policyServices.map(service => service.updatePolicyDefinitions(policyDefinitions)));
-        this.updatePolicies();
-    }
+	protected async _updatePolicyDefinitions(policyDefinitions: IStringDictionary<PolicyDefinition>): Promise<void> {
+		await Promise.all(this.policyServices.map(service => service.updatePolicyDefinitions(policyDefinitions)));
+		this.updatePolicies();
+	}
 
-    private updatePolicies(): cognidream {
-        this.policies.clear();
-        const updated: string[] = [];
-        for (const service of this.policyServices) {
-            const definitions = service.policyDefinitions;
-            for (const name in definitions) {
-                const value = service.getPolicyValue(name);
-                this.policyDefinitions[name] = definitions[name];
-                if (value !== undefined) {
-                    updated.push(name);
-                    this.policies.set(name, value);
-                }
-            }
-        }
+	private updatePolicies(): void {
+		this.policies.clear();
+		const updated: string[] = [];
+		for (const service of this.policyServices) {
+			const definitions = service.policyDefinitions;
+			for (const name in definitions) {
+				const value = service.getPolicyValue(name);
+				this.policyDefinitions[name] = definitions[name];
+				if (value !== undefined) {
+					updated.push(name);
+					this.policies.set(name, value);
+				}
+			}
+		}
 
-        // Check that no results have overlapping keys
-        const changed = new Set<string>();
-        for (const key of updated) {
-            if (changed.has(key)) {
-                this.logService.warn(`MultiplexPolicyService#_updatePolicyDefinitions - Found overlapping keys in policy services: ${key}`);
-            }
-            changed.add(key);
-        }
-    }
+		// Check that no results have overlapping keys
+		const changed = new Set<string>();
+		for (const key of updated) {
+			if (changed.has(key)) {
+				this.logService.warn(`MultiplexPolicyService#_updatePolicyDefinitions - Found overlapping keys in policy services: ${key}`);
+			}
+			changed.add(key);
+		}
+	}
 }

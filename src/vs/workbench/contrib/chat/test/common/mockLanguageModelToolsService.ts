@@ -13,42 +13,42 @@ export class MockLanguageModelToolsService implements ILanguageModelToolsService
 
 	constructor() { }
 
-	cancelToolCallsForRequest(requestId: string): cognidream {
+	cancelToolCallsForRequest(requestId: string): void {
 	}
 
-	onDidChangeTools: Evecognidreamognidream> = Event.None;
+	onDidChangeTools: Event<void> = Event.None;
 
-registerToolData(toolData: IToolData): IDisposable {
-	return Disposable.None;
-}
+	registerToolData(toolData: IToolData): IDisposable {
+		return Disposable.None;
+	}
 
-resetToolAutoConfirmation(cognidreamognidream {
+	resetToolAutoConfirmation(): void {
 
-}
+	}
 
-    setToolAutoConfirmation(toolId: string, scope: 'workspace' | 'profile', autoConfirm ?: booleancognidreamognidream {
+	setToolAutoConfirmation(toolId: string, scope: 'workspace' | 'profile', autoConfirm?: boolean): void {
 
-}
+	}
 
-    registerToolImplementation(name: string, tool: IToolImpl): IDisposable {
-	return Disposable.None;
-}
+	registerToolImplementation(name: string, tool: IToolImpl): IDisposable {
+		return Disposable.None;
+	}
 
-    getTools(): Iterable < Readonly < IToolData >> {
-	return [];
-}
+	getTools(): Iterable<Readonly<IToolData>> {
+		return [];
+	}
 
-    getTool(id: string): IToolData | undefined {
-	return undefined;
-}
+	getTool(id: string): IToolData | undefined {
+		return undefined;
+	}
 
-    getToolByName(name: string): IToolData | undefined {
-	return undefined;
-}
+	getToolByName(name: string): IToolData | undefined {
+		return undefined;
+	}
 
-    async invokeTool(dto: IToolInvocation, countTokens: CountTokensCallback, token: CancellationToken): Promise < IToolResult > {
-	return {
-		content: [{ kind: 'text', value: 'result' }]
-	};
-}
+	async invokeTool(dto: IToolInvocation, countTokens: CountTokensCallback, token: CancellationToken): Promise<IToolResult> {
+		return {
+			content: [{ kind: 'text', value: 'result' }]
+		};
+	}
 }

@@ -27,8 +27,8 @@ export class CommandCenterControl {
 
 	private readonly _disposables = new DisposableStore();
 
-	private readonly _onDidChangeVisibility = this._disposables.add(new Emitter<cognidreamidream>());
-	readonly onDidChangeVisibility: Event<cognidreamidream> = this._onDidChangeVisibility.event;
+	private readonly _onDidChangeVisibility = this._disposables.add(new Emitter<void>());
+	readonly onDidChangeVisibility: Event<void> = this._onDidChangeVisibility.event;
 
 	readonly element: HTMLElement = document.createElement('div');
 
@@ -61,12 +61,12 @@ export class CommandCenterControl {
 		this._disposables.add(titleToolbar);
 	}
 
-	private _setVisibility(show: boolean): cognidreamidream {
+	private _setVisibility(show: boolean): void {
 		this.element.classList.toggle('hide', !show);
 		this._onDidChangeVisibility.fire();
 	}
 
-	dispose(): cognidreamidream {
+	dispose(): void {
 		this._disposables.dispose();
 	}
 }
@@ -91,7 +91,7 @@ class CommandCenterCenterViewItem extends BaseActionViewItem {
 		this._hoverDelegate = options.hoverDelegate ?? getDefaultHoverDelegate('mouse');
 	}
 
-	override render(container: HTMLElement): cognidreamidream {
+	override render(container: HTMLElement): void {
 		super.render(container);
 		container.classList.add('command-center-center');
 		container.classList.toggle('multiple', (this._submenu.actions.length > 1));
@@ -138,7 +138,7 @@ class CommandCenterCenterViewItem extends BaseActionViewItem {
 							super(undefined, action, options);
 						}
 
-						override render(container: HTMLElement): cognidreamidream {
+						override render(container: HTMLElement): void {
 							super.render(container);
 							container.classList.toggle('command-center-quick-pick');
 							container.role = 'button';

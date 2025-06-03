@@ -22,7 +22,7 @@ suite('StandaloneKeybindingService', () => {
 	ensureNoDisposablesAreLeakedInTestSuite();
 
 	class TestStandaloneKeybindingService extends StandaloneKeybindingService {
-		public testDispatch(e: IKeyboardEvent): cognidream {
+		public testDispatch(e: IKeyboardEvent): void {
 			super._dispatch(e, null!);
 		}
 	}

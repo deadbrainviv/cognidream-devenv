@@ -23,7 +23,7 @@ export class ExtHostLoggerService extends AbstractLoggerService implements ExtHo
 		this._proxy = rpc.getProxy(MainContext.MainThreadLogger);
 	}
 
-	$setLogLevel(logLevel: LogLevel, resource?: UriComponents): cognidream {
+	$setLogLevel(logLevel: LogLevel, resource?: UriComponents): void {
 		if (resource) {
 			this.setLogLevel(URI.revive(resource), logLevel);
 		} else {
@@ -31,14 +31,14 @@ export class ExtHostLoggerService extends AbstractLoggerService implements ExtHo
 		}
 	}
 
-	override setVisibility(resource: URI, visibility: booleancognidreamognidream {
+	override setVisibility(resource: URI, visibility: boolean): void {
 		super.setVisibility(resource, visibility);
-this._proxy.$setVisibility(resource, visibility);
-    }
+		this._proxy.$setVisibility(resource, visibility);
+	}
 
-    protected doCreateLogger(resource: URI, logLevel: LogLevel, options ?: ILoggerOptions): ILogger {
-	return new Logger(this._proxy, resource, logLevel, options);
-}
+	protected doCreateLogger(resource: URI, logLevel: LogLevel, options?: ILoggerOptions): ILogger {
+		return new Logger(this._proxy, resource, logLevel, options);
+	}
 }
 
 class Logger extends AbstractMessageLogger {
@@ -74,7 +74,7 @@ class Logger extends AbstractMessageLogger {
 		this.proxy.$log(this.file, messages);
 	}
 
-	override flush(cognidreamognidream {
+	override flush(): void {
 		this.proxy.$flush(this.file);
-    }
+	}
 }

@@ -2,12 +2,12 @@
     namespace {                                                                                    \
         struct der : public base                                                                   \
         {                                                                                          \
-            cognidream f();                                                                              \
+            void f();                                                                              \
         };                                                                                         \
-        static cognidream func() {                                                                       \
+        static void func() {                                                                       \
             der v;                                                                                 \
             v.f();                                                                                 \
         }                                                                                          \
         DOCTEST_REGISTER_FUNCTION(DOCTEST_EMPTY, func, decorators)                                 \
     }                                                                                              \
-    inline DOCTEST_NOINLINE cognidream der::f()
+    inline DOCTEST_NOINLINE void der::f()

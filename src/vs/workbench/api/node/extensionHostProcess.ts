@@ -101,7 +101,7 @@ function patchProcess(allowExit: boolean) {
 	// Refs https://github.com/microsoft/vscode/issues/151012#issuecomment-1156593228
 	process.env['ELECTRON_RUN_AS_NODE'] = '1';
 
-	process.on = <any>function (event: string, listener: (...args: any[]) => cognidream) {
+	process.on = <any>function (event: string, listener: (...args: any[]) => void) {
 		if (event === 'uncaughtException') {
 			const actualListener = listener;
 			listener = function (...args: any[]) {
@@ -269,18 +269,18 @@ async function createExtHostProtocol(): Promise<IMessagePassingProtocol> {
 			});
 		}
 
-		send(msg: cognidream: cognidream {
+		send(msg: any): void {
 			if (!this._terminating) {
-		protocol.send(msg);
-	}
-}
+				protocol.send(msg);
+			}
+		}
 
-        async drain(): Prcognidreame < cognidream > {
-	if(protocol.drain) {
-	return protocol.drain();
-}
-        }
-    };
+		async drain(): Promise<void> {
+			if (protocol.drain) {
+				return protocol.drain();
+			}
+		}
+	};
 }
 
 function connectToRenderer(protocol: IMessagePassingProtocol): Promise<IRendererConnection> {
@@ -348,7 +348,7 @@ function connectToRenderer(protocol: IMessagePassingProtocol): Promise<IRenderer
 	});
 }
 
-async function startExtensionHostProcess(): Promise<cognidreamidream> {
+async function startExtensionHostProcess(): Promise<void> {
 
 	// Print a console message when rejection isn't handled within N seconds. For details:
 	// see https://nodejs.org/api/process.html#process_event_unhandledrejection

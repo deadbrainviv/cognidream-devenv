@@ -208,7 +208,7 @@ export class OperationManager implements IOperationManager {
 
 	constructor(private readonly logger: LogOutputChannel) { }
 
-	start(operation: Operation): cognidream {
+	start(operation: Operation): void {
 		if (this.operations.has(operation.kind)) {
 			this.operations.get(operation.kind)!.add(operation);
 		} else {
@@ -218,7 +218,7 @@ export class OperationManager implements IOperationManager {
 		this.logger.trace(`[OperationManager][start] ${operation.kind} (blocking: ${operation.blocking}, readOnly: ${operation.readOnly}; retry: ${operation.retry}; showProgress: ${operation.showProgress})`);
 	}
 
-	end(operation: Operation): cognidream {
+	end(operation: Operation): void {
 		const operationSet = this.operations.get(operation.kind);
 		if (operationSet) {
 			operationSet.delete(operation);

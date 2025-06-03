@@ -63,135 +63,135 @@ export class CellEditorOptions extends CellContentPart implements ITextModelUpda
 		return this._insertSpaces;
 	}
 
-	private readonly _onDidChange = this._register(new Emitter<cognidream>());
-	readonly onDidChange: Evecognidreamognidream> = this._onDidChange.event;
-    private _value: IEditorOptions;
+	private readonly _onDidChange = this._register(new Emitter<void>());
+	readonly onDidChange: Event<void> = this._onDidChange.event;
+	private _value: IEditorOptions;
 
-constructor(
-	private readonly base: IBaseCellEditorOptions,
-	readonly notebookOptions: NotebookOptions,
-	readonly configurationService: IConfigurationService) {
-	super();
+	constructor(
+		private readonly base: IBaseCellEditorOptions,
+		readonly notebookOptions: NotebookOptions,
+		readonly configurationService: IConfigurationService) {
+		super();
 
-	this._register(base.onDidChange(() => {
+		this._register(base.onDidChange(() => {
+			this._recomputeOptions();
+		}));
+
+		this._value = this._computeEditorOptions();
+	}
+
+	override updateState(element: ICellViewModel, e: CellViewModelStateChangeEvent) {
+		if (e.cellLineNumberChanged) {
+			this.setLineNumbers(element.lineNumbers);
+		}
+	}
+
+	private _recomputeOptions(): void {
+		this._value = this._computeEditorOptions();
+		this._onDidChange.fire();
+	}
+
+	private _computeEditorOptions() {
+		const value = this.base.value; // base IEditorOptions
+
+		// TODO @Yoyokrazy find a different way to get the editor overrides, this is not the right way
+		const cellEditorOverridesRaw = this.notebookOptions.getDisplayOptions().editorOptionsCustomizations;
+		const indentSize = cellEditorOverridesRaw?.['editor.indentSize'];
+		if (indentSize !== undefined) {
+			this.indentSize = indentSize;
+		}
+		const insertSpaces = cellEditorOverridesRaw?.['editor.insertSpaces'];
+		if (insertSpaces !== undefined) {
+			this.insertSpaces = insertSpaces;
+		}
+		const tabSize = cellEditorOverridesRaw?.['editor.tabSize'];
+		if (tabSize !== undefined) {
+			this.tabSize = tabSize;
+		}
+
+		let cellRenderLineNumber = value.lineNumbers;
+
+		switch (this._lineNumbers) {
+			case 'inherit':
+				// inherit from the notebook setting
+				if (this.configurationService.getValue<'on' | 'off'>('notebook.lineNumbers') === 'on') {
+					if (value.lineNumbers === 'off') {
+						cellRenderLineNumber = 'on';
+					} // otherwise just use the editor setting
+				} else {
+					cellRenderLineNumber = 'off';
+				}
+				break;
+			case 'on':
+				// should turn on, ignore the editor line numbers off options
+				if (value.lineNumbers === 'off') {
+					cellRenderLineNumber = 'on';
+				} // otherwise just use the editor setting
+				break;
+			case 'off':
+				cellRenderLineNumber = 'off';
+				break;
+		}
+
+		const overrides: Partial<IEditorOptions> = {};
+		if (value.lineNumbers !== cellRenderLineNumber) {
+			overrides.lineNumbers = cellRenderLineNumber;
+		}
+
+		if (this.notebookOptions.getLayoutConfiguration().disableRulers) {
+			overrides.rulers = [];
+		}
+
+		return {
+			...value,
+			...overrides,
+		};
+	}
+
+	getUpdatedValue(internalMetadata: NotebookCellInternalMetadata, cellUri: URI): IEditorOptions {
+		const options = this.getValue(internalMetadata, cellUri);
+		delete options.hover; // This is toggled by a debug editor contribution
+
+		return options;
+	}
+
+	getValue(internalMetadata: NotebookCellInternalMetadata, cellUri: URI): IEditorOptions {
+		return {
+			...this._value,
+			...{
+				padding: this.notebookOptions.computeEditorPadding(internalMetadata, cellUri)
+			}
+		};
+	}
+
+	getDefaultValue(): IEditorOptions {
+		return {
+			...this._value,
+			...{
+				padding: { top: 12, bottom: 12 }
+			}
+		};
+	}
+
+	setLineNumbers(lineNumbers: 'on' | 'off' | 'inherit'): void {
+		this._lineNumbers = lineNumbers;
 		this._recomputeOptions();
-	}));
-
-	this._value = this._computeEditorOptions();
-}
-
-    override updateState(element: ICellViewModel, e: CellViewModelStateChangeEvent) {
-	if (e.cellLineNumberChanged) {
-		this.setLineNumbers(element.lineNumbers);
 	}
 }
 
-    private _recomputeOptions(cognidreamognidream {
-	this._value = this._computeEditorOptions();
-	this._onDidChange.fire();
-}
-
-    private _computeEditorOptions() {
-	const value = this.base.value; // base IEditorOptions
-
-	// TODO @Yoyokrazy find a different way to get the editor overrides, this is not the right way
-	const cellEditorOverridesRaw = this.notebookOptions.getDisplayOptions().editorOptionsCustomizations;
-	const indentSize = cellEditorOverridesRaw?.['editor.indentSize'];
-	if(indentSize !== undefined) {
-	this.indentSize = indentSize;
-}
-const insertSpaces = cellEditorOverridesRaw?.['editor.insertSpaces'];
-if (insertSpaces !== undefined) {
-	this.insertSpaces = insertSpaces;
-}
-const tabSize = cellEditorOverridesRaw?.['editor.tabSize'];
-if (tabSize !== undefined) {
-	this.tabSize = tabSize;
-}
-
-let cellRenderLineNumber = value.lineNumbers;
-
-switch (this._lineNumbers) {
-	case 'inherit':
-		// inherit from the notebook setting
-		if (this.configurationService.getValue<'on' | 'off'>('notebook.lineNumbers') === 'on') {
-			if (value.lineNumbers === 'off') {
-				cellRenderLineNumber = 'on';
-			} // otherwise just use the editor setting
-		} else {
-			cellRenderLineNumber = 'off';
+Registry.as<IConfigurationRegistry>(ConfigurationExtensions.Configuration).registerConfiguration({
+	id: 'notebook',
+	order: 100,
+	type: 'object',
+	'properties': {
+		'notebook.lineNumbers': {
+			type: 'string',
+			enum: ['off', 'on'],
+			default: 'off',
+			markdownDescription: localize('notebook.lineNumbers', "Controls the display of line numbers in the cell editor.")
 		}
-		break;
-	case 'on':
-		// should turn on, ignore the editor line numbers off options
-		if (value.lineNumbers === 'off') {
-			cellRenderLineNumber = 'on';
-		} // otherwise just use the editor setting
-		break;
-	case 'off':
-		cellRenderLineNumber = 'off';
-		break;
-}
-
-const overrides: Partial<IEditorOptions> = {};
-if (value.lineNumbers !== cellRenderLineNumber) {
-	overrides.lineNumbers = cellRenderLineNumber;
-}
-
-if (this.notebookOptions.getLayoutConfiguration().disableRulers) {
-	overrides.rulers = [];
-}
-
-return {
-	...value,
-	...overrides,
-};
-    }
-
-getUpdatedValue(internalMetadata: NotebookCellInternalMetadata, cellUri: URI): IEditorOptions {
-	const options = this.getValue(internalMetadata, cellUri);
-	delete options.hover; // This is toggled by a debug editor contribution
-
-	return options;
-}
-
-getValue(internalMetadata: NotebookCellInternalMetadata, cellUri: URI): IEditorOptions {
-	return {
-		...this._value,
-		...{
-			padding: this.notebookOptions.computeEditorPadding(internalMetadata, cellUri)
-		}
-	};
-}
-
-getDefaultValue(): IEditorOptions {
-	return {
-		...this._value,
-		...{
-			padding: { top: 12, bottom: 12 }
-		}
-	};
-}
-
-setLineNumbers(lineNumbers: 'on' | 'off' | 'inherit'cognidreamognidream {
-	this._lineNumbers = lineNumbers;
-	this._recomputeOptions();
-}
-}
-
-	Registry.as<IConfigurationRegistry>(ConfigurationExtensions.Configuration).registerConfiguration({
-		id: 'notebook',
-		order: 100,
-		type: 'object',
-		'properties': {
-			'notebook.lineNumbers': {
-				type: 'string',
-				enum: ['off', 'on'],
-				default: 'off',
-				markdownDescription: localize('notebook.lineNumbers', "Controls the display of line numbers in the cell editor.")
-			}
-		}
-	});
+	}
+});
 
 registerAction2(class ToggleLineNumberAction extends Action2 {
 	constructor() {
@@ -215,16 +215,16 @@ registerAction2(class ToggleLineNumberAction extends Action2 {
 		});
 	}
 
-	async run(accessor: ServicesAccessor): Promicognidreamognidream> {
-	const configurationService = accessor.get(IConfigurationService);
-	const renderLiNumbers = configurationService.getValue<'on' | 'off'>('notebook.lineNumbers') === 'on';
+	async run(accessor: ServicesAccessor): Promise<void> {
+		const configurationService = accessor.get(IConfigurationService);
+		const renderLiNumbers = configurationService.getValue<'on' | 'off'>('notebook.lineNumbers') === 'on';
 
-	if(renderLiNumbers) {
-		configurationService.updateValue('notebook.lineNumbers', 'off');
-	} else {
-		configurationService.updateValue('notebook.lineNumbers', 'on');
+		if (renderLiNumbers) {
+			configurationService.updateValue('notebook.lineNumbers', 'off');
+		} else {
+			configurationService.updateValue('notebook.lineNumbers', 'on');
+		}
 	}
-}
 });
 
 registerAction2(class ToggleActiveLineNumberAction extends NotebookMultiCellAction {
@@ -245,33 +245,33 @@ registerAction2(class ToggleActiveLineNumberAction extends NotebookMultiCellActi
 		});
 	}
 
-	async runWithContext(accessor: ServicesAccessor, context: INotebookCommandContext | INotebookCellToolbarActionContext): Promicognidreamognidream> {
-	if(context.ui) {
-	this.updateCell(accessor.get(IConfigurationService), context.cell);
-} else {
-	const configurationService = accessor.get(IConfigurationService);
-	context.selectedCells.forEach(cell => {
-		this.updateCell(configurationService, cell);
-	});
-}
-    }
-
-    private updateCell(configurationService: IConfigurationService, cell: ICellViewModel) {
-	const renderLineNumbers = configurationService.getValue<'on' | 'off'>('notebook.lineNumbers') === 'on';
-	const cellLineNumbers = cell.lineNumbers;
-	// 'on', 'inherit' 	-> 'on'
-	// 'on', 'off'		-> 'off'
-	// 'on', 'on'		-> 'on'
-	// 'off', 'inherit'	-> 'off'
-	// 'off', 'off'		-> 'off'
-	// 'off', 'on'		-> 'on'
-	const currentLineNumberIsOn = cellLineNumbers === 'on' || (cellLineNumbers === 'inherit' && renderLineNumbers);
-
-	if (currentLineNumberIsOn) {
-		cell.lineNumbers = 'off';
-	} else {
-		cell.lineNumbers = 'on';
+	async runWithContext(accessor: ServicesAccessor, context: INotebookCommandContext | INotebookCellToolbarActionContext): Promise<void> {
+		if (context.ui) {
+			this.updateCell(accessor.get(IConfigurationService), context.cell);
+		} else {
+			const configurationService = accessor.get(IConfigurationService);
+			context.selectedCells.forEach(cell => {
+				this.updateCell(configurationService, cell);
+			});
+		}
 	}
 
-}
+	private updateCell(configurationService: IConfigurationService, cell: ICellViewModel) {
+		const renderLineNumbers = configurationService.getValue<'on' | 'off'>('notebook.lineNumbers') === 'on';
+		const cellLineNumbers = cell.lineNumbers;
+		// 'on', 'inherit' 	-> 'on'
+		// 'on', 'off'		-> 'off'
+		// 'on', 'on'		-> 'on'
+		// 'off', 'inherit'	-> 'off'
+		// 'off', 'off'		-> 'off'
+		// 'off', 'on'		-> 'on'
+		const currentLineNumberIsOn = cellLineNumbers === 'on' || (cellLineNumbers === 'inherit' && renderLineNumbers);
+
+		if (currentLineNumberIsOn) {
+			cell.lineNumbers = 'off';
+		} else {
+			cell.lineNumbers = 'on';
+		}
+
+	}
 });

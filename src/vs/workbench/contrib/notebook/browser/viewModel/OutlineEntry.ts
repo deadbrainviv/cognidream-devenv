@@ -65,7 +65,7 @@ export class OutlineEntry {
 		return undefined;
 	}
 
-	updateMarkers(markerService: IMarkerService): cognidream {
+	updateMarkers(markerService: IMarkerService): void {
 		if (this.cell.cellKind === CellKind.Code) {
 			// a code cell can have marker
 			const marker = markerService.read({ resource: this.cell.uri, severities: MarkerSeverity.Error | MarkerSeverity.Warning });
@@ -88,32 +88,32 @@ export class OutlineEntry {
 		}
 	}
 
-	clearMarkers(cognidreamognidream {
+	clearMarkers(): void {
 		this._markerInfo = undefined;
 		for (const child of this.children) {
 			child.clearMarkers();
 		}
-    }
-
-find(cell: ICellViewModel, parents: OutlineEntry[]): OutlineEntry | undefined {
-	if (cell.id === this.cell.id) {
-		return this;
 	}
-	parents.push(this);
-	for (const child of this.children) {
-		const result = child.find(cell, parents);
-		if (result) {
-			return result;
+
+	find(cell: ICellViewModel, parents: OutlineEntry[]): OutlineEntry | undefined {
+		if (cell.id === this.cell.id) {
+			return this;
+		}
+		parents.push(this);
+		for (const child of this.children) {
+			const result = child.find(cell, parents);
+			if (result) {
+				return result;
+			}
+		}
+		parents.pop();
+		return undefined;
+	}
+
+	asFlatList(bucket: OutlineEntry[]): void {
+		bucket.push(this);
+		for (const child of this.children) {
+			child.asFlatList(bucket);
 		}
 	}
-	parents.pop();
-	return undefined;
-}
-
-asFlatList(bucket: OutlineEntry[]cognidreamognidream {
-	bucket.push(this);
-	for(const child of this.children) {
-	child.asFlatList(bucket);
-}
-    }
 }

@@ -40,7 +40,7 @@ class DecorationRequestsQueue {
 		return result.finally(() => sub.dispose());
 	}
 
-	private _processQueue(): cognidream {
+	private _processQueue(): void {
 		if (typeof this._timer === 'number') {
 			// already queued
 			return;
@@ -81,7 +81,7 @@ export class MainThreadDecorations implements MainThreadDecorationsShape {
 		this._provider.clear();
 	}
 
-	$registerDecorationProvider(handle: number, label: stringcognidreamognidream {
+	$registerDecorationProvider(handle: number, label: string): void {
 		const emitter = new Emitter<URI[]>();
 		const queue = new DecorationRequestsQueue(this._proxy, handle);
 		const registration = this._decorationsService.registerDecorationsProvider({
@@ -103,21 +103,21 @@ export class MainThreadDecorations implements MainThreadDecorationsShape {
 			}
 		});
 		this._provider.set(handle, [emitter, registration]);
-    }
-
-$onDidChange(handle: number, resources: UriComponents[]cognidreamognidream {
-	const provider = this._provider.get(handle);
-	if(provider) {
-		const [emitter] = provider;
-		emitter.fire(resources && resources.map(r => URI.revive(r)));
 	}
-}
 
-    $unregisterDecorationProvider(handle: numbercognidreamognidream {
-	const provider = this._provider.get(handle);
-	if(provider) {
-		dispose(provider);
-		this._provider.delete(handle);
+	$onDidChange(handle: number, resources: UriComponents[]): void {
+		const provider = this._provider.get(handle);
+		if (provider) {
+			const [emitter] = provider;
+			emitter.fire(resources && resources.map(r => URI.revive(r)));
+		}
 	}
-}
+
+	$unregisterDecorationProvider(handle: number): void {
+		const provider = this._provider.get(handle);
+		if (provider) {
+			dispose(provider);
+			this._provider.delete(handle);
+		}
+	}
 }

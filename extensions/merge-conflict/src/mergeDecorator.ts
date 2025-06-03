@@ -5,6 +5,7 @@
 import * as vscode from 'vscode';
 import * as interfaces from './interfaces';
 
+
 export default class MergeDecorator implements vscode.Disposable {
 
 	private decorations: { [key: string]: vscode.TextEditorDecorationType } = {};

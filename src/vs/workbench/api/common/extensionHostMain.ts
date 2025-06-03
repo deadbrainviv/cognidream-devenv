@@ -34,7 +34,7 @@ export interface IConsolePatchFn {
 
 export abstract class ErrorHandler {
 
-	static async installEarlyHandler(accessor: ServicesAccessor): Promise<cognidream> {
+	static async installEarlyHandler(accessor: ServicesAccessor): Promise<void> {
 
 		// increase number of stack frames (from 10, https://github.com/v8/v8/wiki/Stack-Trace-API)
 		Error.stackTraceLimit = 100;
@@ -52,7 +52,7 @@ export abstract class ErrorHandler {
 		});
 	}
 
-	static async installFullHandler(accessor: ServicesAccessor): Promicognidreamognidream> {
+	static async installFullHandler(accessor: ServicesAccessor): Promise<void> {
 		// uses extension knowledges to correlate errors with extensions
 
 		const logService = accessor.get(ILogService);
@@ -70,75 +70,75 @@ export abstract class ErrorHandler {
 		// set the prepareStackTrace-handle and use it as a side-effect to associate errors
 		// with extensions - this works by looking up callsites in the extension path index
 		function prepareStackTraceAndFindExtension(error: Error, stackTrace: errors.V8CallSite[]) {
-	if (extensionErrors.has(error)) {
-		return extensionErrors.get(error)!.stack;
-	}
-	let stackTraceMessage = '';
-	let extension: IExtensionDescription | undefined;
-	let fileName: string | null;
-	for (const call of stackTrace) {
-		stackTraceMessage += `\n\tat ${call.toString()}`;
-		fileName = call.getFileName();
-		if (!extension && fileName) {
-			extension = map.findSubstr(URI.file(fileName));
-		}
-	}
-	const result = `${error.name || 'Error'}: ${error.message || ''}${stackTraceMessage}`;
-	extensionErrors.set(error, { extensionIdentifier: extension?.identifier, stack: result });
-	return result;
-}
-
-const _wasWrapped = Symbol('prepareStackTrace wrapped');
-let _prepareStackTrace = prepareStackTraceAndFindExtension;
-
-Object.defineProperty(Error, 'prepareStackTrace', {
-	configurable: false,
-	get() {
-		return _prepareStackTrace;
-	},
-	set(v) {
-		if (v === prepareStackTraceAndFindExtension || !v || v[_wasWrapped]) {
-			_prepareStackTrace = v || prepareStackTraceAndFindExtension;
-			return;
+			if (extensionErrors.has(error)) {
+				return extensionErrors.get(error)!.stack;
+			}
+			let stackTraceMessage = '';
+			let extension: IExtensionDescription | undefined;
+			let fileName: string | null;
+			for (const call of stackTrace) {
+				stackTraceMessage += `\n\tat ${call.toString()}`;
+				fileName = call.getFileName();
+				if (!extension && fileName) {
+					extension = map.findSubstr(URI.file(fileName));
+				}
+			}
+			const result = `${error.name || 'Error'}: ${error.message || ''}${stackTraceMessage}`;
+			extensionErrors.set(error, { extensionIdentifier: extension?.identifier, stack: result });
+			return result;
 		}
 
-		_prepareStackTrace = function (error, stackTrace) {
-			prepareStackTraceAndFindExtension(error, stackTrace);
-			return v.call(Error, error, stackTrace);
-		};
+		const _wasWrapped = Symbol('prepareStackTrace wrapped');
+		let _prepareStackTrace = prepareStackTraceAndFindExtension;
 
-		Object.assign(_prepareStackTrace, { [_wasWrapped]: true });
-	},
-});
+		Object.defineProperty(Error, 'prepareStackTrace', {
+			configurable: false,
+			get() {
+				return _prepareStackTrace;
+			},
+			set(v) {
+				if (v === prepareStackTraceAndFindExtension || !v || v[_wasWrapped]) {
+					_prepareStackTrace = v || prepareStackTraceAndFindExtension;
+					return;
+				}
 
-// PART 2
-// set the unexpectedErrorHandler and check for extensions that have been identified as
-// having caused the error. Note that the runtime order is actually reversed, the code
-// below accesses the stack-property which triggers the code above
-errors.setUnexpectedErrorHandler(err => {
-	logService.error(err);
+				_prepareStackTrace = function (error, stackTrace) {
+					prepareStackTraceAndFindExtension(error, stackTrace);
+					return v.call(Error, error, stackTrace);
+				};
 
-	const errorData = errors.transformErrorForSerialization(err);
+				Object.assign(_prepareStackTrace, { [_wasWrapped]: true });
+			},
+		});
 
-	let extension: ExtensionIdentifier | undefined;
-	if (err instanceof ExtensionError) {
-		extension = err.extension;
-	} else {
-		const stackData = extensionErrors.get(err);
-		extension = stackData?.extensionIdentifier;
+		// PART 2
+		// set the unexpectedErrorHandler and check for extensions that have been identified as
+		// having caused the error. Note that the runtime order is actually reversed, the code
+		// below accesses the stack-property which triggers the code above
+		errors.setUnexpectedErrorHandler(err => {
+			logService.error(err);
+
+			const errorData = errors.transformErrorForSerialization(err);
+
+			let extension: ExtensionIdentifier | undefined;
+			if (err instanceof ExtensionError) {
+				extension = err.extension;
+			} else {
+				const stackData = extensionErrors.get(err);
+				extension = stackData?.extensionIdentifier;
+			}
+
+			if (extension) {
+				mainThreadExtensions.$onExtensionRuntimeError(extension, errorData);
+				const reported = extensionTelemetry.onExtensionError(extension, err);
+				logService.trace('forwarded error to extension?', reported, extension);
+			}
+		});
+
+		errors.errorHandler.addListener(err => {
+			mainThreadErrors.$onUnexpectedError(err);
+		});
 	}
-
-	if (extension) {
-		mainThreadExtensions.$onExtensionRuntimeError(extension, errorData);
-		const reported = extensionTelemetry.onExtensionError(extension, err);
-		logService.trace('forwarded error to extension?', reported, extension);
-	}
-});
-
-errors.errorHandler.addListener(err => {
-	mainThreadErrors.$onUnexpectedError(err);
-});
-    }
 }
 
 export class ExtensionHostMain {
@@ -198,25 +198,25 @@ export class ExtensionHostMain {
 		return URI.revive(await mainThreadExtensionsProxy.$asBrowserUri(uri));
 	}
 
-	terminate(reason: stringcognidreamognidream {
+	terminate(reason: string): void {
 		this._extensionService.terminate(reason);
-    }
-
-    private static _transform(initData: IExtensionHostInitData, rpcProtocol: RPCProtocol): IExtensionHostInitData {
-	initData.extensions.allExtensions.forEach((ext) => {
-		(<Mutable<IExtensionDescription>>ext).extensionLocation = URI.revive(rpcProtocol.transformIncomingURIs(ext.extensionLocation));
-	});
-	initData.environment.appRoot = URI.revive(rpcProtocol.transformIncomingURIs(initData.environment.appRoot));
-	const extDevLocs = initData.environment.extensionDevelopmentLocationURI;
-	if (extDevLocs) {
-		initData.environment.extensionDevelopmentLocationURI = extDevLocs.map(url => URI.revive(rpcProtocol.transformIncomingURIs(url)));
 	}
-	initData.environment.extensionTestsLocationURI = URI.revive(rpcProtocol.transformIncomingURIs(initData.environment.extensionTestsLocationURI));
-	initData.environment.globalStorageHome = URI.revive(rpcProtocol.transformIncomingURIs(initData.environment.globalStorageHome));
-	initData.environment.workspaceStorageHome = URI.revive(rpcProtocol.transformIncomingURIs(initData.environment.workspaceStorageHome));
-	initData.nlsBaseUrl = URI.revive(rpcProtocol.transformIncomingURIs(initData.nlsBaseUrl));
-	initData.logsLocation = URI.revive(rpcProtocol.transformIncomingURIs(initData.logsLocation));
-	initData.workspace = rpcProtocol.transformIncomingURIs(initData.workspace);
-	return initData;
-}
+
+	private static _transform(initData: IExtensionHostInitData, rpcProtocol: RPCProtocol): IExtensionHostInitData {
+		initData.extensions.allExtensions.forEach((ext) => {
+			(<Mutable<IExtensionDescription>>ext).extensionLocation = URI.revive(rpcProtocol.transformIncomingURIs(ext.extensionLocation));
+		});
+		initData.environment.appRoot = URI.revive(rpcProtocol.transformIncomingURIs(initData.environment.appRoot));
+		const extDevLocs = initData.environment.extensionDevelopmentLocationURI;
+		if (extDevLocs) {
+			initData.environment.extensionDevelopmentLocationURI = extDevLocs.map(url => URI.revive(rpcProtocol.transformIncomingURIs(url)));
+		}
+		initData.environment.extensionTestsLocationURI = URI.revive(rpcProtocol.transformIncomingURIs(initData.environment.extensionTestsLocationURI));
+		initData.environment.globalStorageHome = URI.revive(rpcProtocol.transformIncomingURIs(initData.environment.globalStorageHome));
+		initData.environment.workspaceStorageHome = URI.revive(rpcProtocol.transformIncomingURIs(initData.environment.workspaceStorageHome));
+		initData.nlsBaseUrl = URI.revive(rpcProtocol.transformIncomingURIs(initData.nlsBaseUrl));
+		initData.logsLocation = URI.revive(rpcProtocol.transformIncomingURIs(initData.logsLocation));
+		initData.workspace = rpcProtocol.transformIncomingURIs(initData.workspace);
+		return initData;
+	}
 }

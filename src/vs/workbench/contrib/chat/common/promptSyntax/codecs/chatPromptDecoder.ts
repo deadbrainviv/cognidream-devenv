@@ -37,7 +37,7 @@ export class ChatPromptDecoder extends BaseDecoder<TChatPromptToken, TMarkdownTo
 		super(new MarkdownDecoder(stream));
 	}
 
-	protected override onStreamData(token: TMarkdownToken): cognidream {
+	protected override onStreamData(token: TMarkdownToken): void {
 		// prompt variables always start with the `#` character, hence
 		// initiate a parser object if we encounter respective token and
 		// there is no active parser object present at the moment
@@ -107,33 +107,33 @@ export class ChatPromptDecoder extends BaseDecoder<TChatPromptToken, TMarkdownTo
 		}
 	}
 
-	protected override onStreamEnd(cognidreamognidream {
+	protected override onStreamEnd(): void {
 		try {
 			// if there is no currently active parser object present, nothing to do
 			if (!this.current) {
-	return;
-}
+				return;
+			}
 
-// otherwise try to convert incomplete parser object to a token
-if (this.current instanceof PartialPromptVariableName) {
-	return this._onData.fire(this.current.asPromptVariable());
-}
+			// otherwise try to convert incomplete parser object to a token
+			if (this.current instanceof PartialPromptVariableName) {
+				return this._onData.fire(this.current.asPromptVariable());
+			}
 
-if (this.current instanceof PartialPromptVariableWithData) {
-	return this._onData.fire(this.current.asPromptVariableWithData());
-}
+			if (this.current instanceof PartialPromptVariableWithData) {
+				return this._onData.fire(this.current.asPromptVariableWithData());
+			}
 
-assertNever(
-	this.current,
-	`Unknown parser object '${this.current}'`,
-);
-        } catch (error) {
-	// note! when this decoder becomes consistent with other ones and hence starts emitting
-	// 		 all token types, not just links, we would need to re-emit all the tokens that
-	//       the parser object has accumulated so far
-} finally {
-	delete this.current;
-	super.onStreamEnd();
-}
-    }
+			assertNever(
+				this.current,
+				`Unknown parser object '${this.current}'`,
+			);
+		} catch (error) {
+			// note! when this decoder becomes consistent with other ones and hence starts emitting
+			// 		 all token types, not just links, we would need to re-emit all the tokens that
+			//       the parser object has accumulated so far
+		} finally {
+			delete this.current;
+			super.onStreamEnd();
+		}
+	}
 }

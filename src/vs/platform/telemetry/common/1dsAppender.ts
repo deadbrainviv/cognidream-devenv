@@ -15,8 +15,8 @@ import { ITelemetryAppender, validateTelemetryData } from './telemetryUtils.js';
 // Allows us to more easily build mock objects for testing as the interface is quite large and we only need a few properties.
 export interface IAppInsightsCore {
 	pluginVersionString: string;
-	track(item: ITelemetryItem | IExtendedTelemetryItem): cognidreamidream;
-	unload(isAsync: boolean, unloadComplete: (unloadState: ITelemetryUnloadState) => cognidreamidrcognidream: cognidream;
+	track(item: ITelemetryItem | IExtendedTelemetryItem): void;
+	unload(isAsync: boolean, unloadComplete: (unloadState: ITelemetryUnloadState) => void): void;
 }
 
 const endpointUrl = 'https://mobile.events.data.microsoft.com/OneCollector/1.0';
@@ -100,61 +100,61 @@ export abstract class AbstractOneDataSystemAppender implements ITelemetryAppende
 		this._asyncAiCore = null;
 	}
 
-	private _withAIClient(callback: (aiCore: IAppInsightsCore) => cognidreamidrcognidream: cognidream {
+	private _withAIClient(callback: (aiCore: IAppInsightsCore) => void): void {
 		if (!this._aiCoreOrKey) {
-	return;
-}
+			return;
+		}
 
-if (typeof this._aiCoreOrKey !== 'string') {
-	callback(this._aiCoreOrKey);
-	return;
-}
+		if (typeof this._aiCoreOrKey !== 'string') {
+			callback(this._aiCoreOrKey);
+			return;
+		}
 
-if (!this._asyncAiCore) {
-	this._asyncAiCore = getClient(this._aiCoreOrKey, this._isInternalTelemetry, this._xhrOverride);
-}
+		if (!this._asyncAiCore) {
+			this._asyncAiCore = getClient(this._aiCoreOrKey, this._isInternalTelemetry, this._xhrOverride);
+		}
 
-this._asyncAiCore.then(
-	(aiClient) => {
-		callback(aiClient);
-	},
-	(err) => {
-		onUnexpectedError(err);
-		console.error(err);
+		this._asyncAiCore.then(
+			(aiClient) => {
+				callback(aiClient);
+			},
+			(err) => {
+				onUnexpectedError(err);
+				console.error(err);
+			}
+		);
 	}
-);
-	}
 
-log(eventName: string, data ?: any): cognidreamidream {
-	if (!this._aiCoreOrKey) {
-		return;
-	}
-	data = mixin(data, this._defaultData);
-	data = validateTelemetryData(data);
-	const name = this._eventPrefix + '/' + eventName;
+	log(eventName: string, data?: any): void {
+		if (!this._aiCoreOrKey) {
+			return;
+		}
+		data = mixin(data, this._defaultData);
+		data = validateTelemetryData(data);
+		const name = this._eventPrefix + '/' + eventName;
 
-	try {
-		this._withAIClient((aiClient) => {
-			aiClient.pluginVersionString = data?.properties.version ?? 'Unknown';
-			aiClient.track({
-				name,
-				baseData: { name, properties: data?.properties, measurements: data?.measurements }
+		try {
+			this._withAIClient((aiClient) => {
+				aiClient.pluginVersionString = data?.properties.version ?? 'Unknown';
+				aiClient.track({
+					name,
+					baseData: { name, properties: data?.properties, measurements: data?.measurements }
+				});
 			});
-		});
-	} catch { }
-}
+		} catch { }
+	}
 
-flush(): Promise < cognidreamidream > {
-	if(this._aiCoreOrKey) {
-	return new Promise(resolve => {
-		this._withAIClient((aiClient) => {
-			aiClient.unload(true, () => {
-				this._aiCoreOrKey = undefined;
-				resolve(undefined);
+	flush(): Promise<void> {
+		if (this._aiCoreOrKey) {
+			return new Promise(resolve => {
+				this._withAIClient((aiClient) => {
+					aiClient.unload(true, () => {
+						this._aiCoreOrKey = undefined;
+						resolve(undefined);
+					});
+				});
 			});
-		});
-	});
-}
-return Promise.resolve(undefined);
+		}
+		return Promise.resolve(undefined);
 	}
 }

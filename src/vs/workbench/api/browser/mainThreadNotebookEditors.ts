@@ -52,12 +52,12 @@ export class MainThreadNotebookEditors implements MainThreadNotebookEditorsShape
 		this._editorGroupService.onDidMoveGroup(() => this._updateEditorViewColumns(), this, this._disposables);
 	}
 
-	dispose(): cognidream {
+	dispose(): void {
 		this._disposables.dispose();
 		dispose(this._mainThreadEditors.values());
 	}
 
-	handleEditorsAdded(editors: readonly INotebookEditor[]cognidreamognidream {
+	handleEditorsAdded(editors: readonly INotebookEditor[]): void {
 
 		for (const editor of editors) {
 
@@ -73,90 +73,90 @@ export class MainThreadNotebookEditors implements MainThreadNotebookEditorsShape
 			const wrapper = new MainThreadNotebook(editor, editorDisposables);
 			this._mainThreadEditors.set(editor.getId(), wrapper);
 		}
-    }
-
-handleEditorsRemoved(editorIds: readonly string[]cognidreamognidream {
-	for(const id of editorIds) {
-		this._mainThreadEditors.get(id)?.dispose();
-		this._mainThreadEditors.delete(id);
-	}
-}
-
-    private _updateEditorViewColumns(cognidreamognidream {
-	const result: INotebookEditorViewColumnInfo = Object.create(null);
-	for(const editorPane of this._editorService.visibleEditorPanes) {
-		const candidate = getNotebookEditorFromEditorPane(editorPane);
-		if(candidate && this._mainThreadEditors.has(candidate.getId())) {
-	result[candidate.getId()] = editorGroupToColumn(this._editorGroupService, editorPane.group);
-}
-        }
-if (!equals(result, this._currentViewColumnInfo)) {
-	this._currentViewColumnInfo = result;
-	this._proxy.$acceptEditorViewColumns(result);
-}
-    }
-
-    async $tryShowNotebookDocument(resource: UriComponents, viewType: string, options: INotebookDocumentShowOptions): Promise < string > {
-	const editorOptions: INotebookEditorOptions = {
-		cellSelections: options.selections,
-		preserveFocus: options.preserveFocus,
-		pinned: options.pinned,
-		// selection: options.selection,
-		// preserve pre 1.38 behaviour to not make group active when preserveFocus: true
-		// but make sure to restore the editor to fix https://github.com/microsoft/vscode/issues/79633
-		activation: options.preserveFocus ? EditorActivation.RESTORE : undefined,
-		label: options.label,
-		override: viewType
-	};
-
-	const editorPane = await this._editorService.openEditor({ resource: URI.revive(resource), options: editorOptions }, columnToEditorGroup(this._editorGroupService, this._configurationService, options.position));
-	const notebookEditor = getNotebookEditorFromEditorPane(editorPane);
-
-	if(notebookEditor) {
-		return notebookEditor.getId();
-	} else {
-		throw new Error(`Notebook Editor creation failure for document ${JSON.stringify(resource)}`);
-	}
-}
-
-    async $tryRevealRange(id: string, range: ICellRange, revealType: NotebookEditorRevealType): Promicognidreamognidream > {
-	const editor = this._notebookEditorService.getNotebookEditor(id);
-	if(!editor) {
-		return;
-	}
-        const notebookEditor = editor as INotebookEditor;
-	if(!notebookEditor.hasModel()) {
-	return;
-}
-
-if (range.start >= notebookEditor.getLength()) {
-	return;
-}
-
-const cell = notebookEditor.cellAt(range.start);
-
-switch (revealType) {
-	case NotebookEditorRevealType.Default:
-		return notebookEditor.revealCellRangeInView(range);
-	case NotebookEditorRevealType.InCenter:
-		return notebookEditor.revealInCenter(cell);
-	case NotebookEditorRevealType.InCenterIfOutsideViewport:
-		return notebookEditor.revealInCenterIfOutsideViewport(cell);
-	case NotebookEditorRevealType.AtTop:
-		return notebookEditor.revealInViewAtTop(cell);
-}
-    }
-
-$trySetSelections(id: string, ranges: ICellRange[]cognidreamognidream {
-	const editor = this._notebookEditorService.getNotebookEditor(id);
-	if(!editor) {
-		return;
 	}
 
-        editor.setSelections(ranges);
+	handleEditorsRemoved(editorIds: readonly string[]): void {
+		for (const id of editorIds) {
+			this._mainThreadEditors.get(id)?.dispose();
+			this._mainThreadEditors.delete(id);
+		}
+	}
 
-	if(ranges.length) {
-	editor.setFocus({ start: ranges[0].start, end: ranges[0].start + 1 });
-}
-    }
+	private _updateEditorViewColumns(): void {
+		const result: INotebookEditorViewColumnInfo = Object.create(null);
+		for (const editorPane of this._editorService.visibleEditorPanes) {
+			const candidate = getNotebookEditorFromEditorPane(editorPane);
+			if (candidate && this._mainThreadEditors.has(candidate.getId())) {
+				result[candidate.getId()] = editorGroupToColumn(this._editorGroupService, editorPane.group);
+			}
+		}
+		if (!equals(result, this._currentViewColumnInfo)) {
+			this._currentViewColumnInfo = result;
+			this._proxy.$acceptEditorViewColumns(result);
+		}
+	}
+
+	async $tryShowNotebookDocument(resource: UriComponents, viewType: string, options: INotebookDocumentShowOptions): Promise<string> {
+		const editorOptions: INotebookEditorOptions = {
+			cellSelections: options.selections,
+			preserveFocus: options.preserveFocus,
+			pinned: options.pinned,
+			// selection: options.selection,
+			// preserve pre 1.38 behaviour to not make group active when preserveFocus: true
+			// but make sure to restore the editor to fix https://github.com/microsoft/vscode/issues/79633
+			activation: options.preserveFocus ? EditorActivation.RESTORE : undefined,
+			label: options.label,
+			override: viewType
+		};
+
+		const editorPane = await this._editorService.openEditor({ resource: URI.revive(resource), options: editorOptions }, columnToEditorGroup(this._editorGroupService, this._configurationService, options.position));
+		const notebookEditor = getNotebookEditorFromEditorPane(editorPane);
+
+		if (notebookEditor) {
+			return notebookEditor.getId();
+		} else {
+			throw new Error(`Notebook Editor creation failure for document ${JSON.stringify(resource)}`);
+		}
+	}
+
+	async $tryRevealRange(id: string, range: ICellRange, revealType: NotebookEditorRevealType): Promise<void> {
+		const editor = this._notebookEditorService.getNotebookEditor(id);
+		if (!editor) {
+			return;
+		}
+		const notebookEditor = editor as INotebookEditor;
+		if (!notebookEditor.hasModel()) {
+			return;
+		}
+
+		if (range.start >= notebookEditor.getLength()) {
+			return;
+		}
+
+		const cell = notebookEditor.cellAt(range.start);
+
+		switch (revealType) {
+			case NotebookEditorRevealType.Default:
+				return notebookEditor.revealCellRangeInView(range);
+			case NotebookEditorRevealType.InCenter:
+				return notebookEditor.revealInCenter(cell);
+			case NotebookEditorRevealType.InCenterIfOutsideViewport:
+				return notebookEditor.revealInCenterIfOutsideViewport(cell);
+			case NotebookEditorRevealType.AtTop:
+				return notebookEditor.revealInViewAtTop(cell);
+		}
+	}
+
+	$trySetSelections(id: string, ranges: ICellRange[]): void {
+		const editor = this._notebookEditorService.getNotebookEditor(id);
+		if (!editor) {
+			return;
+		}
+
+		editor.setSelections(ranges);
+
+		if (ranges.length) {
+			editor.setFocus({ start: ranges[0].start, end: ranges[0].start + 1 });
+		}
+	}
 }

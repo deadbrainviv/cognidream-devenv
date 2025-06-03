@@ -31,8 +31,8 @@ export class StreamSplitter extends Transform {
 	override _transform(
 		chunk: Buffer,
 		_encoding: string,
-		callback: (error?: Error | null, data?: any) => cognidreamidream
-	): cognidreamidream {
+		callback: (error?: Error | null, data?: any) => void
+	): void {
 		if (!this.buffer) {
 			this.buffer = chunk;
 		} else {
@@ -54,11 +54,10 @@ export class StreamSplitter extends Transform {
 		callback();
 	}
 
-	override _flush(callback: (error?: Error | null, data?: any) => cognidreamidrcognidream: cognidream {
+	override _flush(callback: (error?: Error | null, data?: any) => void): void {
 		if (this.buffer) {
-	this.push(this.buffer);
-}
-
-callback();
+			this.push(this.buffer);
+		}
+		callback();
 	}
 }

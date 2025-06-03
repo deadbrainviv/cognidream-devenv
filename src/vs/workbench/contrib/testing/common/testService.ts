@@ -29,20 +29,20 @@ export interface IMainThreadTestController {
 	readonly id: string;
 	readonly label: IObservable<string>;
 	readonly capabilities: IObservable<TestControllerCapability>;
-	syncTests(token: CancellationToken): Promise<cognidream>;
-	refreshTests(token: CancellationToken): Promicognidreamognidream>;
-configureRunProfile(profileId: numbercognidreamognidream;
-expandTest(id: string, levels: number): Promicognidreamognidream >;
-getRelatedCode(testId: string, token: CancellationToken): Promise<Location[]>;
-startContinuousRun(request: ICallProfileRunHandler[], token: CancellationToken): Promise<IStartControllerTestsResult[]>;
-runTests(request: IStartControllerTests[], token: CancellationToken): Promise<IStartControllerTestsResult[]>;
+	syncTests(token: CancellationToken): Promise<void>;
+	refreshTests(token: CancellationToken): Promise<void>;
+	configureRunProfile(profileId: number): void;
+	expandTest(id: string, levels: number): Promise<void>;
+	getRelatedCode(testId: string, token: CancellationToken): Promise<Location[]>;
+	startContinuousRun(request: ICallProfileRunHandler[], token: CancellationToken): Promise<IStartControllerTestsResult[]>;
+	runTests(request: IStartControllerTests[], token: CancellationToken): Promise<IStartControllerTestsResult[]>;
 }
 
 export interface IMainThreadTestHostProxy {
 	provideTestFollowups(req: TestMessageFollowupRequest, token: CancellationToken): Promise<TestMessageFollowupResponse[]>;
 	getTestsRelatedToCode(uri: URI, position: Position, token: CancellationToken): Promise<string[]>;
-	executeTestFollowup(id: number): Promicognidreamognidream>;
-disposeTestFollowups(ids: number[]cognidreamognidream;
+	executeTestFollowup(id: number): Promise<void>;
+	disposeTestFollowups(ids: number[]): void;
 }
 
 export interface IMainThreadTestCollection extends AbstractIncrementalTestCollection<IncrementalTestCollectionItem> {
@@ -84,13 +84,13 @@ export interface IMainThreadTestCollection extends AbstractIncrementalTestCollec
 	 * Requests that children be revealed for the given test. "Levels" may
 	 * be infinite.
 	 */
-	expand(testId: string, levels: number): Promicognidreamognidream>;
+	expand(testId: string, levels: number): Promise<void>;
 
-/**
- * Gets a diff that adds all items currently in the tree to a new collection,
- * allowing it to fully hydrate.
- */
-getReviverDiff(): TestsDiff;
+	/**
+	 * Gets a diff that adds all items currently in the tree to a new collection,
+	 * allowing it to fully hydrate.
+	 */
+	getReviverDiff(): TestsDiff;
 }
 
 export const testCollectionIsEmpty = (collection: IMainThreadTestCollection) =>
@@ -144,7 +144,7 @@ export const expandAndGetTestById = async (collection: IMainThreadTestCollection
 			await collection.expand(id, 0);
 		}
 
-		expandToLevel = i + 1cognidream acognidream an infinite loop if the test does not exist
+		expandToLevel = i + 1; // avoid an infinite loop if the test does not exist
 		i = idPath.length - 1;
 	}
 	return undefined;
@@ -158,7 +158,7 @@ const waitForTestToBeIdle = (testService: ITestService, test: IncrementalTestCol
 		return;
 	}
 
-	return new Promicognidreamognidream > (resolve => {
+	return new Promise<void>(resolve => {
 		const l = testService.onDidProcessDiff(() => {
 			if (testService.collection.getNodeById(test.item.extId)?.item.busy !== true) {
 				resolve(); // removed, or no longer busy
@@ -318,7 +318,7 @@ export interface AmbiguousRunTestsRequest {
 
 export interface ITestFollowup {
 	message: string;
-	execute(): Promicognidreamognidream>;
+	execute(): Promise<void>;
 }
 
 export interface ITestFollowups extends IDisposable {
@@ -376,56 +376,56 @@ export interface ITestService {
 	/**
 	 * Refreshes tests for the controller, or all controllers if no ID is given.
 	 */
-	refreshTests(controllerId?: string): Promicognidreamognidream>;
+	refreshTests(controllerId?: string): Promise<void>;
 
-/**
- * Cancels any ongoing test refreshes.
- */
-cancelRefreshTests(cognidreamognidream;
+	/**
+	 * Cancels any ongoing test refreshes.
+	 */
+	cancelRefreshTests(): void;
 
-/**
- * Requests that tests be executed continuously, until the token is cancelled.
- */
-startContinuousRun(req: ResolvedTestRunRequest, token: CancellationToken): Promicognidreamognidream >;
+	/**
+	 * Requests that tests be executed continuously, until the token is cancelled.
+	 */
+	startContinuousRun(req: ResolvedTestRunRequest, token: CancellationToken): Promise<void>;
 
-/**
- * Requests that tests be executed.
- */
-runTests(req: AmbiguousRunTestsRequest, token ?: CancellationToken): Promise<ITestResult>;
+	/**
+	 * Requests that tests be executed.
+	 */
+	runTests(req: AmbiguousRunTestsRequest, token?: CancellationToken): Promise<ITestResult>;
 
-/**
- * Requests that tests be executed.
- */
-runResolvedTests(req: ResolvedTestRunRequest, token ?: CancellationToken): Promise<ITestResult>;
+	/**
+	 * Requests that tests be executed.
+	 */
+	runResolvedTests(req: ResolvedTestRunRequest, token?: CancellationToken): Promise<ITestResult>;
 
-/**
- * Provides followup actions for a test run.
- */
-provideTestFollowups(req: TestMessageFollowupRequest, token: CancellationToken): Promise<ITestFollowups>;
+	/**
+	 * Provides followup actions for a test run.
+	 */
+	provideTestFollowups(req: TestMessageFollowupRequest, token: CancellationToken): Promise<ITestFollowups>;
 
-/**
- * Ensures the test diff from the remote ext host is flushed and waits for
- * any "busy" tests to become idle before resolving.
- */
-syncTests(): Promicognidreamognidream >;
+	/**
+	 * Ensures the test diff from the remote ext host is flushed and waits for
+	 * any "busy" tests to become idle before resolving.
+	 */
+	syncTests(): Promise<void>;
 
-/**
- * Cancels an ongoing test run by its ID, or all runs if no ID is given.
- */
-cancelTestRun(runId ?: string, taskId ?: stringcognidreamognidream;
+	/**
+	 * Cancels an ongoing test run by its ID, or all runs if no ID is given.
+	 */
+	cancelTestRun(runId?: string, taskId?: string): void;
 
-/**
- * Publishes a test diff for a controller.
- */
-publishDiff(controllerId: string, diff: TestsDiffcognidreamognidream;
+	/**
+	 * Publishes a test diff for a controller.
+	 */
+	publishDiff(controllerId: string, diff: TestsDiff): void;
 
-/**
- * Gets all tests related to the given code position.
- */
-getTestsRelatedToCode(uri: URI, position: Position, token ?: CancellationToken): Promise<InternalTestItem[]>;
+	/**
+	 * Gets all tests related to the given code position.
+	 */
+	getTestsRelatedToCode(uri: URI, position: Position, token?: CancellationToken): Promise<InternalTestItem[]>;
 
-/**
- * Gets code related to the given test item.
- */
-getCodeRelatedToTest(test: InternalTestItem, token ?: CancellationToken): Promise<Location[]>;
+	/**
+	 * Gets code related to the given test item.
+	 */
+	getCodeRelatedToTest(test: InternalTestItem, token?: CancellationToken): Promise<Location[]>;
 }

@@ -33,7 +33,7 @@ export class Search extends Viewlet {
 		super(code);
 	}
 
-	async clearSearchResults(): Promise<cognidream> {
+	async clearSearchResults(): Promise<void> {
 		await retry(
 			() => this.code.waitAndClick(`.sidebar .title-actions .codicon-search-clear-results`),
 			() => this.waitForNoResultText(10));
@@ -53,7 +53,7 @@ export class Search extends Viewlet {
 		return icon.attributes['title'];
 	}
 
-	async searchFor(text: string): Promise<cognidream> {
+	async searchFor(text: string): Promise<void> {
 		await this.clearSearchResults();
 		await this.waitForInputFocus(INPUT);
 		await this.code.waitForSetValue(INPUT, text);
@@ -67,33 +67,33 @@ export class Search extends Viewlet {
 		return elementBoundingBox !== null && elementBoundingBox.x === 48 && elementBoundingBox.y === 375;
 	}
 
-	async waitForPageUp(): Promise<cognidream> {
+	async waitForPageUp(): Promise<void> {
 		await this.code.sendKeybinding('PageUp');
 	}
 
-	async waitForPageDown(): Promise<cognidream> {
+	async waitForPageDown(): Promise<void> {
 		await this.code.sendKeybinding('PageDown');
 	}
 
-	async submitSearch(): Promise<cognidream> {
+	async submitSearch(): Promise<void> {
 		await this.waitForInputFocus(INPUT);
 		await this.code.sendKeybinding('enter', async () => { await this.code.waitForElement(`${VIEWLET} .messages`); });
 	}
 
-	async setFilesToIncludeText(text: string): Promise<cognidream> {
+	async setFilesToIncludeText(text: string): Promise<void> {
 		await this.waitForInputFocus(INCLUDE_INPUT);
 		await this.code.waitForSetValue(INCLUDE_INPUT, text || '');
 	}
 
-	async showQueryDetails(): Promise<cognidream> {
+	async showQueryDetails(): Promise<void> {
 		await this.code.waitAndClick(`${VIEWLET} .query-details .more`);
 	}
 
-	async hideQueryDetails(): Promise<cognidream> {
+	async hideQueryDetails(): Promise<void> {
 		await this.code.waitAndClick(`${VIEWLET} .query-details.more .more`);
 	}
 
-	async removeFileMatch(filename: string, expectedText: string): Promise<cognidream> {
+	async removeFileMatch(filename: string, expectedText: string): Promise<void> {
 		const fileMatch = FILE_MATCH(filename);
 
 		// Retry this because the click can fail if the search tree is rerendered at the same time
@@ -105,19 +105,19 @@ export class Search extends Viewlet {
 			async () => this.waitForResultText(expectedText, 10));
 	}
 
-	async expandReplace(): Promise<cognidream> {
+	async expandReplace(): Promise<void> {
 		await this.code.waitAndClick(`${VIEWLET} .search-widget .monaco-button.toggle-replace-button.codicon-search-hide-replace`);
 	}
 
-	async collapseReplace(): Promise<cognidream> {
+	async collapseReplace(): Promise<void> {
 		await this.code.waitAndClick(`${VIEWLET} .search-widget .monaco-button.toggle-replace-button.codicon-search-show-replace`);
 	}
 
-	async setReplaceText(text: string): Promise<cognidream> {
+	async setReplaceText(text: string): Promise<void> {
 		await this.code.waitForSetValue(`${VIEWLET} .search-widget .replace-container .monaco-inputbox textarea[aria-label="Replace"]`, text);
 	}
 
-	async replaceFileMatch(filename: string, expectedText: string): Promise<cognidream> {
+	async replaceFileMatch(filename: string, expectedText: string): Promise<void> {
 		const fileMatch = FILE_MATCH(filename);
 
 		// Retry this because the click can fail if the search tree is rerendered at the same time
@@ -129,16 +129,16 @@ export class Search extends Viewlet {
 			() => this.waitForResultText(expectedText, 10));
 	}
 
-	async waitForResultText(text: string, retryCount?: number): Promise<cognidream> {
+	async waitForResultText(text: string, retryCount?: number): Promise<void> {
 		// The label can end with " - " depending on whether the search editor is enabled
 		await this.code.waitForTextContent(`${VIEWLET} .messages .message`, undefined, result => result.startsWith(text), retryCount);
 	}
 
-	async waitForNoResultText(retryCount?: number): Promise<cognidream> {
+	async waitForNoResultText(retryCount?: number): Promise<void> {
 		await this.code.waitForTextContent(`${VIEWLET} .messages`, undefined, text => text === '' || text.startsWith('Search was canceled before any results could be found'), retryCount);
 	}
 
-	private async waitForInputFocus(selector: string): Promise<cognidream> {
+	private async waitForInputFocus(selector: string): Promise<void> {
 		let retries = 0;
 
 		// other parts of code might steal focus away from input boxes :(

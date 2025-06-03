@@ -234,13 +234,13 @@ export interface ICellOutput {
 	 * Alternative output id that's reused when the output is updated.
 	 */
 	alternativeOutputId: string;
-	onDidChangeData: Event<cognidream>;
-	replaceData(items: IOutputDtocognidreamognidream;
-		appendData(items: IOutputItemDto[]cognidreamognidream;
-			appendedSinceVersion(versionId: number, mime: string): VSBuffer | undefined;
+	onDidChangeData: Event<void>;
+	replaceData(items: IOutputDto): void;
+	appendData(items: IOutputItemDto[]): void;
+	appendedSinceVersion(versionId: number, mime: string): VSBuffer | undefined;
 	asDto(): IOutputDto;
-	bumpVersion(cognidreamognidream;
-		dispose(cognidreamognidream;
+	bumpVersion(): void;
+	dispose(): void;
 }
 
 export interface CellInternalMetadataChangedEvent {
@@ -255,14 +255,14 @@ export interface INotebookDocumentMetadataTextModel {
 	/**
 	 * Triggered when the Notebook Metadata changes.
 	 */
-	readonly onDidChange: Evecognidreamognidream>;
-    readonly metadata: Readonly<NotebookDocumentMetadata>;
-    readonly textBuffer: IReadonlyTextBuffer;
-/**
- * Text representation of the Notebook Metadata
- */
-getValue(): string;
-getHash(): string;
+	readonly onDidChange: Event<void>;
+	readonly metadata: Readonly<NotebookDocumentMetadata>;
+	readonly textBuffer: IReadonlyTextBuffer;
+	/**
+	 * Text representation of the Notebook Metadata
+	 */
+	getValue(): string;
+	getHash(): string;
 }
 
 export interface ICell {
@@ -276,13 +276,13 @@ export interface ICell {
 	getHashValue(): number;
 	textBuffer: IReadonlyTextBuffer;
 	textModel?: ITextModel;
-	onDidChangeTextModel: Evecognidreamognidream>;
-getValue(): string;
-onDidChangeOutputs ?: Event<NotebookCellOutputsSplice>;
-onDidChangeOutputItems ?: Evecognidreamognidream >;
-onDidChangeLanguage: Event<string>;
-onDidChangeMetadata: Evecognidreamognidream >;
-onDidChangeInternalMetadata: Event<CellInternalMetadataChangedEvent>;
+	onDidChangeTextModel: Event<void>;
+	getValue(): string;
+	onDidChangeOutputs?: Event<NotebookCellOutputsSplice>;
+	onDidChangeOutputItems?: Event<void>;
+	onDidChangeLanguage: Event<string>;
+	onDidChangeMetadata: Event<void>;
+	onDidChangeInternalMetadata: Event<CellInternalMetadataChangedEvent>;
 }
 
 export interface INotebookSnapshotOptions {
@@ -300,12 +300,12 @@ export interface INotebookTextModel extends INotebookTextModelLike {
 	readonly versionId: number;
 	readonly length: number;
 	readonly cells: readonly ICell[];
-	reset(cells: ICellDto2[], metadata: NotebookDocumentMetadata, transientOptions: TransientOptionscognidreamognidream;
-		createSnapshot(options: INotebookSnapshotOptions): NotebookData;
-	restoreSnapshot(snapshot: NotebookData, transientOptions?: TransientOptionscognidreamognidream;
-		applyEdits(rawEdits: ICellEditOperation[], synchronous: boolean, beginSelectionState: ISelectionState | undefined, endSelectionsComputer: () => ISelectionState | undefined, undoRedoGroup: UndoRedoGroup | undefined, computeUndoRedo?: boolean): boolean;
+	reset(cells: ICellDto2[], metadata: NotebookDocumentMetadata, transientOptions: TransientOptions): void;
+	createSnapshot(options: INotebookSnapshotOptions): NotebookData;
+	restoreSnapshot(snapshot: NotebookData, transientOptions?: TransientOptions): void;
+	applyEdits(rawEdits: ICellEditOperation[], synchronous: boolean, beginSelectionState: ISelectionState | undefined, endSelectionsComputer: () => ISelectionState | undefined, undoRedoGroup: UndoRedoGroup | undefined, computeUndoRedo?: boolean): boolean;
 	onDidChangeContent: Event<NotebookTextModelChangedEvent>;
-	onWillDispose: Evecognidreamognidream>;
+	onWillDispose: Event<void>;
 }
 
 export type NotebookCellTextModelSplice<T> = [
@@ -760,57 +760,57 @@ interface IMutableSplice<T> extends ISplice<T> {
 export function diff<T>(before: T[], after: T[], contains: (a: T) => boolean, equal: (a: T, b: T) => boolean = (a: T, b: T) => a === b): ISplice<T>[] {
 	const result: IMutableSplice<T>[] = [];
 
-	function pushSplice(start: number, deleteCount: number, toInsert: T[]cognidreamognidream {
+	function pushSplice(start: number, deleteCount: number, toInsert: T[]): void {
 		if (deleteCount === 0 && toInsert.length === 0) {
-		return;
+			return;
+		}
+
+		const latest = result[result.length - 1];
+
+		if (latest && latest.start + latest.deleteCount === start) {
+			latest.deleteCount += deleteCount;
+			latest.toInsert.push(...toInsert);
+		} else {
+			result.push({ start, deleteCount, toInsert });
+		}
 	}
 
-	const latest = result[result.length - 1];
+	let beforeIdx = 0;
+	let afterIdx = 0;
 
-	if (latest && latest.start + latest.deleteCount === start) {
-		latest.deleteCount += deleteCount;
-		latest.toInsert.push(...toInsert);
-	} else {
-		result.push({ start, deleteCount, toInsert });
+	while (true) {
+		if (beforeIdx === before.length) {
+			pushSplice(beforeIdx, 0, after.slice(afterIdx));
+			break;
+		}
+
+		if (afterIdx === after.length) {
+			pushSplice(beforeIdx, before.length - beforeIdx, []);
+			break;
+		}
+
+		const beforeElement = before[beforeIdx];
+		const afterElement = after[afterIdx];
+
+		if (equal(beforeElement, afterElement)) {
+			// equal
+			beforeIdx += 1;
+			afterIdx += 1;
+			continue;
+		}
+
+		if (contains(afterElement)) {
+			// `afterElement` exists before, which means some elements before `afterElement` are deleted
+			pushSplice(beforeIdx, 1, []);
+			beforeIdx += 1;
+		} else {
+			// `afterElement` added
+			pushSplice(beforeIdx, 0, [afterElement]);
+			afterIdx += 1;
+		}
 	}
-}
 
-let beforeIdx = 0;
-let afterIdx = 0;
-
-while (true) {
-	if (beforeIdx === before.length) {
-		pushSplice(beforeIdx, 0, after.slice(afterIdx));
-		break;
-	}
-
-	if (afterIdx === after.length) {
-		pushSplice(beforeIdx, before.length - beforeIdx, []);
-		break;
-	}
-
-	const beforeElement = before[beforeIdx];
-	const afterElement = after[afterIdx];
-
-	if (equal(beforeElement, afterElement)) {
-		// equal
-		beforeIdx += 1;
-		afterIdx += 1;
-		continue;
-	}
-
-	if (contains(afterElement)) {
-		// `afterElement` exists before, which means some elements before `afterElement` are deleted
-		pushSplice(beforeIdx, 1, []);
-		beforeIdx += 1;
-	} else {
-		// `afterElement` added
-		pushSplice(beforeIdx, 0, [afterElement]);
-		afterIdx += 1;
-	}
-}
-
-return result;
+	return result;
 }
 
 export interface ICellEditorViewState {
@@ -844,25 +844,25 @@ export interface IResolvedNotebookEditorModel extends INotebookEditorModel {
 }
 
 export interface INotebookEditorModel extends IDisposable {
-	readonly onDidChangeDirty: Evecognidreamognidream>;
-    readonly onDidSave: Event<IWorkingCopySaveEvent>;
-    readonly onDidChangeOrphaned: Evecognidreamognidream >;
-    readonly onDidChangeReadonly: Evecognidreamognidream >;
-    readonly onDidRevertUntitled: Evecognidreamognidream >;
-    readonly resource: URI;
-    readonly viewType: string;
-    readonly notebook: INotebookTextModel | undefined;
-    readonly hasErrorState: boolean;
-isResolved(): boolean;
-isDirty(): boolean;
-isModified(): boolean;
-isReadonly(): boolean | IMarkdownString;
-isOrphaned(): boolean;
-hasAssociatedFilePath(): boolean;
-load(options ?: INotebookLoadOptions): Promise<IResolvedNotebookEditorModel>;
-save(options ?: ISaveOptions): Promise<boolean>;
-saveAs(target: URI): Promise<IUntypedEditorInput | undefined>;
-revert(options ?: IRevertOptions): Promicognidreamognidream >;
+	readonly onDidChangeDirty: Event<void>;
+	readonly onDidSave: Event<IWorkingCopySaveEvent>;
+	readonly onDidChangeOrphaned: Event<void>;
+	readonly onDidChangeReadonly: Event<void>;
+	readonly onDidRevertUntitled: Event<void>;
+	readonly resource: URI;
+	readonly viewType: string;
+	readonly notebook: INotebookTextModel | undefined;
+	readonly hasErrorState: boolean;
+	isResolved(): boolean;
+	isDirty(): boolean;
+	isModified(): boolean;
+	isReadonly(): boolean | IMarkdownString;
+	isOrphaned(): boolean;
+	hasAssociatedFilePath(): boolean;
+	load(options?: INotebookLoadOptions): Promise<IResolvedNotebookEditorModel>;
+	save(options?: ISaveOptions): Promise<boolean>;
+	saveAs(target: URI): Promise<IUntypedEditorInput | undefined>;
+	revert(options?: IRevertOptions): Promise<void>;
 }
 
 export interface INotebookDiffEditorModel extends IDisposable {
@@ -956,8 +956,8 @@ export function notebookDocumentFilterMatch(filter: INotebookDocumentFilter, vie
 
 export interface INotebookCellStatusBarItemProvider {
 	viewType: string;
-	onDidChangeStatusBarItems?: Evecognidreamognidream>;
-provideCellStatusBarItems(uri: URI, index: number, token: CancellationToken): Promise<INotebookCellStatusBarItemList | undefined>;
+	onDidChangeStatusBarItems?: Event<void>;
+	provideCellStatusBarItems(uri: URI, index: number, token: CancellationToken): Promise<INotebookCellStatusBarItemList | undefined>;
 }
 
 
@@ -981,7 +981,7 @@ export interface INotebookCellStatusBarItem {
 
 export interface INotebookCellStatusBarItemList {
 	items: INotebookCellStatusBarItem[];
-	dispose?(cognidreamognidream;
+	dispose?(): void;
 }
 
 export type ShowCellStatusBarType = 'hidden' | 'visible' | 'visibleAfterExecute';

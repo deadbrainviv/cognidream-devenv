@@ -20,8 +20,8 @@ export interface ILinkHoverTargetOptions {
 	readonly viewportRange: IViewportRange;
 	readonly cellDimensions: { width: number; height: number };
 	readonly terminalDimensions: { width: number; height: number };
-	readonly modifierDownCallback?: () => cognidream;
-	readonly modifierUpCallback?: () cognidreamognidream;
+	readonly modifierDownCallback?: () => void;
+	readonly modifierUpCallback?: () => void;
 }
 
 export class TerminalHover extends Disposable implements ITerminalWidget {
@@ -38,24 +38,24 @@ export class TerminalHover extends Disposable implements ITerminalWidget {
 		super();
 	}
 
-	attach(container: HTMLElementcognidreamognidream {
+	attach(container: HTMLElement): void {
 		const showLinkHover = this._configurationService.getValue(TerminalSettingId.ShowLinkHover);
 		if (!showLinkHover) {
-	return;
-}
-const target = new CellHoverTarget(container, this._targetOptions);
-const hover = this._hoverService.showInstantHover({
-	target,
-	content: this._text,
-	actions: this._actions,
-	linkHandler: this._linkHandler,
-	// .xterm-hover lets xterm know that the hover is part of a link
-	additionalClasses: ['xterm-hover']
-});
-if (hover) {
-	this._register(hover);
-}
-    }
+			return;
+		}
+		const target = new CellHoverTarget(container, this._targetOptions);
+		const hover = this._hoverService.showInstantHover({
+			target,
+			content: this._text,
+			actions: this._actions,
+			linkHandler: this._linkHandler,
+			// .xterm-hover lets xterm know that the hover is part of a link
+			additionalClasses: ['xterm-hover']
+		});
+		if (hover) {
+			this._register(hover);
+		}
+	}
 }
 
 class CellHoverTarget extends Widget implements IHoverTarget {

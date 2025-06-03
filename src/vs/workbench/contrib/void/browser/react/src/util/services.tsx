@@ -4,11 +4,11 @@
  *--------------------------------------------------------------------------------------*/
 
 import React, { useState, useEffect, useCallback } from 'react'
-import { RefreshableProviderName, SettingsOfProvider } from '../../../../../../../workbench/contrib/cognidream/common/cognidreamSettingsTypes.js'
+import { MCPUserState, RefreshableProviderName, SettingsOfProvider } from '../../../../../../../workbench/contrib/void/common/voidSettingsTypes.js'
 import { IDisposable } from '../../../../../../../base/common/lifecycle.js'
-import { cognidreamSettingsState } from '../../../../../../../workbench/contrib/cognidream/common/cognidreamSettingsService.js'
+import { VoidSettingsState } from '../../../../../../../workbench/contrib/void/common/voidSettingsService.js'
 import { ColorScheme } from '../../../../../../../platform/theme/common/theme.js'
-import { RefreshModelStateOfProvider } from '../../../../../../../workbench/contrib/cognidream/common/refreshModelService.js'
+import { RefreshModelStateOfProvider } from '../../../../../../../workbench/contrib/void/common/refreshModelService.js'
 
 import { ServicesAccessor } from '../../../../../../../editor/browser/editorExtensions.js';
 import { IExplorerService } from '../../../../../../../workbench/contrib/files/browser/files.js'
@@ -19,9 +19,9 @@ import { IFileService } from '../../../../../../../platform/files/common/files.j
 import { IHoverService } from '../../../../../../../platform/hover/browser/hover.js';
 import { IThemeService } from '../../../../../../../platform/theme/common/themeService.js';
 import { ILLMMessageService } from '../../../../common/sendLLMMessageService.js';
-import { IRefreshModelService } from '../../../../../../../workbench/contrib/cognidream/common/refreshModelService.js';
-import { IcognidreamSettingsService } from '../../../../../../../workbench/contrib/cognidream/common/cognidreamSettingsService.js';
-import { IExtensionTransferService } from '../../../../../../../workbench/contrib/cognidream/browser/extensionTransferService.js'
+import { IRefreshModelService } from '../../../../../../../workbench/contrib/void/common/refreshModelService.js';
+import { IVoidSettingsService } from '../../../../../../../workbench/contrib/void/common/voidSettingsService.js';
+import { IExtensionTransferService } from '../../../../../../../workbench/contrib/void/browser/extensionTransferService.js'
 
 import { IInstantiationService } from '../../../../../../../platform/instantiation/common/instantiation.js'
 import { ICodeEditorService } from '../../../../../../../editor/browser/services/codeEditorService.js'
@@ -36,14 +36,14 @@ import { IKeybindingService } from '../../../../../../../platform/keybinding/com
 import { IEnvironmentService } from '../../../../../../../platform/environment/common/environment.js'
 import { IConfigurationService } from '../../../../../../../platform/configuration/common/configuration.js'
 import { IPathService } from '../../../../../../../workbench/services/path/common/pathService.js'
-import { IMetricsService } from '../../../../../../../workbench/contrib/cognidream/common/metricsService.js'
+import { IMetricsService } from '../../../../../../../workbench/contrib/void/common/metricsService.js'
 import { URI } from '../../../../../../../base/common/uri.js'
 import { IChatThreadService, ThreadsState, ThreadStreamState } from '../../../chatThreadService.js'
 import { ITerminalToolService } from '../../../terminalToolService.js'
 import { ILanguageService } from '../../../../../../../editor/common/languages/language.js'
-import { IcognidreamModelService } from '../../../../common/cognidreamModelService.js'
+import { IVoidModelService } from '../../../../common/voidModelService.js'
 import { IWorkspaceContextService } from '../../../../../../../platform/workspace/common/workspace.js'
-import { IcognidreamCommandBarService } from '../../../cognidreamCommandBarService.js'
+import { IVoidCommandBarService } from '../../../voidCommandBarService.js'
 import { INativeHostService } from '../../../../../../../platform/native/common/native.js';
 import { IEditCodeService } from '../../../editCodeServiceInterface.js'
 import { IToolsService } from '../../../toolsService.js'
@@ -51,6 +51,7 @@ import { IConvertToLLMMessageService } from '../../../convertToLLMMessageService
 import { ITerminalService } from '../../../../../terminal/browser/terminal.js'
 import { ISearchService } from '../../../../../../services/search/common/search.js'
 import { IExtensionManagementService } from '../../../../../../../platform/extensionManagement/common/extensionManagement.js'
+import { IMCPService } from '../../../../common/mcpService.js';
 
 
 // normally to do this you'd use a useEffect that calls .onDidChangeState(), but useEffect mounts too late and misses initial state changes
@@ -59,24 +60,26 @@ import { IExtensionManagementService } from '../../../../../../../platform/exten
 // React listens by adding a setState function to these listeners.
 
 let chatThreadsState: ThreadsState
-const chatThreadsStateListeners: Set<(s: ThreadsState) => cognidream> = new Set()
+const chatThreadsStateListeners: Set<(s: ThreadsState) => void> = new Set()
 
 let chatThreadsStreamState: ThreadStreamState
-const chatThreadsStreamStateListeners: Set<(threadId: string) => cognidream> = new Set()
+const chatThreadsStreamStateListeners: Set<(threadId: string) => void> = new Set()
 
-let settingsState: cognidreamSettingsState
-const settingsStateListeners: Set<(s: cognidreamSettingsState) => cognidream> = new Set()
+let settingsState: VoidSettingsState
+const settingsStateListeners: Set<(s: VoidSettingsState) => void> = new Set()
 
 let refreshModelState: RefreshModelStateOfProvider
-const refreshModelStateListeners: Set<(s: RefreshModelStateOfProvider) => cognidream> = new Set()
-const refreshModelProviderListeners: Set<(p: RefreshableProviderName, s: RefreshModelStateOfProvider) => cognidream> = new Set()
+const refreshModelStateListeners: Set<(s: RefreshModelStateOfProvider) => void> = new Set()
+const refreshModelProviderListeners: Set<(p: RefreshableProviderName, s: RefreshModelStateOfProvider) => void> = new Set()
 
 let colorThemeState: ColorScheme
-const colorThemeStateListeners: Set<(s: ColorScheme) => cognidream> = new Set()
+const colorThemeStateListeners: Set<(s: ColorScheme) => void> = new Set()
 
-const ctrlKZoneStreamingStateListeners: Set<(diffareaid: number, s: boolean) => cognidream> = new Set()
-const commandBarURIStateListeners: Set<(uri: URI) => cognidream> = new Set();
-const activeURIListeners: Set<(uri: URI | null) => cognidream> = new Set();
+const ctrlKZoneStreamingStateListeners: Set<(diffareaid: number, s: boolean) => void> = new Set()
+const commandBarURIStateListeners: Set<(uri: URI) => void> = new Set();
+const activeURIListeners: Set<(uri: URI | null) => void> = new Set();
+
+const mcpListeners: Set<() => void> = new Set()
 
 
 // must call this before you can use any of the hooks below
@@ -89,15 +92,16 @@ export const _registerServices = (accessor: ServicesAccessor) => {
 
 	const stateServices = {
 		chatThreadsStateService: accessor.get(IChatThreadService),
-		settingsStateService: accessor.get(IcognidreamSettingsService),
+		settingsStateService: accessor.get(IVoidSettingsService),
 		refreshModelService: accessor.get(IRefreshModelService),
 		themeService: accessor.get(IThemeService),
 		editCodeService: accessor.get(IEditCodeService),
-		cognidreamCommandBarService: accessor.get(IcognidreamCommandBarService),
+		voidCommandBarService: accessor.get(IVoidCommandBarService),
 		modelService: accessor.get(IModelService),
+		mcpService: accessor.get(IMCPService),
 	}
 
-	const { settingsStateService, chatThreadsStateService, refreshModelService, themeService, editCodeService, cognidreamCommandBarService, modelService } = stateServices
+	const { settingsStateService, chatThreadsStateService, refreshModelService, themeService, editCodeService, voidCommandBarService, modelService, mcpService } = stateServices
 
 
 
@@ -153,17 +157,22 @@ export const _registerServices = (accessor: ServicesAccessor) => {
 	)
 
 	disposables.push(
-		cognidreamCommandBarService.onDidChangeState(({ uri }) => {
+		voidCommandBarService.onDidChangeState(({ uri }) => {
 			commandBarURIStateListeners.forEach(l => l(uri));
 		})
 	)
 
 	disposables.push(
-		cognidreamCommandBarService.onDidChangeActiveURI(({ uri }) => {
+		voidCommandBarService.onDidChangeActiveURI(({ uri }) => {
 			activeURIListeners.forEach(l => l(uri));
 		})
 	)
 
+	disposables.push(
+		mcpService.onDidChangeState(() => {
+			mcpListeners.forEach(l => l())
+		})
+	)
 
 
 	return disposables
@@ -182,7 +191,7 @@ const getReactAccessor = (accessor: ServicesAccessor) => {
 		IThemeService: accessor.get(IThemeService),
 		ILLMMessageService: accessor.get(ILLMMessageService),
 		IRefreshModelService: accessor.get(IRefreshModelService),
-		IcognidreamSettingsService: accessor.get(IcognidreamSettingsService),
+		IVoidSettingsService: accessor.get(IVoidSettingsService),
 		IEditCodeService: accessor.get(IEditCodeService),
 		IChatThreadService: accessor.get(IChatThreadService),
 
@@ -205,16 +214,17 @@ const getReactAccessor = (accessor: ServicesAccessor) => {
 		IMetricsService: accessor.get(IMetricsService),
 		ITerminalToolService: accessor.get(ITerminalToolService),
 		ILanguageService: accessor.get(ILanguageService),
-		IcognidreamModelService: accessor.get(IcognidreamModelService),
+		IVoidModelService: accessor.get(IVoidModelService),
 		IWorkspaceContextService: accessor.get(IWorkspaceContextService),
 
-		IcognidreamCommandBarService: accessor.get(IcognidreamCommandBarService),
+		IVoidCommandBarService: accessor.get(IVoidCommandBarService),
 		INativeHostService: accessor.get(INativeHostService),
 		IToolsService: accessor.get(IToolsService),
 		IConvertToLLMMessageService: accessor.get(IConvertToLLMMessageService),
 		ITerminalService: accessor.get(ITerminalService),
 		IExtensionManagementService: accessor.get(IExtensionManagementService),
 		IExtensionTransferService: accessor.get(IExtensionTransferService),
+		IMCPService: accessor.get(IMCPService),
 
 	} as const
 	return reactAccessor
@@ -232,7 +242,7 @@ const _registerAccessor = (accessor: ServicesAccessor) => {
 // -- services --
 export const useAccessor = () => {
 	if (!reactAccessor_) {
-		throw new Error(`⚠️ cognidream useAccessor was called before _registerServices!`)
+		throw new Error(`⚠️ Void useAccessor was called before _registerServices!`)
 	}
 
 	return { get: <S extends keyof ReactAccessor,>(service: S): ReactAccessor[S] => reactAccessor_![service] }
@@ -314,14 +324,14 @@ export const useRefreshModelState = () => {
 }
 
 
-export const useRefreshModelListener = (listener: (providerName: RefreshableProviderName, s: RefreshModelStateOfProvider) => cognidream) => {
+export const useRefreshModelListener = (listener: (providerName: RefreshableProviderName, s: RefreshModelStateOfProvider) => void) => {
 	useEffect(() => {
 		refreshModelProviderListeners.add(listener)
 		return () => { refreshModelProviderListeners.delete(listener) }
 	}, [listener, refreshModelProviderListeners])
 }
 
-export const useCtrlKZoneStreamingState = (listener: (diffareaid: number, s: boolean) => cognidream) => {
+export const useCtrlKZoneStreamingState = (listener: (diffareaid: number, s: boolean) => void) => {
 	useEffect(() => {
 		ctrlKZoneStreamingStateListeners.add(listener)
 		return () => { ctrlKZoneStreamingStateListeners.delete(listener) }
@@ -341,7 +351,7 @@ export const useIsDark = () => {
 	return isDark
 }
 
-export const useCommandBarURIListener = (listener: (uri: URI) => cognidream) => {
+export const useCommandBarURIListener = (listener: (uri: URI) => void) => {
 	useEffect(() => {
 		commandBarURIStateListeners.add(listener);
 		return () => { commandBarURIStateListeners.delete(listener) };
@@ -349,7 +359,7 @@ export const useCommandBarURIListener = (listener: (uri: URI) => cognidream) => 
 };
 export const useCommandBarState = () => {
 	const accessor = useAccessor()
-	const commandBarService = accessor.get('IcognidreamCommandBarService')
+	const commandBarService = accessor.get('IVoidCommandBarService')
 	const [s, ss] = useState({ stateOfURI: commandBarService.stateOfURI, sortedURIs: commandBarService.sortedURIs });
 	const listener = useCallback(() => {
 		ss({ stateOfURI: commandBarService.stateOfURI, sortedURIs: commandBarService.sortedURIs });
@@ -364,7 +374,7 @@ export const useCommandBarState = () => {
 // roughly gets the active URI - this is used to get the history of recent URIs
 export const useActiveURI = () => {
 	const accessor = useAccessor()
-	const commandBarService = accessor.get('IcognidreamCommandBarService')
+	const commandBarService = accessor.get('IVoidCommandBarService')
 	const [s, ss] = useState(commandBarService.activeURI)
 	useEffect(() => {
 		const listener = () => { ss(commandBarService.activeURI) }
@@ -375,4 +385,17 @@ export const useActiveURI = () => {
 }
 
 
+
+
+export const useMCPServiceState = () => {
+	const accessor = useAccessor()
+	const mcpService = accessor.get('IMCPService')
+	const [s, ss] = useState(mcpService.state)
+	useEffect(() => {
+		const listener = () => { ss(mcpService.state) }
+		mcpListeners.add(listener);
+		return () => { mcpListeners.delete(listener) };
+	}, []);
+	return s
+}
 

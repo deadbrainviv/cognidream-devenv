@@ -28,8 +28,8 @@ class EditorWebviewZone implements IViewZone {
 	// heightInPx?: number | undefined;
 	// minWidthInPx?: number | undefined;
 	// marginDomNode?: HTMLElement | null | undefined;
-	// onDomNodeTop?: ((top: number) => cognidream) | undefined;
-	// onComputedHeight?: ((height: number) cognidreamognidream) | undefined;
+	// onDomNodeTop?: ((top: number) => void) | undefined;
+	// onComputedHeight?: ((height: number) => void) | undefined;
 
 	constructor(
 		readonly editor: IActiveCodeEditor,
@@ -47,9 +47,9 @@ class EditorWebviewZone implements IViewZone {
 		webview.mountTo(this.domNode, getWindow(editor.getDomNode()));
 	}
 
-	dispose(cognidreamognidream {
+	dispose(): void {
 		this.editor.changeViewZones(accessor => this._id && accessor.removeZone(this._id));
-    }
+	}
 }
 
 @extHostNamedCustomer(MainContext.MainThreadEditorInsets)
@@ -67,82 +67,82 @@ export class MainThreadEditorInsets implements MainThreadEditorInsetsShape {
 		this._proxy = context.getProxy(ExtHostContext.ExtHostEditorInsets);
 	}
 
-	dispose(cognidreamognidream {
+	dispose(): void {
 		this._disposables.dispose();
-    }
-
-    async $createEditorInset(handle: number, id: string, uri: UriComponents, line: number, height: number, options: IWebviewContentOptions, extensionId: ExtensionIdentifier, extensionLocation: UriComponents): Promicognidreamognidream > {
-
-	let editor: IActiveCodeEditor | undefined;
-	id = id.substr(0, id.indexOf(',')); //todo@jrieken HACK
-
-	for(const candidate of this._editorService.listCodeEditors()) {
-	if (candidate.getId() === id && candidate.hasModel() && isEqual(candidate.getModel().uri, URI.revive(uri))) {
-		editor = candidate;
-		break;
 	}
-}
 
-if (!editor) {
-	setTimeout(() => this._proxy.$onDidDispose(handle));
-	return;
-}
+	async $createEditorInset(handle: number, id: string, uri: UriComponents, line: number, height: number, options: IWebviewContentOptions, extensionId: ExtensionIdentifier, extensionLocation: UriComponents): Promise<void> {
 
-const disposables = new DisposableStore();
+		let editor: IActiveCodeEditor | undefined;
+		id = id.substr(0, id.indexOf(',')); //todo@jrieken HACK
 
-const webview = this._webviewService.createWebviewElement({
-	title: undefined,
-	options: {
-		enableFindWidget: false,
-	},
-	contentOptions: reviveWebviewContentOptions(options),
-	extension: { id: extensionId, location: URI.revive(extensionLocation) }
-});
+		for (const candidate of this._editorService.listCodeEditors()) {
+			if (candidate.getId() === id && candidate.hasModel() && isEqual(candidate.getModel().uri, URI.revive(uri))) {
+				editor = candidate;
+				break;
+			}
+		}
 
-const webviewZone = new EditorWebviewZone(editor, line, height, webview);
+		if (!editor) {
+			setTimeout(() => this._proxy.$onDidDispose(handle));
+			return;
+		}
 
-const remove = () => {
-	disposables.dispose();
-	this._proxy.$onDidDispose(handle);
-	this._insets.delete(handle);
-};
+		const disposables = new DisposableStore();
 
-disposables.add(editor.onDidChangeModel(remove));
-disposables.add(editor.onDidDispose(remove));
-disposables.add(webviewZone);
-disposables.add(webview);
-disposables.add(webview.onMessage(msg => this._proxy.$onDidReceiveMessage(handle, msg.message)));
+		const webview = this._webviewService.createWebviewElement({
+			title: undefined,
+			options: {
+				enableFindWidget: false,
+			},
+			contentOptions: reviveWebviewContentOptions(options),
+			extension: { id: extensionId, location: URI.revive(extensionLocation) }
+		});
 
-this._insets.set(handle, webviewZone);
-    }
+		const webviewZone = new EditorWebviewZone(editor, line, height, webview);
 
-$disposeEditorInset(handle: numbercognidreamognidream {
-	const inset = this.getInset(handle);
-	this._insets.delete(handle);
-	inset.dispose();
-}
+		const remove = () => {
+			disposables.dispose();
+			this._proxy.$onDidDispose(handle);
+			this._insets.delete(handle);
+		};
 
-    $setHtml(handle: number, value: stringcognidreamognidream {
-	const inset = this.getInset(handle);
-	inset.webview.setHtml(value);
-}
+		disposables.add(editor.onDidChangeModel(remove));
+		disposables.add(editor.onDidDispose(remove));
+		disposables.add(webviewZone);
+		disposables.add(webview);
+		disposables.add(webview.onMessage(msg => this._proxy.$onDidReceiveMessage(handle, msg.message)));
 
-    $setOptions(handle: number, options: IWebviewContentOptionscognidreamognidream {
-	const inset = this.getInset(handle);
-	inset.webview.contentOptions = reviveWebviewContentOptions(options);
-}
-
-    async $postMessage(handle: number, value: any): Promise < boolean > {
-	const inset = this.getInset(handle);
-	inset.webview.postMessage(value);
-	return true;
-}
-
-    private getInset(handle: number): EditorWebviewZone {
-	const inset = this._insets.get(handle);
-	if(!inset) {
-		throw new Error('Unknown inset');
+		this._insets.set(handle, webviewZone);
 	}
-        return inset;
-}
+
+	$disposeEditorInset(handle: number): void {
+		const inset = this.getInset(handle);
+		this._insets.delete(handle);
+		inset.dispose();
+	}
+
+	$setHtml(handle: number, value: string): void {
+		const inset = this.getInset(handle);
+		inset.webview.setHtml(value);
+	}
+
+	$setOptions(handle: number, options: IWebviewContentOptions): void {
+		const inset = this.getInset(handle);
+		inset.webview.contentOptions = reviveWebviewContentOptions(options);
+	}
+
+	async $postMessage(handle: number, value: any): Promise<boolean> {
+		const inset = this.getInset(handle);
+		inset.webview.postMessage(value);
+		return true;
+	}
+
+	private getInset(handle: number): EditorWebviewZone {
+		const inset = this._insets.get(handle);
+		if (!inset) {
+			throw new Error('Unknown inset');
+		}
+		return inset;
+	}
 }

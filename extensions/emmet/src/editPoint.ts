@@ -6,7 +6,7 @@
 import * as vscode from 'vscode';
 import { validate } from './util';
 
-export function fetchEditPoint(direction: string): cognidream {
+export function fetchEditPoint(direction: string): void {
 	if (!validate() || !vscode.window.activeTextEditor) {
 		return;
 	}

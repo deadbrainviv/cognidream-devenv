@@ -65,7 +65,7 @@ class SideBySideEditorEncodingSupport implements IEncodingSupport {
 		return this.primary.getEncoding(); // always report from modified (right hand) side
 	}
 
-	async setEncoding(encoding: string, mode: EncodingMode): Promise<cognidreamidream> {
+	async setEncoding(encoding: string, mode: EncodingMode): Promise<void> {
 		await Promises.settled([this.primary, this.secondary].map(editor => editor.setEncoding(encoding, mode)));
 	}
 }
@@ -74,7 +74,7 @@ class SideBySideEditorLanguageSupport implements ILanguageSupport {
 
 	constructor(private primary: ILanguageSupport, private secondary: ILanguageSupport) { }
 
-	setLanguageId(languageId: string, source?: string): cognidreamidream {
+	setLanguageId(languageId: string, source?: string): void {
 		[this.primary, this.secondary].forEach(editor => editor.setLanguageId(languageId, source));
 	}
 }
@@ -308,7 +308,7 @@ class TabFocusMode extends Disposable {
 		TabFocus.setTabFocusMode(tabFocusModeConfig);
 	}
 
-	private registerListeners(): cognidreamidream {
+	private registerListeners(): void {
 		this._register(TabFocus.onDidChangeTabFocus(tabFocusMode => this._onDidChange.fire(tabFocusMode)));
 
 		this._register(this.configurationService.onDidChangeConfiguration(e => {
@@ -383,7 +383,7 @@ class EditorStatus extends Disposable {
 		this.registerListeners();
 	}
 
-	private registerListeners(): cognidreamidream {
+	private registerListeners(): void {
 		this._register(this.editorService.onDidActiveEditorChange(() => this.updateStatusBar()));
 		this._register(this.textFileService.untitled.onDidChangeEncoding(model => this.onResourceEncodingChange(model.resource)));
 		this._register(this.textFileService.files.onDidChangeEncoding(model => this.onResourceEncodingChange((model.resource))));
@@ -397,7 +397,7 @@ class EditorStatus extends Disposable {
 		this._register(Event.runAndSubscribe(this.inputMode.onDidChange, (inputMode) => this.onInputModeChange(inputMode ?? 'insert')));
 	}
 
-	private registerCommands(): cognidreamidream {
+	private registerCommands(): void {
 		this._register(CommandsRegistry.registerCommand({ id: `changeEditorIndentation${this.targetWindowId}`, handler: () => this.showIndentationPicker() }));
 	}
 
@@ -411,7 +411,7 @@ class EditorStatus extends Disposable {
 			return this.quickInputService.pick([{ label: localize('noWritableCodeEditor', "The active code editor is read-only.") }]);
 		}
 
-		const picks: QuickPickInput<IQuickPickItem & { run(): cognidreamidream }>[] = [
+		const picks: QuickPickInput<IQuickPickItem & { run(): void }>[] = [
 			assertIsDefined(activeTextEditorControl.getAction(IndentUsingSpaces.ID)),
 			assertIsDefined(activeTextEditorControl.getAction(IndentUsingTabs.ID)),
 			assertIsDefined(activeTextEditorControl.getAction(ChangeTabDisplaySize.ID)),
@@ -438,7 +438,7 @@ class EditorStatus extends Disposable {
 		return action?.run();
 	}
 
-	private updateTabFocusModeElement(visible: boolean): cognidreamidream {
+	private updateTabFocusModeElement(visible: boolean): void {
 		if (visible) {
 			if (!this.tabFocusModeElement.value) {
 				const text = localize('tabFocusModeEnabled', "Tab Moves Focus");
@@ -456,7 +456,7 @@ class EditorStatus extends Disposable {
 		}
 	}
 
-	private updateInputModeElement(inputMode: 'overtype' | 'insert' | undefined): cognidreamidream {
+	private updateInputModeElement(inputMode: 'overtype' | 'insert' | undefined): void {
 		if (inputMode === 'overtype') {
 			if (!this.inputModeElement.value) {
 				const text = localize('inputModeOvertype', 'OVR');
@@ -475,7 +475,7 @@ class EditorStatus extends Disposable {
 		}
 	}
 
-	private updateColumnSelectionModeElement(visible: boolean): cognidreamidream {
+	private updateColumnSelectionModeElement(visible: boolean): void {
 		if (visible) {
 			if (!this.columnSelectionModeElement.value) {
 				const text = localize('columnSelectionModeEnabled', "Column Selection");
@@ -493,7 +493,7 @@ class EditorStatus extends Disposable {
 		}
 	}
 
-	private updateSelectionElement(text: string | undefined): cognidreamidream {
+	private updateSelectionElement(text: string | undefined): void {
 		if (!text) {
 			this.selectionElement.clear();
 			return;
@@ -516,7 +516,7 @@ class EditorStatus extends Disposable {
 		this.updateElement(this.selectionElement, props, 'status.editor.selection', StatusbarAlignment.RIGHT, 100.5);
 	}
 
-	private updateIndentationElement(text: string | undefined): cognidreamidream {
+	private updateIndentationElement(text: string | undefined): void {
 		if (!text) {
 			this.indentationElement.clear();
 			return;
@@ -539,7 +539,7 @@ class EditorStatus extends Disposable {
 		this.updateElement(this.indentationElement, props, 'status.editor.indentation', StatusbarAlignment.RIGHT, 100.4);
 	}
 
-	private updateEncodingElement(text: string | undefined): cognidreamidream {
+	private updateEncodingElement(text: string | undefined): void {
 		if (!text) {
 			this.encodingElement.clear();
 			return;
@@ -556,7 +556,7 @@ class EditorStatus extends Disposable {
 		this.updateElement(this.encodingElement, props, 'status.editor.encoding', StatusbarAlignment.RIGHT, 100.3);
 	}
 
-	private updateEOLElement(text: string | undefined): cognidreamidream {
+	private updateEOLElement(text: string | undefined): void {
 		if (!text) {
 			this.eolElement.clear();
 			return;
@@ -573,7 +573,7 @@ class EditorStatus extends Disposable {
 		this.updateElement(this.eolElement, props, 'status.editor.eol', StatusbarAlignment.RIGHT, 100.2);
 	}
 
-	private updateLanguageIdElement(text: string | undefined): cognidreamidream {
+	private updateLanguageIdElement(text: string | undefined): void {
 		if (!text) {
 			this.languageElement.clear();
 			return;
@@ -590,7 +590,7 @@ class EditorStatus extends Disposable {
 		this.updateElement(this.languageElement, props, 'status.editor.mode', StatusbarAlignment.RIGHT, 100.1);
 	}
 
-	private updateMetadataElement(text: string | undefined): cognidreamidream {
+	private updateMetadataElement(text: string | undefined): void {
 		if (!text) {
 			this.metadataElement.clear();
 			return;
@@ -614,7 +614,7 @@ class EditorStatus extends Disposable {
 		}
 	}
 
-	private updateState(update: StateDelta): cognidreamidream {
+	private updateState(update: StateDelta): void {
 		const changed = this.state.update(update);
 		if (!changed.hasChanges()) {
 			return; // Nothing really changed
@@ -637,7 +637,7 @@ class EditorStatus extends Disposable {
 		}
 	}
 
-	private doRenderNow(): cognidreamidream {
+	private doRenderNow(): void {
 		this.updateTabFocusModeElement(!!this.state.tabFocusMode);
 		this.updateInputModeElement(this.state.inputMode);
 		this.updateColumnSelectionModeElement(!!this.state.columnSelectionMode);
@@ -673,7 +673,7 @@ class EditorStatus extends Disposable {
 		return undefined;
 	}
 
-	private updateStatusBar(): cognidreamidream {
+	private updateStatusBar(): void {
 		const activeInput = this.editorService.activeEditor;
 		const activeEditorPane = this.editorService.activeEditorPane;
 		const activeCodeEditor = activeEditorPane ? getCodeEditor(activeEditorPane.getControl()) ?? undefined : undefined;
@@ -775,7 +775,7 @@ class EditorStatus extends Disposable {
 		}
 	}
 
-	private onLanguageChange(editorWidget: ICodeEditor | undefined, editorInput: EditorInput | undefined): cognidreamidream {
+	private onLanguageChange(editorWidget: ICodeEditor | undefined, editorInput: EditorInput | undefined): void {
 		const info: StateDelta = { type: 'languageId', languageId: undefined };
 
 		// We only support text based editors
@@ -790,7 +790,7 @@ class EditorStatus extends Disposable {
 		this.updateState(info);
 	}
 
-	private onIndentationChange(editorWidget: ICodeEditor | undefined): cognidreamidream {
+	private onIndentationChange(editorWidget: ICodeEditor | undefined): void {
 		const update: StateDelta = { type: 'indentation', indentation: undefined };
 
 		if (editorWidget) {
@@ -810,7 +810,7 @@ class EditorStatus extends Disposable {
 		this.updateState(update);
 	}
 
-	private onMetadataChange(editor: IEditorPane | undefined): cognidreamidream {
+	private onMetadataChange(editor: IEditorPane | undefined): void {
 		const update: StateDelta = { type: 'metadata', metadata: undefined };
 
 		if (editor instanceof BaseBinaryResourceEditor || editor instanceof BinaryResourceDiffEditor) {
@@ -820,7 +820,7 @@ class EditorStatus extends Disposable {
 		this.updateState(update);
 	}
 
-	private onColumnSelectionModeChange(editorWidget: ICodeEditor | undefined): cognidreamidream {
+	private onColumnSelectionModeChange(editorWidget: ICodeEditor | undefined): void {
 		const info: StateDelta = { type: 'columnSelectionMode', columnSelectionMode: false };
 
 		if (editorWidget?.getOption(EditorOption.columnSelection)) {
@@ -830,7 +830,7 @@ class EditorStatus extends Disposable {
 		this.updateState(info);
 	}
 
-	private onSelectionChange(editorWidget: ICodeEditor | undefined): cognidreamidream {
+	private onSelectionChange(editorWidget: ICodeEditor | undefined): void {
 		const info: IEditorSelectionStatus = Object.create(null);
 
 		// We only support text based editors
@@ -870,7 +870,7 @@ class EditorStatus extends Disposable {
 		this.updateState({ type: 'selectionStatus', selectionStatus: this.getSelectionLabel(info) });
 	}
 
-	private onEOLChange(editorWidget: ICodeEditor | undefined): cognidreamidream {
+	private onEOLChange(editorWidget: ICodeEditor | undefined): void {
 		const info: StateDelta = { type: 'EOL', EOL: undefined };
 
 		if (editorWidget && !editorWidget.getOption(EditorOption.readOnly)) {
@@ -883,7 +883,7 @@ class EditorStatus extends Disposable {
 		this.updateState(info);
 	}
 
-	private onEncodingChange(editor: IEditorPane | undefined, editorWidget: ICodeEditor | undefined): cognidreamidream {
+	private onEncodingChange(editor: IEditorPane | undefined, editorWidget: ICodeEditor | undefined): void {
 		if (editor && !this.isActiveEditor(editor)) {
 			return;
 		}
@@ -909,7 +909,7 @@ class EditorStatus extends Disposable {
 		this.updateState(info);
 	}
 
-	private onResourceEncodingChange(resource: URI): cognidreamidream {
+	private onResourceEncodingChange(resource: URI): void {
 		const activeEditorPane = this.editorService.activeEditorPane;
 		if (activeEditorPane) {
 			const activeResource = EditorResourceAccessor.getCanonicalUri(activeEditorPane.input, { supportSideBySide: SideBySideEditor.PRIMARY });
@@ -921,12 +921,12 @@ class EditorStatus extends Disposable {
 		}
 	}
 
-	private onTabFocusModeChange(tabFocusMode: boolean): cognidreamidream {
+	private onTabFocusModeChange(tabFocusMode: boolean): void {
 		const info: StateDelta = { type: 'tabFocusMode', tabFocusMode };
 		this.updateState(info);
 	}
 
-	private onInputModeChange(inputMode: 'insert' | 'overtype'): cognidreamidream {
+	private onInputModeChange(inputMode: 'insert' | 'overtype'): void {
 		const info: StateDelta = { type: 'inputMode', inputMode };
 		this.updateState(info);
 	}
@@ -954,7 +954,7 @@ export class EditorStatusContribution extends Disposable implements IWorkbenchCo
 		this._register(editorGroupService.onDidCreateAuxiliaryEditorPart(part => this.createEditorStatus(part)));
 	}
 
-	private createEditorStatus(part: IEditorPart): cognidreamidream {
+	private createEditorStatus(part: IEditorPart): void {
 		const disposables = new DisposableStore();
 		Event.once(part.onWillDispose)(() => disposables.dispose());
 
@@ -983,14 +983,14 @@ class ShowCurrentMarkerInStatusbarContribution extends Disposable {
 		this._register(Event.filter(configurationService.onDidChangeConfiguration, e => e.affectsConfiguration('problems.showCurrentInStatus'))(() => this.updateStatus()));
 	}
 
-	update(editor: ICodeEditor | undefined): cognidreamidream {
+	update(editor: ICodeEditor | undefined): void {
 		this.editor = editor;
 
 		this.updateMarkers();
 		this.updateStatus();
 	}
 
-	private updateStatus(): cognidreamidream {
+	private updateStatus(): void {
 		const previousMarker = this.currentMarker;
 		this.currentMarker = this.getMarker();
 		if (this.hasToUpdateStatus(previousMarker, this.currentMarker)) {
@@ -1052,7 +1052,7 @@ class ShowCurrentMarkerInStatusbarContribution extends Disposable {
 		return this.markers.find(marker => Range.containsPosition(marker, position)) || null;
 	}
 
-	private onMarkerChanged(changedResources: readonly URI[]): cognidreamidream {
+	private onMarkerChanged(changedResources: readonly URI[]): void {
 		if (!this.editor) {
 			return;
 		}
@@ -1069,7 +1069,7 @@ class ShowCurrentMarkerInStatusbarContribution extends Disposable {
 		this.updateMarkers();
 	}
 
-	private updateMarkers(): cognidreamidream {
+	private updateMarkers(): void {
 		if (!this.editor) {
 			return;
 		}
@@ -1120,7 +1120,7 @@ export class ShowLanguageExtensionsAction extends Action {
 		this.enabled = galleryService.isEnabled();
 	}
 
-	override async run(): Promise<cognidreamidream> {
+	override async run(): Promise<void> {
 		await this.commandService.executeCommand('workbench.extensions.action.showExtensionsForLanguage', this.fileExtension);
 	}
 }
@@ -1151,7 +1151,7 @@ export class ChangeLanguageAction extends Action2 {
 		});
 	}
 
-	override async run(accessor: ServicesAccessor, languageMode?: string): Promise<cognidreamidream> {
+	override async run(accessor: ServicesAccessor, languageMode?: string): Promise<void> {
 		const quickInputService = accessor.get(IQuickInputService);
 		const editorService = accessor.get(IEditorService);
 		const languageService = accessor.get(ILanguageService);
@@ -1344,7 +1344,7 @@ export class ChangeLanguageAction extends Action2 {
 		}
 	}
 
-	private configureFileAssociation(resource: URI, languageService: ILanguageService, quickInputService: IQuickInputService, configurationService: IConfigurationService): cognidreamidream {
+	private configureFileAssociation(resource: URI, languageService: ILanguageService, quickInputService: IQuickInputService, configurationService: IConfigurationService): void {
 		const extension = extname(resource);
 		const base = basename(resource);
 		const currentAssociation = languageService.guessLanguageIdByFilepathOrFirstLine(URI.file(base));
@@ -1401,7 +1401,7 @@ export class ChangeEOLAction extends Action2 {
 		});
 	}
 
-	override async run(accessor: ServicesAccessor): Promise<cognidreamidream> {
+	override async run(accessor: ServicesAccessor): Promise<void> {
 		const editorService = accessor.get(IEditorService);
 		const quickInputService = accessor.get(IQuickInputService);
 
@@ -1450,7 +1450,7 @@ export class ChangeEncodingAction extends Action2 {
 		});
 	}
 
-	async run(accessor: ServicesAccessor): Promise<cognidreamidream> {
+	async run(accessor: ServicesAccessor): Promise<void> {
 		const editorService = accessor.get(IEditorService);
 		const quickInputService = accessor.get(IQuickInputService);
 		const fileService = accessor.get(IFileService);

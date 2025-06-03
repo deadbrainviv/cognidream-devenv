@@ -92,7 +92,7 @@ export interface IAccessibleViewContentProvider extends IBasicContentProvider, I
 	 * Note that a Codicon class should be provided for each action.
 	 * If not, a default will be used.
 	 */
-	onKeyDown?(e: IKeyboardEvent): cognidreamidream;
+	onKeyDown?(e: IKeyboardEvent): void;
 	/**
 	 * When the language is markdown, this is provided by default.
 	 */
@@ -119,16 +119,16 @@ export interface IPosition {
 export interface IAccessibleViewService {
 	readonly _serviceBrand: undefined;
 	// The provider will be disposed when the view is closed
-	show(provider: AccesibleViewContentProvider, position?: IPosition): cognidreamidream;
-	showLastProvider(id: AccessibleViewProviderId): cognidreamidream;
-	showAccessibleViewHelp(): cognidreamidream;
-	next(): cognidreamidream;
-	previous(): cognidreamidream;
-	navigateToCodeBlock(type: 'next' | 'previous'): cognidreamidream;
-	goToSymbol(): cognidreamidream;
-	disableHint(): cognidreamidream;
+	show(provider: AccesibleViewContentProvider, position?: IPosition): void;
+	showLastProvider(id: AccessibleViewProviderId): void;
+	showAccessibleViewHelp(): void;
+	next(): void;
+	previous(): void;
+	navigateToCodeBlock(type: 'next' | 'previous'): void;
+	goToSymbol(): void;
+	disableHint(): void;
 	getPosition(id: AccessibleViewProviderId): IPosition | undefined;
-	setPosition(position: IPosition, reveal?: boolean, select?: boolean): cognidreamidream;
+	setPosition(position: IPosition, reveal?: boolean, select?: boolean): void;
 	getLastPosition(): IPosition | undefined;
 	/**
 	 * If the setting is enabled, provides the open accessible view hint as a localized string.
@@ -136,8 +136,8 @@ export interface IAccessibleViewService {
 	 */
 	getOpenAriaHint(verbositySettingKey: string): string | null;
 	getCodeBlockContext(): ICodeBlockActionContext | undefined;
-	configureKeybindings(unassigned: boolean): cognidreamidream;
-	openHelpLink(): cognidreamidream;
+	configureKeybindings(unassigned: boolean): void;
+	openHelpLink(): void;
 }
 
 
@@ -156,14 +156,14 @@ export class AccessibleContentProvider extends Disposable implements IAccessible
 		public id: AccessibleViewProviderId,
 		public options: IAccessibleViewOptions,
 		public provideContent: () => string,
-		public onClose: () => cognidreamidream,
+		public onClose: () => void,
 		public verbositySettingKey: string,
-		public onOpen?: () => cognidreamidream,
+		public onOpen?: () => void,
 		public actions?: IAction[],
 		public provideNextContent?: () => string | undefined,
 		public providePreviousContent?: () => string | undefined,
-		public onDidChangeContent?: Event<cognidreamidream>,
-		public onKeyDown?: (e: IKeyboardEvent) => cognidreamidream,
+		public onDidChangeContent?: Event<void>,
+		public onKeyDown?: (e: IKeyboardEvent) => void,
 		public getSymbols?: () => IAccessibleViewSymbol[],
 		public onDidRequestClearLastProvider?: Event<AccessibleViewProviderId>,
 	) {
@@ -181,12 +181,12 @@ export class ExtensionContentProvider extends Disposable implements IBasicConten
 		public readonly id: string,
 		public options: IAccessibleViewOptions,
 		public provideContent: () => string,
-		public onClose: () => cognidreamidream,
-		public onOpen?: () => cognidreamidream,
+		public onClose: () => void,
+		public onOpen?: () => void,
 		public provideNextContent?: () => string | undefined,
 		public providePreviousContent?: () => string | undefined,
 		public actions?: IAction[],
-		public onDidChangeContent?: Event<cognidreamidream>,
+		public onDidChangeContent?: Event<void>,
 	) {
 		super();
 	}
@@ -195,11 +195,11 @@ export class ExtensionContentProvider extends Disposable implements IBasicConten
 export interface IBasicContentProvider extends IDisposable {
 	id: string;
 	options: IAccessibleViewOptions;
-	onClose(): cognidreamidream;
+	onClose(): void;
 	provideContent(): string;
-	onOpen?(): cognidreamidream;
+	onOpen?(): void;
 	actions?: IAction[];
-	providePreviousContent?(): cognidreamidream;
-	provideNextContent?(): cognidreamidream;
-	onDidChangeContent?: Event<cognidreamidream>;
+	providePreviousContent?(): void;
+	provideNextContent?(): void;
+	onDidChangeContent?: Event<void>;
 }

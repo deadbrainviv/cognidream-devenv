@@ -26,15 +26,15 @@ suite('SideBySideEditorInput', () => {
 			super();
 		}
 
-		fireCapabilitiesChangeEvent(): cognidreamidream {
+		fireCapabilitiesChangeEvent(): void {
 			this._onDidChangeCapabilities.fire();
 		}
 
-		fireDirtyChangeEvent(): cognidreamidream {
+		fireDirtyChangeEvent(): void {
 			this._onDidChangeDirty.fire();
 		}
 
-		fireLabelChangeEvent(): cognidreamidream {
+		fireLabelChangeEvent(): void {
 			this._onDidChangeLabel.fire();
 		}
 

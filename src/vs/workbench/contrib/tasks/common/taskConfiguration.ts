@@ -582,7 +582,7 @@ interface IMetaData<T, U> {
 }
 
 
-function _isEmpty<T>(this: cognidream, value: T | undefined, properties: IMetaData<T, any>[] | undefined, allowEmptyArray: boolean = false): boolean {
+function _isEmpty<T>(this: void, value: T | undefined, properties: IMetaData<T, any>[] | undefined, allowEmptyArray: boolean = false): boolean {
 	if (value === undefined || value === null || properties === undefined) {
 		return true;
 	}
@@ -599,7 +599,7 @@ function _isEmpty<T>(this: cognidream, value: T | undefined, properties: IMetaDa
 	return true;
 }
 
-function _assignProperties<T>(this: cognidreamidream, target: T | undefined, source: T | undefined, properties: IMetaData<T, any>[]): T | undefined {
+function _assignProperties<T>(this: void, target: T | undefined, source: T | undefined, properties: IMetaData<T, any>[]): T | undefined {
 	if (!source || _isEmpty(source, properties)) {
 		return target;
 	}
@@ -621,7 +621,7 @@ function _assignProperties<T>(this: cognidreamidream, target: T | undefined, sou
 	return target;
 }
 
-function _fillProperties<T>(this: cognidreamidream, target: T | undefined, source: T | undefined, properties: IMetaData<T, any>[] | undefined, allowEmptyArray: boolean = false): T | undefined {
+function _fillProperties<T>(this: void, target: T | undefined, source: T | undefined, properties: IMetaData<T, any>[] | undefined, allowEmptyArray: boolean = false): T | undefined {
 	if (!source || _isEmpty(source, properties)) {
 		return target;
 	}
@@ -643,7 +643,7 @@ function _fillProperties<T>(this: cognidreamidream, target: T | undefined, sourc
 	return target;
 }
 
-function _fillDefaults<T>(this: cognidreamidream, target: T | undefined, defaults: T | undefined, properties: IMetaData<T, any>[], context: IParseContext): T | undefined {
+function _fillDefaults<T>(this: void, target: T | undefined, defaults: T | undefined, properties: IMetaData<T, any>[], context: IParseContext): T | undefined {
 	if (target && Object.isFrozen(target)) {
 		return target;
 	}
@@ -673,7 +673,7 @@ function _fillDefaults<T>(this: cognidreamidream, target: T | undefined, default
 	return target;
 }
 
-function _freeze<T>(this: cognidreamidream, target: T, properties: IMetaData<T, any>[]): Readonly<T> | undefined {
+function _freeze<T>(this: void, target: T, properties: IMetaData<T, any>[]): Readonly<T> | undefined {
 	if (target === undefined || target === null) {
 		return undefined;
 	}
@@ -708,7 +708,7 @@ export namespace RunOnOptions {
 }
 
 export namespace RunOptions {
-	const properties: IMetaData<Tasks.IRunOptioncognidreamognidream>[] = [{ property: 'reevaluateOnRerun' }, { property: 'runOn' }, { property: 'instanceLimit' }];
+	const properties: IMetaData<Tasks.IRunOptions, void>[] = [{ property: 'reevaluateOnRerun' }, { property: 'runOn' }, { property: 'instanceLimit' }];
 	export function fromConfiguration(value: IRunOptionsConfig | undefined): Tasks.IRunOptions {
 		return {
 			reevaluateOnRerun: value ? value.reevaluateOnRerun : true,
@@ -742,14 +742,14 @@ export interface IParseContext {
 
 namespace ShellConfiguration {
 
-	const properties: IMetaData<Tasks.IShellConfiguratiocognidreamognidream>[] = [{ property: 'executable' }, { property: 'args' }, { property: 'quoting' }];
+	const properties: IMetaData<Tasks.IShellConfiguration, void>[] = [{ property: 'executable' }, { property: 'args' }, { property: 'quoting' }];
 
 	export function is(value: any): value is IShellConfiguration {
 		const candidate: IShellConfiguration = value;
 		return candidate && (Types.isString(candidate.executable) || Types.isStringArray(candidate.args));
 	}
 
-	export function from(thicognidreamognidream, config: IShellConfiguration | undefined, context: IParseContext): Tasks.IShellConfiguration | undefined {
+	export function from(this: void, config: IShellConfiguration | undefined, context: IParseContext): Tasks.IShellConfiguration | undefined {
 		if (!is(config)) {
 			return undefined;
 		}
@@ -767,23 +767,23 @@ namespace ShellConfiguration {
 		return result;
 	}
 
-	export function isEmpty(thicognidreamognidream, value: Tasks.IShellConfiguration): boolean {
+	export function isEmpty(this: void, value: Tasks.IShellConfiguration): boolean {
 		return _isEmpty(value, properties, true);
 	}
 
-	export function assignProperties(thicognidreamognidream, target: Tasks.IShellConfiguration | undefined, source: Tasks.IShellConfiguration | undefined): Tasks.IShellConfiguration | undefined {
+	export function assignProperties(this: void, target: Tasks.IShellConfiguration | undefined, source: Tasks.IShellConfiguration | undefined): Tasks.IShellConfiguration | undefined {
 		return _assignProperties(target, source, properties);
 	}
 
-	export function fillProperties(thicognidreamognidream, target: Tasks.IShellConfiguration, source: Tasks.IShellConfiguration): Tasks.IShellConfiguration | undefined {
+	export function fillProperties(this: void, target: Tasks.IShellConfiguration, source: Tasks.IShellConfiguration): Tasks.IShellConfiguration | undefined {
 		return _fillProperties(target, source, properties, true);
 	}
 
-	export function fillDefaults(thicognidreamognidream, value: Tasks.IShellConfiguration, context: IParseContext): Tasks.IShellConfiguration {
+	export function fillDefaults(this: void, value: Tasks.IShellConfiguration, context: IParseContext): Tasks.IShellConfiguration {
 		return value;
 	}
 
-	export function freeze(thicognidreamognidream, value: Tasks.IShellConfiguration): Readonly<Tasks.IShellConfiguration> | undefined {
+	export function freeze(this: void, value: Tasks.IShellConfiguration): Readonly<Tasks.IShellConfiguration> | undefined {
 		if (!value) {
 			return undefined;
 		}
@@ -796,7 +796,7 @@ namespace CommandOptions {
 	const properties: IMetaData<Tasks.CommandOptions, Tasks.IShellConfiguration>[] = [{ property: 'cwd' }, { property: 'env' }, { property: 'shell', type: ShellConfiguration }];
 	const defaults: ICommandOptionsConfig = { cwd: '${workspaceFolder}' };
 
-	export function from(thicognidreamognidream, options: ICommandOptionsConfig, context: IParseContext): Tasks.CommandOptions | undefined {
+	export function from(this: void, options: ICommandOptionsConfig, context: IParseContext): Tasks.CommandOptions | undefined {
 		const result: Tasks.CommandOptions = {};
 		if (options.cwd !== undefined) {
 			if (Types.isString(options.cwd)) {
@@ -856,13 +856,13 @@ namespace CommandOptions {
 namespace CommandConfiguration {
 
 	export namespace PresentationOptions {
-		const properties: IMetaData<Tasks.IPresentationOptcognidream, cognidream>[] = [{ property: 'echo' }, { property: 'reveal' }, { property: 'revealProblems' }, { property: 'focus' }, { property: 'panel' }, { property: 'showReuseMessage' }, { property: 'clear' }, { property: 'group' }, { property: 'close' }];
+		const properties: IMetaData<Tasks.IPresentationOptions, void>[] = [{ property: 'echo' }, { property: 'reveal' }, { property: 'revealProblems' }, { property: 'focus' }, { property: 'panel' }, { property: 'showReuseMessage' }, { property: 'clear' }, { property: 'group' }, { property: 'close' }];
 
 		interface IPresentationOptionsShape extends ILegacyCommandProperties {
 			presentation?: IPresentationOptionsConfig;
 		}
 
-		export function from(cognidream: cognidream, config: IPresentationOptionsShape, context: IParseContext): Tasks.IPresentationOptions | undefined {
+		export function from(this: void, config: IPresentationOptionsShape, context: IParseContext): Tasks.IPresentationOptions | undefined {
 			let echo: boolean;
 			let reveal: Tasks.RevealKind;
 			let revealProblems: Tasks.RevealProblemKind;
@@ -935,13 +935,13 @@ namespace CommandConfiguration {
 			return _freeze(value, properties);
 		}
 
-		export function isEmpty(cognidream: cognidream, value: Tasks.IPresentationOptions): boolean {
+		export function isEmpty(this: void, value: Tasks.IPresentationOptions): boolean {
 			return _isEmpty(value, properties);
 		}
 	}
 
 	namespace ShellString {
-		export function from(cognidream: cognidream, value: CommandString | undefined): Tasks.CommandString | undefined {
+		export function from(this: void, value: CommandString | undefined): Tasks.CommandString | undefined {
 			if (value === undefined || value === null) {
 				return undefined;
 			}
@@ -979,7 +979,7 @@ namespace CommandConfiguration {
 		{ property: 'presentation', type: PresentationOptions }
 	];
 
-	export function from(thicognidreamognidream, config: ICommandConfigurationShape, context: IParseContext): Tasks.ICommandConfiguration | undefined {
+	export function from(this: void, config: ICommandConfigurationShape, context: IParseContext): Tasks.ICommandConfiguration | undefined {
 		let result: Tasks.ICommandConfiguration = fromBase(config, context)!;
 
 		let osConfig: Tasks.ICommandConfiguration | undefined = undefined;
@@ -996,7 +996,7 @@ namespace CommandConfiguration {
 		return isEmpty(result) ? undefined : result;
 	}
 
-	function fromBase(thicognidreamognidream, config: IBaseCommandConfigurationShape, context: IParseContext): Tasks.ICommandConfiguration | undefined {
+	function fromBase(this: void, config: IBaseCommandConfigurationShape, context: IParseContext): Tasks.ICommandConfiguration | undefined {
 		const name: Tasks.CommandString | undefined = ShellString.from(config.command);
 		let runtime: Tasks.RuntimeType;
 		if (Types.isString(config.type)) {
@@ -1121,33 +1121,33 @@ namespace CommandConfiguration {
 		return target;
 	}
 
-	export function fillDefaults(value: Tasks.ICommandConfiguration | undefined, context: IParseContextcognidreamognidream {
+	export function fillDefaults(value: Tasks.ICommandConfiguration | undefined, context: IParseContext): void {
 		if (!value || Object.isFrozen(value)) {
-		return;
+			return;
+		}
+		if (value.name !== undefined && value.runtime === undefined) {
+			value.runtime = Tasks.RuntimeType.Process;
+		}
+		value.presentation = PresentationOptions.fillDefaults(value.presentation!, context)!;
+		if (!isEmpty(value)) {
+			value.options = CommandOptions.fillDefaults(value.options, context);
+		}
+		if (value.args === undefined) {
+			value.args = EMPTY_ARRAY;
+		}
+		if (value.suppressTaskName === undefined) {
+			value.suppressTaskName = (context.schemaVersion === Tasks.JsonSchemaVersion.V2_0_0);
+		}
 	}
-	if (value.name !== undefined && value.runtime === undefined) {
-		value.runtime = Tasks.RuntimeType.Process;
-	}
-	value.presentation = PresentationOptions.fillDefaults(value.presentation!, context)!;
-	if (!isEmpty(value)) {
-		value.options = CommandOptions.fillDefaults(value.options, context);
-	}
-	if (value.args === undefined) {
-		value.args = EMPTY_ARRAY;
-	}
-	if (value.suppressTaskName === undefined) {
-		value.suppressTaskName = (context.schemaVersion === Tasks.JsonSchemaVersion.V2_0_0);
-	}
-}
 
-export function freeze(value: Tasks.ICommandConfiguration): Readonly<Tasks.ICommandConfiguration> | undefined {
-	return _freeze(value, properties);
-}
+	export function freeze(value: Tasks.ICommandConfiguration): Readonly<Tasks.ICommandConfiguration> | undefined {
+		return _freeze(value, properties);
+	}
 }
 
 export namespace ProblemMatcherConverter {
 
-	export function namedFrom(thicognidreamognidream, declares: ProblemMatcherConfig.INamedProblemMatcher[] | undefined, context: IParseContext): IStringDictionary<INamedProblemMatcher> {
+	export function namedFrom(this: void, declares: ProblemMatcherConfig.INamedProblemMatcher[] | undefined, context: IParseContext): IStringDictionary<INamedProblemMatcher> {
 		const result: IStringDictionary<INamedProblemMatcher> = Object.create(null);
 
 		if (!Array.isArray(declares)) {
@@ -1164,7 +1164,7 @@ export namespace ProblemMatcherConverter {
 		return result;
 	}
 
-	export function fromWithOsConfig(thicognidreamognidream, external: IConfigurationProperties & { [key: string]: any }, context: IParseContext): TaskConfigurationValueWithErrors<ProblemMatcher[]> {
+	export function fromWithOsConfig(this: void, external: IConfigurationProperties & { [key: string]: any }, context: IParseContext): TaskConfigurationValueWithErrors<ProblemMatcher[]> {
 		let result: TaskConfigurationValueWithErrors<ProblemMatcher[]> = {};
 		if (external.windows && external.windows.problemMatcher && context.platform === Platform.Windows) {
 			result = from(external.windows.problemMatcher, context);
@@ -1178,7 +1178,7 @@ export namespace ProblemMatcherConverter {
 		return result;
 	}
 
-	export function from(thicognidreamognidream, config: ProblemMatcherConfig.ProblemMatcherType | undefined, context: IParseContext): TaskConfigurationValueWithErrors<ProblemMatcher[]> {
+	export function from(this: void, config: ProblemMatcherConfig.ProblemMatcherType | undefined, context: IParseContext): TaskConfigurationValueWithErrors<ProblemMatcher[]> {
 		const result: ProblemMatcher[] = [];
 		if (config === undefined) {
 			return { value: result };
@@ -1210,7 +1210,7 @@ export namespace ProblemMatcherConverter {
 		return { value: result, errors };
 	}
 
-	function getProblemMatcherKind(thicognidreamognidream, value: ProblemMatcherConfig.ProblemMatcherType): ProblemMatcherKind {
+	function getProblemMatcherKind(this: void, value: ProblemMatcherConfig.ProblemMatcherType): ProblemMatcherKind {
 		if (Types.isString(value)) {
 			return ProblemMatcherKind.String;
 		} else if (Array.isArray(value)) {
@@ -1222,7 +1222,7 @@ export namespace ProblemMatcherConverter {
 		}
 	}
 
-	function resolveProblemMatcher(thicognidreamognidream, value: string | ProblemMatcherConfig.ProblemMatcher, context: IParseContext): TaskConfigurationValueWithErrors<ProblemMatcher> {
+	function resolveProblemMatcher(this: void, value: string | ProblemMatcherConfig.ProblemMatcher, context: IParseContext): TaskConfigurationValueWithErrors<ProblemMatcher> {
 		if (Types.isString(value)) {
 			let variableName = <string>value;
 			if (variableName.length > 1 && variableName[0] === '$') {
@@ -1248,7 +1248,7 @@ export namespace ProblemMatcherConverter {
 }
 
 export namespace GroupKind {
-	export function from(thicognidreamognidream, external: string | IGroupKind | undefined): Tasks.TaskGroup | undefined {
+	export function from(this: void, external: string | IGroupKind | undefined): Tasks.TaskGroup | undefined {
 		if (external === undefined) {
 			return undefined;
 		} else if (Types.isString(external) && Tasks.TaskGroup.is(external)) {
@@ -1284,7 +1284,7 @@ namespace TaskDependency {
 		}
 	}
 
-	export function from(thicognidreamognidream, external: string | ITaskIdentifier, context: IParseContext, source: TaskConfigSource): Tasks.ITaskDependency | undefined {
+	export function from(this: void, external: string | ITaskIdentifier, context: IParseContext, source: TaskConfigSource): Tasks.ITaskDependency | undefined {
 		if (Types.isString(external)) {
 			return { uri: uriFromSource(context, source), task: external };
 		} else if (ITaskIdentifier.is(external)) {
@@ -1326,7 +1326,7 @@ namespace ConfigurationProperties {
 		{ property: 'hide' }
 	];
 
-	export function from(thicognidreamognidream, external: IConfigurationProperties & { [key: string]: any }, context: IParseContext,
+	export function from(this: void, external: IConfigurationProperties & { [key: string]: any }, context: IParseContext,
 		includeCommandOptions: boolean, source: TaskConfigSource, properties?: IJSONSchemaMap): TaskConfigurationValueWithErrors<Tasks.IConfigurationProperties> {
 		if (!external) {
 			return {};
@@ -1390,7 +1390,7 @@ namespace ConfigurationProperties {
 		return isEmpty(result) ? {} : { value: result, errors: configProblemMatcher.errors };
 	}
 
-	export function isEmpty(thicognidreamognidream, value: Tasks.IConfigurationProperties): boolean {
+	export function isEmpty(this: void, value: Tasks.IConfigurationProperties): boolean {
 		return _isEmpty(value, properties);
 	}
 }
@@ -1408,7 +1408,7 @@ namespace ConfiguringTask {
 		customize: string;
 	}
 
-	export function from(thicognidreamognidream, external: IConfiguringTask, context: IParseContext, index: number, source: TaskConfigSource, registry?: Partial<ITaskDefinitionRegistry>): Tasks.ConfiguringTask | undefined {
+	export function from(this: void, external: IConfiguringTask, context: IParseContext, index: number, source: TaskConfigSource, registry?: Partial<ITaskDefinitionRegistry>): Tasks.ConfiguringTask | undefined {
 		if (!external) {
 			return undefined;
 		}
@@ -1515,7 +1515,7 @@ namespace ConfiguringTask {
 }
 
 namespace CustomTask {
-	export function from(thicognidreamognidream, external: ICustomTask, context: IParseContext, index: number, source: TaskConfigSource): Tasks.CustomTask | undefined {
+	export function from(this: void, external: ICustomTask, context: IParseContext, index: number, source: TaskConfigSource): Tasks.CustomTask | undefined {
 		if (!external) {
 			return undefined;
 		}
@@ -1596,84 +1596,84 @@ namespace CustomTask {
 		return result;
 	}
 
-	export function fillGlobals(task: Tasks.CustomTask, globals: IGlobalscognidreamognidream {
+	export function fillGlobals(task: Tasks.CustomTask, globals: IGlobals): void {
 		// We only merge a command from a global definition if there is no dependsOn
 		// or there is a dependsOn and a defined command.
 		if (CommandConfiguration.hasCommand(task.command) || task.configurationProperties.dependsOn === undefined) {
-		task.command = CommandConfiguration.fillGlobals(task.command, globals.command, task.configurationProperties.name);
-	}
-	if (task.configurationProperties.problemMatchers === undefined && globals.problemMatcher !== undefined) {
-		task.configurationProperties.problemMatchers = Objects.deepClone(globals.problemMatcher);
-		task.hasDefinedMatchers = true;
-	}
-	// promptOnClose is inferred from isBackground if available
-	if (task.configurationProperties.promptOnClose === undefined && task.configurationProperties.isBackground === undefined && globals.promptOnClose !== undefined) {
-		task.configurationProperties.promptOnClose = globals.promptOnClose;
-	}
-}
-
-export function fillDefaults(task: Tasks.CustomTask, context: IParseContextcognidreamognidream {
-	CommandConfiguration.fillDefaults(task.command, context);
-if (task.configurationProperties.promptOnClose === undefined) {
-	task.configurationProperties.promptOnClose = task.configurationProperties.isBackground !== undefined ? !task.configurationProperties.isBackground : true;
-}
-if (task.configurationProperties.isBackground === undefined) {
-	task.configurationProperties.isBackground = false;
-}
-if (task.configurationProperties.problemMatchers === undefined) {
-	task.configurationProperties.problemMatchers = EMPTY_ARRAY;
-}
-    }
-
-export function createCustomTask(contributedTask: Tasks.ContributedTask, configuredProps: Tasks.ConfiguringTask | Tasks.CustomTask): Tasks.CustomTask {
-	const result: Tasks.CustomTask = new Tasks.CustomTask(
-		configuredProps._id,
-		Object.assign({}, configuredProps._source, { customizes: contributedTask.defines }),
-		configuredProps.configurationProperties.name || contributedTask._label,
-		Tasks.CUSTOMIZED_TASK_TYPE,
-		contributedTask.command,
-		false,
-		contributedTask.runOptions,
-		{
-			name: configuredProps.configurationProperties.name || contributedTask.configurationProperties.name,
-			identifier: configuredProps.configurationProperties.identifier || contributedTask.configurationProperties.identifier,
-			icon: configuredProps.configurationProperties.icon,
-			hide: configuredProps.configurationProperties.hide
-		},
-
-	);
-	result.addTaskLoadMessages(configuredProps.taskLoadMessages);
-	const resultConfigProps: Tasks.IConfigurationProperties = result.configurationProperties;
-
-	assignProperty(resultConfigProps, configuredProps.configurationProperties, 'group');
-	assignProperty(resultConfigProps, configuredProps.configurationProperties, 'isBackground');
-	assignProperty(resultConfigProps, configuredProps.configurationProperties, 'dependsOn');
-	assignProperty(resultConfigProps, configuredProps.configurationProperties, 'problemMatchers');
-	assignProperty(resultConfigProps, configuredProps.configurationProperties, 'promptOnClose');
-	assignProperty(resultConfigProps, configuredProps.configurationProperties, 'detail');
-	result.command.presentation = CommandConfiguration.PresentationOptions.assignProperties(
-		result.command.presentation!, configuredProps.configurationProperties.presentation)!;
-	result.command.options = CommandOptions.assignProperties(result.command.options, configuredProps.configurationProperties.options);
-	result.runOptions = RunOptions.assignProperties(result.runOptions, configuredProps.runOptions);
-
-	const contributedConfigProps: Tasks.IConfigurationProperties = contributedTask.configurationProperties;
-	fillProperty(resultConfigProps, contributedConfigProps, 'group');
-	fillProperty(resultConfigProps, contributedConfigProps, 'isBackground');
-	fillProperty(resultConfigProps, contributedConfigProps, 'dependsOn');
-	fillProperty(resultConfigProps, contributedConfigProps, 'problemMatchers');
-	fillProperty(resultConfigProps, contributedConfigProps, 'promptOnClose');
-	fillProperty(resultConfigProps, contributedConfigProps, 'detail');
-	result.command.presentation = CommandConfiguration.PresentationOptions.fillProperties(
-		result.command.presentation, contributedConfigProps.presentation)!;
-	result.command.options = CommandOptions.fillProperties(result.command.options, contributedConfigProps.options);
-	result.runOptions = RunOptions.fillProperties(result.runOptions, contributedTask.runOptions);
-
-	if (contributedTask.hasDefinedMatchers === true) {
-		result.hasDefinedMatchers = true;
+			task.command = CommandConfiguration.fillGlobals(task.command, globals.command, task.configurationProperties.name);
+		}
+		if (task.configurationProperties.problemMatchers === undefined && globals.problemMatcher !== undefined) {
+			task.configurationProperties.problemMatchers = Objects.deepClone(globals.problemMatcher);
+			task.hasDefinedMatchers = true;
+		}
+		// promptOnClose is inferred from isBackground if available
+		if (task.configurationProperties.promptOnClose === undefined && task.configurationProperties.isBackground === undefined && globals.promptOnClose !== undefined) {
+			task.configurationProperties.promptOnClose = globals.promptOnClose;
+		}
 	}
 
-	return result;
-}
+	export function fillDefaults(task: Tasks.CustomTask, context: IParseContext): void {
+		CommandConfiguration.fillDefaults(task.command, context);
+		if (task.configurationProperties.promptOnClose === undefined) {
+			task.configurationProperties.promptOnClose = task.configurationProperties.isBackground !== undefined ? !task.configurationProperties.isBackground : true;
+		}
+		if (task.configurationProperties.isBackground === undefined) {
+			task.configurationProperties.isBackground = false;
+		}
+		if (task.configurationProperties.problemMatchers === undefined) {
+			task.configurationProperties.problemMatchers = EMPTY_ARRAY;
+		}
+	}
+
+	export function createCustomTask(contributedTask: Tasks.ContributedTask, configuredProps: Tasks.ConfiguringTask | Tasks.CustomTask): Tasks.CustomTask {
+		const result: Tasks.CustomTask = new Tasks.CustomTask(
+			configuredProps._id,
+			Object.assign({}, configuredProps._source, { customizes: contributedTask.defines }),
+			configuredProps.configurationProperties.name || contributedTask._label,
+			Tasks.CUSTOMIZED_TASK_TYPE,
+			contributedTask.command,
+			false,
+			contributedTask.runOptions,
+			{
+				name: configuredProps.configurationProperties.name || contributedTask.configurationProperties.name,
+				identifier: configuredProps.configurationProperties.identifier || contributedTask.configurationProperties.identifier,
+				icon: configuredProps.configurationProperties.icon,
+				hide: configuredProps.configurationProperties.hide
+			},
+
+		);
+		result.addTaskLoadMessages(configuredProps.taskLoadMessages);
+		const resultConfigProps: Tasks.IConfigurationProperties = result.configurationProperties;
+
+		assignProperty(resultConfigProps, configuredProps.configurationProperties, 'group');
+		assignProperty(resultConfigProps, configuredProps.configurationProperties, 'isBackground');
+		assignProperty(resultConfigProps, configuredProps.configurationProperties, 'dependsOn');
+		assignProperty(resultConfigProps, configuredProps.configurationProperties, 'problemMatchers');
+		assignProperty(resultConfigProps, configuredProps.configurationProperties, 'promptOnClose');
+		assignProperty(resultConfigProps, configuredProps.configurationProperties, 'detail');
+		result.command.presentation = CommandConfiguration.PresentationOptions.assignProperties(
+			result.command.presentation!, configuredProps.configurationProperties.presentation)!;
+		result.command.options = CommandOptions.assignProperties(result.command.options, configuredProps.configurationProperties.options);
+		result.runOptions = RunOptions.assignProperties(result.runOptions, configuredProps.runOptions);
+
+		const contributedConfigProps: Tasks.IConfigurationProperties = contributedTask.configurationProperties;
+		fillProperty(resultConfigProps, contributedConfigProps, 'group');
+		fillProperty(resultConfigProps, contributedConfigProps, 'isBackground');
+		fillProperty(resultConfigProps, contributedConfigProps, 'dependsOn');
+		fillProperty(resultConfigProps, contributedConfigProps, 'problemMatchers');
+		fillProperty(resultConfigProps, contributedConfigProps, 'promptOnClose');
+		fillProperty(resultConfigProps, contributedConfigProps, 'detail');
+		result.command.presentation = CommandConfiguration.PresentationOptions.fillProperties(
+			result.command.presentation, contributedConfigProps.presentation)!;
+		result.command.options = CommandOptions.fillProperties(result.command.options, contributedConfigProps.options);
+		result.runOptions = RunOptions.fillProperties(result.runOptions, contributedTask.runOptions);
+
+		if (contributedTask.hasDefinedMatchers === true) {
+			result.hasDefinedMatchers = true;
+		}
+
+		return result;
+	}
 }
 
 export interface ITaskParseResult {
@@ -1694,7 +1694,7 @@ export namespace TaskParser {
 		process: ProcessExecutionSupportedContext
 	};
 
-	export function from(thicognidreamognidream, externals: Array<ICustomTask | IConfiguringTask> | undefined, globals: IGlobals, context: IParseContext, source: TaskConfigSource, registry?: Partial<ITaskDefinitionRegistry>): ITaskParseResult {
+	export function from(this: void, externals: Array<ICustomTask | IConfiguringTask> | undefined, globals: IGlobals, context: IParseContext, source: TaskConfigSource, registry?: Partial<ITaskDefinitionRegistry>): ITaskParseResult {
 		const result: ITaskParseResult = { custom: [], configured: [] };
 		if (!externals) {
 			return result;
@@ -1848,7 +1848,7 @@ namespace Globals {
 		return result;
 	}
 
-	export function fromBase(thicognidreamognidream, config: IBaseTaskRunnerConfiguration, context: IParseContext): IGlobals {
+	export function fromBase(this: void, config: IBaseTaskRunnerConfiguration, context: IParseContext): IGlobals {
 		const result: IGlobals = {};
 		if (config.suppressTaskName !== undefined) {
 			result.suppressTaskName = !!config.suppressTaskName;
@@ -1878,25 +1878,25 @@ namespace Globals {
 		return target;
 	}
 
-	export function fillDefaults(value: IGlobals, context: IParseContextcognidreamognidream {
+	export function fillDefaults(value: IGlobals, context: IParseContext): void {
 		if (!value) {
-		return;
+			return;
+		}
+		CommandConfiguration.fillDefaults(value.command, context);
+		if (value.suppressTaskName === undefined) {
+			value.suppressTaskName = (context.schemaVersion === Tasks.JsonSchemaVersion.V2_0_0);
+		}
+		if (value.promptOnClose === undefined) {
+			value.promptOnClose = true;
+		}
 	}
-	CommandConfiguration.fillDefaults(value.command, context);
-	if (value.suppressTaskName === undefined) {
-		value.suppressTaskName = (context.schemaVersion === Tasks.JsonSchemaVersion.V2_0_0);
-	}
-	if (value.promptOnClose === undefined) {
-		value.promptOnClose = true;
-	}
-}
 
-export function freeze(value: IGlobalscognidreamognidream {
-	Object.freeze(value);
-if (value.command) {
-	CommandConfiguration.freeze(value.command);
-}
-    }
+	export function freeze(value: IGlobals): void {
+		Object.freeze(value);
+		if (value.command) {
+			CommandConfiguration.freeze(value.command);
+		}
+	}
 }
 
 export namespace ExecutionEngine {
@@ -1974,46 +1974,46 @@ export class UUIDMap {
 		}
 	}
 
-	public start(cognidreamognidream {
+	public start(): void {
 		this.last = this.current;
 		this.current = Object.create(null);
 	}
 
-    public getUUID(identifier: string): string {
-	const lastValue = this.last ? this.last[identifier] : undefined;
-	let result: string | undefined = undefined;
-	if (lastValue !== undefined) {
-		if (Array.isArray(lastValue)) {
-			result = lastValue.shift();
-			if (lastValue.length === 0) {
+	public getUUID(identifier: string): string {
+		const lastValue = this.last ? this.last[identifier] : undefined;
+		let result: string | undefined = undefined;
+		if (lastValue !== undefined) {
+			if (Array.isArray(lastValue)) {
+				result = lastValue.shift();
+				if (lastValue.length === 0) {
+					delete this.last![identifier];
+				}
+			} else {
+				result = lastValue;
 				delete this.last![identifier];
 			}
-		} else {
-			result = lastValue;
-			delete this.last![identifier];
 		}
-	}
-	if (result === undefined) {
-		result = UUID.generateUuid();
-	}
-	const currentValue = this.current[identifier];
-	if (currentValue === undefined) {
-		this.current[identifier] = result;
-	} else {
-		if (Array.isArray(currentValue)) {
-			currentValue.push(result);
-		} else {
-			const arrayValue: string[] = [currentValue];
-			arrayValue.push(result);
-			this.current[identifier] = arrayValue;
+		if (result === undefined) {
+			result = UUID.generateUuid();
 		}
+		const currentValue = this.current[identifier];
+		if (currentValue === undefined) {
+			this.current[identifier] = result;
+		} else {
+			if (Array.isArray(currentValue)) {
+				currentValue.push(result);
+			} else {
+				const arrayValue: string[] = [currentValue];
+				arrayValue.push(result);
+				this.current[identifier] = arrayValue;
+			}
+		}
+		return result;
 	}
-	return result;
-}
 
-    public finish(cognidreamognidream {
-	this.last = undefined;
-}
+	public finish(): void {
+		this.last = undefined;
+	}
 }
 
 export enum TaskConfigSource {

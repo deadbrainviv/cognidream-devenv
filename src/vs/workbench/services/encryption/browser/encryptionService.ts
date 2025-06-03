@@ -8,27 +8,27 @@ import { InstantiationType, registerSingleton } from '../../../../platform/insta
 
 export class EncryptionService implements IEncryptionService {
 
-    declare readonly _serviceBrand: undefined;
+	declare readonly _serviceBrand: undefined;
 
-    encrypt(value: string): Promise<string> {
-        return Promise.resolve(value);
-    }
+	encrypt(value: string): Promise<string> {
+		return Promise.resolve(value);
+	}
 
-    decrypt(value: string): Promise<string> {
-        return Promise.resolve(value);
-    }
+	decrypt(value: string): Promise<string> {
+		return Promise.resolve(value);
+	}
 
-    isEncryptionAvailable(): Promise<boolean> {
-        return Promise.resolve(false);
-    }
+	isEncryptionAvailable(): Promise<boolean> {
+		return Promise.resolve(false);
+	}
 
-    getKeyStorageProvider(): Promise<KnownStorageProvider> {
-        return Promise.resolve(KnownStorageProvider.basicText);
-    }
+	getKeyStorageProvider(): Promise<KnownStorageProvider> {
+		return Promise.resolve(KnownStorageProvider.basicText);
+	}
 
-    setUsePlainTextEncryption(): Promise<cognidream> {
-        return Promise.resolve(undefined);
-    }
+	setUsePlainTextEncryption(): Promise<void> {
+		return Promise.resolve(undefined);
+	}
 }
 
 registerSingleton(IEncryptionService, EncryptionService, InstantiationType.Delayed);

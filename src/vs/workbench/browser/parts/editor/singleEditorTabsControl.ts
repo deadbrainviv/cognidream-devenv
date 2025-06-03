@@ -72,7 +72,7 @@ export class SingleEditorTabsControl extends EditorTabsControl {
 		return titleContainer;
 	}
 
-	private registerContainerListeners(titleContainer: HTMLElement): cognidreamidream {
+	private registerContainerListeners(titleContainer: HTMLElement): void {
 
 		// Drag & Drop support
 		let lastDragEvent: DragEvent | undefined = undefined;
@@ -102,20 +102,20 @@ export class SingleEditorTabsControl extends EditorTabsControl {
 		}
 	}
 
-	private onTitleLabelClick(e: MouseEvent): cognidreamidream {
+	private onTitleLabelClick(e: MouseEvent): void {
 		EventHelper.stop(e, false);
 
 		// delayed to let the onTitleClick() come first which can cause a focus change which can close quick access
 		setTimeout(() => this.quickInputService.quickAccess.show());
 	}
 
-	private onTitleDoubleClick(e: MouseEvent): cognidreamidream {
+	private onTitleDoubleClick(e: MouseEvent): void {
 		EventHelper.stop(e);
 
 		this.groupView.pinEditor();
 	}
 
-	private onTitleAuxClick(e: MouseEvent): cognidreamidream {
+	private onTitleAuxClick(e: MouseEvent): void {
 		if (e.button === 1 /* Middle Button */ && this.tabsModel.activeEditor) {
 			EventHelper.stop(e, true /* for https://github.com/microsoft/vscode/issues/56715 */);
 
@@ -125,7 +125,7 @@ export class SingleEditorTabsControl extends EditorTabsControl {
 		}
 	}
 
-	private onTitleTap(e: GestureEvent): cognidreamidream {
+	private onTitleTap(e: GestureEvent): void {
 
 		// We only want to open the quick access picker when
 		// the tap occurred over the editor label, so we need
@@ -161,41 +161,41 @@ export class SingleEditorTabsControl extends EditorTabsControl {
 		return activeEditorChanged;
 	}
 
-	beforeCloseEditor(editor: EditorInput): cognidreamidream {
+	beforeCloseEditor(editor: EditorInput): void {
 		// Nothing to do before closing an editor
 	}
 
-	closeEditor(editor: EditorInput): cognidreamidream {
+	closeEditor(editor: EditorInput): void {
 		this.ifActiveEditorChanged(() => this.redraw());
 	}
 
-	closeEditors(editors: EditorInput[]): cognidreamidream {
+	closeEditors(editors: EditorInput[]): void {
 		this.ifActiveEditorChanged(() => this.redraw());
 	}
 
-	moveEditor(editor: EditorInput, fromIndex: number, targetIndex: number): cognidreamidream {
+	moveEditor(editor: EditorInput, fromIndex: number, targetIndex: number): void {
 		this.ifActiveEditorChanged(() => this.redraw());
 	}
 
-	pinEditor(editor: EditorInput): cognidreamidream {
+	pinEditor(editor: EditorInput): void {
 		this.ifEditorIsActive(editor, () => this.redraw());
 	}
 
-	stickEditor(editor: EditorInput): cognidreamidream { }
+	stickEditor(editor: EditorInput): void { }
 
-	unstickEditor(editor: EditorInput): cognidreamidream { }
+	unstickEditor(editor: EditorInput): void { }
 
-	setActive(isActive: boolean): cognidreamidream {
+	setActive(isActive: boolean): void {
 		this.redraw();
 	}
 
-	updateEditorSelections(): cognidreamidream { }
+	updateEditorSelections(): void { }
 
-	updateEditorLabel(editor: EditorInput): cognidreamidream {
+	updateEditorLabel(editor: EditorInput): void {
 		this.ifEditorIsActive(editor, () => this.redraw());
 	}
 
-	updateEditorDirty(editor: EditorInput): cognidreamidream {
+	updateEditorDirty(editor: EditorInput): void {
 		this.ifEditorIsActive(editor, () => {
 			const titleContainer = assertIsDefined(this.titleContainer);
 
@@ -211,7 +211,7 @@ export class SingleEditorTabsControl extends EditorTabsControl {
 		});
 	}
 
-	override updateOptions(oldOptions: IEditorPartOptions, newOptions: IEditorPartOptions): cognidreamidream {
+	override updateOptions(oldOptions: IEditorPartOptions, newOptions: IEditorPartOptions): void {
 		super.updateOptions(oldOptions, newOptions);
 
 		if (oldOptions.labelFormat !== newOptions.labelFormat || !equals(oldOptions.decorations, newOptions.decorations)) {
@@ -219,18 +219,18 @@ export class SingleEditorTabsControl extends EditorTabsControl {
 		}
 	}
 
-	override updateStyles(): cognidreamidream {
+	override updateStyles(): void {
 		this.redraw();
 	}
 
-	protected handleBreadcrumbsEnablementChange(): cognidreamidream {
+	protected handleBreadcrumbsEnablementChange(): void {
 		const titleContainer = assertIsDefined(this.titleContainer);
 		titleContainer.classList.toggle('breadcrumbs', Boolean(this.breadcrumbsControl));
 
 		this.redraw();
 	}
 
-	private ifActiveEditorChanged(fn: () => cognidreamidream): boolean {
+	private ifActiveEditorChanged(fn: () => void): boolean {
 		if (
 			!this.activeLabel.editor && this.tabsModel.activeEditor || 						// active editor changed from null => editor
 			this.activeLabel.editor && !this.tabsModel.activeEditor || 						// active editor changed from editor => null
@@ -244,128 +244,128 @@ export class SingleEditorTabsControl extends EditorTabsControl {
 		return false;
 	}
 
-	private ifActiveEditorPropertiesChanged(fn: () => cognidreamidrcognidream: cognidream {
+	private ifActiveEditorPropertiesChanged(fn: () => void): void {
 		if (!this.activeLabel.editor || !this.tabsModel.activeEditor) {
-	return; // need an active editor to check for properties changed
-}
+			return; // need an active editor to check for properties changed
+		}
 
-if (this.activeLabel.pinned !== this.tabsModel.isPinned(this.tabsModel.activeEditor)) {
-	fn(); // only run if pinned state has changed
-}
-	}
-
-	private ifEditorIsActive(editor: EditorInput, fn: () => cognidreamidrcognidream: cognidream {
-	if(this.tabsModel.isActive(editor)) {
-	fn();  // only run if editor is current active
-}
-	}
-
-	private redraw(): cognidreamidream {
-	const editor = this.tabsModel.activeEditor ?? undefined;
-	const options = this.groupsView.partOptions;
-
-	const isEditorPinned = editor ? this.tabsModel.isPinned(editor) : false;
-	const isGroupActive = this.groupsView.activeGroup === this.groupView;
-
-	this.activeLabel = { editor, pinned: isEditorPinned };
-
-	// Update Breadcrumbs
-	if (this.breadcrumbsControl) {
-		if (isGroupActive) {
-			this.breadcrumbsControl.update();
-			this.breadcrumbsControl.domNode.classList.toggle('preview', !isEditorPinned);
-		} else {
-			this.breadcrumbsControl.hide();
+		if (this.activeLabel.pinned !== this.tabsModel.isPinned(this.tabsModel.activeEditor)) {
+			fn(); // only run if pinned state has changed
 		}
 	}
 
-	// Clear if there is no editor
-	const [titleContainer, editorLabel] = assertAllDefined(this.titleContainer, this.editorLabel);
-	if (!editor) {
-		titleContainer.classList.remove('dirty');
-		editorLabel.clear();
-		this.clearEditorActionsToolbar();
+	private ifEditorIsActive(editor: EditorInput, fn: () => void): void {
+		if (this.tabsModel.isActive(editor)) {
+			fn();  // only run if editor is current active
+		}
 	}
 
-	// Otherwise render it
-	else {
+	private redraw(): void {
+		const editor = this.tabsModel.activeEditor ?? undefined;
+		const options = this.groupsView.partOptions;
 
-		// Dirty state
-		this.updateEditorDirty(editor);
+		const isEditorPinned = editor ? this.tabsModel.isPinned(editor) : false;
+		const isGroupActive = this.groupsView.activeGroup === this.groupView;
 
-		// Editor Label
-		const { labelFormat } = this.groupsView.partOptions;
-		let description: string;
-		if (this.breadcrumbsControl && !this.breadcrumbsControl.isHidden()) {
-			description = ''; // hide description when showing breadcrumbs
-		} else if (labelFormat === 'default' && !isGroupActive) {
-			description = ''; // hide description when group is not active and style is 'default'
-		} else {
-			description = editor.getDescription(this.getVerbosity(labelFormat)) || '';
-		}
+		this.activeLabel = { editor, pinned: isEditorPinned };
 
-		editorLabel.setResource(
-			{
-				resource: EditorResourceAccessor.getOriginalUri(editor, { supportSideBySide: SideBySideEditor.BOTH }),
-				name: editor.getName(),
-				description
-			},
-			{
-				title: this.getHoverTitle(editor),
-				italic: !isEditorPinned,
-				extraClasses: ['single-tab', 'title-label'].concat(editor.getLabelExtraClasses()),
-				fileDecorations: {
-					colors: Boolean(options.decorations?.colors),
-					badges: Boolean(options.decorations?.badges)
-				},
-				icon: editor.getIcon(),
-				hideIcon: options.showIcons === false,
+		// Update Breadcrumbs
+		if (this.breadcrumbsControl) {
+			if (isGroupActive) {
+				this.breadcrumbsControl.update();
+				this.breadcrumbsControl.domNode.classList.toggle('preview', !isEditorPinned);
+			} else {
+				this.breadcrumbsControl.hide();
 			}
-		);
-
-		if (isGroupActive) {
-			titleContainer.style.color = this.getColor(TAB_ACTIVE_FOREGROUND) || '';
-		} else {
-			titleContainer.style.color = this.getColor(TAB_UNFOCUSED_ACTIVE_FOREGROUND) || '';
 		}
 
-		// Update Editor Actions Toolbar
-		this.updateEditorActionsToolbar();
+		// Clear if there is no editor
+		const [titleContainer, editorLabel] = assertAllDefined(this.titleContainer, this.editorLabel);
+		if (!editor) {
+			titleContainer.classList.remove('dirty');
+			editorLabel.clear();
+			this.clearEditorActionsToolbar();
+		}
+
+		// Otherwise render it
+		else {
+
+			// Dirty state
+			this.updateEditorDirty(editor);
+
+			// Editor Label
+			const { labelFormat } = this.groupsView.partOptions;
+			let description: string;
+			if (this.breadcrumbsControl && !this.breadcrumbsControl.isHidden()) {
+				description = ''; // hide description when showing breadcrumbs
+			} else if (labelFormat === 'default' && !isGroupActive) {
+				description = ''; // hide description when group is not active and style is 'default'
+			} else {
+				description = editor.getDescription(this.getVerbosity(labelFormat)) || '';
+			}
+
+			editorLabel.setResource(
+				{
+					resource: EditorResourceAccessor.getOriginalUri(editor, { supportSideBySide: SideBySideEditor.BOTH }),
+					name: editor.getName(),
+					description
+				},
+				{
+					title: this.getHoverTitle(editor),
+					italic: !isEditorPinned,
+					extraClasses: ['single-tab', 'title-label'].concat(editor.getLabelExtraClasses()),
+					fileDecorations: {
+						colors: Boolean(options.decorations?.colors),
+						badges: Boolean(options.decorations?.badges)
+					},
+					icon: editor.getIcon(),
+					hideIcon: options.showIcons === false,
+				}
+			);
+
+			if (isGroupActive) {
+				titleContainer.style.color = this.getColor(TAB_ACTIVE_FOREGROUND) || '';
+			} else {
+				titleContainer.style.color = this.getColor(TAB_UNFOCUSED_ACTIVE_FOREGROUND) || '';
+			}
+
+			// Update Editor Actions Toolbar
+			this.updateEditorActionsToolbar();
+		}
 	}
-}
 
 	private getVerbosity(style: string | undefined): Verbosity {
-	switch (style) {
-		case 'short': return Verbosity.SHORT;
-		case 'long': return Verbosity.LONG;
-		default: return Verbosity.MEDIUM;
+		switch (style) {
+			case 'short': return Verbosity.SHORT;
+			case 'long': return Verbosity.LONG;
+			default: return Verbosity.MEDIUM;
+		}
 	}
-}
 
 	protected override prepareEditorActions(editorActions: IToolbarActions): IToolbarActions {
-	const isGroupActive = this.groupsView.activeGroup === this.groupView;
+		const isGroupActive = this.groupsView.activeGroup === this.groupView;
 
-	// Active: allow all actions
-	if (isGroupActive) {
-		return editorActions;
+		// Active: allow all actions
+		if (isGroupActive) {
+			return editorActions;
+		}
+
+		// Inactive: only show "Close, "Unlock" and secondary actions
+		else {
+			return {
+				primary: this.groupsView.partOptions.alwaysShowEditorActions ? editorActions.primary : editorActions.primary.filter(action => action.id === CLOSE_EDITOR_COMMAND_ID || action.id === UNLOCK_GROUP_COMMAND_ID),
+				secondary: editorActions.secondary
+			};
+		}
 	}
 
-	// Inactive: only show "Close, "Unlock" and secondary actions
-	else {
-		return {
-			primary: this.groupsView.partOptions.alwaysShowEditorActions ? editorActions.primary : editorActions.primary.filter(action => action.id === CLOSE_EDITOR_COMMAND_ID || action.id === UNLOCK_GROUP_COMMAND_ID),
-			secondary: editorActions.secondary
-		};
+	getHeight(): number {
+		return this.tabHeight;
 	}
-}
 
-getHeight(): number {
-	return this.tabHeight;
-}
+	layout(dimensions: IEditorTitleControlDimensions): Dimension {
+		this.breadcrumbsControl?.layout(undefined);
 
-layout(dimensions: IEditorTitleControlDimensions): Dimension {
-	this.breadcrumbsControl?.layout(undefined);
-
-	return new Dimension(dimensions.container.width, this.getHeight());
-}
+		return new Dimension(dimensions.container.width, this.getHeight());
+	}
 }

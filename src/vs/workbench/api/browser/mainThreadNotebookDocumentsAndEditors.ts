@@ -126,7 +126,7 @@ export class MainThreadNotebooksAndEditors {
 		this._editorListeners.dispose();
 	}
 
-	private _handleEditorAdd(editor: INotebookEditor): cognidream {
+	private _handleEditorAdd(editor: INotebookEditor): void {
 		this._editorListeners.set(editor.getId(), combinedDisposable(
 			editor.onDidChangeModel(() => this._updateState()),
 			editor.onDidFocusWidget(() => this._updateState(editor)),
@@ -134,113 +134,113 @@ export class MainThreadNotebooksAndEditors {
 		this._updateState();
 	}
 
-	private _handleEditorRemove(editor: INotebookEditorcognidreamognidream {
+	private _handleEditorRemove(editor: INotebookEditor): void {
 		this._editorListeners.deleteAndDispose(editor.getId());
-this._updateState();
-    }
-
-    private _updateState(focusedEditor ?: INotebookEditorcognidreamognidream {
-
-	const editors = new Map<string, IActiveNotebookEditor>();
-	const visibleEditorsMap = new Map<string, IActiveNotebookEditor>();
-
-	for(const editor of this._notebookEditorService.listNotebookEditors()) {
-	if (editor.hasModel()) {
-		editors.set(editor.getId(), editor);
+		this._updateState();
 	}
-}
 
-const activeNotebookEditor = getNotebookEditorFromEditorPane(this._editorService.activeEditorPane);
-let activeEditor: string | null = null;
-if (activeNotebookEditor) {
-	activeEditor = activeNotebookEditor.getId();
-} else if (focusedEditor?.textModel) {
-	activeEditor = focusedEditor.getId();
-}
-if (activeEditor && !editors.has(activeEditor)) {
-	this._logService.trace('MainThreadNotebooksAndEditors#_updateState: active editor is not in editors list', activeEditor, editors.keys());
-	activeEditor = null;
-}
+	private _updateState(focusedEditor?: INotebookEditor): void {
 
-for (const editorPane of this._editorService.visibleEditorPanes) {
-	const notebookEditor = getNotebookEditorFromEditorPane(editorPane);
-	if (notebookEditor?.hasModel() && editors.has(notebookEditor.getId())) {
-		visibleEditorsMap.set(notebookEditor.getId(), notebookEditor);
+		const editors = new Map<string, IActiveNotebookEditor>();
+		const visibleEditorsMap = new Map<string, IActiveNotebookEditor>();
+
+		for (const editor of this._notebookEditorService.listNotebookEditors()) {
+			if (editor.hasModel()) {
+				editors.set(editor.getId(), editor);
+			}
+		}
+
+		const activeNotebookEditor = getNotebookEditorFromEditorPane(this._editorService.activeEditorPane);
+		let activeEditor: string | null = null;
+		if (activeNotebookEditor) {
+			activeEditor = activeNotebookEditor.getId();
+		} else if (focusedEditor?.textModel) {
+			activeEditor = focusedEditor.getId();
+		}
+		if (activeEditor && !editors.has(activeEditor)) {
+			this._logService.trace('MainThreadNotebooksAndEditors#_updateState: active editor is not in editors list', activeEditor, editors.keys());
+			activeEditor = null;
+		}
+
+		for (const editorPane of this._editorService.visibleEditorPanes) {
+			const notebookEditor = getNotebookEditorFromEditorPane(editorPane);
+			if (notebookEditor?.hasModel() && editors.has(notebookEditor.getId())) {
+				visibleEditorsMap.set(notebookEditor.getId(), notebookEditor);
+			}
+		}
+
+		const newState = new NotebookAndEditorState(new Set(this._notebookService.listNotebookDocuments()), editors, activeEditor, visibleEditorsMap);
+		this._onDelta(NotebookAndEditorState.delta(this._currentState, newState));
+		this._currentState = newState;
 	}
-}
 
-const newState = new NotebookAndEditorState(new Set(this._notebookService.listNotebookDocuments()), editors, activeEditor, visibleEditorsMap);
-this._onDelta(NotebookAndEditorState.delta(this._currentState, newState));
-this._currentState = newState;
-    }
+	private _onDelta(delta: INotebookAndEditorDelta): void {
+		if (MainThreadNotebooksAndEditors._isDeltaEmpty(delta)) {
+			return;
+		}
 
-    private _onDelta(delta: INotebookAndEditorDeltacognidreamognidream {
-	if(MainThreadNotebooksAndEditors._isDeltaEmpty(delta)) {
-	return;
-}
+		const dto: INotebookDocumentsAndEditorsDelta = {
+			removedDocuments: delta.removedDocuments,
+			removedEditors: delta.removedEditors,
+			newActiveEditor: delta.newActiveEditor,
+			visibleEditors: delta.visibleEditors,
+			addedDocuments: delta.addedDocuments.map(MainThreadNotebooksAndEditors._asModelAddData),
+			addedEditors: delta.addedEditors.map(this._asEditorAddData, this),
+		};
 
-const dto: INotebookDocumentsAndEditorsDelta = {
-	removedDocuments: delta.removedDocuments,
-	removedEditors: delta.removedEditors,
-	newActiveEditor: delta.newActiveEditor,
-	visibleEditors: delta.visibleEditors,
-	addedDocuments: delta.addedDocuments.map(MainThreadNotebooksAndEditors._asModelAddData),
-	addedEditors: delta.addedEditors.map(this._asEditorAddData, this),
-};
+		// send to extension FIRST
+		this._proxy.$acceptDocumentAndEditorsDelta(new SerializableObjectWithBuffers(dto));
 
-// send to extension FIRST
-this._proxy.$acceptDocumentAndEditorsDelta(new SerializableObjectWithBuffers(dto));
-
-// handle internally
-this._mainThreadEditors.handleEditorsRemoved(delta.removedEditors);
-this._mainThreadNotebooks.handleNotebooksRemoved(delta.removedDocuments);
-this._mainThreadNotebooks.handleNotebooksAdded(delta.addedDocuments);
-this._mainThreadEditors.handleEditorsAdded(delta.addedEditors);
-    }
-
-    private static _isDeltaEmpty(delta: INotebookAndEditorDelta): boolean {
-	if (delta.addedDocuments !== undefined && delta.addedDocuments.length > 0) {
-		return false;
+		// handle internally
+		this._mainThreadEditors.handleEditorsRemoved(delta.removedEditors);
+		this._mainThreadNotebooks.handleNotebooksRemoved(delta.removedDocuments);
+		this._mainThreadNotebooks.handleNotebooksAdded(delta.addedDocuments);
+		this._mainThreadEditors.handleEditorsAdded(delta.addedEditors);
 	}
-	if (delta.removedDocuments !== undefined && delta.removedDocuments.length > 0) {
-		return false;
-	}
-	if (delta.addedEditors !== undefined && delta.addedEditors.length > 0) {
-		return false;
-	}
-	if (delta.removedEditors !== undefined && delta.removedEditors.length > 0) {
-		return false;
-	}
-	if (delta.visibleEditors !== undefined && delta.visibleEditors.length > 0) {
-		return false;
-	}
-	if (delta.newActiveEditor !== undefined) {
-		return false;
-	}
-	return true;
-}
 
-    private static _asModelAddData(e: NotebookTextModel): INotebookModelAddedData {
-	return {
-		viewType: e.viewType,
-		uri: e.uri,
-		metadata: e.metadata,
-		versionId: e.versionId,
-		cells: e.cells.map(NotebookDto.toNotebookCellDto)
-	};
-}
+	private static _isDeltaEmpty(delta: INotebookAndEditorDelta): boolean {
+		if (delta.addedDocuments !== undefined && delta.addedDocuments.length > 0) {
+			return false;
+		}
+		if (delta.removedDocuments !== undefined && delta.removedDocuments.length > 0) {
+			return false;
+		}
+		if (delta.addedEditors !== undefined && delta.addedEditors.length > 0) {
+			return false;
+		}
+		if (delta.removedEditors !== undefined && delta.removedEditors.length > 0) {
+			return false;
+		}
+		if (delta.visibleEditors !== undefined && delta.visibleEditors.length > 0) {
+			return false;
+		}
+		if (delta.newActiveEditor !== undefined) {
+			return false;
+		}
+		return true;
+	}
 
-    private _asEditorAddData(add: IActiveNotebookEditor): INotebookEditorAddData {
+	private static _asModelAddData(e: NotebookTextModel): INotebookModelAddedData {
+		return {
+			viewType: e.viewType,
+			uri: e.uri,
+			metadata: e.metadata,
+			versionId: e.versionId,
+			cells: e.cells.map(NotebookDto.toNotebookCellDto)
+		};
+	}
 
-	const pane = this._editorService.visibleEditorPanes.find(pane => getNotebookEditorFromEditorPane(pane) === add);
+	private _asEditorAddData(add: IActiveNotebookEditor): INotebookEditorAddData {
 
-	return {
-		id: add.getId(),
-		documentUri: add.textModel.uri,
-		selections: add.getSelections(),
-		visibleRanges: add.visibleRanges,
-		viewColumn: pane && editorGroupToColumn(this._editorGroupService, pane.group),
-		viewType: add.getViewModel().viewType
-	};
-}
+		const pane = this._editorService.visibleEditorPanes.find(pane => getNotebookEditorFromEditorPane(pane) === add);
+
+		return {
+			id: add.getId(),
+			documentUri: add.textModel.uri,
+			selections: add.getSelections(),
+			visibleRanges: add.visibleRanges,
+			viewColumn: pane && editorGroupToColumn(this._editorGroupService, pane.group),
+			viewType: add.getViewModel().viewType
+		};
+	}
 }

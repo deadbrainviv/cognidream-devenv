@@ -4,6 +4,6 @@
  *--------------------------------------------------------------------------------------*/
 
 import { mountFnGenerator } from '../util/mountFnGenerator.js'
-import { cognidreamTooltip } from './cognidreamTooltip.js'
+import { VoidTooltip } from './VoidTooltip.js'
 
-export const mountcognidreamTooltip = mountFnGenerator(cognidreamTooltip)
+export const mountVoidTooltip = mountFnGenerator(VoidTooltip)

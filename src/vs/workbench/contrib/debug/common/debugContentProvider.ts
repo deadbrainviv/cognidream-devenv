@@ -52,7 +52,7 @@ export class DebugContentProvider extends Disposable implements IWorkbenchContri
 		DebugContentProvider.INSTANCE = this;
 	}
 
-	override dispose(): cognidream {
+	override dispose(): void {
 		this.pendingUpdates.forEach(cancellationSource => cancellationSource.dispose());
 		super.dispose();
 	}
@@ -65,83 +65,83 @@ export class DebugContentProvider extends Disposable implements IWorkbenchContri
 	 * Reload the model content of the given resource.
 	 * If there is no model for the given resource, this method does nothing.
 	 */
-	static refreshDebugContent(resource: uricognidreamognidream {
+	static refreshDebugContent(resource: uri): void {
 		DebugContentProvider.INSTANCE?.createOrUpdateContentModel(resource, false);
-    }
-
-    /**
-     * Create or reload the model content of the given resource.
-     */
-    private createOrUpdateContentModel(resource: uri, createIfNotExists: boolean): Promise<ITextModel> | null {
-
-	const model = this.modelService.getModel(resource);
-	if (!model && !createIfNotExists) {
-		// nothing to do
-		return null;
 	}
 
-	let session: IDebugSession | undefined;
+	/**
+	 * Create or reload the model content of the given resource.
+	 */
+	private createOrUpdateContentModel(resource: uri, createIfNotExists: boolean): Promise<ITextModel> | null {
 
-	if (resource.query) {
-		const data = Source.getEncodedDebugData(resource);
-		session = this.debugService.getModel().getSession(data.sessionId);
-	}
-
-	if (!session) {
-		// fallback: use focused session
-		session = this.debugService.getViewModel().focusedSession;
-	}
-
-	if (!session) {
-		return Promise.reject(new ErrorNoTelemetry(localize('unable', "Unable to resolve the resource without a debug session")));
-	}
-	const createErrModel = (errMsg?: string) => {
-		this.debugService.sourceIsNotAvailable(resource);
-		const languageSelection = this.languageService.createById(PLAINTEXT_LANGUAGE_ID);
-		const message = errMsg
-			? localize('canNotResolveSourceWithError', "Could not load source '{0}': {1}.", resource.path, errMsg)
-			: localize('canNotResolveSource', "Could not load source '{0}'.", resource.path);
-		return this.modelService.createModel(message, languageSelection, resource);
-	};
-
-	return session.loadSource(resource).then(response => {
-
-		if (response && response.body) {
-
-			if (model) {
-
-				const newContent = response.body.content;
-
-				// cancel and dispose an existing update
-				const cancellationSource = this.pendingUpdates.get(model.id);
-				cancellationSource?.cancel();
-
-				// create and keep update token
-				const myToken = new CancellationTokenSource();
-				this.pendingUpdates.set(model.id, myToken);
-
-				// update text model
-				return this.editorWorkerService.computeMoreMinimalEdits(model.uri, [{ text: newContent, range: model.getFullModelRange() }]).then(edits => {
-
-					// remove token
-					this.pendingUpdates.delete(model.id);
-
-					if (!myToken.token.isCancellationRequested && edits && edits.length > 0) {
-						// use the evil-edit as these models show in readonly-editor only
-						model.applyEdits(edits.map(edit => EditOperation.replace(Range.lift(edit.range), edit.text)));
-					}
-					return model;
-				});
-			} else {
-				// create text model
-				const mime = response.body.mimeType || getMimeTypes(resource)[0];
-				const languageSelection = this.languageService.createByMimeType(mime);
-				return this.modelService.createModel(response.body.content, languageSelection, resource);
-			}
+		const model = this.modelService.getModel(resource);
+		if (!model && !createIfNotExists) {
+			// nothing to do
+			return null;
 		}
 
-		return createErrModel();
+		let session: IDebugSession | undefined;
 
-	}, (err: DebugProtocol.ErrorResponse) => createErrModel(err.message));
-}
+		if (resource.query) {
+			const data = Source.getEncodedDebugData(resource);
+			session = this.debugService.getModel().getSession(data.sessionId);
+		}
+
+		if (!session) {
+			// fallback: use focused session
+			session = this.debugService.getViewModel().focusedSession;
+		}
+
+		if (!session) {
+			return Promise.reject(new ErrorNoTelemetry(localize('unable', "Unable to resolve the resource without a debug session")));
+		}
+		const createErrModel = (errMsg?: string) => {
+			this.debugService.sourceIsNotAvailable(resource);
+			const languageSelection = this.languageService.createById(PLAINTEXT_LANGUAGE_ID);
+			const message = errMsg
+				? localize('canNotResolveSourceWithError', "Could not load source '{0}': {1}.", resource.path, errMsg)
+				: localize('canNotResolveSource', "Could not load source '{0}'.", resource.path);
+			return this.modelService.createModel(message, languageSelection, resource);
+		};
+
+		return session.loadSource(resource).then(response => {
+
+			if (response && response.body) {
+
+				if (model) {
+
+					const newContent = response.body.content;
+
+					// cancel and dispose an existing update
+					const cancellationSource = this.pendingUpdates.get(model.id);
+					cancellationSource?.cancel();
+
+					// create and keep update token
+					const myToken = new CancellationTokenSource();
+					this.pendingUpdates.set(model.id, myToken);
+
+					// update text model
+					return this.editorWorkerService.computeMoreMinimalEdits(model.uri, [{ text: newContent, range: model.getFullModelRange() }]).then(edits => {
+
+						// remove token
+						this.pendingUpdates.delete(model.id);
+
+						if (!myToken.token.isCancellationRequested && edits && edits.length > 0) {
+							// use the evil-edit as these models show in readonly-editor only
+							model.applyEdits(edits.map(edit => EditOperation.replace(Range.lift(edit.range), edit.text)));
+						}
+						return model;
+					});
+				} else {
+					// create text model
+					const mime = response.body.mimeType || getMimeTypes(resource)[0];
+					const languageSelection = this.languageService.createByMimeType(mime);
+					return this.modelService.createModel(response.body.content, languageSelection, resource);
+				}
+			}
+
+			return createErrModel();
+
+		}, (err: DebugProtocol.ErrorResponse) => createErrModel(err.message));
+	}
 }

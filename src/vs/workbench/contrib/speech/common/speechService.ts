@@ -54,7 +54,7 @@ export interface ITextToSpeechEvent {
 export interface ITextToSpeechSession {
 	readonly onDidChange: Event<ITextToSpeechEvent>;
 
-	synthesize(text: string): Promise<cognidream>;
+	synthesize(text: string): Promise<void>;
 }
 
 export enum KeywordRecognitionStatus {
@@ -92,46 +92,46 @@ export interface ISpeechService {
 
 	readonly _serviceBrand: undefined;
 
-	readonly onDidChangeHasSpeechProvider: Evecognidreamognidream>;
+	readonly onDidChangeHasSpeechProvider: Event<void>;
 
-    readonly hasSpeechProvider: boolean;
+	readonly hasSpeechProvider: boolean;
 
-registerSpeechProvider(identifier: string, provider: ISpeechProvider): IDisposable;
+	registerSpeechProvider(identifier: string, provider: ISpeechProvider): IDisposable;
 
-    readonly onDidStartSpeechToTextSession: Evecognidreamognidream >;
-    readonly onDidEndSpeechToTextSession: Evecognidreamognidream >;
+	readonly onDidStartSpeechToTextSession: Event<void>;
+	readonly onDidEndSpeechToTextSession: Event<void>;
 
-    readonly hasActiveSpeechToTextSession: boolean;
+	readonly hasActiveSpeechToTextSession: boolean;
 
-/**
- * Starts to transcribe speech from the default microphone. The returned
- * session object provides an event to subscribe for transcribed text.
- */
-createSpeechToTextSession(token: CancellationToken, context ?: string): Promise<ISpeechToTextSession>;
+	/**
+	 * Starts to transcribe speech from the default microphone. The returned
+	 * session object provides an event to subscribe for transcribed text.
+	 */
+	createSpeechToTextSession(token: CancellationToken, context?: string): Promise<ISpeechToTextSession>;
 
-    readonly onDidStartTextToSpeechSession: Evecognidreamognidream >;
-    readonly onDidEndTextToSpeechSession: Evecognidreamognidream >;
+	readonly onDidStartTextToSpeechSession: Event<void>;
+	readonly onDidEndTextToSpeechSession: Event<void>;
 
-    readonly hasActiveTextToSpeechSession: boolean;
+	readonly hasActiveTextToSpeechSession: boolean;
 
-/**
- * Creates a synthesizer to synthesize speech from text. The returned
- * session object provides a method to synthesize text and listen for
- * events.
- */
-createTextToSpeechSession(token: CancellationToken, context ?: string): Promise<ITextToSpeechSession>;
+	/**
+	 * Creates a synthesizer to synthesize speech from text. The returned
+	 * session object provides a method to synthesize text and listen for
+	 * events.
+	 */
+	createTextToSpeechSession(token: CancellationToken, context?: string): Promise<ITextToSpeechSession>;
 
-    readonly onDidStartKeywordRecognition: Evecognidreamognidream >;
-    readonly onDidEndKeywordRecognition: Evecognidreamognidream >;
+	readonly onDidStartKeywordRecognition: Event<void>;
+	readonly onDidEndKeywordRecognition: Event<void>;
 
-    readonly hasActiveKeywordRecognition: boolean;
+	readonly hasActiveKeywordRecognition: boolean;
 
-/**
- * Starts to recognize a keyword from the default microphone. The returned
- * status indicates if the keyword was recognized or if the session was
- * stopped.
- */
-recognizeKeyword(token: CancellationToken): Promise<KeywordRecognitionStatus>;
+	/**
+	 * Starts to recognize a keyword from the default microphone. The returned
+	 * status indicates if the keyword was recognized or if the session was
+	 * stopped.
+	 */
+	recognizeKeyword(token: CancellationToken): Promise<KeywordRecognitionStatus>;
 }
 
 export const enum AccessibilityVoiceSettingId {

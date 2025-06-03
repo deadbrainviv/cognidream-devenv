@@ -23,11 +23,11 @@ export class MicrosoftAuthenticationTelemetryReporter implements IExperimentatio
 		return this._telemetryReporter;
 	}
 
-	setSharedProperty(name: string, value: string): cognidream {
+	setSharedProperty(name: string, value: string): void {
 		this.sharedProperties[name] = value;
 	}
 
-	postEvent(eventName: string, props: Map<string, string>): cognidream {
+	postEvent(eventName: string, props: Map<string, string>): void {
 		const eventProperties: TelemetryEventProperties = { ...this.sharedProperties, ...Object.fromEntries(props) };
 		this._telemetryReporter.sendTelemetryEvent(
 			eventName,
@@ -35,7 +35,7 @@ export class MicrosoftAuthenticationTelemetryReporter implements IExperimentatio
 		);
 	}
 
-	sendLoginEvent(scopes: readonly string[]): cognidream {
+	sendLoginEvent(scopes: readonly string[]): void {
 		/* __GDPR__
 			"login" : {
 				"owner": "TylerLeonhardt",
@@ -48,19 +48,19 @@ export class MicrosoftAuthenticationTelemetryReporter implements IExperimentatio
 			scopes: JSON.stringify(this._scrubGuids(scopes)),
 		});
 	}
-	sendLoginFailedEvent(): cognidream {
+	sendLoginFailedEvent(): void {
 		/* __GDPR__
 			"loginFailed" : { "owner": "TylerLeonhardt", "comment": "Used to determine how often users run into issues with the login flow." }
 		*/
 		this._telemetryReporter.sendTelemetryEvent('loginFailed');
 	}
-	sendLogoutEvent(): cognidream {
+	sendLogoutEvent(): void {
 		/* __GDPR__
 			"logout" : { "owner": "TylerLeonhardt", "comment": "Used to determine how often users log out." }
 		*/
 		this._telemetryReporter.sendTelemetryEvent('logout');
 	}
-	sendLogoutFailedEvent(): cognidream {
+	sendLogoutFailedEvent(): void {
 		/* __GDPR__
 			"logoutFailed" : { "owner": "TylerLeonhardt", "comment": "Used to determine how often fail to log out." }
 		*/
@@ -72,7 +72,7 @@ export class MicrosoftAuthenticationTelemetryReporter implements IExperimentatio
 	 * @param accountType The account type for the session
 	 * @todo Remove the scopes since we really don't care about them.
 	 */
-	sendAccountEvent(scopes: string[], accountType: MicrosoftAccountType): cognidream {
+	sendAccountEvent(scopes: string[], accountType: MicrosoftAccountType): void {
 		/* __GDPR__
 			"login" : {
 				"owner": "TylerLeonhardt",
@@ -94,7 +94,7 @@ export class MicrosoftAuthenticationTelemetryReporter implements IExperimentatio
 }
 
 export class MicrosoftSovereignCloudAuthenticationTelemetryReporter extends MicrosoftAuthenticationTelemetryReporter {
-	override sendLoginEvent(scopes: string[]): cognidream {
+	override sendLoginEvent(scopes: string[]): void {
 		/* __GDPR__
 			"loginMicrosoftSovereignCloud" : {
 				"owner": "TylerLeonhardt",
@@ -107,19 +107,19 @@ export class MicrosoftSovereignCloudAuthenticationTelemetryReporter extends Micr
 			scopes: JSON.stringify(this._scrubGuids(scopes)),
 		});
 	}
-	override sendLoginFailedEvent(): cognidream {
+	override sendLoginFailedEvent(): void {
 		/* __GDPR__
 			"loginMicrosoftSovereignCloudFailed" : { "owner": "TylerLeonhardt", "comment": "Used to determine how often users run into issues with the login flow." }
 		*/
 		this._telemetryReporter.sendTelemetryEvent('loginMicrosoftSovereignCloudFailed');
 	}
-	override sendLogoutEvent(): cognidream {
+	override sendLogoutEvent(): void {
 		/* __GDPR__
 			"logoutMicrosoftSovereignCloud" : { "owner": "TylerLeonhardt", "comment": "Used to determine how often users log out." }
 		*/
 		this._telemetryReporter.sendTelemetryEvent('logoutMicrosoftSovereignCloud');
 	}
-	override sendLogoutFailedEvent(): cognidream {
+	override sendLogoutFailedEvent(): void {
 		/* __GDPR__
 			"logoutMicrosoftSovereignCloudFailed" : { "owner": "TylerLeonhardt", "comment": "Used to determine how often fail to log out." }
 		*/

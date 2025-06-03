@@ -108,7 +108,7 @@ export class OpenEditorsView extends ViewPane {
 		this._register(this.workingCopyService.onDidChangeDirty(workingCopy => this.updateDirtyIndicator(workingCopy)));
 	}
 
-	private registerUpdateEvents(): cognidream {
+	private registerUpdateEvents(): void {
 		const updateWholeList = () => {
 			if (!this.isBodyVisible() || !this.list) {
 				this.needsRefresh = true;
@@ -171,383 +171,383 @@ export class OpenEditorsView extends ViewPane {
 		}));
 	}
 
-	protected override renderHeaderTitle(container: HTMLElementcognidreamognidream {
+	protected override renderHeaderTitle(container: HTMLElement): void {
 		super.renderHeaderTitle(container, this.title);
 
-const count = dom.append(container, $('.open-editors-dirty-count-container'));
-this.dirtyCountElement = dom.append(count, $('.dirty-count.monaco-count-badge.long'));
+		const count = dom.append(container, $('.open-editors-dirty-count-container'));
+		this.dirtyCountElement = dom.append(count, $('.dirty-count.monaco-count-badge.long'));
 
-this.dirtyCountElement.style.backgroundColor = asCssVariable(badgeBackground);
-this.dirtyCountElement.style.color = asCssVariable(badgeForeground);
-this.dirtyCountElement.style.border = `1px solid ${asCssVariable(contrastBorder)}`;
+		this.dirtyCountElement.style.backgroundColor = asCssVariable(badgeBackground);
+		this.dirtyCountElement.style.color = asCssVariable(badgeForeground);
+		this.dirtyCountElement.style.border = `1px solid ${asCssVariable(contrastBorder)}`;
 
-this.updateDirtyIndicator();
-    }
-
-    protected override renderBody(container: HTMLElementcognidreamognidream {
-	super.renderBody(container);
-
-	container.classList.add('open-editors');
-	container.classList.add('show-file-icons');
-
-	const delegate = new OpenEditorsDelegate();
-
-	if(this.list) {
-	this.list.dispose();
-}
-if (this.listLabels) {
-	this.listLabels.clear();
-}
-
-this.dnd = new OpenEditorsDragAndDrop(this.sortOrder, this.instantiationService, this.editorGroupService);
-
-this.listLabels = this.instantiationService.createInstance(ResourceLabels, { onDidChangeVisibility: this.onDidChangeBodyVisibility });
-this.list = this.instantiationService.createInstance(WorkbenchList, 'OpenEditors', container, delegate, [
-	new EditorGroupRenderer(this.keybindingService, this.instantiationService),
-	new OpenEditorRenderer(this.listLabels, this.instantiationService, this.keybindingService, this.configurationService)
-], {
-	identityProvider: { getId: (element: OpenEditor | IEditorGroup) => element instanceof OpenEditor ? element.getId() : element.id.toString() },
-	dnd: this.dnd,
-	overrideStyles: this.getLocationBasedColors().listOverrideStyles,
-	accessibilityProvider: new OpenEditorsAccessibilityProvider()
-}) as WorkbenchList<OpenEditor | IEditorGroup>;
-this._register(this.list);
-this._register(this.listLabels);
-
-// Register the refresh scheduler
-let labelChangeListeners: IDisposable[] = [];
-this.listRefreshScheduler = this._register(new RunOnceScheduler(() => {
-	// No need to refresh the list if it's not rendered
-	if (!this.list) {
-		return;
+		this.updateDirtyIndicator();
 	}
-	labelChangeListeners = dispose(labelChangeListeners);
-	const previousLength = this.list.length;
-	const elements = this.getElements();
-	this.list.splice(0, this.list.length, elements);
-	this.focusActiveEditor();
-	if (previousLength !== this.list.length) {
-		this.updateSize();
-	}
-	this.needsRefresh = false;
 
-	if (this.sortOrder === 'alphabetical' || this.sortOrder === 'fullPath') {
-		// We need to resort the list if the editor label changed
-		elements.forEach(e => {
-			if (e instanceof OpenEditor) {
-				labelChangeListeners.push(e.editor.onDidChangeLabel(() => this.listRefreshScheduler?.schedule()));
+	protected override renderBody(container: HTMLElement): void {
+		super.renderBody(container);
+
+		container.classList.add('open-editors');
+		container.classList.add('show-file-icons');
+
+		const delegate = new OpenEditorsDelegate();
+
+		if (this.list) {
+			this.list.dispose();
+		}
+		if (this.listLabels) {
+			this.listLabels.clear();
+		}
+
+		this.dnd = new OpenEditorsDragAndDrop(this.sortOrder, this.instantiationService, this.editorGroupService);
+
+		this.listLabels = this.instantiationService.createInstance(ResourceLabels, { onDidChangeVisibility: this.onDidChangeBodyVisibility });
+		this.list = this.instantiationService.createInstance(WorkbenchList, 'OpenEditors', container, delegate, [
+			new EditorGroupRenderer(this.keybindingService, this.instantiationService),
+			new OpenEditorRenderer(this.listLabels, this.instantiationService, this.keybindingService, this.configurationService)
+		], {
+			identityProvider: { getId: (element: OpenEditor | IEditorGroup) => element instanceof OpenEditor ? element.getId() : element.id.toString() },
+			dnd: this.dnd,
+			overrideStyles: this.getLocationBasedColors().listOverrideStyles,
+			accessibilityProvider: new OpenEditorsAccessibilityProvider()
+		}) as WorkbenchList<OpenEditor | IEditorGroup>;
+		this._register(this.list);
+		this._register(this.listLabels);
+
+		// Register the refresh scheduler
+		let labelChangeListeners: IDisposable[] = [];
+		this.listRefreshScheduler = this._register(new RunOnceScheduler(() => {
+			// No need to refresh the list if it's not rendered
+			if (!this.list) {
+				return;
 			}
-		});
+			labelChangeListeners = dispose(labelChangeListeners);
+			const previousLength = this.list.length;
+			const elements = this.getElements();
+			this.list.splice(0, this.list.length, elements);
+			this.focusActiveEditor();
+			if (previousLength !== this.list.length) {
+				this.updateSize();
+			}
+			this.needsRefresh = false;
+
+			if (this.sortOrder === 'alphabetical' || this.sortOrder === 'fullPath') {
+				// We need to resort the list if the editor label changed
+				elements.forEach(e => {
+					if (e instanceof OpenEditor) {
+						labelChangeListeners.push(e.editor.onDidChangeLabel(() => this.listRefreshScheduler?.schedule()));
+					}
+				});
+			}
+		}, this.structuralRefreshDelay));
+
+		this.updateSize();
+
+		this.handleContextKeys();
+		this._register(this.list.onContextMenu(e => this.onListContextMenu(e)));
+
+		// Open when selecting via keyboard
+		this._register(this.list.onMouseMiddleClick(e => {
+			if (e && e.element instanceof OpenEditor) {
+				if (preventEditorClose(e.element.group, e.element.editor, EditorCloseMethod.MOUSE, this.editorGroupService.partOptions)) {
+					return;
+				}
+
+				e.element.group.closeEditor(e.element.editor, { preserveFocus: true });
+			}
+		}));
+		this._register(this.list.onDidOpen(e => {
+			const element = e.element;
+			if (!element) {
+				return;
+			} else if (element instanceof OpenEditor) {
+				if (dom.isMouseEvent(e.browserEvent) && e.browserEvent.button === 1) {
+					return; // middle click already handled above: closes the editor
+				}
+
+				this.withActiveEditorFocusTrackingDisabled(() => {
+					this.openEditor(element, { preserveFocus: e.editorOptions.preserveFocus, pinned: e.editorOptions.pinned, sideBySide: e.sideBySide });
+				});
+			} else {
+				this.withActiveEditorFocusTrackingDisabled(() => {
+					this.editorGroupService.activateGroup(element);
+					if (!e.editorOptions.preserveFocus) {
+						element.focus();
+					}
+				});
+			}
+		}));
+
+		this.listRefreshScheduler.schedule(0);
+
+		this._register(this.onDidChangeBodyVisibility(visible => {
+			if (visible && this.needsRefresh) {
+				this.listRefreshScheduler?.schedule(0);
+			}
+		}));
+
+		const containerModel = this.viewDescriptorService.getViewContainerModel(this.viewDescriptorService.getViewContainerByViewId(this.id)!)!;
+		this._register(containerModel.onDidChangeAllViewDescriptors(() => {
+			this.updateSize();
+		}));
 	}
-}, this.structuralRefreshDelay));
 
-this.updateSize();
-
-this.handleContextKeys();
-this._register(this.list.onContextMenu(e => this.onListContextMenu(e)));
-
-// Open when selecting via keyboard
-this._register(this.list.onMouseMiddleClick(e => {
-	if (e && e.element instanceof OpenEditor) {
-		if (preventEditorClose(e.element.group, e.element.editor, EditorCloseMethod.MOUSE, this.editorGroupService.partOptions)) {
+	private handleContextKeys() {
+		if (!this.list) {
 			return;
 		}
 
-		e.element.group.closeEditor(e.element.editor, { preserveFocus: true });
-	}
-}));
-this._register(this.list.onDidOpen(e => {
-	const element = e.element;
-	if (!element) {
-		return;
-	} else if (element instanceof OpenEditor) {
-		if (dom.isMouseEvent(e.browserEvent) && e.browserEvent.button === 1) {
-			return; // middle click already handled above: closes the editor
-		}
+		// Bind context keys
+		OpenEditorsFocusedContext.bindTo(this.list.contextKeyService);
+		ExplorerFocusedContext.bindTo(this.list.contextKeyService);
 
-		this.withActiveEditorFocusTrackingDisabled(() => {
-			this.openEditor(element, { preserveFocus: e.editorOptions.preserveFocus, pinned: e.editorOptions.pinned, sideBySide: e.sideBySide });
-		});
-	} else {
-		this.withActiveEditorFocusTrackingDisabled(() => {
-			this.editorGroupService.activateGroup(element);
-			if (!e.editorOptions.preserveFocus) {
-				element.focus();
+		const groupFocusedContext = OpenEditorsGroupContext.bindTo(this.contextKeyService);
+		const dirtyEditorFocusedContext = OpenEditorsDirtyEditorContext.bindTo(this.contextKeyService);
+		const readonlyEditorFocusedContext = OpenEditorsReadonlyEditorContext.bindTo(this.contextKeyService);
+		const openEditorsSelectedFileOrUntitledContext = OpenEditorsSelectedFileOrUntitledContext.bindTo(this.contextKeyService);
+
+		const resourceContext = this.instantiationService.createInstance(ResourceContextKey);
+		this._register(resourceContext);
+
+		this._register(this.list.onDidChangeFocus(e => {
+			resourceContext.reset();
+			groupFocusedContext.reset();
+			dirtyEditorFocusedContext.reset();
+			readonlyEditorFocusedContext.reset();
+
+			const element = e.elements.length ? e.elements[0] : undefined;
+			if (element instanceof OpenEditor) {
+				const resource = element.getResource();
+				dirtyEditorFocusedContext.set(element.editor.isDirty() && !element.editor.isSaving());
+				readonlyEditorFocusedContext.set(!!element.editor.isReadonly());
+				resourceContext.set(resource ?? null);
+			} else if (!!element) {
+				groupFocusedContext.set(true);
 			}
-		});
-	}
-}));
+		}));
 
-this.listRefreshScheduler.schedule(0);
-
-this._register(this.onDidChangeBodyVisibility(visible => {
-	if (visible && this.needsRefresh) {
-		this.listRefreshScheduler?.schedule(0);
-	}
-}));
-
-const containerModel = this.viewDescriptorService.getViewContainerModel(this.viewDescriptorService.getViewContainerByViewId(this.id)!)!;
-this._register(containerModel.onDidChangeAllViewDescriptors(() => {
-	this.updateSize();
-}));
-    }
-
-    private handleContextKeys() {
-	if (!this.list) {
-		return;
+		this._register(this.list.onDidChangeSelection(e => {
+			const selectedAreFileOrUntitled = e.elements.every(e => {
+				if (e instanceof OpenEditor) {
+					const resource = e.getResource();
+					return resource && (resource.scheme === Schemas.untitled || this.fileService.hasProvider(resource));
+				}
+				return false;
+			});
+			openEditorsSelectedFileOrUntitledContext.set(selectedAreFileOrUntitled);
+		}));
 	}
 
-	// Bind context keys
-	OpenEditorsFocusedContext.bindTo(this.list.contextKeyService);
-	ExplorerFocusedContext.bindTo(this.list.contextKeyService);
+	override focus(): void {
+		super.focus();
 
-	const groupFocusedContext = OpenEditorsGroupContext.bindTo(this.contextKeyService);
-	const dirtyEditorFocusedContext = OpenEditorsDirtyEditorContext.bindTo(this.contextKeyService);
-	const readonlyEditorFocusedContext = OpenEditorsReadonlyEditorContext.bindTo(this.contextKeyService);
-	const openEditorsSelectedFileOrUntitledContext = OpenEditorsSelectedFileOrUntitledContext.bindTo(this.contextKeyService);
+		this.list?.domFocus();
+	}
 
-	const resourceContext = this.instantiationService.createInstance(ResourceContextKey);
-	this._register(resourceContext);
+	protected override layoutBody(height: number, width: number): void {
+		super.layoutBody(height, width);
+		this.list?.layout(height, width);
+	}
 
-	this._register(this.list.onDidChangeFocus(e => {
-		resourceContext.reset();
-		groupFocusedContext.reset();
-		dirtyEditorFocusedContext.reset();
-		readonlyEditorFocusedContext.reset();
+	private get showGroups(): boolean {
+		return this.editorGroupService.groups.length > 1;
+	}
 
-		const element = e.elements.length ? e.elements[0] : undefined;
-		if (element instanceof OpenEditor) {
-			const resource = element.getResource();
-			dirtyEditorFocusedContext.set(element.editor.isDirty() && !element.editor.isSaving());
-			readonlyEditorFocusedContext.set(!!element.editor.isReadonly());
-			resourceContext.set(resource ?? null);
-		} else if (!!element) {
-			groupFocusedContext.set(true);
-		}
-	}));
-
-	this._register(this.list.onDidChangeSelection(e => {
-		const selectedAreFileOrUntitled = e.elements.every(e => {
-			if (e instanceof OpenEditor) {
-				const resource = e.getResource();
-				return resource && (resource.scheme === Schemas.untitled || this.fileService.hasProvider(resource));
+	private getElements(): Array<IEditorGroup | OpenEditor> {
+		this.elements = [];
+		this.editorGroupService.getGroups(GroupsOrder.GRID_APPEARANCE).forEach(g => {
+			if (this.showGroups) {
+				this.elements.push(g);
 			}
-			return false;
-		});
-		openEditorsSelectedFileOrUntitledContext.set(selectedAreFileOrUntitled);
-	}));
-}
-
-    override focus(cognidreamognidream {
-	super.focus();
-
-	this.list?.domFocus();
-}
-
-    protected override layoutBody(height: number, width: numbercognidreamognidream {
-	super.layoutBody(height, width);
-	this.list?.layout(height, width);
-}
-
-    private get showGroups(): boolean {
-	return this.editorGroupService.groups.length > 1;
-}
-
-    private getElements(): Array < IEditorGroup | OpenEditor > {
-	this.elements = [];
-	this.editorGroupService.getGroups(GroupsOrder.GRID_APPEARANCE).forEach(g => {
-		if (this.showGroups) {
-			this.elements.push(g);
-		}
-		let editors = g.editors.map(ei => new OpenEditor(ei, g));
-		if (this.sortOrder === 'alphabetical') {
-			editors = editors.sort((first, second) => compareFileNamesDefault(first.editor.getName(), second.editor.getName()));
-		} else if (this.sortOrder === 'fullPath') {
-			editors = editors.sort((first, second) => {
-				const firstResource = first.editor.resource;
-				const secondResource = second.editor.resource;
-				//put 'system' editors before everything
-				if (firstResource === undefined && secondResource === undefined) {
-					return compareFileNamesDefault(first.editor.getName(), second.editor.getName());
-				} else if (firstResource === undefined) {
-					return -1;
-				} else if (secondResource === undefined) {
-					return 1;
-				} else {
-					const firstScheme = firstResource.scheme;
-					const secondScheme = secondResource.scheme;
-					//put non-file editors before files
-					if (firstScheme !== Schemas.file && secondScheme !== Schemas.file) {
-						return extUriIgnorePathCase.compare(firstResource, secondResource);
-					} else if (firstScheme !== Schemas.file) {
+			let editors = g.editors.map(ei => new OpenEditor(ei, g));
+			if (this.sortOrder === 'alphabetical') {
+				editors = editors.sort((first, second) => compareFileNamesDefault(first.editor.getName(), second.editor.getName()));
+			} else if (this.sortOrder === 'fullPath') {
+				editors = editors.sort((first, second) => {
+					const firstResource = first.editor.resource;
+					const secondResource = second.editor.resource;
+					//put 'system' editors before everything
+					if (firstResource === undefined && secondResource === undefined) {
+						return compareFileNamesDefault(first.editor.getName(), second.editor.getName());
+					} else if (firstResource === undefined) {
 						return -1;
-					} else if (secondScheme !== Schemas.file) {
+					} else if (secondResource === undefined) {
 						return 1;
 					} else {
-						return extUriIgnorePathCase.compare(firstResource, secondResource);
+						const firstScheme = firstResource.scheme;
+						const secondScheme = secondResource.scheme;
+						//put non-file editors before files
+						if (firstScheme !== Schemas.file && secondScheme !== Schemas.file) {
+							return extUriIgnorePathCase.compare(firstResource, secondResource);
+						} else if (firstScheme !== Schemas.file) {
+							return -1;
+						} else if (secondScheme !== Schemas.file) {
+							return 1;
+						} else {
+							return extUriIgnorePathCase.compare(firstResource, secondResource);
+						}
 					}
-				}
-			});
+				});
+			}
+			this.elements.push(...editors);
+		});
+
+		return this.elements;
+	}
+
+	private getIndex(group: IEditorGroup, editor: EditorInput | undefined | null): number {
+		if (!editor) {
+			return this.elements.findIndex(e => !(e instanceof OpenEditor) && e.id === group.id);
 		}
-		this.elements.push(...editors);
-	});
 
-	return this.elements;
-}
-
-    private getIndex(group: IEditorGroup, editor: EditorInput | undefined | null): number {
-	if(!editor) {
-		return this.elements.findIndex(e => !(e instanceof OpenEditor) && e.id === group.id);
+		return this.elements.findIndex(e => e instanceof OpenEditor && e.editor === editor && e.group.id === group.id);
 	}
 
-        return this.elements.findIndex(e => e instanceof OpenEditor && e.editor === editor && e.group.id === group.id);
-}
+	private openEditor(element: OpenEditor, options: { preserveFocus?: boolean; pinned?: boolean; sideBySide?: boolean }): void {
+		if (element) {
+			this.telemetryService.publicLog2<WorkbenchActionExecutedEvent, WorkbenchActionExecutedClassification>('workbenchActionExecuted', { id: 'workbench.files.openFile', from: 'openEditors' });
 
-    private openEditor(element: OpenEditor, options: { preserveFocus?: boolean; pinned?: boolean; sideBySide?: boolean }cognidreamognidream {
-	if(element) {
-		this.telemetryService.publicLog2<WorkbenchActionExecutedEvent, WorkbenchActionExecutedClassification>('workbenchActionExecuted', { id: 'workbench.files.openFile', from: 'openEditors' });
-
-		const preserveActivateGroup = options.sideBySide && options.preserveFocus; // needed for https://github.com/microsoft/vscode/issues/42399
-		if (!preserveActivateGroup) {
-			this.editorGroupService.activateGroup(element.group); // needed for https://github.com/microsoft/vscode/issues/6672
+			const preserveActivateGroup = options.sideBySide && options.preserveFocus; // needed for https://github.com/microsoft/vscode/issues/42399
+			if (!preserveActivateGroup) {
+				this.editorGroupService.activateGroup(element.group); // needed for https://github.com/microsoft/vscode/issues/6672
+			}
+			const targetGroup = options.sideBySide ? this.editorGroupService.sideGroup : element.group;
+			targetGroup.openEditor(element.editor, options);
 		}
-		const targetGroup = options.sideBySide ? this.editorGroupService.sideGroup : element.group;
-		targetGroup.openEditor(element.editor, options);
 	}
-}
 
-    private onListContextMenu(e: IListContextMenuEvent < OpenEditor | IEditorGroup > cognidreamognidream {
-	if(!e.element) {
-	return;
-}
+	private onListContextMenu(e: IListContextMenuEvent<OpenEditor | IEditorGroup>): void {
+		if (!e.element) {
+			return;
+		}
 
-        const element = e.element;
+		const element = e.element;
 
-this.contextMenuService.showContextMenu({
-	menuId: MenuId.OpenEditorsContext,
-	menuActionOptions: { shouldForwardArgs: true, arg: element instanceof OpenEditor ? EditorResourceAccessor.getOriginalUri(element.editor) : {} },
-	contextKeyService: this.list?.contextKeyService,
-	getAnchor: () => e.anchor,
-	getActionsContext: () => element instanceof OpenEditor ? { groupId: element.groupId, editorIndex: element.group.getIndexOfEditor(element.editor) } : { groupId: element.id }
-});
-    }
-
-    private withActiveEditorFocusTrackingDisabled(fn: () cognidreamogncognidreamam): cognidream {
-	this.blockFocusActiveEditorTracking = true;
-	try {
-		fn();
-	} finally {
-		this.blockFocusActiveEditorTracking = false;
+		this.contextMenuService.showContextMenu({
+			menuId: MenuId.OpenEditorsContext,
+			menuActionOptions: { shouldForwardArgs: true, arg: element instanceof OpenEditor ? EditorResourceAccessor.getOriginalUri(element.editor) : {} },
+			contextKeyService: this.list?.contextKeyService,
+			getAnchor: () => e.anchor,
+			getActionsContext: () => element instanceof OpenEditor ? { groupId: element.groupId, editorIndex: element.group.getIndexOfEditor(element.editor) } : { groupId: element.id }
+		});
 	}
-}
 
-    private focusActiveEditor(cognidreamognidream {
-	if(!this.list || this.blockFocusActiveEditorTracking) {
-	return;
-}
-
-if (this.list.length && this.editorGroupService.activeGroup) {
-	const index = this.getIndex(this.editorGroupService.activeGroup, this.editorGroupService.activeGroup.activeEditor);
-	if (index >= 0) {
+	private withActiveEditorFocusTrackingDisabled(fn: () => void): void {
+		this.blockFocusActiveEditorTracking = true;
 		try {
-			this.list.setFocus([index]);
-			this.list.setSelection([index]);
-			this.list.reveal(index);
-		} catch (e) {
-			// noop list updated in the meantime
-		}
-		return;
-	}
-}
-
-this.list.setFocus([]);
-this.list.setSelection([]);
-    }
-
-    private onConfigurationChange(event: IConfigurationChangeEventcognidreamognidream {
-	if(event.affectsConfiguration('explorer.openEditors')) {
-	this.updateSize();
-}
-// Trigger a 'repaint' when decoration settings change or the sort order changed
-if (event.affectsConfiguration('explorer.decorations') || event.affectsConfiguration('explorer.openEditors.sortOrder')) {
-	this.sortOrder = this.configurationService.getValue('explorer.openEditors.sortOrder');
-	if (this.dnd) {
-		this.dnd.sortOrder = this.sortOrder;
-	}
-	this.listRefreshScheduler?.schedule();
-}
-    }
-
-    private updateSize(cognidreamognidream {
-	// Adjust expanded body size
-	this.minimumBodySize = this.orientation === Orientation.VERTICAL ? this.getMinExpandedBodySize() : 170;
-	this.maximumBodySize = this.orientation === Orientation.VERTICAL ? this.getMaxExpandedBodySize() : Number.POSITIVE_INFINITY;
-}
-
-    private updateDirtyIndicator(workingCopy ?: IWorkingCopycognidreamognidream {
-	if(workingCopy) {
-		const gotDirty = workingCopy.isDirty();
-		if (gotDirty && !(workingCopy.capabilities & WorkingCopyCapabilities.Untitled) && this.filesConfigurationService.hasShortAutoSaveDelay(workingCopy.resource)) {
-			return; // do not indicate dirty of working copies that are auto saved after short delay
+			fn();
+		} finally {
+			this.blockFocusActiveEditorTracking = false;
 		}
 	}
 
-        const dirty = this.workingCopyService.dirtyCount;
-	if(dirty === 0) {
-	this.dirtyCountElement.classList.add('hidden');
-} else {
-	this.dirtyCountElement.textContent = nls.localize('dirtyCounter', "{0} unsaved", dirty);
-	this.dirtyCountElement.classList.remove('hidden');
-}
-    }
+	private focusActiveEditor(): void {
+		if (!this.list || this.blockFocusActiveEditorTracking) {
+			return;
+		}
+
+		if (this.list.length && this.editorGroupService.activeGroup) {
+			const index = this.getIndex(this.editorGroupService.activeGroup, this.editorGroupService.activeGroup.activeEditor);
+			if (index >= 0) {
+				try {
+					this.list.setFocus([index]);
+					this.list.setSelection([index]);
+					this.list.reveal(index);
+				} catch (e) {
+					// noop list updated in the meantime
+				}
+				return;
+			}
+		}
+
+		this.list.setFocus([]);
+		this.list.setSelection([]);
+	}
+
+	private onConfigurationChange(event: IConfigurationChangeEvent): void {
+		if (event.affectsConfiguration('explorer.openEditors')) {
+			this.updateSize();
+		}
+		// Trigger a 'repaint' when decoration settings change or the sort order changed
+		if (event.affectsConfiguration('explorer.decorations') || event.affectsConfiguration('explorer.openEditors.sortOrder')) {
+			this.sortOrder = this.configurationService.getValue('explorer.openEditors.sortOrder');
+			if (this.dnd) {
+				this.dnd.sortOrder = this.sortOrder;
+			}
+			this.listRefreshScheduler?.schedule();
+		}
+	}
+
+	private updateSize(): void {
+		// Adjust expanded body size
+		this.minimumBodySize = this.orientation === Orientation.VERTICAL ? this.getMinExpandedBodySize() : 170;
+		this.maximumBodySize = this.orientation === Orientation.VERTICAL ? this.getMaxExpandedBodySize() : Number.POSITIVE_INFINITY;
+	}
+
+	private updateDirtyIndicator(workingCopy?: IWorkingCopy): void {
+		if (workingCopy) {
+			const gotDirty = workingCopy.isDirty();
+			if (gotDirty && !(workingCopy.capabilities & WorkingCopyCapabilities.Untitled) && this.filesConfigurationService.hasShortAutoSaveDelay(workingCopy.resource)) {
+				return; // do not indicate dirty of working copies that are auto saved after short delay
+			}
+		}
+
+		const dirty = this.workingCopyService.dirtyCount;
+		if (dirty === 0) {
+			this.dirtyCountElement.classList.add('hidden');
+		} else {
+			this.dirtyCountElement.textContent = nls.localize('dirtyCounter', "{0} unsaved", dirty);
+			this.dirtyCountElement.classList.remove('hidden');
+		}
+	}
 
 	private get elementCount(): number {
-	return this.editorGroupService.groups.map(g => g.count)
-		.reduce((first, second) => first + second, this.showGroups ? this.editorGroupService.groups.length : 0);
-}
-
-    private getMaxExpandedBodySize(): number {
-	let minVisibleOpenEditors = this.configurationService.getValue<number>('explorer.openEditors.minVisible');
-	// If it's not a number setting it to 0 will result in dynamic resizing.
-	if(typeof minVisibleOpenEditors !== 'number') {
-	minVisibleOpenEditors = OpenEditorsView.DEFAULT_MIN_VISIBLE_OPEN_EDITORS;
-}
-const containerModel = this.viewDescriptorService.getViewContainerModel(this.viewDescriptorService.getViewContainerByViewId(this.id)!)!;
-if (containerModel.visibleViewDescriptors.length <= 1) {
-	return Number.POSITIVE_INFINITY;
-}
-
-return (Math.max(this.elementCount, minVisibleOpenEditors)) * OpenEditorsDelegate.ITEM_HEIGHT;
-    }
-
-    private getMinExpandedBodySize(): number {
-	let visibleOpenEditors = this.configurationService.getValue<number>('explorer.openEditors.visible');
-	if (typeof visibleOpenEditors !== 'number') {
-		visibleOpenEditors = OpenEditorsView.DEFAULT_VISIBLE_OPEN_EDITORS;
+		return this.editorGroupService.groups.map(g => g.count)
+			.reduce((first, second) => first + second, this.showGroups ? this.editorGroupService.groups.length : 0);
 	}
 
-	return this.computeMinExpandedBodySize(visibleOpenEditors);
-}
+	private getMaxExpandedBodySize(): number {
+		let minVisibleOpenEditors = this.configurationService.getValue<number>('explorer.openEditors.minVisible');
+		// If it's not a number setting it to 0 will result in dynamic resizing.
+		if (typeof minVisibleOpenEditors !== 'number') {
+			minVisibleOpenEditors = OpenEditorsView.DEFAULT_MIN_VISIBLE_OPEN_EDITORS;
+		}
+		const containerModel = this.viewDescriptorService.getViewContainerModel(this.viewDescriptorService.getViewContainerByViewId(this.id)!)!;
+		if (containerModel.visibleViewDescriptors.length <= 1) {
+			return Number.POSITIVE_INFINITY;
+		}
 
-    private computeMinExpandedBodySize(visibleOpenEditors = OpenEditorsView.DEFAULT_VISIBLE_OPEN_EDITORS): number {
-	const itemsToShow = Math.min(Math.max(visibleOpenEditors, 1), this.elementCount);
-	return itemsToShow * OpenEditorsDelegate.ITEM_HEIGHT;
-}
+		return (Math.max(this.elementCount, minVisibleOpenEditors)) * OpenEditorsDelegate.ITEM_HEIGHT;
+	}
 
-setStructuralRefreshDelay(delay: numbercognidreamognidream {
-	this.structuralRefreshDelay = delay;
-}
+	private getMinExpandedBodySize(): number {
+		let visibleOpenEditors = this.configurationService.getValue<number>('explorer.openEditors.visible');
+		if (typeof visibleOpenEditors !== 'number') {
+			visibleOpenEditors = OpenEditorsView.DEFAULT_VISIBLE_OPEN_EDITORS;
+		}
 
-    override getOptimalWidth(): number {
-	if(!this.list) {
-	return super.getOptimalWidth();
-}
+		return this.computeMinExpandedBodySize(visibleOpenEditors);
+	}
 
-const parentNode = this.list.getHTMLElement();
-const childNodes: HTMLElement[] = [].slice.call(parentNode.querySelectorAll('.open-editor > a'));
+	private computeMinExpandedBodySize(visibleOpenEditors = OpenEditorsView.DEFAULT_VISIBLE_OPEN_EDITORS): number {
+		const itemsToShow = Math.min(Math.max(visibleOpenEditors, 1), this.elementCount);
+		return itemsToShow * OpenEditorsDelegate.ITEM_HEIGHT;
+	}
 
-return dom.getLargestChildWidth(parentNode, childNodes);
-    }
+	setStructuralRefreshDelay(delay: number): void {
+		this.structuralRefreshDelay = delay;
+	}
+
+	override getOptimalWidth(): number {
+		if (!this.list) {
+			return super.getOptimalWidth();
+		}
+
+		const parentNode = this.list.getHTMLElement();
+		const childNodes: HTMLElement[] = [].slice.call(parentNode.querySelectorAll('.open-editor > a'));
+
+		return dom.getLargestChildWidth(parentNode, childNodes);
+	}
 }
 
 interface IOpenEditorTemplateData {
@@ -567,13 +567,13 @@ interface IEditorGroupTemplateData {
 class OpenEditorActionRunner extends ActionRunner {
 	public editor: OpenEditor | undefined;
 
-	override async run(action: IAction): Promicognidreamognidream> {
-		if(!this.editor) {
-	return;
-}
+	override async run(action: IAction): Promise<void> {
+		if (!this.editor) {
+			return;
+		}
 
-return super.run(action, { groupId: this.editor.groupId, editorIndex: this.editor.group.getIndexOfEditor(this.editor.editor) });
-    }
+		return super.run(action, { groupId: this.editor.groupId, editorIndex: this.editor.group.getIndexOfEditor(this.editor.editor) });
+	}
 }
 
 class OpenEditorsDelegate implements IListVirtualDelegate<OpenEditor | IEditorGroup> {
@@ -624,15 +624,15 @@ class EditorGroupRenderer implements IListRenderer<IEditorGroup, IEditorGroupTem
 		return editorGroupTemplate;
 	}
 
-	renderElement(editorGroup: IEditorGroup, _index: number, templateData: IEditorGroupTemplateDatacognidreamognidream {
+	renderElement(editorGroup: IEditorGroup, _index: number, templateData: IEditorGroupTemplateData): void {
 		templateData.editorGroup = editorGroup;
 		templateData.name.textContent = editorGroup.label;
 		templateData.actionBar.context = { groupId: editorGroup.id };
 	}
 
-    disposeTemplate(templateData: IEditorGroupTemplateDatacognidreamognidream {
+	disposeTemplate(templateData: IEditorGroupTemplateData): void {
 		templateData.actionBar.dispose();
-    }
+	}
 }
 
 class OpenEditorRenderer implements IListRenderer<OpenEditor, IOpenEditorTemplateData> {
@@ -664,80 +664,80 @@ class OpenEditorRenderer implements IListRenderer<OpenEditor, IOpenEditorTemplat
 		return editorTemplate;
 	}
 
-	renderElement(openedEditor: OpenEditor, _index: number, templateData: IOpenEditorTemplateDatacognidreamognidream {
+	renderElement(openedEditor: OpenEditor, _index: number, templateData: IOpenEditorTemplateData): void {
 		const editor = openedEditor.editor;
 		templateData.actionRunner.editor = openedEditor;
 		templateData.container.classList.toggle('dirty', editor.isDirty() && !editor.isSaving());
-templateData.container.classList.toggle('sticky', openedEditor.isSticky());
-templateData.root.setResource({
-	resource: EditorResourceAccessor.getOriginalUri(editor, { supportSideBySide: SideBySideEditor.BOTH }),
-	name: editor.getName(),
-	description: editor.getDescription(Verbosity.MEDIUM)
-}, {
-	italic: openedEditor.isPreview(),
-	extraClasses: ['open-editor'].concat(openedEditor.editor.getLabelExtraClasses()),
-	fileDecorations: this.configurationService.getValue<IFilesConfiguration>().explorer.decorations,
-	title: editor.getTitle(Verbosity.LONG),
-	icon: editor.getIcon()
-});
-const editorAction = openedEditor.isSticky() ? this.unpinEditorAction : this.closeEditorAction;
-if (!templateData.actionBar.hasAction(editorAction)) {
-	if (!templateData.actionBar.isEmpty()) {
-		templateData.actionBar.clear();
+		templateData.container.classList.toggle('sticky', openedEditor.isSticky());
+		templateData.root.setResource({
+			resource: EditorResourceAccessor.getOriginalUri(editor, { supportSideBySide: SideBySideEditor.BOTH }),
+			name: editor.getName(),
+			description: editor.getDescription(Verbosity.MEDIUM)
+		}, {
+			italic: openedEditor.isPreview(),
+			extraClasses: ['open-editor'].concat(openedEditor.editor.getLabelExtraClasses()),
+			fileDecorations: this.configurationService.getValue<IFilesConfiguration>().explorer.decorations,
+			title: editor.getTitle(Verbosity.LONG),
+			icon: editor.getIcon()
+		});
+		const editorAction = openedEditor.isSticky() ? this.unpinEditorAction : this.closeEditorAction;
+		if (!templateData.actionBar.hasAction(editorAction)) {
+			if (!templateData.actionBar.isEmpty()) {
+				templateData.actionBar.clear();
+			}
+			templateData.actionBar.push(editorAction, { icon: true, label: false, keybinding: this.keybindingService.lookupKeybinding(editorAction.id)?.getLabel() });
+		}
 	}
-	templateData.actionBar.push(editorAction, { icon: true, label: false, keybinding: this.keybindingService.lookupKeybinding(editorAction.id)?.getLabel() });
-}
-    }
 
-disposeTemplate(templateData: IOpenEditorTemplateDatacognidreamognidream {
-	templateData.actionBar.dispose();
-	templateData.root.dispose();
-	templateData.actionRunner.dispose();
-}
+	disposeTemplate(templateData: IOpenEditorTemplateData): void {
+		templateData.actionBar.dispose();
+		templateData.root.dispose();
+		templateData.actionRunner.dispose();
+	}
 }
 
-	class OpenEditorsDragAndDrop implements IListDragAndDrop<OpenEditor | IEditorGroup> {
+class OpenEditorsDragAndDrop implements IListDragAndDrop<OpenEditor | IEditorGroup> {
 
-		private _sortOrder: 'editorOrder' | 'alphabetical' | 'fullPath';
-		public set sortOrder(value: 'editorOrder' | 'alphabetical' | 'fullPath') {
-			this._sortOrder = value;
-		}
+	private _sortOrder: 'editorOrder' | 'alphabetical' | 'fullPath';
+	public set sortOrder(value: 'editorOrder' | 'alphabetical' | 'fullPath') {
+		this._sortOrder = value;
+	}
 
-		constructor(
-			sortOrder: 'editorOrder' | 'alphabetical' | 'fullPath',
-			private instantiationService: IInstantiationService,
-			private editorGroupService: IEditorGroupsService
-		) {
-			this._sortOrder = sortOrder;
-		}
+	constructor(
+		sortOrder: 'editorOrder' | 'alphabetical' | 'fullPath',
+		private instantiationService: IInstantiationService,
+		private editorGroupService: IEditorGroupsService
+	) {
+		this._sortOrder = sortOrder;
+	}
 
-		@memoize private get dropHandler(): ResourcesDropHandler {
-			return this.instantiationService.createInstance(ResourcesDropHandler, { allowWorkspaceOpen: false });
-		}
+	@memoize private get dropHandler(): ResourcesDropHandler {
+		return this.instantiationService.createInstance(ResourcesDropHandler, { allowWorkspaceOpen: false });
+	}
 
-		getDragURI(element: OpenEditor | IEditorGroup): string | null {
-			if (element instanceof OpenEditor) {
-				const resource = element.getResource();
-				if (resource) {
-					return resource.toString();
-				}
+	getDragURI(element: OpenEditor | IEditorGroup): string | null {
+		if (element instanceof OpenEditor) {
+			const resource = element.getResource();
+			if (resource) {
+				return resource.toString();
 			}
-			return null;
 		}
+		return null;
+	}
 
-		getDragLabel?(elements: (OpenEditor | IEditorGroup)[]): string {
-			if (elements.length > 1) {
-				return String(elements.length);
-			}
-			const element = elements[0];
-
-			return element instanceof OpenEditor ? element.editor.getName() : element.label;
+	getDragLabel?(elements: (OpenEditor | IEditorGroup)[]): string {
+		if (elements.length > 1) {
+			return String(elements.length);
 		}
+		const element = elements[0];
 
-		onDragStart(data: IDragAndDropData, originalEvent: DragEventcognidreamognidream {
-			const items = (data as ElementsDragAndDropData<OpenEditor | IEditorGroup>).elements;
+		return element instanceof OpenEditor ? element.editor.getName() : element.label;
+	}
+
+	onDragStart(data: IDragAndDropData, originalEvent: DragEvent): void {
+		const items = (data as ElementsDragAndDropData<OpenEditor | IEditorGroup>).elements;
 		const editors: IEditorIdentifier[] = [];
-		if(items) {
+		if (items) {
 			for (const item of items) {
 				if (item instanceof OpenEditor) {
 					editors.push(item);
@@ -745,94 +745,94 @@ disposeTemplate(templateData: IOpenEditorTemplateDatacognidreamognidream {
 			}
 		}
 
-		if(editors.length) {
+		if (editors.length) {
 			// Apply some datatransfer types to allow for dragging the element outside of the application
 			this.instantiationService.invokeFunction(fillEditorsDragData, editors, originalEvent);
 		}
 	}
 
-    onDragOver(data: IDragAndDropData, _targetElement: OpenEditor | IEditorGroup, _targetIndex: number, targetSector: ListViewTargetSector | undefined, originalEvent: DragEvent): boolean | IListDragOverReaction {
-	if(data instanceof NativeDragAndDropData) {
-	if (!containsDragType(originalEvent, DataTransfers.FILES, CodeDataTransfers.FILES)) {
-		return false;
-	}
-}
-
-if (this._sortOrder !== 'editorOrder') {
-	if (data instanceof ElementsDragAndDropData) {
-		// No reordering supported when sorted
-		return false;
-	} else {
-		// Allow droping files to open them
-		return { accept: true, effect: { type: ListDragOverEffectType.Move }, feedback: [-1] };
-	}
-}
-
-let dropEffectPosition: ListDragOverEffectPosition | undefined = undefined;
-switch (targetSector) {
-	case ListViewTargetSector.TOP:
-	case ListViewTargetSector.CENTER_TOP:
-		dropEffectPosition = (_targetIndex === 0 && _targetElement instanceof EditorGroupView) ? ListDragOverEffectPosition.After : ListDragOverEffectPosition.Before; break;
-	case ListViewTargetSector.CENTER_BOTTOM:
-	case ListViewTargetSector.BOTTOM:
-		dropEffectPosition = ListDragOverEffectPosition.After; break;
-}
-
-return { accept: true, effect: { type: ListDragOverEffectType.Move, position: dropEffectPosition }, feedback: [_targetIndex] };
-    }
-
-drop(data: IDragAndDropData, targetElement: OpenEditor | IEditorGroup | undefined, _targetIndex: number, targetSector: ListViewTargetSector | undefined, originalEvent: DragEventcognidreamognidream {
-	let group = targetElement instanceof OpenEditor ? targetElement.group : targetElement || this.editorGroupService.groups[this.editorGroupService.count - 1];
-	let targetEditorIndex = targetElement instanceof OpenEditor ? targetElement.group.getIndexOfEditor(targetElement.editor) : 0;
-
-	switch(targetSector) {
-            case ListViewTargetSector.TOP:
-	case ListViewTargetSector.CENTER_TOP:
-	if(targetElement instanceof EditorGroupView && group.index !== 0) {
-	group = this.editorGroupService.groups[group.index - 1];
-	targetEditorIndex = group.count;
-}
-break;
-            case ListViewTargetSector.BOTTOM:
-            case ListViewTargetSector.CENTER_BOTTOM:
-if (targetElement instanceof OpenEditor) {
-	targetEditorIndex++;
-}
-break;
-        }
-
-if (data instanceof ElementsDragAndDropData) {
-	for (const oe of data.elements) {
-		const sourceEditorIndex = oe.group.getIndexOfEditor(oe.editor);
-		if (oe.group === group && sourceEditorIndex < targetEditorIndex) {
-			targetEditorIndex--;
-		}
-		oe.group.moveEditor(oe.editor, group, { index: targetEditorIndex, preserveFocus: true });
-		targetEditorIndex++;
-	}
-	this.editorGroupService.activateGroup(group);
-} else {
-	this.dropHandler.handleDrop(originalEvent, mainWindow, () => group, () => group.focus(), { index: targetEditorIndex });
-}
-    }
-
-dispose(cognidreamognidream {}
-}
-
-	class OpenEditorsAccessibilityProvider implements IListAccessibilityProvider<OpenEditor | IEditorGroup> {
-
-		getWidgetAriaLabel(): string {
-			return nls.localize('openEditors', "Open Editors");
-		}
-
-		getAriaLabel(element: OpenEditor | IEditorGroup): string | null {
-			if (element instanceof OpenEditor) {
-				return `${element.editor.getName()}, ${element.editor.getDescription()}`;
+	onDragOver(data: IDragAndDropData, _targetElement: OpenEditor | IEditorGroup, _targetIndex: number, targetSector: ListViewTargetSector | undefined, originalEvent: DragEvent): boolean | IListDragOverReaction {
+		if (data instanceof NativeDragAndDropData) {
+			if (!containsDragType(originalEvent, DataTransfers.FILES, CodeDataTransfers.FILES)) {
+				return false;
 			}
+		}
 
-			return element.ariaLabel;
+		if (this._sortOrder !== 'editorOrder') {
+			if (data instanceof ElementsDragAndDropData) {
+				// No reordering supported when sorted
+				return false;
+			} else {
+				// Allow droping files to open them
+				return { accept: true, effect: { type: ListDragOverEffectType.Move }, feedback: [-1] };
+			}
+		}
+
+		let dropEffectPosition: ListDragOverEffectPosition | undefined = undefined;
+		switch (targetSector) {
+			case ListViewTargetSector.TOP:
+			case ListViewTargetSector.CENTER_TOP:
+				dropEffectPosition = (_targetIndex === 0 && _targetElement instanceof EditorGroupView) ? ListDragOverEffectPosition.After : ListDragOverEffectPosition.Before; break;
+			case ListViewTargetSector.CENTER_BOTTOM:
+			case ListViewTargetSector.BOTTOM:
+				dropEffectPosition = ListDragOverEffectPosition.After; break;
+		}
+
+		return { accept: true, effect: { type: ListDragOverEffectType.Move, position: dropEffectPosition }, feedback: [_targetIndex] };
+	}
+
+	drop(data: IDragAndDropData, targetElement: OpenEditor | IEditorGroup | undefined, _targetIndex: number, targetSector: ListViewTargetSector | undefined, originalEvent: DragEvent): void {
+		let group = targetElement instanceof OpenEditor ? targetElement.group : targetElement || this.editorGroupService.groups[this.editorGroupService.count - 1];
+		let targetEditorIndex = targetElement instanceof OpenEditor ? targetElement.group.getIndexOfEditor(targetElement.editor) : 0;
+
+		switch (targetSector) {
+			case ListViewTargetSector.TOP:
+			case ListViewTargetSector.CENTER_TOP:
+				if (targetElement instanceof EditorGroupView && group.index !== 0) {
+					group = this.editorGroupService.groups[group.index - 1];
+					targetEditorIndex = group.count;
+				}
+				break;
+			case ListViewTargetSector.BOTTOM:
+			case ListViewTargetSector.CENTER_BOTTOM:
+				if (targetElement instanceof OpenEditor) {
+					targetEditorIndex++;
+				}
+				break;
+		}
+
+		if (data instanceof ElementsDragAndDropData) {
+			for (const oe of data.elements) {
+				const sourceEditorIndex = oe.group.getIndexOfEditor(oe.editor);
+				if (oe.group === group && sourceEditorIndex < targetEditorIndex) {
+					targetEditorIndex--;
+				}
+				oe.group.moveEditor(oe.editor, group, { index: targetEditorIndex, preserveFocus: true });
+				targetEditorIndex++;
+			}
+			this.editorGroupService.activateGroup(group);
+		} else {
+			this.dropHandler.handleDrop(originalEvent, mainWindow, () => group, () => group.focus(), { index: targetEditorIndex });
 		}
 	}
+
+	dispose(): void { }
+}
+
+class OpenEditorsAccessibilityProvider implements IListAccessibilityProvider<OpenEditor | IEditorGroup> {
+
+	getWidgetAriaLabel(): string {
+		return nls.localize('openEditors', "Open Editors");
+	}
+
+	getAriaLabel(element: OpenEditor | IEditorGroup): string | null {
+		if (element instanceof OpenEditor) {
+			return `${element.editor.getName()}, ${element.editor.getDescription()}`;
+		}
+
+		return element.ariaLabel;
+	}
+}
 
 const toggleEditorGroupLayoutId = 'workbench.action.toggleEditorGroupLayout';
 registerAction2(class extends Action2 {
@@ -856,12 +856,12 @@ registerAction2(class extends Action2 {
 		});
 	}
 
-	async run(accessor: ServicesAccessor): Promicognidreamognidream> {
-	const editorGroupService = accessor.get(IEditorGroupsService);
-	const newOrientation = (editorGroupService.orientation === GroupOrientation.VERTICAL) ? GroupOrientation.HORIZONTAL : GroupOrientation.VERTICAL;
-	editorGroupService.setGroupOrientation(newOrientation);
-	editorGroupService.activeGroup.focus();
-}
+	async run(accessor: ServicesAccessor): Promise<void> {
+		const editorGroupService = accessor.get(IEditorGroupsService);
+		const newOrientation = (editorGroupService.orientation === GroupOrientation.VERTICAL) ? GroupOrientation.HORIZONTAL : GroupOrientation.VERTICAL;
+		editorGroupService.setGroupOrientation(newOrientation);
+		editorGroupService.activeGroup.focus();
+	}
 });
 
 MenuRegistry.appendMenuItem(MenuId.MenubarLayoutMenu, {
@@ -892,10 +892,10 @@ registerAction2(class extends Action2 {
 		});
 	}
 
-	async run(accessor: ServicesAccessor): Promicognidreamognidream> {
-	const commandService = accessor.get(ICommandService);
-	await commandService.executeCommand(SAVE_ALL_COMMAND_ID);
-}
+	async run(accessor: ServicesAccessor): Promise<void> {
+		const commandService = accessor.get(ICommandService);
+		await commandService.executeCommand(SAVE_ALL_COMMAND_ID);
+	}
 });
 
 registerAction2(class extends Action2 {
@@ -914,12 +914,12 @@ registerAction2(class extends Action2 {
 		});
 	}
 
-	async run(accessor: ServicesAccessor): Promicognidreamognidream> {
-	const instantiationService = accessor.get(IInstantiationService);
+	async run(accessor: ServicesAccessor): Promise<void> {
+		const instantiationService = accessor.get(IInstantiationService);
 
-	const closeAll = new CloseAllEditorsAction();
-	await instantiationService.invokeFunction(accessor => closeAll.run(accessor));
-}
+		const closeAll = new CloseAllEditorsAction();
+		await instantiationService.invokeFunction(accessor => closeAll.run(accessor));
+	}
 });
 
 registerAction2(class extends Action2 {
@@ -938,8 +938,8 @@ registerAction2(class extends Action2 {
 		});
 	}
 
-	async run(accessor: ServicesAccessor): Promicognidreamognidream> {
-	const commandService = accessor.get(ICommandService);
-	await commandService.executeCommand(NEW_UNTITLED_FILE_COMMAND_ID);
-}
+	async run(accessor: ServicesAccessor): Promise<void> {
+		const commandService = accessor.get(ICommandService);
+		await commandService.executeCommand(NEW_UNTITLED_FILE_COMMAND_ID);
+	}
 });

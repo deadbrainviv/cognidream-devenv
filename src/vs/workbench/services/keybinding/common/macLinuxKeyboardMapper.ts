@@ -185,167 +185,167 @@ class ScanCodeKeyCodeMapper {
 		this._keyCodeToScanCode = [];
 	}
 
-	public registrationComplete(): cognidream {
+	public registrationComplete(): void {
 		// IntlHash and IntlBackslash are rare keys, so ensure they don't end up being the preferred...
 		this._moveToEnd(ScanCode.IntlHash);
 		this._moveToEnd(ScanCode.IntlBackslash);
 	}
 
-	private _moveToEnd(scanCode: ScanCodecognidreamognidream {
+	private _moveToEnd(scanCode: ScanCode): void {
 		for (let mod = 0; mod < 8; mod++) {
-	const encodedKeyCodeCombos = this._scanCodeToKeyCode[(scanCode << 3) + mod];
-	if (!encodedKeyCodeCombos) {
-		continue;
-	}
-	for (let i = 0, len = encodedKeyCodeCombos.length; i < len; i++) {
-		const encodedScanCodeCombos = this._keyCodeToScanCode[encodedKeyCodeCombos[i]];
-		if (encodedScanCodeCombos.length === 1) {
-			continue;
-		}
-		for (let j = 0, len = encodedScanCodeCombos.length; j < len; j++) {
-			const entry = encodedScanCodeCombos[j];
-			const entryScanCode = (entry >>> 3);
-			if (entryScanCode === scanCode) {
-				// Move this entry to the end
-				for (let k = j + 1; k < len; k++) {
-					encodedScanCodeCombos[k - 1] = encodedScanCodeCombos[k];
+			const encodedKeyCodeCombos = this._scanCodeToKeyCode[(scanCode << 3) + mod];
+			if (!encodedKeyCodeCombos) {
+				continue;
+			}
+			for (let i = 0, len = encodedKeyCodeCombos.length; i < len; i++) {
+				const encodedScanCodeCombos = this._keyCodeToScanCode[encodedKeyCodeCombos[i]];
+				if (encodedScanCodeCombos.length === 1) {
+					continue;
 				}
-				encodedScanCodeCombos[len - 1] = entry;
+				for (let j = 0, len = encodedScanCodeCombos.length; j < len; j++) {
+					const entry = encodedScanCodeCombos[j];
+					const entryScanCode = (entry >>> 3);
+					if (entryScanCode === scanCode) {
+						// Move this entry to the end
+						for (let k = j + 1; k < len; k++) {
+							encodedScanCodeCombos[k - 1] = encodedScanCodeCombos[k];
+						}
+						encodedScanCodeCombos[len - 1] = entry;
+					}
+				}
 			}
 		}
 	}
-}
-    }
 
-    public registerIfUnknown(scanCodeCombo: ScanCodeCombo, keyCodeCombo: KeyCodeCombocognidreamognidream {
-	if(keyCodeCombo.keyCode === KeyCode.Unknown) {
-	return;
-}
-const scanCodeComboEncoded = this._encodeScanCodeCombo(scanCodeCombo);
-const keyCodeComboEncoded = this._encodeKeyCodeCombo(keyCodeCombo);
+	public registerIfUnknown(scanCodeCombo: ScanCodeCombo, keyCodeCombo: KeyCodeCombo): void {
+		if (keyCodeCombo.keyCode === KeyCode.Unknown) {
+			return;
+		}
+		const scanCodeComboEncoded = this._encodeScanCodeCombo(scanCodeCombo);
+		const keyCodeComboEncoded = this._encodeKeyCodeCombo(keyCodeCombo);
 
-const keyCodeIsDigit = (keyCodeCombo.keyCode >= KeyCode.Digit0 && keyCodeCombo.keyCode <= KeyCode.Digit9);
-const keyCodeIsLetter = (keyCodeCombo.keyCode >= KeyCode.KeyA && keyCodeCombo.keyCode <= KeyCode.KeyZ);
+		const keyCodeIsDigit = (keyCodeCombo.keyCode >= KeyCode.Digit0 && keyCodeCombo.keyCode <= KeyCode.Digit9);
+		const keyCodeIsLetter = (keyCodeCombo.keyCode >= KeyCode.KeyA && keyCodeCombo.keyCode <= KeyCode.KeyZ);
 
-const existingKeyCodeCombos = this._scanCodeToKeyCode[scanCodeComboEncoded];
+		const existingKeyCodeCombos = this._scanCodeToKeyCode[scanCodeComboEncoded];
 
-// Allow a scan code to map to multiple key codes if it is a digit or a letter key code
-if (keyCodeIsDigit || keyCodeIsLetter) {
-	// Only check that we don't insert the same entry twice
-	if (existingKeyCodeCombos) {
-		for (let i = 0, len = existingKeyCodeCombos.length; i < len; i++) {
-			if (existingKeyCodeCombos[i] === keyCodeComboEncoded) {
-				cognidream          // acognidream duplicates
+		// Allow a scan code to map to multiple key codes if it is a digit or a letter key code
+		if (keyCodeIsDigit || keyCodeIsLetter) {
+			// Only check that we don't insert the same entry twice
+			if (existingKeyCodeCombos) {
+				for (let i = 0, len = existingKeyCodeCombos.length; i < len; i++) {
+					if (existingKeyCodeCombos[i] === keyCodeComboEncoded) {
+						// avoid duplicates
+						return;
+					}
+				}
+			}
+		} else {
+			// Don't allow multiples
+			if (existingKeyCodeCombos && existingKeyCodeCombos.length !== 0) {
 				return;
 			}
 		}
-	}
-} else {
-	// Don't allow multiples
-	if (existingKeyCodeCombos && existingKeyCodeCombos.length !== 0) {
-		return;
-	}
-}
 
-this._scanCodeToKeyCode[scanCodeComboEncoded] = this._scanCodeToKeyCode[scanCodeComboEncoded] || [];
-this._scanCodeToKeyCode[scanCodeComboEncoded].unshift(keyCodeComboEncoded);
+		this._scanCodeToKeyCode[scanCodeComboEncoded] = this._scanCodeToKeyCode[scanCodeComboEncoded] || [];
+		this._scanCodeToKeyCode[scanCodeComboEncoded].unshift(keyCodeComboEncoded);
 
-this._keyCodeToScanCode[keyCodeComboEncoded] = this._keyCodeToScanCode[keyCodeComboEncoded] || [];
-this._keyCodeToScanCode[keyCodeComboEncoded].unshift(scanCodeComboEncoded);
-    }
-
-    public lookupKeyCodeCombo(keyCodeCombo: KeyCodeCombo): ScanCodeCombo[] {
-	const keyCodeComboEncoded = this._encodeKeyCodeCombo(keyCodeCombo);
-	const scanCodeCombosEncoded = this._keyCodeToScanCode[keyCodeComboEncoded];
-	if (!scanCodeCombosEncoded || scanCodeCombosEncoded.length === 0) {
-		return [];
+		this._keyCodeToScanCode[keyCodeComboEncoded] = this._keyCodeToScanCode[keyCodeComboEncoded] || [];
+		this._keyCodeToScanCode[keyCodeComboEncoded].unshift(scanCodeComboEncoded);
 	}
 
-	const result: ScanCodeCombo[] = [];
-	for (let i = 0, len = scanCodeCombosEncoded.length; i < len; i++) {
-		const scanCodeComboEncoded = scanCodeCombosEncoded[i];
-
-		const ctrlKey = (scanCodeComboEncoded & 0b001) ? true : false;
-		const shiftKey = (scanCodeComboEncoded & 0b010) ? true : false;
-		const altKey = (scanCodeComboEncoded & 0b100) ? true : false;
-		const scanCode: ScanCode = (scanCodeComboEncoded >>> 3);
-
-		result[i] = new ScanCodeCombo(ctrlKey, shiftKey, altKey, scanCode);
-	}
-	return result;
-}
-
-    public lookupScanCodeCombo(scanCodeCombo: ScanCodeCombo): KeyCodeCombo[] {
-	const scanCodeComboEncoded = this._encodeScanCodeCombo(scanCodeCombo);
-	const keyCodeCombosEncoded = this._scanCodeToKeyCode[scanCodeComboEncoded];
-	if (!keyCodeCombosEncoded || keyCodeCombosEncoded.length === 0) {
-		return [];
-	}
-
-	const result: KeyCodeCombo[] = [];
-	for (let i = 0, len = keyCodeCombosEncoded.length; i < len; i++) {
-		const keyCodeComboEncoded = keyCodeCombosEncoded[i];
-
-		const ctrlKey = (keyCodeComboEncoded & 0b001) ? true : false;
-		const shiftKey = (keyCodeComboEncoded & 0b010) ? true : false;
-		const altKey = (keyCodeComboEncoded & 0b100) ? true : false;
-		const keyCode: KeyCode = (keyCodeComboEncoded >>> 3);
-
-		result[i] = new KeyCodeCombo(ctrlKey, shiftKey, altKey, keyCode);
-	}
-	return result;
-}
-
-    public guessStableKeyCode(scanCode: ScanCode): KeyCode {
-	if (scanCode >= ScanCode.Digit1 && scanCode <= ScanCode.Digit0) {
-		// digits are ok
-		switch (scanCode) {
-			case ScanCode.Digit1: return KeyCode.Digit1;
-			case ScanCode.Digit2: return KeyCode.Digit2;
-			case ScanCode.Digit3: return KeyCode.Digit3;
-			case ScanCode.Digit4: return KeyCode.Digit4;
-			case ScanCode.Digit5: return KeyCode.Digit5;
-			case ScanCode.Digit6: return KeyCode.Digit6;
-			case ScanCode.Digit7: return KeyCode.Digit7;
-			case ScanCode.Digit8: return KeyCode.Digit8;
-			case ScanCode.Digit9: return KeyCode.Digit9;
-			case ScanCode.Digit0: return KeyCode.Digit0;
+	public lookupKeyCodeCombo(keyCodeCombo: KeyCodeCombo): ScanCodeCombo[] {
+		const keyCodeComboEncoded = this._encodeKeyCodeCombo(keyCodeCombo);
+		const scanCodeCombosEncoded = this._keyCodeToScanCode[keyCodeComboEncoded];
+		if (!scanCodeCombosEncoded || scanCodeCombosEncoded.length === 0) {
+			return [];
 		}
-	}
 
-	// Lookup the scanCode with and without shift and see if the keyCode is stable
-	const keyCodeCombos1 = this.lookupScanCodeCombo(new ScanCodeCombo(false, false, false, scanCode));
-	const keyCodeCombos2 = this.lookupScanCodeCombo(new ScanCodeCombo(false, true, false, scanCode));
-	if (keyCodeCombos1.length === 1 && keyCodeCombos2.length === 1) {
-		const shiftKey1 = keyCodeCombos1[0].shiftKey;
-		const keyCode1 = keyCodeCombos1[0].keyCode;
-		const shiftKey2 = keyCodeCombos2[0].shiftKey;
-		const keyCode2 = keyCodeCombos2[0].keyCode;
-		if (keyCode1 === keyCode2 && shiftKey1 !== shiftKey2) {
-			// This looks like a stable mapping
-			return keyCode1;
+		const result: ScanCodeCombo[] = [];
+		for (let i = 0, len = scanCodeCombosEncoded.length; i < len; i++) {
+			const scanCodeComboEncoded = scanCodeCombosEncoded[i];
+
+			const ctrlKey = (scanCodeComboEncoded & 0b001) ? true : false;
+			const shiftKey = (scanCodeComboEncoded & 0b010) ? true : false;
+			const altKey = (scanCodeComboEncoded & 0b100) ? true : false;
+			const scanCode: ScanCode = (scanCodeComboEncoded >>> 3);
+
+			result[i] = new ScanCodeCombo(ctrlKey, shiftKey, altKey, scanCode);
 		}
+		return result;
 	}
 
-	return KeyCode.DependsOnKbLayout;
-}
+	public lookupScanCodeCombo(scanCodeCombo: ScanCodeCombo): KeyCodeCombo[] {
+		const scanCodeComboEncoded = this._encodeScanCodeCombo(scanCodeCombo);
+		const keyCodeCombosEncoded = this._scanCodeToKeyCode[scanCodeComboEncoded];
+		if (!keyCodeCombosEncoded || keyCodeCombosEncoded.length === 0) {
+			return [];
+		}
 
-    private _encodeScanCodeCombo(scanCodeCombo: ScanCodeCombo): number {
-	return this._encode(scanCodeCombo.ctrlKey, scanCodeCombo.shiftKey, scanCodeCombo.altKey, scanCodeCombo.scanCode);
-}
+		const result: KeyCodeCombo[] = [];
+		for (let i = 0, len = keyCodeCombosEncoded.length; i < len; i++) {
+			const keyCodeComboEncoded = keyCodeCombosEncoded[i];
 
-    private _encodeKeyCodeCombo(keyCodeCombo: KeyCodeCombo): number {
-	return this._encode(keyCodeCombo.ctrlKey, keyCodeCombo.shiftKey, keyCodeCombo.altKey, keyCodeCombo.keyCode);
-}
+			const ctrlKey = (keyCodeComboEncoded & 0b001) ? true : false;
+			const shiftKey = (keyCodeComboEncoded & 0b010) ? true : false;
+			const altKey = (keyCodeComboEncoded & 0b100) ? true : false;
+			const keyCode: KeyCode = (keyCodeComboEncoded >>> 3);
 
-    private _encode(ctrlKey: boolean, shiftKey: boolean, altKey: boolean, principal: number): number {
-	return (
-		((ctrlKey ? 1 : 0) << 0)
-		| ((shiftKey ? 1 : 0) << 1)
-		| ((altKey ? 1 : 0) << 2)
-		| principal << 3
-	) >>> 0;
-}
+			result[i] = new KeyCodeCombo(ctrlKey, shiftKey, altKey, keyCode);
+		}
+		return result;
+	}
+
+	public guessStableKeyCode(scanCode: ScanCode): KeyCode {
+		if (scanCode >= ScanCode.Digit1 && scanCode <= ScanCode.Digit0) {
+			// digits are ok
+			switch (scanCode) {
+				case ScanCode.Digit1: return KeyCode.Digit1;
+				case ScanCode.Digit2: return KeyCode.Digit2;
+				case ScanCode.Digit3: return KeyCode.Digit3;
+				case ScanCode.Digit4: return KeyCode.Digit4;
+				case ScanCode.Digit5: return KeyCode.Digit5;
+				case ScanCode.Digit6: return KeyCode.Digit6;
+				case ScanCode.Digit7: return KeyCode.Digit7;
+				case ScanCode.Digit8: return KeyCode.Digit8;
+				case ScanCode.Digit9: return KeyCode.Digit9;
+				case ScanCode.Digit0: return KeyCode.Digit0;
+			}
+		}
+
+		// Lookup the scanCode with and without shift and see if the keyCode is stable
+		const keyCodeCombos1 = this.lookupScanCodeCombo(new ScanCodeCombo(false, false, false, scanCode));
+		const keyCodeCombos2 = this.lookupScanCodeCombo(new ScanCodeCombo(false, true, false, scanCode));
+		if (keyCodeCombos1.length === 1 && keyCodeCombos2.length === 1) {
+			const shiftKey1 = keyCodeCombos1[0].shiftKey;
+			const keyCode1 = keyCodeCombos1[0].keyCode;
+			const shiftKey2 = keyCodeCombos2[0].shiftKey;
+			const keyCode2 = keyCodeCombos2[0].keyCode;
+			if (keyCode1 === keyCode2 && shiftKey1 !== shiftKey2) {
+				// This looks like a stable mapping
+				return keyCode1;
+			}
+		}
+
+		return KeyCode.DependsOnKbLayout;
+	}
+
+	private _encodeScanCodeCombo(scanCodeCombo: ScanCodeCombo): number {
+		return this._encode(scanCodeCombo.ctrlKey, scanCodeCombo.shiftKey, scanCodeCombo.altKey, scanCodeCombo.scanCode);
+	}
+
+	private _encodeKeyCodeCombo(keyCodeCombo: KeyCodeCombo): number {
+		return this._encode(keyCodeCombo.ctrlKey, keyCodeCombo.shiftKey, keyCodeCombo.altKey, keyCodeCombo.keyCode);
+	}
+
+	private _encode(ctrlKey: boolean, shiftKey: boolean, altKey: boolean, principal: number): number {
+		return (
+			((ctrlKey ? 1 : 0) << 0)
+			| ((shiftKey ? 1 : 0) << 1)
+			| ((altKey ? 1 : 0) << 2)
+			| principal << 3
+		) >>> 0;
+	}
 }
 
 export class MacLinuxKeyboardMapper implements IKeyboardMapper {
@@ -381,14 +381,14 @@ export class MacLinuxKeyboardMapper implements IKeyboardMapper {
 		const _registerIfUnknown = (
 			hwCtrlKey: 0 | 1, hwShiftKey: 0 | 1, hwAltKey: 0 | 1, scanCode: ScanCode,
 			kbCtrlKey: 0 | 1, kbShiftKey: 0 | 1, kbAltKey: 0 | 1, keyCode: KeyCode,
-			cognidream: cognidream => {
+		): void => {
 			this._scanCodeKeyCodeMapper.registerIfUnknown(
 				new ScanCodeCombo(hwCtrlKey ? true : false, hwShiftKey ? true : false, hwAltKey ? true : false, scanCode),
 				new KeyCodeCombo(kbCtrlKey ? true : false, kbShiftKey ? true : false, kbAltKey ? true : false, keyCode)
 			);
 		};
 
-		const _registerAllCombos = (_ctrlKey: 0 | 1, _shiftKey: 0 | 1, _altKey: 0 | 1, scanCode: ScanCode, keyCode: KeyCcognidream: cognidream => {
+		const _registerAllCombos = (_ctrlKey: 0 | 1, _shiftKey: 0 | 1, _altKey: 0 | 1, scanCode: ScanCode, keyCode: KeyCode): void => {
 			for (let ctrlKey = _ctrlKey; ctrlKey <= 1; ctrlKey++) {
 				for (let shiftKey = _shiftKey; shiftKey <= 1; shiftKey++) {
 					for (let altKey = _altKey; altKey <= 1; altKey++) {
@@ -452,7 +452,7 @@ export class MacLinuxKeyboardMapper implements IKeyboardMapper {
 				}
 			}
 
-			const _registerLetterIfMissing = (charCode: CharCode, scanCode: ScanCode, value: string, withShift: cognidreamng): cognidream => {
+			const _registerLetterIfMissing = (charCode: CharCode, scanCode: ScanCode, value: string, withShift: string): void => {
 				if (!producesLatinLetter[charCode]) {
 					missingLatinLettersOverride[ScanCodeUtils.toString(scanCode)] = {
 						value: value,
@@ -767,7 +767,7 @@ export class MacLinuxKeyboardMapper implements IKeyboardMapper {
 	}
 
 	public keyCodeChordToScanCodeChord(chord: KeyCodeChord): ScanCodeChord[] {
-      cognidream Acognidream double Enter bindings(both ScanCode.NumpadEnter and ScanCode.Enter point to KeyCode.Enter)
+		// Avoid double Enter bindings (both ScanCode.NumpadEnter and ScanCode.Enter point to KeyCode.Enter)
 		if (chord.keyCode === KeyCode.Enter) {
 			return [new ScanCodeChord(chord.ctrlKey, chord.shiftKey, chord.altKey, chord.metaKey, ScanCode.Enter)];
 		}
@@ -1062,51 +1062,51 @@ export class MacLinuxKeyboardMapper implements IKeyboardMapper {
 }
 
 (function () {
-	function define(charCode: number, keyCode: KeyCode, shiftKey: booleancognidreamognidream {
+	function define(charCode: number, keyCode: KeyCode, shiftKey: boolean): void {
 		for (let i = CHAR_CODE_TO_KEY_CODE.length; i < charCode; i++) {
-		CHAR_CODE_TO_KEY_CODE[i] = null;
+			CHAR_CODE_TO_KEY_CODE[i] = null;
+		}
+		CHAR_CODE_TO_KEY_CODE[charCode] = { keyCode: keyCode, shiftKey: shiftKey };
 	}
-	CHAR_CODE_TO_KEY_CODE[charCode] = { keyCode: keyCode, shiftKey: shiftKey };
-}
 
-    for (let chCode = CharCode.A; chCode <= CharCode.Z; chCode++) {
-	define(chCode, KeyCode.KeyA + (chCode - CharCode.A), true);
-}
+	for (let chCode = CharCode.A; chCode <= CharCode.Z; chCode++) {
+		define(chCode, KeyCode.KeyA + (chCode - CharCode.A), true);
+	}
 
-for (let chCode = CharCode.a; chCode <= CharCode.z; chCode++) {
-	define(chCode, KeyCode.KeyA + (chCode - CharCode.a), false);
-}
+	for (let chCode = CharCode.a; chCode <= CharCode.z; chCode++) {
+		define(chCode, KeyCode.KeyA + (chCode - CharCode.a), false);
+	}
 
-define(CharCode.Semicolon, KeyCode.Semicolon, false);
-define(CharCode.Colon, KeyCode.Semicolon, true);
+	define(CharCode.Semicolon, KeyCode.Semicolon, false);
+	define(CharCode.Colon, KeyCode.Semicolon, true);
 
-define(CharCode.Equals, KeyCode.Equal, false);
-define(CharCode.Plus, KeyCode.Equal, true);
+	define(CharCode.Equals, KeyCode.Equal, false);
+	define(CharCode.Plus, KeyCode.Equal, true);
 
-define(CharCode.Comma, KeyCode.Comma, false);
-define(CharCode.LessThan, KeyCode.Comma, true);
+	define(CharCode.Comma, KeyCode.Comma, false);
+	define(CharCode.LessThan, KeyCode.Comma, true);
 
-define(CharCode.Dash, KeyCode.Minus, false);
-define(CharCode.Underline, KeyCode.Minus, true);
+	define(CharCode.Dash, KeyCode.Minus, false);
+	define(CharCode.Underline, KeyCode.Minus, true);
 
-define(CharCode.Period, KeyCode.Period, false);
-define(CharCode.GreaterThan, KeyCode.Period, true);
+	define(CharCode.Period, KeyCode.Period, false);
+	define(CharCode.GreaterThan, KeyCode.Period, true);
 
-define(CharCode.Slash, KeyCode.Slash, false);
-define(CharCode.QuestionMark, KeyCode.Slash, true);
+	define(CharCode.Slash, KeyCode.Slash, false);
+	define(CharCode.QuestionMark, KeyCode.Slash, true);
 
-define(CharCode.BackTick, KeyCode.Backquote, false);
-define(CharCode.Tilde, KeyCode.Backquote, true);
+	define(CharCode.BackTick, KeyCode.Backquote, false);
+	define(CharCode.Tilde, KeyCode.Backquote, true);
 
-define(CharCode.OpenSquareBracket, KeyCode.BracketLeft, false);
-define(CharCode.OpenCurlyBrace, KeyCode.BracketLeft, true);
+	define(CharCode.OpenSquareBracket, KeyCode.BracketLeft, false);
+	define(CharCode.OpenCurlyBrace, KeyCode.BracketLeft, true);
 
-define(CharCode.Backslash, KeyCode.Backslash, false);
-define(CharCode.Pipe, KeyCode.Backslash, true);
+	define(CharCode.Backslash, KeyCode.Backslash, false);
+	define(CharCode.Pipe, KeyCode.Backslash, true);
 
-define(CharCode.CloseSquareBracket, KeyCode.BracketRight, false);
-define(CharCode.CloseCurlyBrace, KeyCode.BracketRight, true);
+	define(CharCode.CloseSquareBracket, KeyCode.BracketRight, false);
+	define(CharCode.CloseCurlyBrace, KeyCode.BracketRight, true);
 
-define(CharCode.SingleQuote, KeyCode.Quote, false);
-define(CharCode.DoubleQuote, KeyCode.Quote, true);
-}) ();
+	define(CharCode.SingleQuote, KeyCode.Quote, false);
+	define(CharCode.DoubleQuote, KeyCode.Quote, true);
+})();

@@ -113,7 +113,7 @@ registerAction2(class FocusNextCellAction extends NotebookCellAction {
 		});
 	}
 
-	async runWithContext(accessor: ServicesAccessor, context: INotebookCellActionContext): Promise<cognidream> {
+	async runWithContext(accessor: ServicesAccessor, context: INotebookCellActionContext): Promise<void> {
 		const editor = context.notebookEditor;
 		const activeCell = context.cell;
 
@@ -189,31 +189,31 @@ registerAction2(class FocusPreviousCellAction extends NotebookCellAction {
 		});
 	}
 
-	async runWithContext(accessor: ServicesAccessor, context: INotebookCellActionContext): Promicognidreamognidream> {
-	const editor = context.notebookEditor;
-	const activeCell = context.cell;
+	async runWithContext(accessor: ServicesAccessor, context: INotebookCellActionContext): Promise<void> {
+		const editor = context.notebookEditor;
+		const activeCell = context.cell;
 
-	const idx = editor.getCellIndex(activeCell);
-	if(typeof idx !== 'number') {
-	return;
-}
+		const idx = editor.getCellIndex(activeCell);
+		if (typeof idx !== 'number') {
+			return;
+		}
 
-if (idx < 1 || editor.getLength() === 0) {
-	// we don't do loop
-	return;
-}
+		if (idx < 1 || editor.getLength() === 0) {
+			// we don't do loop
+			return;
+		}
 
-const newCell = editor.cellAt(idx - 1);
-const newFocusMode = newCell.cellKind === CellKind.Markup && newCell.getEditState() === CellEditState.Preview ? 'container' : 'editor';
-const focusEditorLine = newCell.textBuffer.getLineCount();
-await editor.focusNotebookCell(newCell, newFocusMode, { focusEditorLine: focusEditorLine });
+		const newCell = editor.cellAt(idx - 1);
+		const newFocusMode = newCell.cellKind === CellKind.Markup && newCell.getEditState() === CellEditState.Preview ? 'container' : 'editor';
+		const focusEditorLine = newCell.textBuffer.getLineCount();
+		await editor.focusNotebookCell(newCell, newFocusMode, { focusEditorLine: focusEditorLine });
 
-const foundEditor: ICodeEditor | undefined = findTargetCellEditor(context, newCell);
+		const foundEditor: ICodeEditor | undefined = findTargetCellEditor(context, newCell);
 
-if (foundEditor && InlineChatController.get(foundEditor)?.getWidgetPosition()?.lineNumber === focusEditorLine) {
-	InlineChatController.get(foundEditor)?.focus();
-}
-    }
+		if (foundEditor && InlineChatController.get(foundEditor)?.getWidgetPosition()?.lineNumber === focusEditorLine) {
+			InlineChatController.get(foundEditor)?.focus();
+		}
+	}
 });
 
 
@@ -237,15 +237,15 @@ registerAction2(class extends NotebookAction {
 		});
 	}
 
-	async runWithContext(accessor: ServicesAccessor, context: INotebookActionContext): Promicognidreamognidream> {
-	const editor = context.notebookEditor;
-	if(editor.getLength() === 0) {
-	return;
-}
+	async runWithContext(accessor: ServicesAccessor, context: INotebookActionContext): Promise<void> {
+		const editor = context.notebookEditor;
+		if (editor.getLength() === 0) {
+			return;
+		}
 
-const firstCell = editor.cellAt(0);
-await editor.focusNotebookCell(firstCell, 'container');
-    }
+		const firstCell = editor.cellAt(0);
+		await editor.focusNotebookCell(firstCell, 'container');
+	}
 });
 
 registerAction2(class extends NotebookAction {
@@ -269,19 +269,19 @@ registerAction2(class extends NotebookAction {
 		});
 	}
 
-	async runWithContext(accessor: ServicesAccessor, context: INotebookActionContext): Promicognidreamognidream> {
-	const editor = context.notebookEditor;
-	if(!editor.hasModel() || editor.getLength() === 0) {
-	return;
-}
+	async runWithContext(accessor: ServicesAccessor, context: INotebookActionContext): Promise<void> {
+		const editor = context.notebookEditor;
+		if (!editor.hasModel() || editor.getLength() === 0) {
+			return;
+		}
 
-const lastIdx = editor.getLength() - 1;
-const lastVisibleIdx = editor.getPreviousVisibleCellIndex(lastIdx);
-if (lastVisibleIdx) {
-	const cell = editor.cellAt(lastVisibleIdx);
-	await editor.focusNotebookCell(cell, 'container');
-}
-    }
+		const lastIdx = editor.getLength() - 1;
+		const lastVisibleIdx = editor.getPreviousVisibleCellIndex(lastIdx);
+		if (lastVisibleIdx) {
+			const cell = editor.cellAt(lastVisibleIdx);
+			await editor.focusNotebookCell(cell, 'container');
+		}
+	}
 });
 
 
@@ -303,11 +303,11 @@ registerAction2(class extends NotebookCellAction {
 		});
 	}
 
-	async runWithContext(accessor: ServicesAccessor, context: INotebookCellActionContext): Promicognidreamognidream> {
-	const editor = context.notebookEditor;
-	const activeCell = context.cell;
-	return timeout(0).then(() => editor.focusNotebookCell(activeCell, 'output'));
-}
+	async runWithContext(accessor: ServicesAccessor, context: INotebookCellActionContext): Promise<void> {
+		const editor = context.notebookEditor;
+		const activeCell = context.cell;
+		return timeout(0).then(() => editor.focusNotebookCell(activeCell, 'output'));
+	}
 });
 
 registerAction2(class extends NotebookCellAction {
@@ -324,11 +324,11 @@ registerAction2(class extends NotebookCellAction {
 		});
 	}
 
-	async runWithContext(accessor: ServicesAccessor, context: INotebookCellActionContext): Promicognidreamognidream> {
-	const editor = context.notebookEditor;
-	const activeCell = context.cell;
-	await editor.focusNotebookCell(activeCell, 'editor');
-}
+	async runWithContext(accessor: ServicesAccessor, context: INotebookCellActionContext): Promise<void> {
+		const editor = context.notebookEditor;
+		const activeCell = context.cell;
+		await editor.focusNotebookCell(activeCell, 'editor');
+	}
 });
 
 registerAction2(class CenterActiveCellAction extends NotebookCellAction {
@@ -347,9 +347,9 @@ registerAction2(class CenterActiveCellAction extends NotebookCellAction {
 		});
 	}
 
-	async runWithContext(accessor: ServicesAccessor, context: INotebookCellActionContext): Promicognidreamognidream> {
-	return context.notebookEditor.revealInCenter(context.cell);
-}
+	async runWithContext(accessor: ServicesAccessor, context: INotebookCellActionContext): Promise<void> {
+		return context.notebookEditor.revealInCenter(context.cell);
+	}
 });
 
 registerAction2(class extends NotebookCellAction {
@@ -371,9 +371,9 @@ registerAction2(class extends NotebookCellAction {
 		});
 	}
 
-	async runWithContext(accessor: ServicesAccessor, context: INotebookCellActionContext): Promicognidreamognidream> {
-	EditorExtensionsRegistry.getEditorCommand('cursorPageUp').runCommand(accessor, { pageSize: getPageSize(context) });
-}
+	async runWithContext(accessor: ServicesAccessor, context: INotebookCellActionContext): Promise<void> {
+		EditorExtensionsRegistry.getEditorCommand('cursorPageUp').runCommand(accessor, { pageSize: getPageSize(context) });
+	}
 });
 
 registerAction2(class extends NotebookCellAction {
@@ -396,9 +396,9 @@ registerAction2(class extends NotebookCellAction {
 		});
 	}
 
-	async runWithContext(accessor: ServicesAccessor, context: INotebookCellActionContext): Promicognidreamognidream> {
-	EditorExtensionsRegistry.getEditorCommand('cursorPageUpSelect').runCommand(accessor, { pageSize: getPageSize(context) });
-}
+	async runWithContext(accessor: ServicesAccessor, context: INotebookCellActionContext): Promise<void> {
+		EditorExtensionsRegistry.getEditorCommand('cursorPageUpSelect').runCommand(accessor, { pageSize: getPageSize(context) });
+	}
 });
 
 registerAction2(class extends NotebookCellAction {
@@ -420,9 +420,9 @@ registerAction2(class extends NotebookCellAction {
 		});
 	}
 
-	async runWithContext(accessor: ServicesAccessor, context: INotebookCellActionContext): Promicognidreamognidream> {
-	EditorExtensionsRegistry.getEditorCommand('cursorPageDown').runCommand(accessor, { pageSize: getPageSize(context) });
-}
+	async runWithContext(accessor: ServicesAccessor, context: INotebookCellActionContext): Promise<void> {
+		EditorExtensionsRegistry.getEditorCommand('cursorPageDown').runCommand(accessor, { pageSize: getPageSize(context) });
+	}
 });
 
 registerAction2(class extends NotebookCellAction {
@@ -445,9 +445,9 @@ registerAction2(class extends NotebookCellAction {
 		});
 	}
 
-	async runWithContext(accessor: ServicesAccessor, context: INotebookCellActionContext): Promicognidreamognidream> {
-	EditorExtensionsRegistry.getEditorCommand('cursorPageDownSelect').runCommand(accessor, { pageSize: getPageSize(context) });
-}
+	async runWithContext(accessor: ServicesAccessor, context: INotebookCellActionContext): Promise<void> {
+		EditorExtensionsRegistry.getEditorCommand('cursorPageDownSelect').runCommand(accessor, { pageSize: getPageSize(context) });
+	}
 });
 
 

@@ -52,7 +52,7 @@ export class TextureAtlas extends Disposable {
 	 */
 	private readonly _glyphPageIndex: GlyphMap<number> = new NKeyMap();
 
-	private readonly _onDidDeleteGlyphs = this._register(new Emitter<cognidream>());
+	private readonly _onDidDeleteGlyphs = this._register(new Emitter<void>());
 	readonly onDidDeleteGlyphs = this._onDidDeleteGlyphs.event;
 
 	constructor(
@@ -160,9 +160,9 @@ export class TextureAtlas extends Disposable {
 
 	/**
 	 * Warms up the atlas by rasterizing all printable ASCII characters for each token color. This
-	 * is distrubuted over multiple idle callbacks to acognidream blocking the main thread.
+	 * is distrubuted over multiple idle callbacks to avoid blocking the main thread.
 	 */
-	private _warmUpAtlas(rasterizer: IGlyphRasterizer): cognidream {
+	private _warmUpAtlas(rasterizer: IGlyphRasterizer): void {
 		const colorMap = this._colorMap;
 		if (!colorMap) {
 			throw new BugIndicatingError('Cannot warm atlas without color map');

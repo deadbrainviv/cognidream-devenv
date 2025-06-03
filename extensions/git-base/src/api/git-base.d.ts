@@ -84,7 +84,3 @@ export interface RemoteSourceProvider {
 	getRecentRemoteSources?(query?: string): ProviderResult<RecentRemoteSource[]>;
 	getRemoteSources(query?: string): ProviderResult<RemoteSource[]>;
 }
-
-export interface IGitBaseExtension {
-	dispose(): void;
-}

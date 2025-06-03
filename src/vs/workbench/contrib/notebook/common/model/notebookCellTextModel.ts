@@ -23,476 +23,476 @@ import { IModelContentChangedEvent } from '../../../../../editor/common/textMode
 import { splitLines } from '../../../../../base/common/strings.js';
 
 export class NotebookCellTextModel extends Disposable implements ICell {
-	private readonly _onDidChangeTextModel = this._register(new Emitter<cognidream>());
-	readonly onDidChangeTextModel: Evecognidreamognidream> = this._onDidChangeTextModel.event;
-    private readonly _onDidChangeOutputs = this._register(new Emitter<NotebookCellOutputsSplice>());
-    readonly onDidChangeOutputs: Event<NotebookCellOutputsSplice> = this._onDidChangeOutputs.event;
+	private readonly _onDidChangeTextModel = this._register(new Emitter<void>());
+	readonly onDidChangeTextModel: Event<void> = this._onDidChangeTextModel.event;
+	private readonly _onDidChangeOutputs = this._register(new Emitter<NotebookCellOutputsSplice>());
+	readonly onDidChangeOutputs: Event<NotebookCellOutputsSplice> = this._onDidChangeOutputs.event;
 
-    private readonly _onDidChangeOutputItems = this._register(new Emittcognidreamognidream > ());
-    readonly onDidChangeOutputItems: Evecognidreamognidream > = this._onDidChangeOutputItems.event;
+	private readonly _onDidChangeOutputItems = this._register(new Emitter<void>());
+	readonly onDidChangeOutputItems: Event<void> = this._onDidChangeOutputItems.event;
 
-    private readonly _onDidChangeContent = this._register(new Emitter<'content' | 'language' | 'mime' | { type: 'model'; event: IModelContentChangedEvent }>());
-    readonly onDidChangeContent: Event<'content' | 'language' | 'mime' | { type: 'model'; event: IModelContentChangedEvent }> = this._onDidChangeContent.event;
+	private readonly _onDidChangeContent = this._register(new Emitter<'content' | 'language' | 'mime' | { type: 'model'; event: IModelContentChangedEvent }>());
+	readonly onDidChangeContent: Event<'content' | 'language' | 'mime' | { type: 'model'; event: IModelContentChangedEvent }> = this._onDidChangeContent.event;
 
-    private readonly _onDidChangeMetadata = this._register(new Emittcognidreamognidream > ());
-    readonly onDidChangeMetadata: Evecognidreamognidream > = this._onDidChangeMetadata.event;
+	private readonly _onDidChangeMetadata = this._register(new Emitter<void>());
+	readonly onDidChangeMetadata: Event<void> = this._onDidChangeMetadata.event;
 
-    private readonly _onDidChangeInternalMetadata = this._register(new Emitter<CellInternalMetadataChangedEvent>());
-    readonly onDidChangeInternalMetadata: Event<CellInternalMetadataChangedEvent> = this._onDidChangeInternalMetadata.event;
+	private readonly _onDidChangeInternalMetadata = this._register(new Emitter<CellInternalMetadataChangedEvent>());
+	readonly onDidChangeInternalMetadata: Event<CellInternalMetadataChangedEvent> = this._onDidChangeInternalMetadata.event;
 
-    private readonly _onDidChangeLanguage = this._register(new Emitter<string>());
-    readonly onDidChangeLanguage: Event<string> = this._onDidChangeLanguage.event;
+	private readonly _onDidChangeLanguage = this._register(new Emitter<string>());
+	readonly onDidChangeLanguage: Event<string> = this._onDidChangeLanguage.event;
 
-    private _outputs: NotebookCellOutputTextModel[];
+	private _outputs: NotebookCellOutputTextModel[];
 
-    get outputs(): ICellOutput[] {
-	return this._outputs;
-}
-
-    private _metadata: NotebookCellMetadata;
-
-    get metadata() {
-	return this._metadata;
-}
-
-    set metadata(newMetadata: NotebookCellMetadata) {
-	this._metadata = newMetadata;
-	this._hash = null;
-	this._onDidChangeMetadata.fire();
-}
-
-    private _internalMetadata: NotebookCellInternalMetadata;
-
-    get internalMetadata() {
-	return this._internalMetadata;
-}
-
-    set internalMetadata(newInternalMetadata: NotebookCellInternalMetadata) {
-	const lastRunSuccessChanged = this._internalMetadata.lastRunSuccess !== newInternalMetadata.lastRunSuccess;
-	newInternalMetadata = {
-		...newInternalMetadata,
-		...{ runStartTimeAdjustment: computeRunStartTimeAdjustment(this._internalMetadata, newInternalMetadata) }
-	};
-	this._internalMetadata = newInternalMetadata;
-	this._hash = null;
-	this._onDidChangeInternalMetadata.fire({ lastRunSuccessChanged });
-}
-
-    get language() {
-	return this._language;
-}
-
-    set language(newLanguage: string) {
-	if (this._textModel
-		// 1. the language update is from workspace edit, checking if it's the same as text model's mode
-		&& this._textModel.getLanguageId() === this._languageService.getLanguageIdByLanguageName(newLanguage)
-		// 2. the text model's mode might be the same as the `this.language`, even if the language friendly name is not the same, we should not trigger an update
-		&& this._textModel.getLanguageId() === this._languageService.getLanguageIdByLanguageName(this.language)) {
-		return;
+	get outputs(): ICellOutput[] {
+		return this._outputs;
 	}
 
+	private _metadata: NotebookCellMetadata;
 
-	this._hasLanguageSetExplicitly = true;
-	this._setLanguageInternal(newLanguage);
-}
-
-    public get mime(): string | undefined {
-	return this._mime;
-}
-
-    public set mime(newMime: string | undefined) {
-	if (this._mime === newMime) {
-		return;
+	get metadata() {
+		return this._metadata;
 	}
-	this._mime = newMime;
-	this._hash = null;
-	this._onDidChangeContent.fire('mime');
-}
 
-    private _textBuffer!: model.ITextBuffer;
+	set metadata(newMetadata: NotebookCellMetadata) {
+		this._metadata = newMetadata;
+		this._hash = null;
+		this._onDidChangeMetadata.fire();
+	}
 
-    get textBuffer() {
-	if (this._textBuffer) {
+	private _internalMetadata: NotebookCellInternalMetadata;
+
+	get internalMetadata() {
+		return this._internalMetadata;
+	}
+
+	set internalMetadata(newInternalMetadata: NotebookCellInternalMetadata) {
+		const lastRunSuccessChanged = this._internalMetadata.lastRunSuccess !== newInternalMetadata.lastRunSuccess;
+		newInternalMetadata = {
+			...newInternalMetadata,
+			...{ runStartTimeAdjustment: computeRunStartTimeAdjustment(this._internalMetadata, newInternalMetadata) }
+		};
+		this._internalMetadata = newInternalMetadata;
+		this._hash = null;
+		this._onDidChangeInternalMetadata.fire({ lastRunSuccessChanged });
+	}
+
+	get language() {
+		return this._language;
+	}
+
+	set language(newLanguage: string) {
+		if (this._textModel
+			// 1. the language update is from workspace edit, checking if it's the same as text model's mode
+			&& this._textModel.getLanguageId() === this._languageService.getLanguageIdByLanguageName(newLanguage)
+			// 2. the text model's mode might be the same as the `this.language`, even if the language friendly name is not the same, we should not trigger an update
+			&& this._textModel.getLanguageId() === this._languageService.getLanguageIdByLanguageName(this.language)) {
+			return;
+		}
+
+
+		this._hasLanguageSetExplicitly = true;
+		this._setLanguageInternal(newLanguage);
+	}
+
+	public get mime(): string | undefined {
+		return this._mime;
+	}
+
+	public set mime(newMime: string | undefined) {
+		if (this._mime === newMime) {
+			return;
+		}
+		this._mime = newMime;
+		this._hash = null;
+		this._onDidChangeContent.fire('mime');
+	}
+
+	private _textBuffer!: model.ITextBuffer;
+
+	get textBuffer() {
+		if (this._textBuffer) {
+			return this._textBuffer;
+		}
+
+		this._textBuffer = this._register(createTextBuffer(this._source, model.DefaultEndOfLine.LF).textBuffer);
+
+		this._register(this._textBuffer.onDidChangeContent(() => {
+			this._hash = null;
+			if (!this._textModel) {
+				this._onDidChangeContent.fire('content');
+			}
+			this.autoDetectLanguage();
+		}));
+
 		return this._textBuffer;
 	}
 
-	this._textBuffer = this._register(createTextBuffer(this._source, model.DefaultEndOfLine.LF).textBuffer);
+	private _textBufferHash: string | null = null;
+	private _hash: number | null = null;
 
-	this._register(this._textBuffer.onDidChangeContent(() => {
-		this._hash = null;
-		if (!this._textModel) {
-			this._onDidChangeContent.fire('content');
+	private _versionId: number = 1;
+	private _alternativeId: number = 1;
+	get alternativeId(): number {
+		return this._alternativeId;
+	}
+
+	private readonly _textModelDisposables = this._register(new DisposableStore());
+	private _textModel: TextModel | undefined = undefined;
+	get textModel(): TextModel | undefined {
+		return this._textModel;
+	}
+
+	set textModel(m: TextModel | undefined) {
+		if (this._textModel === m) {
+			return;
 		}
+
+		this._textModelDisposables.clear();
+		this._textModel = m;
+		if (this._textModel) {
+			this.setRegisteredLanguage(this._languageService, this._textModel.getLanguageId(), this.language);
+
+			// Listen to language changes on the model
+			this._textModelDisposables.add(this._textModel.onDidChangeLanguage((e) => this.setRegisteredLanguage(this._languageService, e.newLanguage, this.language)));
+			this._textModelDisposables.add(this._textModel.onWillDispose(() => this.textModel = undefined));
+			this._textModelDisposables.add(this._textModel.onDidChangeContent((e) => {
+				if (this._textModel) {
+					this._versionId = this._textModel.getVersionId();
+					this._alternativeId = this._textModel.getAlternativeVersionId();
+				}
+				this._textBufferHash = null;
+				this._onDidChangeContent.fire('content');
+				this._onDidChangeContent.fire({ type: 'model', event: e });
+			}));
+
+			this._textModel._overwriteVersionId(this._versionId);
+			this._textModel._overwriteAlternativeVersionId(this._versionId);
+			this._onDidChangeTextModel.fire();
+		}
+	}
+
+	private setRegisteredLanguage(languageService: ILanguageService, newLanguage: string, currentLanguage: string) {
+		// The language defined in the cell might not be supported in the editor so the text model might be using the default fallback
+		// If so let's not modify the language
+		const isFallBackLanguage = (newLanguage === PLAINTEXT_LANGUAGE_ID || newLanguage === 'jupyter');
+		if (!languageService.isRegisteredLanguageId(currentLanguage) && isFallBackLanguage) {
+			// notify to display warning, but don't change the language
+			this._onDidChangeLanguage.fire(currentLanguage);
+		} else {
+			this.language = newLanguage;
+		}
+	}
+	private static readonly AUTO_DETECT_LANGUAGE_THROTTLE_DELAY = 600;
+	private readonly autoDetectLanguageThrottler = this._register(new ThrottledDelayer<void>(NotebookCellTextModel.AUTO_DETECT_LANGUAGE_THROTTLE_DELAY));
+	private _autoLanguageDetectionEnabled: boolean = false;
+	private _hasLanguageSetExplicitly: boolean = false;
+	get hasLanguageSetExplicitly(): boolean { return this._hasLanguageSetExplicitly; }
+
+	constructor(
+		readonly uri: URI,
+		public readonly handle: number,
+		private readonly _source: string,
+		private _language: string,
+		private _mime: string | undefined,
+		public readonly cellKind: CellKind,
+		outputs: IOutputDto[],
+		metadata: NotebookCellMetadata | undefined,
+		internalMetadata: NotebookCellInternalMetadata | undefined,
+		public readonly collapseState: NotebookCellCollapseState | undefined,
+		public readonly transientOptions: TransientOptions,
+		private readonly _languageService: ILanguageService,
+		private readonly _languageDetectionService: ILanguageDetectionService | undefined = undefined
+	) {
+		super();
+		this._outputs = outputs.map(op => new NotebookCellOutputTextModel(op));
+		this._metadata = metadata ?? {};
+		this._internalMetadata = internalMetadata ?? {};
+	}
+
+	enableAutoLanguageDetection() {
+		this._autoLanguageDetectionEnabled = true;
 		this.autoDetectLanguage();
-	}));
-
-	return this._textBuffer;
-}
-
-    private _textBufferHash: string | null = null;
-    private _hash: number | null = null;
-
-    private _versionId: number = 1;
-    private _alternativeId: number = 1;
-    get alternativeId(): number {
-	return this._alternativeId;
-}
-
-    private readonly _textModelDisposables = this._register(new DisposableStore());
-    private _textModel: TextModel | undefined = undefined;
-    get textModel(): TextModel | undefined {
-	return this._textModel;
-}
-
-    set textModel(m: TextModel | undefined) {
-	if (this._textModel === m) {
-		return;
 	}
 
-	this._textModelDisposables.clear();
-	this._textModel = m;
-	if (this._textModel) {
-		this.setRegisteredLanguage(this._languageService, this._textModel.getLanguageId(), this.language);
-
-		// Listen to language changes on the model
-		this._textModelDisposables.add(this._textModel.onDidChangeLanguage((e) => this.setRegisteredLanguage(this._languageService, e.newLanguage, this.language)));
-		this._textModelDisposables.add(this._textModel.onWillDispose(() => this.textModel = undefined));
-		this._textModelDisposables.add(this._textModel.onDidChangeContent((e) => {
-			if (this._textModel) {
-				this._versionId = this._textModel.getVersionId();
-				this._alternativeId = this._textModel.getAlternativeVersionId();
-			}
-			this._textBufferHash = null;
-			this._onDidChangeContent.fire('content');
-			this._onDidChangeContent.fire({ type: 'model', event: e });
-		}));
-
-		this._textModel._overwriteVersionId(this._versionId);
-		this._textModel._overwriteAlternativeVersionId(this._versionId);
-		this._onDidChangeTextModel.fire();
-	}
-}
-
-    private setRegisteredLanguage(languageService: ILanguageService, newLanguage: string, currentLanguage: string) {
-	// The language defined in the cell might not be supported in the editor so the text model might be using the default fallback
-	// If so let's not modify the language
-	const isFallBackLanguage = (newLanguage === PLAINTEXT_LANGUAGE_ID || newLanguage === 'jupyter');
-	if (!languageService.isRegisteredLanguageId(currentLanguage) && isFallBackLanguage) {
-		// notify to display warning, but don't change the language
-		this._onDidChangeLanguage.fire(currentLanguage);
-	} else {
-		this.language = newLanguage;
-	}
-}
-    private static readonly AUTO_DETECT_LANGUAGE_THROTTLE_DELAY = 600;
-    private readonly autoDetectLanguageThrottler = this._register(new ThrottledDelaycognidreamognidream > (NotebookCellTextModel.AUTO_DETECT_LANGUAGE_THROTTLE_DELAY));
-    private _autoLanguageDetectionEnabled: boolean = false;
-    private _hasLanguageSetExplicitly: boolean = false;
-    get hasLanguageSetExplicitly(): boolean { return this._hasLanguageSetExplicitly; }
-
-constructor(
-	readonly uri: URI,
-	public readonly handle: number,
-	private readonly _source: string,
-	private _language: string,
-	private _mime: string | undefined,
-	public readonly cellKind: CellKind,
-	outputs: IOutputDto[],
-	metadata: NotebookCellMetadata | undefined,
-	internalMetadata: NotebookCellInternalMetadata | undefined,
-	public readonly collapseState: NotebookCellCollapseState | undefined,
-	public readonly transientOptions: TransientOptions,
-	private readonly _languageService: ILanguageService,
-	private readonly _languageDetectionService: ILanguageDetectionService | undefined = undefined
-) {
-	super();
-	this._outputs = outputs.map(op => new NotebookCellOutputTextModel(op));
-	this._metadata = metadata ?? {};
-	this._internalMetadata = internalMetadata ?? {};
-}
-
-enableAutoLanguageDetection() {
-	this._autoLanguageDetectionEnabled = true;
-	this.autoDetectLanguage();
-}
-
-    async autoDetectLanguage(): Promicognidreamognidream > {
-	if(this._autoLanguageDetectionEnabled) {
-	this.autoDetectLanguageThrottler.trigger(() => this._doAutoDetectLanguage());
-}
-    }
-
-    private async _doAutoDetectLanguage(): Promicognidreamognidream > {
-	if(this.hasLanguageSetExplicitly) {
-	return;
-}
-
-const newLanguage = await this._languageDetectionService?.detectLanguage(this.uri);
-if (!newLanguage) {
-	return;
-}
-
-if (this._textModel
-	&& this._textModel.getLanguageId() === this._languageService.getLanguageIdByLanguageName(newLanguage)
-	&& this._textModel.getLanguageId() === this._languageService.getLanguageIdByLanguageName(this.language)) {
-	return;
-}
-
-this._setLanguageInternal(newLanguage);
-    }
-
-    private _setLanguageInternal(newLanguage: string) {
-	const newLanguageId = this._languageService.getLanguageIdByLanguageName(newLanguage);
-
-	if (newLanguageId === null) {
-		return;
+	async autoDetectLanguage(): Promise<void> {
+		if (this._autoLanguageDetectionEnabled) {
+			this.autoDetectLanguageThrottler.trigger(() => this._doAutoDetectLanguage());
+		}
 	}
 
-	if (this._textModel) {
-		const languageId = this._languageService.createById(newLanguageId);
-		this._textModel.setLanguage(languageId.languageId);
+	private async _doAutoDetectLanguage(): Promise<void> {
+		if (this.hasLanguageSetExplicitly) {
+			return;
+		}
+
+		const newLanguage = await this._languageDetectionService?.detectLanguage(this.uri);
+		if (!newLanguage) {
+			return;
+		}
+
+		if (this._textModel
+			&& this._textModel.getLanguageId() === this._languageService.getLanguageIdByLanguageName(newLanguage)
+			&& this._textModel.getLanguageId() === this._languageService.getLanguageIdByLanguageName(this.language)) {
+			return;
+		}
+
+		this._setLanguageInternal(newLanguage);
 	}
 
-	if (this._language === newLanguage) {
-		return;
+	private _setLanguageInternal(newLanguage: string) {
+		const newLanguageId = this._languageService.getLanguageIdByLanguageName(newLanguage);
+
+		if (newLanguageId === null) {
+			return;
+		}
+
+		if (this._textModel) {
+			const languageId = this._languageService.createById(newLanguageId);
+			this._textModel.setLanguage(languageId.languageId);
+		}
+
+		if (this._language === newLanguage) {
+			return;
+		}
+
+		this._language = newLanguage;
+		this._hash = null;
+		this._onDidChangeLanguage.fire(newLanguage);
+		this._onDidChangeContent.fire('language');
 	}
 
-	this._language = newLanguage;
-	this._hash = null;
-	this._onDidChangeLanguage.fire(newLanguage);
-	this._onDidChangeContent.fire('language');
-}
-
-resetTextBuffer(textBuffer: model.ITextBuffer) {
-	this._textBuffer = textBuffer;
-}
-
-getValue(): string {
-	const fullRange = this.getFullModelRange();
-	const eol = this.textBuffer.getEOL();
-	if (eol === '\n') {
-		return this.textBuffer.getValueInRange(fullRange, model.EndOfLinePreference.LF);
-	} else {
-		return this.textBuffer.getValueInRange(fullRange, model.EndOfLinePreference.CRLF);
+	resetTextBuffer(textBuffer: model.ITextBuffer) {
+		this._textBuffer = textBuffer;
 	}
-}
 
-getTextBufferHash() {
-	if (this._textBufferHash !== null) {
+	getValue(): string {
+		const fullRange = this.getFullModelRange();
+		const eol = this.textBuffer.getEOL();
+		if (eol === '\n') {
+			return this.textBuffer.getValueInRange(fullRange, model.EndOfLinePreference.LF);
+		} else {
+			return this.textBuffer.getValueInRange(fullRange, model.EndOfLinePreference.CRLF);
+		}
+	}
+
+	getTextBufferHash() {
+		if (this._textBufferHash !== null) {
+			return this._textBufferHash;
+		}
+
+		const shaComputer = new StringSHA1();
+		const snapshot = this.textBuffer.createSnapshot(false);
+		let text: string | null;
+		while ((text = snapshot.read())) {
+			shaComputer.update(text);
+		}
+		this._textBufferHash = shaComputer.digest();
 		return this._textBufferHash;
 	}
 
-	const shaComputer = new StringSHA1();
-	const snapshot = this.textBuffer.createSnapshot(false);
-	let text: string | null;
-	while ((text = snapshot.read())) {
-		shaComputer.update(text);
-	}
-	this._textBufferHash = shaComputer.digest();
-	return this._textBufferHash;
-}
+	getHashValue(): number {
+		if (this._hash !== null) {
+			return this._hash;
+		}
 
-getHashValue(): number {
-	if (this._hash !== null) {
+		this._hash = hash([hash(this.language), this.getTextBufferHash(), this._getPersisentMetadata(), this.transientOptions.transientOutputs ? [] : this._outputs.map(op => ({
+			outputs: op.outputs.map(output => ({
+				mime: output.mime,
+				data: Array.from(output.data.buffer)
+			})),
+			metadata: op.metadata
+		}))]);
 		return this._hash;
 	}
 
-	this._hash = hash([hash(this.language), this.getTextBufferHash(), this._getPersisentMetadata(), this.transientOptions.transientOutputs ? [] : this._outputs.map(op => ({
-		outputs: op.outputs.map(output => ({
-			mime: output.mime,
-			data: Array.from(output.data.buffer)
-		})),
-		metadata: op.metadata
-	}))]);
-	return this._hash;
-}
-
-    private _getPersisentMetadata() {
-	return getFormattedMetadataJSON(this.transientOptions.transientCellMetadata, this.metadata, this.language);
-}
-
-getTextLength(): number {
-	return this.textBuffer.getLength();
-}
-
-getFullModelRange() {
-	const lineCount = this.textBuffer.getLineCount();
-	return new Range(1, 1, lineCount, this.textBuffer.getLineLength(lineCount) + 1);
-}
-
-spliceNotebookCellOutputs(splice: NotebookCellOutputsSplicecognidreamognidream {
-	if(splice.deleteCount > 0 && splice.newOutputs.length > 0) {
-	const commonLen = Math.min(splice.deleteCount, splice.newOutputs.length);
-	// update
-	for (let i = 0; i < commonLen; i++) {
-		const currentOutput = this.outputs[splice.start + i];
-		const newOutput = splice.newOutputs[i];
-
-		this.replaceOutput(currentOutput.outputId, newOutput);
+	private _getPersisentMetadata() {
+		return getFormattedMetadataJSON(this.transientOptions.transientCellMetadata, this.metadata, this.language);
 	}
 
-	const removed = this.outputs.splice(splice.start + commonLen, splice.deleteCount - commonLen, ...splice.newOutputs.slice(commonLen));
-	removed.forEach(output => output.dispose());
-	this._onDidChangeOutputs.fire({ start: splice.start + commonLen, deleteCount: splice.deleteCount - commonLen, newOutputs: splice.newOutputs.slice(commonLen) });
-} else {
-	const removed = this.outputs.splice(splice.start, splice.deleteCount, ...splice.newOutputs);
-	removed.forEach(output => output.dispose());
-	this._onDidChangeOutputs.fire(splice);
-}
-    }
-
-replaceOutput(outputId: string, newOutputItem: ICellOutput) {
-	const outputIndex = this.outputs.findIndex(output => output.outputId === outputId);
-
-	if (outputIndex < 0) {
-		return false;
+	getTextLength(): number {
+		return this.textBuffer.getLength();
 	}
 
-	const output = this.outputs[outputIndex];
-	// convert to dto and dispose the cell output model
-	output.replaceData({
-		outputs: newOutputItem.outputs,
-		outputId: newOutputItem.outputId,
-		metadata: newOutputItem.metadata
-	});
-	newOutputItem.dispose();
-	this._onDidChangeOutputItems.fire();
-	return true;
-}
-
-changeOutputItems(outputId: string, append: boolean, items: IOutputItemDto[]): boolean {
-	const outputIndex = this.outputs.findIndex(output => output.outputId === outputId);
-
-	if (outputIndex < 0) {
-		return false;
+	getFullModelRange() {
+		const lineCount = this.textBuffer.getLineCount();
+		return new Range(1, 1, lineCount, this.textBuffer.getLineLength(lineCount) + 1);
 	}
 
-	const output = this.outputs[outputIndex];
-	if (append) {
-		output.appendData(items);
-	} else {
-		output.replaceData({ outputId: outputId, outputs: items, metadata: output.metadata });
+	spliceNotebookCellOutputs(splice: NotebookCellOutputsSplice): void {
+		if (splice.deleteCount > 0 && splice.newOutputs.length > 0) {
+			const commonLen = Math.min(splice.deleteCount, splice.newOutputs.length);
+			// update
+			for (let i = 0; i < commonLen; i++) {
+				const currentOutput = this.outputs[splice.start + i];
+				const newOutput = splice.newOutputs[i];
+
+				this.replaceOutput(currentOutput.outputId, newOutput);
+			}
+
+			const removed = this.outputs.splice(splice.start + commonLen, splice.deleteCount - commonLen, ...splice.newOutputs.slice(commonLen));
+			removed.forEach(output => output.dispose());
+			this._onDidChangeOutputs.fire({ start: splice.start + commonLen, deleteCount: splice.deleteCount - commonLen, newOutputs: splice.newOutputs.slice(commonLen) });
+		} else {
+			const removed = this.outputs.splice(splice.start, splice.deleteCount, ...splice.newOutputs);
+			removed.forEach(output => output.dispose());
+			this._onDidChangeOutputs.fire(splice);
+		}
 	}
-	this._onDidChangeOutputItems.fire();
-	return true;
-}
 
-    private _outputNotEqualFastCheck(left: ICellOutput[], right: ICellOutput[]) {
-	if (left.length !== right.length) {
-		return false;
-	}
+	replaceOutput(outputId: string, newOutputItem: ICellOutput) {
+		const outputIndex = this.outputs.findIndex(output => output.outputId === outputId);
 
-	for (let i = 0; i < this.outputs.length; i++) {
-		const l = left[i];
-		const r = right[i];
-
-		if (l.outputs.length !== r.outputs.length) {
+		if (outputIndex < 0) {
 			return false;
 		}
 
-		for (let k = 0; k < l.outputs.length; k++) {
-			if (l.outputs[k].mime !== r.outputs[k].mime) {
+		const output = this.outputs[outputIndex];
+		// convert to dto and dispose the cell output model
+		output.replaceData({
+			outputs: newOutputItem.outputs,
+			outputId: newOutputItem.outputId,
+			metadata: newOutputItem.metadata
+		});
+		newOutputItem.dispose();
+		this._onDidChangeOutputItems.fire();
+		return true;
+	}
+
+	changeOutputItems(outputId: string, append: boolean, items: IOutputItemDto[]): boolean {
+		const outputIndex = this.outputs.findIndex(output => output.outputId === outputId);
+
+		if (outputIndex < 0) {
+			return false;
+		}
+
+		const output = this.outputs[outputIndex];
+		if (append) {
+			output.appendData(items);
+		} else {
+			output.replaceData({ outputId: outputId, outputs: items, metadata: output.metadata });
+		}
+		this._onDidChangeOutputItems.fire();
+		return true;
+	}
+
+	private _outputNotEqualFastCheck(left: ICellOutput[], right: ICellOutput[]) {
+		if (left.length !== right.length) {
+			return false;
+		}
+
+		for (let i = 0; i < this.outputs.length; i++) {
+			const l = left[i];
+			const r = right[i];
+
+			if (l.outputs.length !== r.outputs.length) {
 				return false;
 			}
 
-			if (l.outputs[k].data.byteLength !== r.outputs[k].data.byteLength) {
+			for (let k = 0; k < l.outputs.length; k++) {
+				if (l.outputs[k].mime !== r.outputs[k].mime) {
+					return false;
+				}
+
+				if (l.outputs[k].data.byteLength !== r.outputs[k].data.byteLength) {
+					return false;
+				}
+			}
+		}
+
+		return true;
+	}
+
+	equal(b: NotebookCellTextModel): boolean {
+		if (this.language !== b.language) {
+			return false;
+		}
+
+		if (this.outputs.length !== b.outputs.length) {
+			return false;
+		}
+
+		if (this.getTextLength() !== b.getTextLength()) {
+			return false;
+		}
+
+		if (!this.transientOptions.transientOutputs) {
+			// compare outputs
+
+			if (!this._outputNotEqualFastCheck(this.outputs, b.outputs)) {
 				return false;
 			}
 		}
+
+		return this.getHashValue() === b.getHashValue();
 	}
 
-	return true;
-}
-
-equal(b: NotebookCellTextModel): boolean {
-	if (this.language !== b.language) {
-		return false;
-	}
-
-	if (this.outputs.length !== b.outputs.length) {
-		return false;
-	}
-
-	if (this.getTextLength() !== b.getTextLength()) {
-		return false;
-	}
-
-	if (!this.transientOptions.transientOutputs) {
-		// compare outputs
-
-		if (!this._outputNotEqualFastCheck(this.outputs, b.outputs)) {
+	/**
+	 * Only compares
+	 * - language
+	 * - mime
+	 * - cellKind
+	 * - internal metadata (conditionally)
+	 * - source
+	 */
+	fastEqual(b: ICellDto2, ignoreMetadata: boolean): boolean {
+		if (this.language !== b.language) {
 			return false;
 		}
-	}
 
-	return this.getHashValue() === b.getHashValue();
-}
-
-/**
- * Only compares
- * - language
- * - mime
- * - cellKind
- * - internal metadata (conditionally)
- * - source
- */
-fastEqual(b: ICellDto2, ignoreMetadata: boolean): boolean {
-	if (this.language !== b.language) {
-		return false;
-	}
-
-	if (this.mime !== b.mime) {
-		return false;
-	}
-
-	if (this.cellKind !== b.cellKind) {
-		return false;
-	}
-
-	if (!ignoreMetadata) {
-		if (this.internalMetadata?.executionOrder !== b.internalMetadata?.executionOrder
-			|| this.internalMetadata?.lastRunSuccess !== b.internalMetadata?.lastRunSuccess
-			|| this.internalMetadata?.runStartTime !== b.internalMetadata?.runStartTime
-			|| this.internalMetadata?.runStartTimeAdjustment !== b.internalMetadata?.runStartTimeAdjustment
-			|| this.internalMetadata?.runEndTime !== b.internalMetadata?.runEndTime) {
+		if (this.mime !== b.mime) {
 			return false;
 		}
-	}
 
-	// Once we attach the cell text buffer to an editor, the source of truth is the text buffer instead of the original source
-	if (this._textBuffer) {
-		if (!NotebookCellTextModel.linesAreEqual(this.textBuffer.getLinesContent(), b.source)) {
+		if (this.cellKind !== b.cellKind) {
 			return false;
 		}
-	} else if (this._source !== b.source) {
-		return false;
-	}
 
-	return true;
-}
+		if (!ignoreMetadata) {
+			if (this.internalMetadata?.executionOrder !== b.internalMetadata?.executionOrder
+				|| this.internalMetadata?.lastRunSuccess !== b.internalMetadata?.lastRunSuccess
+				|| this.internalMetadata?.runStartTime !== b.internalMetadata?.runStartTime
+				|| this.internalMetadata?.runStartTimeAdjustment !== b.internalMetadata?.runStartTimeAdjustment
+				|| this.internalMetadata?.runEndTime !== b.internalMetadata?.runEndTime) {
+				return false;
+			}
+		}
 
-    private static linesAreEqual(aLines: string[], b: string) {
-	const bLines = splitLines(b);
-	if (aLines.length !== bLines.length) {
-		return false;
-	}
-	for (let i = 0; i < aLines.length; i++) {
-		if (aLines[i] !== bLines[i]) {
+		// Once we attach the cell text buffer to an editor, the source of truth is the text buffer instead of the original source
+		if (this._textBuffer) {
+			if (!NotebookCellTextModel.linesAreEqual(this.textBuffer.getLinesContent(), b.source)) {
+				return false;
+			}
+		} else if (this._source !== b.source) {
 			return false;
 		}
-	}
-	return true;
-}
 
-    override dispose() {
-	dispose(this._outputs);
-	// Manually release reference to previous text buffecognidream acognidream large leaks
-	// in case someone leaks a CellTextModel reference
-	const emptyDisposedTextBuffer = new PieceTreeTextBuffer([], '', '\n', false, false, true, true);
-	emptyDisposedTextBuffer.dispose();
-	this._textBuffer = emptyDisposedTextBuffer;
-	super.dispose();
-}
+		return true;
+	}
+
+	private static linesAreEqual(aLines: string[], b: string) {
+		const bLines = splitLines(b);
+		if (aLines.length !== bLines.length) {
+			return false;
+		}
+		for (let i = 0; i < aLines.length; i++) {
+			if (aLines[i] !== bLines[i]) {
+				return false;
+			}
+		}
+		return true;
+	}
+
+	override dispose() {
+		dispose(this._outputs);
+		// Manually release reference to previous text buffer to avoid large leaks
+		// in case someone leaks a CellTextModel reference
+		const emptyDisposedTextBuffer = new PieceTreeTextBuffer([], '', '\n', false, false, true, true);
+		emptyDisposedTextBuffer.dispose();
+		this._textBuffer = emptyDisposedTextBuffer;
+		super.dispose();
+	}
 }
 
 export function cloneNotebookCellTextModel(cell: NotebookCellTextModel) {

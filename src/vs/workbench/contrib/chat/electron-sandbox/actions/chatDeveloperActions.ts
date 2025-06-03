@@ -11,26 +11,26 @@ import { INativeHostService } from '../../../../../platform/native/common/native
 import { IChatService } from '../../common/chatService.js';
 
 export function registerChatDeveloperActions() {
-    registerAction2(OpenChatStorageFolderAction);
+	registerAction2(OpenChatStorageFolderAction);
 }
 
 class OpenChatStorageFolderAction extends Action2 {
-    static readonly ID = 'workbench.action.chat.openStorageFolder';
+	static readonly ID = 'workbench.action.chat.openStorageFolder';
 
-    constructor() {
-        super({
-            id: OpenChatStorageFolderAction.ID,
-            title: localize2('workbench.action.chat.openStorageFolder.label', "Open Chat Storage Folder"),
-            icon: Codicon.attach,
-            category: Categories.Developer,
-            f1: true
-        });
-    }
+	constructor() {
+		super({
+			id: OpenChatStorageFolderAction.ID,
+			title: localize2('workbench.action.chat.openStorageFolder.label', "Open Chat Storage Folder"),
+			icon: Codicon.attach,
+			category: Categories.Developer,
+			f1: true
+		});
+	}
 
-    override async run(accessor: ServicesAccessor, ...args: any[]): Promise<cognidream> {
-        const chatService = accessor.get(IChatService);
-        const nativeHostService = accessor.get(INativeHostService);
-        const storagePath = chatService.getChatStorageFolder();
-        nativeHostService.showItemInFolder(storagePath.fsPath);
-    }
+	override async run(accessor: ServicesAccessor, ...args: any[]): Promise<void> {
+		const chatService = accessor.get(IChatService);
+		const nativeHostService = accessor.get(INativeHostService);
+		const storagePath = chatService.getChatStorageFolder();
+		nativeHostService.showItemInFolder(storagePath.fsPath);
+	}
 }

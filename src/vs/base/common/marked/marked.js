@@ -213,16 +213,16 @@ function indentCodeCompensation(raw, text) {
     return text
         .split('\n')
         .map(node => {
-            const matchIndentInNode = node.match(/^\s+/);
-            if (matchIndentInNode === null) {
-                return node;
-            }
-            const [indentInNode] = matchIndentInNode;
-            if (indentInNode.length >= indentToCode.length) {
-                return node.slice(indentToCode.length);
-            }
+        const matchIndentInNode = node.match(/^\s+/);
+        if (matchIndentInNode === null) {
             return node;
-        })
+        }
+        const [indentInNode] = matchIndentInNode;
+        if (indentInNode.length >= indentToCode.length) {
+            return node.slice(indentToCode.length);
+        }
+        return node;
+    })
         .join('\n');
 }
 /**
@@ -1080,9 +1080,9 @@ const blockPedantic = {
         + '|<tag(?:"[^"]*"|\'[^\']*\'|\\s[^\'"/>\\s]*)*?/?> *(?:\\n{2,}|\\s*$))')
         .replace('comment', _comment)
         .replace(/tag/g, '(?!(?:'
-            + 'a|em|strong|small|s|cite|q|dfn|abbr|data|time|code|var|samp|kbd|sub'
-            + '|sup|i|b|u|mark|ruby|rt|rp|bdi|bdo|span|br|wbr|ins|del|img)'
-            + '\\b)\\w+(?!:|[^\\w\\s@]*@)\\b')
+        + 'a|em|strong|small|s|cite|q|dfn|abbr|data|time|code|var|samp|kbd|sub'
+        + '|sup|i|b|u|mark|ruby|rt|rp|bdi|bdo|span|br|wbr|ins|del|img)'
+        + '\\b)\\w+(?!:|[^\\w\\s@]*@)\\b')
         .getRegex(),
     def: /^ *\[([^\]]+)\]: *<?([^\s>]+)>?(?: +(["(][^\n]+[")]))? *(?:\n+|$)/,
     heading: /^(#{1,6})(.*)(?:\n+|$)/,
@@ -1513,7 +1513,7 @@ class _Lexer {
      */
     inlineTokens(src, tokens = []) {
         let token, lastToken, cutSrc;
-        // String with links masked to acognidream interference with em and strong
+        // String with links masked to avoid interference with em and strong
         let maskedSrc = src;
         let match;
         let keepPrevChar, prevChar;
@@ -2176,7 +2176,7 @@ class Marked {
                         const prevRenderer = extensions.renderers[ext.name];
                         if (prevRenderer) {
                             // Replace extension with func to run new extension but fall back if false
-                            extensions.renderers[ext.name] = function(...args) {
+                            extensions.renderers[ext.name] = function (...args) {
                                 let ret = ext.renderer.apply(this, args);
                                 if (ret === false) {
                                     ret = prevRenderer.apply(this, args);
@@ -2317,7 +2317,7 @@ class Marked {
             if (pack.walkTokens) {
                 const walkTokens = this.defaults.walkTokens;
                 const packWalktokens = pack.walkTokens;
-                opts.walkTokens = function(token) {
+                opts.walkTokens = function (token) {
                     let values = [];
                     values.push(packWalktokens.call(this, token));
                     if (walkTokens) {
@@ -2423,7 +2423,7 @@ function marked(src, opt) {
  * @param options Hash of options
  */
 marked.options =
-    marked.setOptions = function(options) {
+    marked.setOptions = function (options) {
         markedInstance.setOptions(options);
         marked.defaults = markedInstance.defaults;
         changeDefaults(marked.defaults);
@@ -2437,7 +2437,7 @@ marked.defaults = _defaults;
 /**
  * Use Extension
  */
-marked.use = function(...args) {
+marked.use = function (...args) {
     markedInstance.use(...args);
     marked.defaults = markedInstance.defaults;
     changeDefaults(marked.defaults);
@@ -2446,7 +2446,7 @@ marked.use = function(...args) {
 /**
  * Run callback for every token
  */
-marked.walkTokens = function(tokens, callback) {
+marked.walkTokens = function (tokens, callback) {
     return markedInstance.walkTokens(tokens, callback);
 };
 /**

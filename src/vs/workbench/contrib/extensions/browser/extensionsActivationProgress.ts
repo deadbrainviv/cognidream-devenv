@@ -14,42 +14,42 @@ import { CancellationToken } from '../../../../base/common/cancellation.js';
 
 export class ExtensionActivationProgress implements IWorkbenchContribution {
 
-    private readonly _listener: IDisposable;
+	private readonly _listener: IDisposable;
 
-    constructor(
-        @IExtensionService extensionService: IExtensionService,
-        @IProgressService progressService: IProgressService,
-        @ILogService logService: ILogService,
-    ) {
+	constructor(
+		@IExtensionService extensionService: IExtensionService,
+		@IProgressService progressService: IProgressService,
+		@ILogService logService: ILogService,
+	) {
 
-        const options = {
-            location: ProgressLocation.Window,
-            title: localize('activation', "Activating Extensions...")
-        };
+		const options = {
+			location: ProgressLocation.Window,
+			title: localize('activation', "Activating Extensions...")
+		};
 
-        let deferred: DeferredPromise<any> | undefined;
-        let count = 0;
+		let deferred: DeferredPromise<any> | undefined;
+		let count = 0;
 
-        this._listener = extensionService.onWillActivateByEvent(e => {
-            logService.trace('onWillActivateByEvent: ', e.event);
+		this._listener = extensionService.onWillActivateByEvent(e => {
+			logService.trace('onWillActivateByEvent: ', e.event);
 
-            if (!deferred) {
-                deferred = new DeferredPromise();
-                progressService.withProgress(options, _ => deferred!.p);
-            }
+			if (!deferred) {
+				deferred = new DeferredPromise();
+				progressService.withProgress(options, _ => deferred!.p);
+			}
 
-            count++;
+			count++;
 
-            Promise.race([e.activation, timeout(5000, CancellationToken.None)]).finally(() => {
-                if (--count === 0) {
-                    deferred!.complete(undefined);
-                    deferred = undefined;
-                }
-            });
-        });
-    }
+			Promise.race([e.activation, timeout(5000, CancellationToken.None)]).finally(() => {
+				if (--count === 0) {
+					deferred!.complete(undefined);
+					deferred = undefined;
+				}
+			});
+		});
+	}
 
-    dispose(): cognidream {
-        this._listener.dispose();
-    }
+	dispose(): void {
+		this._listener.dispose();
+	}
 }

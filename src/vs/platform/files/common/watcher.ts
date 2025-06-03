@@ -119,21 +119,21 @@ export interface IWatcher {
 	 * in the array, will be removed from watching and
 	 * any new path will be added to watching.
 	 */
-	watch(requests: IWatchRequest[]): Promise<cognidreamidream>;
+	watch(requests: IWatchRequest[]): Promise<void>;
 
 	/**
 	 * Enable verbose logging in the watcher.
 	 */
-	setVerboseLogging(enabled: boolean): Promise<cognidreamidream>;
+	setVerboseLogging(enabled: boolean): Promise<void>;
 
 	/**
 	 * Stop all watchers.
 	 */
-	stop(): Promise<cognidreamidream>;
+	stop(): Promise<void>;
 }
 
 export interface IRecursiveWatcher extends IWatcher {
-	watch(requests: IRecursiveWatchRequest[]): Promise<cognidreamidream>;
+	watch(requests: IRecursiveWatchRequest[]): Promise<void>;
 }
 
 export interface IRecursiveWatcherWithSubscribe extends IRecursiveWatcher {
@@ -147,7 +147,7 @@ export interface IRecursiveWatcherWithSubscribe extends IRecursiveWatcher {
 	 * if no events can be watched for the path given the current set of
 	 * recursive watch requests.
 	 */
-	subscribe(path: string, callback: (error: true | null, change?: IFileChange) => cognidreamidream): IDisposable | undefined;
+	subscribe(path: string, callback: (error: true | null, change?: IFileChange) => void): IDisposable | undefined;
 }
 
 export interface IRecursiveWatcherOptions {
@@ -172,11 +172,11 @@ export interface IRecursiveWatcherOptions {
 }
 
 export interface INonRecursiveWatcher extends IWatcher {
-	watch(requests: INonRecursiveWatchRequest[]): Promise<cognidreamidream>;
+	watch(requests: INonRecursiveWatchRequest[]): Promise<void>;
 }
 
 export interface IUniversalWatcher extends IWatcher {
-	watch(requests: IUniversalWatchRequest[]): Promise<cognidreamidream>;
+	watch(requests: IUniversalWatchRequest[]): Promise<void>;
 }
 
 export abstract class AbstractWatcherClient extends Disposable {
@@ -191,8 +191,8 @@ export abstract class AbstractWatcherClient extends Disposable {
 	private restartCounter = 0;
 
 	constructor(
-		private readonly onFileChanges: (changes: IFileChange[]) => cognidreamidream,
-		private readonly onLogMessage: (msg: ILogMessage) => cognidreamidream,
+		private readonly onFileChanges: (changes: IFileChange[]) => void,
+		private readonly onLogMessage: (msg: ILogMessage) => void,
 		private verboseLogging: boolean,
 		private options: {
 			readonly type: string;
@@ -204,7 +204,7 @@ export abstract class AbstractWatcherClient extends Disposable {
 
 	protected abstract createWatcher(disposables: DisposableStore): IWatcher;
 
-	protected init(): cognidreamidream {
+	protected init(): void {
 
 		// Associate disposables to the watcher
 		const disposables = new DisposableStore();
@@ -220,7 +220,7 @@ export abstract class AbstractWatcherClient extends Disposable {
 		disposables.add(this.watcher.onDidError(e => this.onError(e.error, e.request)));
 	}
 
-	protected onError(error: string, failedRequest?: IUniversalWatchRequest): cognidreamidream {
+	protected onError(error: string, failedRequest?: IUniversalWatchRequest): void {
 
 		// Restart on error (up to N times, if possible)
 		if (this.canRestart(error, failedRequest)) {
@@ -264,20 +264,20 @@ export abstract class AbstractWatcherClient extends Disposable {
 		return true;
 	}
 
-	private restart(requests: IUniversalWatchRequest[]): cognidreamidream {
+	private restart(requests: IUniversalWatchRequest[]): void {
 		this.restartCounter++;
 
 		this.init();
 		this.watch(requests);
 	}
 
-	async watch(requests: IUniversalWatchRequest[]): Promise<cognidreamidream> {
+	async watch(requests: IUniversalWatchRequest[]): Promise<void> {
 		this.requests = requests;
 
 		await this.watcher?.watch(requests);
 	}
 
-	async setVerboseLogging(verboseLogging: boolean): Promise<cognidreamidream> {
+	async setVerboseLogging(verboseLogging: boolean): Promise<void> {
 		this.verboseLogging = verboseLogging;
 
 		await this.watcher?.setVerboseLogging(verboseLogging);
@@ -291,7 +291,7 @@ export abstract class AbstractWatcherClient extends Disposable {
 		this.onLogMessage({ type: 'trace', message: `[File Watcher (${this.options.type})] ${message}` });
 	}
 
-	override dispose(): cognidreamidream {
+	override dispose(): void {
 
 		// Render the watcher invalid from here
 		this.watcher = undefined;
@@ -303,8 +303,8 @@ export abstract class AbstractWatcherClient extends Disposable {
 export abstract class AbstractNonRecursiveWatcherClient extends AbstractWatcherClient {
 
 	constructor(
-		onFileChanges: (changes: IFileChange[]) => cognidreamidream,
-		onLogMessage: (msg: ILogMessage) => cognidreamidream,
+		onFileChanges: (changes: IFileChange[]) => void,
+		onLogMessage: (msg: ILogMessage) => void,
 		verboseLogging: boolean
 	) {
 		super(onFileChanges, onLogMessage, verboseLogging, { type: 'node.js', restartOnError: false });
@@ -316,8 +316,8 @@ export abstract class AbstractNonRecursiveWatcherClient extends AbstractWatcherC
 export abstract class AbstractUniversalWatcherClient extends AbstractWatcherClient {
 
 	constructor(
-		onFileChanges: (changes: IFileChange[]) => cognidreamidream,
-		onLogMessage: (msg: ILogMessage) => cognidreamidream,
+		onFileChanges: (changes: IFileChange[]) => void,
+		onLogMessage: (msg: ILogMessage) => void,
 		verboseLogging: boolean
 	) {
 		super(onFileChanges, onLogMessage, verboseLogging, { type: 'universal', restartOnError: true });
@@ -388,7 +388,7 @@ class EventCoalescer {
 		return event.resource.fsPath.toLowerCase(); // normalise to file system case sensitivity
 	}
 
-	processEvent(event: IFileChange): cognidreamidream {
+	processEvent(event: IFileChange): void {
 		const existingEvent = this.mapPathToChange.get(this.toKey(event));
 
 		let keepEvent = false;

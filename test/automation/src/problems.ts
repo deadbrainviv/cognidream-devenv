@@ -27,7 +27,7 @@ export class Problems {
 		await this.code.waitForElement(Problems.PROBLEMS_VIEW_SELECTOR, el => !el);
 	}
 
-	async waitForProblemsView(): Promise<cognidream> {
+	async waitForProblemsView(): Promise<void> {
 		await this.code.waitForElement(Problems.PROBLEMS_VIEW_SELECTOR);
 	}
 

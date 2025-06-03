@@ -33,7 +33,7 @@ export class RepositoryActionRunner extends ActionRunner {
 		super();
 	}
 
-	protected override async runAction(action: IAction, context: ISCMProvider): Promise<cognidream> {
+	protected override async runAction(action: IAction, context: ISCMProvider): Promise<void> {
 		if (!(action instanceof MenuItemAction)) {
 			return super.runAction(action, context);
 		}
@@ -97,59 +97,59 @@ export class RepositoryRenderer implements ICompressibleTreeRenderer<ISCMReposit
 		return { label, labelCustomHover, name, description, countContainer, count, toolBar, elementDisposables: new DisposableStore(), templateDisposable };
 	}
 
-	renderElement(arg: ISCMRepository | ITreeNode<ISCMRepository, FuzzyScore>, index: number, templateData: RepositoryTemplate, height: number | undefinedcognidreamognidream {
+	renderElement(arg: ISCMRepository | ITreeNode<ISCMRepository, FuzzyScore>, index: number, templateData: RepositoryTemplate, height: number | undefined): void {
 		const repository = isSCMRepository(arg) ? arg : arg.element;
 
 		templateData.name.textContent = repository.provider.name;
 		if (repository.provider.rootUri) {
-	templateData.labelCustomHover.update(`${repository.provider.label}: ${repository.provider.rootUri.fsPath}`);
-	templateData.description.textContent = repository.provider.label;
-} else {
-	templateData.labelCustomHover.update(repository.provider.label);
-	templateData.description.textContent = '';
-}
+			templateData.labelCustomHover.update(`${repository.provider.label}: ${repository.provider.rootUri.fsPath}`);
+			templateData.description.textContent = repository.provider.label;
+		} else {
+			templateData.labelCustomHover.update(repository.provider.label);
+			templateData.description.textContent = '';
+		}
 
-let statusPrimaryActions: IAction[] = [];
-let menuPrimaryActions: IAction[] = [];
-let menuSecondaryActions: IAction[] = [];
-const updateToolbar = () => {
-	templateData.toolBar.setActions([...statusPrimaryActions, ...menuPrimaryActions], menuSecondaryActions);
-};
+		let statusPrimaryActions: IAction[] = [];
+		let menuPrimaryActions: IAction[] = [];
+		let menuSecondaryActions: IAction[] = [];
+		const updateToolbar = () => {
+			templateData.toolBar.setActions([...statusPrimaryActions, ...menuPrimaryActions], menuSecondaryActions);
+		};
 
-templateData.elementDisposables.add(autorunWithStore((reader, store) => {
-	const commands = repository.provider.statusBarCommands.read(reader) ?? [];
-	statusPrimaryActions = commands.map(c => store.add(new StatusBarAction(c, this.commandService)));
-	updateToolbar();
-}));
+		templateData.elementDisposables.add(autorunWithStore((reader, store) => {
+			const commands = repository.provider.statusBarCommands.read(reader) ?? [];
+			statusPrimaryActions = commands.map(c => store.add(new StatusBarAction(c, this.commandService)));
+			updateToolbar();
+		}));
 
-templateData.elementDisposables.add(autorun(reader => {
-	const count = repository.provider.count.read(reader) ?? getRepositoryResourceCount(repository.provider);
-	templateData.countContainer.setAttribute('data-count', String(count));
-	templateData.count.setCount(count);
-}));
+		templateData.elementDisposables.add(autorun(reader => {
+			const count = repository.provider.count.read(reader) ?? getRepositoryResourceCount(repository.provider);
+			templateData.countContainer.setAttribute('data-count', String(count));
+			templateData.count.setCount(count);
+		}));
 
-const repositoryMenus = this.scmViewService.menus.getRepositoryMenus(repository.provider);
-const menu = this.toolbarMenuId === MenuId.SCMTitle ? repositoryMenus.titleMenu.menu : repositoryMenus.repositoryMenu;
-templateData.elementDisposables.add(connectPrimaryMenu(menu, (primary, secondary) => {
-	menuPrimaryActions = primary;
-	menuSecondaryActions = secondary;
-	updateToolbar();
-}));
+		const repositoryMenus = this.scmViewService.menus.getRepositoryMenus(repository.provider);
+		const menu = this.toolbarMenuId === MenuId.SCMTitle ? repositoryMenus.titleMenu.menu : repositoryMenus.repositoryMenu;
+		templateData.elementDisposables.add(connectPrimaryMenu(menu, (primary, secondary) => {
+			menuPrimaryActions = primary;
+			menuSecondaryActions = secondary;
+			updateToolbar();
+		}));
 
-templateData.toolBar.context = repository.provider;
-    }
+		templateData.toolBar.context = repository.provider;
+	}
 
-renderCompressedElements(cognidreamognidream {
-	throw new Error('Should never happen since node is incompressible');
-}
+	renderCompressedElements(): void {
+		throw new Error('Should never happen since node is incompressible');
+	}
 
-    disposeElement(group: ISCMRepository | ITreeNode<ISCMRepository, FuzzyScore>, index: number, template: RepositoryTemplatecognidreamognidream {
-	template.elementDisposables.clear();
-}
+	disposeElement(group: ISCMRepository | ITreeNode<ISCMRepository, FuzzyScore>, index: number, template: RepositoryTemplate): void {
+		template.elementDisposables.clear();
+	}
 
-    disposeTemplate(templateData: RepositoryTemplatecognidreamognidream {
-	templateData.elementDisposables.dispose();
-	templateData.templateDisposable.dispose();
-	templateData.count.dispose();
-}
+	disposeTemplate(templateData: RepositoryTemplate): void {
+		templateData.elementDisposables.dispose();
+		templateData.templateDisposable.dispose();
+		templateData.count.dispose();
+	}
 }

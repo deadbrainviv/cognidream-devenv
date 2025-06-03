@@ -246,8 +246,8 @@ suite('merge editor model', () => {
 
 async function testMergeModel(
 	options: MergeModelOptions,
-	fn: (model: MergeModelInterface) => cognidream
-): Promise<cognidreamidream> {
+	fn: (model: MergeModelInterface) => void
+): Promise<void> {
 	const disposables = new DisposableStore();
 	const modelInterface = disposables.add(
 		new MergeModelInterface(options, createModelServices(disposables))
@@ -331,75 +331,75 @@ class MergeModelInterface extends Disposable {
 			range: Range;
 			label: string;
 		}
-		function applyRanges(textModel: ITextModel, ranges: LabeledRangcognidream: cognidream {
+		function applyRanges(textModel: ITextModel, ranges: LabeledRange[]): void {
 			textModel.applyEdits(ranges.map(({ range, label }) => ({
 				range: range,
 				text: `⟦${textModel.getValueInRange(range)}⟧${label}`,
 			})));
+		}
+		const baseRanges = this.mergeModel.modifiedBaseRanges.get();
+
+		const baseTextModel = createTextModel(this.mergeModel.base.getValue());
+		applyRanges(
+			baseTextModel,
+			baseRanges.map<LabeledRange>((r, idx) => ({
+				range: r.baseRange.toRange(),
+				label: toSmallNumbersDec(idx),
+			}))
+		);
+
+		const input1TextModel = createTextModel(this.mergeModel.input1.textModel.getValue());
+		applyRanges(
+			input1TextModel,
+			baseRanges.map<LabeledRange>((r, idx) => ({
+				range: r.input1Range.toRange(),
+				label: toSmallNumbersDec(idx),
+			}))
+		);
+
+		const input2TextModel = createTextModel(this.mergeModel.input2.textModel.getValue());
+		applyRanges(
+			input2TextModel,
+			baseRanges.map<LabeledRange>((r, idx) => ({
+				range: r.input2Range.toRange(),
+				label: toSmallNumbersDec(idx),
+			}))
+		);
+
+		const resultTextModel = createTextModel(this.mergeModel.resultTextModel.getValue());
+		applyRanges(
+			resultTextModel,
+			baseRanges.map<LabeledRange>((r, idx) => ({
+				range: this.mergeModel.getLineRangeInResult(r.baseRange).toRange(),
+				label: `{${this.mergeModel.getState(r).get()}}${toSmallNumbersDec(idx)}`,
+			}))
+		);
+
+		const result = {
+			base: baseTextModel.getValue(EndOfLinePreference.LF).split('\n'),
+			input1: input1TextModel.getValue(EndOfLinePreference.LF).split('\n'),
+			input2: input2TextModel.getValue(EndOfLinePreference.LF).split('\n'),
+			result: resultTextModel.getValue(EndOfLinePreference.LF).split('\n'),
+		};
+		baseTextModel.dispose();
+		input1TextModel.dispose();
+		input2TextModel.dispose();
+		resultTextModel.dispose();
+		return result;
 	}
-	const baseRanges = this.mergeModel.modifiedBaseRanges.get();
 
-	const baseTextModel = createTextModel(this.mergeModel.base.getValue());
-	applyRanges(
-		baseTextModel,
-		baseRanges.map<LabeledRange> ((r, idx) => ({
-			range: r.baseRange.toRange(),
-			label: toSmallNumbersDec(idx),
-		}))
-        );
-
-const input1TextModel = createTextModel(this.mergeModel.input1.textModel.getValue());
-applyRanges(
-	input1TextModel,
-	baseRanges.map<LabeledRange>((r, idx) => ({
-		range: r.input1Range.toRange(),
-		label: toSmallNumbersDec(idx),
-	}))
-);
-
-const input2TextModel = createTextModel(this.mergeModel.input2.textModel.getValue());
-applyRanges(
-	input2TextModel,
-	baseRanges.map<LabeledRange>((r, idx) => ({
-		range: r.input2Range.toRange(),
-		label: toSmallNumbersDec(idx),
-	}))
-);
-
-const resultTextModel = createTextModel(this.mergeModel.resultTextModel.getValue());
-applyRanges(
-	resultTextModel,
-	baseRanges.map<LabeledRange>((r, idx) => ({
-		range: this.mergeModel.getLineRangeInResult(r.baseRange).toRange(),
-		label: `{${this.mergeModel.getState(r).get()}}${toSmallNumbersDec(idx)}`,
-	}))
-);
-
-const result = {
-	base: baseTextModel.getValue(EndOfLinePreference.LF).split('\n'),
-	input1: input1TextModel.getValue(EndOfLinePreference.LF).split('\n'),
-	input2: input2TextModel.getValue(EndOfLinePreference.LF).split('\n'),
-	result: resultTextModel.getValue(EndOfLinePreference.LF).split('\n'),
-};
-baseTextModel.dispose();
-input1TextModel.dispose();
-input2TextModel.dispose();
-resultTextModel.dispose();
-return result;
-    }
-
-toggleConflict(conflictIdx: number, inputNumber: 1 | 2cognidreamognidream {
-	const baseRange = this.mergeModel.modifiedBaseRanges.get()[conflictIdx];
-	if(!baseRange) {
-		throw new Error();
+	toggleConflict(conflictIdx: number, inputNumber: 1 | 2): void {
+		const baseRange = this.mergeModel.modifiedBaseRanges.get()[conflictIdx];
+		if (!baseRange) {
+			throw new Error();
+		}
+		const state = this.mergeModel.getState(baseRange).get();
+		transaction(tx => {
+			this.mergeModel.setState(baseRange, state.toggle(inputNumber), true, tx);
+		});
 	}
-        const state = this.mergeModel.getState(baseRange).get();
-	transaction(tx => {
-		this.mergeModel.setState(baseRange, state.toggle(inputNumber), true, tx);
-});
-    }
 
-getResult(): string {
-	return this.mergeModel.resultTextModel.getValue();
-}
+	getResult(): string {
+		return this.mergeModel.resultTextModel.getValue();
+	}
 }

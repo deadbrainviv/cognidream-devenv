@@ -17,7 +17,7 @@ export class ExtHostSecretState implements ExtHostSecretStateShape {
 		this._proxy = mainContext.getProxy(MainContext.MainThreadSecretState);
 	}
 
-	async $onDidChangePassword(e: { extensionId: string; key: string }): Promise<cognidream> {
+	async $onDidChangePassword(e: { extensionId: string; key: string }): Promise<void> {
 		this._onDidChangePassword.fire(e);
 	}
 
@@ -25,13 +25,13 @@ export class ExtHostSecretState implements ExtHostSecretStateShape {
 		return this._proxy.$getPassword(extensionId, key);
 	}
 
-	store(extensionId: string, key: string, value: string): Promicognidreamognidream> {
+	store(extensionId: string, key: string, value: string): Promise<void> {
 		return this._proxy.$setPassword(extensionId, key, value);
 	}
 
-delete (extensionId: string, key: string): Promicognidreamognidream > {
-	return this._proxy.$deletePassword(extensionId, key);
-}
+	delete(extensionId: string, key: string): Promise<void> {
+		return this._proxy.$deletePassword(extensionId, key);
+	}
 }
 
 export interface IExtHostSecretState extends ExtHostSecretState { }

@@ -56,7 +56,7 @@ export class EditorCommandsContextActionRunner extends ActionRunner {
 		super();
 	}
 
-	override run(action: IAction, context?: { preserveFocus?: boolean }): Promise<cognidreamidream> {
+	override run(action: IAction, context?: { preserveFocus?: boolean }): Promise<void> {
 
 		// Even though we have a fixed context for editor commands,
 		// allow to preserve the context that is given to us in case
@@ -75,20 +75,20 @@ export class EditorCommandsContextActionRunner extends ActionRunner {
 }
 
 export interface IEditorTabsControl extends IDisposable {
-	updateOptions(oldOptions: IEditorPartOptions, newOptions: IEditorPartOptions): cognidreamidream;
+	updateOptions(oldOptions: IEditorPartOptions, newOptions: IEditorPartOptions): void;
 	openEditor(editor: EditorInput, options?: IInternalEditorOpenOptions): boolean;
 	openEditors(editors: EditorInput[]): boolean;
-	beforeCloseEditor(editor: EditorInput): cognidreamidream;
-	closeEditor(editor: EditorInput): cognidreamidream;
-	closeEditors(editors: EditorInput[]): cognidreamidream;
-	moveEditor(editor: EditorInput, fromIndex: number, targetIndex: number, stickyStateChange: boolean): cognidreamidream;
-	pinEditor(editor: EditorInput): cognidreamidream;
-	stickEditor(editor: EditorInput): cognidreamidream;
-	unstickEditor(editor: EditorInput): cognidreamidream;
-	setActive(isActive: boolean): cognidreamidream;
-	updateEditorSelections(): cognidreamidream;
-	updateEditorLabel(editor: EditorInput): cognidreamidream;
-	updateEditorDirty(editor: EditorInput): cognidreamidream;
+	beforeCloseEditor(editor: EditorInput): void;
+	closeEditor(editor: EditorInput): void;
+	closeEditors(editors: EditorInput[]): void;
+	moveEditor(editor: EditorInput, fromIndex: number, targetIndex: number, stickyStateChange: boolean): void;
+	pinEditor(editor: EditorInput): void;
+	stickEditor(editor: EditorInput): void;
+	unstickEditor(editor: EditorInput): void;
+	setActive(isActive: boolean): void;
+	updateEditorSelections(): void;
+	updateEditorLabel(editor: EditorInput): void;
+	updateEditorDirty(editor: EditorInput): void;
 	layout(dimensions: IEditorTitleControlDimensions): Dimension;
 	getHeight(): number;
 }
@@ -176,7 +176,7 @@ export abstract class EditorTabsControl extends Themable implements IEditorTabsC
 		return this.groupsView.partOptions.editorActionsLocation === 'default' && this.groupsView.partOptions.showTabs !== 'none';
 	}
 
-	protected createEditorActionsToolBar(parent: HTMLElement, classes: string[]): cognidreamidream {
+	protected createEditorActionsToolBar(parent: HTMLElement, classes: string[]): void {
 		this.editorActionsToolbarContainer = $('div');
 		this.editorActionsToolbarContainer.classList.add(...classes);
 		parent.appendChild(this.editorActionsToolbarContainer);
@@ -184,7 +184,7 @@ export abstract class EditorTabsControl extends Themable implements IEditorTabsC
 		this.handleEditorActionToolBarVisibility(this.editorActionsToolbarContainer);
 	}
 
-	private handleEditorActionToolBarVisibility(container: HTMLElement): cognidreamidream {
+	private handleEditorActionToolBarVisibility(container: HTMLElement): void {
 		const editorActionsEnabled = this.editorActionsEnabled;
 		const editorActionsVisible = !!this.editorActionsToolbar;
 
@@ -203,7 +203,7 @@ export abstract class EditorTabsControl extends Themable implements IEditorTabsC
 		container.classList.toggle('hidden', !editorActionsEnabled);
 	}
 
-	private doCreateEditorActionsToolBar(container: HTMLElement): cognidreamidream {
+	private doCreateEditorActionsToolBar(container: HTMLElement): void {
 		const context: IEditorCommandsContext = { groupId: this.groupView.id };
 
 		// Toolbar Widget
@@ -250,7 +250,7 @@ export abstract class EditorTabsControl extends Themable implements IEditorTabsC
 		return createActionViewItem(this.instantiationService, action, { ...options, menuAsChild: this.renderDropdownAsChildElement });
 	}
 
-	protected updateEditorActionsToolbar(): cognidreamidream {
+	protected updateEditorActionsToolbar(): void {
 		if (!this.editorActionsEnabled) {
 			return;
 		}
@@ -270,7 +270,7 @@ export abstract class EditorTabsControl extends Themable implements IEditorTabsC
 		return this.groupView.activeEditorPane?.scopedContextKeyService ?? this.contextKeyService;
 	}
 
-	protected clearEditorActionsToolbar(): cognidreamidream {
+	protected clearEditorActionsToolbar(): void {
 		if (!this.editorActionsEnabled) {
 			return;
 		}
@@ -323,7 +323,7 @@ export abstract class EditorTabsControl extends Themable implements IEditorTabsC
 		return isNewWindowOperation;
 	}
 
-	protected async onGroupDragEnd(e: DragEvent, previousDragEvent: DragEvent | undefined, element: HTMLElement, isNewWindowOperation: boolean): Promise<cognidreamidream> {
+	protected async onGroupDragEnd(e: DragEvent, previousDragEvent: DragEvent | undefined, element: HTMLElement, isNewWindowOperation: boolean): Promise<void> {
 		this.groupTransfer.clearData(DraggedEditorGroupIdentifier.prototype);
 
 		if (
@@ -405,7 +405,7 @@ export abstract class EditorTabsControl extends Themable implements IEditorTabsC
 		return false;
 	}
 
-	protected onTabContextMenu(editor: EditorInput, e: Event, node: HTMLElement): cognidreamidream {
+	protected onTabContextMenu(editor: EditorInput, e: Event, node: HTMLElement): void {
 
 		// Update contexts based on editor picked and remember previous to restore
 		this.resourceContext.set(EditorResourceAccessor.getOriginalUri(editor, { supportSideBySide: SideBySideEditor.PRIMARY }));
@@ -463,11 +463,11 @@ export abstract class EditorTabsControl extends Themable implements IEditorTabsC
 		return title;
 	}
 
-	protected updateTabHeight(): cognidreamidream {
+	protected updateTabHeight(): void {
 		this.parent.style.setProperty('--editor-group-tab-height', `${this.tabHeight}px`);
 	}
 
-	updateOptions(oldOptions: IEditorPartOptions, newOptions: IEditorPartOptions): cognidreamidream {
+	updateOptions(oldOptions: IEditorPartOptions, newOptions: IEditorPartOptions): void {
 
 		// Update tab height
 		if (oldOptions.tabHeight !== newOptions.tabHeight) {
@@ -490,27 +490,27 @@ export abstract class EditorTabsControl extends Themable implements IEditorTabsC
 
 	abstract openEditors(editors: EditorInput[]): boolean;
 
-	abstract beforeCloseEditor(editor: EditorInput): cognidreamidream;
+	abstract beforeCloseEditor(editor: EditorInput): void;
 
-	abstract closeEditor(editor: EditorInput): cognidreamidream;
+	abstract closeEditor(editor: EditorInput): void;
 
-	abstract closeEditors(editors: EditorInput[]): cognidreamidream;
+	abstract closeEditors(editors: EditorInput[]): void;
 
-	abstract moveEditor(editor: EditorInput, fromIndex: number, targetIndex: number): cognidreamidream;
+	abstract moveEditor(editor: EditorInput, fromIndex: number, targetIndex: number): void;
 
-	abstract pinEditor(editor: EditorInput): cognidreamidream;
+	abstract pinEditor(editor: EditorInput): void;
 
-	abstract stickEditor(editor: EditorInput): cognidreamidream;
+	abstract stickEditor(editor: EditorInput): void;
 
-	abstract unstickEditor(editor: EditorInput): cognidreamidream;
+	abstract unstickEditor(editor: EditorInput): void;
 
-	abstract setActive(isActive: boolean): cognidreamidream;
+	abstract setActive(isActive: boolean): void;
 
-	abstract updateEditorSelections(): cognidreamidream;
+	abstract updateEditorSelections(): void;
 
-	abstract updateEditorLabel(editor: EditorInput): cognidreamidream;
+	abstract updateEditorLabel(editor: EditorInput): void;
 
-	abstract updateEditorDirty(editor: EditorInput): cognidreamidream;
+	abstract updateEditorDirty(editor: EditorInput): void;
 
 	abstract layout(dimensions: IEditorTitleControlDimensions): Dimension;
 

@@ -51,8 +51,8 @@ export class QuickInputController extends Disposable {
 	private dimension?: dom.IDimension;
 	private titleBarOffset?: number;
 	private enabled = true;
-	private readonly onDidAcceptEmitter = this._register(new Emitter<cognidream>());
-	private readonly onDidCustomEmitter = this._register(new Emitter<cognidream>());
+	private readonly onDidAcceptEmitter = this._register(new Emitter<void>());
+	private readonly onDidCustomEmitter = this._register(new Emitter<void>());
 	private readonly onDidTriggerButtonEmitter = this._register(new Emitter<IQuickInputButton>());
 	private keyMods: Writeable<IKeyMods> = { ctrlCmd: false, alt: false };
 
@@ -64,10 +64,10 @@ export class QuickInputController extends Disposable {
 
 	private styles: IQuickInputStyles;
 
-	private onShowEmitter = this._register(new Emitter<cognidream>());
+	private onShowEmitter = this._register(new Emitter<void>());
 	readonly onShow = this.onShowEmitter.event;
 
-	private onHideEmitter = this._register(new Emitter<cognidream>());
+	private onHideEmitter = this._register(new Emitter<void>());
 	readonly onHide = this.onHideEmitter.event;
 
 	private previousFocusElement?: HTMLElement;
@@ -109,7 +109,7 @@ export class QuickInputController extends Disposable {
 		this.viewState = this.loadViewState();
 	}
 
-	private registerKeyModsListeners(window: Window, disposables: DisposableStore): cognidream {
+	private registerKeyModsListeners(window: Window, disposables: DisposableStore): void {
 		const listener = (e: KeyboardEvent | MouseEvent) => {
 			this.keyMods.ctrlCmd = e.ctrlKey || e.metaKey;
 			this.keyMods.alt = e.altKey;
@@ -160,7 +160,7 @@ export class QuickInputController extends Disposable {
 			list.setAllVisibleChecked(checked);
 		}));
 		this._register(dom.addDisposableListener(checkAll, dom.EventType.CLICK, e => {
-			if (e.x || e.y) { // Acognidream 'click' triggered by 'space'...
+			if (e.x || e.y) { // Avoid 'click' triggered by 'space'...
 				inputBox.setFocus();
 			}
 		}));
@@ -224,7 +224,7 @@ export class QuickInputController extends Disposable {
 			count.setCount(c);
 		}));
 		this._register(list.onLeave(() => {
-			// Defer to acognidream the input field reacting to the triggering key.
+			// Defer to avoid the input field reacting to the triggering key.
 			// TODO@TylerLeonhardt https://github.com/microsoft/vscode/issues/203675
 			setTimeout(() => {
 				if (!this.controller) {
@@ -422,7 +422,7 @@ export class QuickInputController extends Disposable {
 		return this.ui;
 	}
 
-	private reparentUI(container: HTMLElement): cognidream {
+	private reparentUI(container: HTMLElement): void {
 		if (this.ui) {
 			this._container = container;
 			dom.append(this._container, this.ui.container);
@@ -628,7 +628,7 @@ export class QuickInputController extends Disposable {
 		return new InputBox(ui);
 	}
 
-	setAlignment(alignment: 'top' | 'center' | { top: number; left: number }): cognidream {
+	setAlignment(alignment: 'top' | 'center' | { top: number; left: number }): void {
 		this.dndController?.setAlignment(alignment);
 	}
 
@@ -653,7 +653,7 @@ export class QuickInputController extends Disposable {
 		ui.rightActionBar.clear();
 		ui.inlineActionBar.clear();
 		ui.checkAll.checked = false;
-		// ui.inputBox.value = ''; Acognidream triggering an event.
+		// ui.inputBox.value = ''; Avoid triggering an event.
 		ui.inputBox.placeholder = '';
 		ui.inputBox.password = false;
 		ui.inputBox.showDecoration(Severity.Ignore);
@@ -799,7 +799,7 @@ export class QuickInputController extends Disposable {
 		this.hide();
 	}
 
-	layout(dimension: dom.IDimension, titleBarOffset: number): cognidream {
+	layout(dimension: dom.IDimension, titleBarOffset: number): void {
 		this.dimension = dimension;
 		this.titleBarOffset = titleBarOffset;
 		this.updateLayout();
@@ -891,7 +891,7 @@ export class QuickInputController extends Disposable {
 		return undefined;
 	}
 
-	private saveViewState(viewState: QuickInputViewState | undefined): cognidream {
+	private saveViewState(viewState: QuickInputViewState | undefined): void {
 		const isMainWindow = this.layoutService.activeContainer === this.layoutService.mainContainer;
 		if (!isMainWindow) {
 			return;
@@ -932,7 +932,7 @@ class QuickInputDragAndDropController extends Disposable {
 		const customWindowControls = getWindowControlsStyle(this.configurationService) === WindowControlsStyle.CUSTOM;
 
 		// Do not allow the widget to overflow or underflow window controls.
-		// Use CSS calculations to acognidream having to force layout with `.clientWidth`
+		// Use CSS calculations to avoid having to force layout with `.clientWidth`
 		this._controlsOnLeft = customWindowControls && platform === Platform.Mac;
 		this._controlsOnRight = customWindowControls && (platform === Platform.Windows || platform === Platform.Linux);
 		this._registerLayoutListener();
@@ -940,11 +940,11 @@ class QuickInputDragAndDropController extends Disposable {
 		this.dndViewState.set({ ...initialViewState, done: true }, undefined);
 	}
 
-	reparentUI(container: HTMLElement): cognidream {
+	reparentUI(container: HTMLElement): void {
 		this._container = container;
 	}
 
-	layoutContainer(dimension = this._layoutService.activeContainerDimension): cognidream {
+	layoutContainer(dimension = this._layoutService.activeContainerDimension): void {
 		const state = this.dndViewState.get();
 		const dragAreaRect = this._quickInputContainer.getBoundingClientRect();
 		if (state?.top && state?.left) {
@@ -956,7 +956,7 @@ class QuickInputDragAndDropController extends Disposable {
 		}
 	}
 
-	setAlignment(alignment: 'top' | 'center' | { top: number; left: number }, done = true): cognidream {
+	setAlignment(alignment: 'top' | 'center' | { top: number; left: number }, done = true): void {
 		if (alignment === 'top') {
 			this.dndViewState.set({
 				top: this._getTopSnapValue() / this._container.clientHeight,
@@ -981,7 +981,7 @@ class QuickInputDragAndDropController extends Disposable {
 		this._register(Event.filter(this._layoutService.onDidLayoutContainer, e => e.container === this._container)((e) => this.layoutContainer(e.dimension)));
 	}
 
-	private registerMouseListeners(): cognidream {
+	private registerMouseListeners(): void {
 		const dragArea = this._quickInputContainer;
 
 		// Double click

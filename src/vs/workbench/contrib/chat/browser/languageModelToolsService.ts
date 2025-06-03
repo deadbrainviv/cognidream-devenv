@@ -45,7 +45,7 @@ interface IToolEntry {
 export class LanguageModelToolsService extends Disposable implements ILanguageModelToolsService {
 	_serviceBrand: undefined;
 
-	private _onDidChangeTools = new Emitter<cognidream>();
+	private _onDidChangeTools = new Emitter<void>();
 	readonly onDidChangeTools = this._onDidChangeTools.event;
 
 	/** Throttle tools updates because it sends all tools and runs on context key updates */
@@ -180,265 +180,265 @@ export class LanguageModelToolsService extends Disposable implements ILanguageMo
 		return undefined;
 	}
 
-	setToolAutoConfirmation(toolId: string, scope: 'workspace' | 'profile' | 'memory', autoConfirm = truecognidreamognidream {
+	setToolAutoConfirmation(toolId: string, scope: 'workspace' | 'profile' | 'memory', autoConfirm = true): void {
 		if (scope === 'workspace') {
-	this._workspaceToolConfirmStore.value.setAutoConfirm(toolId, autoConfirm);
-} else if (scope === 'profile') {
-	this._profileToolConfirmStore.value.setAutoConfirm(toolId, autoConfirm);
-} else {
-	this._memoryToolConfirmStore.add(toolId);
-}
-    }
-
-resetToolAutoConfirmation(cognidreamognidream {
-	this._workspaceToolConfirmStore.value.reset();
-	this._profileToolConfirmStore.value.reset();
-	this._memoryToolConfirmStore.clear();
-}
-
-    async invokeTool(dto: IToolInvocation, countTokens: CountTokensCallback, token: CancellationToken): Promise < IToolResult > {
-	this._logService.trace(`[LanguageModelToolsService#invokeTool] Invoking tool ${dto.toolId} with parameters ${JSON.stringify(dto.parameters)}`);
-
-	// When invoking a tool, don't validate the "when" clause. An extension may have invoked a tool just as it was becoming disabled, and just let it go through rather than throw and break the chat.
-	let tool = this._tools.get(dto.toolId);
-	if(!tool) {
-		throw new Error(`Tool ${dto.toolId} was not contributed`);
+			this._workspaceToolConfirmStore.value.setAutoConfirm(toolId, autoConfirm);
+		} else if (scope === 'profile') {
+			this._profileToolConfirmStore.value.setAutoConfirm(toolId, autoConfirm);
+		} else {
+			this._memoryToolConfirmStore.add(toolId);
+		}
 	}
 
-        if(!tool.impl) {
-	await this._extensionService.activateByEvent(`onLanguageModelTool:${dto.toolId}`);
-
-	// Extension should activate and register the tool implementation
-	tool = this._tools.get(dto.toolId);
-	if (!tool?.impl) {
-		throw new Error(`Tool ${dto.toolId} does not have an implementation registered.`);
+	resetToolAutoConfirmation(): void {
+		this._workspaceToolConfirmStore.value.reset();
+		this._profileToolConfirmStore.value.reset();
+		this._memoryToolConfirmStore.clear();
 	}
-}
 
-// Shortcut to write to the model directly here, but could call all the way back to use the real stream.
-let toolInvocation: ChatToolInvocation | undefined;
+	async invokeTool(dto: IToolInvocation, countTokens: CountTokensCallback, token: CancellationToken): Promise<IToolResult> {
+		this._logService.trace(`[LanguageModelToolsService#invokeTool] Invoking tool ${dto.toolId} with parameters ${JSON.stringify(dto.parameters)}`);
 
-let requestId: string | undefined;
-let store: DisposableStore | undefined;
-let toolResult: IToolResult | undefined;
-try {
-	if (dto.context) {
-		store = new DisposableStore();
-		const model = this._chatService.getSession(dto.context?.sessionId) as ChatModel | undefined;
-		if (!model) {
-			throw new Error(`Tool called for unknown chat session`);
+		// When invoking a tool, don't validate the "when" clause. An extension may have invoked a tool just as it was becoming disabled, and just let it go through rather than throw and break the chat.
+		let tool = this._tools.get(dto.toolId);
+		if (!tool) {
+			throw new Error(`Tool ${dto.toolId} was not contributed`);
 		}
 
-		const request = model.getRequests().at(-1)!;
-		requestId = request.id;
-		dto.modelId = request.modelId;
+		if (!tool.impl) {
+			await this._extensionService.activateByEvent(`onLanguageModelTool:${dto.toolId}`);
 
-		// Replace the token with a new token that we can cancel when cancelToolCallsForRequest is called
-		if (!this._callsByRequestId.has(requestId)) {
-			this._callsByRequestId.set(requestId, []);
-		}
-		this._callsByRequestId.get(requestId)!.push(store);
-
-		const source = new CancellationTokenSource();
-		store.add(toDisposable(() => {
-			source.dispose(true);
-		}));
-		store.add(token.onCancellationRequested(() => {
-			toolInvocation?.confirmed.complete(false);
-			source.cancel();
-		}));
-		store.add(source.token.onCancellationRequested(() => {
-			toolInvocation?.confirmed.complete(false);
-		}));
-		token = source.token;
-
-		const prepared = await this.prepareToolInvocation(tool, dto, token);
-		toolInvocation = new ChatToolInvocation(prepared, tool.data, dto.callId);
-		if (this.shouldAutoConfirm(tool.data.id, tool.data.runsInWorkspace)) {
-			toolInvocation.confirmed.complete(true);
+			// Extension should activate and register the tool implementation
+			tool = this._tools.get(dto.toolId);
+			if (!tool?.impl) {
+				throw new Error(`Tool ${dto.toolId} does not have an implementation registered.`);
+			}
 		}
 
-		model.acceptResponseProgress(request, toolInvocation);
-		if (prepared?.confirmationMessages) {
-			this._accessibilityService.alert(localize('toolConfirmationMessage', "Action required: {0}", prepared.confirmationMessages.title));
-			const userConfirmed = await toolInvocation.confirmed.p;
-			if (!userConfirmed) {
+		// Shortcut to write to the model directly here, but could call all the way back to use the real stream.
+		let toolInvocation: ChatToolInvocation | undefined;
+
+		let requestId: string | undefined;
+		let store: DisposableStore | undefined;
+		let toolResult: IToolResult | undefined;
+		try {
+			if (dto.context) {
+				store = new DisposableStore();
+				const model = this._chatService.getSession(dto.context?.sessionId) as ChatModel | undefined;
+				if (!model) {
+					throw new Error(`Tool called for unknown chat session`);
+				}
+
+				const request = model.getRequests().at(-1)!;
+				requestId = request.id;
+				dto.modelId = request.modelId;
+
+				// Replace the token with a new token that we can cancel when cancelToolCallsForRequest is called
+				if (!this._callsByRequestId.has(requestId)) {
+					this._callsByRequestId.set(requestId, []);
+				}
+				this._callsByRequestId.get(requestId)!.push(store);
+
+				const source = new CancellationTokenSource();
+				store.add(toDisposable(() => {
+					source.dispose(true);
+				}));
+				store.add(token.onCancellationRequested(() => {
+					toolInvocation?.confirmed.complete(false);
+					source.cancel();
+				}));
+				store.add(source.token.onCancellationRequested(() => {
+					toolInvocation?.confirmed.complete(false);
+				}));
+				token = source.token;
+
+				const prepared = await this.prepareToolInvocation(tool, dto, token);
+				toolInvocation = new ChatToolInvocation(prepared, tool.data, dto.callId);
+				if (this.shouldAutoConfirm(tool.data.id, tool.data.runsInWorkspace)) {
+					toolInvocation.confirmed.complete(true);
+				}
+
+				model.acceptResponseProgress(request, toolInvocation);
+				if (prepared?.confirmationMessages) {
+					this._accessibilityService.alert(localize('toolConfirmationMessage', "Action required: {0}", prepared.confirmationMessages.title));
+					const userConfirmed = await toolInvocation.confirmed.p;
+					if (!userConfirmed) {
+						throw new CancellationError();
+					}
+
+					dto.toolSpecificData = toolInvocation?.toolSpecificData;
+
+					if (dto.toolSpecificData?.kind === 'input') {
+						dto.parameters = dto.toolSpecificData.rawInput;
+						dto.toolSpecificData = undefined;
+					}
+				}
+			} else {
+				const prepared = await this.prepareToolInvocation(tool, dto, token);
+				if (prepared?.confirmationMessages) {
+					const result = await this._dialogService.confirm({ message: prepared.confirmationMessages.title, detail: renderStringAsPlaintext(prepared.confirmationMessages.message) });
+					if (!result.confirmed) {
+						throw new CancellationError();
+					}
+				}
+			}
+
+			if (token.isCancellationRequested) {
 				throw new CancellationError();
 			}
 
-			dto.toolSpecificData = toolInvocation?.toolSpecificData;
+			toolResult = await tool.impl.invoke(dto, countTokens, token);
+			this.ensureToolDetails(dto, toolResult, tool.data);
 
-			if (dto.toolSpecificData?.kind === 'input') {
-				dto.parameters = dto.toolSpecificData.rawInput;
-				dto.toolSpecificData = undefined;
+			this._telemetryService.publicLog2<LanguageModelToolInvokedEvent, LanguageModelToolInvokedClassification>(
+				'languageModelToolInvoked',
+				{
+					result: 'success',
+					chatSessionId: dto.context?.sessionId,
+					toolId: tool.data.id,
+					toolExtensionId: tool.data.source.type === 'extension' ? tool.data.source.extensionId.value : undefined,
+					toolSourceKind: tool.data.source.type,
+				});
+			return toolResult;
+		} catch (err) {
+			const result = isCancellationError(err) ? 'userCancelled' : 'error';
+			this._telemetryService.publicLog2<LanguageModelToolInvokedEvent, LanguageModelToolInvokedClassification>(
+				'languageModelToolInvoked',
+				{
+					result,
+					chatSessionId: dto.context?.sessionId,
+					toolId: tool.data.id,
+					toolExtensionId: tool.data.source.type === 'extension' ? tool.data.source.extensionId.value : undefined,
+					toolSourceKind: tool.data.source.type,
+				});
+			this._logService.error(`[LanguageModelToolsService#invokeTool] Error from tool ${dto.toolId}: ${toErrorMessage(err)}. With parameters ${JSON.stringify(dto.parameters)}`);
+			throw err;
+		} finally {
+			toolInvocation?.complete(toolResult);
+
+			if (requestId && store) {
+				this.cleanupCallDisposables(requestId, store);
 			}
 		}
-	} else {
-		const prepared = await this.prepareToolInvocation(tool, dto, token);
+	}
+
+	private async prepareToolInvocation(tool: IToolEntry, dto: IToolInvocation, token: CancellationToken): Promise<IPreparedToolInvocation | undefined> {
+		let prepared = tool.impl!.prepareToolInvocation ?
+			await tool.impl!.prepareToolInvocation(dto.parameters, token)
+			: undefined;
+
+		if (!prepared?.confirmationMessages && tool.data.requiresConfirmation && tool.data.source.type === 'extension') {
+			if (!prepared) {
+				prepared = {};
+			}
+
+			const toolWarning = localize(
+				'tool.warning',
+				"{0} This tool is from the extension `{1}`. Please carefully review any requested actions.",
+				'$(info)',
+				tool.data.source.extensionId.value,
+			);
+			prepared.confirmationMessages = {
+				title: localize('msg.title', "Run {0}", `"${tool.data.displayName}"`),
+				message: new MarkdownString((tool.data.userDescription ?? tool.data.modelDescription) + '\n\n' + toolWarning, { supportThemeIcons: true }),
+				allowAutoConfirm: true,
+			};
+		}
+
 		if (prepared?.confirmationMessages) {
-			const result = await this._dialogService.confirm({ message: prepared.confirmationMessages.title, detail: renderStringAsPlaintext(prepared.confirmationMessages.message) });
-			if (!result.confirmed) {
-				throw new CancellationError();
+			if (prepared.toolSpecificData?.kind !== 'terminal' && typeof prepared.confirmationMessages.allowAutoConfirm !== 'boolean') {
+				prepared.confirmationMessages.allowAutoConfirm = true;
+			}
+
+			if (!prepared.toolSpecificData && tool.data.alwaysDisplayInputOutput) {
+				prepared.toolSpecificData = {
+					kind: 'input',
+					rawInput: dto.parameters,
+				};
 			}
 		}
+
+		return prepared;
 	}
 
-	if (token.isCancellationRequested) {
-		throw new CancellationError();
-	}
-
-	toolResult = await tool.impl.invoke(dto, countTokens, token);
-	this.ensureToolDetails(dto, toolResult, tool.data);
-
-	this._telemetryService.publicLog2<LanguageModelToolInvokedEvent, LanguageModelToolInvokedClassification>(
-		'languageModelToolInvoked',
-		{
-			result: 'success',
-			chatSessionId: dto.context?.sessionId,
-			toolId: tool.data.id,
-			toolExtensionId: tool.data.source.type === 'extension' ? tool.data.source.extensionId.value : undefined,
-			toolSourceKind: tool.data.source.type,
-		});
-	return toolResult;
-} catch (err) {
-	const result = isCancellationError(err) ? 'userCancelled' : 'error';
-	this._telemetryService.publicLog2<LanguageModelToolInvokedEvent, LanguageModelToolInvokedClassification>(
-		'languageModelToolInvoked',
-		{
-			result,
-			chatSessionId: dto.context?.sessionId,
-			toolId: tool.data.id,
-			toolExtensionId: tool.data.source.type === 'extension' ? tool.data.source.extensionId.value : undefined,
-			toolSourceKind: tool.data.source.type,
-		});
-	this._logService.error(`[LanguageModelToolsService#invokeTool] Error from tool ${dto.toolId}: ${toErrorMessage(err)}. With parameters ${JSON.stringify(dto.parameters)}`);
-	throw err;
-} finally {
-	toolInvocation?.complete(toolResult);
-
-	if (requestId && store) {
-		this.cleanupCallDisposables(requestId, store);
-	}
-}
-    }
-
-    private async prepareToolInvocation(tool: IToolEntry, dto: IToolInvocation, token: CancellationToken): Promise < IPreparedToolInvocation | undefined > {
-	let prepared = tool.impl!.prepareToolInvocation ?
-		await tool.impl!.prepareToolInvocation(dto.parameters, token)
-		: undefined;
-
-	if(!prepared?.confirmationMessages && tool.data.requiresConfirmation && tool.data.source.type === 'extension') {
-	if (!prepared) {
-		prepared = {};
-	}
-
-	const toolWarning = localize(
-		'tool.warning',
-		"{0} This tool is from the extension `{1}`. Please carefully review any requested actions.",
-		'$(info)',
-		tool.data.source.extensionId.value,
-	);
-	prepared.confirmationMessages = {
-		title: localize('msg.title', "Run {0}", `"${tool.data.displayName}"`),
-		message: new MarkdownString((tool.data.userDescription ?? tool.data.modelDescription) + '\n\n' + toolWarning, { supportThemeIcons: true }),
-		allowAutoConfirm: true,
-	};
-}
-
-if (prepared?.confirmationMessages) {
-	if (prepared.toolSpecificData?.kind !== 'terminal' && typeof prepared.confirmationMessages.allowAutoConfirm !== 'boolean') {
-		prepared.confirmationMessages.allowAutoConfirm = true;
-	}
-
-	if (!prepared.toolSpecificData && tool.data.alwaysDisplayInputOutput) {
-		prepared.toolSpecificData = {
-			kind: 'input',
-			rawInput: dto.parameters,
-		};
-	}
-}
-
-return prepared;
-    }
-
-    private ensureToolDetails(dto: IToolInvocation, toolResult: IToolResult, toolData: IToolDatacognidreamognidream {
-	if(!toolResult.toolResultDetails && toolData.alwaysDisplayInputOutput) {
-	toolResult.toolResultDetails = {
-		input: JSON.stringify(dto.parameters, undefined, 2),
-		output: this.toolResultToString(toolResult),
-	};
-}
-    }
-
-    private toolResultToString(toolResult: IToolResult): string {
-	const strs = [];
-	for (const part of toolResult.content) {
-		if (part.kind === 'text') {
-			strs.push(part.value);
-		} else if (part.kind === 'promptTsx') {
-			strs.push(stringifyPromptTsxPart(part));
-		}
-	}
-	return strs.join('');
-}
-
-    private shouldAutoConfirm(toolId: string, runsInWorkspace: boolean | undefined): boolean {
-	if (this._workspaceToolConfirmStore.value.getAutoConfirm(toolId) || this._profileToolConfirmStore.value.getAutoConfirm(toolId) || this._memoryToolConfirmStore.has(toolId)) {
-		return true;
-	}
-
-	const config = this._configurationService.inspect<boolean | Record<string, boolean>>('chat.tools.autoApprove');
-
-	// If we know the tool runs at a global level, only consider the global config.
-	// If we know the tool runs at a workspace level, use those specific settings when appropriate.
-	let value = config.value ?? config.defaultValue;
-	if (typeof runsInWorkspace === 'boolean') {
-		value = config.userLocalValue ?? config.applicationValue;
-		if (runsInWorkspace) {
-			value = config.workspaceValue ?? config.workspaceFolderValue ?? config.userRemoteValue ?? value;
+	private ensureToolDetails(dto: IToolInvocation, toolResult: IToolResult, toolData: IToolData): void {
+		if (!toolResult.toolResultDetails && toolData.alwaysDisplayInputOutput) {
+			toolResult.toolResultDetails = {
+				input: JSON.stringify(dto.parameters, undefined, 2),
+				output: this.toolResultToString(toolResult),
+			};
 		}
 	}
 
-	return value === true || (typeof value === 'object' && value.hasOwnProperty(toolId) && value[toolId] === true);
-}
-
-    private cleanupCallDisposables(requestId: string, store: DisposableStorecognidreamognidream {
-	const disposables = this._callsByRequestId.get(requestId);
-	if(disposables) {
-		const index = disposables.indexOf(store);
-		if (index > -1) {
-			disposables.splice(index, 1);
+	private toolResultToString(toolResult: IToolResult): string {
+		const strs = [];
+		for (const part of toolResult.content) {
+			if (part.kind === 'text') {
+				strs.push(part.value);
+			} else if (part.kind === 'promptTsx') {
+				strs.push(stringifyPromptTsxPart(part));
+			}
 		}
-		if (disposables.length === 0) {
+		return strs.join('');
+	}
+
+	private shouldAutoConfirm(toolId: string, runsInWorkspace: boolean | undefined): boolean {
+		if (this._workspaceToolConfirmStore.value.getAutoConfirm(toolId) || this._profileToolConfirmStore.value.getAutoConfirm(toolId) || this._memoryToolConfirmStore.has(toolId)) {
+			return true;
+		}
+
+		const config = this._configurationService.inspect<boolean | Record<string, boolean>>('chat.tools.autoApprove');
+
+		// If we know the tool runs at a global level, only consider the global config.
+		// If we know the tool runs at a workspace level, use those specific settings when appropriate.
+		let value = config.value ?? config.defaultValue;
+		if (typeof runsInWorkspace === 'boolean') {
+			value = config.userLocalValue ?? config.applicationValue;
+			if (runsInWorkspace) {
+				value = config.workspaceValue ?? config.workspaceFolderValue ?? config.userRemoteValue ?? value;
+			}
+		}
+
+		return value === true || (typeof value === 'object' && value.hasOwnProperty(toolId) && value[toolId] === true);
+	}
+
+	private cleanupCallDisposables(requestId: string, store: DisposableStore): void {
+		const disposables = this._callsByRequestId.get(requestId);
+		if (disposables) {
+			const index = disposables.indexOf(store);
+			if (index > -1) {
+				disposables.splice(index, 1);
+			}
+			if (disposables.length === 0) {
+				this._callsByRequestId.delete(requestId);
+			}
+		}
+		store.dispose();
+	}
+
+	cancelToolCallsForRequest(requestId: string): void {
+		const calls = this._callsByRequestId.get(requestId);
+		if (calls) {
+			calls.forEach(call => call.dispose());
 			this._callsByRequestId.delete(requestId);
 		}
 	}
-        store.dispose();
-}
 
-    cancelToolCallsForRequest(requestId: stringcognidreamognidream {
-	const calls = this._callsByRequestId.get(requestId);
-	if(calls) {
-		calls.forEach(call => call.dispose());
-		this._callsByRequestId.delete(requestId);
+	public override dispose(): void {
+		super.dispose();
+
+		this._callsByRequestId.forEach(calls => dispose(calls));
+		this._ctxToolsCount.reset();
 	}
 }
 
-    public override dispose(cognidreamognidream {
-	super.dispose();
-
-	this._callsByRequestId.forEach(calls => dispose(calls));
-	this._ctxToolsCount.reset();
-}
-}
-
-	type LanguageModelToolInvokedEvent = {
-		result: 'success' | 'error' | 'userCancelled';
-		chatSessionId: string | undefined;
-		toolId: string;
-		toolExtensionId: string | undefined;
-		toolSourceKind: string;
-	};
+type LanguageModelToolInvokedEvent = {
+	result: 'success' | 'error' | 'userCancelled';
+	chatSessionId: string | undefined;
+	toolId: string;
+	toolExtensionId: string | undefined;
+	toolSourceKind: string;
+};
 
 type LanguageModelToolInvokedClassification = {
 	result: { classification: 'SystemMetaData'; purpose: 'FeatureInsight'; comment: 'Whether invoking the LanguageModelTool resulted in an error.' };
@@ -491,12 +491,12 @@ class ToolConfirmStore extends Disposable {
 		return false;
 	}
 
-	public setAutoConfirm(toolId: string, autoConfirm: booleancognidreamognidream {
+	public setAutoConfirm(toolId: string, autoConfirm: boolean): void {
 		if (autoConfirm) {
 			this._autoConfirmTools.set(toolId, true);
 		} else {
-	this._autoConfirmTools.delete(toolId);
-}
-this._didChange = true;
-    }
+			this._autoConfirmTools.delete(toolId);
+		}
+		this._didChange = true;
+	}
 }

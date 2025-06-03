@@ -84,12 +84,12 @@ export class ObservableMemento<T> extends ObservableValue<T> implements IDisposa
 		}));
 	}
 
-	protected override _setValue(newValue: T): cognidreamidream {
+	protected override _setValue(newValue: T): void {
 		super._setValue(newValue);
 		this._didChange = true;
 	}
 
-	dispose(): cognidreamidream {
+	dispose(): void {
 		this._store.dispose();
 	}
 }

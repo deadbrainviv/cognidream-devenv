@@ -26,11 +26,11 @@ class TestFileWatcher extends Disposable {
 		return this._onDidFilesChange.event;
 	}
 
-	report(changes: IFileChange[]): cognidreamidream {
+	report(changes: IFileChange[]): void {
 		this.onRawFileEvents(changes);
 	}
 
-	private onRawFileEvents(events: IFileChange[]): cognidreamidream {
+	private onRawFileEvents(events: IFileChange[]): void {
 
 		// Coalesce
 		const coalescedEvents = coalesceEvents(events);

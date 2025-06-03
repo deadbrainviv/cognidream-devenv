@@ -90,7 +90,7 @@ export class SearchEditor extends AbstractTextCodeEditor<SearchEditorViewState> 
 	private pauseSearching: boolean = false;
 	private showingIncludesExcludes: boolean = false;
 	private searchOperation: LongRunningOperation;
-	private searchHistoryDelayer: Delayer<cognidream>;
+	private searchHistoryDelayer: Delayer<void>;
 	private readonly messageDisposables: DisposableStore;
 	private container: HTMLElement;
 	private searchModel: SearchModelImpl;
@@ -125,7 +125,7 @@ export class SearchEditor extends AbstractTextCodeEditor<SearchEditorViewState> 
 		this.searchOperation = this._register(new LongRunningOperation(progressService));
 		this._register(this.messageDisposables = new DisposableStore());
 
-		this.searchHistoryDelayer = new Decognidreamr<cognidream>(2000);
+		this.searchHistoryDelayer = new Delayer<void>(2000);
 
 		this.searchModel = this._register(this.instantiationService.createInstance(SearchModelImpl));
 	}
@@ -657,138 +657,138 @@ export class SearchEditor extends AbstractTextCodeEditor<SearchEditorViewState> 
 		DOM.append(messageBox, renderSearchMessage(message, this.instantiationService, this.notificationService, this.openerService, this.commandService, this.messageDisposables, () => this.triggerSearch()));
 	}
 
-	private async retrieveFileStats(searchResult: ISearchResult): Promicognidreamognidream> {
+	private async retrieveFileStats(searchResult: ISearchResult): Promise<void> {
 		const files = searchResult.matches().filter(f => !f.fileStat).map(f => f.resolveFileStat(this.fileService));
 		await Promise.all(files);
 	}
 
-    override layout(dimension: DOM.Dimension) {
-	this.dimension = dimension;
-	this.reLayout();
-}
-
-getSelected() {
-	const selection = this.searchResultEditor.getSelection();
-	if (selection) {
-		return this.searchResultEditor.getModel()?.getValueInRange(selection) ?? '';
+	override layout(dimension: DOM.Dimension) {
+		this.dimension = dimension;
+		this.reLayout();
 	}
-	return '';
-}
 
-    private reLayout() {
-	if (this.dimension) {
-		this.queryEditorWidget.setWidth(this.dimension.width - 28 /* container margin */);
-		this.searchResultEditor.layout({ height: this.dimension.height - DOM.getTotalHeight(this.queryEditorContainer), width: this.dimension.width });
-		this.inputPatternExcludes.setWidth(this.dimension.width - 28 /* container margin */);
-		this.inputPatternIncludes.setWidth(this.dimension.width - 28 /* container margin */);
+	getSelected() {
+		const selection = this.searchResultEditor.getSelection();
+		if (selection) {
+			return this.searchResultEditor.getModel()?.getValueInRange(selection) ?? '';
+		}
+		return '';
 	}
-}
 
-    private getInput(): SearchEditorInput | undefined {
-	return this.input as SearchEditorInput;
-}
+	private reLayout() {
+		if (this.dimension) {
+			this.queryEditorWidget.setWidth(this.dimension.width - 28 /* container margin */);
+			this.searchResultEditor.layout({ height: this.dimension.height - DOM.getTotalHeight(this.queryEditorContainer), width: this.dimension.width });
+			this.inputPatternExcludes.setWidth(this.dimension.width - 28 /* container margin */);
+			this.inputPatternIncludes.setWidth(this.dimension.width - 28 /* container margin */);
+		}
+	}
 
-    private priorConfig: Partial<Readonly<SearchConfiguration>> | undefined;
-setSearchConfig(config: Partial<Readonly<SearchConfiguration>>) {
-	this.priorConfig = config;
-	if (config.query !== undefined) { this.queryEditorWidget.setValue(config.query); }
-	if (config.isCaseSensitive !== undefined) { this.queryEditorWidget.searchInput?.setCaseSensitive(config.isCaseSensitive); }
-	if (config.isRegexp !== undefined) { this.queryEditorWidget.searchInput?.setRegex(config.isRegexp); }
-	if (config.matchWholeWord !== undefined) { this.queryEditorWidget.searchInput?.setWholeWords(config.matchWholeWord); }
-	if (config.contextLines !== undefined) { this.queryEditorWidget.setContextLines(config.contextLines); }
-	if (config.filesToExclude !== undefined) { this.inputPatternExcludes.setValue(config.filesToExclude); }
-	if (config.filesToInclude !== undefined) { this.inputPatternIncludes.setValue(config.filesToInclude); }
-	if (config.onlyOpenEditors !== undefined) { this.inputPatternIncludes.setOnlySearchInOpenEditors(config.onlyOpenEditors); }
-	if (config.useExcludeSettingsAndIgnoreFiles !== undefined) { this.inputPatternExcludes.setUseExcludesAndIgnoreFiles(config.useExcludeSettingsAndIgnoreFiles); }
-	if (config.showIncludesExcludes !== undefined) { this.toggleIncludesExcludes(config.showIncludesExcludes); }
-}
+	private getInput(): SearchEditorInput | undefined {
+		return this.input as SearchEditorInput;
+	}
 
-    override async setInput(newInput: SearchEditorInput, options: IEditorOptions | undefined, context: IEditorOpenContext, token: CancellationToken): Promicognidreamognidream > {
-	await super.setInput(newInput, options, context, token);
-	if(token.isCancellationRequested) {
-	return;
-}
+	private priorConfig: Partial<Readonly<SearchConfiguration>> | undefined;
+	setSearchConfig(config: Partial<Readonly<SearchConfiguration>>) {
+		this.priorConfig = config;
+		if (config.query !== undefined) { this.queryEditorWidget.setValue(config.query); }
+		if (config.isCaseSensitive !== undefined) { this.queryEditorWidget.searchInput?.setCaseSensitive(config.isCaseSensitive); }
+		if (config.isRegexp !== undefined) { this.queryEditorWidget.searchInput?.setRegex(config.isRegexp); }
+		if (config.matchWholeWord !== undefined) { this.queryEditorWidget.searchInput?.setWholeWords(config.matchWholeWord); }
+		if (config.contextLines !== undefined) { this.queryEditorWidget.setContextLines(config.contextLines); }
+		if (config.filesToExclude !== undefined) { this.inputPatternExcludes.setValue(config.filesToExclude); }
+		if (config.filesToInclude !== undefined) { this.inputPatternIncludes.setValue(config.filesToInclude); }
+		if (config.onlyOpenEditors !== undefined) { this.inputPatternIncludes.setOnlySearchInOpenEditors(config.onlyOpenEditors); }
+		if (config.useExcludeSettingsAndIgnoreFiles !== undefined) { this.inputPatternExcludes.setUseExcludesAndIgnoreFiles(config.useExcludeSettingsAndIgnoreFiles); }
+		if (config.showIncludesExcludes !== undefined) { this.toggleIncludesExcludes(config.showIncludesExcludes); }
+	}
 
-const { configurationModel, resultsModel } = await newInput.resolveModels();
-if (token.isCancellationRequested) { return; }
+	override async setInput(newInput: SearchEditorInput, options: IEditorOptions | undefined, context: IEditorOpenContext, token: CancellationToken): Promise<void> {
+		await super.setInput(newInput, options, context, token);
+		if (token.isCancellationRequested) {
+			return;
+		}
 
-this.searchResultEditor.setModel(resultsModel);
-this.pauseSearching = true;
+		const { configurationModel, resultsModel } = await newInput.resolveModels();
+		if (token.isCancellationRequested) { return; }
 
-this.toggleRunAgainMessage(!newInput.ongoingSearchOperation && resultsModel.getLineCount() === 1 && resultsModel.getValueLength() === 0 && configurationModel.config.query !== '');
-
-this.setSearchConfig(configurationModel.config);
-
-this._register(configurationModel.onConfigDidUpdate(newConfig => {
-	if (newConfig !== this.priorConfig) {
+		this.searchResultEditor.setModel(resultsModel);
 		this.pauseSearching = true;
-		this.setSearchConfig(newConfig);
+
+		this.toggleRunAgainMessage(!newInput.ongoingSearchOperation && resultsModel.getLineCount() === 1 && resultsModel.getValueLength() === 0 && configurationModel.config.query !== '');
+
+		this.setSearchConfig(configurationModel.config);
+
+		this._register(configurationModel.onConfigDidUpdate(newConfig => {
+			if (newConfig !== this.priorConfig) {
+				this.pauseSearching = true;
+				this.setSearchConfig(newConfig);
+				this.pauseSearching = false;
+			}
+		}));
+
+		this.restoreViewState(context);
+
+		if (!options?.preserveFocus) {
+			this.focus();
+		}
+
 		this.pauseSearching = false;
-	}
-}));
 
-this.restoreViewState(context);
-
-if (!options?.preserveFocus) {
-	this.focus();
-}
-
-this.pauseSearching = false;
-
-if (newInput.ongoingSearchOperation) {
-	const existingConfig = this.readConfigFromWidget();
-	newInput.ongoingSearchOperation.then(complete => {
-		this.onSearchComplete(complete, existingConfig, newInput);
-	});
-}
-    }
-
-    private toggleIncludesExcludes(_shouldShow ?: booleancognidreamognidream {
-	const cls = 'expanded';
-	const shouldShow = _shouldShow ?? !this.includesExcludesContainer.classList.contains(cls);
-
-	if(shouldShow) {
-		this.toggleQueryDetailsButton.setAttribute('aria-expanded', 'true');
-		this.includesExcludesContainer.classList.add(cls);
-	} else {
-		this.toggleQueryDetailsButton.setAttribute('aria-expanded', 'false');
-		this.includesExcludesContainer.classList.remove(cls);
+		if (newInput.ongoingSearchOperation) {
+			const existingConfig = this.readConfigFromWidget();
+			newInput.ongoingSearchOperation.then(complete => {
+				this.onSearchComplete(complete, existingConfig, newInput);
+			});
+		}
 	}
 
-        this.showingIncludesExcludes = this.includesExcludesContainer.classList.contains(cls);
+	private toggleIncludesExcludes(_shouldShow?: boolean): void {
+		const cls = 'expanded';
+		const shouldShow = _shouldShow ?? !this.includesExcludesContainer.classList.contains(cls);
 
-	this.reLayout();
-}
+		if (shouldShow) {
+			this.toggleQueryDetailsButton.setAttribute('aria-expanded', 'true');
+			this.includesExcludesContainer.classList.add(cls);
+		} else {
+			this.toggleQueryDetailsButton.setAttribute('aria-expanded', 'false');
+			this.includesExcludesContainer.classList.remove(cls);
+		}
 
-    protected override toEditorViewStateResource(input: EditorInput): URI | undefined {
-	if(input.typeId === SearchEditorInputTypeId) {
-	return (input as SearchEditorInput).modelUri;
-}
+		this.showingIncludesExcludes = this.includesExcludesContainer.classList.contains(cls);
 
-return undefined;
-    }
+		this.reLayout();
+	}
 
-    protected override computeEditorViewState(resource: URI): SearchEditorViewState | undefined {
-	const control = this.getControl();
-	const editorViewState = control.saveViewState();
-	if (!editorViewState) { return undefined; }
-	if (resource.toString() !== this.getInput()?.modelUri.toString()) { return undefined; }
+	protected override toEditorViewStateResource(input: EditorInput): URI | undefined {
+		if (input.typeId === SearchEditorInputTypeId) {
+			return (input as SearchEditorInput).modelUri;
+		}
 
-	return { ...editorViewState, focused: this.searchResultEditor.hasWidgetFocus() ? 'editor' : 'input' };
-}
+		return undefined;
+	}
 
-    protected tracksEditorViewState(input: EditorInput): boolean {
-	return input.typeId === SearchEditorInputTypeId;
-}
+	protected override computeEditorViewState(resource: URI): SearchEditorViewState | undefined {
+		const control = this.getControl();
+		const editorViewState = control.saveViewState();
+		if (!editorViewState) { return undefined; }
+		if (resource.toString() !== this.getInput()?.modelUri.toString()) { return undefined; }
 
-    private restoreViewState(context: IEditorOpenContext) {
-	const viewState = this.loadEditorViewState(this.getInput(), context);
-	if (viewState) { this.searchResultEditor.restoreViewState(viewState); }
-}
+		return { ...editorViewState, focused: this.searchResultEditor.hasWidgetFocus() ? 'editor' : 'input' };
+	}
 
-getAriaLabel() {
-	return this.getInput()?.getName() ?? localize('searchEditor', "Search");
-}
+	protected tracksEditorViewState(input: EditorInput): boolean {
+		return input.typeId === SearchEditorInputTypeId;
+	}
+
+	private restoreViewState(context: IEditorOpenContext) {
+		const viewState = this.loadEditorViewState(this.getInput(), context);
+		if (viewState) { this.searchResultEditor.restoreViewState(viewState); }
+	}
+
+	getAriaLabel() {
+		return this.getInput()?.getName() ?? localize('searchEditor', "Search");
+	}
 }
 
 const searchEditorTextInputBorder = registerColor('searchEditor.textInputBorder', inputBorder, localize('textInputBoxBorder', "Search editor text input box border."));

@@ -25,26 +25,26 @@ import { registerSingleton, InstantiationType } from '../../../../platform/insta
 
 class OpenUrlAction extends Action2 {
 
-    constructor() {
-        super({
-            id: 'workbench.action.url.openUrl',
-            title: localize2('openUrl', 'Open URL'),
-            category: Categories.Developer,
-            f1: true
-        });
-    }
+	constructor() {
+		super({
+			id: 'workbench.action.url.openUrl',
+			title: localize2('openUrl', 'Open URL'),
+			category: Categories.Developer,
+			f1: true
+		});
+	}
 
-    async run(accessor: ServicesAccessor): Promise<cognidream> {
-        const quickInputService = accessor.get(IQuickInputService);
-        const urlService = accessor.get(IURLService);
+	async run(accessor: ServicesAccessor): Promise<void> {
+		const quickInputService = accessor.get(IQuickInputService);
+		const urlService = accessor.get(IURLService);
 
-        return quickInputService.input({ prompt: localize('urlToOpen', "URL to open") }).then(input => {
-            if (input) {
-                const uri = URI.parse(input);
-                urlService.open(uri, { originalUrl: input });
-            }
-        });
-    }
+		return quickInputService.input({ prompt: localize('urlToOpen', "URL to open") }).then(input => {
+			if (input) {
+				const uri = URI.parse(input);
+				urlService.open(uri, { originalUrl: input });
+			}
+		});
+	}
 }
 
 registerAction2(OpenUrlAction);
@@ -55,39 +55,39 @@ registerAction2(OpenUrlAction);
 
 CommandsRegistry.registerCommand(manageTrustedDomainSettingsCommand);
 MenuRegistry.appendMenuItem(MenuId.CommandPalette, {
-    command: {
-        id: manageTrustedDomainSettingsCommand.id,
-        title: manageTrustedDomainSettingsCommand.description.description
-    }
+	command: {
+		id: manageTrustedDomainSettingsCommand.id,
+		title: manageTrustedDomainSettingsCommand.description.description
+	}
 });
 
 Registry.as<IWorkbenchContributionsRegistry>(WorkbenchExtensions.Workbench).registerWorkbenchContribution(
-    OpenerValidatorContributions,
-    LifecyclePhase.Restored
+	OpenerValidatorContributions,
+	LifecyclePhase.Restored
 );
 registerWorkbenchContribution2(
-    TrustedDomainsFileSystemProvider.ID,
-    TrustedDomainsFileSystemProvider,
-    WorkbenchPhase.BlockRestore // registration only
+	TrustedDomainsFileSystemProvider.ID,
+	TrustedDomainsFileSystemProvider,
+	WorkbenchPhase.BlockRestore // registration only
 );
 registerWorkbenchContribution2(
-    ExternalUriResolverContribution.ID,
-    ExternalUriResolverContribution,
-    WorkbenchPhase.BlockRestore // registration only
+	ExternalUriResolverContribution.ID,
+	ExternalUriResolverContribution,
+	WorkbenchPhase.BlockRestore // registration only
 );
 
 
 const configurationRegistry = Registry.as<IConfigurationRegistry>(ConfigurationExtensions.Configuration);
 configurationRegistry.registerConfiguration({
-    ...workbenchConfigurationNodeBase,
-    properties: {
-        'workbench.trustedDomains.promptInTrustedWorkspace': {
-            scope: ConfigurationScope.APPLICATION,
-            type: 'boolean',
-            default: false,
-            description: localize('workbench.trustedDomains.promptInTrustedWorkspace', "When enabled, trusted domain prompts will appear when opening links in trusted workspaces.")
-        }
-    }
+	...workbenchConfigurationNodeBase,
+	properties: {
+		'workbench.trustedDomains.promptInTrustedWorkspace': {
+			scope: ConfigurationScope.APPLICATION,
+			type: 'boolean',
+			default: false,
+			description: localize('workbench.trustedDomains.promptInTrustedWorkspace', "When enabled, trusted domain prompts will appear when opening links in trusted workspaces.")
+		}
+	}
 });
 
 registerSingleton(ITrustedDomainService, TrustedDomainService, InstantiationType.Delayed);

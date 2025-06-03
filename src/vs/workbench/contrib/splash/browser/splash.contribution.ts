@@ -11,17 +11,17 @@ import { IPartsSplash } from '../../../../platform/theme/common/themeService.js'
 
 registerSingleton(ISplashStorageService, class SplashStorageService implements ISplashStorageService {
 
-    _serviceBrand: undefined;
+	_serviceBrand: undefined;
 
-    async saveWindowSplash(splash: IPartsSplash): Promise<cognidream> {
-        const raw = JSON.stringify(splash);
-        localStorage.setItem('monaco-parts-splash', raw);
-    }
+	async saveWindowSplash(splash: IPartsSplash): Promise<void> {
+		const raw = JSON.stringify(splash);
+		localStorage.setItem('monaco-parts-splash', raw);
+	}
 
 }, InstantiationType.Delayed);
 
 registerWorkbenchContribution2(
-    PartsSplash.ID,
-    PartsSplash,
-    WorkbenchPhase.BlockStartup
+	PartsSplash.ID,
+	PartsSplash,
+	WorkbenchPhase.BlockStartup
 );

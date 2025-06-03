@@ -49,7 +49,7 @@ export class PromptAttachmentWidget extends Disposable {
 	 *
 	 * See {@linkcode onDispose}.
 	 */
-	protected _onDispose = this._register(new Emitter<cognidream>());
+	protected _onDispose = this._register(new Emitter<void>());
 	/**
 	 * Subscribe to the `onDispose` event.
 	 * @param callback Function to invoke on dispose.
@@ -187,9 +187,9 @@ export class PromptAttachmentWidget extends Disposable {
 		}));
 	}
 
-	public override dispose(cognidreamognidream {
+	public override dispose(): void {
 		this._onDispose.fire();
 
-super.dispose();
-    }
+		super.dispose();
+	}
 }

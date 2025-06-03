@@ -128,7 +128,7 @@ export class DebugHoverWidget implements IContentWidget {
 		this.expressionRenderer = this.instantiationService.createInstance(DebugExpressionRenderer);
 	}
 
-	private create(): cognidream {
+	private create(): void {
 		this.domNode = $('.debug-hover-widget');
 		this.complexValueContainer = dom.append(this.domNode, $('.complex-value'));
 		this.complexValueTitle = dom.append(this.complexValueContainer, $('.title'));
@@ -185,274 +185,274 @@ export class DebugHoverWidget implements IContentWidget {
 		this.editor.addContentWidget(this);
 	}
 
-	private async onContextMenu(e: ITreeContextMenuEvent<IExpression>): Promicognidreamognidream> {
+	private async onContextMenu(e: ITreeContextMenuEvent<IExpression>): Promise<void> {
 		const variable = e.element;
-		if(!(variable instanceof Variable) || !variable.value) {
-	return;
-}
+		if (!(variable instanceof Variable) || !variable.value) {
+			return;
+		}
 
-return openContextMenuForVariableTreeElement(this.contextKeyService, this.menuService, this.contextMenuService, MenuId.DebugHoverContext, e);
-    }
+		return openContextMenuForVariableTreeElement(this.contextKeyService, this.menuService, this.contextMenuService, MenuId.DebugHoverContext, e);
+	}
 
-    private registerListeners(cognidreamognidream {
-	this.toDispose.push(dom.addStandardDisposableListener(this.domNode, 'keydown', (e: IKeyboardEvent) => {
-		if (e.equals(KeyCode.Escape)) {
+	private registerListeners(): void {
+		this.toDispose.push(dom.addStandardDisposableListener(this.domNode, 'keydown', (e: IKeyboardEvent) => {
+			if (e.equals(KeyCode.Escape)) {
+				this.hide();
+			}
+		}));
+		this.toDispose.push(this.editor.onDidChangeConfiguration((e: ConfigurationChangedEvent) => {
+			if (e.hasChanged(EditorOption.fontInfo)) {
+				this.editor.applyFontInfo(this.domNode);
+			}
+		}));
+
+		this.toDispose.push(this.debugService.getViewModel().onDidEvaluateLazyExpression(async e => {
+			if (e instanceof Variable && this.tree.hasNode(e)) {
+				await this.tree.updateChildren(e, false, true);
+				await this.tree.expand(e);
+			}
+		}));
+	}
+
+	isHovered(): boolean {
+		return !!this.domNode?.matches(':hover');
+	}
+
+	isVisible(): boolean {
+		return !!this._isVisible;
+	}
+
+	willBeVisible(): boolean {
+		return !!this.showCancellationSource;
+	}
+
+	getId(): string {
+		return DebugHoverWidget.ID;
+	}
+
+	getDomNode(): HTMLElement {
+		return this.domNode;
+	}
+
+	/**
+	 * Gets whether the given coordinates are in the safe triangle formed from
+	 * the position at which the hover was initiated.
+	 */
+	isInSafeTriangle(x: number, y: number) {
+		return this._isVisible && !!this.safeTriangle?.contains(x, y);
+	}
+
+	async showAt(position: Position, focus: boolean, mouseEvent?: IMouseEvent): Promise<void | ShowDebugHoverResult> {
+		this.showCancellationSource?.dispose(true);
+		const cancellationSource = this.showCancellationSource = new CancellationTokenSource();
+		const session = this.debugService.getViewModel().focusedSession;
+
+		if (!session || !this.editor.hasModel()) {
 			this.hide();
+			return ShowDebugHoverResult.NOT_AVAILABLE;
 		}
-	}));
-	this.toDispose.push(this.editor.onDidChangeConfiguration((e: ConfigurationChangedEvent) => {
-		if (e.hasChanged(EditorOption.fontInfo)) {
-			this.editor.applyFontInfo(this.domNode);
+
+		const result = await this.debugHoverComputer.compute(position, cancellationSource.token);
+		if (cancellationSource.token.isCancellationRequested) {
+			this.hide();
+			return ShowDebugHoverResult.CANCELLED;
 		}
-	}));
 
-	this.toDispose.push(this.debugService.getViewModel().onDidEvaluateLazyExpression(async e => {
-		if (e instanceof Variable && this.tree.hasNode(e)) {
-			await this.tree.updateChildren(e, false, true);
-			await this.tree.expand(e);
+		if (!result.range) {
+			this.hide();
+			return ShowDebugHoverResult.NOT_AVAILABLE;
 		}
-	}));
-}
 
-    isHovered(): boolean {
-	return !!this.domNode?.matches(':hover');
-}
+		if (this.isVisible() && !result.rangeChanged) {
+			return ShowDebugHoverResult.NOT_CHANGED;
+		}
 
-    isVisible(): boolean {
-	return !!this._isVisible;
-}
+		const expression = await this.debugHoverComputer.evaluate(session);
+		if (cancellationSource.token.isCancellationRequested) {
+			this.hide();
+			return ShowDebugHoverResult.CANCELLED;
+		}
 
-    willBeVisible(): boolean {
-	return !!this.showCancellationSource;
-}
+		if (!expression || (expression instanceof Expression && !expression.available)) {
+			this.hide();
+			return ShowDebugHoverResult.NOT_AVAILABLE;
+		}
 
-    getId(): string {
-	return DebugHoverWidget.ID;
-}
+		this.highlightDecorations.set([{
+			range: result.range,
+			options: DebugHoverWidget._HOVER_HIGHLIGHT_DECORATION_OPTIONS
+		}]);
 
-    getDomNode(): HTMLElement {
-	return this.domNode;
-}
-
-    /**
-     * Gets whether the given coordinates are in the safe triangle formed from
-     * the position at which the hover was initiated.
-     */
-    isInSafeTriangle(x: number, y: number) {
-	return this._isVisible && !!this.safeTriangle?.contains(x, y);
-}
-
-    async showAt(position: Position, focus: boolean, mouseEvent ?: IMouseEvent): Promicognidreamognidream | ShowDebugHoverResult > {
-	this.showCancellationSource?.dispose(true);
-	const cancellationSource = this.showCancellationSource = new CancellationTokenSource();
-	const session = this.debugService.getViewModel().focusedSession;
-
-	if(!session || !this.editor.hasModel()) {
-	this.hide();
-	return ShowDebugHoverResult.NOT_AVAILABLE;
-}
-
-const result = await this.debugHoverComputer.compute(position, cancellationSource.token);
-if (cancellationSource.token.isCancellationRequested) {
-	this.hide();
-	return ShowDebugHoverResult.CANCELLED;
-}
-
-if (!result.range) {
-	this.hide();
-	return ShowDebugHoverResult.NOT_AVAILABLE;
-}
-
-if (this.isVisible() && !result.rangeChanged) {
-	return ShowDebugHoverResult.NOT_CHANGED;
-}
-
-const expression = await this.debugHoverComputer.evaluate(session);
-if (cancellationSource.token.isCancellationRequested) {
-	this.hide();
-	return ShowDebugHoverResult.CANCELLED;
-}
-
-if (!expression || (expression instanceof Expression && !expression.available)) {
-	this.hide();
-	return ShowDebugHoverResult.NOT_AVAILABLE;
-}
-
-this.highlightDecorations.set([{
-	range: result.range,
-	options: DebugHoverWidget._HOVER_HIGHLIGHT_DECORATION_OPTIONS
-}]);
-
-return this.doShow(session, result.range.getStartPosition(), expression, focus, mouseEvent);
-    }
-
-    private static readonly _HOVER_HIGHLIGHT_DECORATION_OPTIONS = ModelDecorationOptions.register({
-	description: 'bdebug-hover-highlight',
-	className: 'hoverHighlight'
-});
-
-    private async doShow(session: IDebugSession | undefined, position: Position, expression: IExpression, focus: boolean, mouseEvent: IMouseEvent | undefined): Promicognidreamognidream > {
-	if(!this.domNode) {
-	this.create();
-}
-
-this.showAtPosition = position;
-const store = new lifecycle.DisposableStore();
-this._isVisible = { store };
-
-if (!expression.hasChildren) {
-	this.complexValueContainer.hidden = true;
-	this.valueContainer.hidden = false;
-	store.add(this.expressionRenderer.renderValue(this.valueContainer, expression, {
-		showChanged: false,
-		colorize: true,
-		hover: false,
-		session,
-	}));
-	this.valueContainer.title = '';
-	this.editor.layoutContentWidget(this);
-	this.safeTriangle = mouseEvent && new dom.SafeTriangle(mouseEvent.posx, mouseEvent.posy, this.domNode);
-	this.scrollbar.scanDomNode();
-	if (focus) {
-		this.editor.render();
-		this.valueContainer.focus();
+		return this.doShow(session, result.range.getStartPosition(), expression, focus, mouseEvent);
 	}
 
-	return undefined;
-}
+	private static readonly _HOVER_HIGHLIGHT_DECORATION_OPTIONS = ModelDecorationOptions.register({
+		description: 'bdebug-hover-highlight',
+		className: 'hoverHighlight'
+	});
 
-this.valueContainer.hidden = true;
+	private async doShow(session: IDebugSession | undefined, position: Position, expression: IExpression, focus: boolean, mouseEvent: IMouseEvent | undefined): Promise<void> {
+		if (!this.domNode) {
+			this.create();
+		}
 
-this.expressionToRender = expression;
-store.add(this.expressionRenderer.renderValue(this.complexValueTitle, expression, { hover: false, session }));
-this.editor.layoutContentWidget(this);
-this.safeTriangle = mouseEvent && new dom.SafeTriangle(mouseEvent.posx, mouseEvent.posy, this.domNode);
-this.tree.scrollTop = 0;
-this.tree.scrollLeft = 0;
-this.complexValueContainer.hidden = false;
+		this.showAtPosition = position;
+		const store = new lifecycle.DisposableStore();
+		this._isVisible = { store };
 
-if (focus) {
-	this.editor.render();
-	this.tree.domFocus();
-}
-    }
+		if (!expression.hasChildren) {
+			this.complexValueContainer.hidden = true;
+			this.valueContainer.hidden = false;
+			store.add(this.expressionRenderer.renderValue(this.valueContainer, expression, {
+				showChanged: false,
+				colorize: true,
+				hover: false,
+				session,
+			}));
+			this.valueContainer.title = '';
+			this.editor.layoutContentWidget(this);
+			this.safeTriangle = mouseEvent && new dom.SafeTriangle(mouseEvent.posx, mouseEvent.posy, this.domNode);
+			this.scrollbar.scanDomNode();
+			if (focus) {
+				this.editor.render();
+				this.valueContainer.focus();
+			}
 
-    private layoutTreeAndContainer(cognidreamognidream {
-	this.layoutTree();
-	this.editor.layoutContentWidget(this);
-}
+			return undefined;
+		}
 
-    private layoutTree(cognidreamognidream {
-	const scrollBarHeight = 10;
-	let maxHeicognidreamoAcognidreamCursorOverlay = Infinity;
-	if(this.showAtPosition) {
-	const editorTop = this.editor.getDomNode()?.offsetTop || 0;
-	const containerTop = this.treeContainer.offsetTop + editorTop;
-	const hoveredCharTop = this.editor.getTopForLineNumber(this.showAtPosition.lineNumber, true) - this.editor.getScrollTop();
-	if(containerTop <hoveredCharTop) {
-		cognidreameightToAcognidreamCursorOverlay = hoveredCharTop + editorTop - 22; // 22 is monaco top padding https://github.com/microsoft/vscode/blob/a1df2d7319382d42f66ad7f411af01e4cc49c80a/src/vs/editor/browser/viewParts/contentWidgets/contentWidgets.ts#L364
-	}
-}
-        const treeHeight = Math.min(Math.max(266, this.editor.getLayoutInfo().height * 0.55), this.tree.contentHeight + scrollBarHeight, maxHeicognidreamoAcognidreamCursorOverlay);
+		this.valueContainer.hidden = true;
 
-const realTreeWidth = this.tree.contentWidth;
-const treeWidth = clamp(realTreeWidth, 400, 550);
-this.tree.layout(treeHeight, treeWidth);
-this.treeContainer.style.height = `${treeHeight}px`;
-this.scrollbar.scanDomNode();
-    }
+		this.expressionToRender = expression;
+		store.add(this.expressionRenderer.renderValue(this.complexValueTitle, expression, { hover: false, session }));
+		this.editor.layoutContentWidget(this);
+		this.safeTriangle = mouseEvent && new dom.SafeTriangle(mouseEvent.posx, mouseEvent.posy, this.domNode);
+		this.tree.scrollTop = 0;
+		this.tree.scrollLeft = 0;
+		this.complexValueContainer.hidden = false;
 
-beforeRender(): IDimension | null {
-	// beforeRender will be called each time the hover size changes, and the content widget is layed out again.
-	if (this.expressionToRender) {
-		const expression = this.expressionToRender;
-		this.expressionToRender = undefined;
-
-		// Do this in beforeRender once the content widget is no longer display=none so that its elements' sizes will be measured correctly.
-		this.isUpdatingTree = true;
-		this.tree.setInput(expression).finally(() => {
-			this.isUpdatingTree = false;
-		});
+		if (focus) {
+			this.editor.render();
+			this.tree.domFocus();
+		}
 	}
 
-	return null;
-}
+	private layoutTreeAndContainer(): void {
+		this.layoutTree();
+		this.editor.layoutContentWidget(this);
+	}
 
-afterRender(positionPreference: ContentWidgetPositionPreference | null) {
-	if (positionPreference) {
-		// Remember where the editor placed you to keep position stable #109226
-		this.positionPreference = [positionPreference];
+	private layoutTree(): void {
+		const scrollBarHeight = 10;
+		let maxHeightToAvoidCursorOverlay = Infinity;
+		if (this.showAtPosition) {
+			const editorTop = this.editor.getDomNode()?.offsetTop || 0;
+			const containerTop = this.treeContainer.offsetTop + editorTop;
+			const hoveredCharTop = this.editor.getTopForLineNumber(this.showAtPosition.lineNumber, true) - this.editor.getScrollTop();
+			if (containerTop < hoveredCharTop) {
+				maxHeightToAvoidCursorOverlay = hoveredCharTop + editorTop - 22; // 22 is monaco top padding https://github.com/microsoft/vscode/blob/a1df2d7319382d42f66ad7f411af01e4cc49c80a/src/vs/editor/browser/viewParts/contentWidgets/contentWidgets.ts#L364
+			}
+		}
+		const treeHeight = Math.min(Math.max(266, this.editor.getLayoutInfo().height * 0.55), this.tree.contentHeight + scrollBarHeight, maxHeightToAvoidCursorOverlay);
+
+		const realTreeWidth = this.tree.contentWidth;
+		const treeWidth = clamp(realTreeWidth, 400, 550);
+		this.tree.layout(treeHeight, treeWidth);
+		this.treeContainer.style.height = `${treeHeight}px`;
+		this.scrollbar.scanDomNode();
+	}
+
+	beforeRender(): IDimension | null {
+		// beforeRender will be called each time the hover size changes, and the content widget is layed out again.
+		if (this.expressionToRender) {
+			const expression = this.expressionToRender;
+			this.expressionToRender = undefined;
+
+			// Do this in beforeRender once the content widget is no longer display=none so that its elements' sizes will be measured correctly.
+			this.isUpdatingTree = true;
+			this.tree.setInput(expression).finally(() => {
+				this.isUpdatingTree = false;
+			});
+		}
+
+		return null;
+	}
+
+	afterRender(positionPreference: ContentWidgetPositionPreference | null) {
+		if (positionPreference) {
+			// Remember where the editor placed you to keep position stable #109226
+			this.positionPreference = [positionPreference];
+		}
+	}
+
+
+	hide(): void {
+		if (this.showCancellationSource) {
+			this.showCancellationSource.dispose(true);
+			this.showCancellationSource = undefined;
+		}
+
+		if (!this._isVisible) {
+			return;
+		}
+
+		if (dom.isAncestorOfActiveElement(this.domNode)) {
+			this.editor.focus();
+		}
+		this._isVisible.store.dispose();
+		this._isVisible = undefined;
+
+		this.highlightDecorations.clear();
+		this.editor.layoutContentWidget(this);
+		this.positionPreference = [ContentWidgetPositionPreference.ABOVE, ContentWidgetPositionPreference.BELOW];
+	}
+
+	getPosition(): IContentWidgetPosition | null {
+		return this._isVisible ? {
+			position: this.showAtPosition,
+			preference: this.positionPreference
+		} : null;
+	}
+
+	dispose(): void {
+		this.toDispose = lifecycle.dispose(this.toDispose);
 	}
 }
 
+class DebugHoverAccessibilityProvider implements IListAccessibilityProvider<IExpression> {
 
-hide(cognidreamognidream {
-	if(this.showCancellationSource) {
-	this.showCancellationSource.dispose(true);
-	this.showCancellationSource = undefined;
-}
-
-if (!this._isVisible) {
-	return;
-}
-
-if (dom.isAncestorOfActiveElement(this.domNode)) {
-	this.editor.focus();
-}
-this._isVisible.store.dispose();
-this._isVisible = undefined;
-
-this.highlightDecorations.clear();
-this.editor.layoutContentWidget(this);
-this.positionPreference = [ContentWidgetPositionPreference.ABOVE, ContentWidgetPositionPreference.BELOW];
-    }
-
-getPosition(): IContentWidgetPosition | null {
-	return this._isVisible ? {
-		position: this.showAtPosition,
-		preference: this.positionPreference
-	} : null;
-}
-
-dispose(cognidreamognidream {
-	this.toDispose = lifecycle.dispose(this.toDispose);
-}
-}
-
-	class DebugHoverAccessibilityProvider implements IListAccessibilityProvider<IExpression> {
-
-		getWidgetAriaLabel(): string {
-			return nls.localize('treeAriaLabel', "Debug Hover");
-		}
-
-		getAriaLabel(element: IExpression): string {
-			return nls.localize({ key: 'variableAriaLabel', comment: ['Do not translate placeholders. Placeholders are name and value of a variable.'] }, "{0}, value {1}, variables, debug", element.name, element.value);
-		}
+	getWidgetAriaLabel(): string {
+		return nls.localize('treeAriaLabel', "Debug Hover");
 	}
+
+	getAriaLabel(element: IExpression): string {
+		return nls.localize({ key: 'variableAriaLabel', comment: ['Do not translate placeholders. Placeholders are name and value of a variable.'] }, "{0}, value {1}, variables, debug", element.name, element.value);
+	}
+}
 
 class DebugHoverDataSource extends AbstractExpressionDataSource<IExpression, IExpression> {
 
-		public override hasChildren(element: IExpression): boolean {
-			return element.hasChildren;
-		}
-
-		protected override doGetChildren(element: IExpression): Promise<IExpression[]> {
-			return element.getChildren();
-		}
+	public override hasChildren(element: IExpression): boolean {
+		return element.hasChildren;
 	}
+
+	protected override doGetChildren(element: IExpression): Promise<IExpression[]> {
+		return element.getChildren();
+	}
+}
 
 class DebugHoverDelegate implements IListVirtualDelegate<IExpression> {
-		getHeight(element: IExpression): number {
-			return 18;
-		}
-
-		getTemplateId(element: IExpression): string {
-			if (element instanceof VisualizedExpression) {
-				return VisualizedVariableRenderer.ID;
-			}
-			return VariablesRenderer.ID;
-		}
+	getHeight(element: IExpression): number {
+		return 18;
 	}
+
+	getTemplateId(element: IExpression): string {
+		if (element instanceof VisualizedExpression) {
+			return VisualizedVariableRenderer.ID;
+		}
+		return VariablesRenderer.ID;
+	}
+}
 
 interface IDebugHoverComputeResult {
 	rangeChanged: boolean;
@@ -460,63 +460,63 @@ interface IDebugHoverComputeResult {
 }
 
 class DebugHoverComputer {
-		private _current?: {
-			range: Range;
-			expression: string;
-		};
+	private _current?: {
+		range: Range;
+		expression: string;
+	};
 
-		constructor(
-			private editor: ICodeEditor,
-			@IDebugService private readonly debugService: IDebugService,
-			@ILanguageFeaturesService private readonly languageFeaturesService: ILanguageFeaturesService,
-			@ILogService private readonly logService: ILogService,
-		) { }
+	constructor(
+		private editor: ICodeEditor,
+		@IDebugService private readonly debugService: IDebugService,
+		@ILanguageFeaturesService private readonly languageFeaturesService: ILanguageFeaturesService,
+		@ILogService private readonly logService: ILogService,
+	) { }
 
-		public async compute(position: Position, token: CancellationToken): Promise<IDebugHoverComputeResult> {
-			const session = this.debugService.getViewModel().focusedSession;
-			if (!session || !this.editor.hasModel()) {
-				return { rangeChanged: false };
-			}
-
-			const model = this.editor.getModel();
-			const result = await getEvaluatableExpressionAtPosition(this.languageFeaturesService, model, position, token);
-			if (!result) {
-				return { rangeChanged: false };
-			}
-
-			const { range, matchingExpression } = result;
-			const rangeChanged = !this._current?.range.equalsRange(range);
-			this._current = { expression: matchingExpression, range: Range.lift(range) };
-			return { rangeChanged, range: this._current.range };
+	public async compute(position: Position, token: CancellationToken): Promise<IDebugHoverComputeResult> {
+		const session = this.debugService.getViewModel().focusedSession;
+		if (!session || !this.editor.hasModel()) {
+			return { rangeChanged: false };
 		}
 
-		async evaluate(session: IDebugSession): Promise<IExpression | undefined> {
-			if (!this._current) {
-				this.logService.error('No expression to evaluate');
-				return;
-			}
-
-			const textModel = this.editor.getModel();
-			const debugSource = textModel && session.getSourceForUri(textModel?.uri);
-
-			if (session.capabilities.supportsEvaluateForHovers) {
-				const expression = new Expression(this._current.expression);
-				await expression.evaluate(session, this.debugService.getViewModel().focusedStackFrame, 'hover', undefined, debugSource ? {
-					line: this._current.range.startLineNumber,
-					column: this._current.range.startColumn,
-					source: debugSource.raw,
-				} : undefined);
-				return expression;
-			} else {
-				const focusedStackFrame = this.debugService.getViewModel().focusedStackFrame;
-				if (focusedStackFrame) {
-					return await findExpressionInStackFrame(
-						focusedStackFrame,
-						coalesce(this._current.expression.split('.').map(word => word.trim()))
-					);
-				}
-			}
-
-			return undefined;
+		const model = this.editor.getModel();
+		const result = await getEvaluatableExpressionAtPosition(this.languageFeaturesService, model, position, token);
+		if (!result) {
+			return { rangeChanged: false };
 		}
+
+		const { range, matchingExpression } = result;
+		const rangeChanged = !this._current?.range.equalsRange(range);
+		this._current = { expression: matchingExpression, range: Range.lift(range) };
+		return { rangeChanged, range: this._current.range };
 	}
+
+	async evaluate(session: IDebugSession): Promise<IExpression | undefined> {
+		if (!this._current) {
+			this.logService.error('No expression to evaluate');
+			return;
+		}
+
+		const textModel = this.editor.getModel();
+		const debugSource = textModel && session.getSourceForUri(textModel?.uri);
+
+		if (session.capabilities.supportsEvaluateForHovers) {
+			const expression = new Expression(this._current.expression);
+			await expression.evaluate(session, this.debugService.getViewModel().focusedStackFrame, 'hover', undefined, debugSource ? {
+				line: this._current.range.startLineNumber,
+				column: this._current.range.startColumn,
+				source: debugSource.raw,
+			} : undefined);
+			return expression;
+		} else {
+			const focusedStackFrame = this.debugService.getViewModel().focusedStackFrame;
+			if (focusedStackFrame) {
+				return await findExpressionInStackFrame(
+					focusedStackFrame,
+					coalesce(this._current.expression.split('.').map(word => word.trim()))
+				);
+			}
+		}
+
+		return undefined;
+	}
+}

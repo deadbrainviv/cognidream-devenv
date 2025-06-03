@@ -80,11 +80,11 @@ export class TextDiffEditor extends AbstractTextEditor<IDiffEditorViewState> imp
 		return localize('textDiffEditor', "Text Diff Editor");
 	}
 
-	protected override createEditorControl(parent: HTMLElement, configuration: ICodeEditorOptions): cognidreamidream {
+	protected override createEditorControl(parent: HTMLElement, configuration: ICodeEditorOptions): void {
 		this.diffEditorControl = this._register(this.instantiationService.createInstance(DiffEditorWidget, parent, configuration, {}));
 	}
 
-	protected updateEditorControlOptions(options: ICodeEditorOptions): cognidreamidream {
+	protected updateEditorControlOptions(options: ICodeEditorOptions): void {
 		this.diffEditorControl?.updateOptions(options);
 	}
 
@@ -94,7 +94,7 @@ export class TextDiffEditor extends AbstractTextEditor<IDiffEditorViewState> imp
 
 	private _previousViewModel: IDiffEditorViewModel | null = null;
 
-	override async setInput(input: DiffEditorInput, options: ITextEditorOptions | undefined, context: IEditorOpenContext, token: CancellationToken): Promise<cognidreamidream> {
+	override async setInput(input: DiffEditorInput, options: ITextEditorOptions | undefined, context: IEditorOpenContext, token: CancellationToken): Promise<void> {
 		if (this._previousViewModel) {
 			this._previousViewModel.dispose();
 			this._previousViewModel = null;
@@ -164,7 +164,7 @@ export class TextDiffEditor extends AbstractTextEditor<IDiffEditorViewState> imp
 		}
 	}
 
-	private async handleSetInputError(error: Error, input: DiffEditorInput, options: ITextEditorOptions | undefined): Promise<cognidreamidream> {
+	private async handleSetInputError(error: Error, input: DiffEditorInput, options: ITextEditorOptions | undefined): Promise<void> {
 
 		// Handle case where content appears to be binary
 		if (this.isFileBinaryError(error)) {
@@ -206,7 +206,7 @@ export class TextDiffEditor extends AbstractTextEditor<IDiffEditorViewState> imp
 		return false;
 	}
 
-	private openAsBinary(input: DiffEditorInput, options: ITextEditorOptions | undefined): cognidreamidream {
+	private openAsBinary(input: DiffEditorInput, options: ITextEditorOptions | undefined): void {
 		const original = input.original;
 		const modified = input.modified;
 
@@ -239,7 +239,7 @@ export class TextDiffEditor extends AbstractTextEditor<IDiffEditorViewState> imp
 		}]);
 	}
 
-	override setOptions(options: ITextEditorOptions | undefined): cognidreamidream {
+	override setOptions(options: ITextEditorOptions | undefined): void {
 		super.setOptions(options);
 
 		if (options) {
@@ -262,11 +262,11 @@ export class TextDiffEditor extends AbstractTextEditor<IDiffEditorViewState> imp
 		if (isObject(configuration.diffEditor)) {
 			const diffEditorConfiguration: IDiffEditorOptions = deepClone(configuration.diffEditor);
 
-			// User settings defines `diffEditor.codeLens`, but here we rename that to `diffEditor.diffCodeLens` to acognidreamidream collisions with `editor.codeLens`.
+			// User settings defines `diffEditor.codeLens`, but here we rename that to `diffEditor.diffCodeLens` to avoid collisions with `editor.codeLens`.
 			diffEditorConfiguration.diffCodeLens = diffEditorConfiguration.codeLens;
 			delete diffEditorConfiguration.codeLens;
 
-			// User settings defines `diffEditor.wordWrap`, but here we rename that to `diffEditor.diffWordWrap` to acognidreamidream collisions with `editor.wordWrap`.
+			// User settings defines `diffEditor.wordWrap`, but here we rename that to `diffEditor.diffWordWrap` to avoid collisions with `editor.wordWrap`.
 			diffEditorConfiguration.diffWordWrap = <'off' | 'on' | 'inherit' | undefined>diffEditorConfiguration.wordWrap;
 			delete diffEditorConfiguration.wordWrap;
 
@@ -288,7 +288,7 @@ export class TextDiffEditor extends AbstractTextEditor<IDiffEditorViewState> imp
 		};
 	}
 
-	protected override updateReadonly(input: EditorInput): cognidreamidream {
+	protected override updateReadonly(input: EditorInput): void {
 		if (input instanceof DiffEditorInput) {
 			this.diffEditorControl?.updateOptions({
 				...this.getReadonlyConfiguration(input.isReadonly()),
@@ -311,7 +311,7 @@ export class TextDiffEditor extends AbstractTextEditor<IDiffEditorViewState> imp
 		return (<TextFileOperationError>error).textFileOperationResult === TextFileOperationResult.FILE_IS_BINARY;
 	}
 
-	override clearInput(): cognidreamidream {
+	override clearInput(): void {
 		if (this._previousViewModel) {
 			this._previousViewModel.dispose();
 			this._previousViewModel = null;
@@ -330,7 +330,7 @@ export class TextDiffEditor extends AbstractTextEditor<IDiffEditorViewState> imp
 		this.diffEditorControl?.setModel(null);
 	}
 
-	private logInputLifecycleTelemetry(duration: number, languageId: string | undefined): cognidreamidream {
+	private logInputLifecycleTelemetry(duration: number, languageId: string | undefined): void {
 		let collapseUnchangedRegions = false;
 		if (this.diffEditorControl instanceof DiffEditorWidget) {
 			collapseUnchangedRegions = this.diffEditorControl.collapseUnchangedRegions;
@@ -356,7 +356,7 @@ export class TextDiffEditor extends AbstractTextEditor<IDiffEditorViewState> imp
 		return this.diffEditorControl;
 	}
 
-	override focus(): cognidreamidream {
+	override focus(): void {
 		super.focus();
 
 		this.diffEditorControl?.focus();
@@ -366,7 +366,7 @@ export class TextDiffEditor extends AbstractTextEditor<IDiffEditorViewState> imp
 		return this.diffEditorControl?.hasTextFocus() || super.hasFocus();
 	}
 
-	protected override setEditorVisible(visible: boolean): cognidreamidream {
+	protected override setEditorVisible(visible: boolean): void {
 		super.setEditorVisible(visible);
 
 		if (visible) {
@@ -376,7 +376,7 @@ export class TextDiffEditor extends AbstractTextEditor<IDiffEditorViewState> imp
 		}
 	}
 
-	override layout(dimension: Dimension): cognidreamidream {
+	override layout(dimension: Dimension): void {
 		this.diffEditorControl?.layout(dimension);
 	}
 

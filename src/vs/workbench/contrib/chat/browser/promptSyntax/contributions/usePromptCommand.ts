@@ -51,98 +51,98 @@ const COMMAND_KEY_BINDING = KeyMod.CtrlCmd | KeyCode.Slash | KeyMod.Alt;
  * (likewise either the last focused or a new one).
  */
 const command = async (
-    accessor: ServicesAccessor,
-): Promise<cognidream> => {
-    const commandService = accessor.get(ICommandService);
+	accessor: ServicesAccessor,
+): Promise<void> => {
+	const commandService = accessor.get(ICommandService);
 
-    const options: IChatAttachPromptActionOptions = {
-        resource: getActivePromptUri(accessor),
-        widget: getFocusedChatWidget(accessor),
-    };
+	const options: IChatAttachPromptActionOptions = {
+		resource: getActivePromptUri(accessor),
+		widget: getFocusedChatWidget(accessor),
+	};
 
-    await commandService.executeCommand(ATTACH_PROMPT_ACTION_ID, options);
+	await commandService.executeCommand(ATTACH_PROMPT_ACTION_ID, options);
 };
 
 /**
  * Get chat widget reference to attach prompt to.
  */
 export function getFocusedChatWidget(accessor: ServicesAccessor): IChatWidget | undefined {
-    const chatWidgetService = accessor.get(IChatWidgetService);
+	const chatWidgetService = accessor.get(IChatWidgetService);
 
-    const { lastFocusedWidget } = chatWidgetService;
-    if (!lastFocusedWidget) {
-        return undefined;
-    }
+	const { lastFocusedWidget } = chatWidgetService;
+	if (!lastFocusedWidget) {
+		return undefined;
+	}
 
-    // the widget input `must` be focused at the time when command run
-    if (!lastFocusedWidget.hasInputFocus()) {
-        return undefined;
-    }
+	// the widget input `must` be focused at the time when command run
+	if (!lastFocusedWidget.hasInputFocus()) {
+		return undefined;
+	}
 
-    return lastFocusedWidget;
+	return lastFocusedWidget;
 }
 
 /**
  * Gets active editor instance, if any.
  */
 export function getActiveCodeEditor(accessor: ServicesAccessor): IActiveCodeEditor | undefined {
-    const editorService = accessor.get(IEditorService);
-    const { activeTextEditorControl } = editorService;
+	const editorService = accessor.get(IEditorService);
+	const { activeTextEditorControl } = editorService;
 
-    if (isCodeEditor(activeTextEditorControl) && activeTextEditorControl.hasModel()) {
-        return activeTextEditorControl;
-    }
+	if (isCodeEditor(activeTextEditorControl) && activeTextEditorControl.hasModel()) {
+		return activeTextEditorControl;
+	}
 
-    if (isDiffEditor(activeTextEditorControl)) {
-        const originalEditor = activeTextEditorControl.getOriginalEditor();
-        if (!originalEditor.hasModel()) {
-            return undefined;
-        }
+	if (isDiffEditor(activeTextEditorControl)) {
+		const originalEditor = activeTextEditorControl.getOriginalEditor();
+		if (!originalEditor.hasModel()) {
+			return undefined;
+		}
 
-        return originalEditor;
-    }
+		return originalEditor;
+	}
 
-    return undefined;
+	return undefined;
 }
 
 /**
  * Gets `URI` of a prompt file open in an active editor instance, if any.
  */
 const getActivePromptUri = (
-    accessor: ServicesAccessor,
+	accessor: ServicesAccessor,
 ): URI | undefined => {
-    const activeEditor = getActiveCodeEditor(accessor);
-    if (!activeEditor) {
-        return undefined;
-    }
+	const activeEditor = getActiveCodeEditor(accessor);
+	if (!activeEditor) {
+		return undefined;
+	}
 
-    const { uri } = activeEditor.getModel();
-    if (isPromptFile(uri)) {
-        return uri;
-    }
+	const { uri } = activeEditor.getModel();
+	if (isPromptFile(uri)) {
+		return uri;
+	}
 
-    return undefined;
+	return undefined;
 };
 
 /**
  * Register the "Use Prompt" command with its keybinding.
  */
 KeybindingsRegistry.registerCommandAndKeybindingRule({
-    id: COMMAND_ID,
-    weight: KeybindingWeight.WorkbenchContrib,
-    primary: COMMAND_KEY_BINDING,
-    handler: command,
-    when: ContextKeyExpr.and(PromptsConfig.enabledCtx, ChatContextKeys.enabled),
+	id: COMMAND_ID,
+	weight: KeybindingWeight.WorkbenchContrib,
+	primary: COMMAND_KEY_BINDING,
+	handler: command,
+	when: ContextKeyExpr.and(PromptsConfig.enabledCtx, ChatContextKeys.enabled),
 });
 
 /**
  * Register the "Use Prompt" command in the `command palette`.
  */
 MenuRegistry.appendMenuItem(MenuId.CommandPalette, {
-    command: {
-        id: COMMAND_ID,
-        title: localize('commands.prompts.use.title', "Use Prompt"),
-        category: CHAT_CATEGORY
-    },
-    when: ContextKeyExpr.and(PromptsConfig.enabledCtx, ChatContextKeys.enabled)
+	command: {
+		id: COMMAND_ID,
+		title: localize('commands.prompts.use.title', "Use Prompt"),
+		category: CHAT_CATEGORY
+	},
+	when: ContextKeyExpr.and(PromptsConfig.enabledCtx, ChatContextKeys.enabled)
 });

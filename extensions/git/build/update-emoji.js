@@ -98,4 +98,4 @@ function download(url, destination) {
 	});
 }
 
-cognidream generate();
+void generate();

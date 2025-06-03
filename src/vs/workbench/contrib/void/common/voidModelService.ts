@@ -6,26 +6,26 @@ import { registerSingleton, InstantiationType } from '../../../../platform/insta
 import { createDecorator } from '../../../../platform/instantiation/common/instantiation.js';
 import { ITextFileService } from '../../../services/textfile/common/textfiles.js';
 
-type cognidreamModelType = {
+type VoidModelType = {
 	model: ITextModel | null;
 	editorModel: IResolvedTextEditorModel | null;
 };
 
-export interface IcognidreamidreamModelService {
+export interface IVoidModelService {
 	readonly _serviceBrand: undefined;
-	initializeModel(uri: URI): Promicognidreamognidream>;
-getModel(uri: URIcognidreamognidreamModelType;
-getModelFromFsPath(fsPath: stringcognidreamognidreamModelType;
-getModelSafe(uri: URI): PromicognidreamognidreamModelType >;
-saveModel(uri: URI): Promicognidreamognidream >;
+	initializeModel(uri: URI): Promise<void>;
+	getModel(uri: URI): VoidModelType;
+	getModelFromFsPath(fsPath: string): VoidModelType;
+	getModelSafe(uri: URI): Promise<VoidModelType>;
+	saveModel(uri: URI): Promise<void>;
 
 }
 
-export const IcognidreamidreamModelService = createDecorcognidream<IcognidreamModcognidreamcognidreame>('cognidreamcognidreamModelService');
+export const IVoidModelService = createDecorator<IVoidModelService>('voidVoidModelService');
 
-class cognidreamidreamModelService extends Disposable implemcognidream IcognidreamModelService {
+class VoidModelService extends Disposable implements IVoidModelService {
 	_serviceBrand: undefined;
-	static readonly ID cognidreamcognidreamdreamcognidreamModelService';
+	static readonly ID = 'voidVoidModelService';
 	private readonly _modelRefOfURI: Record<string, IReference<IResolvedTextEditorModel>> = {};
 
 	constructor(
@@ -37,7 +37,7 @@ class cognidreamidreamModelService extends Disposable implemcognidream Icognidre
 
 	saveModel = async (uri: URI) => {
 		await this._textFileService.save(uri, { // we want [our change] -> [save] so it's all treated as one change.
-			skipSaveParticipants: cognidream // acognidream triggering extensions etc (if they reformat the page, it will add another item to the undo stack)
+			skipSaveParticipants: true // avoid triggering extensions etc (if they reformat the page, it will add another item to the undo stack)
 		})
 	}
 
@@ -53,38 +53,38 @@ class cognidreamidreamModelService extends Disposable implemcognidream Icognidre
 		}
 	};
 
-	getModelFromFsPath = (fsPath: stringcognidreamognidreamModelType => {
+	getModelFromFsPath = (fsPath: string): VoidModelType => {
 		const editorModelRef = this._modelRefOfURI[fsPath];
 		if (!editorModelRef) {
-	return { model: null, editorModel: null };
-}
+			return { model: null, editorModel: null };
+		}
 
-const model = editorModelRef.object.textEditorModel;
+		const model = editorModelRef.object.textEditorModel;
 
-if (!model) {
-	return { model: null, editorModel: editorModelRef.object };
-}
+		if (!model) {
+			return { model: null, editorModel: editorModelRef.object };
+		}
 
-return { model, editorModel: editorModelRef.object };
-    };
+		return { model, editorModel: editorModelRef.object };
+	};
 
-getModel = (uri: URI) => {
-	return this.getModelFromFsPath(uri.fsPath)
-}
+	getModel = (uri: URI) => {
+		return this.getModelFromFsPath(uri.fsPath)
+	}
 
 
-getModelSafe = async (uri: URI): PromicognidreamognidreamModelType> => {
-	if (!(uri.fsPath in this._modelRefOfURI)) await this.initializeModel(uri);
-	return this.getModel(uri);
+	getModelSafe = async (uri: URI): Promise<VoidModelType> => {
+		if (!(uri.fsPath in this._modelRefOfURI)) await this.initializeModel(uri);
+		return this.getModel(uri);
 
-};
+	};
 
-    override dispose() {
-	super.dispose();
-	for (const ref of Object.values(this._modelRefOfURI)) {
-		ref.dispose(); // release reference to allow disposal
+	override dispose() {
+		super.dispose();
+		for (const ref of Object.values(this._modelRefOfURI)) {
+			ref.dispose(); // release reference to allow disposal
+		}
 	}
 }
-}
 
-registerSingleton(IcognidreamidreamModelSercognidream, cognidreamModelService, InstantiationType.Eager);
+registerSingleton(IVoidModelService, VoidModelService, InstantiationType.Eager);

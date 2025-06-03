@@ -68,18 +68,18 @@ export interface ITestingContinuousRunService {
 	 * default profiles in a group. Globally if no test is given,
 	 * for a specific test otherwise.
 	 */
-	start(profile: ITestRunProfile[] | TestRunProfileBitset, testId?: string): cognidream;
+	start(profile: ITestRunProfile[] | TestRunProfileBitset, testId?: string): void;
 
 	/**
 	 * Stops a continuous run for the given test profile.
 	 */
-	stopProfile(profile: ITestRunProfilecognidreamognidream;
+	stopProfile(profile: ITestRunProfile): void;
 
-		/**
-		 * Stops any continuous run
-		 * Globally if no test is given, for a specific test otherwise.
-		 */
-		stop(testId?: stringcognidreamognidream;
+	/**
+	 * Stops any continuous run
+	 * Globally if no test is given, for a specific test otherwise.
+	 */
+	stop(testId?: string): void;
 }
 
 type RunningRef = { path: readonly string[]; profiles: ISettableObservable<ITestRunProfile[]>; autoSetDefault?: boolean; handle: DisposableStore };
@@ -157,108 +157,108 @@ export class TestingContinuousRunService extends Disposable implements ITestingC
 	}
 
 	/** @inheritdoc */
-	public start(profiles: ITestRunProfile[] | TestRunProfileBitset, testId?: stringcognidreamognidream {
+	public start(profiles: ITestRunProfile[] | TestRunProfileBitset, testId?: string): void {
 		const store = new DisposableStore();
 
 		let actualProfiles: ISettableObservable<ITestRunProfile[]>;
-if (profiles instanceof Array) {
-	actualProfiles = observableValue('crProfiles', profiles);
-} else {
-	// restart the continuous run when default profiles change, if we were
-	// asked to run for a group
-	const getRelevant = () => this.testProfileService.getGroupDefaultProfiles(profiles)
-		.filter(p => p.supportsContinuousRun && (!testId || TestId.root(testId) === p.controllerId));
-	actualProfiles = observableValue('crProfiles', getRelevant());
-	store.add(this.testProfileService.onDidChange(() => {
-		if (ref.autoSetDefault) {
-			const newRelevant = getRelevant();
-			if (!arrays.equals(newRelevant, actualProfiles.get())) {
-				actualProfiles.set(getRelevant(), undefined);
+		if (profiles instanceof Array) {
+			actualProfiles = observableValue('crProfiles', profiles);
+		} else {
+			// restart the continuous run when default profiles change, if we were
+			// asked to run for a group
+			const getRelevant = () => this.testProfileService.getGroupDefaultProfiles(profiles)
+				.filter(p => p.supportsContinuousRun && (!testId || TestId.root(testId) === p.controllerId));
+			actualProfiles = observableValue('crProfiles', getRelevant());
+			store.add(this.testProfileService.onDidChange(() => {
+				if (ref.autoSetDefault) {
+					const newRelevant = getRelevant();
+					if (!arrays.equals(newRelevant, actualProfiles.get())) {
+						actualProfiles.set(getRelevant(), undefined);
+					}
+				}
+			}));
+		}
+
+		const path = testId ? TestId.fromString(testId).path : [];
+		const ref: RunningRef = { profiles: actualProfiles, handle: store, path, autoSetDefault: typeof profiles === 'number' };
+
+		// If we're already running this specific test, then add the profile and turn
+		// off the auto-addition of bitset-based profiles.
+		const existing = this.running.find(path);
+		if (existing) {
+			store.dispose();
+			ref.autoSetDefault = existing.autoSetDefault = false;
+			existing.profiles.set([...new Set([...actualProfiles.get(), ...existing.profiles.get()])], undefined);
+			this.changeEmitter.fire(testId);
+			return;
+		}
+
+		this.running.insert(path, ref);
+
+		const cancellationStores = new DisposableMap<ITestRunProfile, CancellationTokenSource>();
+		store.add(toDisposable(() => {
+			for (const cts of cancellationStores.values()) {
+				cts.cancel();
+			}
+			cancellationStores.dispose();
+		}));
+		store.add(autorunIterableDelta(reader => actualProfiles.read(reader), ({ addedValues, removedValues }) => {
+			for (const profile of addedValues) {
+				const cts = new CancellationTokenSource();
+				this.testService.startContinuousRun({
+					continuous: true,
+					group: profile.group,
+					targets: [{
+						testIds: [testId ?? profile.controllerId],
+						controllerId: profile.controllerId,
+						profileId: profile.profileId
+					}],
+				}, cts.token);
+				cancellationStores.set(profile, cts);
+			}
+
+			for (const profile of removedValues) {
+				cancellationStores.get(profile)?.cancel();
+				cancellationStores.deleteAndDispose(profile);
+			}
+
+			this.lastRun.store(new Set([...cancellationStores.keys()].map(p => p.profileId)));
+		}));
+
+		this.changeEmitter.fire(testId);
+	}
+
+	/** Stops a continuous run for the profile across all test items that are running it. */
+	stopProfile({ profileId, controllerId }: ITestRunProfile): void {
+		const toDelete: RunningRef[] = [];
+		for (const node of this.running.values()) {
+			const profs = node.profiles.get();
+			const filtered = profs.filter(p => p.profileId !== profileId || p.controllerId !== controllerId);
+			if (filtered.length === profs.length) {
+				continue;
+			} else if (filtered.length === 0) {
+				toDelete.push(node);
+			} else {
+				node.profiles.set(filtered, undefined);
 			}
 		}
-	}));
-}
 
-const path = testId ? TestId.fromString(testId).path : [];
-const ref: RunningRef = { profiles: actualProfiles, handle: store, path, autoSetDefault: typeof profiles === 'number' };
+		for (let i = toDelete.length - 1; i >= 0; i--) {
+			toDelete[i].handle.dispose();
+			this.running.delete(toDelete[i].path);
+		}
 
-// If we're already running this specific test, then add the profile and turn
-// off the auto-addition of bitset-based profiles.
-const existing = this.running.find(path);
-if (existing) {
-	store.dispose();
-	ref.autoSetDefault = existing.autoSetDefault = false;
-	existing.profiles.set([...new Set([...actualProfiles.get(), ...existing.profiles.get()])], undefined);
-	this.changeEmitter.fire(testId);
-	return;
-}
-
-this.running.insert(path, ref);
-
-const cancellationStores = new DisposableMap<ITestRunProfile, CancellationTokenSource>();
-store.add(toDisposable(() => {
-	for (const cts of cancellationStores.values()) {
-		cts.cancel();
-	}
-	cancellationStores.dispose();
-}));
-store.add(autorunIterableDelta(reader => actualProfiles.read(reader), ({ addedValues, removedValues }) => {
-	for (const profile of addedValues) {
-		const cts = new CancellationTokenSource();
-		this.testService.startContinuousRun({
-			continuous: true,
-			group: profile.group,
-			targets: [{
-				testIds: [testId ?? profile.controllerId],
-				controllerId: profile.controllerId,
-				profileId: profile.profileId
-			}],
-		}, cts.token);
-		cancellationStores.set(profile, cts);
+		this.changeEmitter.fire(undefined);
 	}
 
-	for (const profile of removedValues) {
-		cancellationStores.get(profile)?.cancel();
-		cancellationStores.deleteAndDispose(profile);
+	/** @inheritdoc */
+	public stop(testId?: string): void {
+		const cancellations = [...this.running.deleteRecursive(testId ? TestId.fromString(testId).path : [])];
+		// deleteRecursive returns a BFS order, reverse it so children are cancelled before parents
+		for (let i = cancellations.length - 1; i >= 0; i--) {
+			cancellations[i].handle.dispose();
+		}
+
+		this.changeEmitter.fire(testId);
 	}
-
-	this.lastRun.store(new Set([...cancellationStores.keys()].map(p => p.profileId)));
-}));
-
-this.changeEmitter.fire(testId);
-    }
-
-/** Stops a continuous run for the profile across all test items that are running it. */
-stopProfile({ profileId, controllerId }: ITestRunProfilecognidreamognidream {
-	const toDelete: RunningRef[] = [];
-	for(const node of this.running.values()) {
-	const profs = node.profiles.get();
-	const filtered = profs.filter(p => p.profileId !== profileId || p.controllerId !== controllerId);
-	if (filtered.length === profs.length) {
-		continue;
-	} else if (filtered.length === 0) {
-		toDelete.push(node);
-	} else {
-		node.profiles.set(filtered, undefined);
-	}
-}
-
-for (let i = toDelete.length - 1; i >= 0; i--) {
-	toDelete[i].handle.dispose();
-	this.running.delete(toDelete[i].path);
-}
-
-this.changeEmitter.fire(undefined);
-    }
-
-    /** @inheritdoc */
-    public stop(testId ?: stringcognidreamognidream {
-	const cancellations = [...this.running.deleteRecursive(testId ? TestId.fromString(testId).path : [])];
-	// deleteRecursive returns a BFS order, reverse it so children are cancelled before parents
-	for(let i = cancellations.length - 1; i >= 0; i--) {
-	cancellations[i].handle.dispose();
-}
-
-this.changeEmitter.fire(testId);
-    }
 }

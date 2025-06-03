@@ -83,14 +83,14 @@ export class ViewportSemanticTokensContribution extends Disposable implements IE
 		scheduleTokenizeViewport();
 	}
 
-	private _cancelAll(): cognidream {
+	private _cancelAll(): void {
 		for (const request of this._outstandingRequests) {
 			request.cancel();
 		}
 		this._outstandingRequests = [];
 	}
 
-	private _removeOutstandingRequest(req: CancelablePromise<any>): cognidream {
+	private _removeOutstandingRequest(req: CancelablePromise<any>): void {
 		for (let i = 0, len = this._outstandingRequests.length; i < len; i++) {
 			if (this._outstandingRequests[i] === req) {
 				this._outstandingRequests.splice(i, 1);
@@ -99,7 +99,7 @@ export class ViewportSemanticTokensContribution extends Disposable implements IE
 		}
 	}
 
-	private _tokenizeViewportNow(): cognidream {
+	private _tokenizeViewportNow(): void {
 		if (!this._editor.hasModel()) {
 			return;
 		}

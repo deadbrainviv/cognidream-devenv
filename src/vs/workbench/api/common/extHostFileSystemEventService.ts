@@ -66,7 +66,7 @@ class FileSystemWatcher implements vscode.FileSystemWatcher {
 
 		// 1.64.x behaviour change: given the new support to watch any folder
 		// we start to ignore events outside the workspace when only a string
-		// pattern is provided to acognidream sending events to extensions that are
+		// pattern is provided to avoid sending events to extensions that are
 		// unexpected.
 		// https://github.com/microsoft/vscode/issues/3025
 		const excludeOutOfWorkspaceEvents = typeof globPattern === 'string';
@@ -294,93 +294,93 @@ export class ExtHostFileSystemEventService implements ExtHostFileSystemEventServ
 
 	//--- file operations
 
-	$onDidRunFileOperation(operation: FileOperation, files: SourceTargetPair[]cognidreamognidream {
+	$onDidRunFileOperation(operation: FileOperation, files: SourceTargetPair[]): void {
 		switch (operation) {
-            case FileOperation.MOVE:
-			this._onDidRenameFile.fire(Object.freeze({ files: files.map(f => ({ oldUri: URI.revive(f.source!), newUri: URI.revive(f.target) })) }));
-			break;
-            case FileOperation.DELETE:
-			this._onDidDeleteFile.fire(Object.freeze({ files: files.map(f => URI.revive(f.target)) }));
-			break;
-            case FileOperation.CREATE:
-            case FileOperation.COPY:
-			this._onDidCreateFile.fire(Object.freeze({ files: files.map(f => URI.revive(f.target)) }));
-			break;
-            default:
+			case FileOperation.MOVE:
+				this._onDidRenameFile.fire(Object.freeze({ files: files.map(f => ({ oldUri: URI.revive(f.source!), newUri: URI.revive(f.target) })) }));
+				break;
+			case FileOperation.DELETE:
+				this._onDidDeleteFile.fire(Object.freeze({ files: files.map(f => URI.revive(f.target)) }));
+				break;
+			case FileOperation.CREATE:
+			case FileOperation.COPY:
+				this._onDidCreateFile.fire(Object.freeze({ files: files.map(f => URI.revive(f.target)) }));
+				break;
+			default:
 			//ignore, dont send
 		}
-    }
+	}
 
 
-getOnWillRenameFileEvent(extension: IExtensionDescription): Event < vscode.FileWillRenameEvent > {
-	return this._createWillExecuteEvent(extension, this._onWillRenameFile);
-}
+	getOnWillRenameFileEvent(extension: IExtensionDescription): Event<vscode.FileWillRenameEvent> {
+		return this._createWillExecuteEvent(extension, this._onWillRenameFile);
+	}
 
-getOnWillCreateFileEvent(extension: IExtensionDescription): Event < vscode.FileWillCreateEvent > {
-	return this._createWillExecuteEvent(extension, this._onWillCreateFile);
-}
+	getOnWillCreateFileEvent(extension: IExtensionDescription): Event<vscode.FileWillCreateEvent> {
+		return this._createWillExecuteEvent(extension, this._onWillCreateFile);
+	}
 
-getOnWillDeleteFileEvent(extension: IExtensionDescription): Event < vscode.FileWillDeleteEvent > {
-	return this._createWillExecuteEvent(extension, this._onWillDeleteFile);
-}
+	getOnWillDeleteFileEvent(extension: IExtensionDescription): Event<vscode.FileWillDeleteEvent> {
+		return this._createWillExecuteEvent(extension, this._onWillDeleteFile);
+	}
 
-    private _createWillExecuteEvent<E extends IWaitUntil>(extension: IExtensionDescription, emitter: AsyncEmitter<E>): Event < E > {
-	return(listener, thisArg, disposables) => {
-	const wrappedListener: IExtensionListener<E> = function wrapped(e: E) { listener.call(thisArg, e); };
-	wrappedListener.extension = extension;
-	return emitter.event(wrappedListener, undefined, disposables);
-};
-    }
+	private _createWillExecuteEvent<E extends IWaitUntil>(extension: IExtensionDescription, emitter: AsyncEmitter<E>): Event<E> {
+		return (listener, thisArg, disposables) => {
+			const wrappedListener: IExtensionListener<E> = function wrapped(e: E) { listener.call(thisArg, e); };
+			wrappedListener.extension = extension;
+			return emitter.event(wrappedListener, undefined, disposables);
+		};
+	}
 
-    async $onWillRunFileOperation(operation: FileOperation, files: SourceTargetPair[], timeout: number, token: CancellationToken): Promise < IWillRunFileOperationParticipation | undefined > {
-	switch(operation) {
-            case FileOperation.MOVE:
-	return await this._fireWillEvent(this._onWillRenameFile, { files: files.map(f => ({ oldUri: URI.revive(f.source!), newUri: URI.revive(f.target) })) }, timeout, token);
-	case FileOperation.DELETE:
-	return await this._fireWillEvent(this._onWillDeleteFile, { files: files.map(f => URI.revive(f.target)) }, timeout, token);
-	case FileOperation.CREATE:
-	case FileOperation.COPY:
-	return await this._fireWillEvent(this._onWillCreateFile, { files: files.map(f => URI.revive(f.target)) }, timeout, token);
-}
-return undefined;
-    }
+	async $onWillRunFileOperation(operation: FileOperation, files: SourceTargetPair[], timeout: number, token: CancellationToken): Promise<IWillRunFileOperationParticipation | undefined> {
+		switch (operation) {
+			case FileOperation.MOVE:
+				return await this._fireWillEvent(this._onWillRenameFile, { files: files.map(f => ({ oldUri: URI.revive(f.source!), newUri: URI.revive(f.target) })) }, timeout, token);
+			case FileOperation.DELETE:
+				return await this._fireWillEvent(this._onWillDeleteFile, { files: files.map(f => URI.revive(f.target)) }, timeout, token);
+			case FileOperation.CREATE:
+			case FileOperation.COPY:
+				return await this._fireWillEvent(this._onWillCreateFile, { files: files.map(f => URI.revive(f.target)) }, timeout, token);
+		}
+		return undefined;
+	}
 
-    private async _fireWillEvent<E extends IWaitUntil>(emitter: AsyncEmitter<E>, data: IWaitUntilData<E>, timeout: number, token: CancellationToken): Promise < IWillRunFileOperationParticipation | undefined > {
+	private async _fireWillEvent<E extends IWaitUntil>(emitter: AsyncEmitter<E>, data: IWaitUntilData<E>, timeout: number, token: CancellationToken): Promise<IWillRunFileOperationParticipation | undefined> {
 
-	const extensionNames = new Set<string>();
-	const edits: [IExtensionDescription, WorkspaceEdit][] = [];
+		const extensionNames = new Set<string>();
+		const edits: [IExtensionDescription, WorkspaceEdit][] = [];
 
-	await emitter.fireAsync(data, token, async (thenable: Promise<unknown>, listener) => {
-		// ignore all results except for WorkspaceEdits. Those are stored in an array.
-		const now = Date.now();
-		const result = await Promise.resolve(thenable);
-		if (result instanceof WorkspaceEdit) {
-			edits.push([(<IExtensionListener<E>>listener).extension, result]);
-			extensionNames.add((<IExtensionListener<E>>listener).extension.displayName ?? (<IExtensionListener<E>>listener).extension.identifier.value);
+		await emitter.fireAsync(data, token, async (thenable: Promise<unknown>, listener) => {
+			// ignore all results except for WorkspaceEdits. Those are stored in an array.
+			const now = Date.now();
+			const result = await Promise.resolve(thenable);
+			if (result instanceof WorkspaceEdit) {
+				edits.push([(<IExtensionListener<E>>listener).extension, result]);
+				extensionNames.add((<IExtensionListener<E>>listener).extension.displayName ?? (<IExtensionListener<E>>listener).extension.identifier.value);
+			}
+
+			if (Date.now() - now > timeout) {
+				this._logService.warn('SLOW file-participant', (<IExtensionListener<E>>listener).extension.identifier);
+			}
+		});
+
+		if (token.isCancellationRequested) {
+			return undefined;
 		}
 
-		if (Date.now() - now > timeout) {
-			this._logService.warn('SLOW file-participant', (<IExtensionListener<E>>listener).extension.identifier);
+		if (edits.length === 0) {
+			return undefined;
 		}
-	});
 
-	if(token.isCancellationRequested) {
-	return undefined;
-}
-
-if (edits.length === 0) {
-	return undefined;
-}
-
-// concat all WorkspaceEdits collected via waitUntil-call and send them over to the renderer
-const dto: IWorkspaceEditDto = { edits: [] };
-for (const [, edit] of edits) {
-	const { edits } = typeConverter.WorkspaceEdit.from(edit, {
-		getTextDocumentVersion: uri => this._extHostDocumentsAndEditors.getDocument(uri)?.version,
-		getNotebookDocumentVersion: () => undefined,
-	});
-	dto.edits = dto.edits.concat(edits);
-}
-return { edit: dto, extensionNames: Array.from(extensionNames) };
-    }
+		// concat all WorkspaceEdits collected via waitUntil-call and send them over to the renderer
+		const dto: IWorkspaceEditDto = { edits: [] };
+		for (const [, edit] of edits) {
+			const { edits } = typeConverter.WorkspaceEdit.from(edit, {
+				getTextDocumentVersion: uri => this._extHostDocumentsAndEditors.getDocument(uri)?.version,
+				getNotebookDocumentVersion: () => undefined,
+			});
+			dto.edits = dto.edits.concat(edits);
+		}
+		return { edit: dto, extensionNames: Array.from(extensionNames) };
+	}
 }

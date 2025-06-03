@@ -67,14 +67,14 @@ const MimeTypesToCompress = new Set([
 	'text/x-java-source'
 ]);
 
-function wait(stream: es.ThroughStream): Promise<cognidream> {
-	return new Promise<cognidream>((c, e) => {
+function wait(stream: es.ThroughStream): Promise<void> {
+	return new Promise<void>((c, e) => {
 		stream.on('end', () => c());
 		stream.on('error', (err: any) => e(err));
 	});
 }
 
-async function main(): Promise<cognidream> {
+async function main(): Promise<void> {
 	const files: string[] = [];
 	const options = (compressed: boolean) => ({
 		account: process.env.AZURE_STORAGE_ACCOUNT,

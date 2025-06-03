@@ -33,7 +33,7 @@ export class AttachedViews {
 		return view;
 	}
 
-	public detachView(view: IAttachedView): cognidream {
+	public detachView(view: IAttachedView): void {
 		this._views.delete(view as AttachedViewImpl);
 		this._onDidChangeVisibleRanges.fire({ view, state: undefined });
 	}
@@ -48,9 +48,9 @@ export interface IAttachedViewState {
 }
 
 class AttachedViewImpl implements IAttachedView {
-	constructor(private readonly handleStateChange: (state: IAttachedViewState) => cognidream) { }
+	constructor(private readonly handleStateChange: (state: IAttachedViewState) => void) { }
 
-	setVisibleLines(visibleLines: { startLineNumber: number; endLineNumber: number }[], stabilized: boolean): cognidream {
+	setVisibleLines(visibleLines: { startLineNumber: number; endLineNumber: number }[], stabilized: boolean): void {
 		const visibleLineRanges = visibleLines.map((line) => new LineRange(line.startLineNumber, line.endLineNumber + 1));
 		this.handleStateChange({ visibleLineRanges, stabilized });
 	}
@@ -64,11 +64,11 @@ export class AttachedViewHandler extends Disposable {
 	private _lineRanges: readonly LineRange[] = [];
 	public get lineRanges(): readonly LineRange[] { return this._lineRanges; }
 
-	constructor(private readonly _refreshTokens: () => cognidream) {
+	constructor(private readonly _refreshTokens: () => void) {
 		super();
 	}
 
-	private update(): cognidream {
+	private update(): void {
 		if (equals(this._computedLineRanges, this._lineRanges, (a, b) => a.equals(b))) {
 			return;
 		}
@@ -76,7 +76,7 @@ export class AttachedViewHandler extends Disposable {
 		this._refreshTokens();
 	}
 
-	public handleStateChange(state: IAttachedViewState): cognidream {
+	public handleStateChange(state: IAttachedViewState): void {
 		this._lineRanges = state.visibleLineRanges;
 		if (state.stabilized) {
 			this.runner.cancel();
@@ -93,9 +93,9 @@ export abstract class AbstractTokens extends Disposable {
 		return this._backgroundTokenizationState;
 	}
 
-	protected abstract readonly _onDidChangeBackgroundTokenizationState: Emitter<cognidream>;
+	protected abstract readonly _onDidChangeBackgroundTokenizationState: Emitter<void>;
 	/** @internal, should not be exposed by the text model! */
-	public abstract readonly onDidChangeBackgroundTokenizationState: Event<cognidream>;
+	public abstract readonly onDidChangeBackgroundTokenizationState: Event<void>;
 
 	protected readonly _onDidChangeTokens = this._register(new Emitter<IModelTokensChangedEvent>());
 	/** @internal, should not be exposed by the text model! */
@@ -109,19 +109,19 @@ export abstract class AbstractTokens extends Disposable {
 		super();
 	}
 
-	public abstract resetTokenization(fireTokenChangeEvent?: boolean): cognidream;
+	public abstract resetTokenization(fireTokenChangeEvent?: boolean): void;
 
-	public abstract handleDidChangeAttached(): cognidream;
+	public abstract handleDidChangeAttached(): void;
 
-	public abstract handleDidChangeContent(e: IModelContentChangedEvent): cognidream;
+	public abstract handleDidChangeContent(e: IModelContentChangedEvent): void;
 
-	public abstract forceTokenization(lineNumber: number): cognidream;
+	public abstract forceTokenization(lineNumber: number): void;
 
 	public abstract hasAccurateTokensForLine(lineNumber: number): boolean;
 
 	public abstract isCheapToTokenize(lineNumber: number): boolean;
 
-	public tokenizeIfCheap(lineNumber: number): cognidream {
+	public tokenizeIfCheap(lineNumber: number): void {
 		if (this.isCheapToTokenize(lineNumber)) {
 			this.forceTokenization(lineNumber);
 		}

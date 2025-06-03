@@ -102,7 +102,7 @@ export class ExtHostEditors extends Disposable implements ExtHostEditorsShape {
 
 	// --- called from main thread
 
-	$acceptEditorPropertiesChanged(id: string, data: IEditorPropertiesChangeData): cognidream {
+	$acceptEditorPropertiesChanged(id: string, data: IEditorPropertiesChangeData): void {
 		const textEditor = this._extHostDocumentsAndEditors.getEditor(id);
 		if (!textEditor) {
 			throw new Error('unknown text editor');
@@ -146,7 +146,7 @@ export class ExtHostEditors extends Disposable implements ExtHostEditorsShape {
 		}
 	}
 
-	$acceptEditorPositionData(data: ITextEditorPositionDatacognidreamognidream {
+	$acceptEditorPositionData(data: ITextEditorPositionData): void {
 		for (const id in data) {
 			const textEditor = this._extHostDocumentsAndEditors.getEditor(id);
 			if (!textEditor) {
@@ -158,73 +158,73 @@ export class ExtHostEditors extends Disposable implements ExtHostEditorsShape {
 				this._onDidChangeTextEditorViewColumn.fire({ textEditor: textEditor.value, viewColumn });
 			}
 		}
-    }
-
-$acceptEditorDiffInformation(id: string, diffInformation: ITextEditorDiffInformation[] | undefinedcognidreamognidream {
-	const textEditor = this._extHostDocumentsAndEditors.getEditor(id);
-	if(!textEditor) {
-		throw new Error('unknown text editor');
 	}
 
-        if(!diffInformation) {
-		textEditor._acceptDiffInformation(undefined);
+	$acceptEditorDiffInformation(id: string, diffInformation: ITextEditorDiffInformation[] | undefined): void {
+		const textEditor = this._extHostDocumentsAndEditors.getEditor(id);
+		if (!textEditor) {
+			throw new Error('unknown text editor');
+		}
+
+		if (!diffInformation) {
+			textEditor._acceptDiffInformation(undefined);
+			this._onDidChangeTextEditorDiffInformation.fire({
+				textEditor: textEditor.value,
+				diffInformation: undefined
+			});
+			return;
+		}
+
+		const that = this;
+		const result = diffInformation.map(diff => {
+			const original = URI.revive(diff.original);
+			const modified = URI.revive(diff.modified);
+
+			const changes = diff.changes.map(change => {
+				const [originalStartLineNumber, originalEndLineNumberExclusive, modifiedStartLineNumber, modifiedEndLineNumberExclusive] = change;
+
+				let kind: vscode.TextEditorChangeKind;
+				if (originalStartLineNumber === originalEndLineNumberExclusive) {
+					kind = TextEditorChangeKind.Addition;
+				} else if (modifiedStartLineNumber === modifiedEndLineNumberExclusive) {
+					kind = TextEditorChangeKind.Deletion;
+				} else {
+					kind = TextEditorChangeKind.Modification;
+				}
+
+				return {
+					original: {
+						startLineNumber: originalStartLineNumber,
+						endLineNumberExclusive: originalEndLineNumberExclusive
+					},
+					modified: {
+						startLineNumber: modifiedStartLineNumber,
+						endLineNumberExclusive: modifiedEndLineNumberExclusive
+					},
+					kind
+				} satisfies vscode.TextEditorChange;
+			});
+
+			return Object.freeze({
+				documentVersion: diff.documentVersion,
+				original,
+				modified,
+				changes,
+				get isStale(): boolean {
+					const document = that._extHostDocumentsAndEditors.getDocument(modified);
+					return document?.version !== diff.documentVersion;
+				}
+			});
+		});
+
+		textEditor._acceptDiffInformation(result);
 		this._onDidChangeTextEditorDiffInformation.fire({
 			textEditor: textEditor.value,
-			diffInformation: undefined
+			diffInformation: result
 		});
-		return;
 	}
 
-        const that = this;
-	const result = diffInformation.map(diff => {
-		const original = URI.revive(diff.original);
-		const modified = URI.revive(diff.modified);
-
-		const changes = diff.changes.map(change => {
-			const [originalStartLineNumber, originalEndLineNumberExclusive, modifiedStartLineNumber, modifiedEndLineNumberExclusive] = change;
-
-			let kind: vscode.TextEditorChangeKind;
-			if (originalStartLineNumber === originalEndLineNumberExclusive) {
-				kind = TextEditorChangeKind.Addition;
-			} else if (modifiedStartLineNumber === modifiedEndLineNumberExclusive) {
-				kind = TextEditorChangeKind.Deletion;
-			} else {
-				kind = TextEditorChangeKind.Modification;
-			}
-
-			return {
-				original: {
-					startLineNumber: originalStartLineNumber,
-					endLineNumberExclusive: originalEndLineNumberExclusive
-				},
-				modified: {
-					startLineNumber: modifiedStartLineNumber,
-					endLineNumberExclusive: modifiedEndLineNumberExclusive
-				},
-				kind
-			} satisfies vscode.TextEditorChange;
-		});
-
-		return Object.freeze({
-			documentVersion: diff.documentVersion,
-			original,
-			modified,
-			changes,
-			get isStale(): boolean {
-				const document = that._extHostDocumentsAndEditors.getDocument(modified);
-				return document?.version !== diff.documentVersion;
-			}
-		});
-	});
-
-	textEditor._acceptDiffInformation(result);
-	this._onDidChangeTextEditorDiffInformation.fire({
-		textEditor: textEditor.value,
-		diffInformation: result
-	});
-}
-
-    getDiffInformation(id: string): Promise < vscode.LineChange[] > {
-	return Promise.resolve(this._proxy.$getDiffInformation(id));
-}
+	getDiffInformation(id: string): Promise<vscode.LineChange[]> {
+		return Promise.resolve(this._proxy.$getDiffInformation(id));
+	}
 }

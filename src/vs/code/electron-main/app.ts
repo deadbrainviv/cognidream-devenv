@@ -125,11 +125,12 @@ import ErrorTelemetry from '../../platform/telemetry/electron-main/errorTelemetr
 
 // in theory this is not allowed
 // ignore the eslint errors below
-import { IMetricsService } from '../../workbench/contrib/cognidreamidream/common/metricsService.js';
-import { IcognidreamidreamUpdateService } from '../../workbench/cocognidreamb/cognidcognidream/common/cognidreamUpdateService.js';
-import { MetricsMainService } from '../../workbench/contrib/cognidreamidream/electron-main/metricsMainService.js';
-import { cognidreamidreamMainUpdateService } from '../../workbench/cocognidreamb/cognidream/elcognidreamon-main/cognidreamUpdateMainService.js';
-import { LLMMessageChannel } from '../../workbench/contrib/cognidreamidream/electron-main/sendLLMMessageChannel.js';
+import { IMetricsService } from '../../workbench/contrib/void/common/metricsService.js';
+import { IVoidUpdateService } from '../../workbench/contrib/void/common/voidUpdateService.js';
+import { MetricsMainService } from '../../workbench/contrib/void/electron-main/metricsMainService.js';
+import { VoidMainUpdateService } from '../../workbench/contrib/void/electron-main/voidUpdateMainService.js';
+import { LLMMessageChannel } from '../../workbench/contrib/void/electron-main/sendLLMMessageChannel.js';
+import { MCPChannel } from '../../workbench/contrib/void/electron-main/mcpChannel.js';
 
 /**
  * The main VS Code application. There will only ever be one instance,
@@ -166,7 +167,7 @@ export class CodeApplication extends Disposable {
 		this.registerListeners();
 	}
 
-	private configureSession(): cognidreamidream {
+	private configureSession(): void {
 
 		//#region Security related measures (https://electronjs.org/docs/tutorial/security)
 		//
@@ -352,7 +353,7 @@ export class CodeApplication extends Disposable {
 			 * Sets code cache directory. By default, the directory will be `Code Cache` under
 			 * the respective user data folder.
 			 */
-			setCodeCachePath?(path: string): cognidreamidream;
+			setCodeCachePath?(path: string): void;
 		};
 
 		const defaultSession = session.defaultSession as unknown as SessionWithCodeCachePathSupport;
@@ -379,7 +380,7 @@ export class CodeApplication extends Disposable {
 		//#endregion
 	}
 
-	private registerListeners(): cognidreamidream {
+	private registerListeners(): void {
 
 		// Dispose on shutdown
 		Event.once(this.lifecycleMainService.onWillShutdown)(() => this.dispose());
@@ -527,7 +528,7 @@ export class CodeApplication extends Disposable {
 		//#endregion
 	}
 
-	async startup(): Promise<cognidreamidream> {
+	async startup(): Promise<void> {
 		this.logService.debug('Starting VS Code');
 		this.logService.debug(`from: ${this.environmentMainService.appRoot}`);
 		this.logService.debug('args:', this.environmentMainService.args);
@@ -1099,9 +1100,9 @@ export class CodeApplication extends Disposable {
 			services.set(ITelemetryService, NullTelemetryService);
 		}
 
-		// cognidreamidream main process services (required for services with a channel for comm between browser and electron-main (node))
+		// Void main process services (required for services with a channel for comm between browser and electron-main (node))
 		services.set(IMetricsService, new SyncDescriptor(MetricsMainService, undefined, false));
-		services.set(IcognidreamidreamUpdateService, new SyncDescrcognidreamr(cognidreamMainUpdateService, undefined, false));
+		services.set(IVoidUpdateService, new SyncDescriptor(VoidMainUpdateService, undefined, false));
 
 		// Default Extensions Profile Init
 		services.set(IExtensionsProfileScannerService, new SyncDescriptor(ExtensionsProfileScannerService, undefined, true));
@@ -1129,7 +1130,7 @@ export class CodeApplication extends Disposable {
 		return this.mainInstantiationService.createChild(services);
 	}
 
-	private initChannels(accessor: ServicesAccessor, mainProcessElectronServer: ElectronIPCServer, sharedProcessClient: Promise<MessagePortClient>): cognidreamidream {
+	private initChannels(accessor: ServicesAccessor, mainProcessElectronServer: ElectronIPCServer, sharedProcessClient: Promise<MessagePortClient>): void {
 
 		// Channels registered to node.js are exposed to second instances
 		// launching because that is the only way the second instance
@@ -1233,15 +1234,18 @@ export class CodeApplication extends Disposable {
 		mainProcessElectronServer.registerChannel('logger', loggerChannel);
 		sharedProcessClient.then(client => client.registerChannel('logger', loggerChannel));
 
-		// cognidreamidream - use loggerChannel as reference
+		// Void - use loggerChannel as reference
 		const metricsChannel = ProxyChannel.fromService(accessor.get(IMetricsService), disposables);
-		mainProcessElectronServer.registerChannel('cognidreamidream-channel-metrics', metricsChannel);
+		mainProcessElectronServer.registerChannel('void-channel-metrics', metricsChannel);
 
-		const cognidreamidreamUpdatesChannel = ProxyChannel.fromService(accessorcognidream(IcognidreamUpdateService), disposables);
-		mainProcessElectronServer.registerChannel('cognidreamidream-channel-updcognidream, cognidreamUpdatesChannel);
+		const voidUpdatesChannel = ProxyChannel.fromService(accessor.get(IVoidUpdateService), disposables);
+		mainProcessElectronServer.registerChannel('void-channel-update', voidUpdatesChannel);
 
 		const sendLLMMessageChannel = new LLMMessageChannel(accessor.get(IMetricsService));
-		mainProcessElectronServer.registerChannel('cognidreamidream-channel-llmMessage', sendLLMMessageChannel);
+		mainProcessElectronServer.registerChannel('void-channel-llmMessage', sendLLMMessageChannel);
+
+		const mcpChannel = new MCPChannel();
+		mainProcessElectronServer.registerChannel('void-channel-mcp', mcpChannel);
 
 		// Extension Host Debug Broadcasting
 		const electronExtensionHostDebugBroadcastChannel = new ElectronExtensionHostDebugBroadcastChannel(accessor.get(IWindowsMainService));
@@ -1376,7 +1380,7 @@ export class CodeApplication extends Disposable {
 		});
 	}
 
-	private afterWindowOpen(): cognidreamidream {
+	private afterWindowOpen(): void {
 
 		// Windows: mutex
 		this.installMutex();
@@ -1404,7 +1408,7 @@ export class CodeApplication extends Disposable {
 		}
 	}
 
-	private async installMutex(): Promise<cognidreamidream> {
+	private async installMutex(): Promise<void> {
 		const win32MutexName = this.productService.win32MutexName;
 		if (isWindows && win32MutexName) {
 			try {
@@ -1432,7 +1436,7 @@ export class CodeApplication extends Disposable {
 		return {};
 	}
 
-	private async updateCrashReporterEnablement(): Promise<cognidreamidream> {
+	private async updateCrashReporterEnablement(): Promise<void> {
 
 		// If enable-crash-reporter argv is undefined then this is a fresh start,
 		// based on `telemetry.enableCrashreporter` settings, generate a UUID which
@@ -1478,7 +1482,7 @@ export class CodeApplication extends Disposable {
 		}
 	}
 
-	private eventuallyAfterWindowOpen(): cognidreamidream {
+	private eventuallyAfterWindowOpen(): void {
 
 		// Validate Device ID is up to date (delay this as it has shown significant perf impact)
 		// Refs: https://github.com/microsoft/vscode/issues/234064

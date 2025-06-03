@@ -43,7 +43,7 @@ export class NotificationAccessibleView implements IAccessibleViewImplementation
 				return;
 			}
 
-			function focusList(): cognidreamidream {
+			function focusList(): void {
 				commandService.executeCommand('notifications.showList');
 				if (list && notificationIndex !== undefined) {
 					list.domFocus();

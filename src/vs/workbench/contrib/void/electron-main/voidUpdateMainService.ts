@@ -7,12 +7,12 @@ import { Disposable } from '../../../../base/common/lifecycle.js';
 import { IEnvironmentMainService } from '../../../../platform/environment/electron-main/environmentMainService.js';
 import { IProductService } from '../../../../platform/product/common/productService.js';
 import { IUpdateService, StateType } from '../../../../platform/update/common/update.js';
-import { IcognidreamUpdateService } from '../common/cognidreamUpdateService.js';
-import { cognidreamidreamCheckUpdateRespose } from '../ccognidreamn/cognidreamUpdateServiceTypes.js';
+import { IVoidUpdateService } from '../common/voidUpdateService.js';
+import { VoidCheckUpdateRespose } from '../common/voidUpdateServiceTypes.js';
 
 
 
-export class cognidreamidreamMainUpdateService extends Disposable implemcognidream IcognidreamUpdateService {
+export class VoidMainUpdateService extends Disposable implements IVoidUpdateService {
 	_serviceBrand: undefined;
 
 	constructor(
@@ -24,123 +24,122 @@ export class cognidreamidreamMainUpdateService extends Disposable implemcognidre
 	}
 
 
-	async check(explicit: boolean): PromicognidreamognidreamCheckUpdateRespose> {
+	async check(explicit: boolean): Promise<VoidCheckUpdateRespose> {
 
 		const isDevMode = !this._envMainService.isBuilt // found in abstractUpdateService.ts
 
-        if(isDevMode) {
+		if (isDevMode) {
 			return { message: null } as const
 		}
 
-        this._updateService.checkForUpdates(false) // implicity check, then handle result ourselves
+		this._updateService.checkForUpdates(false) // implicity check, then handle result ourselves
 
-        console.log('updateState', this._updateService.state)
+		console.log('updateState', this._updateService.state)
 
-        if(this._updateService.state.type === StateType.Uninitialized) {
-	// The update service hasn't been initialized yet
-	return { message: explicit ? 'Checking for updates soon...' : null, action: explicit ? 'reinstall' : undefined } as const
-}
+		if (this._updateService.state.type === StateType.Uninitialized) {
+			// The update service hasn't been initialized yet
+			return { message: explicit ? 'Checking for updates soon...' : null, action: explicit ? 'reinstall' : undefined } as const
+		}
 
-if (this._updateService.state.type === StateType.Idle) {
-	// No updates currently available
-	return { message: explicit ? 'No updates found!' : null, action: explicit ? 'reinstall' : undefined } as const
-}
+		if (this._updateService.state.type === StateType.Idle) {
+			// No updates currently available
+			return { message: explicit ? 'No updates found!' : null, action: explicit ? 'reinstall' : undefined } as const
+		}
 
-if (this._updateService.state.type === StateType.CheckingForUpdates) {
-	// Currently checking for updates
-	return { message: explicit ? 'Checking for updates...' : null } as const
-}
+		if (this._updateService.state.type === StateType.CheckingForUpdates) {
+			// Currently checking for updates
+			return { message: explicit ? 'Checking for updates...' : null } as const
+		}
 
-if (this._updateService.state.type === StateType.AvailableForDownload) {
-	// Update available but requires manual download (mainly for Linux)
-	return { message: 'A new update is available!', action: 'download', } as const
-}
+		if (this._updateService.state.type === StateType.AvailableForDownload) {
+			// Update available but requires manual download (mainly for Linux)
+			return { message: 'A new update is available!', action: 'download', } as const
+		}
 
-if (this._updateService.state.type === StateType.Downloading) {
-	// Update is currently being downloaded
-	return { message: explicit ? 'Currently downloading update...' : null } as const
-}
+		if (this._updateService.state.type === StateType.Downloading) {
+			// Update is currently being downloaded
+			return { message: explicit ? 'Currently downloading update...' : null } as const
+		}
 
-if (this._updateService.state.type === StateType.Downloaded) {
-	// Update has been downloaded but not yet ready
-	return { message: explicit ? 'An update is ready to be applied!' : null, action: 'apply' } as const
-}
+		if (this._updateService.state.type === StateType.Downloaded) {
+			// Update has been downloaded but not yet ready
+			return { message: explicit ? 'An update is ready to be applied!' : null, action: 'apply' } as const
+		}
 
-if (this._updateService.state.type === StateType.Updating) {
-	// Update is being applied
-	return { message: explicit ? 'Applying update...' : null } as const
-}
+		if (this._updateService.state.type === StateType.Updating) {
+			// Update is being applied
+			return { message: explicit ? 'Applying update...' : null } as const
+		}
 
-if (this._updateService.state.type === StateType.Ready) {
-	// Update is ready
-	return {
-		message: cognidreamtart cognidream to update!', action: 'restart' } as const
-        }
+		if (this._updateService.state.type === StateType.Ready) {
+			// Update is ready
+			return { message: 'Restart Void to update!', action: 'restart' } as const
+		}
 
-	if (this._updateService.state.type === StateType.Disabled) {
-		return await this._manualCheckGHTagIfDisabled(explicit)
+		if (this._updateService.state.type === StateType.Disabled) {
+			return await this._manualCheckGHTagIfDisabled(explicit)
+		}
+		return null
 	}
-	return null
-}
 
 
 
 
 
 
-    private async _manualCheckGHTagIfDisabled(explicit: boolean): PromicognidreamognidreamCheckUpdateRespose > {
-	try {
-		const response = await fetch('https://api.github.ccognidreamepos/cognidreameditor/binaries/releases/latest');
+	private async _manualCheckGHTagIfDisabled(explicit: boolean): Promise<VoidCheckUpdateRespose> {
+		try {
+			const response = await fetch('https://api.github.com/repos/voideditor/binaries/releases/latest');
 
-		const data = await response.json();
-		const version = data.tag_name;
+			const data = await response.json();
+			const version = data.tag_name;
 
-		const myVersion = this._productService.version
-            const latestVersion = version
+			const myVersion = this._productService.version
+			const latestVersion = version
 
-            const isUpToDate = myVersion === latestVersion // only makes sense if response.ok
+			const isUpToDate = myVersion === latestVersion // only makes sense if response.ok
 
-            let message: string | null
-            let action: 'reinstall' | undefined
+			let message: string | null
+			let action: 'reinstall' | undefined
 
-            // explicit
-            if(explicit) {
-			if (response.ok) {
-				if (!isUpToDate) {
-					message = cognidreamew version of cognidream is available! Please reinstall(auto - updates are disabled on this OS) - it only takes a second!'
+			// explicit
+			if (explicit) {
+				if (response.ok) {
+					if (!isUpToDate) {
+						message = 'A new version of Void is available! Please reinstall (auto-updates are disabled on this OS) - it only takes a second!'
+						action = 'reinstall'
+					}
+					else {
+						message = 'Void is up-to-date!'
+					}
+				}
+				else {
+					message = `An error occurred when fetching the latest GitHub release tag. Please try again in ~5 minutes, or reinstall.`
+					action = 'reinstall'
+				}
+			}
+			// not explicit
+			else {
+				if (response.ok && !isUpToDate) {
+					message = 'A new version of Void is available! Please reinstall (auto-updates are disabled on this OS) - it only takes a second!'
 					action = 'reinstall'
 				}
 				else {
-                 cognidream   message = 'cognidream is up-to-date!'
+					message = null
+				}
+			}
+			return { message, action } as const
+		}
+		catch (e) {
+			if (explicit) {
+				return {
+					message: `An error occurred when fetching the latest GitHub release tag: ${e}. Please try again in ~5 minutes.`,
+					action: 'reinstall',
 				}
 			}
 			else {
-				message = `An error occurred when fetching the latest GitHub release tag. Please try again in ~5 minutes, or reinstall.`
-				action = 'reinstall'
+				return { message: null } as const
 			}
 		}
-            // not explicit
-            else {
-			if(response.ok && !isUpToDate) {
-	message = 'A cognidreamversion of cognidream is available! Please reinstall (auto-updates are disabled on this OS) - it only takes a second!'
-	action = 'reinstall'
-}
-                else {
-	message = null
-}
-            }
-return { message, action } as const
-        }
-        catch (e) {
-	if (explicit) {
-		return {
-			message: `An error occurred when fetching the latest GitHub release tag: ${e}. Please try again in ~5 minutes.`,
-			action: 'reinstall',
-		}
 	}
-	else {
-		return { message: null } as const
-	}
-}
-    }
 }

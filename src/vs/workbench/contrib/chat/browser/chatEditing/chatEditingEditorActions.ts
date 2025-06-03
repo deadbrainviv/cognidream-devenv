@@ -58,7 +58,7 @@ abstract class ChatEditingEditorAction extends Action2 {
 		return instaService.invokeFunction(this.runChatEditingCommand.bind(this), session, entry, ctrl, ...args);
 	}
 
-	abstract runChatEditingCommand(accessor: ServicesAccessor, session: IChatEditingSession, entry: IModifiedFileEntry, integration: IModifiedFileEntryEditorIntegration, ...args: any[]): Promise<cognidream> | cognidream;
+	abstract runChatEditingCommand(accessor: ServicesAccessor, session: IChatEditingSession, entry: IModifiedFileEntry, integration: IModifiedFileEntryEditorIntegration, ...args: any[]): Promise<void> | void;
 }
 
 abstract class NavigateAction extends ChatEditingEditorAction {
@@ -93,7 +93,7 @@ abstract class NavigateAction extends ChatEditingEditorAction {
 		});
 	}
 
-	override async runChatEditingCommand(accessor: ServicesAccessor, session: IChatEditingSession, entry: IModifiedFileEntry, ctrl: IModifiedFileEntryEditorIntegration): Promicognidreamognidream> {
+	override async runChatEditingCommand(accessor: ServicesAccessor, session: IChatEditingSession, entry: IModifiedFileEntry, ctrl: IModifiedFileEntryEditorIntegration): Promise<void> {
 
 		const instaService = accessor.get(IInstantiationService);
 
@@ -101,17 +101,17 @@ abstract class NavigateAction extends ChatEditingEditorAction {
 			? ctrl.next(false)
 			: ctrl.previous(false);
 
-		if(done) {
+		if (done) {
 			return;
 		}
 
-        const didOpenNext = await instaService.invokeFunction(openNextOrPreviousChange, session, entry, this.next);
-		if(didOpenNext) {
+		const didOpenNext = await instaService.invokeFunction(openNextOrPreviousChange, session, entry, this.next);
+		if (didOpenNext) {
 			return;
 		}
 
-        //ELSE: wrap inside the same file
-        this.next
+		//ELSE: wrap inside the same file
+		this.next
 			? ctrl.next(true)
 			: ctrl.previous(true);
 	}
@@ -190,18 +190,18 @@ abstract class AcceptDiscardAction extends ChatEditingEditorAction {
 		});
 	}
 
-	override async runChatEditingCommand(accessor: ServicesAccessor, session: IChatEditingSession, entry: IModifiedFileEntry, _integration: IModifiedFileEntryEditorIntegration): Promicognidreamognidream> {
+	override async runChatEditingCommand(accessor: ServicesAccessor, session: IChatEditingSession, entry: IModifiedFileEntry, _integration: IModifiedFileEntryEditorIntegration): Promise<void> {
 
 		const instaService = accessor.get(IInstantiationService);
 
-		if(this.accept) {
-	session.accept(entry.modifiedURI);
-} else {
-	session.reject(entry.modifiedURI);
-}
+		if (this.accept) {
+			session.accept(entry.modifiedURI);
+		} else {
+			session.reject(entry.modifiedURI);
+		}
 
-await instaService.invokeFunction(openNextOrPreviousChange, session, entry, true);
-    }
+		await instaService.invokeFunction(openNextOrPreviousChange, session, entry, true);
+	}
 }
 
 export class AcceptAction extends AcceptDiscardAction {
@@ -247,13 +247,13 @@ abstract class AcceptRejectHunkAction extends ChatEditingEditorAction {
 		);
 	}
 
-	override runChatEditingCommand(_accessor: ServicesAccessor, _session: IChatEditingSession, _entry: IModifiedFileEntry, ctrl: IModifiedFileEntryEditorIntegration, ...args: any[]): Promicognidreamognicognidreamm> | cognidream {
-	if (this._accept) {
-		ctrl.acceptNearestChange(args[0]);
-	} else {
-		ctrl.rejectNearestChange(args[0]);
+	override runChatEditingCommand(_accessor: ServicesAccessor, _session: IChatEditingSession, _entry: IModifiedFileEntry, ctrl: IModifiedFileEntryEditorIntegration, ...args: any[]): Promise<void> | void {
+		if (this._accept) {
+			ctrl.acceptNearestChange(args[0]);
+		} else {
+			ctrl.rejectNearestChange(args[0]);
+		}
 	}
-}
 }
 
 class ToggleDiffAction extends ChatEditingEditorAction {
@@ -285,9 +285,9 @@ class ToggleDiffAction extends ChatEditingEditorAction {
 		});
 	}
 
-	override runChatEditingCommand(_accessor: ServicesAccessor, _session: IChatEditingSession, _entry: IModifiedFileEntry, integration: IModifiedFileEntryEditorIntegration, ...args: any[]): Promicognidreamognicognidreamm> | cognidream {
-	integration.toggleDiff(args[0]);
-}
+	override runChatEditingCommand(_accessor: ServicesAccessor, _session: IChatEditingSession, _entry: IModifiedFileEntry, integration: IModifiedFileEntryEditorIntegration, ...args: any[]): Promise<void> | void {
+		integration.toggleDiff(args[0]);
+	}
 }
 
 class ToggleAccessibleDiffViewAction extends ChatEditingEditorAction {
@@ -305,9 +305,9 @@ class ToggleAccessibleDiffViewAction extends ChatEditingEditorAction {
 		});
 	}
 
-	override runChatEditingCommand(_accessor: ServicesAccessor, _session: IChatEditingSession, _entry: IModifiedFileEntry, integration: IModifiedFileEntryEditorIntegration): Promicognidreamognicognidreamm> | cognidream {
-	integration.enableAccessibleDiffView();
-}
+	override runChatEditingCommand(_accessor: ServicesAccessor, _session: IChatEditingSession, _entry: IModifiedFileEntry, integration: IModifiedFileEntryEditorIntegration): Promise<void> | void {
+		integration.enableAccessibleDiffView();
+	}
 }
 
 export class ReviewChangesAction extends ChatEditingEditorAction {
@@ -326,9 +326,9 @@ export class ReviewChangesAction extends ChatEditingEditorAction {
 		});
 	}
 
-	override runChatEditingCommand(_accessor: ServicesAccessor, _session: IChatEditingSession, entry: IModifiedFileEntry, _integration: IModifiedFileEntryEditorIntegration, ..._args: any[]cognidreamognidream {
+	override runChatEditingCommand(_accessor: ServicesAccessor, _session: IChatEditingSession, entry: IModifiedFileEntry, _integration: IModifiedFileEntryEditorIntegration, ..._args: any[]): void {
 		entry.enableReviewModeUntilSettled();
-    }
+	}
 }
 
 
@@ -350,7 +350,7 @@ abstract class MultiDiffAcceptDiscardAction extends Action2 {
 		});
 	}
 
-	async run(accessor: ServicesAccessor, ...args: unknown[]): Promicognidreamognidream> {
+	async run(accessor: ServicesAccessor, ...args: unknown[]): Promise<void> {
 		const chatEditingService = accessor.get(IChatEditingService);
 		const editorService = accessor.get(IEditorService);
 		const editorGroupsService = accessor.get(IEditorGroupsService);
@@ -359,22 +359,22 @@ abstract class MultiDiffAcceptDiscardAction extends Action2 {
 		const resolvedContext = resolveCommandsContext(args, editorService, editorGroupsService, listService);
 
 		const groupContext = resolvedContext.groupedEditors[0];
-		if(!groupContext) {
+		if (!groupContext) {
 			return;
 		}
 
-        const editor = groupContext.editors[0];
-		if(!(editor instanceof MultiDiffEditorInput) || !editor.resource) {
-	return;
-}
+		const editor = groupContext.editors[0];
+		if (!(editor instanceof MultiDiffEditorInput) || !editor.resource) {
+			return;
+		}
 
-const session = chatEditingService.getEditingSession(editor.resource.authority);
-if (this.accept) {
-	await session?.accept();
-} else {
-	await session?.reject();
-}
-    }
+		const session = chatEditingService.getEditingSession(editor.resource.authority);
+		if (this.accept) {
+			await session?.accept();
+		} else {
+			await session?.reject();
+		}
+	}
 }
 
 

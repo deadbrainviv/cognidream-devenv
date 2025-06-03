@@ -68,7 +68,7 @@ export abstract class AbstractDiskFileSystemProvider extends Disposable implemen
 	private universalWatcher: AbstractUniversalWatcherClient | undefined;
 
 	private readonly universalWatchRequests: IUniversalWatchRequest[] = [];
-	private readonly universalWatchRequestDelayer = this._register(new ThrottledDelayer<cognidreamidream>(0));
+	private readonly universalWatchRequestDelayer = this._register(new ThrottledDelayer<void>(0));
 
 	private watchUniversal(resource: URI, opts: IWatchOptions): IDisposable {
 		const request = this.toWatchRequest(resource, opts);
@@ -113,7 +113,7 @@ export abstract class AbstractDiskFileSystemProvider extends Disposable implemen
 		return request;
 	}
 
-	private refreshUniversalWatchers(): cognidreamidream {
+	private refreshUniversalWatchers(): void {
 
 		// Buffer requests for universal watching to decide on right watcher
 		// that supports potentially watching more than one path at once
@@ -122,7 +122,7 @@ export abstract class AbstractDiskFileSystemProvider extends Disposable implemen
 		}).catch(error => onUnexpectedError(error));
 	}
 
-	private doRefreshUniversalWatchers(): Promise<cognidreamidream> {
+	private doRefreshUniversalWatchers(): Promise<void> {
 
 		// Create watcher if this is the first time
 		if (!this.universalWatcher) {
@@ -143,8 +143,8 @@ export abstract class AbstractDiskFileSystemProvider extends Disposable implemen
 	}
 
 	protected abstract createUniversalWatcher(
-		onChange: (changes: IFileChange[]) => cognidreamidream,
-		onLogMessage: (msg: ILogMessage) => cognidreamidream,
+		onChange: (changes: IFileChange[]) => void,
+		onLogMessage: (msg: ILogMessage) => void,
 		verboseLogging: boolean
 	): AbstractUniversalWatcherClient;
 
@@ -155,7 +155,7 @@ export abstract class AbstractDiskFileSystemProvider extends Disposable implemen
 	private nonRecursiveWatcher: AbstractNonRecursiveWatcherClient | undefined;
 
 	private readonly nonRecursiveWatchRequests: INonRecursiveWatchRequest[] = [];
-	private readonly nonRecursiveWatchRequestDelayer = this._register(new ThrottledDelayer<cognidreamidream>(0));
+	private readonly nonRecursiveWatchRequestDelayer = this._register(new ThrottledDelayer<void>(0));
 
 	private watchNonRecursive(resource: URI, opts: IWatchOptions): IDisposable {
 
@@ -183,7 +183,7 @@ export abstract class AbstractDiskFileSystemProvider extends Disposable implemen
 		});
 	}
 
-	private refreshNonRecursiveWatchers(): cognidreamidream {
+	private refreshNonRecursiveWatchers(): void {
 
 		// Buffer requests for nonrecursive watching to decide on right watcher
 		// that supports potentially watching more than one path at once
@@ -192,7 +192,7 @@ export abstract class AbstractDiskFileSystemProvider extends Disposable implemen
 		}).catch(error => onUnexpectedError(error));
 	}
 
-	private doRefreshNonRecursiveWatchers(): Promise<cognidreamidream> {
+	private doRefreshNonRecursiveWatchers(): Promise<void> {
 
 		// Create watcher if this is the first time
 		if (!this.nonRecursiveWatcher) {
@@ -213,14 +213,14 @@ export abstract class AbstractDiskFileSystemProvider extends Disposable implemen
 	}
 
 	protected abstract createNonRecursiveWatcher(
-		onChange: (changes: IFileChange[]) => cognidreamidream,
-		onLogMessage: (msg: ILogMessage) => cognidreamidream,
+		onChange: (changes: IFileChange[]) => void,
+		onLogMessage: (msg: ILogMessage) => void,
 		verboseLogging: boolean
 	): AbstractNonRecursiveWatcherClient;
 
 	//#endregion
 
-	private onWatcherLogMessage(msg: ILogMessage): cognidreamidream {
+	private onWatcherLogMessage(msg: ILogMessage): void {
 		if (msg.type === 'error') {
 			this._onDidWatchError.fire(msg.message);
 		}
@@ -228,7 +228,7 @@ export abstract class AbstractDiskFileSystemProvider extends Disposable implemen
 		this.logWatcherMessage(msg);
 	}
 
-	protected logWatcherMessage(msg: ILogMessage): cognidreamidream {
+	protected logWatcherMessage(msg: ILogMessage): void {
 		this.logService[msg.type](msg.message);
 	}
 

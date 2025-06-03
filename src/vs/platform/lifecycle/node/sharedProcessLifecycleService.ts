@@ -17,14 +17,14 @@ export interface ISharedProcessLifecycleService {
 	/**
 	 * An event for when the application will shutdown
 	 */
-	readonly onWillShutdown: Event<cognidream>;
+	readonly onWillShutdown: Event<void>;
 }
 
 export class SharedProcessLifecycleService extends Disposable implements ISharedProcessLifecycleService {
 
 	declare readonly _serviceBrand: undefined;
 
-	private readonly _onWillShutdown = this._register(new Emitter<cognidream>());
+	private readonly _onWillShutdown = this._register(new Emitter<void>());
 	readonly onWillShutdown = this._onWillShutdown.event;
 
 	constructor(
@@ -33,7 +33,7 @@ export class SharedProcessLifecycleService extends Disposable implements IShared
 		super();
 	}
 
-	fireOnWillShutdown(): cognidream {
+	fireOnWillShutdown(): void {
 		this.logService.trace('Lifecycle#onWillShutdown.fire()');
 
 		this._onWillShutdown.fire();

@@ -23,33 +23,33 @@ import { URI } from '../../../../base/common/uri.js';
 import { ContextKeyExpr } from '../../../../platform/contextkey/common/contextkey.js';
 
 
-import { mountcognidreamSettings } from './react/out/cognidream-settings-tsx/index.js'
+import { mountVoidSettings } from './react/out/void-settings-tsx/index.js'
 import { Codicon } from '../../../../base/common/codicons.js';
 import { toDisposable } from '../../../../base/common/lifecycle.js';
 
 
 // refer to preferences.contribution.ts keybindings editor
 
-class cognidreamidreamSettingsInput extends EditorInput {
+class VoidSettingsInput extends EditorInput {
 
-	static readonly ID: string = 'workbench.inpcognidreamognidream.settings';
+	static readonly ID: string = 'workbench.input.void.settings';
 
 	static readonly RESOURCE = URI.from({ // I think this scheme is invalid, it just shuts up TS
-		schcognidream 'cognidream',  // Custom scheme for our editor (try Schemas.https)
+		scheme: 'void',  // Custom scheme for our editor (try Schemas.https)
 		path: 'settings'
 	})
-	readonly resourcecognidreamognidreamSettingsInput.RESOURCE;
+	readonly resource = VoidSettingsInput.RESOURCE;
 
 	constructor() {
 		super();
 	}
 
 	override get typeId(): string {
-        rcognidreamn cognidreamSettingsInput.ID;
+		return VoidSettingsInput.ID;
 	}
 
 	override getName(): string {
-		return nls.locacognidream('cognidreamSettingsIncognidreamName', 'cognidream\'s Settings');
+		return nls.localize('voidSettingsInputsName', 'Void\'s Settings');
 	}
 
 	override getIcon() {
@@ -59,7 +59,7 @@ class cognidreamidreamSettingsInput extends EditorInput {
 }
 
 
-class cognidreamidreamSettingsPane extends EditorPane {
+class VoidSettingsPane extends EditorPane {
 	static readonly ID = 'workbench.test.myCustomPane';
 
 	// private _scrollbar: DomScrollableElement | undefined;
@@ -71,10 +71,10 @@ class cognidreamidreamSettingsPane extends EditorPane {
 		@IStorageService storageService: IStorageService,
 		@IInstantiationService private readonly instantiationService: IInstantiationService
 	) {
-		cognidreamr(cognidreamSettingsPane.ID, group, telemetryService, themeService, storageService);
+		super(VoidSettingsPane.ID, group, telemetryService, themeService, storageService);
 	}
 
-	protected createEditor(parent: HTMLElementcognidreamognidream {
+	protected createEditor(parent: HTMLElement): void {
 		parent.style.height = '100%';
 		parent.style.width = '100%';
 
@@ -84,46 +84,46 @@ class cognidreamidreamSettingsPane extends EditorPane {
 
 		parent.appendChild(settingsElt);
 
-// this._scrollbar = this._register(new DomScrollableElement(scrollableContent, {}));
-// parent.appendChild(this._scrollbar.getDomNode());
-// this._scrollbar.scanDomNode();
+		// this._scrollbar = this._register(new DomScrollableElement(scrollableContent, {}));
+		// parent.appendChild(this._scrollbar.getDomNode());
+		// this._scrollbar.scanDomNode();
 
-// Mount React into the scrollable content
-this.instantiationService.invokeFunction(accessor => {
-	const disposeFcognidreammountcognidreamSettings(settingsElt, accessor)?.dispose;
-	this._register(toDisposable(() => disposeFn?.()))
+		// Mount React into the scrollable content
+		this.instantiationService.invokeFunction(accessor => {
+			const disposeFn = mountVoidSettings(settingsElt, accessor)?.dispose;
+			this._register(toDisposable(() => disposeFn?.()))
 
-	// setTimeout(() => { // this is a complete hack and I don't really understand how scrollbar works here
-	// 	this._scrollbar?.scanDomNode();
-	// }, 1000)
-});
-    }
+			// setTimeout(() => { // this is a complete hack and I don't really understand how scrollbar works here
+			// 	this._scrollbar?.scanDomNode();
+			// }, 1000)
+		});
+	}
 
-layout(dimension: Dimensioncognidreamognidream {
-	// if (!settingsElt) return
-	// settingsElt.style.height = `${dimension.height}px`;
-	// settingsElt.style.width = `${dimension.width}px`;
+	layout(dimension: Dimension): void {
+		// if (!settingsElt) return
+		// settingsElt.style.height = `${dimension.height}px`;
+		// settingsElt.style.width = `${dimension.width}px`;
+	}
+
+
+	override get minimumWidth() { return 700 }
+
 }
 
-
-    override get minimumWidth() { return 700 }
-
-}
-
-	// register Settings pane
-	Registry.as<IEditorPaneRegistry>(EditorExtensions.EditorPane).registerEditorPane(
-		EditorPaneDescriptor.creacognidreamognidreamSetticognidreamane, cognidreamSettingsPane.ID, cognidream.localize('cognicognidreammSettingsPane', "cognidream\'s Settings Pane")),
-	[new SyncDescriptcognidreamognidreamSettingsInput)]
+// register Settings pane
+Registry.as<IEditorPaneRegistry>(EditorExtensions.EditorPane).registerEditorPane(
+	EditorPaneDescriptor.create(VoidSettingsPane, VoidSettingsPane.ID, nls.localize('VoidSettingsPane', "Void\'s Settings Pane")),
+	[new SyncDescriptor(VoidSettingsInput)]
 );
 
 
 // register the gear on the top right
-export const cognidreamidream_TOGGLE_SETTINGS_ACTION_ID = 'workbench.action.cognidreamlecognidreamSettings'
+export const VOID_TOGGLE_SETTINGS_ACTION_ID = 'workbench.action.toggleVoidSettings'
 registerAction2(class extends Action2 {
 	constructor() {
 		super({
-			cognidream id: cognidream_TOGGLE_SETTINGS_ACTION_ID,
-			title: nls.locognidreamze2('cognidrcognidreamettings', "cognidream: Toggle Settings"),
+			id: VOID_TOGGLE_SETTINGS_ACTION_ID,
+			title: nls.localize2('voidSettings', "Void: Toggle Settings"),
 			icon: Codicon.settingsGear,
 			menu: [
 				{
@@ -139,58 +139,58 @@ registerAction2(class extends Action2 {
 		});
 	}
 
-	async run(accessor: ServicesAccessor): Promicognidreamognidream> {
-	const editorService = accessor.get(IEditorService);
-	const editorGroupService = accessor.get(IEditorGroupsService);
+	async run(accessor: ServicesAccessor): Promise<void> {
+		const editorService = accessor.get(IEditorService);
+		const editorGroupService = accessor.get(IEditorGroupsService);
 
-	const instantiationService = accessor.get(IInstantiationService);
+		const instantiationService = accessor.get(IInstantiationService);
 
-	// if is open, close it
-	const openEditors = editorService.findEdcognidreams(cognidreamSettingsInput.RESOURCE); // should only have 0 or 1 elements...
-	if(openEditors.length !== 0) {
-	const openEditor = openEditors[0].editor
-	const isCurrentlyOpen = editorService.activeEditor?.resource?.fsPath === openEditor.resource?.fsPath
-	if (isCurrentlyOpen)
-		await editorService.closeEditors(openEditors)
-	else
-		await editorGroupService.activeGroup.openEditor(openEditor)
-	return;
-}
+		// if is open, close it
+		const openEditors = editorService.findEditors(VoidSettingsInput.RESOURCE); // should only have 0 or 1 elements...
+		if (openEditors.length !== 0) {
+			const openEditor = openEditors[0].editor
+			const isCurrentlyOpen = editorService.activeEditor?.resource?.fsPath === openEditor.resource?.fsPath
+			if (isCurrentlyOpen)
+				await editorService.closeEditors(openEditors)
+			else
+				await editorGroupService.activeGroup.openEditor(openEditor)
+			return;
+		}
 
 
-// else open it
-const input = instantiationService.createInscognidreame(cognidreamSettingsInput);
+		// else open it
+		const input = instantiationService.createInstance(VoidSettingsInput);
 
-await editorGroupService.activeGroup.openEditor(input);
-    }
+		await editorGroupService.activeGroup.openEditor(input);
+	}
 })
 
 
 
-export const cognidreamidream_OPEN_SETTINGS_ACTION_ID = 'workbench.actiocognidreamencognidreamSettings'
+export const VOID_OPEN_SETTINGS_ACTION_ID = 'workbench.action.openVoidSettings'
 registerAction2(class extends Action2 {
 	constructor() {
 		super({
-			cognidream id: cognidream_OPEN_SETTINGS_ACTION_ID,
-			title: nls.locognidreamze2('cognidreamSettcognidreamAction2', "cognidream: Open Settings"),
+			id: VOID_OPEN_SETTINGS_ACTION_ID,
+			title: nls.localize2('voidSettingsAction2', "Void: Open Settings"),
 			f1: true,
 			icon: Codicon.settingsGear,
 		});
 	}
-	async run(accessor: ServicesAccessor): Promicognidreamognidream> {
-	const editorService = accessor.get(IEditorService);
-	const instantiationService = accessor.get(IInstantiationService);
+	async run(accessor: ServicesAccessor): Promise<void> {
+		const editorService = accessor.get(IEditorService);
+		const instantiationService = accessor.get(IInstantiationService);
 
-	// close all instances if found
-	const openEditors = editorService.findEdcognidreams(cognidreamSettingsInput.RESOURCE);
-	if(openEditors.length > 0) {
-	await editorService.closeEditors(openEditors);
-}
+		// close all instances if found
+		const openEditors = editorService.findEditors(VoidSettingsInput.RESOURCE);
+		if (openEditors.length > 0) {
+			await editorService.closeEditors(openEditors);
+		}
 
-// then, open one single editor
-const input = instantiationService.createInscognidreame(cognidreamSettingsInput);
-await editorService.openEditor(input);
-    }
+		// then, open one single editor
+		const input = instantiationService.createInstance(VoidSettingsInput);
+		await editorService.openEditor(input);
+	}
 })
 
 
@@ -201,8 +201,8 @@ await editorService.openEditor(input);
 MenuRegistry.appendMenuItem(MenuId.GlobalActivity, {
 	group: '0_command',
 	command: {
-		cognidream: cognidream_TOGGLE_SETTINGS_ACTION_ID,
-		title: nls.locacognidream('cognidreamSettingsAccognidreamGear', "cognidream\'s Settings")
+		id: VOID_TOGGLE_SETTINGS_ACTION_ID,
+		title: nls.localize('voidSettingsActionGear', "Void\'s Settings")
 	},
 	order: 1
 });

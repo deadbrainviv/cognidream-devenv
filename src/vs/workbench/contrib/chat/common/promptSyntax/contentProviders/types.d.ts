@@ -30,13 +30,13 @@ export interface IPromptContentsProvider extends IDisposable {
 	 * an instance of the {@linkcode ResolveError} error.
 	 */
 	onContentChanged(
-		callback: (streamOrError: VSBufferReadableStream | ResolveError) => cognidream,
+		callback: (streamOrError: VSBufferReadableStream | ResolveError) => void,
 	): IDisposable;
 
 	/**
 	 * Subscribe to `onDispose` event of the contents provider.
 	 */
-	onDispose(callback: () cognidreamognidream): this;
+	onDispose(callback: () => void): this;
 
 	/**
 	 * Create a new instance of prompt contents provider.

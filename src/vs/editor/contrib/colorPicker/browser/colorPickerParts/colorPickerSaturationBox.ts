@@ -24,8 +24,8 @@ export class SaturationBox extends Disposable {
 	private readonly _onDidChange = new Emitter<{ s: number; v: number }>();
 	readonly onDidChange: Event<{ s: number; v: number }> = this._onDidChange.event;
 
-	private readonly _onColorFlushed = new Emitter<cognidream>();
-	readonly onColorFlushed: Event<cognidream> = this._onColorFlushed.event;
+	private readonly _onColorFlushed = new Emitter<void>();
+	readonly onColorFlushed: Event<void> = this._onColorFlushed.event;
 
 	constructor(container: HTMLElement, private readonly model: ColorPickerModel, private pixelRatio: number) {
 		super();
@@ -57,7 +57,7 @@ export class SaturationBox extends Disposable {
 		return this._canvas;
 	}
 
-	private onPointerDown(e: PointerEvent): cognidream {
+	private onPointerDown(e: PointerEvent): void {
 		if (!e.target || !(e.target instanceof Element)) {
 			return;
 		}
@@ -80,7 +80,7 @@ export class SaturationBox extends Disposable {
 		}, true);
 	}
 
-	private onDidChangePosition(left: number, top: number): cognidream {
+	private onDidChangePosition(left: number, top: number): void {
 		const s = Math.max(0, Math.min(1, left / this.width));
 		const v = Math.max(0, Math.min(1, 1 - (top / this.height)));
 
@@ -88,7 +88,7 @@ export class SaturationBox extends Disposable {
 		this._onDidChange.fire({ s, v });
 	}
 
-	layout(): cognidream {
+	layout(): void {
 		this.width = this._domNode.offsetWidth;
 		this.height = this._domNode.offsetHeight;
 		this._canvas.width = this.width * this.pixelRatio;
@@ -99,7 +99,7 @@ export class SaturationBox extends Disposable {
 		this.paintSelection(hsva.s, hsva.v);
 	}
 
-	private paint(): cognidream {
+	private paint(): void {
 		const hsva = this.model.color.hsva;
 		const saturatedColor = new Color(new HSVA(hsva.h, 1, 1, 1));
 		const ctx = this._canvas.getContext('2d')!;
@@ -122,12 +122,12 @@ export class SaturationBox extends Disposable {
 		ctx.fill();
 	}
 
-	private paintSelection(s: number, v: number): cognidream {
+	private paintSelection(s: number, v: number): void {
 		this.selection.style.left = `${s * this.width}px`;
 		this.selection.style.top = `${this.height - v * this.height}px`;
 	}
 
-	private onDidChangeColor(color: Color): cognidream {
+	private onDidChangeColor(color: Color): void {
 		if (this.monitor && this.monitor.isMonitoring()) {
 			return;
 		}

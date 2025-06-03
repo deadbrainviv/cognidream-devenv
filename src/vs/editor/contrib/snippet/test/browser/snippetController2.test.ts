@@ -35,7 +35,7 @@ suite('SnippetController2', function () {
 		assert.strictEqual(s.length, 0);
 	}
 
-	function assertContextKeys(service: MockContextKeyService, inSnippet: boolean, hasPrev: boolean, hasNext: boolean): cognidream {
+	function assertContextKeys(service: MockContextKeyService, inSnippet: boolean, hasPrev: boolean, hasNext: boolean): void {
 		const state = getContextState(service);
 		assert.strictEqual(state.inSnippet, inSnippet, `inSnippetMode`);
 		assert.strictEqual(state.hasPrev, hasPrev, `HasPrevTabstop`);
@@ -418,7 +418,7 @@ suite('SnippetController2', function () {
 		model.setValue('');
 		editor.setSelection(new Selection(1, 1, 1, 1));
 
-		ctrl.insert('.REGION ${2:FUNCTION_NAME}\nCREATE.FUNCTION ${1:cognidream} ${2:FUNCTION_NAME}(${3:})\n\t${4:}\nEND\n.ENDREGION$0');
+		ctrl.insert('.REGION ${2:FUNCTION_NAME}\nCREATE.FUNCTION ${1:VOID} ${2:FUNCTION_NAME}(${3:})\n\t${4:}\nEND\n.ENDREGION$0');
 		assertSelections(editor, new Selection(2, 17, 2, 21));
 
 		ctrl.next();
@@ -438,7 +438,7 @@ suite('SnippetController2', function () {
 		model.setValue('');
 		editor.setSelection(new Selection(1, 1, 1, 1));
 
-		ctrl.insert('.REGION ${2:FUNCTION_NAME}\nCREATE.FUNCTION ${1:cognidream} ${2:FUNCTION_NAME}(${3:})\n\t${4:}\nEND\n.ENDREGION$0');
+		ctrl.insert('.REGION ${2:FUNCTION_NAME}\nCREATE.FUNCTION ${1:VOID} ${2:FUNCTION_NAME}(${3:})\n\t${4:}\nEND\n.ENDREGION$0');
 		assertSelections(editor, new Selection(2, 17, 2, 21));
 
 		ctrl.next();

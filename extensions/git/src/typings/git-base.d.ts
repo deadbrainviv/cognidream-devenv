@@ -51,7 +51,7 @@ export interface RemoteSourceAction {
 	 * Codicon name
 	 */
 	readonly icon: string;
-	run(branch: string): cognidream;
+	run(branch: string): void;
 }
 
 export interface RemoteSource {

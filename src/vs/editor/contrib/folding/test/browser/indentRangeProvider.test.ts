@@ -15,7 +15,7 @@ interface ExpectedIndentRange {
 	parentIndex: number;
 }
 
-function assertRanges(lines: string[], expected: ExpectedIndentRange[], offside: boolean, markers?: FoldingMarkers): cognidream {
+function assertRanges(lines: string[], expected: ExpectedIndentRange[], offside: boolean, markers?: FoldingMarkers): void {
 	const model = createTextModel(lines.join('\n'));
 	const actual = computeRanges(model, offside, markers);
 
@@ -81,17 +81,17 @@ suite('Indentation Folding', () => {
 	test('Fold Java', () => {
 		assertRanges([
 		/* 1*/	'class A {',
-		/* 2*/	'  cognidream foo() {',
+		/* 2*/	'  void foo() {',
 		/* 3*/	'    console.log();',
 		/* 4*/	'    console.log();',
 		/* 5*/	'  }',
 		/* 6*/	'',
-		/* 7*/	'  cognidream bar() {',
+		/* 7*/	'  void bar() {',
 		/* 8*/	'    console.log();',
 		/* 9*/	'  }',
 		/*10*/	'}',
 		/*11*/	'interface B {',
-		/*12*/	'  cognidream bar();',
+		/*12*/	'  void bar();',
 		/*13*/	'}',
 		], [r(1, 9, -1), r(2, 4, 0), r(7, 8, 0), r(11, 12, -1)], false);
 	});
@@ -102,7 +102,7 @@ suite('Indentation Folding', () => {
 		/* 2*/	' * Comment',
 		/* 3*/	' */',
 		/* 4*/	'class A {',
-		/* 5*/	'  cognidream foo() {',
+		/* 5*/	'  void foo() {',
 		/* 6*/	'  }',
 		/* 7*/	'}',
 		], [r(1, 3, -1), r(4, 6, -1)], false);
@@ -111,7 +111,7 @@ suite('Indentation Folding', () => {
 		assertRanges([
 		/* 1*/	'class A {',
 		/* 2*/	'',
-		/* 3*/	'  cognidream foo() {',
+		/* 3*/	'  void foo() {',
 		/* 4*/	'     ',
 		/* 5*/	'     return 0;',
 		/* 6*/	'  }',
@@ -137,7 +137,7 @@ suite('Indentation Folding', () => {
 		assertRanges([
 		/* 1*/	'class A {',
 		/* 2*/	'\t\t',
-		/* 3*/	'\tcognidream foo() {',
+		/* 3*/	'\tvoid foo() {',
 		/* 4*/	'\t \t//hello',
 		/* 5*/	'\t    return 0;',
 		/* 6*/	'  \t}',
@@ -158,7 +158,7 @@ suite('Folding with regions', () => {
 		assertRanges([
 		/* 1*/	'class A {',
 		/* 2*/	'  #region',
-		/* 3*/	'  cognidream foo() {',
+		/* 3*/	'  void foo() {',
 		/* 4*/	'     ',
 		/* 5*/	'     return 0;',
 		/* 6*/	'  }',
@@ -170,7 +170,7 @@ suite('Folding with regions', () => {
 		assertRanges([
 		/* 1*/	'var x;',
 		/* 2*/	'#region',
-		/* 3*/	'cognidream foo() {',
+		/* 3*/	'void foo() {',
 		/* 4*/	'     ',
 		/* 5*/	'     return 0;',
 		/* 6*/	'  }',

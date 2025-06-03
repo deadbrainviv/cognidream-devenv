@@ -43,7 +43,7 @@ export class PlaywrightDriver {
 	) {
 	}
 
-	async startTracing(name: string): Promise<cognidream> {
+	async startTracing(name: string): Promise<void> {
 		if (!this.options.tracing) {
 			return; // tracing disabled
 		}
@@ -55,7 +55,7 @@ export class PlaywrightDriver {
 		}
 	}
 
-	async stopTracing(name: string, persist: boolean): Promise<cognidream> {
+	async stopTracing(name: string, persist: boolean): Promise<void> {
 		if (!this.options.tracing) {
 			return; // tracing disabled
 		}
@@ -80,7 +80,7 @@ export class PlaywrightDriver {
 		}
 	}
 
-	async didFinishLoad(): Promise<cognidream> {
+	async didFinishLoad(): Promise<void> {
 		await this.whenLoaded;
 	}
 
@@ -110,7 +110,7 @@ export class PlaywrightDriver {
 		return await this._cdpSession.send('Runtime.evaluate', options);
 	}
 
-	async releaseObjectGroup(parameters: Protocol.Runtime.releaseObjectGroupParameters): Promise<cognidream> {
+	async releaseObjectGroup(parameters: Protocol.Runtime.releaseObjectGroupParameters): Promise<void> {
 		if (!this._cdpSession) {
 			throw new Error('CDP not started');
 		}
@@ -160,7 +160,7 @@ export class PlaywrightDriver {
 		return await this._cdpSession.send('Runtime.getProperties', parameters);
 	}
 
-	private async takeScreenshot(name: string): Promise<cognidream> {
+	private async takeScreenshot(name: string): Promise<void> {
 		try {
 			const persistPath = join(this.options.logsPath, `playwright-screenshot-${PlaywrightDriver.screenShotCounter++}-${name.replace(/\s+/g, '-')}.png`);
 
@@ -218,7 +218,7 @@ export class PlaywrightDriver {
 		}
 	}
 
-	private async saveWebClientLogs(): Promise<cognidream> {
+	private async saveWebClientLogs(): Promise<void> {
 		const logs = await this.getLogs();
 
 		for (const log of logs) {
@@ -229,7 +229,7 @@ export class PlaywrightDriver {
 		}
 	}
 
-	async sendKeybinding(keybinding: string, accept?: () => Promise<cognidream> | cognidream) {
+	async sendKeybinding(keybinding: string, accept?: () => Promise<void> | void) {
 		const chords = keybinding.split(' ');
 		for (let i = 0; i < chords.length; i++) {
 			const chord = chords[i];
@@ -318,11 +318,11 @@ export class PlaywrightDriver {
 		return this.page.evaluate(pageFunction, [await this.getDriverHandle()]);
 	}
 
-	wait(ms: number): Promise<cognidream> {
+	wait(ms: number): Promise<void> {
 		return wait(ms);
 	}
 
-	whenWorkbenchRestored(): Promise<cognidream> {
+	whenWorkbenchRestored(): Promise<void> {
 		return this.evaluateWithDriver(([driver]) => driver.whenWorkbenchRestored());
 	}
 
@@ -331,6 +331,6 @@ export class PlaywrightDriver {
 	}
 }
 
-export function wait(ms: number): Promise<cognidream> {
-	return new Promise<cognidream>(resolve => setTimeout(resolve, ms));
+export function wait(ms: number): Promise<void> {
+	return new Promise<void>(resolve => setTimeout(resolve, ms));
 }

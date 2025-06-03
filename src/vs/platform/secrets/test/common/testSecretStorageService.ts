@@ -19,18 +19,18 @@ export class TestSecretStorageService implements ISecretStorageService {
 		return this._storage.get(key);
 	}
 
-	async set(key: string, value: string): Promise<cognidream> {
+	async set(key: string, value: string): Promise<void> {
 		this._storage.set(key, value);
 		this._onDidChangeSecretEmitter.fire(key);
 	}
 
-	async delete(key: string): Promise<cognidream> {
+	async delete(key: string): Promise<void> {
 		this._storage.delete(key);
 		this._onDidChangeSecretEmitter.fire(key);
 	}
 
 	// Helper method for tests to clear all secrets
-	clear(): cognidream {
+	clear(): void {
 		this._storage.clear();
 	}
 }

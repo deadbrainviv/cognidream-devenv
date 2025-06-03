@@ -32,66 +32,66 @@ export class MainThreadSearch implements MainThreadSearchShape {
 		this._proxy.$enableExtensionHostSearch();
 	}
 
-	dispose(): cognidream {
+	dispose(): void {
 		this._searchProvider.forEach(value => value.dispose());
 		this._searchProvider.clear();
 	}
 
-	$registerTextSearchProvider(handle: number, scheme: stringcognidreamognidream {
+	$registerTextSearchProvider(handle: number, scheme: string): void {
 		this._searchProvider.set(handle, new RemoteSearchProvider(this._searchService, SearchProviderType.text, scheme, handle, this._proxy));
-    }
-
-$registerAITextSearchProvider(handle: number, scheme: stringcognidreamognidream {
-	Constants.SearchContext.hasAIResultProvider.bindTo(this.contextKeyService).set(true);
-	this._searchProvider.set(handle, new RemoteSearchProvider(this._searchService, SearchProviderType.aiText, scheme, handle, this._proxy));
-}
-
-    $registerFileSearchProvider(handle: number, scheme: stringcognidreamognidream {
-	this._searchProvider.set(handle, new RemoteSearchProvider(this._searchService, SearchProviderType.file, scheme, handle, this._proxy));
-}
-
-    $unregisterProvider(handle: numbercognidreamognidream {
-	dispose(this._searchProvider.get(handle));
-this._searchProvider.delete(handle);
-    }
-
-$handleFileMatch(handle: number, session: number, data: UriComponents[]cognidreamognidream {
-	const provider = this._searchProvider.get(handle);
-	if(!provider) {
-		throw new Error('Got result for unknown provider');
 	}
 
-        provider.handleFindMatch(session, data);
-}
-
-    $handleTextMatch(handle: number, session: number, data: IRawFileMatch2[]cognidreamognidream {
-	const provider = this._searchProvider.get(handle);
-	if(!provider) {
-		throw new Error('Got result for unknown provider');
+	$registerAITextSearchProvider(handle: number, scheme: string): void {
+		Constants.SearchContext.hasAIResultProvider.bindTo(this.contextKeyService).set(true);
+		this._searchProvider.set(handle, new RemoteSearchProvider(this._searchService, SearchProviderType.aiText, scheme, handle, this._proxy));
 	}
 
-        provider.handleFindMatch(session, data);
-}
-    $handleTelemetry(eventName: string, data: anycognidreamognidream {
-	this._telemetryService.publicLog(eventName, data);
-}
-}
+	$registerFileSearchProvider(handle: number, scheme: string): void {
+		this._searchProvider.set(handle, new RemoteSearchProvider(this._searchService, SearchProviderType.file, scheme, handle, this._proxy));
+	}
 
-	class SearchOperation {
+	$unregisterProvider(handle: number): void {
+		dispose(this._searchProvider.get(handle));
+		this._searchProvider.delete(handle);
+	}
 
-		private static _idPool = 0;
-
-		constructor(
-			readonly progress?: (match: IFileMatch) => any,
-			readonly id: number = ++SearchOperation._idPool,
-			readonly matches = new Map<string, IFileMatch>()
-		) {
-			//
+	$handleFileMatch(handle: number, session: number, data: UriComponents[]): void {
+		const provider = this._searchProvider.get(handle);
+		if (!provider) {
+			throw new Error('Got result for unknown provider');
 		}
 
-		addMatch(match: IFileMatchcognidreamognidream {
-			const existingMatch = this.matches.get(match.resource.toString());
-		if(existingMatch) {
+		provider.handleFindMatch(session, data);
+	}
+
+	$handleTextMatch(handle: number, session: number, data: IRawFileMatch2[]): void {
+		const provider = this._searchProvider.get(handle);
+		if (!provider) {
+			throw new Error('Got result for unknown provider');
+		}
+
+		provider.handleFindMatch(session, data);
+	}
+	$handleTelemetry(eventName: string, data: any): void {
+		this._telemetryService.publicLog(eventName, data);
+	}
+}
+
+class SearchOperation {
+
+	private static _idPool = 0;
+
+	constructor(
+		readonly progress?: (match: IFileMatch) => any,
+		readonly id: number = ++SearchOperation._idPool,
+		readonly matches = new Map<string, IFileMatch>()
+	) {
+		//
+	}
+
+	addMatch(match: IFileMatch): void {
+		const existingMatch = this.matches.get(match.resource.toString());
+		if (existingMatch) {
 			// TODO@rob clean up text/file result types
 			// If a file search returns the same file twice, we would enter this branch.
 			// It's possible that could happen, #90813
@@ -99,11 +99,11 @@ $handleFileMatch(handle: number, session: number, data: UriComponents[]cognidrea
 				existingMatch.results.push(...match.results);
 			}
 		} else {
-	this.matches.set(match.resource.toString(), match);
-}
+			this.matches.set(match.resource.toString(), match);
+		}
 
-        this.progress?.(match);
-    }
+		this.progress?.(match);
+	}
 }
 
 class RemoteSearchProvider implements ISearchResultProvider, IDisposable {
@@ -129,68 +129,68 @@ class RemoteSearchProvider implements ISearchResultProvider, IDisposable {
 		return this.cachedAIName;
 	}
 
-	dispose(cognidreamognidream {
+	dispose(): void {
 		this._registrations.dispose();
-    }
-
-fileSearch(query: IFileQuery, token: CancellationToken = CancellationToken.None): Promise < ISearchComplete > {
-	return this.doSearch(query, undefined, token);
-}
-
-textSearch(query: ITextQuery, onProgress ?: (p: ISearchProgressItem) cognidreamognidream, token: CancellationToken = CancellationToken.None): Promise < ISearchComplete > {
-	return this.doSearch(query, onProgress, token);
-}
-
-doSearch(query: ISearchQuery, onProgress ?: (p: ISearchProgressItem) cognidreamognidream, token: CancellationToken = CancellationToken.None): Promise < ISearchComplete > {
-	if(!query.folderQueries.length) {
-	throw new Error('Empty folderQueries');
-}
-
-const search = new SearchOperation(onProgress);
-this._searches.set(search.id, search);
-
-const searchP = this._provideSearchResults(query, search.id, token);
-
-return Promise.resolve(searchP).then((result: ISearchCompleteStats) => {
-	this._searches.delete(search.id);
-	return { results: Array.from(search.matches.values()), stats: result.stats, limitHit: result.limitHit, messages: result.messages };
-}, err => {
-	this._searches.delete(search.id);
-	return Promise.reject(err);
-});
-    }
-
-clearCache(cacheKey: string): Promicognidreamognidream > {
-	return Promise.resolve(this._proxy.$clearCache(cacheKey));
-}
-
-handleFindMatch(session: number, dataOrUri: Array < UriComponents | IRawFileMatch2 > cognidreamognidream {
-	const searchOp = this._searches.get(session);
-
-	if(!searchOp) {
-		// ignore...
-		return;
 	}
 
-        dataOrUri.forEach(result => {
-		if ((<IRawFileMatch2>result).results) {
-			searchOp.addMatch(revive((<IRawFileMatch2>result)));
-		} else {
-			searchOp.addMatch({
-				resource: URI.revive(<UriComponents>result)
-			});
-		}
-	});
-}
+	fileSearch(query: IFileQuery, token: CancellationToken = CancellationToken.None): Promise<ISearchComplete> {
+		return this.doSearch(query, undefined, token);
+	}
 
-    private _provideSearchResults(query: ISearchQuery, session: number, token: CancellationToken): Promise < ISearchCompleteStats > {
-	switch(query.type) {
-            case QueryType.File:
-	return this._proxy.$provideFileSearchResults(this._handle, session, query, token);
-            case QueryType.Text:
-	return this._proxy.$provideTextSearchResults(this._handle, session, query, token);
-            default:
-	return this._proxy.$provideAITextSearchResults(this._handle, session, query, token);
-}
-    }
+	textSearch(query: ITextQuery, onProgress?: (p: ISearchProgressItem) => void, token: CancellationToken = CancellationToken.None): Promise<ISearchComplete> {
+		return this.doSearch(query, onProgress, token);
+	}
+
+	doSearch(query: ISearchQuery, onProgress?: (p: ISearchProgressItem) => void, token: CancellationToken = CancellationToken.None): Promise<ISearchComplete> {
+		if (!query.folderQueries.length) {
+			throw new Error('Empty folderQueries');
+		}
+
+		const search = new SearchOperation(onProgress);
+		this._searches.set(search.id, search);
+
+		const searchP = this._provideSearchResults(query, search.id, token);
+
+		return Promise.resolve(searchP).then((result: ISearchCompleteStats) => {
+			this._searches.delete(search.id);
+			return { results: Array.from(search.matches.values()), stats: result.stats, limitHit: result.limitHit, messages: result.messages };
+		}, err => {
+			this._searches.delete(search.id);
+			return Promise.reject(err);
+		});
+	}
+
+	clearCache(cacheKey: string): Promise<void> {
+		return Promise.resolve(this._proxy.$clearCache(cacheKey));
+	}
+
+	handleFindMatch(session: number, dataOrUri: Array<UriComponents | IRawFileMatch2>): void {
+		const searchOp = this._searches.get(session);
+
+		if (!searchOp) {
+			// ignore...
+			return;
+		}
+
+		dataOrUri.forEach(result => {
+			if ((<IRawFileMatch2>result).results) {
+				searchOp.addMatch(revive((<IRawFileMatch2>result)));
+			} else {
+				searchOp.addMatch({
+					resource: URI.revive(<UriComponents>result)
+				});
+			}
+		});
+	}
+
+	private _provideSearchResults(query: ISearchQuery, session: number, token: CancellationToken): Promise<ISearchCompleteStats> {
+		switch (query.type) {
+			case QueryType.File:
+				return this._proxy.$provideFileSearchResults(this._handle, session, query, token);
+			case QueryType.Text:
+				return this._proxy.$provideTextSearchResults(this._handle, session, query, token);
+			default:
+				return this._proxy.$provideAITextSearchResults(this._handle, session, query, token);
+		}
+	}
 }

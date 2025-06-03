@@ -169,7 +169,7 @@ export class SelectAndInsertKernelVariableAction extends Action2 {
 
 	static readonly ID = 'notebook.chat.selectAndInsertKernelVariable';
 
-	override async run(accessor: ServicesAccessor, ...args: any[]): Promise<cognidream> {
+	override async run(accessor: ServicesAccessor, ...args: any[]): Promise<void> {
 		const editorService = accessor.get(IEditorService);
 		const notebookKernelService = accessor.get(INotebookKernelService);
 		const quickInputService = accessor.get(IQuickInputService);
@@ -274,98 +274,98 @@ registerAction2(class CopyCellOutputAction extends Action2 {
 		return getNotebookEditorFromEditorPane(editorService.activeEditorPane);
 	}
 
-	async run(accessor: ServicesAccessor, outputContext: INotebookOutputActionContext | { outputViewModel: ICellOutputViewModel } | undefined): Promicognidreamognidream> {
-	const notebookEditor = this.getNoteboookEditor(accessor.get(IEditorService), outputContext);
+	async run(accessor: ServicesAccessor, outputContext: INotebookOutputActionContext | { outputViewModel: ICellOutputViewModel } | undefined): Promise<void> {
+		const notebookEditor = this.getNoteboookEditor(accessor.get(IEditorService), outputContext);
 
-	if(!notebookEditor) {
-		return;
-	}
-
-        let outputViewModel: ICellOutputViewModel | undefined;
-	if(outputContext && 'outputId' in outputContext && typeof outputContext.outputId === 'string') {
-	outputViewModel = getOutputViewModelFromId(outputContext.outputId, notebookEditor);
-} else if (outputContext && 'outputViewModel' in outputContext) {
-	outputViewModel = outputContext.outputViewModel;
-}
-
-if (!outputViewModel) {
-	// not able to find the output from the provided context, use the active cell
-	const activeCell = notebookEditor.getActiveCell();
-	if (!activeCell) {
-		return;
-	}
-
-	if (activeCell.focusedOutputId !== undefined) {
-		outputViewModel = activeCell.outputsViewModels.find(output => {
-			return output.model.outputId === activeCell.focusedOutputId;
-		});
-	} else {
-		outputViewModel = activeCell.outputsViewModels.find(output => output.pickedMimeType?.isTrusted);
-	}
-}
-
-if (!outputViewModel) {
-	return;
-}
-
-const mimeType = outputViewModel.pickedMimeType?.mimeType;
-
-const chatWidgetService = accessor.get(IChatWidgetService);
-let widget = chatWidgetService.lastFocusedWidget;
-if (!widget) {
-	const widgets = chatWidgetService.getWidgetsByLocations(ChatAgentLocation.Panel);
-	if (widgets.length === 0) {
-		return;
-	}
-	widget = widgets[0];
-}
-if (mimeType && NOTEBOOK_CELL_OUTPUT_MIME_TYPE_LIST_FOR_CHAT_CONST.includes(mimeType)) {
-
-	// get the cell index
-	const cellFromViewModelHandle = outputViewModel.cellViewModel.handle;
-	const cell: ICellViewModel | undefined = notebookEditor.getCellByHandle(cellFromViewModelHandle);
-	if (!cell) {
-		return;
-	}
-	// uri of the cell
-	const cellUri = cell.uri;
-
-	// get the output index
-	const outputId = outputViewModel?.model.outputId;
-	let outputIndex: number = 0;
-	if (outputId !== undefined) {
-		// find the output index
-
-		outputIndex = cell.outputsViewModels.findIndex(output => {
-			return output.model.outputId === outputId;
-		});
-
-
-	}
-	// get URI of notebook
-	let notebookUri = notebookEditor.textModel?.uri;
-	if (!notebookUri) {
-		// if the notebook is not found, try to parse the cell uri
-		const parsedCellUri = CellUri.parse(cellUri);
-		notebookUri = parsedCellUri?.notebook;
-		if (!notebookUri) {
+		if (!notebookEditor) {
 			return;
 		}
+
+		let outputViewModel: ICellOutputViewModel | undefined;
+		if (outputContext && 'outputId' in outputContext && typeof outputContext.outputId === 'string') {
+			outputViewModel = getOutputViewModelFromId(outputContext.outputId, notebookEditor);
+		} else if (outputContext && 'outputViewModel' in outputContext) {
+			outputViewModel = outputContext.outputViewModel;
+		}
+
+		if (!outputViewModel) {
+			// not able to find the output from the provided context, use the active cell
+			const activeCell = notebookEditor.getActiveCell();
+			if (!activeCell) {
+				return;
+			}
+
+			if (activeCell.focusedOutputId !== undefined) {
+				outputViewModel = activeCell.outputsViewModels.find(output => {
+					return output.model.outputId === activeCell.focusedOutputId;
+				});
+			} else {
+				outputViewModel = activeCell.outputsViewModels.find(output => output.pickedMimeType?.isTrusted);
+			}
+		}
+
+		if (!outputViewModel) {
+			return;
+		}
+
+		const mimeType = outputViewModel.pickedMimeType?.mimeType;
+
+		const chatWidgetService = accessor.get(IChatWidgetService);
+		let widget = chatWidgetService.lastFocusedWidget;
+		if (!widget) {
+			const widgets = chatWidgetService.getWidgetsByLocations(ChatAgentLocation.Panel);
+			if (widgets.length === 0) {
+				return;
+			}
+			widget = widgets[0];
+		}
+		if (mimeType && NOTEBOOK_CELL_OUTPUT_MIME_TYPE_LIST_FOR_CHAT_CONST.includes(mimeType)) {
+
+			// get the cell index
+			const cellFromViewModelHandle = outputViewModel.cellViewModel.handle;
+			const cell: ICellViewModel | undefined = notebookEditor.getCellByHandle(cellFromViewModelHandle);
+			if (!cell) {
+				return;
+			}
+			// uri of the cell
+			const cellUri = cell.uri;
+
+			// get the output index
+			const outputId = outputViewModel?.model.outputId;
+			let outputIndex: number = 0;
+			if (outputId !== undefined) {
+				// find the output index
+
+				outputIndex = cell.outputsViewModels.findIndex(output => {
+					return output.model.outputId === outputId;
+				});
+
+
+			}
+			// get URI of notebook
+			let notebookUri = notebookEditor.textModel?.uri;
+			if (!notebookUri) {
+				// if the notebook is not found, try to parse the cell uri
+				const parsedCellUri = CellUri.parse(cellUri);
+				notebookUri = parsedCellUri?.notebook;
+				if (!notebookUri) {
+					return;
+				}
+			}
+			// construct the URI using the cell uri and output index
+			const outputCellUri = CellUri.generateCellOutputUriWithIndex(notebookUri, cellUri, outputIndex);
+
+
+
+			const l: IBaseChatRequestVariableEntry = {
+				value: outputCellUri,
+				id: outputCellUri.toString(),
+				name: outputCellUri.toString(),
+				isFile: true,
+			};
+			widget.attachmentModel.addContext(l);
+		}
 	}
-	// construct the URI using the cell uri and output index
-	const outputCellUri = CellUri.generateCellOutputUriWithIndex(notebookUri, cellUri, outputIndex);
-
-
-
-	const l: IBaseChatRequestVariableEntry = {
-		value: outputCellUri,
-		id: outputCellUri.toString(),
-		name: outputCellUri.toString(),
-		isFile: true,
-	};
-	widget.attachmentModel.addContext(l);
-}
-    }
 
 });
 
