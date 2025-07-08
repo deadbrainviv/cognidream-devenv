@@ -22,6 +22,10 @@ product.overrides.json
 *.snap.actual
 .vscode-test
 
+# void added these:
+src/vs/workbench/contrib/void/browser/react/out/**
+src/vs/workbench/contrib/void/browser/react/src2/**
+
 # cognidream added these:
 .tmp/
 .tmp2/

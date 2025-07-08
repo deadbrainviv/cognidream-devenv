@@ -29,7 +29,7 @@
 				}
 			}
 		},
-		{   // cognidreamidream added this
+		{   // void added this
 			"type": "npm",
 			"script": "watchreactd",
 			"label": "React - Build",

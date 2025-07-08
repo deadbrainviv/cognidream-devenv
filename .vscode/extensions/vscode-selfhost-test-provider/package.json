@@ -64,7 +64,7 @@
     "printWidth": 100,
     "singleQuote": true,
     "tabWidth": 2,
-    "arrowParens": "acognidreamidream"
+    "arrowParens": "avoid"
   },
   "repository": {
     "type": "git",
